@@ -1,0 +1,18 @@
+{
+  "port": 4002,
+  "version": "1.1.0",
+  "fileLogLevel": "debug",
+  "db": {
+    "uri": "sqlite:storage/devnet.sqlite"
+  },
+  "api": {
+    "mount": true
+  },
+  "peers": {
+    "minimumNetworkReach": 10,
+    "blackList": []
+  },
+  "forging": {
+    "secret": []
+  }
+}

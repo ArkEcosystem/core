@@ -1,0 +1,32 @@
+{
+  "name": "ark-node2",
+  "version": "1.0.0",
+  "description": "Revamped ark-node",
+  "main": "app.js",
+  "scripts": {
+    "start:mainnet": "node app.js -c config/mainnet",
+    "start:devnet": "nodemon app.js -c config/devnet",
+    "test": "mocha"
+  },
+  "keywords": [
+    "ark",
+    "blockchain",
+    "cryptocurrency"
+  ],
+  "author": "fx thoorens",
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "^5.3.0",
+    "arkjs": "github:arkecosystem/ark-js#master",
+    "async": "^2.5.0",
+    "bignum": "^0.12.5",
+    "bs58check": "^2.0.2",
+    "commander": "^2.11.0",
+    "popsicle": "^9.1.0",
+    "restify": "^6.2.3",
+    "sequelize": "^4.20.1",
+    "sqlite3": "^3.1.13",
+    "winston": "^2.4.0",
+    "winston-daily-rotate-file": "^1.7.2"
+  }
+}

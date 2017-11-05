@@ -1,0 +1,33 @@
+const winston = require('winston');
+require('winston-daily-rotate-file');
+
+
+
+let logger = null;
+
+class Logger {
+  
+  constructor(){
+    if(!logger){
+      logger = this;
+    }
+    return logger;
+  }
+
+  init(level){
+    const rotatetransport = new winston.transports.DailyRotateFile({
+      filename: `${__dirname}/../logs/ark-node`,
+      datePattern: '.yyyy-MM-dd.log',
+      level: level
+    });
+    
+    Object.assign(this, new winston.Logger({
+      transports: [
+        new winston.transports.Console(),
+        rotatetransport
+      ]
+    }));
+  }
+}
+
+module.exports = new Logger();

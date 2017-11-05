@@ -1,0 +1,21 @@
+{
+  "messagePrefix": "TEST message:\n",
+  "bip32": {
+    "public": 70617039,
+    "private": 70615956
+  },
+  "pubKeyHash": 82,
+  "nethash": "d1c7fa0dcf7584add7a535acd674d3b13fa794345d83c3789cc2436d6ecd80d1",
+  "wif": 186,
+  "client": {
+    "token": "TARK",
+    "symbol": "TѦ",
+    "explorer": "http://texplorer.ark.io"
+  },
+  "peers":[
+    {
+      "ip": "127.0.0.1",
+      "port": 4000
+    }
+  ]
+}
