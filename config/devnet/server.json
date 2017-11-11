@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "fileLogLevel": "debug",
   "db": {
-    "uri": "sqlite:storage/devnet.sqlite"
+    "uri": "sqlite:storage/devnet2.sqlite"
   },
   "api": {
     "mount": true
@@ -11,8 +11,5 @@
   "peers": {
     "minimumNetworkReach": 10,
     "blackList": []
-  },
-  "forging": {
-    "secret": []
   }
 }

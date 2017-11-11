@@ -3,6 +3,8 @@ var crypto = require('crypto');
 var bignum = require('bignum');
 var ByteBuffer = require('bytebuffer');
 var Transaction = require('./transaction');
+var logger = require('../core/logger');
+var config = require('../core/config');
 
 class Block {
   constructor(data) {
@@ -19,8 +21,27 @@ class Block {
     this.verification = this.verify();
   }
 
+  static create(data, keys){
+    const payloadHash = Block.serialize(data);
+    const hash = crypto.createHash('sha256').update(payloadHash).digest();
+    data.generatorPublicKey = keys.publicKey;
+    data.blockSignature = keys.sign(hash).toString('hex');
+    data.id = Block.getId(data);
+    return new Block(data);
+  }
+
   toString() {
     return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}`;
+  }
+
+  static getId(data){
+    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest();
+    const temp = new Buffer(8);
+    for (let i = 0; i < 8; i++) {
+      temp[i] = hash[7 - i];
+    }
+
+    return bignum.fromBuffer(temp).toString();
   }
 
   getHeader() {
@@ -30,7 +51,8 @@ class Block {
   }
 
   verifySignature() {
-    var bytes = this.serialize(false);
+    //console.log(this.data);
+    var bytes = Block.serialize(this.data, false);
     var hash = crypto.createHash('sha256').update(bytes).digest();
     var blockSignatureBuffer = new Buffer(this.data.blockSignature, 'hex');
     var generatorPublicKeyBuffer = new Buffer(this.data.generatorPublicKey, 'hex');
@@ -41,16 +63,14 @@ class Block {
     return res;
   }
 
-  process() {
-    return Promise.resolve();
-  }
-
   verify() {
     var block = this.data;
     var result = {
       verified: false,
       errors: []
     };
+
+    const constants = config.getConstants(block.height);
 
     // var previousBlock = null;
 
@@ -60,11 +80,9 @@ class Block {
       }
     }
 
-    var expectedReward = 200000000;
-
-    // if (block.height !== 1 && expectedReward !== block.reward) {
-    //   result.errors.push(['Invalid block reward:', block.reward, 'expected:', expectedReward].join(' '));
-    // }
+    if (constants.reward !== block.reward) {
+      result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '));
+    }
 
     var valid = this.verifySignature(block);
 
@@ -72,15 +90,13 @@ class Block {
       result.errors.push('Failed to verify block signature');
     }
 
-    if (block.version > 0) {
+    if (block.version != constants.block.version) {
       result.errors.push('Invalid block version');
     }
 
-    // var blockSlotNumber = slots.getSlotNumber(block.timestamp);
-
-    // if (blockSlotNumber > slots.getSlotNumber()){
-    //   result.errors.push('Invalid block timestamp');
-    // }
+    if (arkjs.slots.getSlotNumber(block.timestamp) > arkjs.slots.getSlotNumber()){
+      result.errors.push('Invalid block timestamp');
+    }
 
     // Disabling to allow orphanedBlocks?
     // if(previousBlock){
@@ -90,17 +106,17 @@ class Block {
     //   }
     // }
 
-    // if (block.payloadLength > constants.maxPayloadLength) {
-    //   result.errors.push('Payload length is too high');
-    // }
+    if (block.payloadLength > constants.maxPayloadLength) {
+      result.errors.push('Payload length is too high');
+    }
 
     if (block.transactions.length !== block.numberOfTransactions) {
       result.errors.push('Invalid number of transactions');
     }
 
-    // if (block.transactions.length > constants.maxTxsPerBlock) {
-    //   result.errors.push('Transactions length is too high');
-    // }
+    if (block.transactions.length > constants.block.maxTransactions) {
+      result.errors.push('Transactions length is too high');
+    }
 
     // Checking if transactions of the block adds up to block values.
     var totalAmount = 0,
@@ -109,40 +125,26 @@ class Block {
       payloadHash = crypto.createHash('sha256'),
       appliedTransactions = {};
 
-    var transactions = block.transactions;
-
-    for (var i in transactions) {
-      var transaction = transactions[i];
-
-      if (!transaction.id) {
-        transaction.id = arkjs.crypto.getId(transaction);
-      }
-
+    block.transactions.forEach((transaction) => {
       var bytes = new Buffer(transaction.id, 'hex');
-
-      // if (size + bytes.length > constants.maxPayloadLength) {
-      //   result.errors.push('Payload is too large');
-      // }
-
-      size += bytes.length;
-
+      
       if (appliedTransactions[transaction.id]) {
         result.errors.push('Encountered duplicate transaction: ' + transaction.id);
       }
-
       appliedTransactions[transaction.id] = transaction;
-
-      payloadHash.update(bytes);
-
+      
       totalAmount += transaction.amount;
-
       totalFee += transaction.fee;
+      size += bytes.length;
+      
+      payloadHash.update(bytes);
+    });
+
+    if (size > constants.block.maxPayload) {
+      result.errors.push('Payload is too large');
     }
 
-
-
-    var calculatedHash = payloadHash.digest().toString('hex');
-    if (!this.genesis && calculatedHash !== block.payloadHash) {
+    if (!this.genesis && payloadHash.digest().toString('hex') !== block.payloadHash) {
       result.errors.push('Invalid payload hash');
     }
 
@@ -158,8 +160,7 @@ class Block {
     return result;
   }
 
-  serialize(includeSignature) {
-    let block = this.data;
+  static serialize(block, includeSignature) {
     if (includeSignature == undefined) {
       includeSignature = block.blockSignature != undefined;
     }

@@ -14,9 +14,9 @@ class Logger {
     return logger;
   }
 
-  init(level){
+  init(level, network){
     const rotatetransport = new winston.transports.DailyRotateFile({
-      filename: `${__dirname}/../logs/ark-node`,
+      filename: `${__dirname}/../logs/ark-node-${network}`,
       datePattern: '.yyyy-MM-dd.log',
       level: level
     });

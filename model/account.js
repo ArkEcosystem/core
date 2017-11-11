@@ -1,4 +1,5 @@
 var arkjs = require('arkjs');
+var config = require('../core/config');
 
 class Account {
   constructor(address){
@@ -9,6 +10,7 @@ class Account {
     this.vote = null;
     this.username = null;
     this.multisignature = null;
+    this.dirty = true;
   }
 
   toString(){
@@ -23,7 +25,7 @@ class Account {
     }
     switch(transaction.type){
     case 1:
-      this.secondPublicKey = transaction.asset.signature;
+      this.secondPublicKey = transaction.asset.signature.publicKey;
       break;
     case 2:
       this.username = transaction.asset.username;
@@ -37,6 +39,7 @@ class Account {
     case 4:
       this.multisignature = transaction.asset.multisignature;
     }
+    this.dirty = true;
   }
 
   undoTransaction(transaction){
@@ -61,18 +64,32 @@ class Account {
     case 4:
       this.multisignature = null;
     }
+    this.dirty = true;
   }
 
   applyBlock(block){
     if(block.generatorPublicKey == this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) == this.address){
-      this.balance = block.reward + block.totalFee;
+      this.balance += block.reward + block.totalFee;
     }
+    this.dirty = true;
+  }
+
+  undoBlock(block){
+    if(block.generatorPublicKey == this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) == this.address){
+      this.balance -= block.reward + block.totalFee;
+    }
+    this.dirty = true;
   }
 
   canApply(transaction){
-    let balanceOK = (transaction.recipientId == this.address) || (transaction.senderPublicKey == this.publicKey && this.balance - transaction.amount - transaction.fee > -1);
-    if(!balanceOK) return false;
+    let check = (transaction.recipientId == this.address) || (transaction.senderPublicKey == this.publicKey && this.balance - transaction.amount - transaction.fee > -1);
+    //console.log(check);
+    check = check && (!this.secondPublicKey || transaction.senderPublicKey == this.publicKey && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network));
+    //console.log(check);
+    if(!check) return false;
     switch(transaction.type){
+    case 0:
+      return true;
     case 1:
       if(this.secondPublicKey) return false;
       break;
@@ -83,6 +100,8 @@ class Account {
       if(transaction.asset.votes[0].startsWith('+') && this.vote) return false;
       else if(transaction.asset.votes[0].startsWith('-') && !this.vote) return false;
       break;
+    case 4:
+      return transaction.signatures.length == transaction.asset.multisignature.keysgroup.length;
     default:
       return false;
     }

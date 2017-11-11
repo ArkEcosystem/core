@@ -8,6 +8,7 @@ const logger = require('./logger');
 
 let instance;
 
+
 class DB {
 
   constructor() {
@@ -22,6 +23,7 @@ class DB {
     if (this.db) {
       return Promise.reject('Already initialised');
     }
+    this.localaccounts = {};
     this.db = new Sequelize(params.uri,{
       dialect:'sqlite',
       logging: false
@@ -139,8 +141,8 @@ class DB {
       });
   }
 
-  buildDelegates(){
-    logger.info('building delegate list');
+  buildDelegates(block){
+    const activeDelegates = config.getConstants(block.data.height).activeDelegates;
     return this.accounts
       .findAll({
         attributes:[
@@ -155,17 +157,35 @@ class DB {
         }
       })
       .then((data) => {
-        logger.info(`got ${data.length} voted delegates`);
+        if(data.length < activeDelegates){
+          return this.accounts
+            .findAll({
+              attributes:[
+                'publicKey',
+              ],
+              where :{
+                publicKey: {
+                  [Sequelize.Op.ne]: null
+                }
+              },
+              order: [[ 'publicKey', 'ASC' ]],
+              limit: activeDelegates - data.length
+            })
+            .then((data2) => data.concat(data2));
+        }
+        else return Promise.resolve(data);
+      })
+      .then((data) => {
+        // logger.info(`got ${data.length} voted delegates`);
         let activedelegates = data
           .sort((a, b) => b.balance - a.balance)
           .slice(0,51);
-        logger.info(`generated ${activedelegates.length} active delegates`);
-        return Promise.resolve();
+        // logger.info(`generated ${activedelegates.length} active delegates`);
+        return Promise.resolve(activedelegates);
       });
   }
 
   buildAccounts(){
-    this.localaccounts = {};
     return this.transactions
       .findAll({
         attributes:[
@@ -174,9 +194,9 @@ class DB {
         ],
         group: 'recipientId'
       })
-      .then((data)=>{
+      .then((data) => {
         data.forEach((row)=>{
-          const account = new Account(row.recipientId);
+          const account = this.localaccounts[row.recipientId] || new Account(row.recipientId);
           account.balance = row.amount;
           this.localaccounts[row.recipientId] = account;
         });
@@ -270,9 +290,17 @@ class DB {
             account.voted = true;
           }
         });
-        return this.accounts.bulkCreate(Object.values(this.localaccounts) || []);
+        return this.saveAccounts().then(() => this.localaccounts || []);
       })
       .catch((error) => logger.error(error));
+  }
+
+  saveAccounts(force){
+    return  this.db.transaction((t) =>
+      Object.values(this.localaccounts || [])
+        .filter((acc) => force || (acc.dirty && acc.publicKey))
+        .map((acc) => this.accounts.upsert(acc, t))
+    ).then(() => Object.values(this.localaccounts).forEach((acc)=> acc.dirty = false));
   }
 
   saveBlock(block) {
@@ -280,7 +308,7 @@ class DB {
       .create(block.data)
       .then(() => this.transactions.bulkCreate(block.transactions || [])); 
   }
-
+ 
   getBlock(id) {
     return this.blocks
       .findOne({id:id})
@@ -313,6 +341,74 @@ class DB {
         });
         return Promise.resolve(nblocks); 
       });
+  }
+
+  applyRound(block, fastRebuild){
+    if(!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates == 0){
+      //logger.info('New round', block.data.height/config.getConstants(block.data.height).activeDelegates);
+      return this
+        .saveAccounts()
+        .then(() => this.buildDelegates(block))
+        .then(() => block);
+    }
+    else return Promise.resolve(block);
+  }
+
+  applyBlock(block, fastRebuild){
+    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash);
+    let delegate = this.localaccounts[generator];
+    if(!delegate && block.data.height == 1){
+      delegate = new Account(generator);
+      delegate.publicKey = block.data.generatorPublicKey;
+      this.localaccounts[generator] = delegate;
+    }
+    const appliedTransactions = [];
+    const that = this;
+    return Promise
+      .all(
+        block.transactions.map(
+          (tx) => this
+            .applyTransaction(tx)
+            .then(() => appliedTransactions.push(tx))
+        )
+      )
+      .then(() => delegate.applyBlock(block.data))
+      .then(() => this.applyRound(block, fastRebuild))
+      .catch((error) => {
+        return Promise
+          .all(appliedTransactions.map((tx) => that.undoTransaction(tx)))
+          .then(() => Promise.reject(error));
+      });
+  }
+
+  applyTransaction(transaction){
+    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash);
+    const recipientId = transaction.data.recipientId; // may not exist
+    let sender = this.localaccounts[senderId]; //should exist
+    if(!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey;
+    let recipient = this.localaccounts[recipientId];
+    if(!recipient && recipientId){ //cold wallet
+      recipient = new Account(recipientId);
+      this.localaccounts[recipientId] = recipient;
+    }
+    if(!config.network.exceptions[transaction.data.id] && !sender.canApply(transaction.data)) {
+      logger.error(sender);
+      logger.error(JSON.stringify(transaction.data));
+      return Promise.reject(`Can't apply transaction ${transaction.data.id}`);
+    }
+    sender.applyTransaction(transaction.data);
+    if(recipient) recipient.applyTransaction(transaction.data);
+    return Promise.resolve(transaction);
+  }
+
+  undoTransaction(transaction){
+    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash);
+    const recipientId = transaction.data.recipientId; // may not exist
+    let sender = this.localaccounts[senderId]; //should exist
+    let recipient = this.localaccounts[recipientId];
+    sender.undoTransaction(transaction.data);
+    if(recipient) recipient.undoTransaction(transaction.data);
+    return Promise.resolve(transaction.data);
   }
 
   getLastBlock() {

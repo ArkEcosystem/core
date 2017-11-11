@@ -2,6 +2,10 @@
 const popsicle = require('popsicle');
 const schema = require('./schema');
 const logger = require('../../core/logger');
+const PromiseWorker = require('promise-worker');
+const Worker = require('tiny-worker');
+const worker = new Worker(__dirname+'/downloadWorker.js');
+const promiseWorker = new PromiseWorker(worker);
 
 
 class Peer {
@@ -56,15 +60,19 @@ class Peer {
   }
 
   downloadBlocks(lastBlock){
-    return popsicle
-      .request({
-        method: 'GET',
-        url: this.url + '/peer/blocks?lastBlockHeight='+lastBlock.data.height,
-        headers: this.headers,
-        timeout: 60000
-      })
-      .use(popsicle.plugins.parse('json'))
-      .then((res) => Promise.resolve(res.body));
+    const message = {
+      height: lastBlock.data.height,
+      headers: this.headers,
+      url: this.url
+    };
+    const that = this;
+    return promiseWorker
+      .postMessage(message)
+      .then((response) => {
+        const size = response.body.blocks.length;
+        if(size == 100 || size == 400) that.downloadSize = size;
+        return Promise.resolve(response.body);
+      });
   }
 
 

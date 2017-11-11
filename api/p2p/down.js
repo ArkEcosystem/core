@@ -38,14 +38,6 @@ class Down {
     ));
   }
 
-  computeNetwork(peerStatuses){
-    var networkHeight = 1;
-    return peerStatuses
-      .filter((body) => !!body)
-      .map((body) => body.height);
-
-  }
-
   acceptNewPeer(peer){
     if(this.peers[peer.ip]) return Promise.resolve();
     if(peer.nethash != this.config.network.nethash) return Promise.reject('Request is made on the wrong network');
@@ -59,8 +51,9 @@ class Down {
     return Promise.resolve(Object.values(this.peers));
   }
 
-  getRandomPeer(){
-    const keys = Object.keys(this.peers);
+  getRandomPeer(delay){
+    let keys = Object.keys(this.peers);
+    if(delay) keys = keys.filter((key) => this.peers[key].delay < delay);
     const random = keys[ keys.length * Math.random() << 0];
     const randomPeer = this.peers[random];
     if(!randomPeer) {
@@ -89,14 +82,25 @@ class Down {
     return new Promise(resolve => setTimeout(resolve, delay, value));
   }
 
+  getNetworkHeight(){
+    const median = Object.values(this.peers)
+      .filter((peer) => peer.height)
+      .map((peer) => peer.height)
+      .sort();
+    return Promise.resolve(median[parseInt(median.length/2)]);
+  }
+
   downloadBlocks(lastblock){
-    const randomPeer = this.getRandomPeer();
+    // const max = 4;
+    // let i = 0
+    // while()
+    const randomPeer = this.getRandomPeer(2000);
     logger.info('Downloading blocks from', randomPeer.url, 'from block', lastblock.data.height);
-    const that = this;
     return randomPeer
-      .downloadBlocks(lastblock)
+      .ping()
+      .then(() => randomPeer.downloadBlocks(lastblock))
       .then((body) => Promise.resolve(body.blocks))
-      .catch(() => that.downloadBlocks(lastblock));
+      .catch(() => this.downloadBlocks(lastblock));
   }
 }
 

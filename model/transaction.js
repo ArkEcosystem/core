@@ -1,6 +1,7 @@
 const arkjs = require('arkjs');
 const bs58check = require('bs58check');
 const ByteBuffer = require('bytebuffer');
+const config = require('../core/config');
 
 class Transaction {
 
@@ -32,8 +33,8 @@ class Transaction {
   serialize(transaction) {
     var bb = new ByteBuffer(512, true);
     bb.writeByte(0xff); // fill, to disambiguate from v1 
-    bb.writeByte(transaction.version ||0x01); // version
-    bb.writeByte(transaction.network ||0x17); // ark = 0x17, devnet = 0x30
+    bb.writeByte(transaction.version || 0x01); // version
+    bb.writeByte(transaction.network || config.network.pubKeyHash); // ark = 0x17, devnet = 0x30
     bb.writeByte(transaction.type);
     bb.writeInt(transaction.timestamp);
     bb.append(transaction.senderPublicKey, 'hex');
@@ -80,6 +81,7 @@ class Transaction {
       bb.writeByte(transaction.asset.multisignature.keysgroup.length);
       bb.writeByte(transaction.asset.multisignature.lifetime);
       bb.append(keysgroupBuffer, 'hex');
+      bb.append(transaction.signatures.join(''), 'hex');
       break;
 
     case 5: // IPFS
@@ -207,6 +209,9 @@ class Transaction {
       if(!tx.amount){
         tx.amount = 0;
       }
+      if(!tx.recipientId && tx.type == 3){
+        tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network);
+      }
       if(tx.vendorFieldHex){
         tx.vendorField = new Buffer(tx.vendorFieldHex,'hex').toString('utf8');
       }
@@ -225,17 +230,19 @@ class Transaction {
 
   static parseSignatures(hexString, tx, startOffset) {
     if(tx.type == 4){
-      var signatures = hexString.substring(startOffset);
+      let signatures = hexString.substring(startOffset);
+      tx.signatures = [];
       for(var i = 0; i < tx.asset.multisignature.keysgroup.length; i++){
         var length = parseInt('0x' + signatures.substring(2, 4), 16) + 2;
         tx.signatures.push(signatures.substring(0, length * 2));
-        signatures = signatures.substring(length * 2+1);
+        signatures = signatures.substring(length * 2);
+        startOffset += length * 2;
       }
     }
     tx.signature = hexString.substring(startOffset);
     if (tx.signature.length == 0) delete tx.signature;
     else {
-      var length = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2;
+      let length = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2;
       tx.signature = hexString.substring(startOffset, startOffset + length * 2);
       tx.secondSignature = hexString.substring(startOffset + length * 2);
       if (tx.secondSignature.length == 0) delete tx.secondSignature;

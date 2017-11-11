@@ -22,9 +22,10 @@ if (commander.config) {
     network: require(path.resolve(commander.config, 'network.json'))
   });
 }
+console.log(config.network.exceptions);
 
 const logger = require('./core/logger');
-logger.init(config.server.fileLogLevel);
+logger.init(config.server.fileLogLevel, config.network.name);
 
 
 blockchainManager = new BlockchainManager(config);
@@ -36,10 +37,12 @@ process.on('unhandledRejection', (reason, p) => {
 
 db
   .init(config.server.db)
-  .then(() => Promise.resolve(logger.info('Database started')))
+  .then(() => logger.info('Database started'))
   .then(() => p2p.warmup())
-  .then(() => Promise.resolve(logger.info('Network interface started')))
+  .then(() => logger.info('Network interface started'))
   .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-  .then((lastBlock) => Promise.resolve(logger.info('Blockchain connnected, lastBlock', (lastBlock.data||{height:0}).height)))
+  .then((lastBlock) => logger.info('Blockchain connnected, lastBlock', (lastBlock.data||{height:0}).height))
+  .then(() => db.buildAccounts())
+  .then((accounts) => logger.info('Built SPV accounts', accounts.length))
   .then(() => blockchainManager.syncWithNetwork())
   .catch((fatal) => logger.error('fatal error', fatal));

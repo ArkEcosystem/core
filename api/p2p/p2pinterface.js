@@ -35,6 +35,10 @@ class P2PInterface {
     return this.down.getPeers();
   }
 
+  getNetworkHeight(){
+    return this.down.getNetworkHeight();
+  }
+
 }
 
 module.exports = P2PInterface;
