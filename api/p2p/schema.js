@@ -1,5 +1,5 @@
-'use strict';
-const ajv = new require('ajv')();
+'use strict'
+const ajv = new (require('ajv'))()
 
 const schema = {
   'GET:/peer/status': ajv.compile({
@@ -74,7 +74,7 @@ const schema = {
       },
       blocks: {
         type: 'array'
-      },
+      }
     },
     required: ['blocks']
   }),
@@ -87,7 +87,7 @@ const schema = {
       },
       blockId: {
         type: 'string'
-      },
+      }
     },
     required: ['success', 'blockId']
   }),
@@ -108,10 +108,10 @@ const schema = {
       },
       peers: {
         type: 'array'
-      },
+      }
     },
     required: ['peers']
   })
-};
+}
 
-module.exports = schema;
+module.exports = schema

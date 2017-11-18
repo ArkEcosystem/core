@@ -19,14 +19,13 @@ if (commander.config) {
   config.init({
     server: require(path.resolve(commander.config, 'server.json')),
     genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-    network: require(path.resolve(commander.config, 'network.json'))
+    network: require(path.resolve(commander.config, 'network.json')),
+    delegates: require(path.resolve(commander.config, 'delegate.json'))
   });
 }
-console.log(config.network.exceptions);
 
 const logger = require('./core/logger');
 logger.init(config.server.fileLogLevel, config.network.name);
-
 
 blockchainManager = new BlockchainManager(config);
 p2p = new P2PInterface(config);
@@ -46,3 +45,4 @@ db
   .then((accounts) => logger.info('Built SPV accounts', accounts.length))
   .then(() => blockchainManager.syncWithNetwork())
   .catch((fatal) => logger.error('fatal error', fatal));
+

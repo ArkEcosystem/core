@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "fileLogLevel": "info",
   "db": {
-    "uri": "sqlite:storage/mainnet2.sqlite"
+    "uri": "sqlite:storage/mainnet2.sqlite",
+    "dialect": "sqlite"
   },
   "api": {
     "mount": true,

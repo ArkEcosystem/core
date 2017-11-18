@@ -23,8 +23,8 @@ class P2PInterface {
     return this.down.updateNetworkStatus();
   }
 
-  downloadBlocks(lastblock){
-    return this.down.downloadBlocks(lastblock);
+  downloadBlocks(fromBlockHeight){
+    return this.down.downloadBlocks(fromBlockHeight);
   }
 
   acceptNewPeer(peer){

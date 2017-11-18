@@ -6,7 +6,7 @@
     "private": 70615956
   },
   "pubKeyHash": 82,
-  "nethash": "d1c7fa0dcf7584add7a535acd674d3b13fa794345d83c3789cc2436d6ecd80d1",
+  "nethash": "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
   "wif": 186,
   "client": {
     "token": "TARK",
@@ -18,5 +18,33 @@
       "ip": "127.0.0.1",
       "port": 4000
     }
-  ]
+  ],
+  "constants": [
+    {
+      "height":1,
+      "reward":0,
+      "activeDelegates": 51,
+      "blocktime": 8,
+      "block": {
+        "version":0,
+        "maxTransactions": 50,
+        "maxPayload": 2097152
+      },
+      "epoch": "2017-03-21T13:00:00UTC",
+      "fees":{
+        "send": 10000000,
+        "vote": 100000000,
+        "secondsignature": 500000000,
+        "delegate": 2500000000,
+        "multisignature": 500000000
+      }
+    },
+    {
+      "height":75600,
+      "reward":200000000
+    }
+  ],
+  "exceptions": {
+    
+  }
 }

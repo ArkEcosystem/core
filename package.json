@@ -4,8 +4,10 @@
   "description": "Revamped ark-node",
   "main": "app.js",
   "scripts": {
-    "start:mainnet": "node app.js -c config/mainnet",
-    "start:devnet": "nodemon app.js -c config/devnet",
+    "start:mainnet": "node startRelayNode.js -c config/mainnet",
+    "start:devnet": "nodemon startRelayNode.js -c config/devnet",
+    "start:testnet": "nodemon startRelayNode.js -c config/testnet",
+    "forge:testnet": "nodemon startForger.js -c config/testnet",
     "test": "mocha"
   },
   "keywords": [
@@ -28,6 +30,7 @@
     "restify": "^6.2.3",
     "sequelize": "^4.20.1",
     "sqlite3": "^3.1.13",
+    "standard": "^10.0.3",
     "tiny-worker": "^2.1.1",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
