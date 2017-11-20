@@ -5,6 +5,7 @@ const config = require('./core/config')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
 const db = require('./core/db')
+const PublicAPI = require('./api/public/api')
 
 let blockchainManager = null
 let p2p = null
@@ -39,6 +40,7 @@ db
   .then(() => p2p.warmup())
   .then(() => logger.info('Network interface started'))
   .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-  .then((lastBlock) => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height))
+  .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height))
   .then(() => blockchainManager.syncWithNetwork())
-  .catch((fatal) => logger.error('fatal error', fatal))
+  .then(() => new PublicAPI(config).start())
+  .catch(fatal => logger.error('fatal error', fatal))

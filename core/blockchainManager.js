@@ -10,15 +10,20 @@ class BlockchainManager {
   constructor (config) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
+    const that = this
     this.config = config
     this.monitoring = false
-    this.fastRebuild = true
+    this.fastRebuild = !!config.server.fastRebuild
     this.lastBlock = null
-    this.processQueue = async.queue((block, qcallback) => this.processBlock(new Block(block), this.fastRebuild, qcallback), 1)
-    const that = this
+    this.lastDownloadedBlock = null
+
+    this.processQueue = async.queue(
+      (block, qcallback) => this.processBlock(new Block(block), this.fastRebuild, qcallback),
+      1
+    )
     this.downloadQueue = async.queue(
       (block, qcallback) => {
-        that.lastPushedBlock = block
+        that.lastDownloadedBlock = block
         that.processQueue.push(block)
         qcallback()
       },
@@ -26,7 +31,7 @@ class BlockchainManager {
     )
     this.downloadQueue.drain = () => {
       logger.info('Block Process Queue Size', that.processQueue.length())
-      this.syncWithNetwork({data: this.lastPushedBlock})
+      this.syncWithNetwork({data: this.lastDownloadedBlock})
     }
     this.processQueue.drain = () => this.finishedNetworkSync()
 
@@ -38,12 +43,14 @@ class BlockchainManager {
   }
 
   postBlock (block) {
+    logger.info('Received new block at height', block.height)
     this.processQueue.push(block)
   }
 
   finishedNetworkSync () {
     if (this.isSynced(this.lastBlock)) {
-      logger.info('Rebuild has been completed to', this.lastBlock.data.height)
+      if (this.fastRebuild) logger.info('Rebuild has been completed to height', this.lastBlock.data.height)
+      else logger.info('Blockchain updated to height', this.lastBlock.data.height)
       this.fastRebuild = false
       return this.startNetworkMonitoring()
     } else {
@@ -73,7 +80,7 @@ class BlockchainManager {
   init () {
     const that = this
     return db.getLastBlock()
-      .then((block) => {
+      .then(block => {
         if (!block) {
           return Promise.reject(new Error('No block found in database'))
         }
@@ -103,18 +110,16 @@ class BlockchainManager {
   }
 
   processBlock (block, fastRebuild, qcallback) {
-    // logger.info('Processing block', block.verification)
     if (block.verification.verified) {
-      if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / 8) > ~~(this.lastBlock.data.timestamp / 8)) {
+      const blocktime = this.config.getConstants(block.data.height).blocktime
+      if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / blocktime) > ~~(this.lastBlock.data.timestamp / blocktime)) {
         const that = this
         db.applyBlock(block, fastRebuild)
-          .then(() => {
-            db.saveBlock(block)
-            logger.debug('Added new block at height', block.data.height)
-            that.lastBlock = block
-            qcallback()
-          })
-          .catch((error) => {
+          .then(() => db.saveBlock(block))
+          .then(() => logger.debug('Added new block at height', block.data.height))
+          .then(() => (that.lastBlock = block))
+          .then(() => qcallback())
+          .catch(error => {
             logger.error(error)
             logger.debug('Refused new block', block.data)
             qcallback()
@@ -122,6 +127,8 @@ class BlockchainManager {
       } else if (block.data.height > this.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         this.processQueue.push(block.data)
+      } else {
+        logger.info('Block disregarded')
         qcallback()
       }
     }
@@ -137,7 +144,7 @@ class BlockchainManager {
     if (this.config.server.test) return Promise.resolve()
     const that = this
     if (this.networkInterface) {
-      return this.networkInterface.downloadBlocks(block.data.height).then((blocks) => {
+      return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
         if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
         else {
           logger.info('Downloaded new blocks', blocks.length, 'with', blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0), 'transactions')
@@ -154,9 +161,7 @@ class BlockchainManager {
   }
 
   sleep (ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms)
-    })
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
 

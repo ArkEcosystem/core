@@ -27,18 +27,19 @@ class ForgerManager {
     const data = {}
     const monitor = () => {
       that.getRound()
-        .then((r) => {
+        .then(r => {
           round = r
-          // if(!round.canForge) throw new Error('Block already in current slot');
+          if (!round.canForge) throw new Error('Block already forged in current slot')
           data.previousBlock = round.lastBlock
           data.timestamp = round.timestamp
           data.reward = round.reward
           return that.pickForgingDelegate(round)
         })
-        .then((delegate) => delegate.forge([], data))
-        .then((block) => that.broadcast(block))
-        .catch((error) => {
-          logger.info('Not able to forge', round ? round.current : error)
+        .then(delegate => delegate.forge([], data))
+        .then(block => that.broadcast(block))
+        .catch(error => {
+          logger.info('Not able to forge:', error.message)
+          logger.info('round:', round ? round.current : '', 'height:', round.lastBlock.height)
           return Promise.resolve()
         })
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
@@ -49,6 +50,7 @@ class ForgerManager {
   }
 
   broadcast (block) {
+    console.log(block.data)
     return popsicle
       .request({
         method: 'POST',
@@ -62,7 +64,7 @@ class ForgerManager {
   }
 
   pickForgingDelegate (round) {
-    return Promise.resolve(this.delegates.find((delegate) => delegate.publicKey == round.delegate.publicKey))
+    return Promise.resolve(this.delegates.find((delegate) => delegate.publicKey === round.delegate.publicKey))
   }
 
   getRound () {

@@ -32,6 +32,20 @@ class DB {
       .then((tables) => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
   }
 
+  getActiveDelegates (height) {
+    const activeDelegates = config.getConstants(height).activeDelegates
+    const round = ~~(height / activeDelegates)
+    if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) return Promise.resolve(this.activedelegates)
+    else return this.rounds
+      .findAll({
+        where: {
+          round: round
+        },
+        order: [[ 'publicKey', 'ASC' ]]
+      })
+      .then((data) => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
+  }
+
   buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
@@ -89,7 +103,7 @@ class DB {
       .then((data) => {
         data.forEach((row) => {
           const account = this.localaccounts[row.recipientId] || new Account(row.recipientId)
-          account.balance = row.amount
+          account.balance = parseInt(row.amount)
           this.localaccounts[row.recipientId] = account
         })
         return this.blocks.findAll({
@@ -104,11 +118,11 @@ class DB {
         data.forEach((row) => {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
-            account.balance += row.reward + row.totalFee
+            account.balance += parseInt(row.reward) + parseInt(row.totalFee)
           } else {
             account = new Account(arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash))
             account.publicKey = row.generatorPublicKey
-            account.balance = row.reward + row.totalFee
+            account.balance = parseInt(row.reward) + parseInt(row.totalFee)
             this.localaccounts[account.address] = account
           }
         })
@@ -126,11 +140,11 @@ class DB {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (account) {
             account.publicKey = row.senderPublicKey
-            account.balance -= row.amount + row.fee
+            account.balance -= parseInt(row.amount) + parseInt(row.fee)
           } else {
             account = new Account(arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash))
             account.publicKey = row.senderPublicKey
-            account.balance = -row.amount - row.fee
+            account.balance = -parseInt(row.amount) - parseInt(row.fee)
             this.localaccounts[account.address] = account
             logger.error(account.address, row.amount, row.fee)
           }
@@ -187,9 +201,11 @@ class DB {
 
   saveAccounts (force) {
     return this.db.transaction((t) =>
-      Object.values(this.localaccounts || [])
-        .filter((acc) => force || (acc.dirty && acc.publicKey))
-        .map((acc) => this.accounts.upsert(acc, t))
+      Promise.all(
+        Object.values(this.localaccounts || [])
+          .filter((acc) => force || (acc.dirty && acc.publicKey))
+          .map((acc) => this.accounts.upsert(acc, t))
+      )
     ).then(() => Object.values(this.localaccounts).forEach((acc) => (acc.dirty = false)))
   }
 

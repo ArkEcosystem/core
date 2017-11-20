@@ -13,7 +13,7 @@ class Block {
     this.data.totalFee = parseInt(this.data.totalFee)
     this.data.reward = parseInt(this.data.reward)
     this.genesis = data.height === 1
-    this.transactions = data.transactions.map((tx) => {
+    this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
       txx.blockId = data.id
       return txx
@@ -25,7 +25,7 @@ class Block {
     const payloadHash = Block.serialize(data)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
     data.generatorPublicKey = keys.publicKey
-    data.blockSignature = keys.sign(hash).toString('hex')
+    data.blockSignature = keys.sign(hash).toDER().toString('hex')
     data.id = Block.getId(data)
     return new Block(data)
   }

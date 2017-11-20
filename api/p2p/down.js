@@ -5,7 +5,7 @@ class Down {
   constructor (config) {
     this.config = config
     this.peers = {}
-    config.network.peers.forEach((peer) => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+    config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
   start (p2p) {
@@ -27,7 +27,7 @@ class Down {
   cleanPeers () {
     let keys = Object.keys(this.peers)
     const that = this
-    return Promise.all(keys.map((ip) =>
+    return Promise.all(keys.map(ip =>
       that.peers[ip]
         .ping()
         .catch(() => {
@@ -43,7 +43,7 @@ class Down {
     const npeer = new Peer(peer.ip, peer.port, this.config)
     return npeer.ping()
       .then(() => (this.peers[peer.ip] = npeer))
-      .catch((e) => logger.warn('Peer not connectable', npeer, e))
+      .catch(e => logger.warn('Peer not connectable', npeer, e))
   }
 
   getPeers () {
@@ -66,8 +66,8 @@ class Down {
 
   getRandomDownloadBlocksPeer () {
     let keys = Object.keys(this.peers)
-    keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
-    keys = keys.filter((key) => this.peers[key].delay < 2000 && this.peers[key].downloadSize !== 100)
+    keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
+    keys = keys.filter(key => this.peers[key].delay < 2000 && this.peers[key].downloadSize !== 100)
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
@@ -82,7 +82,7 @@ class Down {
     const that = this
     return this.getRandomPeer().getPeers()
       .then((list) => {
-        list.forEach((peer) => {
+        list.forEach(peer => {
           if (peer.status === 'OK' && !that.peers[peer.ip]) {
             that.peers[peer.ip] = new Peer(peer.ip, peer.port, that.config)
           }
@@ -98,8 +98,8 @@ class Down {
 
   getNetworkHeight () {
     const median = Object.values(this.peers)
-      .filter((peer) => peer.height)
-      .map((peer) => peer.height)
+      .filter(peer => peer.height)
+      .map(peer => peer.height)
       .sort()
     return Promise.resolve(median[parseInt(median.length / 2)])
   }

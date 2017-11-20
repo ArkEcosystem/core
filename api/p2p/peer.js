@@ -43,17 +43,17 @@ class Peer {
         timeout: timeout || 10000
       })
       .use(popsicle.plugins.parse('json'))
-      .then((res) => {
+      .then(res => {
         that.delay = new Date().getTime() - temp
         return Promise.resolve(res)
       })
-      .then((res) => this.parseHeaders(res))
-      .catch((error) => (this.status = error.code))
-      .then((res) => Promise.resolve(res.body))
+      .then(res => this.parseHeaders(res))
+      .catch(error => (this.status = error.code))
+      .then(res => Promise.resolve(res.body))
   }
 
   parseHeaders (res) {
-    ['nethash', 'os', 'version', 'height'].forEach((key) => (this[key] = res.headers[key]))
+    ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
     this.status = 'OK'
     return Promise.resolve(res)
   }
@@ -67,11 +67,11 @@ class Peer {
     const that = this
     return promiseWorker
       .postMessage(message)
-      .then((response) => {
+      .then(response => {
         const size = response.body.blocks.length
         if (size === 100 || size === 400) that.downloadSize = size
         return Promise.resolve(response.body.blocks)
-      }).catch((error) => {
+      }).catch(error => {
         logger.debug('Cannot Download blocks from peer', error)
         that.ban = new Date().getTime() + 60 * 60000
       })
@@ -80,11 +80,11 @@ class Peer {
   ping () {
     return this
       .get('/peer/status', 2000)
-      .then((body) => (this.height = (body || {}).height))
+      .then(body => (this.height = (body || {}).height))
   }
 
   getPeers () {
-    return this.get('/peer/list').then((body) => Promise.resolve(body.peers))
+    return this.get('/peer/list').then(body => Promise.resolve(body.peers))
   }
 }
 

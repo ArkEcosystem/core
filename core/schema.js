@@ -17,7 +17,7 @@ function syncTables (db) {
     payloadLength: Sequelize.INTEGER,
     payloadHash: Sequelize.STRING(64),
     generatorPublicKey: Sequelize.STRING(66),
-    blockSignature: Sequelize.STRING(128)
+    blockSignature: Sequelize.STRING(256)
   }, {
     indexes: [{
       unique: true,
@@ -86,7 +86,7 @@ function syncTables (db) {
   }, {
     indexes: [{
       unique: true,
-      fields: ['Address']
+      fields: ['address']
     },
     {
       unique: true,

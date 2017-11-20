@@ -58,32 +58,34 @@ class Up {
   }
 
   isLocalhost (req) {
-    return req.connection.remoteAddress == '::1' || req.connection.remoteAddress == '127.0.0.1' || req.connection.remoteAddress == '::ffff:127.0.0.1'
+    return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
   }
 
   acceptRequest (req, res, next) {
-    if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req))      { res.send(500, {success: false, message: 'API not existing'})}
+    if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req)) {
+      res.send(500, {success: false, message: 'API not existing'})
+    }
     const peer = {}
     peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    ['port', 'nethash', 'os', 'version'].forEach((key) => peer[key] = req.headers[key])
+    ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
     this.p2p
       .acceptNewPeer(peer)
       .then(() => setHeaders(res))
       .then(() => next())
-      .catch((error) => res.send(500, {success: false, message: error}))
+      .catch(error => res.send(500, {success: false, message: error}))
   }
 
   getPeers (req, res, next) {
     this.p2p
       .getPeers()
-      .then((peers) => {
+      .then(peers => {
         const rpeers = peers
-          .map((peer) => peer.toBroadcastInfo())
+          .map(peer => peer.toBroadcastInfo())
           .sort(() => Math.random() - 0.5)
         res.send(200, {success: true, peers: rpeers})
         next()
       })
-      .catch((error) => res.send(500, {success: false, message: error}))
+      .catch(error => res.send(500, {success: false, message: error}))
   }
 
   getHeight (req, res, next) {
@@ -100,7 +102,7 @@ class Up {
     res.send(200, {
       success: true,
       height: lastBlock.height,
-      forgingAllowed: arkjs.slots.getSlotNumber() == arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
+      forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
       currentSlot: arkjs.slots.getSlotNumber(),
       header: lastBlock
     })
@@ -112,26 +114,25 @@ class Up {
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward
-    console.log(parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime))
-    const delegates = this.getActiveDelegates(lastBlock.data.height)
-
-    res.send(200, {
-      success: true,
-      round: {
-        current: parseInt(lastBlock.data.height / maxActive),
-        reward: reward,
-        timestamp: arkjs.slots.getTime(),
-        delegates: delegates,
-        delegate: delegates[lastBlock.data.height % maxActive],
-        lastBlock: lastBlock.data,
-        canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
-      }
-    })
-    next()
+    this.getActiveDelegates(lastBlock.data.height).then(delegates => {
+      res.send(200, {
+        success: true,
+        round: {
+          current: parseInt(lastBlock.data.height / maxActive),
+          reward: reward,
+          timestamp: arkjs.slots.getTime(),
+          delegates: delegates,
+          delegate: delegates[lastBlock.data.height % maxActive],
+          lastBlock: lastBlock.data,
+          canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
+        }
+      })
+      next()
+    }).catch(error => res.send(500, {success: false, message: error}))
   }
 
   postInternalBlock (req, res, next) {
-    // console.log(req.body);
+    // console.log(req.body)
     blockchain.getInstance().postBlock(req.body)
     res.send(200, {
       success: true
@@ -143,27 +144,28 @@ class Up {
     const round = parseInt(height / this.config.getConstants(height).activeDelegates)
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-    const activedelegates = db.activedelegates.slice(0)
-    for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
-      for (let x = 0; x < 4 && i < delCount; i++, x++) {
-        const newIndex = currentSeed[x] % delCount
-        const b = activedelegates[newIndex]
-        activedelegates[newIndex] = activedelegates[i]
-        activedelegates[i] = b
-      }
-      currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
-    }
-
-    return activedelegates
+    return db.getActiveDelegates(height)
+      .then(activedelegates => {
+        for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
+          for (let x = 0; x < 4 && i < delCount; i++, x++) {
+            const newIndex = currentSeed[x] % delCount
+            const b = activedelegates[newIndex]
+            activedelegates[newIndex] = activedelegates[i]
+            activedelegates[i] = b
+          }
+          currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
+        }
+        return Promise.resolve(activedelegates)
+      })
   }
 
   getBlocks (req, res, next) {
     db.getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
-      .then((blocks) => {
+      .then(blocks => {
         res.send(200, {success: true, blocks: blocks})
         next()
       })
-      .catch((error) => {
+      .catch(error => {
         logger.error(error)
         res.send(500, {success: false, error: error})
         next()

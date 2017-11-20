@@ -1,44 +1,43 @@
-var Down = require('./down');
-var Up = require('./up');
+var Down = require('./down')
+var Up = require('./up')
 
 class P2PInterface {
-  constructor(config){
-    this.down = new Down(config);
-    this.up = new Up(config);
+  constructor (config) {
+    this.down = new Down(config)
+    this.up = new Up(config)
   }
 
-  warmup(){
+  warmup () {
     return Promise.all([
       this.down.start(this),
       this.up.start(this)
-    ]);
+    ])
   }
 
-  tearDown(){
-    this.down.stop();
-    this.up.stop();
+  tearDown () {
+    this.down.stop()
+    this.up.stop()
   }
 
-  updateNetworkStatus(){
-    return this.down.updateNetworkStatus();
+  updateNetworkStatus () {
+    return this.down.updateNetworkStatus()
   }
 
-  downloadBlocks(fromBlockHeight){
-    return this.down.downloadBlocks(fromBlockHeight);
+  downloadBlocks (fromBlockHeight) {
+    return this.down.downloadBlocks(fromBlockHeight)
   }
 
-  acceptNewPeer(peer){
-    return this.down.acceptNewPeer(peer);
+  acceptNewPeer (peer) {
+    return this.down.acceptNewPeer(peer)
   }
 
-  getPeers(){
-    return this.down.getPeers();
+  getPeers () {
+    return this.down.getPeers()
   }
 
-  getNetworkHeight(){
-    return this.down.getNetworkHeight();
+  getNetworkHeight () {
+    return this.down.getNetworkHeight()
   }
-
 }
 
-module.exports = P2PInterface;
+module.exports = P2PInterface

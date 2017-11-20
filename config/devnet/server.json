@@ -2,12 +2,14 @@
   "port": 4002,
   "version": "1.1.0",
   "fileLogLevel": "debug",
+  "fastRebuild": true,
   "db": {
-    "uri": "sqlite:storage/devnet5.sqlite",
-    "dialect": "sqlite"
+    "uri": "postgres://localhost:5432/ark_devnet2",
+    "dialect": "postgres"
   },
   "api": {
-    "mount": true
+    "mount": true,
+    "port": 4003
   },
   "peers": {
     "minimumNetworkReach": 10,
