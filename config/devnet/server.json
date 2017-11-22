@@ -4,8 +4,10 @@
   "fileLogLevel": "debug",
   "fastRebuild": true,
   "db": {
-    "uri": "postgres://localhost:5432/ark_devnet2",
-    "dialect": "postgres"
+    "class": "sequelize/db",
+    "uri": "postgres://localhost:5432/ark_devnet3",
+    "dialect": "postgres",
+    "logging": false
   },
   "api": {
     "mount": true,

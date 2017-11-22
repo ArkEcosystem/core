@@ -84,7 +84,9 @@ class Peer {
   }
 
   getPeers () {
-    return this.get('/peer/list').then(body => Promise.resolve(body.peers))
+    return this
+      .get('/peer/list')
+      .then(body => body.peers)
   }
 }
 

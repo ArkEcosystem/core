@@ -4,7 +4,7 @@ const path = require('path')
 const config = require('./core/config')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
-const db = require('./core/db')
+const DB = require('./core/dbinterface')
 const PublicAPI = require('./api/public/api')
 
 let blockchainManager = null
@@ -34,8 +34,9 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-db
-  .init(config.server.db)
+DB
+  .create(config.server.db)
+  .then((db) => blockchainManager.attachDBInterface(db))
   .then(() => logger.info('Database started'))
   .then(() => p2p.warmup())
   .then(() => logger.info('Network interface started'))

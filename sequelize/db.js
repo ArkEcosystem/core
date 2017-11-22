@@ -3,20 +3,12 @@ const arkjs = require('arkjs')
 const Block = require('../model/block')
 const Transaction = require('../model/transaction')
 const Account = require('../model/account')
-const config = require('./config')
-const logger = require('./logger')
+const config = require('../core/config')
+const logger = require('../core/logger')
 const schema = require('./schema')
+const DBInterface = require('../core/dbinterface')
 
-let instance
-
-class DB {
-  constructor () {
-    if (!instance) {
-      instance = this
-    }
-    return instance
-  }
-
+class SequelizeDB extends DBInterface {
   init (params) {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
@@ -24,7 +16,7 @@ class DB {
     this.localaccounts = {}
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
-      logging: false
+      logging: !!params.logging
     })
     return this.db
       .authenticate()
@@ -36,14 +28,16 @@ class DB {
     const activeDelegates = config.getConstants(height).activeDelegates
     const round = ~~(height / activeDelegates)
     if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) return Promise.resolve(this.activedelegates)
-    else return this.rounds
-      .findAll({
-        where: {
-          round: round
-        },
-        order: [[ 'publicKey', 'ASC' ]]
-      })
-      .then((data) => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
+    else {
+      return this.rounds
+        .findAll({
+          where: {
+            round: round
+          },
+          order: [[ 'publicKey', 'ASC' ]]
+        })
+        .then((data) => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
+    }
   }
 
   buildDelegates (block) {
@@ -100,8 +94,8 @@ class DB {
         ],
         group: 'recipientId'
       })
-      .then((data) => {
-        data.forEach((row) => {
+      .then(data => {
+        data.forEach(row => {
           const account = this.localaccounts[row.recipientId] || new Account(row.recipientId)
           account.balance = parseInt(row.amount)
           this.localaccounts[row.recipientId] = account
@@ -114,8 +108,9 @@ class DB {
           ],
           group: 'generatorPublicKey'}
         )
-      }).then((data) => {
-        data.forEach((row) => {
+      })
+      .then(data => {
+        data.forEach(row => {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
             account.balance += parseInt(row.reward) + parseInt(row.totalFee)
@@ -132,11 +127,12 @@ class DB {
             [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
             [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
           ],
-          group: 'senderPublicKey'}
-        )
+          group: 'senderPublicKey'
+        })
       })
-      .then((data) => {
-        data.forEach((row) => {
+      .then(data => {
+        data.forEach(row => {
+          if (!row.senderPublicKey) return
           let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (account) {
             account.publicKey = row.senderPublicKey
@@ -157,8 +153,9 @@ class DB {
           ],
           where: {type: 1}}
         )
-      }).then((data) => {
-        data.forEach((row) => {
+      })
+      .then(data => {
+        data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
         })
@@ -169,14 +166,15 @@ class DB {
           ],
           where: {type: 2}}
         )
-      }).then((data) => {
-        data.forEach((row) => {
+      })
+      .then(data => {
+        data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
         })
         Object.keys(this.localaccounts)
-          .filter((a) => this.localaccounts[a].balance < 0)
-          .forEach((a) => logger.info(this.localaccounts[a]))
+          .filter(a => this.localaccounts[a].balance < 0)
+          .forEach(a => logger.info(this.localaccounts[a]))
         return this.transactions.findAll({
           attributes: [
             'senderPublicKey',
@@ -185,8 +183,9 @@ class DB {
           order: [[ 'createdAt', 'DESC' ]],
           where: {type: 3}}
         )
-      }).then((data) => {
-        data.forEach((row) => {
+      })
+      .then(data => {
+        data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (!account.voted) {
             let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
@@ -194,31 +193,56 @@ class DB {
             account.voted = true
           }
         })
-        return this.saveAccounts().then(() => this.localaccounts || [])
+        return Promise.resolve(this.localaccounts || [])
       })
-      .catch((error) => logger.error(error))
+      .catch(error => logger.error(error))
   }
 
   saveAccounts (force) {
-    return this.db.transaction((t) =>
-      Promise.all(
-        Object.values(this.localaccounts || [])
-          .filter((acc) => force || (acc.dirty && acc.publicKey))
-          .map((acc) => this.accounts.upsert(acc, t))
+    // console.log(this.localaccounts)
+    return this.db
+      .transaction(t =>
+        Promise.all(
+          Object.values(this.localaccounts || [])
+            .filter(acc => acc.address && (force || acc.dirty))
+            .map(acc => this.accounts.upsert(acc, t))
+        )
       )
-    ).then(() => Object.values(this.localaccounts).forEach((acc) => (acc.dirty = false)))
+      .then(() => Object.values(this.localaccounts).forEach(acc => (acc.dirty = false)))
   }
 
   saveBlock (block) {
-    return this.blocks
-      .create(block.data)
-      .then(() => this.transactions.bulkCreate(block.transactions || []))
+    return this.db.transaction(t =>
+      this.blocks
+        .create(block.data, t)
+        .then(() => this.transactions.bulkCreate(block.transactions || [], {transaction: t}))
+    )
   }
 
   getBlock (id) {
     return this.blocks
       .findOne({id: id})
-      .then((data) => Promise.resolve(new Block(data)))
+      .then(data => Promise.resolve(new Block(data)))
+  }
+
+  getLastBlock () {
+    return this.blocks
+      .findOne({order: [['height', 'DESC']]})
+      .then(data => {
+        if (data) {
+          return Promise.resolve(data)
+        } else {
+          return Promise.reject(new Error('No block found in database'))
+        }
+      })
+      .then((block) =>
+        this.transactions
+          .findAll({where: {blockId: block.id}})
+          .then(data => {
+            block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+            return Promise.resolve(new Block(block))
+          })
+      )
   }
 
   getBlocks (offset, limit) {
@@ -238,109 +262,14 @@ class DB {
           }
         }
       })
-      .then((blocks) => {
-        const nblocks = blocks.map((block) => {
-          block.dataValues.transactions = block.dataValues.transactions.map((tx) => {
-            return tx.serialized.toString('hex')
-          })
+      .then(blocks => {
+        const nblocks = blocks.map(block => {
+          block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
           return block.dataValues
         })
         return Promise.resolve(nblocks)
       })
   }
-
-  applyRound (block, fastRebuild) {
-    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
-      return this
-        .saveAccounts()
-        .then(() => this.buildDelegates(block))
-        .then(() => this.rounds.bulkCreate(this.activedelegates))
-        .then(() => block)
-    } else return Promise.resolve(block)
-  }
-
-  applyBlock (block, fastRebuild) {
-    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
-    let delegate = this.localaccounts[generator]
-    if (!delegate && block.data.height === 1) {
-      delegate = new Account(generator)
-      delegate.publicKey = block.data.generatorPublicKey
-      this.localaccounts[generator] = delegate
-    }
-    const appliedTransactions = []
-    const that = this
-    return Promise
-      .all(
-        block.transactions.map(
-          (tx) => this
-            .applyTransaction(tx)
-            .then(() => appliedTransactions.push(tx))
-        )
-      )
-      .then(() => delegate.applyBlock(block.data))
-      .then(() => this.applyRound(block, fastRebuild))
-      .catch((error) => {
-        return Promise
-          .all(appliedTransactions.map((tx) => that.undoTransaction(tx)))
-          .then(() => Promise.reject(error))
-      })
-  }
-
-  applyTransaction (transaction) {
-    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
-    let recipient = this.localaccounts[recipientId]
-    if (!recipient && recipientId) { // cold wallet
-      recipient = new Account(recipientId)
-      this.localaccounts[recipientId] = recipient
-    }
-    if (!config.network.exceptions[transaction.data.id] && !sender.canApply(transaction.data)) {
-      logger.error(sender)
-      logger.error(JSON.stringify(transaction.data))
-      return Promise.reject(new Error(`Can't apply transaction ${transaction.data.id}`))
-    }
-    sender.applyTransactionToSender(transaction.data)
-    if (recipient) recipient.applyTransactionToRecipient(transaction.data)
-    // if (sender.vote) {
-    //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-    //   const delegate = this.localaccounts[delegateAdress]
-    //   delegate.applyVote(sender, transaction.data.asset.votes[0])
-    // }
-    return Promise.resolve(transaction)
-  }
-
-  undoTransaction (transaction) {
-    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    let recipient = this.localaccounts[recipientId]
-    sender.undoTransactionToSender(transaction.data)
-    if (recipient) recipient.undoTransactionToRecipient(transaction.data)
-    return Promise.resolve(transaction.data)
-  }
-
-  getLastBlock () {
-    return this.blocks
-      .findOne({order: [['height', 'DESC']]})
-      .then((data) => {
-        if (data) {
-          return Promise.resolve(data)
-        } else {
-          return Promise.reject(new Error('No block found in database'))
-        }
-      })
-      .then((block) =>
-        this.transactions
-          .findAll({where: {blockId: block.id}})
-          .then((data) => {
-            block.transactions = data.map((tx) => Transaction.deserialize(tx.serialized.toString('hex')))
-            return Promise.resolve(new Block(block))
-          })
-      )
-  }
 }
 
-module.exports = new DB()
+module.exports = SequelizeDB

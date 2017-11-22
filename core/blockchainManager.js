@@ -1,10 +1,10 @@
 const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
-const db = require('./db')
 const logger = require('./logger')
 
 let instance = null
+let db = null
 
 class BlockchainManager {
   constructor (config) {
@@ -88,11 +88,13 @@ class BlockchainManager {
         if (block.data.height === 1) {
           return db
             .buildAccounts()
+            .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(block, that.fastRebuild))
             .then(() => block)
         }
         return db
           .buildAccounts()
+          .then(() => db.saveAccounts())
           .then(() => block)
       })
       .catch((error) => {
@@ -102,6 +104,7 @@ class BlockchainManager {
           that.lastBlock = genesis
           return db.saveBlock(genesis)
             .then(() => db.buildAccounts())
+            .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(genesis))
             .then(() => genesis)
         }
@@ -128,10 +131,17 @@ class BlockchainManager {
         // requeue it (was not received in right order)
         this.processQueue.push(block.data)
       } else {
+        // TODO: manage fork here
         logger.info('Block disregarded')
         qcallback()
       }
     }
+  }
+
+  undoLastBlock () {
+    const lastBlock = this.lastBlock
+    return db.undoBlock(lastBlock)
+      .then(newLastBlock => (this.lastBlock = newLastBlock))
   }
 
   isSynced (block) {
@@ -157,6 +167,11 @@ class BlockchainManager {
 
   attachNetworkInterface (networkInterface) {
     this.networkInterface = networkInterface
+    return this
+  }
+
+  attachDBInterface (dbinterface) {
+    db = dbinterface
     return this
   }
 

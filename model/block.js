@@ -51,7 +51,7 @@ class Block {
   }
 
   verifySignature () {
-    //console.log(this.data);
+    // console.log(this.data);
     var bytes = Block.serialize(this.data, false)
     var hash = crypto.createHash('sha256').update(bytes).digest()
     var blockSignatureBuffer = new Buffer(this.data.blockSignature, 'hex')

@@ -5,7 +5,8 @@
   "fileLogLevel": "info",
   "db": {
     "uri": "sqlite:storage/test.sqlite",
-    "dialect": "sqlite"
+    "dialect": "sqlite",
+    "logging": true
   },
   "api": {
     "mount":true,
@@ -15,18 +16,6 @@
   },
   "peers": {
     "blackList": []
-  },
-  "modules": {
-      "example":"./optional/example.js"
-  },
-  "ssl": {
-    "enabled": false,
-    "options": {
-      "port": 443,
-      "address": "0.0.0.0",
-      "key": "./ssl/ark.key",
-      "cert": "./ssl/ark.crt"
-    }
   },
   "nethash": "d1c7fa0dcf7584add7a535acd674d3b13fa794345d83c3789cc2436d6ecd80d1"
 }
