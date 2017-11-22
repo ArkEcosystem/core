@@ -6,6 +6,8 @@ const logger = require('./logger')
 let instance = null
 let db = null
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
 class BlockchainManager {
   constructor (config) {
     if (!instance) instance = this
@@ -13,7 +15,6 @@ class BlockchainManager {
     const that = this
     this.config = config
     this.monitoring = false
-    this.fastRebuild = !!config.server.fastRebuild
     this.lastBlock = null
     this.lastDownloadedBlock = null
 
@@ -49,8 +50,7 @@ class BlockchainManager {
 
   finishedNetworkSync () {
     if (this.isSynced(this.lastBlock)) {
-      if (this.fastRebuild) logger.info('Rebuild has been completed to height', this.lastBlock.data.height)
-      else logger.info('Blockchain updated to height', this.lastBlock.data.height)
+      logger.info('Blockchain updated to height', this.lastBlock.data.height)
       this.fastRebuild = false
       return this.startNetworkMonitoring()
     } else {
@@ -69,7 +69,7 @@ class BlockchainManager {
 
     return this.networkInterface.updateNetworkStatus()
       .then(() => this.syncWithNetwork(this.lastBlock))
-      .then(() => new Promise(resolve => setTimeout(resolve, 60000)))
+      .then(() => sleep(60000))
       .then(() => this.updateBlockchainFromNetwork())
   }
 
@@ -85,6 +85,10 @@ class BlockchainManager {
           return Promise.reject(new Error('No block found in database'))
         }
         that.lastBlock = block
+        const constants = that.config.getConstants(block.data.height)
+        // no fast rebuild if in last round
+        that.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastRebuild
+        logger.info('Fast Rebuild:', that.fastRebuild)
         if (block.data.height === 1) {
           return db
             .buildAccounts()
@@ -102,6 +106,8 @@ class BlockchainManager {
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
           that.lastBlock = genesis
+          that.fastRebuild = true
+          logger.info('Fast Rebuild:', that.fastRebuild)
           return db.saveBlock(genesis)
             .then(() => db.buildAccounts())
             .then(() => db.saveAccounts(true))
@@ -114,8 +120,10 @@ class BlockchainManager {
 
   processBlock (block, fastRebuild, qcallback) {
     if (block.verification.verified) {
-      const blocktime = this.config.getConstants(block.data.height).blocktime
-      if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / blocktime) > ~~(this.lastBlock.data.timestamp / blocktime)) {
+      const constants = this.config.getConstants(block.data.height)
+      // no fast rebuild if in last round
+      this.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
+      if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.lastBlock.data.timestamp / constants.blocktime)) {
         const that = this
         db.applyBlock(block, fastRebuild)
           .then(() => db.saveBlock(block))
@@ -153,16 +161,14 @@ class BlockchainManager {
     if (this.isSynced(block)) return Promise.resolve()
     if (this.config.server.test) return Promise.resolve()
     const that = this
-    if (this.networkInterface) {
-      return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
-        if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
-        else {
-          logger.info('Downloaded new blocks', blocks.length, 'with', blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0), 'transactions')
-          if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
-          return Promise.resolve(blocks.length)
-        }
-      })
-    } else return Promise.reject(new Error('No network interface attached'))
+    return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
+      if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
+      else {
+        logger.info('Downloaded new blocks', blocks.length, 'with', blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0), 'transactions')
+        if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
+        return Promise.resolve(blocks.length)
+      }
+    })
   }
 
   attachNetworkInterface (networkInterface) {
@@ -173,10 +179,6 @@ class BlockchainManager {
   attachDBInterface (dbinterface) {
     db = dbinterface
     return this
-  }
-
-  sleep (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
   }
 }
 

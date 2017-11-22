@@ -5,7 +5,7 @@
   "fastRebuild": true,
   "db": {
     "class": "sequelize/db",
-    "uri": "postgres://localhost:5432/ark_devnet3",
+    "uri": "postgres://localhost:5432/ark_devnet2",
     "dialect": "postgres",
     "logging": false
   },
