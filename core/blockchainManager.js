@@ -17,6 +17,7 @@ class BlockchainManager {
     this.monitoring = false
     this.lastBlock = null
     this.lastDownloadedBlock = null
+    this.downloadpaused = false
 
     this.processQueue = async.queue(
       (block, qcallback) => this.processBlock(new Block(block), this.fastRebuild, qcallback),
@@ -53,6 +54,9 @@ class BlockchainManager {
       logger.info('Blockchain updated to height', this.lastBlock.data.height)
       this.fastRebuild = false
       return this.startNetworkMonitoring()
+    } else if (this.downloadpaused) {
+      this.downloadpaused = false
+      return this.syncWithNetwork(this.lastBlock)
     } else {
       return Promise.resolve()
     }
@@ -98,7 +102,6 @@ class BlockchainManager {
         }
         return db
           .buildAccounts()
-          .then(() => db.saveAccounts())
           .then(() => block)
       })
       .catch((error) => {
@@ -159,6 +162,11 @@ class BlockchainManager {
   syncWithNetwork (block) {
     block = block || this.lastBlock
     if (this.isSynced(block)) return Promise.resolve()
+    if (this.processQueue.length() > 10000) {
+      logger.info('Pausing download blocks to wait for process queue drain')
+      this.downloadpaused = true
+      return Promise.resolve()
+    }
     if (this.config.server.test) return Promise.resolve()
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
