@@ -93,16 +93,19 @@ class BlockchainManager {
         // no fast rebuild if in last round
         that.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastRebuild
         logger.info('Fast Rebuild:', that.fastRebuild)
+        logger.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
             .buildAccounts()
             .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(block, that.fastRebuild))
             .then(() => block)
+        } else {
+          return db
+            .buildAccounts()
+            .then(() => db.saveAccounts(true))
+            .then(() => block)
         }
-        return db
-          .buildAccounts()
-          .then(() => block)
       })
       .catch((error) => {
         logger.debug(error)

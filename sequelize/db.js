@@ -199,7 +199,6 @@ class SequelizeDB extends DBInterface {
   }
 
   saveAccounts (force) {
-    // console.log(this.localaccounts)
     return this.db
       .transaction(t =>
         Promise.all(
@@ -208,6 +207,7 @@ class SequelizeDB extends DBInterface {
             .map(acc => this.accounts.upsert(acc, t))
         )
       )
+      .then(() => logger.info('Rebuilt accounts saved'))
       .then(() => Object.values(this.localaccounts).forEach(acc => (acc.dirty = false)))
   }
 
