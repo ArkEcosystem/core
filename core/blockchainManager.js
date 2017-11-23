@@ -130,7 +130,6 @@ class BlockchainManager {
         const that = this
         db.applyBlock(block, fastRebuild)
           .then(() => db.saveBlock(block))
-          .then(() => logger.debug('Added new block at height', block.data.height))
           .then(() => (that.lastBlock = block))
           .then(() => qcallback())
           .catch(error => {
