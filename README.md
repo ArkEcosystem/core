@@ -5,6 +5,7 @@ Still alpha
 
 ## Quickstart
 - clone repo
+- `npm install -g nodemon`
 - `npm install`
 - check `config/___network___/server.json` (above all database connection parameters)
   - change database engine if required - set `db.dialect` to one of: sqlite, mysql, mssql or postgres
