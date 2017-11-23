@@ -3,3 +3,4 @@ logs/*
 storage/*
 npm-debug.log
 .DS_Store
+.nvmrc
