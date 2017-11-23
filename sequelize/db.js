@@ -21,7 +21,7 @@ class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then((tables) => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
+      .then((tables) => Promise.all([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
   }
 
   getActiveDelegates (height) {
