@@ -1,4 +1,6 @@
 node_modules/
 logs/*
 storage/*
+npm-debug.log
 .DS_Store
+.nvmrc

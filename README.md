@@ -4,13 +4,17 @@ This is a rewrite of ark-node to prepare the upcoming AIP11 fork
 Still alpha
 
 ## Quickstart
-- clone repo
+
+### Installation
+- Clone repo
+- `npm install -g nodemon`
 - `npm install`
-- check `config/___network___/server.json` (above all database connection parameters)
-  - change database engine if required - set `db.dialect` to one of: sqlite, mysql, mssql or postgres
-  - install package (E.g. `npm install ...`: sqlite3, mysql2, tedious or pq)
-- start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
-- start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
+- Check `config/___network___/server.json` (above all database connection parameters)
+  - Change database engine if required - set `db.dialect` to one of: sqlite, mysql, mssql or postgres
+  - Install package (E.g. `npm install ...`: sqlite3, mysql2, tedious or pq)
+  - The `docker-compose up` could be used to create and start the PostgreSQL database.
+- Start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
+- Start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
 
 ## TODO: 
 
