@@ -21,7 +21,7 @@ class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then((tables) => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
+      .then((tables) => Promise.all([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
   }
 
   getActiveDelegates (height) {
@@ -199,7 +199,6 @@ class SequelizeDB extends DBInterface {
   }
 
   saveAccounts (force) {
-    // console.log(this.localaccounts)
     return this.db
       .transaction(t =>
         Promise.all(
@@ -208,6 +207,7 @@ class SequelizeDB extends DBInterface {
             .map(acc => this.accounts.upsert(acc, t))
         )
       )
+      .then(() => logger.info('Rebuilt accounts saved'))
       .then(() => Object.values(this.localaccounts).forEach(acc => (acc.dirty = false)))
   }
 

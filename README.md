@@ -7,6 +7,8 @@ Still alpha
 - clone repo
 - `npm install`
 - check `config/___network___/server.json` (above all database connection parameters)
+  - change database engine if required - set `db.dialect` to one of: sqlite, mysql, mssql or postgres
+  - install package (E.g. `npm install ...`: sqlite3, mysql2, tedious or pq)
 - start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
 - start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
 

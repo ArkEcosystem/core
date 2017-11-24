@@ -88,10 +88,10 @@ function syncTables (db) {
       unique: true,
       fields: ['address']
     },
-    {
-      unique: true,
-      fields: ['publicKey']
-    },
+    // {
+    //   unique: true,
+    //   fields: ['publicKey']
+    // },
     {
       fields: ['vote']
     },
