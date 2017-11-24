@@ -205,7 +205,7 @@ class SequelizeDB extends DBInterface {
         Promise.all(
           Object.values(this.localaccounts || [])
             .filter(acc => acc.address && acc.publicKey && (force || acc.dirty))
-            .map(acc => this.accounts.upsert(acc, t))
+            .map(acc => this.accounts.upsert(acc, {transaction: t}))
         )
       )
       .then(() => logger.info('Rebuilt accounts saved'))
@@ -215,7 +215,7 @@ class SequelizeDB extends DBInterface {
   saveBlock (block) {
     return this.db.transaction(t =>
       this.blocks
-        .create(block.data, t)
+        .create(block.data, {transaction: t})
         .then(() => this.transactions.bulkCreate(block.transactions || [], {transaction: t}))
     )
   }
