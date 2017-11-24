@@ -5,8 +5,7 @@ const logger = require('./logger')
 
 let instance
 
-class DB {
-
+class DBInterface {
   static getInstance () {
     return instance
   }
@@ -117,4 +116,4 @@ class DB {
   }
 }
 
-module.exports = DB
+module.exports = DBInterface

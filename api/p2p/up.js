@@ -48,7 +48,7 @@ class Up {
     server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
     server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
 
-    // server.post('/blocks', this.postBlocks);
+    server.post('/blocks', this.postBlock)
     // server.post('/transactions', this.postTransactions);
   }
 
@@ -133,6 +133,14 @@ class Up {
 
   postInternalBlock (req, res, next) {
     // console.log(req.body)
+    blockchain.getInstance().postBlock(req.body)
+    res.send(200, {
+      success: true
+    })
+    next()
+  }
+
+  postBlock (req, res, next) {
     blockchain.getInstance().postBlock(req.body)
     res.send(200, {
       success: true

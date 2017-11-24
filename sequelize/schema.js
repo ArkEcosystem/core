@@ -88,10 +88,10 @@ function syncTables (db) {
       unique: true,
       fields: ['address']
     },
-    // {
-    //   unique: true,
-    //   fields: ['publicKey']
-    // },
+    {
+      unique: true,
+      fields: ['publicKey']
+    },
     {
       fields: ['vote']
     },
@@ -127,14 +127,7 @@ function syncTables (db) {
     }
   )
 
-  return Promise.all([
-    blocks.sync(),
-    transactions.sync(),
-    accounts.sync({
-      force: true
-    }),
-    rounds.sync()
-  ])
+  return Promise.all([blocks, transactions, accounts, rounds].map(table => table.sync()))
 }
 
 module.exports = {

@@ -21,7 +21,7 @@ class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then((tables) => Promise.all([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
+      .then(tables => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
   }
 
   getActiveDelegates (height) {
@@ -36,7 +36,7 @@ class SequelizeDB extends DBInterface {
           },
           order: [[ 'publicKey', 'ASC' ]]
         })
-        .then((data) => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
+        .then(data => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
     }
   }
 
@@ -56,7 +56,7 @@ class SequelizeDB extends DBInterface {
           }
         }
       })
-      .then((data) => {
+      .then(data => {
         if (data.length < activeDelegates) {
           return this.accounts
             .findAll({
@@ -74,12 +74,13 @@ class SequelizeDB extends DBInterface {
             .then((data2) => data.concat(data2))
         } else return Promise.resolve(data)
       })
-      .then((data) => {
+      .then(data => {
         // logger.info(`got ${data.length} voted delegates`);
+        const round = parseInt(block.data.height / 51)
         that.activedelegates = data
           .sort((a, b) => b.balance - a.balance)
           .slice(0, 51)
-          .map((a) => Object.assign({round: parseInt(block.data.height / 51)}, a.dataValues))
+          .map(a => Object.assign({round: round}, a.dataValues))
         logger.info(`generated ${that.activedelegates.length} active delegates`)
         return Promise.resolve(that.activedelegates)
       })
@@ -203,7 +204,7 @@ class SequelizeDB extends DBInterface {
       .transaction(t =>
         Promise.all(
           Object.values(this.localaccounts || [])
-            .filter(acc => acc.address && (force || acc.dirty))
+            .filter(acc => acc.address && acc.publicKey && (force || acc.dirty))
             .map(acc => this.accounts.upsert(acc, t))
         )
       )
