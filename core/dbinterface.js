@@ -13,9 +13,9 @@ class DBInterface {
   static create (params) {
     const InstanceDB = (require(`${__dirname}/../${params.class}`))
     const db = new InstanceDB()
-    db.init(params)
-    instance = db
-    return Promise.resolve(instance)
+    return db
+      .init(params)
+      .then(() => (instance = db))
   }
 
   // getActiveDelegates (height) {
