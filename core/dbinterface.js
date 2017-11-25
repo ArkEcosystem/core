@@ -5,8 +5,7 @@ const logger = require('./logger')
 
 let instance
 
-class DB {
-
+class DBInterface {
   static getInstance () {
     return instance
   }
@@ -14,9 +13,9 @@ class DB {
   static create (params) {
     const InstanceDB = (require(`${__dirname}/../${params.class}`))
     const db = new InstanceDB()
-    db.init(params)
-    instance = db
-    return Promise.resolve(instance)
+    return db
+      .init(params)
+      .then(() => (instance = db))
   }
 
   // getActiveDelegates (height) {
@@ -117,4 +116,4 @@ class DB {
   }
 }
 
-module.exports = DB
+module.exports = DBInterface

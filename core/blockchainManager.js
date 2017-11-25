@@ -46,7 +46,7 @@ class BlockchainManager {
 
   postBlock (block) {
     logger.info('Received new block at height', block.height)
-    this.processQueue.push(block)
+    this.downloadQueue.push(block)
   }
 
   finishedNetworkSync () {

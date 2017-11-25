@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:10.1-alpine
+    container_name: ark-core-db
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      # To connect from your computer: `psql -h localhost -p 5432 -U arkman -d ark_devnet2`
+      POSTGRES_USER: arkman
+      POSTGRES_DB: ark_devnet2
+      POSTGRES_PASSWORD: ark-is-awesome
