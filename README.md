@@ -7,6 +7,11 @@ Still alpha
 
 ### Installation
 - Clone repo
+- Windows PreRequsities:
+  - install https://slproweb.com/download/Win64OpenSSL-1_0_2m.exe 
+  - `npm install --global --production windows-build-tools` (pay atention to have correct msbuild tools).
+  - if there is still a build error "missing CL.exe" --> create an empty C++ project in Microsoft Visual Studio. If missing it will reinstall correct build tools.
+
 - `npm install -g nodemon`
 - `npm install`
 - Check `config/___network___/server.json` (above all database connection parameters)
