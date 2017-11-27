@@ -2,6 +2,7 @@ const arkjs = require('arkjs')
 const Account = require('../model/account')
 const config = require('./config')
 const logger = require('./logger')
+const Promise = require('bluebird')
 
 let instance
 
@@ -64,20 +65,16 @@ class DBInterface {
     const appliedTransactions = []
     const that = this
     return Promise
-      .all(
-        block.transactions.map(
-          (tx) => this
-            .applyTransaction(tx)
-            .then(() => appliedTransactions.push(tx))
-        )
+      .each(block.transactions, tx => this
+        .applyTransaction(tx)
+        .then(() => appliedTransactions.push(tx))
       )
       .then(() => delegate.applyBlock(block.data))
       .then(() => this.applyRound(block, fastRebuild))
-      .catch((error) => {
-        return Promise
-          .all(appliedTransactions.map((tx) => that.undoTransaction(tx)))
-          .then(() => Promise.reject(error))
-      })
+      .catch(error => Promise
+        .each(appliedTransactions, tx => that.undoTransaction(tx))
+        .then(() => Promise.reject(error))
+      )
   }
 
   applyTransaction (transaction) {
