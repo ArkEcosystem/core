@@ -204,7 +204,8 @@ class SequelizeDB extends DBInterface {
       .transaction(t =>
         Promise.all(
           Object.values(this.localaccounts || [])
-            .filter(acc => acc.address && acc.publicKey && (force || acc.dirty))
+            // cold addresses are not saved on database
+            .filter(acc => acc.publicKey && (force || acc.dirty))
             .map(acc => this.accounts.upsert(acc, {transaction: t}))
         )
       )
