@@ -10,7 +10,12 @@
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
     "forge:testnet": "nodemon startForger.js -c config/testnet",
-    "test": "mocha"
+    "test": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts",
+    "test:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts",
+    "test:api": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.api",
+    "test:api:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.api",
+    "test:unit": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.unit",
+    "test:unit:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.unit"
   },
   "keywords": [
     "ark",

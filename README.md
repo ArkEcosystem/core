@@ -42,3 +42,16 @@ Upcoming:
   - [ ] fork management
   - [ ] bip38 encryption of delegate passphrase
 
+## Development
+
+### Testing
+
+To run the tests:
+ - `npm test` to test everything.
+ - `npm run test:api` to execute the API tests only.
+ - `npm run test:unit` to execute the unit tests only.
+
+To watch the source files and run the tests on changes:
+ - `npm test:watch` to test everything.
+ - `npm run test:api:watch` to execute the API tests only.
+ - `npm run test:unit:watch` to execute the unit tests only.
