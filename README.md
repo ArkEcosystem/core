@@ -52,6 +52,9 @@ To run the tests:
  - `npm run test:unit` to execute the unit tests only.
 
 To watch the source files and run the tests on changes:
- - `npm test:watch` to test everything.
+ - `npm run test:watch` to test everything.
  - `npm run test:api:watch` to execute the API tests only.
  - `npm run test:unit:watch` to execute the unit tests only.
+
+To calculate coverage:
+ - `npm run coverage` would show the report of all tests.

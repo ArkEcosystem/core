@@ -1,4 +1,4 @@
-test/setup.js
+test/support/setup.js
 test/unit/**/*.spec.js
 test/api/**/*.spec.js
 --recursive
