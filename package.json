@@ -39,5 +39,9 @@
     "wif": "^2.0.6",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
   }
 }
