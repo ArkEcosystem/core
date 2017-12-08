@@ -15,8 +15,10 @@ class ForgerManager {
   }
 
   loadDelegates () {
-    if (!this.secrets) return Promise.reject(new Error('No delegates found'))
-    this.delegates = this.secrets.map((passphrase) => new Delegate(passphrase, this.network))
+    if (!this.secrets)
+      return Promise.reject(new Error('No delegates found'))
+
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
     return Promise.resolve(this.delegates)
   }
 
@@ -64,7 +66,7 @@ class ForgerManager {
   }
 
   pickForgingDelegate (round) {
-    return Promise.resolve(this.delegates.find((delegate) => delegate.publicKey === round.delegate.publicKey))
+    return Promise.resolve(this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey))
   }
 
   getRound () {
