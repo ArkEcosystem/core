@@ -15,6 +15,7 @@ class Account {
   }
 
   toString () {
+    // TODO is it 10000000 or 100000000 TODO use constant to avoid typos
     return `${this.address}=${this.balance / 10000000}`
   }
 
