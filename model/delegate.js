@@ -11,22 +11,15 @@ class Delegate {
 
   // we consider transactions are signed, verified and unique
   forge (transactions, options) {
-    const txs = transactions
-      .map((tx) => tx.data)
-      .sort((a, b) => {
-        if (a.type < b.type) return -1
-        if (a.type > b.type) return 1
-        if (a.id < b.id) return -1
-        if (a.id > b.id) return 1
-        return 0
-      })
     if (!options.version) {
       const txstats = {
         amount: 0,
         fee: 0,
         sha256: crypto.createHash('sha256')
       }
-      txs.forEach((tx) => {
+
+      const txs = Delegate.sortTransactions(transactions)
+      txs.forEach(tx => {
         txstats.amount += tx.amount
         txstats.fee += tx.fee
         txstats.sha256.update(Buffer.from(tx.id, 'hex'))
@@ -49,6 +42,20 @@ class Delegate {
 
       return Block.create(data, this.keys)
     }
+  }
+
+  // TODO move as a re-usable utility?
+  static sortTransactions (transactions) {
+    // Map to create a new array (sort is done in place)
+    // TODO does it matter modifying the order of the original array
+    return transactions.map(t => t)
+      .sort((a, b) => {
+        if (a.type < b.type) return -1
+        if (a.type > b.type) return 1
+        if (a.id < b.id) return -1
+        if (a.id > b.id) return 1
+        return 0
+      })
   }
 }
 

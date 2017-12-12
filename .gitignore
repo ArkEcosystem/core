@@ -4,3 +4,5 @@ storage/*
 npm-debug.log
 .DS_Store
 .nvmrc
+.nyc_output/
+package-lock.json
