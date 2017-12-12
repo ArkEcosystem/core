@@ -3,6 +3,8 @@ const Account = require('../model/account')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
+const Block = require('../model/block')
+const async = require('async')
 
 let instance
 
@@ -51,7 +53,9 @@ class DBInterface {
         .then(() => this.buildDelegates(block))
         .then(() => this.rounds.bulkCreate(this.activedelegates))
         .then(() => block)
-    } else return Promise.resolve(block)
+    } else {
+      return Promise.resolve(block)
+    }
   }
 
   applyBlock (block, fastRebuild) {
@@ -94,6 +98,7 @@ class DBInterface {
     }
     sender.applyTransactionToSender(transaction.data)
     if (recipient) recipient.applyTransactionToRecipient(transaction.data)
+    // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
     //   const delegate = this.localaccounts[delegateAdress]
@@ -110,6 +115,32 @@ class DBInterface {
     sender.undoTransactionToSender(transaction.data)
     if (recipient) recipient.undoTransactionToRecipient(transaction.data)
     return Promise.resolve(transaction.data)
+  }
+
+  snapshot (path) {
+    const fs = require('fs')
+    const wstream = fs.createWriteStream(`${path}/blocks.dat`)
+    let max = 100000
+    let offset = 0
+    const writeQueue = async.queue((block, qcallback) => {
+      wstream.write(block)
+      qcallback()
+    }, 1)
+    this.getBlockHeaders(offset, offset + 100000).then(blocks => {
+      writeQueue.push(blocks)
+      max = blocks.length
+      offset += 100000
+      console.log(offset)
+    })
+    writeQueue.drain = () => {
+      console.log('drain')
+      this.getBlockHeaders(offset, offset + 100000).then(blocks => {
+        writeQueue.push(blocks)
+        max = blocks.length
+        offset += 100000
+        console.log(offset)
+      })
+    }
   }
 }
 

@@ -143,6 +143,7 @@ class BlockchainManager {
       } else if (block.data.height > this.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         this.processQueue.push(block.data)
+        qcallback()
       } else {
         // TODO: manage fork here
         logger.info('Block disregarded')

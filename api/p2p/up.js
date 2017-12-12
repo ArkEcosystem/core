@@ -34,9 +34,7 @@ class Up {
     this.mountInternal(server)
     this.mountV1(server)
 
-    server.listen(this.port, () => {
-      logger.info('%s interface listening at %s', server.name, server.url)
-    })
+    server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
   }
 
   mountV1 (server) {

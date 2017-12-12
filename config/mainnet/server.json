@@ -2,15 +2,16 @@
   "port": 4001,
   "version": "2.0.0",
   "fileLogLevel": "info",
+  "fastRebuild": true,
   "db": {
+    "class": "sequelize/db",
     "uri": "sqlite:storage/mainnet2.sqlite",
-    "dialect": "sqlite"
+    "dialect": "sqlite",
+    "logging": false
   },
   "api": {
     "mount": true,
-    "access": {
-      "whiteList": []
-    }
+    "port": 4003
   },
   "peers": {
     "minimumNetworkReach": 20,
@@ -63,8 +64,5 @@
       {"ip":"193.70.72.90", "port":4001}
     ],
     "blackList": []
-  },
-  "forging": {
-    "secret": []
   }
 }

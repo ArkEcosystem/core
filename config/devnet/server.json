@@ -1,12 +1,12 @@
 {
   "port": 4002,
-  "version": "1.1.0",
+  "version": "2.0.0",
   "fileLogLevel": "debug",
   "fastRebuild": true,
   "db": {
     "class": "sequelize/db",
-    "uri": "postgres://localhost:5432/ark_devnet2",
-    "dialect": "postgres",
+    "uri": "sqlite:storage/devnet.sqlite",
+    "dialect": "sqlite",
     "logging": false
   },
   "api": {
