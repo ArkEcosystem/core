@@ -3,9 +3,9 @@ const sinon = require('sinon')
 
 const Delegate = require('model/delegate')
 
-describe('Model | Delegate', ()=> {
-  describe('static sortTransactions', ()=> {
-    it('returns the transactions ordered by type and id', function() {
+describe('Model | Delegate', () => {
+  describe('static sortTransactions', () => {
+    it('returns the transactions ordered by type and id', () => {
       const ordered = [
         { type: 1, id: 2 }, { type: 1, id: 8 },
         { type: 2, id: 5 }, { type: 2, id: 9 }
@@ -16,9 +16,9 @@ describe('Model | Delegate', ()=> {
     })
   })
 
-  describe('forge', ()=> {
-    context('without version option', function() {
-      xit("doesn't sort the transactions", function() {
+  describe('forge', () => {
+    context('without version option', () => {
+      xit('doesn\'t sort the transactions', () => {
         const address = 'Abcde'
         const account = new Account(address)
         account.balance = Math.pow(10, 8)
@@ -27,7 +27,7 @@ describe('Model | Delegate', ()=> {
       })
 
       // TODO probably useful for debugging
-      xit('throws an Error', function() {
+      xit('throws an Error', () => {
       })
     })
   })

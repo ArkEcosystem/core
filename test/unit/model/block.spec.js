@@ -3,7 +3,7 @@ const sinon = require('sinon')
 
 const Block = require('model/block')
 
-describe('Model | Block', ()=> {
+describe('Model | Block', () => {
   const data = {
     id: 1,
     height: 1,
@@ -13,15 +13,15 @@ describe('Model | Block', ()=> {
     transactions: []
   }
 
-  describe('constructor', ()=> {
-    xit('stores the data', function() {
+  describe('constructor', () => {
+    xit('stores the data', () => {
     })
-    xit('verifies the block', function() {
+    xit('verifies the block', () => {
     })
   })
 
-  describe('getHeader', ()=> {
-    it('returns the block data without the transactions', function() {
+  describe('getHeader', () => {
+    it('returns the block data without the transactions', () => {
       // Ignore the verification for testing purposes
       sinon.stub(Block.prototype, 'verify')
 
