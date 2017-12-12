@@ -7,11 +7,17 @@ Still alpha
 
 ### Installation
 - Clone repo
+- Windows PreRequsities:
+  - install https://slproweb.com/download/Win64OpenSSL-1_0_2m.exe 
+  - `npm install --global --production windows-build-tools` (pay atention to have correct msbuild tools).
+  - if there is still a build error "missing CL.exe" --> create an empty C++ project in Microsoft Visual Studio. If missing it will reinstall correct build tools.
+
 - `npm install -g nodemon`
 - `npm install`
 - Check `config/___network___/server.json` (above all database connection parameters)
-  - Change database engine if required - set `db.dialect` to one of: sqlite, mysql, mssql or postgres
-  - Install package (E.g. `npm install ...`: sqlite3, mysql2, tedious or pq)
+  - Change database engine if required - set `db.dialect` to one of: `sqlite`, `mysql`, `mssql` or `postgres`
+  - Install package (E.g. `npm install ...`: `sqlite3`, `mysql2`, `tedious` or `pg pg-hstore`)
+    - sqlite also supports in memory. This can be done by setting uri to: `sqlite://:memory:`
   - The `docker-compose up` could be used to create and start the PostgreSQL database.
 - Start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
 - Start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
