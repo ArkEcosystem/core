@@ -1,6 +1,7 @@
 node_modules/
 logs/*
 storage/*
+snapshot/*.data
 npm-debug.log
 .DS_Store
 .nvmrc
