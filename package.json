@@ -10,6 +10,7 @@
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
     "forge:testnet": "nodemon startForger.js -c config/testnet",
+    "snapshot:devnet": "nodemon snapshot.js -c config/devnet",
     "test": "mocha"
   },
   "keywords": [
