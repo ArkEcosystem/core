@@ -24,27 +24,44 @@ Still alpha
 
 ## TODO: 
 
-  - [x] rebuild devnet
-  - [x] rebuild mainnet
-  - [x] start independant testnet
-  - [x] fast rebuild (with automatic switch to full rebuild when rebuild is close to network height)
-  - [x] rotating and compressing log
-  - [x] constants in config file, with progressive fork rules (to be improved to take into account rounds instead of height)
-  - [x] support for mysql (not tested)
-  - [x] support for postgresql
-  - [x] support for sqlite3
-  - [x] support for mssql (not tested)
-  - [x] internal API for forger
-  - [x] forger on independent core
+  - [x] Rebuild devnet
+  - [x] Rebuild mainnet
+  - [x] Start independant testnet
+  - [x] Fast rebuild (with automatic switch to full rebuild when rebuild is close to network height)
+  - [x] Rotating and compressing log
+  - [x] Constants in config file, with progressive fork rules (to be improved to take into account rounds instead of height)
+  - [x] Support for MySQL (not tested)
+  - [x] Support for PostgreSQL
+  - [x] Support for SQLite3
+  - [x] Support for MsSQL (not tested)
+  - [x] Internal API for forger
+  - [x] Forger on independent core
 
 Upcoming: 
-  - [ ] testing
-  - [ ] p2p API compatibility (60%)
+  - [ ] Testing
+  - [ ] P2P API compatibility (60%)
   - [ ] Transaction Pool (20%)
   - [ ] Connect forger to Transaction Pool
-  - [ ] new p2P API
-  - [ ] support for mongodb
-  - [ ] support for leveldb
-  - [ ] fork management
-  - [ ] bip38 encryption of delegate passphrase
+  - [ ] New P2P API
+  - [ ] Support for MongoDB
+  - [ ] Support for LevelDB
+  - [ ] Fork management
+  - [ ] BIP38 encryption of delegate passphrase
+  - [ ] Documentation
 
+## Development
+
+### Testing
+
+To run the tests:
+ - `npm test` to test everything.
+ - `npm run test:api` to execute the API tests only.
+ - `npm run test:unit` to execute the unit tests only.
+
+To watch the source files and run the tests on changes:
+ - `npm run test:watch` to test everything.
+ - `npm run test:api:watch` to execute the API tests only.
+ - `npm run test:unit:watch` to execute the unit tests only.
+
+To calculate coverage:
+ - `npm run coverage` would show the report of all tests.

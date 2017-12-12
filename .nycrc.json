@@ -1,0 +1,8 @@
+{
+  "watermarks": {
+    "statements": [80, 95],
+    "functions": [70, 90],
+    "branches": [70, 90],
+    "lines": [80, 95]
+  }
+}
