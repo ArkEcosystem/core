@@ -81,7 +81,7 @@ class SequelizeDB extends DBInterface {
           .sort((a, b) => b.balance - a.balance)
           .slice(0, 51)
           .map(a => Object.assign({round: round}, a.dataValues))
-        logger.info(`generated ${that.activedelegates.length} active delegates`)
+        logger.debug(`generated ${that.activedelegates.length} active delegates`)
         return Promise.resolve(that.activedelegates)
       })
   }
@@ -271,6 +271,22 @@ class SequelizeDB extends DBInterface {
         })
         return Promise.resolve(nblocks)
       })
+  }
+
+  getBlockHeaders (offset, limit) {
+    const last = offset + limit
+    return this.blocks
+      .findAll({
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
+        where: {
+          height: {
+            [Sequelize.Op.between]: [offset, last]
+          }
+        }
+      })
+      .then(blocks => blocks.map(block => Block.serialize(block)))
   }
 }
 

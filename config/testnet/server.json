@@ -4,18 +4,16 @@
   "version": "2.0.0",
   "fileLogLevel": "info",
   "db": {
+    "class": "sequelize/db",
     "uri": "sqlite:storage/test.sqlite",
     "dialect": "sqlite",
     "logging": true
   },
   "api": {
-    "mount":true,
-    "access": {
-      "whiteList": []
-    }
+    "mount": true,
+    "port": 4003
   },
   "peers": {
     "blackList": []
-  },
-  "nethash": "d1c7fa0dcf7584add7a535acd674d3b13fa794345d83c3789cc2436d6ecd80d1"
+  }
 }

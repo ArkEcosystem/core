@@ -23,6 +23,14 @@ class TransactionPool {
   verify (transaction) {
     return arkjs.crypto.verify(transaction)
   }
+
+  addBlock (block) {
+    block.transactions.forEach(tx => delete this.pool[tx.id])
+  }
+
+  rebuildBlockHeader (block) {
+    
+  }
 }
 
 module.exports = TransactionPool
