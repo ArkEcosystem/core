@@ -10,8 +10,11 @@
     "logging": true
   },
   "api": {
-    "mount": true,
-    "port": 4003
+    "mount":true,
+    "port": 4003,
+    "access": {
+      "whiteList": []
+    }
   },
   "peers": {
     "blackList": []
