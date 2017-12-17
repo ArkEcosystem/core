@@ -10,7 +10,7 @@ const _headers = {
 }
 
 function setHeaders (res) {
-  ['nethash', 'os', 'version', 'port'].forEach((key) => res.header(key, _headers[key]))
+  ['nethash', 'os', 'version', 'port'].forEach(key => res.header(key, _headers[key]))
   return Promise.resolve()
 }
 
@@ -63,6 +63,7 @@ class Up {
     if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req)) {
       res.send(500, {success: false, message: 'API not existing'})
     }
+
     const peer = {}
     peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
@@ -96,30 +97,41 @@ class Up {
   }
 
   getStatus (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock.getHeader()
+    const { lastBlock } = blockchain.getInstance()
+
+    // TODO comment to explain "slot"
+    const { slots } = arkjs
+    const forgingAllowed = slots.getSlotNumber() === slots.getSlotNumber(slots.getTime() + slots.interval / 2)
+
+    const header = lastBlock.getHeader()
+    // Avoid converting a circular structure to JSON
+    // TODO remove the metadata + "private" (_xxx) attributes
+    delete header._modelOptions
+
     res.send(200, {
       success: true,
-      height: lastBlock.height,
-      forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
-      currentSlot: arkjs.slots.getSlotNumber(),
-      header: lastBlock
+      height: lastBlock.data.height,
+      forgingAllowed,
+      currentSlot: slots.getSlotNumber(),
+      header
     })
     next()
   }
 
   getRound (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock
+    const { lastBlock } = blockchain.getInstance()
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
-    const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
-    const reward = this.config.getConstants(lastBlock.data.height).reward
+    const { blockTime } = this.config.getConstants(lastBlock.data.height)
+    const { reward } = this.config.getConstants(lastBlock.data.height)
+
     this.getActiveDelegates(lastBlock.data.height).then(delegates => {
       res.send(200, {
         success: true,
         round: {
           current: parseInt(lastBlock.data.height / maxActive),
-          reward: reward,
+          reward,
           timestamp: arkjs.slots.getTime(),
-          delegates: delegates,
+          delegates,
           delegate: delegates[lastBlock.data.height % maxActive],
           lastBlock: lastBlock.data,
           canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
