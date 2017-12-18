@@ -1,9 +1,9 @@
-node_modules/
-logs/*
-storage/*
-snapshot/*.data
-npm-debug.log
 .DS_Store
 .nvmrc
 .nyc_output/
+logs/*
+node_modules/
+npm-debug.log
 package-lock.json
+snapshot/*.data
+storage/*
