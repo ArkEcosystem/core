@@ -107,7 +107,7 @@ class BlockchainManager {
             .then(() => block)
         }
       })
-      .catch((error) => {
+      .catch(error => {
         logger.debug(error)
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {

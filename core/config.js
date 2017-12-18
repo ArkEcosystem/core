@@ -3,6 +3,16 @@ const deepmerge = require('deepmerge')
 
 let instance = null
 
+/**
+ * Configuration options are:
+ * - port:
+ * - address
+ * - version
+ * ...
+ * - api
+ * ...
+ * - ssl
+ */
 class Config {
   constructor () {
     if (!instance) {

@@ -1,4 +1,4 @@
-const node = require('../support/node')
+const node = require('test/support/node')
 
 xdescribe('GET /peer/list', function () {
 

@@ -5,9 +5,10 @@
 const node = {}
 
 const networkName = 'testnet'
+
 const network = require(`config/${networkName}/network.json`)
 node.config = require(`config/${networkName}/server.json`)
-
+node.genesisBlock = require(`config/${networkName}/genesisBlock.json`)
 node.delegates = require(`test/support/fixtures/${networkName}/delegatesPassphrases.json`)
 node.gAccount = require(`test/support/fixtures/${networkName}/genesisPassphrase.json`)
 node.gAccount.password = node.gAccount.passphrase
@@ -100,18 +101,25 @@ node.startRelay = options => {
 
   return DB
     .create(config.server.db)
-    .then(db => blockchainManager.attachDBInterface(db))
-    .then(() => logger.info('Database started'))
+    .then(db => {
+      blockchainManager.attachDBInterface(db)
+      logger.info('Database started')
+    })
     .then(() => p2p.warmup())
     .then(() => logger.info('Network interface started'))
     .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-    .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height))
+    .then(lastBlock => {
+      logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height)
+    })
     .then(() => blockchainManager.syncWithNetwork())
     .then(() => new PublicAPI(config).start())
     .catch(fatal => logger.error('fatal error', fatal))
 }
 
 node.stopRelay = () => {
+}
+
+node.resumeRelay = () => {
 }
 
 node.startForger = options => {

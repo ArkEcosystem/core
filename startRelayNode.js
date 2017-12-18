@@ -36,7 +36,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 DB
   .create(config.server.db)
-  .then((db) => blockchainManager.attachDBInterface(db))
+  .then(db => blockchainManager.attachDBInterface(db))
   .then(() => logger.info('Database started'))
   .then(() => p2p.warmup())
   .then(() => logger.info('Network interface started'))

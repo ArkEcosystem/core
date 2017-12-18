@@ -14,11 +14,11 @@ class DBInterface {
   }
 
   static create (params) {
-    const InstanceDB = (require(`${__dirname}/../${params.class}`))
+    const InstanceDB = require(`${__dirname}/../${params.class}`)
     const db = new InstanceDB()
     return db
       .init(params)
-      .then(() => (instance = db))
+      .then(() => instance = db)
   }
 
   // getActiveDelegates (height) {
@@ -83,22 +83,30 @@ class DBInterface {
 
   applyTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+    const sender = this.localaccounts[senderId] // should exist
+    if (!sender.publicKey) {
+      sender.publicKey = transaction.data.senderPublicKey
+    }
+
     const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
     let recipient = this.localaccounts[recipientId]
     if (!recipient && recipientId) { // cold wallet
       recipient = new Account(recipientId)
       this.localaccounts[recipientId] = recipient
     }
+
     if (!config.network.exceptions[transaction.data.id] && !sender.canApply(transaction.data)) {
       logger.error(sender)
       logger.error(JSON.stringify(transaction.data))
       return Promise.reject(new Error(`Can't apply transaction ${transaction.data.id}`))
     }
+
     sender.applyTransactionToSender(transaction.data)
-    if (recipient) recipient.applyTransactionToRecipient(transaction.data)
-    // TODO: faster way to maintain active delegate list (ie instead of db queries)
+    if (recipient) {
+      recipient.applyTransactionToRecipient(transaction.data)
+      // TODO: faster way to maintain active delegate list (ie instead of db queries)
+    }
+
     // if (sender.vote) {
     //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
     //   const delegate = this.localaccounts[delegateAdress]
@@ -109,11 +117,15 @@ class DBInterface {
 
   undoTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+    const sender = this.localaccounts[senderId] // should exist
+
     const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    let recipient = this.localaccounts[recipientId]
+    const recipient = this.localaccounts[recipientId]
+
     sender.undoTransactionToSender(transaction.data)
-    if (recipient) recipient.undoTransactionToRecipient(transaction.data)
+    if (recipient) {
+      recipient.undoTransactionToRecipient(transaction.data)
+    }
     return Promise.resolve(transaction.data)
   }
 

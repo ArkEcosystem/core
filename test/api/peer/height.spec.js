@@ -2,7 +2,7 @@ const node = require('test/support/node')
 // TODO inject automatically
 const { expect } = require('chai')
 
-describe('GET /peers/height', function () {
+xdescribe('GET /peers/height', function () {
 
   before(function () {
     return node.startRelay()
