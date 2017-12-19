@@ -9,7 +9,7 @@ function all (req, res, next) {
   next()
 }
 
-// add a routes like you would on a restify server instance
-router.get('/accounts', all)
+router.get({path: '/accounts', version: '1.0.0'}, all)
+router.get({path: '/v1/accounts'}, all)
 
 module.exports = router

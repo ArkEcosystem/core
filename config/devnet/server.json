@@ -11,7 +11,8 @@
   },
   "api": {
     "mount": true,
-    "port": 4003
+    "port": 4003,
+    "version": "1.0.0"
   },
   "peers": {
     "minimumNetworkReach": 10,

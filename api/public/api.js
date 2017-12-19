@@ -1,8 +1,12 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
-// const blockchain = require('../../core/blockchainManager')
+
 const accountsRouterV1 = require('./v1/accounts')
-const autoLoaderRouter = require('./loader')
+const autoLoaderRouterV1 = require('./v1/loader')
+const accountsRouterV2 = require('./v2/accounts')
+const autoLoaderRouterV2 = require('./v2/loader')
+
+const API_PREFIX = 'api'
 
 class PublicAPI {
   constructor (config) {
@@ -17,32 +21,55 @@ class PublicAPI {
       return
     }
 
-    this.createPublicRESTServer({name: 'arkpublic'})
+    this.server = this.createPublicRESTServer()
   }
 
-  createPublicRESTServer (options) {
+  createPublicRESTServer () {
     logger.debug('Mounting of Public API started')
 
     // let router = new Router()
     let server = restify.createServer({name: 'arkpublic'})
     // server.use((req, res, next) => this.acceptRequest(req, res, next))
+
+    server.pre((req, res, next) => this.apiVersionCheck(req, res, next))
     server.use(restify.plugins.bodyParser({mapParams: true}))
     server.use(restify.plugins.queryParser())
     server.use(restify.plugins.gzipResponse())
 
     this.applyV1Routes(server)
+    this.applyV2Routes(server)
 
     server.listen(this.port, () => {
-      logger.info('%s interface listening at %s', server.name, server.url)
       logger.info('Public API successfully mounted')
+      logger.info('%s interface listening at %s', server.name, server.url)
     })
+
+    return server
   }
 
-  applyV1Routes(server) {
+  applyV1Routes (server) {
     // ROUTES FOR V1 - API REPLICATION
-    accountsRouterV1.applyRoutes(server, 'api/public/v1')
-    autoLoaderRouter.applyRoutes(server, 'api/loader')
+    accountsRouterV1.applyRoutes(server, API_PREFIX)
+    autoLoaderRouterV1.applyRoutes(server, API_PREFIX)
     // TODO add other API routes here
+  }
+
+  applyV2Routes (server) {
+    // ROUTES FOR V1 - API REPLICATION
+    accountsRouterV2.applyRoutes(server, API_PREFIX)
+    autoLoaderRouterV2.applyRoutes(server, API_PREFIX)
+    // TODO add other API routes here
+  }
+
+  apiVersionCheck (req, res, next) {
+    if (!req.header('accept-version')) {
+      // if url is not fixed with version - i.e. different from /api/v2m then - we set accept-version to default as specified in config.api.version
+      if (!req.url.match(/^\/api\/v[1-9]\/.+$/)) {
+        req.headers['accept-version'] = this.config.server.api.version
+        logger.info('Client header for Accept-version API undefined (neither uri, or header value), Setting config version', req.headers['accept-version'])
+      }
+    }
+    next()
   }
 
   isLocalhost (req) {
