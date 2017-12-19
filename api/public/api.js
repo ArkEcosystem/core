@@ -1,7 +1,7 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
 // const blockchain = require('../../core/blockchainManager')
-const accountsRouter = require('./accounts')
+const accountsRouterV1 = require('./v1/accounts')
 const autoLoaderRouter = require('./loader')
 
 class PublicAPI {
@@ -17,10 +17,10 @@ class PublicAPI {
       return
     }
 
-    this.createServer({name: 'arkpublic'})
+    this.createPublicRESTServer({name: 'arkpublic'})
   }
 
-  createServer (options) {
+  createPublicRESTServer (options) {
     logger.debug('Mounting of Public API started')
 
     // let router = new Router()
@@ -30,15 +30,19 @@ class PublicAPI {
     server.use(restify.plugins.queryParser())
     server.use(restify.plugins.gzipResponse())
 
-    // add routes - each file for it's own route package
-    accountsRouter.applyRoutes(server, 'api')
-    autoLoaderRouter.applyRoutes(server, 'api/loader')
-    // TODO add other API routes here
+    this.applyV1Routes(server)
 
     server.listen(this.port, () => {
       logger.info('%s interface listening at %s', server.name, server.url)
       logger.info('Public API successfully mounted')
     })
+  }
+
+  applyV1Routes(server) {
+    // ROUTES FOR V1 - API REPLICATION
+    accountsRouterV1.applyRoutes(server, 'api/public/v1')
+    autoLoaderRouter.applyRoutes(server, 'api/loader')
+    // TODO add other API routes here
   }
 
   isLocalhost (req) {
