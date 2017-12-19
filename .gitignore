@@ -7,3 +7,5 @@ npm-debug.log
 .nvmrc
 .nyc_output/
 package-lock.json
+.idea/*
+.vscode/*
