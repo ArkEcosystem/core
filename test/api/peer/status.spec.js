@@ -2,22 +2,26 @@ const node = require('test/support/node')
 // TODO inject automatically
 const { expect } = require('chai')
 
-xdescribe('GET /peers/status', function () {
+describe('GET /peers/status', function () {
 
-  before(function () {
-    return node.startRelay()
+  before(() => {
+    this.timeout(10 * 1000)
+    return node.resumeRelay()
   })
 
-  after(function () {
+  // FIXME stop tests
+  after(() => {
     return node.stopRelay()
   })
 
   const request = callback => {
     return new Promise((resolve, reject) => {
-      node.get('/peer/status', function (err, res) {
+      node.get('/peer/status')
+      .then(res => {
         callback(res.body, res)
         resolve()
       })
+      .catch(err => reject(err))
     })
   }
 

@@ -44,7 +44,7 @@ node.api = node.supertest(node.baseUrl)
 
 node.normalizer = Math.pow(10, 8); // Use this to convert ARK amount to normal value
 node.blockTime = 10000; // Block time in miliseconds
-node.blockTimePlus = 12000; // Block time + 2 seconds in miliseconds
+node.blockTimePlus = node.blockTime + 2000
 node.version = '0.0.0'; // Node version
 
 // Transaction fees
@@ -71,12 +71,13 @@ if (process.env.SILENT === 'true') {
   node.debug = console.log;
 }
 
+let p2p
 node.startRelay = options => {
   if (! options) {
     options = {
-      server: require('config/testnet/server.json'),
-      genesisBlock: require('config/testnet/genesisBlock.json'),
-      network: require('config/testnet/network.json')
+      server: require(`config/${networkName}/server.json`),
+      genesisBlock: require(`config/${networkName}/genesisBlock.json`),
+      network: require(`config/${networkName}/network.json`)
     }
   }
 
@@ -84,7 +85,11 @@ node.startRelay = options => {
   config.init(options)
 
   const logger = require('core/logger')
-  logger.init(config.server.fileLogLevel, `${config.network.name}-forger`)
+  logger.init(config.server.fileLogLevel, `TEST-${config.network.name}-relay`)
+
+  // Useful for avoiding useless logs
+  // logger.level('error')
+  // logger.mute()
 
   process.on('unhandledRejection', (reason, p) => {
     logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
@@ -94,7 +99,7 @@ node.startRelay = options => {
   const P2PInterface = require('api/p2p/p2pinterface')
 
   const blockchainManager = new BlockchainManager(config)
-  const p2p = new P2PInterface(config)
+  p2p = new P2PInterface(config)
 
   const DB = require('core/dbinterface')
   const PublicAPI = require('api/public/api')
@@ -102,33 +107,60 @@ node.startRelay = options => {
   return DB
     .create(config.server.db)
     .then(db => {
+      logger.info('\t> Database started'.cyan)
       blockchainManager.attachDBInterface(db)
-      logger.info('Database started')
+      return blockchainManager.attachNetworkInterface(p2p).init()
+    })
+    .then(lastBlock => {
+      logger.info('\t> Blockchain initialized, local lastBlock'.cyan, (lastBlock.data || {height: 0}).height)
     })
     .then(() => p2p.warmup())
-    .then(() => logger.info('Network interface started'))
-    .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-    .then(lastBlock => {
-      logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height)
+    .then(() => {
+      logger.info('\t> Network interface started'.cyan)
     })
     .then(() => blockchainManager.syncWithNetwork())
+    .then(() => {
+      logger.info('\t> Blockchain synced'.cyan)
+    })
     .then(() => new PublicAPI(config).start())
-    .catch(fatal => logger.error('fatal error', fatal))
+    .then(() => {
+      logger.info('\t> Public API ready'.cyan)
+      Promise.resolve('hell yeah!')
+    })
+    .catch(fatal => logger.error('FATAL ERROR'.red, fatal))
 }
 
 node.stopRelay = () => {
+  return new Promise((resolve, reject) => {
+    if (p2p) {
+      p2p.up.server.close(() => {
+        resolve()
+      })
+    } else {
+      resolve()
+    }
+  })
 }
 
-node.resumeRelay = () => {
+node.resumeRelay = options => {
+  return new Promise((resolve, reject) => {
+    if (!p2p) {
+      node.startRelay(options).then(() => {
+        resolve()
+      })
+    } else {
+      resolve(p2p)
+    }
+  })
 }
 
 node.startForger = options => {
   if (! options) {
     options = {
-      server: require('config/testnet/server.json'),
-      genesisBlock: require('config/testnet/genesisBlock.json'),
-      network: require('config/testnet/network.json'),
-      delegates: require('config/testnet/delegate.json')
+      server: require(`config/${networkName}/server.json`),
+      genesisBlock: require(`config/${networkName}/genesisBlock.json`),
+      network: require(`config/${networkName}/network.json`),
+      delegates: require(`config/${networkName}/delegate.json`)
     }
   }
 
@@ -136,7 +168,7 @@ node.startForger = options => {
   config.init(options)
 
   const logger = require('core/logger')
-  logger.init(config.server.fileLogLevel, `${config.network.name}-forger`)
+  logger.init(config.server.fileLogLevel, `TEST-${config.network.name}-forger`)
 
   process.on('unhandledRejection', (reason, p) => {
     logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
@@ -387,40 +419,39 @@ node.randomPassword = function () {
 };
 
 // Abstract request
-function abstractRequest (options, done) {
-  var request = node.api[options.verb.toLowerCase()](options.path);
+const abstractRequest = options => {
+  node.debug(`${'> Path:'.grey} ${options.verb} ${options.path}`)
 
-  request.set('Accept', 'application/json');
-  request.set('version', node.version);
-  request.set('nethash', node.config.nethash);
-  request.set('port', node.config.port);
+  const request = node.api[options.verb.toLowerCase()](options.path)
+  request.set('Accept', 'application/json')
 
-  request.expect('Content-Type', /json/);
-  request.expect(200);
+  const serverConfig = require(`config/${networkName}/server.json`)
+  request.set('version', serverConfig.version)
+  request.set('port', serverConfig.port)
+  const networkConfig = require(`config/${networkName}/network.json`)
+  request.set('nethash', networkConfig.nethash)
 
   if (options.params) {
-    request.send(options.params);
+    request.send(options.params)
+    node.debug('> Data:'.grey, JSON.stringify(options.params))
   }
 
-  node.debug(['> Path:'.grey, options.verb.toUpperCase(), options.path].join(' '));
-  node.debug('> Data:'.grey, JSON.stringify(options.params));
+  request.expect('Content-Type', /json/)
+  request.expect(200)
 
-  if (done) {
-    request.end(function (err, res) {
-      node.debug('> Response:'.grey, JSON.stringify(res.body));
-      if (err) {
-        node.debug('> ERROR:'.red, err);
-      }
-      done(err, res);
-    });
-  } else {
-    return request;
-  }
+  request.then(res => {
+    node.debug('> Response:'.grey, JSON.stringify(res.body))
+  })
+  request.catch(err => {
+    node.debug('> ERROR:'.red, err)
+  })
+
+  return request
 }
 
 // Get the given path
-node.get = function (path, done) {
-  return abstractRequest({ verb: 'GET', path, params: null }, done)
+node.get = function (path, params=null) {
+  return abstractRequest({ verb: 'GET', path, params })
 }
 
 // Post to the given path

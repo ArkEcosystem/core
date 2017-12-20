@@ -1,7 +1,7 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
 const dbInterface = require('../../core/dbinterface')
-const blockchain = require('../../core/blockchainManager')
+const BlockchainManager = require('../../core/blockchainManager')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 
@@ -23,35 +23,41 @@ class Up {
   }
 
   start (p2p) {
-    this.p2p = p2p
-    let server = restify.createServer({name: 'arkp2p'})
-    server.use((req, res, next) => this.acceptRequest(req, res, next))
-    server.use(restify.plugins.bodyParser({mapParams: true}))
-    server.use(restify.plugins.queryParser())
-    server.use(restify.plugins.gzipResponse())
+    return new Promise((resolve, reject) => {
+      this.p2p = p2p
+      this.server = restify.createServer({name: 'arkp2p'})
+      this.server.use((req, res, next) => this.acceptRequest(req, res, next))
+      this.server.use(restify.plugins.bodyParser({mapParams: true}))
+      this.server.use(restify.plugins.queryParser())
+      this.server.use(restify.plugins.gzipResponse())
 
-    this.mountInternal(server)
-    this.mountV1(server)
+      this.mountInternal()
+      this.mountV1()
 
-    server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
+      this.server.listen(this.port, () => {
+        logger.info('%s interface listening at %s', this.server.name, this.server.url)
+      })
+
+      resolve('mounted')
+    })
   }
 
-  mountV1 (server) {
-    server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
+  mountV1 () {
+    this.server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
     // server.get('/peer/blocks/common', this.getCommonBlocks);
-    server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
+    this.server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
     // server.get('/peer/transactions', this.getTransactions);
     // server.get('/peer/transactionsFromIds', this.getTransactionsFromIds);
-    server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
-    server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
+    this.server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
+    this.server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
 
-    server.post('/blocks', this.postInternalBlock) // Currently the `internal` behaviour is the same
+    this.server.post('/blocks', this.postInternalBlock) // Currently the `internal` behaviour is the same
     // server.post('/transactions', this.postTransactions);
   }
 
-  mountInternal (server) {
-    server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
-    server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
+  mountInternal () {
+    this.server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
+    this.server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
   }
 
   isLocalhost (request) {
@@ -107,13 +113,13 @@ class Up {
 
   getHeight (req, res, next) {
     this.success(res, next, {
-      height: blockchain.getInstance().lastBlock.data.height,
-      id: blockchain.getInstance().lastBlock.data.id
+      height: BlockchainManager.getInstance().lastBlock.data.height,
+      id: BlockchainManager.getInstance().lastBlock.data.id
     })
   }
 
   getStatus (req, res, next) {
-    const { lastBlock } = blockchain.getInstance()
+    const { lastBlock } = BlockchainManager.getInstance()
 
     // TODO comment to explain "slot"
     const { slots } = arkjs
@@ -133,7 +139,7 @@ class Up {
   }
 
   getRound (req, res, next) {
-    const { lastBlock } = blockchain.getInstance()
+    const { lastBlock } = BlockchainManager.getInstance()
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const { blockTime } = this.config.getConstants(lastBlock.data.height)
     const { reward } = this.config.getConstants(lastBlock.data.height)
@@ -154,7 +160,7 @@ class Up {
   }
 
   postInternalBlock (req, res, next) {
-    blockchain.getInstance().postBlock(req.body)
+    BlockchainManager.getInstance().postBlock(req.body)
     this.success(res, next)
   }
 
