@@ -1,5 +1,5 @@
+/* eslint-env node, mocha */
 const { expect } = require('chai')
-const sinon = require('sinon')
 
 const Transaction = require('model/transaction')
 

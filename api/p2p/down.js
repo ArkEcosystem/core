@@ -63,7 +63,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      logger.error('Not random peer', this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -77,7 +77,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      logger.error('Not random peer', this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }

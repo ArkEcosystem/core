@@ -6,7 +6,7 @@ registerPromiseWorker(message => {
     return popsicle
       .request({
         method: 'GET',
-        url: message.url + '/peer/blocks?lastBlockHeight=' + message.height,
+        url: `${message.url}/peer/blocks?lastBlockHeight=${message.height}`,
         headers: message.headers,
         timeout: 60000
       })

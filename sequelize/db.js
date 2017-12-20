@@ -144,7 +144,7 @@ class SequelizeDB extends DBInterface {
             account.publicKey = row.senderPublicKey
             account.balance = -parseInt(row.amount) - parseInt(row.fee)
             this.localaccounts[account.address] = account
-            logger.error(account.address, row.amount, row.fee)
+            logger.error('Error while building accounts', account.address, row.amount, row.fee)
           }
         })
         logger.info('SPV rebuild finished', Object.keys(this.localaccounts).length)
@@ -238,7 +238,7 @@ class SequelizeDB extends DBInterface {
           return Promise.reject(new Error('No block found in database'))
         }
       })
-      .then((block) =>
+      .then(block =>
         this.transactions
           .findAll({where: {blockId: block.id}})
           .then(data => {

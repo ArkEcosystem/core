@@ -96,7 +96,7 @@ class DBInterface {
     }
 
     if (!config.network.exceptions[transaction.data.id] && !sender.canApply(transaction.data)) {
-      logger.error(sender)
+      logger.error('Error while applying transaction', sender)
       logger.error(JSON.stringify(transaction.data))
       return Promise.reject(new Error(`Can't apply transaction ${transaction.data.id}`))
     }

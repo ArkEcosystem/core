@@ -40,7 +40,7 @@ class ForgerManager {
         .then(delegate => delegate.forge([], data))
         .then(block => that.broadcast(block))
         .catch(error => {
-          logger.info('Not able to forge:', error.message)
+          logger.error('Not able to forge:', error.message)
           logger.info('round:', round ? round.current : '', 'height:', round.lastBlock.height)
           return Promise.resolve()
         })
@@ -62,7 +62,7 @@ class ForgerManager {
         timeout: 2000
       })
       .use(popsicle.plugins.parse('json'))
-      .then((result) => result.success)
+      .then(result => result.success)
   }
 
   pickForgingDelegate (round) {
@@ -78,7 +78,7 @@ class ForgerManager {
         timeout: 2000
       })
       .use(popsicle.plugins.parse('json'))
-      .then((result) => result.body.round)
+      .then(result => result.body.round)
   }
 }
 

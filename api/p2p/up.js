@@ -95,7 +95,7 @@ class Up {
   }
 
   fail(res, error) {
-    logger.error(error)
+    logger.error('Request error', error)
     res.send(500, {success: false, message: error})
   }
 
