@@ -1,18 +1,29 @@
 // accounts.js
 const Router = require('restify-router').Router
 const router = new Router()
+const Account = require('../../../model/account')
+const BlockchainManager = require('../../../core/blockchainManager')
 
-function all (req, res, next) {
+const PATH_PREFIX = '/accounts'
+
+function getBalance (req, res, next) {
+
   res.send(200, {
     success: true,
-    api: 'v2-not yet implemented',
-    requestedVersion: req.version(),
-    matchedVersion: req.matchedVersion()
+    wallet: "v2 richie rich",
   })
   next()
 }
 
-router.get({path: '/accounts', version: '2.0.0'}, all)
-router.get({path: '/v2/accounts'}, all)
+router.get({path: PATH_PREFIX + '/getBalance', version: '2.0.0'}, getBalance)
+
+// TODO
+/*'get /getBalance': 'getBalance',
+  'get /getPublicKey': 'getPublickey',
+  'get /delegates': 'getDelegates',
+  'get /delegates/fee': 'getDelegatesFee',
+  'put /delegates': 'addDelegates',
+  'get /': 'getAccount'
+});*/
 
 module.exports = router

@@ -13,6 +13,5 @@ function getAutoConfigure (req, res, next) {
 }
 
 router.get({path: '/loader/autoconfigure', version: '2.0.0'}, getAutoConfigure)
-router.get({path: '/v2/loader/autoconfigure'}, getAutoConfigure)
 
 module.exports = router

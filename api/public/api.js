@@ -63,11 +63,8 @@ class PublicAPI {
 
   apiVersionCheck (req, res, next) {
     if (!req.header('accept-version')) {
-      // if url is not fixed with version - i.e. different from /api/v2m then - we set accept-version to default as specified in config.api.version
-      if (!req.url.match(/^\/api\/v[1-9]\/.+$/)) {
-        req.headers['accept-version'] = this.config.server.api.version
-        logger.info('Client header for Accept-version API undefined (neither uri, or header value), Setting config version', req.headers['accept-version'])
-      }
+      req.headers['accept-version'] = this.config.server.api.version
+      logger.info('Client header for accept-version REST API undefined (header value accept-version missing).  Setting default config version', req.headers['accept-version'])
     }
     next()
   }

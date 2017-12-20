@@ -36,7 +36,6 @@
     "bs58check": "^2.1.0",
     "commander": "^2.11.0",
     "deepmerge": "^2.0.1",
-    "jshint": "^2.9.5",
     "pg": "^6.4.2",
     "popsicle": "^9.2.0",
     "promise-worker": "^1.1.1",
