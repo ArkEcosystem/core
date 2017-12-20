@@ -13,10 +13,13 @@ class SequelizeDB extends DBInterface {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
     }
+
     this.localaccounts = {}
+
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
-      logging: !!params.logging
+      // @see https://github.com/sequelize/sequelize/issues/7821
+      logging: params.logging ? (msg => logger.info(msg)) : (msg => logger.ignore(msg))
     })
     return this.db
       .authenticate()
@@ -31,9 +34,7 @@ class SequelizeDB extends DBInterface {
     else {
       return this.rounds
         .findAll({
-          where: {
-            round: round
-          },
+          where: { round },
           order: [[ 'publicKey', 'ASC' ]]
         })
         .then(data => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
