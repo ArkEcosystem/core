@@ -145,6 +145,13 @@ class DBInterface {
       })
     }
   }
+
+  getAccount (address) {
+    return this.accounts.findById(address)
+      .then(account => {
+        return account
+      })
+  }
 }
 
 module.exports = DBInterface

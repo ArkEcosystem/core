@@ -288,14 +288,6 @@ class SequelizeDB extends DBInterface {
       })
       .then(blocks => blocks.map(block => Block.serialize(block)))
   }
-
-  getAccount (address) {
-    return this.accounts.findById(address)
-      .then(account => {
-        logger.info(account)
-        return Promise.resolve(account)
-      })
-  }
 }
 
 module.exports = SequelizeDB

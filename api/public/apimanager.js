@@ -1,19 +1,17 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
 
-const walletRouterV1 = require('./v1/walletrouter')
-const autoLoaderRouterV1 = require('./v1/loader')
-const walletRouterV2 = require('./v2/walletrouter')
-const autoLoaderRouterV2 = require('./v2/loader')
+const walletCtrlV1 = require('./v1/walletcontroller')
+const autoLoaderCtrlV1 = require('./v1/loadercontroller')
+const walletCtrlV2 = require('./v2/walletcontroller')
+const autoLoaderCtrlV2 = require('./v2/loadercontroller')
 
-const API_PREFIX = 'api/'
-let db = null
-
-class PublicAPI {
-  constructor (config) {
+class ApiManager {
+  constructor (config, dbI) {
     this.port = config.server.api.port
     this.mount = config.server.api.mount
     this.config = config
+    this.db = dbI
   }
 
   start () {
@@ -21,12 +19,11 @@ class PublicAPI {
       logger.info('Public API not mounted as not configured to do so')
       return
     }
-    //db = dbInterface
     this.server = this.createPublicRESTServer()
   }
 
   createPublicRESTServer () {
-    logger.debug('Mounting of Public API started')
+    logger.debug('Starting to mount of Public API started')
 
     // let router = new Router()
     let server = restify.createServer({name: 'arkpublic'})
@@ -48,15 +45,13 @@ class PublicAPI {
   }
 
   applyV1Routes (server) {
-    walletRouterV1.applyRoutes(server, API_PREFIX + 'accounts')
-    autoLoaderRouterV1.applyRoutes(server, API_PREFIX + 'loader')
-    // TODO add other API routes here
+    walletCtrlV1.start(this.db, this.config, server)
+    autoLoaderCtrlV1.start(this.db, this.config, server)
   }
 
   applyV2Routes (server) {
-    walletRouterV2.applyRoutes(server, API_PREFIX + 'wallet')
-    autoLoaderRouterV2.applyRoutes(server, API_PREFIX + 'loader')
-    // TODO add other API routes here
+    walletCtrlV2.start(this.db, this.config, server)
+    autoLoaderCtrlV2.start(this.db, this.config, server)
   }
 
   apiVersionCheck (req, res, next) {
@@ -72,4 +67,4 @@ class PublicAPI {
   }
 }
 
-module.exports = PublicAPI
+module.exports = ApiManager
