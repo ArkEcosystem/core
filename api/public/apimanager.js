@@ -62,8 +62,9 @@ class ApiManager {
     next()
   }
 
-  isLocalhost (req) {
-    return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
+  isLocalhost (request) {
+    const ip = request.connection.remoteAddress
+    return ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
   }
 }
 
