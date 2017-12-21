@@ -61,9 +61,6 @@ node.fees = {
 node.eAccount = node.delegates[0];
 node.eAccount.password = node.eAccount.passphrase;
 
-console.log(node.eAccount);
-// Genesis account, initially holding 125M total supply
-
 // Optional logging
 if (process.env.SILENT === 'true') {
   node.debug = function () {};
@@ -88,12 +85,12 @@ node.startRelay = options => {
   logger.init(config.server.fileLogLevel, `TEST-${config.network.name}-relay`)
 
   // Useful for avoiding useless logs
-  // logger.level('error')
+  logger.level('error')
   // logger.mute()
 
-  process.on('unhandledRejection', (reason, p) => {
-    logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-  })
+  // process.on('unhandledRejection', (reason, p) => {
+  //   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+  // })
 
   const BlockchainManager = require('core/blockchainManager')
   const P2PInterface = require('api/p2p/p2pinterface')
@@ -433,14 +430,14 @@ const abstractRequest = options => {
 
   if (options.params) {
     request.send(options.params)
-    node.debug('> Data:'.grey, JSON.stringify(options.params))
+    // node.debug('> Data:'.grey, JSON.stringify(options.params))
   }
 
   request.expect('Content-Type', /json/)
   request.expect(200)
 
   request.then(res => {
-    node.debug('> Response:'.grey, JSON.stringify(res.body))
+    // node.debug('> Response:'.grey, JSON.stringify(res.body))
   })
   request.catch(err => {
     node.debug('> ERROR:'.red, err)

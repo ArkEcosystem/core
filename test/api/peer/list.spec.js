@@ -1,10 +1,10 @@
 const node = require('test/support/node')
 
-xdescribe('GET /peer/list', function () {
+describe('GET /peer/list', function () {
 
   // FIXME
   before(function (done) {
-    node.startRelay().then(() => {
+    node.resumeRelay().then(() => {
       // node.startForger()
       setTimeout(() => {
         node.addPeers(2, done)
@@ -12,24 +12,28 @@ xdescribe('GET /peer/list', function () {
     })
   })
 
+  // after(function () {
+  //   return node.stopRelay()
+  // })
+
   describe('incorrect nethash in headers', ()=> {
-    it('should fail', function (done) {
-      node.get('/peer/list')
+    it('should fail', function () {
+      return node.get('/peer/list')
         .set('nethash', 'incorrect')
-        .end(function (err, res) {
+        .then(res => {
           // node.debug('> Response:'.grey, JSON.stringify(res.body))
           node.debug('> Response:', JSON.stringify(res.body))
           node.expect(res.body).to.have.property('success').to.be.not.ok
           node.expect(res.body.expected).to.equal(node.config.nethash)
-          done()
         })
+        // .catch(err )
     })
   })
 
   describe('valid nethash in headers', ()=> {
-    it('should be OK', function (done) {
-      node.get('/peer/list')
-        .end(function (err, res) {
+    it('should be OK', function () {
+      return node.get('/peer/list')
+        .then(res => {
           // node.debug('> Response:'.grey, JSON.stringify(res.body))
           node.debug('> Response:', JSON.stringify(res.body))
           node.expect(res.body).to.have.property('peers').that.is.an('array')
@@ -40,7 +44,6 @@ xdescribe('GET /peer/list', function () {
             node.expect(peer).to.have.property('os')
             node.expect(peer).to.have.property('version')
           })
-          done()
         })
     })
   })

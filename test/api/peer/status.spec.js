@@ -10,9 +10,9 @@ describe('GET /peers/status', function () {
   })
 
   // FIXME stop tests
-  after(() => {
-    return node.stopRelay()
-  })
+  // after(() => {
+  //   return node.stopRelay()
+  // })
 
   const request = callback => {
     return new Promise((resolve, reject) => {

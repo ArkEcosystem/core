@@ -2,23 +2,24 @@ const node = require('test/support/node')
 // TODO inject automatically
 const { expect } = require('chai')
 
-xdescribe('GET /peers/height', function () {
+describe('GET /peers/height', function () {
 
-  before(function () {
-    return node.startRelay()
+  before(() => {
+    this.timeout(10 * 1000)
+    return node.resumeRelay()
   })
 
-  after(function () {
-    return node.stopRelay()
-  })
+  // after(() => {
+  //   return node.stopRelay()
+  // })
 
-  xcontext('using an incorrect nethash', ()=> {
-    it("shouldn't be OK", function (done) {
-      node.get('/peer/height')
+  context('using an incorrect nethash', ()=> {
+    // FIXME current code doesn't check that the nethash is correct
+    xit("shouldn't be OK", function () {
+      return node.get('/peer/height')
         .set('nethash', 'wrong')
-        .end((err, res) => {
+        .then(res => {
           expect(res.body).to.have.property('success').to.not.be.ok
-          done()
         })
     })
   })
@@ -26,10 +27,12 @@ xdescribe('GET /peers/height', function () {
   context('using valid headers', ()=> {
     const request = callback => {
       return new Promise((resolve, reject) => {
-        node.get('/peer/height', (err, res) => {
-          callback(res.body, res)
-          resolve()
-        })
+        node.get('/peer/height')
+          .then(res => {
+            callback(res.body, res)
+            resolve()
+          })
+          .catch(err => reject(err))
       })
     }
 
