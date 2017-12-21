@@ -3,15 +3,22 @@ const Router = require('restify-router').Router
 const router = new Router()
 const config = require('../../../core/config')
 
-function getAutoConfigure (req, res, next) {
-  res.send(200, {
-    success: true,
-    api: 'v2-not yet implemented',
-    network: config.network
-  })
-  next()
+class LoaderRouter {
+  getAutoConfigure (req, res, next) {
+    res.send(200, {
+      success: true,
+      network: config.network,
+      meta: {
+        requestedVersion: req.version(),
+        matchedVersion: req.matchedVersion()
+      }
+    })
+    next()
+  }
 }
 
-router.get({path: '/loader/autoconfigure', version: '2.0.0'}, getAutoConfigure)
+const loaderRouter = new LoaderRouter()
+
+router.get({path: '/autoconfigure', version: '2.0.0'}, loaderRouter.getAutoConfigure)
 
 module.exports = router

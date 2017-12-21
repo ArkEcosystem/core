@@ -1,12 +1,13 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
 
-const accountsRouterV1 = require('./v1/accounts')
+const walletRouterV1 = require('./v1/walletrouter')
 const autoLoaderRouterV1 = require('./v1/loader')
-const accountsRouterV2 = require('./v2/accounts')
+const walletRouterV2 = require('./v2/walletrouter')
 const autoLoaderRouterV2 = require('./v2/loader')
 
-const API_PREFIX = 'api'
+const API_PREFIX = 'api/'
+let db = null
 
 class PublicAPI {
   constructor (config) {
@@ -20,7 +21,7 @@ class PublicAPI {
       logger.info('Public API not mounted as not configured to do so')
       return
     }
-
+    //db = dbInterface
     this.server = this.createPublicRESTServer()
   }
 
@@ -29,7 +30,6 @@ class PublicAPI {
 
     // let router = new Router()
     let server = restify.createServer({name: 'arkpublic'})
-    // server.use((req, res, next) => this.acceptRequest(req, res, next))
 
     server.pre((req, res, next) => this.apiVersionCheck(req, res, next))
     server.use(restify.plugins.bodyParser({mapParams: true}))
@@ -48,16 +48,14 @@ class PublicAPI {
   }
 
   applyV1Routes (server) {
-    // ROUTES FOR V1 - API REPLICATION
-    accountsRouterV1.applyRoutes(server, API_PREFIX)
-    autoLoaderRouterV1.applyRoutes(server, API_PREFIX)
+    walletRouterV1.applyRoutes(server, API_PREFIX + 'accounts')
+    autoLoaderRouterV1.applyRoutes(server, API_PREFIX + 'loader')
     // TODO add other API routes here
   }
 
   applyV2Routes (server) {
-    // ROUTES FOR V1 - API REPLICATION
-    accountsRouterV2.applyRoutes(server, API_PREFIX)
-    autoLoaderRouterV2.applyRoutes(server, API_PREFIX)
+    walletRouterV2.applyRoutes(server, API_PREFIX + 'wallet')
+    autoLoaderRouterV2.applyRoutes(server, API_PREFIX + 'loader')
     // TODO add other API routes here
   }
 

@@ -42,6 +42,6 @@ DB
   .then(() => logger.info('Network interface started'))
   .then(() => blockchainManager.attachNetworkInterface(p2p).init())
   .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height))
-  .then(() => blockchainManager.syncWithNetwork())
+  // .then(() => blockchainManager.syncWithNetwork())
   .then(() => new PublicAPI(config).start())
   .catch(fatal => logger.error('fatal error', fatal))

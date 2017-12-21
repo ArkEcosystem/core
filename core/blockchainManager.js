@@ -44,6 +44,10 @@ class BlockchainManager {
     return instance
   }
 
+  getDb () {
+    return db
+  }
+
   postBlock (block) {
     logger.info('Received new block at height', block.height)
     this.downloadQueue.push(block)
