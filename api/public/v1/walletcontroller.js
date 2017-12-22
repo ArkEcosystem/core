@@ -23,7 +23,7 @@ class WalletController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.getAccount(req.query.address)
         .then(account => {
-          this.db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+          db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
             .then(delegate => {
               res.send(200, {
                 success: true,
