@@ -1,14 +1,16 @@
 // wallets.js - former accounts
 const logger = require('../../../core/logger')
 const arkjs = require('arkjs')
+const config = require('../../../core/config')
+const blockchain = require('../../../core/blockchainManager')
 
+let db = null
 
 // TODO implement according to new v2 specs
 class WalletController {
-  start (dbI, configs, serverRestify) {
-    this.db = dbI
+  start (serverRestify) {
+    db = blockchain.getInstance().getDb()
     this.server = serverRestify
-    this.config = configs
     this.initRoutes()
   }
 
@@ -17,8 +19,8 @@ class WalletController {
   }
 
   getBalance (req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, this.config.network.pubKeyHash)) {
-      this.db.getAccount(req.query.address)
+    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
+      db.getAccount(req.query.address)
         .then(account => {
           res.send(200, {
             success: true,

@@ -1,8 +1,8 @@
+const config = require('../../../core/config')
+
 class LoaderController {
-  start (dbI, configs, serverRestify) {
-    this.db = dbI
+  start (serverRestify) {
     this.server = serverRestify
-    this.config = configs
     this.initRoutes()
   }
 
@@ -13,7 +13,7 @@ class LoaderController {
   getAutoConfigure (req, res, next) {
     res.send(200, {
       success: true,
-      network: this.config.network,
+      network: config.network,
       meta: {
         requestedVersion: req.version(),
         matchedVersion: req.matchedVersion()

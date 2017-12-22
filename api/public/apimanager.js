@@ -1,62 +1,53 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
-
+const config = require('../../core/config')
 const walletCtrlV1 = require('./v1/walletcontroller')
 const autoLoaderCtrlV1 = require('./v1/loadercontroller')
 const walletCtrlV2 = require('./v2/walletcontroller')
 const autoLoaderCtrlV2 = require('./v2/loadercontroller')
 
 class ApiManager {
-  constructor (config, dbI) {
-    this.port = config.server.api.port
-    this.mount = config.server.api.mount
-    this.config = config
-    this.db = dbI
-  }
-
   start () {
-    if (!this.mount) {
+    if (!config.server.api.mount) {
       logger.info('Public API not mounted as not configured to do so')
       return
     }
-    this.server = this.createPublicRESTServer()
+    this.createPublicRESTServer()
   }
 
   createPublicRESTServer () {
     logger.debug('Starting to mount of Public API')
 
     // let router = new Router()
-    let server = restify.createServer({name: 'arkpublic'})
+    this.server = restify.createServer({name: 'arkpublic'})
 
-    server.pre((req, res, next) => this.apiVersionCheck(req, res, next))
-    server.use(restify.plugins.bodyParser({mapParams: true}))
-    server.use(restify.plugins.queryParser())
-    server.use(restify.plugins.gzipResponse())
+    this.server.pre((req, res, next) => this.apiVersionCheck(req, res, next))
+    this.server.use(restify.plugins.bodyParser({mapParams: true}))
+    this.server.use(restify.plugins.queryParser())
+    this.server.use(restify.plugins.gzipResponse())
 
-    this.applyV1Routes(server)
-    this.applyV2Routes(server)
+    this.applyV1Routes(this.server)
+    this.applyV2Routes(this.server)
 
-    server.listen(this.port, () => {
+    this.server.listen(config.server.api.port, () => {
       logger.info('Public API successfully mounted')
-      logger.info('%s interface listening at %s', server.name, server.url)
+      logger.info('%s interface listening at %s', this.server.name, this.server.url)
     })
-
-    return server
   }
 
-  applyV1Routes (server) {
-    walletCtrlV1.start(this.db, this.config, server)
-    autoLoaderCtrlV1.start(this.db, this.config, server)
+  applyV1Routes () {
+    walletCtrlV1.start(this.server)
+    autoLoaderCtrlV1.start(this.db, this.server)
   }
 
   applyV2Routes (server) {
-    walletCtrlV2.start(this.db, this.config, server)
-    autoLoaderCtrlV2.start(this.db, this.config, server)
+    walletCtrlV2.start(this.db, server)
+    autoLoaderCtrlV2.start(this.db, server)
   }
 
   apiVersionCheck (req, res, next) {
     if (!req.header('accept-version')) {
-      req.headers['accept-version'] = this.config.server.api.version
+      req.headers['accept-version'] = config.server.api.version
       logger.info('Client header for accept-version REST API undefined (header value accept-version missing).  Setting default config version', req.headers['accept-version'])
     }
     next()

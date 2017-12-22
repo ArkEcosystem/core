@@ -1,12 +1,13 @@
 const logger = require('../../../core/logger')
 const arkjs = require('arkjs')
 const blockchain = require('../../../core/blockchainManager')
+const config = require('../../../core/config')
 
+let db = null
 class WalletController {
-  start (dbI, configs, serverRestify) {
-    this.db = dbI
+  start (serverRestify) {
+    db = blockchain.getInstance().getDb()
     this.server = serverRestify
-    this.config = configs
     this.initRoutes()
   }
 
@@ -19,10 +20,10 @@ class WalletController {
   }
 
   getVotedDelegate(req, res, next){
-    if (arkjs.crypto.validateAddress(req.query.address, this.config.network.pubKeyHash)) {
-      this.db.getAccount(req.query.address)
+    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
+      db.getAccount(req.query.address)
         .then(account => {
-          this.db.getAccount(arkjs.crypto.getAddress(account.vote,this.config.network.pubKeyHash))
+          this.db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
             .then(delegate => {
               res.send(200, {
                 success: true,
@@ -65,8 +66,8 @@ class WalletController {
   }
 
   getAccount (req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, this.config.network.pubKeyHash)) {
-      this.db.getAccount(req.query.address)
+    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
+      db.getAccount(req.query.address)
         .then(account => {
           res.send(200, {
             success: true,
@@ -97,8 +98,8 @@ class WalletController {
   }
 
   getBalance (req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, this.config.network.pubKeyHash)) {
-      this.db.getAccount(req.query.address)
+    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
+      db.getAccount(req.query.address)
         .then(account => {
           res.send(200, {
             success: true,
@@ -130,8 +131,8 @@ class WalletController {
   }
 
   getPublicKey (req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, this.config.network.pubKeyHash)) {
-      this.db.getAccount(req.query.address)
+    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
+      db.getAccount(req.query.address)
         .then(account => {
           res.send(200, {
             success: true,
@@ -162,10 +163,9 @@ class WalletController {
   }
 
   getDelegateRegistrationFee (req, res, next) {
-    // TODO adjust the constant response to block height 0 or 1
     res.send(200, {
       success: true,
-      fee: this.config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
+      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
       meta: {
         requestedVersion: req.version(),
         matchedVersion: req.matchedVersion()
