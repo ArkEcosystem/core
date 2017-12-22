@@ -147,12 +147,7 @@ class DBInterface {
   }
 
   getAccount (address) {
-    return this.accounts.findById(address)
-      .then(account => {
-        //let acc = new Account(account.address)
-        //acc = Object.assign(acc, account.dataValues)
-        return account
-      })
+    return Promise.resolve(this.localaccounts[address])
   }
 }
 
