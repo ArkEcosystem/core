@@ -26,8 +26,8 @@ class ApiManager {
     this.server.use(restify.plugins.queryParser())
     this.server.use(restify.plugins.gzipResponse())
 
-    this.applyV1Routes(this.server)
-    this.applyV2Routes(this.server)
+    this.applyV1Routes()
+    this.applyV2Routes()
 
     this.server.listen(config.server.api.port, () => {
       logger.info('Public API successfully mounted')
@@ -37,12 +37,12 @@ class ApiManager {
 
   applyV1Routes () {
     walletCtrlV1.start(this.server)
-    autoLoaderCtrlV1.start(this.db, this.server)
+    autoLoaderCtrlV1.start(this.server)
   }
 
-  applyV2Routes (server) {
-    walletCtrlV2.start(this.db, server)
-    autoLoaderCtrlV2.start(this.db, server)
+  applyV2Routes () {
+    walletCtrlV2.start(this.server)
+    autoLoaderCtrlV2.start(this.server)
   }
 
   apiVersionCheck (req, res, next) {
