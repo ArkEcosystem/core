@@ -6,6 +6,7 @@ let db = null
 let server = null
 let config = null
 
+// TODO implement according to new v2 specs
 class WalletController {
   start (dbI, configs, serverRestify) {
     db = dbI
