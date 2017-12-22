@@ -6,8 +6,7 @@
   "db": {
     "class": "sequelize/db",
     "uri": "sqlite:storage/devnet.sqlite",
-    "uri1": "postgresql://arkman:ark-is-awesome@127.0.0.1:5432/ark_devnet2",
-    "dialect": "postgres",
+    "dialect": "sqlite",
     "logging": false
   },
   "api": {
