@@ -23,7 +23,7 @@ class ApiManager {
   }
 
   createPublicRESTServer () {
-    logger.debug('Starting to mount of Public API started')
+    logger.debug('Starting to mount of Public API')
 
     // let router = new Router()
     let server = restify.createServer({name: 'arkpublic'})
