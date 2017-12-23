@@ -1,4 +1,4 @@
-const logger = require('../../core/logger')
+const logger = require(__root + 'core/logger')
 const fs = require('fs')
 const restify = require('restify')
 const RouteRegistrar = require('./registrar')

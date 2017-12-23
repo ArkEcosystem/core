@@ -1,3 +1,5 @@
+global.__root = __dirname + '/';
+
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
