@@ -45,6 +45,9 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
+  // getAccount (address) {
+  // }
+
   applyRound (block, fastRebuild) {
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
@@ -141,6 +144,10 @@ class DBInterface {
         console.log(offset)
       })
     }
+  }
+
+  getAccount (address) {
+    return Promise.resolve(this.localaccounts[address])
   }
 }
 

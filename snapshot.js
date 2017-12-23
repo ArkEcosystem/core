@@ -5,7 +5,6 @@ const config = require('./core/config')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
-const PublicAPI = require('./api/public/api')
 
 let blockchainManager = null
 let p2p = null

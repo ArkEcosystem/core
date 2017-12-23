@@ -72,6 +72,7 @@ function syncTables (db) {
   })
   transactions.belongsTo(blocks)
   blocks.hasMany(transactions)
+
   const accounts = db.define('accounts', {
     address: {
       type: Sequelize.STRING(36),
