@@ -1,24 +1,22 @@
-// wallets.js - former accounts
 const logger = require('../../../core/logger')
 const arkjs = require('arkjs')
-const config = require('../../../core/config')
 const blockchain = require('../../../core/blockchainManager')
+const config = require('../../../core/config')
 
 let db = null
 
-// TODO implement according to new v2 specs
+// TODO implement v2 spec when done
 class WalletController {
-  start (serverRestify) {
+  constructor (serverRestify) {
     db = blockchain.getInstance().getDb()
     this.server = serverRestify
-    this.initRoutes()
   }
 
-  initRoutes () {
-    this.server.get({path: 'api/accounts/getBalance', version: '2.0.0'}, this.getBalance)
+  initRoutes (pathPrefix) {
+    this.server.get({path: pathPrefix + '/', version: '2.0.0'}, this.getAccount)
   }
 
-  getBalance (req, res, next) {
+  getAccount (req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.getAccount(req.query.address)
         .then(account => {
@@ -51,4 +49,4 @@ class WalletController {
   }
 }
 
-module.exports = new WalletController()
+module.exports = WalletController

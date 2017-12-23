@@ -1,13 +1,17 @@
+// loader.js
+const blockchain = require('../../../core/blockchainManager')
 const config = require('../../../core/config')
 
+
+// TODO adjust to v2
 class LoaderController {
-  start (serverRestify) {
+  constructor (serverRestify) {
     this.server = serverRestify
-    this.initRoutes()
   }
 
-  initRoutes () {
-    this.server.get({path: 'api/loader/autoconfigure', version: '2.0.0'}, this.getAutoConfigure)
+  initRoutes (pathPrefix) {
+    this.server.get({path: pathPrefix + '/autoconfigure', version: '2.0.0'}, this.getAutoConfigure)
+    this.server.get({path: pathPrefix + '/status', version: '2.0.0'}, this.getLoaderStatus)
   }
 
   getAutoConfigure (req, res, next) {
@@ -21,5 +25,21 @@ class LoaderController {
     })
     next()
   }
+
+  getLoaderStatus (req, res, next) {
+    // TODO finish
+    res.send(200, {
+      success: true,
+      loaded: blockchain.getInstance().isSynced(blockchain.getInstance().lastBlock),
+      now: blockchain.getInstance().lastBlock ? blockchain.getInstance().lastBlock.data.height : 0,
+      blocksCount: blockchain.getInstance().networkInterface.getNetworkHeight() - blockchain.getInstance().lastBlock.data.height,
+      meta: {
+        requestedVersion: req.version(),
+        matchedVersion: req.matchedVersion()
+      }
+    })
+    next()
+  }
 }
-module.exports = new LoaderController()
+
+module.exports = LoaderController
