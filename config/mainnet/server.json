@@ -6,12 +6,13 @@
   "db": {
     "class": "sequelize/db",
     "uri": "mysql://ark:ark@127.0.0.1:3306/ark-cored2",
-    "dialect": "postgres",
+    "dialect": "mysql",
     "logging": false
   },
   "api": {
     "mount": true,
-    "port": 4003
+    "port": 4003,
+    "version": "1.0.0"
   },
   "peers": {
     "minimumNetworkReach": 20,
