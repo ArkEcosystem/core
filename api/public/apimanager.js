@@ -1,8 +1,8 @@
 const restify = require('restify')
 const logger = require('../../core/logger')
 const config = require('../../core/config')
-const walletCtrlV1 = require('./v1/walletcontroller')
-const autoLoaderCtrlV1 = require('./v1/loadercontroller')
+const WalletCtrlV1 = require('./v1/walletcontroller')
+const LoaderCtrlV1 = require('./v1/loadercontroller')
 const walletCtrlV2 = require('./v2/walletcontroller')
 const autoLoaderCtrlV2 = require('./v2/loadercontroller')
 
@@ -36,11 +36,15 @@ class ApiManager {
   }
 
   applyV1Routes () {
-    walletCtrlV1.start(this.server)
-    autoLoaderCtrlV1.start(this.server)
+    this.wallet = new WalletCtrlV1(this.server)
+    this.wallet.initRoutes('api/accounts')
+
+    this.loader = new LoaderCtrlV1(this.server)
+    this.loader.initRoutes('api/loader')
   }
 
   applyV2Routes () {
+    // TODO when v2...
     walletCtrlV2.start(this.server)
     autoLoaderCtrlV2.start(this.server)
   }

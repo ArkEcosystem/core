@@ -5,8 +5,8 @@
   "fastRebuild": true,
   "db": {
     "class": "sequelize/db",
-    "uri": "sqlite:storage/mainnet2.sqlite",
-    "dialect": "sqlite",
+    "uri": "mysql://ark:ark@127.0.0.1:3306/ark-cored2",
+    "dialect": "postgres",
     "logging": false
   },
   "api": {

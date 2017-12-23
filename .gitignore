@@ -10,3 +10,4 @@ package-lock.json
 .idea/*
 .vscode/*
 package-lock.json
+snapshot/blocks.dat

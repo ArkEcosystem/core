@@ -101,7 +101,7 @@ class Down {
       .filter(peer => peer.height)
       .map(peer => peer.height)
       .sort()
-    return Promise.resolve(median[parseInt(median.length / 2)])
+    return median[parseInt(median.length / 2)]  // changed from Promise.resolve
   }
 
   downloadBlocks (fromBlockHeight) {

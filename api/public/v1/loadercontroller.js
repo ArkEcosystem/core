@@ -4,14 +4,13 @@ const p2pInterface = require('../../p2p/p2pinterface')
 const config = require('../../../core/config')
 
 class LoaderController {
-  start (serverRestify) {
+  constructor (serverRestify) {
     this.server = serverRestify
-    this.initRoutes()
   }
 
-  initRoutes () {
-    this.server.get({path: 'api/loader/autoconfigure', version: '1.0.0'}, this.getAutoConfigure)
-    this.server.get({path: 'api/loader/status', version: '1.0.0'}, this.getLoaderStatus)
+  initRoutes (pathPrefix) {
+    this.server.get({path: pathPrefix + '/autoconfigure', version: '1.0.0'}, this.getAutoConfigure)
+    this.server.get({path: pathPrefix + '/status', version: '1.0.0'}, this.getLoaderStatus)
   }
 
   getAutoConfigure (req, res, next) {
@@ -27,21 +26,19 @@ class LoaderController {
   }
 
   getLoaderStatus (req, res, next) {
-    p2pInterface.getInstance().getNetworkHeight().then(data => {
-      res.send(200, {
-        success: true,
-        loaded: blockchain.getInstance().isSynced(blockchain.getInstance().lastBlock),
-        now: blockchain.getInstance().lastBlock ? blockchain.getInstance().lastBlock.data.height : 0,
-        blocksCount: 0,
-        networkHeight: data,
-        meta: {
-          requestedVersion: req.version(),
-          matchedVersion: req.matchedVersion()
-        }
-      })
-      next()
+    // TODO finish
+    res.send(200, {
+      success: true,
+      loaded: blockchain.getInstance().isSynced(blockchain.getInstance().lastBlock),
+      now: blockchain.getInstance().lastBlock ? blockchain.getInstance().lastBlock.data.height : 0,
+      blocksCount: blockchain.getInstance().networkInterface.getNetworkHeight() - blockchain.getInstance().lastBlock.data.height,
+      meta: {
+        requestedVersion: req.version(),
+        matchedVersion: req.matchedVersion()
+      }
     })
+    next()
   }
 }
 
-module.exports = new LoaderController()
+module.exports = LoaderController

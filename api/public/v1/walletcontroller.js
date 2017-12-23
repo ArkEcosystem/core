@@ -5,18 +5,17 @@ const config = require('../../../core/config')
 
 let db = null
 class WalletController {
-  start (serverRestify) {
+  constructor (serverRestify) {
     db = blockchain.getInstance().getDb()
     this.server = serverRestify
-    this.initRoutes()
   }
 
-  initRoutes () {
-    this.server.get({path: 'api/accounts/getBalance', version: '1.0.0'}, this.getBalance)
-    this.server.get({path: 'api/accounts/getPublicKey', version: '1.0.0'}, this.getPublicKey)
-    this.server.get({path: 'api/accounts/', version: '1.0.0'}, this.getAccount)
-    this.server.get({path: 'api/accounts/delegates', version: '1.0.0'}, this.getVotedDelegate)
-    this.server.get({path: 'api/accounts/delegates/fee', version: '1.0.0'}, this.getDelegateRegistrationFee)
+  initRoutes (pathPrefix) {
+    this.server.get({path: pathPrefix + '/getBalance', version: '1.0.0'}, this.getBalance)
+    this.server.get({path: pathPrefix + '/getPublicKey', version: '1.0.0'}, this.getPublicKey)
+    this.server.get({path: pathPrefix + '/', version: '1.0.0'}, this.getAccount)
+    this.server.get({path: pathPrefix + '/delegates', version: '1.0.0'}, this.getVotedDelegate)
+    this.server.get({path: pathPrefix + '/delegates/fee', version: '1.0.0'}, this.getDelegateRegistrationFee)
   }
 
   getVotedDelegate(req, res, next){
@@ -175,4 +174,4 @@ class WalletController {
   }
 }
 
-module.exports = new WalletController()
+module.exports = WalletController
