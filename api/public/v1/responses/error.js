@@ -1,6 +1,6 @@
 const response = require('./response')
 
-class NoContentResponse {
+class GeneralErrorResponse {
   send(req, res, data, headers = {}) {
     response.send(req, res, Object.assign(data, {
       success: false
@@ -8,4 +8,4 @@ class NoContentResponse {
   }
 }
 
-module.exports = new NoContentResponse
+module.exports = new GeneralErrorResponse
