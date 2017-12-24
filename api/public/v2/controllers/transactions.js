@@ -1,3 +1,7 @@
+const blockchain = require(__root + 'core/blockchainManager')
+const config = require(__root + 'core/config')
+const responseOk = require(__root + 'api/public/v2/responses/ok')
+
 class TransactionsController {
     index(req, res, next) {
         res.send({
@@ -49,7 +53,7 @@ class TransactionsController {
 
     fees(req, res, next) {
         res.send({
-            data: '/api/transactions/fees'
+            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
         })
 
         next()
@@ -57,7 +61,7 @@ class TransactionsController {
 
     showFee(req, res, next) {
         res.send({
-            data: '/api/transactions/fees/:id'
+            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees[req.params.type]
         })
 
         next()

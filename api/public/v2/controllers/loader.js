@@ -29,7 +29,7 @@ class LoaderController {
         next()
     }
 
-    configure(req, res, next) {
+    configuration(req, res, next) {
         responseOk.send(req, res, {
             network: {
                 nethash: config.network.nethash,

@@ -4,7 +4,7 @@ class LoaderRouter {
     register(registrar) {
         registrar.get('loader/status', controller.status)
         registrar.get('loader/syncing', controller.syncing)
-        registrar.patch('loader/configure', controller.configure)
+        registrar.get('loader/configuration', controller.configuration)
     }
 }
 

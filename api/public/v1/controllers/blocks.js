@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responseOk = require(__root + 'api/public/v1/responses/ok')
 
 class BlocksController {
     index(req, res, next) {

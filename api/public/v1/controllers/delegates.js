@@ -1,3 +1,7 @@
+const blockchain = require(__root + 'core/blockchainManager')
+const config = require(__root + 'core/config')
+const responseOk = require(__root + 'api/public/v1/responses/ok')
+
 class DelegatesController {
     index(req, res, next) {
         res.send({
@@ -41,7 +45,7 @@ class DelegatesController {
 
     fee(req, res, next) {
         res.send({
-            data: '/api/delegates/fee'
+            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
         })
 
         next()
