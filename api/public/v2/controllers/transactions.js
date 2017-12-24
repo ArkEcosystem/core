@@ -7,7 +7,7 @@ const Paginator = require(__root + 'api/paginator')
 class TransactionsController {
   index(req, res, next) {
     let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 50);
+    let perPage = parseInt(req.query.perPage || 100);
 
     transactions.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
@@ -17,7 +17,7 @@ class TransactionsController {
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
           count: result.count
-        }),
+        })
       })
     });
 
@@ -42,7 +42,7 @@ class TransactionsController {
 
   show(req, res, next) {
     transactions.findById(req.params.id).then(result => {
-      res.send({
+      responseOk.send(req, res, {
         data: result
       })
     });

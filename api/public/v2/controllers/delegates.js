@@ -10,9 +10,11 @@ const Op = require('sequelize').Op
 class DelegatesController {
   index(req, res, next) {
     let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 50);
+    let perPage = parseInt(req.query.perPage || 100);
 
-    accounts.paginateDelegates({}, page, perPage).then(result => {
+    accounts.paginateDelegates({
+        order: [[ 'publicKey', 'ASC' ]]
+    }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responseOk.send(req, res, {
@@ -48,7 +50,7 @@ class DelegatesController {
   blocks(req, res, next) {
     accounts.findDelegateById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       blocks.paginate({
         where: {
@@ -73,7 +75,7 @@ class DelegatesController {
   transactions(req, res, next) {
     accounts.findDelegateById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {
@@ -102,7 +104,7 @@ class DelegatesController {
   transactionsSend(req, res, next) {
     accounts.findDelegateById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {
@@ -127,7 +129,7 @@ class DelegatesController {
   transactionsReceived(req, res, next) {
     accounts.findDelegateById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {

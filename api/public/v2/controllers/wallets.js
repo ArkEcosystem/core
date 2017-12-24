@@ -13,7 +13,7 @@ const Op = require('sequelize').Op
 class WalletsController {
   index(req, res, next) {
     let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 50);
+    let perPage = parseInt(req.query.perPage || 100);
 
     accounts.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
@@ -51,7 +51,7 @@ class WalletsController {
   transactions(req, res, next) {
     accounts.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {
@@ -80,7 +80,7 @@ class WalletsController {
   transactionsSend(req, res, next) {
     accounts.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {
@@ -105,7 +105,7 @@ class WalletsController {
   transactionsReceived(req, res, next) {
     accounts.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {
@@ -130,7 +130,7 @@ class WalletsController {
   votes(req, res, next) {
     accounts.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 50);
+      const perPage = parseInt(req.query.perPage || 100);
 
       transactions.paginate({
         where: {

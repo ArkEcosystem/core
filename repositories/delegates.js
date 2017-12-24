@@ -7,31 +7,18 @@ class AccountsRepository {
   }
 
   all(params = {}) {
-    return this.db.accounts.findAndCountAll(params)
-  }
+    let where = Object.assign(params.where, {
+      username: {
+        [Op.ne]: null
+      },
+    });
 
-  paginate(params, page, perPage) {
-    return this.all(Object.assign(params, {
-      offset: page * perPage,
-      limit: perPage,
+    return this.db.accounts.findAndCountAll(Object.assign(params, {
+      where: where
     }))
   }
 
-  findById(id) {
-    return this.db.accounts.findOne({
-      where: {
-        [Op.or]: [{
-          address: id,
-        }, {
-          publicKey: id,
-        }, {
-          username: id,
-        }]
-      }
-    })
-  }
-
-  paginateDelegates(params, page, perPage) {
+  paginate(params, page, perPage) {
     return this.db.accounts.findAndCountAll(Object.assign(params, {
       where: {
         username: {
@@ -43,7 +30,7 @@ class AccountsRepository {
     }))
   }
 
-  findDelegateById(id) {
+  findById(id) {
     return this.db.accounts.findOne({
       where: {
         username: {

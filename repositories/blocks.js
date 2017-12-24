@@ -3,20 +3,24 @@ const Sequelize = require('sequelize')
 const Op = Sequelize.Op;
 
 class BlocksRepository {
-    constructor() {
-        this.db = blockchain.getInstance().getDb()
-    }
+  constructor() {
+    this.db = blockchain.getInstance().getDb()
+  }
 
-    paginate(params, page, perPage) {
-        return this.db.blocks.findAndCountAll(Object.assign(params, {
-            offset: page * perPage,
-            limit: perPage,
-        }))
-    }
+  all(params = {}) {
+    return this.db.blocks.findAndCountAll(params)
+  }
 
-    findById(id) {
-        return this.db.blocks.findById(id)
-    }
+  paginate(params, page, perPage) {
+    return this.db.blocks.findAndCountAll(Object.assign(params, {
+      offset: page * perPage,
+      limit: perPage,
+    }))
+  }
+
+  findById(id) {
+    return this.db.blocks.findById(id)
+  }
 }
 
 module.exports = new BlocksRepository

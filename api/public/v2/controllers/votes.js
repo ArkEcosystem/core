@@ -7,7 +7,7 @@ const Paginator = require(__root + 'api/paginator')
 class VotesController {
   index(req, res, next) {
     let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 50);
+    let perPage = parseInt(req.query.perPage || 100);
 
     transactions.paginate({
       where: {

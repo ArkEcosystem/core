@@ -5,15 +5,16 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
 const responseIntervalServerError = require(__root + 'api/public/v1/responses/exceptions/internal-server-error')
 const responseUnprocessableEntity = require(__root + 'api/public/v1/responses/exceptions/unprocessable-entity')
+const accounts = require(__root + 'repositories/accounts')
 
 class WalletsController {
   index(req, res, next) {
-    blockchain.getInstance().getDb().accounts.findAndCountAll({
-      offset: 0,
-      limit: 50
+    accounts.all({
+      offset: parseInt(req.query.offset || 1),
+      limit: parseInt(req.query.limit || 100)
     }).then(result => {
-      res.send({
-        data: result
+      responseOk.send(req, res, {
+        accounts: result
       })
     });
 
@@ -140,26 +141,30 @@ class WalletsController {
     next()
   }
 
-  accounts(req, res, next) {
-    res.send({
-      data: '/api/accounts/getAllAccounts'
-    })
-
-    next()
-  }
-
   top(req, res, next) {
-    res.send({
-      data: '/api/accounts/top'
-    })
+    accounts.all({
+      attributes: ['address', 'balance', 'publicKey'],
+      order: [
+        ['balance', 'DESC']
+      ],
+      offset: parseInt(req.query.offset || 1),
+      limit: parseInt(req.query.limit || 100),
+    }).then(result => {
+      responseOk.send(req, res, {
+        accounts: result.rows
+      })
+    });
+
 
     next()
   }
 
   count(req, res, next) {
-    res.send({
-      data: '/api/accounts/count'
-    })
+    accounts.all().then(result => {
+      responseOk.send(req, res, {
+        count: result.count,
+      })
+    });
 
     next()
   }

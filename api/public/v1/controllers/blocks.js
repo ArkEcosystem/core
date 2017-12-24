@@ -1,20 +1,28 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
+const blocks = require(__root + 'repositories/blocks')
+const transactions = require(__root + 'repositories/transactions')
+const Paginator = require(__root + 'api/paginator')
 
 class BlocksController {
   index(req, res, next) {
-    res.send({
-      data: '/api/blocks'
-    })
+    blocks.all({
+      offset: parseInt(req.query.offset || 1),
+      limit: parseInt(req.query.limit || 100)
+    }).then(result => {
+      responseOk.send(req, res, {
+        blocks: result
+      })
+    });
 
     next()
   }
 
   show(req, res, next) {
-    res.send({
-      data: '/api/blocks/get'
-    })
+    blocks.findById(req.params.id).then(result => {
+      responseOk.send(req, res, result)
+    });
 
     next()
   }

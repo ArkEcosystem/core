@@ -3,29 +3,33 @@ const Sequelize = require('sequelize')
 const Op = Sequelize.Op;
 
 class TransactionsRepository {
-    constructor() {
-        this.db = blockchain.getInstance().getDb()
-    }
+  constructor() {
+    this.db = blockchain.getInstance().getDb()
+  }
 
-    paginate(params, page, perPage) {
-        return this.db.transactions.findAndCountAll(Object.assign(params, {
-            offset: page * perPage,
-            limit: perPage,
-        }))
-    }
+  all(params = {}) {
+    return this.db.transactions.findAndCountAll(params)
+  }
 
-    findById(id) {
-        return this.db.transactions.findById(id)
-    }
+  paginate(params, page, perPage) {
+    return this.db.transactions.findAndCountAll(Object.assign(params, {
+      offset: page * perPage,
+      limit: perPage,
+    }))
+  }
 
-    findByIdAndType(id, type) {
-        return this.db.transactions.findOne({
-            where: {
-                id: id,
-                type: type,
-            }
-        })
-    }
+  findById(id) {
+    return this.db.transactions.findById(id)
+  }
+
+  findByIdAndType(id, type) {
+    return this.db.transactions.findOne({
+      where: {
+        id: id,
+        type: type,
+      }
+    })
+  }
 }
 
 module.exports = new TransactionsRepository

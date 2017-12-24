@@ -7,7 +7,6 @@ class AccountsRouter {
     registrar.get('accounts/getPublickey', controllers.publicKey)
     registrar.get('accounts/delegates/fee', controllers.fee)
     registrar.get('accounts/delegates', controllers.delegates)
-    registrar.get('accounts/getAllAccounts', controllers.accounts)
     registrar.get('accounts/top', controllers.top)
     registrar.get('accounts/count', controllers.count)
   }
