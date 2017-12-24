@@ -49,9 +49,9 @@ class PublicAPI {
 
   setDefaultVersion(req, res, next) {
     if (!req.header('accept-version')) {
-      req.headers['accept-version'] = this.config.server.api.version
+      req._version = this.config.server.api.version
 
-      logger.info('Accept-Version Header is undefined. Using [' + req.headers['accept-version'] + '] as default.')
+      logger.info('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
     }
 
     next()

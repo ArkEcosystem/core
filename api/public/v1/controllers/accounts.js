@@ -104,22 +104,28 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       accounts.findById(req.query.address)
         .then(account => {
-          accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
-            .then(delegate => {
-              responder.ok(req, res, {
-                delegates: [{
-                  username: delegate.username,
-                  address: delegate.address,
-                  publicKey: delegate.publicKey,
-                  vote: '0',
-                  producedblocks: '000',
-                  missedblocks: '000',
-                  rate: -1,
-                  approval: 1.14,
-                  productivity: 99.3
-                }]
-              })
+          if (!account.vote) {
+            responder.error(req, res, {
+              delegates: []
             })
+          } else {
+            accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+              .then(delegate => {
+                responder.ok(req, res, {
+                  delegates: [{
+                    username: delegate.username,
+                    address: delegate.address,
+                    publicKey: delegate.publicKey,
+                    vote: '0',
+                    producedblocks: '000',
+                    missedblocks: '000',
+                    rate: -1,
+                    approval: 1.14,
+                    productivity: 99.3
+                  }]
+                })
+              })
+          }
         })
         .catch(error => {
           logger.error(error)
