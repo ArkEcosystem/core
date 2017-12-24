@@ -105,7 +105,7 @@ class WalletsController {
       accounts.findById(req.query.address)
         .then(account => {
           if (!account.vote) {
-            responder.error(req, res, {
+            responder.ok(req, res, {
               delegates: []
             })
           } else {
