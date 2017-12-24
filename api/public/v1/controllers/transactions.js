@@ -14,7 +14,7 @@ class TransactionsController {
       responseOk.send(req, res, {
         transactions: result.rows
       })
-    });
+    })
 
     next()
   }
@@ -22,7 +22,7 @@ class TransactionsController {
   show(req, res, next) {
     transactions.findById(req.params.id).then(result => {
       responseOk.send(req, res, result)
-    });
+    })
 
     next()
   }

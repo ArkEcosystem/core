@@ -14,7 +14,7 @@ class BlocksController {
       responseOk.send(req, res, {
         blocks: result
       })
-    });
+    })
 
     next()
   }
@@ -22,7 +22,7 @@ class BlocksController {
   show(req, res, next) {
     blocks.findById(req.params.id).then(result => {
       responseOk.send(req, res, result)
-    });
+    })
 
     next()
   }
@@ -36,7 +36,7 @@ class BlocksController {
   }
 
   height(req, res, next) {
-    let block = blockchain.getInstance().lastBlock.data;
+    let block = blockchain.getInstance().lastBlock.data
 
     res.send({
       height: block.height,
@@ -103,7 +103,7 @@ class BlocksController {
   status(req, res, next) {
     // @TODO
 
-    let block = blockchain.getInstance().lastBlock.data;
+    let block = blockchain.getInstance().lastBlock.data
 
     res.send({
       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,

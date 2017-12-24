@@ -16,7 +16,7 @@ class WalletsController {
       responseOk.send(req, res, {
         accounts: result
       })
-    });
+    })
 
     next()
   }
@@ -153,7 +153,7 @@ class WalletsController {
       responseOk.send(req, res, {
         accounts: result.rows
       })
-    });
+    })
 
 
     next()
@@ -164,7 +164,7 @@ class WalletsController {
       responseOk.send(req, res, {
         count: result.count,
       })
-    });
+    })
 
     next()
   }

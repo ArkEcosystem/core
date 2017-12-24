@@ -11,7 +11,7 @@ class DelegatesRepository {
       username: {
         [Op.ne]: null
       },
-    });
+    })
 
     return this.db.accounts.findAndCountAll(Object.assign(params, {
       where: where

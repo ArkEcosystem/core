@@ -7,8 +7,8 @@ const Paginator = require(__root + 'api/paginator')
 
 class BlocksController {
   index(req, res, next) {
-    let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 100);
+    let page = parseInt(req.query.page || 1)
+    let perPage = parseInt(req.query.perPage || 100)
 
     blocks.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
@@ -20,7 +20,7 @@ class BlocksController {
           count: result.count
         }),
       })
-    });
+    })
 
     next()
   }
@@ -38,15 +38,15 @@ class BlocksController {
       responseOk.send(req, res, {
         data: result
       })
-    });
+    })
 
     next()
   }
 
   transactions(req, res, next) {
     blocks.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 100);
+      const page = parseInt(req.query.page || 1)
+      const perPage = parseInt(req.query.perPage || 100)
 
       transactions.paginate({
         where: {
@@ -62,8 +62,8 @@ class BlocksController {
             count: result.count
           }),
         })
-      });
-    });
+      })
+    })
 
     next()
   }

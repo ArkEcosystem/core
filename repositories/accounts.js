@@ -30,35 +30,6 @@ class AccountsRepository {
       }
     })
   }
-
-  paginateDelegates(params, page, perPage) {
-    return this.db.accounts.findAndCountAll(Object.assign(params, {
-      where: {
-        username: {
-          [Op.ne]: null
-        },
-      },
-      offset: page * perPage,
-      limit: perPage,
-    }))
-  }
-
-  findDelegateById(id) {
-    return this.db.accounts.findOne({
-      where: {
-        username: {
-          [Op.ne]: null
-        },
-        [Op.or]: [{
-          address: id,
-        }, {
-          publicKey: id,
-        }, {
-          username: id,
-        }]
-      }
-    })
-  }
 }
 
 module.exports = new AccountsRepository

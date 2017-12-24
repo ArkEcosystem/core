@@ -9,8 +9,8 @@ const Op = require('sequelize').Op
 
 class DelegatesController {
   index(req, res, next) {
-    let page = parseInt(req.query.page || 1);
-    let perPage = parseInt(req.query.perPage || 100);
+    let page = parseInt(req.query.page || 1)
+    let perPage = parseInt(req.query.perPage || 100)
 
     delegates.paginate({
         order: [[ 'publicKey', 'ASC' ]]
@@ -24,7 +24,7 @@ class DelegatesController {
           count: result.count
         }),
       })
-    });
+    })
 
     next()
   }
@@ -42,15 +42,15 @@ class DelegatesController {
       res.send({
         data: result
       })
-    });
+    })
 
     next()
   }
 
   blocks(req, res, next) {
     delegates.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 100);
+      const page = parseInt(req.query.page || 1)
+      const perPage = parseInt(req.query.perPage || 100)
 
       blocks.paginate({
         where: {
@@ -66,16 +66,16 @@ class DelegatesController {
             count: result.count
           }),
         })
-      });
-    });
+      })
+    })
 
     next()
   }
 
   transactions(req, res, next) {
     delegates.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 100);
+      const page = parseInt(req.query.page || 1)
+      const perPage = parseInt(req.query.perPage || 100)
 
       transactions.paginate({
         where: {
@@ -95,16 +95,16 @@ class DelegatesController {
             count: result.count
           }),
         })
-      });
-    });
+      })
+    })
 
     next()
   }
 
   transactionsSend(req, res, next) {
     delegates.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 100);
+      const page = parseInt(req.query.page || 1)
+      const perPage = parseInt(req.query.perPage || 100)
 
       transactions.paginate({
         where: {
@@ -120,16 +120,16 @@ class DelegatesController {
             count: result.count
           }),
         })
-      });
-    });
+      })
+    })
 
     next()
   }
 
   transactionsReceived(req, res, next) {
     delegates.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1);
-      const perPage = parseInt(req.query.perPage || 100);
+      const page = parseInt(req.query.page || 1)
+      const perPage = parseInt(req.query.perPage || 100)
 
       transactions.paginate({
         where: {
@@ -145,8 +145,8 @@ class DelegatesController {
             count: result.count
           }),
         })
-      });
-    });
+      })
+    })
 
     next()
   }
