@@ -2,85 +2,85 @@ const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v2/responses/ok')
 const transactions = require(__root + 'repositories/transactions')
-const Paginator = require(__root + 'api/public/paginator')
+const Paginator = require(__root + 'api/paginator')
 
 class TransactionsController {
-    index(req, res, next) {
-        let page = parseInt(req.query.page || 1);
-        let perPage = parseInt(req.query.perPage || 50);
+  index(req, res, next) {
+    let page = parseInt(req.query.page || 1);
+    let perPage = parseInt(req.query.perPage || 50);
 
-        transactions.paginate({}, page, perPage).then(result => {
-            const paginator = new Paginator(req, result.count, page, perPage)
+    transactions.paginate({}, page, perPage).then(result => {
+      const paginator = new Paginator(req, result.count, page, perPage)
 
-            responseOk.send(req, res, {
-                data: result.rows,
-                links: paginator.links(),
-                meta: Object.assign(paginator.meta(), {
-                    count: result.count
-                }),
-            })
-        });
+      responseOk.send(req, res, {
+        data: result.rows,
+        links: paginator.links(),
+        meta: Object.assign(paginator.meta(), {
+          count: result.count
+        }),
+      })
+    });
 
-        next()
-    }
+    next()
+  }
 
-    search(req, res, next) {
-        res.send({
-            data: '/api/transactions/search'
-        })
+  search(req, res, next) {
+    res.send({
+      data: '/api/transactions/search'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    store(req, res, next) {
-        res.send({
-            data: '/api/transactions'
-        })
+  store(req, res, next) {
+    res.send({
+      data: '/api/transactions'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    show(req, res, next) {
-        transactions.findById(req.params.id).then(result => {
-            res.send({
-                data: result
-            })
-        });
+  show(req, res, next) {
+    transactions.findById(req.params.id).then(result => {
+      res.send({
+        data: result
+      })
+    });
 
-        next()
-    }
+    next()
+  }
 
-    unconfirmed(req, res, next) {
-        res.send({
-            data: '/api/transactions/unconfirmed'
-        })
+  unconfirmed(req, res, next) {
+    res.send({
+      data: '/api/transactions/unconfirmed'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    showUnconfirmed(req, res, next) {
-        res.send({
-            data: '/api/transactions/unconfirmed/:id'
-        })
+  showUnconfirmed(req, res, next) {
+    res.send({
+      data: '/api/transactions/unconfirmed/:id'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    fees(req, res, next) {
-        res.send({
-            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
-        })
+  fees(req, res, next) {
+    res.send({
+      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
+    })
 
-        next()
-    }
+    next()
+  }
 
-    showFee(req, res, next) {
-        res.send({
-            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees[req.params.type]
-        })
+  showFee(req, res, next) {
+    res.send({
+      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees[req.params.type]
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new TransactionsController

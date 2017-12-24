@@ -3,29 +3,29 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
 
 class PeersController {
-    index(req, res, next) {
-        res.send({
-            data: '/api/peers'
-        })
+  index(req, res, next) {
+    res.send({
+      data: '/api/peers'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    show(req, res, next) {
-        res.send({
-            data: '/api/peers/get'
-        })
+  show(req, res, next) {
+    res.send({
+      data: '/api/peers/get'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    version(req, res, next) {
-        res.send({
-            data: '/api/peers/version'
-        })
+  version(req, res, next) {
+    res.send({
+      data: '/api/peers/version'
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new PeersController

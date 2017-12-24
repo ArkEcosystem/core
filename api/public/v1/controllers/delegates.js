@@ -3,85 +3,85 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
 
 class DelegatesController {
-    index(req, res, next) {
-        res.send({
-            data: '/api/delegates'
-        })
+  index(req, res, next) {
+    res.send({
+      data: '/api/delegates'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    show(req, res, next) {
-        res.send({
-            data: '/api/delegates/get'
-        })
+  show(req, res, next) {
+    res.send({
+      data: '/api/delegates/get'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    count(req, res, next) {
-        res.send({
-            data: '/api/delegates/count'
-        })
+  count(req, res, next) {
+    res.send({
+      data: '/api/delegates/count'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    search(req, res, next) {
-        res.send({
-            data: '/api/delegates/search'
-        })
+  search(req, res, next) {
+    res.send({
+      data: '/api/delegates/search'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    voters(req, res, next) {
-        res.send({
-            data: '/api/delegates/voters'
-        })
+  voters(req, res, next) {
+    res.send({
+      data: '/api/delegates/voters'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    fee(req, res, next) {
-        res.send({
-            data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
-        })
+  fee(req, res, next) {
+    res.send({
+      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
+    })
 
-        next()
-    }
+    next()
+  }
 
-    forged(req, res, next) {
-        res.send({
-            data: '/api/delegates/forging/getForgedByAccount'
-        })
+  forged(req, res, next) {
+    res.send({
+      data: '/api/delegates/forging/getForgedByAccount'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    next(req, res, next) {
-        res.send({
-            data: '/api/delegates/getNextForgers'
-        })
+  next(req, res, next) {
+    res.send({
+      data: '/api/delegates/getNextForgers'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    enable(req, res, next) {
-        res.send({
-            data: '/api/delegates/forging/enable'
-        })
+  enable(req, res, next) {
+    res.send({
+      data: '/api/delegates/forging/enable'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    disable(req, res, next) {
-        res.send({
-            data: '/api/delegates/forging/disable'
-        })
+  disable(req, res, next) {
+    res.send({
+      data: '/api/delegates/forging/disable'
+    })
 
-        next()
-    }
+    next()
+  }
 
 }
 

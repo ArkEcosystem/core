@@ -3,29 +3,29 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v2/responses/ok')
 
 class ForgingController {
-    round(req, res, next) {
-        res.send({
-            data: '/api/forging/round'
-        })
+  round(req, res, next) {
+    res.send({
+      data: '/api/forging/round'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    next(req, res, next) {
-        res.send({
-            data: '/api/forging/next'
-        })
+  next(req, res, next) {
+    res.send({
+      data: '/api/forging/next'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    previous(req, res, next) {
-        res.send({
-            data: '/api/forging/previous'
-        })
+  previous(req, res, next) {
+    res.send({
+      data: '/api/forging/previous'
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new ForgingController

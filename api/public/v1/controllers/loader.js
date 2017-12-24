@@ -4,44 +4,44 @@ const p2pInterface = require(__root + 'api/p2p/p2pinterface')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
 
 class LoaderController {
-    status(req, res, next) {
-        const instance = blockchain.getInstance()
+  status(req, res, next) {
+    const instance = blockchain.getInstance()
 
-        responseOk.send(req, res, {
-            loaded: instance.isSynced(instance.lastBlock),
-            now: instance.lastBlock ? instance.lastBlock.data.height : 0,
-            blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
-        })
+    responseOk.send(req, res, {
+      loaded: instance.isSynced(instance.lastBlock),
+      now: instance.lastBlock ? instance.lastBlock.data.height : 0,
+      blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
+    })
 
-        next()
-    }
+    next()
+  }
 
-    syncing(req, res, next) {
-        const instance = blockchain.getInstance()
+  syncing(req, res, next) {
+    const instance = blockchain.getInstance()
 
-        responseOk.send(req, res, {
-            syncing: !instance.isSynced(instance.lastBlock),
-            blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
-            height: instance.lastBlock.data.height,
-            id: instance.lastBlock.data.id
-        })
+    responseOk.send(req, res, {
+      syncing: !instance.isSynced(instance.lastBlock),
+      blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
+      height: instance.lastBlock.data.height,
+      id: instance.lastBlock.data.id
+    })
 
-        next()
-    }
+    next()
+  }
 
-    autoconfigure(req, res, next) {
-        responseOk.send(req, res, {
-            network: {
-                nethash: config.network.nethash,
-                token: config.network.client.token,
-                symbol: config.network.client.symbol,
-                explorer: config.network.client.explorer,
-                version: config.network.pubKeyHash
-            }
-        })
+  autoconfigure(req, res, next) {
+    responseOk.send(req, res, {
+      network: {
+        nethash: config.network.nethash,
+        token: config.network.client.token,
+        symbol: config.network.client.symbol,
+        explorer: config.network.client.explorer,
+        version: config.network.pubKeyHash
+      }
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new LoaderController

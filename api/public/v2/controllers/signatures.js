@@ -3,21 +3,21 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v2/responses/ok')
 
 class SignaturesController {
-    index(req, res, next) {
-        res.send({
-            data: '/api/signatures'
-        })
+  index(req, res, next) {
+    res.send({
+      data: '/api/signatures'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    store(req, res, next) {
-        res.send({
-            data: '/api/signatures'
-        })
+  store(req, res, next) {
+    res.send({
+      data: '/api/signatures'
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new SignaturesController

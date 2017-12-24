@@ -3,37 +3,37 @@ const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v1/responses/ok')
 
 class TransactionsController {
-    index(req, res, next) {
-        res.send({
-            data: '/api/transactions'
-        })
+  index(req, res, next) {
+    res.send({
+      data: '/api/transactions'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    show(req, res, next) {
-        res.send({
-            data: '/api/transactions/:id'
-        })
+  show(req, res, next) {
+    res.send({
+      data: '/api/transactions/:id'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    unconfirmed(req, res, next) {
-        res.send({
-            data: '/api/transactions/unconfirmed'
-        })
+  unconfirmed(req, res, next) {
+    res.send({
+      data: '/api/transactions/unconfirmed'
+    })
 
-        next()
-    }
+    next()
+  }
 
-    showUnconfirmed(req, res, next) {
-        res.send({
-            data: '/api/transactions/unconfirmed/:id'
-        })
+  showUnconfirmed(req, res, next) {
+    res.send({
+      data: '/api/transactions/unconfirmed/:id'
+    })
 
-        next()
-    }
+    next()
+  }
 }
 
 module.exports = new TransactionsController
