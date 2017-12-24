@@ -1,10 +1,10 @@
 const response = require('./response')
 
-class SuccessResponse {
+class OkResponse {
     send(req, res, data)
     {
         response.send(req, res, data, 200)
     }
 }
 
-module.exports = new SuccessResponse
+module.exports = new OkResponse

@@ -1,6 +1,6 @@
 const response = require('./response')
 
-class SuccessResponse {
+class OkResponse {
     send(req, res, data)
     {
         response.send(req, res, Object.assign(data, {
@@ -9,4 +9,4 @@ class SuccessResponse {
     }
 }
 
-module.exports = new SuccessResponse
+module.exports = new OkResponse

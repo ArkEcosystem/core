@@ -1,12 +1,12 @@
-const response = require('./response')
+const response = require('../response')
 
-class NotFoundResponse {
+class GoneHttpException {
     send(req, res, data)
     {
         response.send(req, res, Object.assign(data, {
             success: false
-        }), 404)
+        }), 410)
     }
 }
 
-module.exports = new NotFoundResponse
+module.exports = new GoneHttpException
