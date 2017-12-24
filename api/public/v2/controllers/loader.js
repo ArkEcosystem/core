@@ -1,13 +1,13 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const p2pInterface = require(__root + 'api/p2p/p2pinterface')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class LoaderController {
   status(req, res, next) {
     const instance = blockchain.getInstance()
 
-    responseOk.send(req, res, {
+    responder.ok(req, res, {
       loaded: instance.isSynced(instance.lastBlock),
       now: instance.lastBlock ? instance.lastBlock.data.height : 0,
       blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
@@ -19,7 +19,7 @@ class LoaderController {
   syncing(req, res, next) {
     const instance = blockchain.getInstance()
 
-    responseOk.send(req, res, {
+    responder.ok(req, res, {
       syncing: !instance.isSynced(instance.lastBlock),
       blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
       height: instance.lastBlock.data.height,
@@ -30,7 +30,7 @@ class LoaderController {
   }
 
   configuration(req, res, next) {
-    responseOk.send(req, res, {
+    responder.ok(req, res, {
       network: {
         nethash: config.network.nethash,
         token: config.network.client.token,

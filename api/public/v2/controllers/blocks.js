@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 const blocks = require(__root + 'repositories/blocks')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
@@ -13,7 +13,7 @@ class BlocksController {
     blocks.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         data: result.rows,
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
@@ -26,16 +26,14 @@ class BlocksController {
   }
 
   search(req, res, next) {
-    res.send({
-      data: '/api/blocks/search'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
     blocks.findById(req.params.id).then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         data: result
       })
     })
@@ -55,7 +53,7 @@ class BlocksController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {

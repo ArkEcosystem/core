@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
 
@@ -16,7 +16,7 @@ class VotesController {
     }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         data: result.rows,
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
@@ -29,9 +29,7 @@ class VotesController {
   }
 
   store(req, res, next) {
-    res.send({
-      data: '/api/votes'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

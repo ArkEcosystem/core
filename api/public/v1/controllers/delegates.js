@@ -1,44 +1,34 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class DelegatesController {
   index(req, res, next) {
-    res.send({
-      data: '/api/delegates'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
-    res.send({
-      data: '/api/delegates/get'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   count(req, res, next) {
-    res.send({
-      data: '/api/delegates/count'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   search(req, res, next) {
-    res.send({
-      data: '/api/delegates/search'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   voters(req, res, next) {
-    res.send({
-      data: '/api/delegates/voters'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
@@ -52,33 +42,25 @@ class DelegatesController {
   }
 
   forged(req, res, next) {
-    res.send({
-      data: '/api/delegates/forging/getForgedByAccount'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   next(req, res, next) {
-    res.send({
-      data: '/api/delegates/getNextForgers'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   enable(req, res, next) {
-    res.send({
-      data: '/api/delegates/forging/enable'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   disable(req, res, next) {
-    res.send({
-      data: '/api/delegates/forging/disable'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

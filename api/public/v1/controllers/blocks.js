@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responder = require(__root + 'api/responder')
 const blocks = require(__root + 'repositories/blocks')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
@@ -11,7 +11,7 @@ class BlocksController {
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         blocks: result
       })
     })
@@ -71,49 +71,49 @@ class BlocksController {
   }
 
   milestone(req, res, next) {
-    // @TODO
+    responder.notImplemented('Method has not yet been implemented.');
 
-    res.send({
-      milestone: __private.blockReward.calcMilestone(modules.blockchain.getLastBlock().height)
-    })
+    // res.send({
+    //   milestone: __private.blockReward.calcMilestone(modules.blockchain.getLastBlock().height)
+    // })
 
     next()
   }
 
   reward(req, res, next) {
-    // @TODO
+    responder.notImplemented('Method has not yet been implemented.');
 
-    res.send({
-      reward: __private.blockReward.calcReward(modules.blockchain.getLastBlock().height)
-    })
+    // res.send({
+    //   reward: __private.blockReward.calcReward(modules.blockchain.getLastBlock().height)
+    // })
 
     next()
   }
 
   supply(req, res, next) {
-    // @TODO
+    responder.notImplemented('Method has not yet been implemented.');
 
-    res.send({
-      supply: __private.blockReward.calcSupply(modules.blockchain.getLastBlock().height)
-    })
+    // res.send({
+    //   supply: __private.blockReward.calcSupply(modules.blockchain.getLastBlock().height)
+    // })
 
     next()
   }
 
   status(req, res, next) {
-    // @TODO
+    responder.notImplemented('Method has not yet been implemented.');
 
-    let block = blockchain.getInstance().lastBlock.data
+    // let block = blockchain.getInstance().lastBlock.data
 
-    res.send({
-      epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
-      height: block.height,
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
-      milestone: __private.blockReward.calcMilestone(block.height),
-      nethash: library.config.nethash,
-      reward: __private.blockReward.calcReward(block.height),
-      supply: __private.blockReward.calcSupply(block.height)
-    })
+    // res.send({
+    //   epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
+    //   height: block.height,
+    //   fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
+    //   milestone: __private.blockReward.calcMilestone(block.height),
+    //   nethash: library.config.nethash,
+    //   reward: __private.blockReward.calcReward(block.height),
+    //   supply: __private.blockReward.calcSupply(block.height)
+    // })
 
     next()
   }

@@ -1,36 +1,28 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class MultiSignaturesController {
   index(req, res, next) {
-    res.send({
-      data: '/api/multisignatures'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   store(req, res, next) {
-    res.send({
-      data: '/api/multisignatures'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   pending(req, res, next) {
-    res.send({
-      data: '/api/multisignatures/pending'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   accounts(req, res, next) {
-    res.send({
-      data: '/api/multisignatures/accounts'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

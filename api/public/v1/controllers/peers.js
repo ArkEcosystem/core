@@ -1,28 +1,22 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class PeersController {
   index(req, res, next) {
-    res.send({
-      data: '/api/peers'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
-    res.send({
-      data: '/api/peers/get'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   version(req, res, next) {
-    res.send({
-      data: '/api/peers/version'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

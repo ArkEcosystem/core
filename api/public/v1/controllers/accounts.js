@@ -2,9 +2,6 @@ const logger = require(__root + 'core/logger')
 const arkjs = require('arkjs')
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
-const responseIntervalServerError = require(__root + 'api/public/v1/responses/exceptions/internal-server-error')
-const responseUnprocessableEntity = require(__root + 'api/public/v1/responses/exceptions/unprocessable-entity')
 const accounts = require(__root + 'repositories/accounts')
 
 class WalletsController {
@@ -13,7 +10,7 @@ class WalletsController {
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         accounts: result
       })
     })
@@ -25,19 +22,19 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.getAccount(req.query.address)
         .then(account => {
-          responseOk.send(req, res, {
+          responder.ok(req, res, {
             account: account
           })
         })
         .catch(error => {
           logger.error(error)
 
-          responseIntervalServerError.send(req, res, {
+          res.send(200, {
             error: error
           })
         })
     } else {
-      responseUnprocessableEntity.send(req, res, {
+      res.send(200, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address
       })
     }
@@ -49,7 +46,7 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.getAccount(req.query.address)
         .then(account => {
-          responseOk.send(req, res, {
+          responder.ok(req, res, {
             balance: account ? account.balance : '0',
             unconfirmedBalance: account ? account.balance : '0'
           })
@@ -57,12 +54,12 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          responseIntervalServerError.send(req, res, {
+          res.send(200, {
             error: error
           })
         })
     } else  {
-      responseUnprocessableEntity.send(req, res, {
+      res.send(200, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
     }
@@ -74,20 +71,20 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.getAccount(req.query.address)
         .then(account => {
-          responseOk.send(req, res, {
+          responder.ok(req, res, {
             publicKey: account.publicKey,
           })
         })
         .catch(error => {
           logger.error(error)
 
-          responseIntervalServerError.send(req, res, {
+          res.send(200, {
             success: false,
             error: error
           })
         })
     } else {
-      responseUnprocessableEntity.send(req, res, {
+      res.send(200, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
 
@@ -97,7 +94,7 @@ class WalletsController {
   }
 
   fee(req, res, next) {
-    responseUnprocessableEntity.send(req, res, {
+    res.send(200, {
       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
     })
 
@@ -110,7 +107,7 @@ class WalletsController {
         .then(account => {
           db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
             .then(delegate => {
-              responseOk.send(req, res, {
+              responder.ok(req, res, {
                 delegates: [{
                   username: delegate.username,
                   address: delegate.address,
@@ -128,12 +125,12 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          responseIntervalServerError.send(req, res, {
+          res.send(200, {
             error: error
           })
         })
     } else {
-      responseUnprocessableEntity.send(req, res, {
+      res.send(200, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
     }
@@ -150,7 +147,7 @@ class WalletsController {
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100),
     }).then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         accounts: result.rows
       })
     })
@@ -161,7 +158,7 @@ class WalletsController {
 
   count(req, res, next) {
     accounts.all().then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         count: result.count,
       })
     })

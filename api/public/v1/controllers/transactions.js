@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responder = require(__root + 'api/responder')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
 const Transaction = require(__root + 'model/transaction')
@@ -11,7 +11,7 @@ class TransactionsController {
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         transactions: result.rows
       })
     })
@@ -28,17 +28,13 @@ class TransactionsController {
   }
 
   unconfirmed(req, res, next) {
-    res.send({
-      data: '/api/transactions/unconfirmed'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   showUnconfirmed(req, res, next) {
-    res.send({
-      data: '/api/transactions/unconfirmed/:id'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

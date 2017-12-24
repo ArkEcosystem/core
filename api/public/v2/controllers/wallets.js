@@ -2,9 +2,6 @@ const arkjs = require('arkjs')
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const logger = require(__root + 'core/logger')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
-const responseIntervalServerError = require(__root + 'api/public/v2/responses/exceptions/internal-server-error')
-const responseUnprocessableEntity = require(__root + 'api/public/v2/responses/exceptions/unprocessable-entity')
 const accounts = require(__root + 'repositories/accounts')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
@@ -18,7 +15,7 @@ class WalletsController {
     accounts.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         data: result.rows,
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
@@ -31,9 +28,7 @@ class WalletsController {
   }
 
   search(req, res, next) {
-    res.send({
-      data: '/api/wallets/search'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
@@ -64,7 +59,7 @@ class WalletsController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -89,7 +84,7 @@ class WalletsController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -114,7 +109,7 @@ class WalletsController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -140,7 +135,7 @@ class WalletsController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {

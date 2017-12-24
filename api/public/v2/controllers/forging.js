@@ -1,28 +1,22 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class ForgingController {
   round(req, res, next) {
-    res.send({
-      data: '/api/forging/round'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   next(req, res, next) {
-    res.send({
-      data: '/api/forging/next'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
 
   previous(req, res, next) {
-    res.send({
-      data: '/api/forging/previous'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }

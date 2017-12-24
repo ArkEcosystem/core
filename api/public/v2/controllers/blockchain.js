@@ -1,10 +1,10 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 
 class BlockchainController {
   index(req, res, next) {
-    responseOk.send(req, res, {
+    responder.ok(req, res, {
       data: config.getConstants(blockchain.getInstance().lastBlock.data.height)
     })
 

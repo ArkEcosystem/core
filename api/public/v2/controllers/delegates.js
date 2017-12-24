@@ -1,6 +1,6 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responder = require(__root + 'api/responder')
 const delegates = require(__root + 'repositories/delegates')
 const blocks = require(__root + 'repositories/blocks')
 const transactions = require(__root + 'repositories/transactions')
@@ -17,7 +17,7 @@ class DelegatesController {
     }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
-      responseOk.send(req, res, {
+      responder.ok(req, res, {
         data: result.rows,
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
@@ -30,9 +30,7 @@ class DelegatesController {
   }
 
   search(req, res, next) {
-    res.send({
-      data: '/api/delegates/search'
-    })
+    responder.notImplemented('Method has not yet been implemented.');
 
     next()
   }
@@ -59,7 +57,7 @@ class DelegatesController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -88,7 +86,7 @@ class DelegatesController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -113,7 +111,7 @@ class DelegatesController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
@@ -138,7 +136,7 @@ class DelegatesController {
       }, page, perPage).then(result => {
         const paginator = new Paginator(req, result.count, page, perPage)
 
-        responseOk.send(req, res, {
+        responder.ok(req, res, {
           data: result.rows,
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
