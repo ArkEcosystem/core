@@ -8,9 +8,14 @@ const responseUnprocessableEntity = require(__root + 'api/public/v1/responses/ex
 
 class WalletsController {
     index(req, res, next) {
-        res.send({
-            data: '/api/accounts'
-        })
+        blockchain.getInstance().getDb().accounts.findAndCountAll({
+            offset: 0,
+            limit: 50
+        }).then(result => {
+            res.send({
+                data: result
+            })
+        });
 
         next()
     }

@@ -6,6 +6,8 @@ class WalletsRouter {
         registrar.post('wallets/search', controllers.search)
         registrar.get('wallets/:id', controllers.show)
         registrar.get('wallets/:id/transactions', controllers.transactions)
+        registrar.get('wallets/:id/transactions/send', controllers.transactionsSend)
+        registrar.get('wallets/:id/transactions/received', controllers.transactionsReceived)
         registrar.get('wallets/:id/votes', controllers.votes)
     }
 }

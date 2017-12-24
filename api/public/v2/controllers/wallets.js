@@ -5,12 +5,26 @@ const logger = require(__root + 'core/logger')
 const responseOk = require(__root + 'api/public/v2/responses/ok')
 const responseIntervalServerError = require(__root + 'api/public/v2/responses/exceptions/internal-server-error')
 const responseUnprocessableEntity = require(__root + 'api/public/v2/responses/exceptions/unprocessable-entity')
+const accounts = require(__root + 'repositories/accounts')
+const transactions = require(__root + 'repositories/transactions')
+const Paginator = require(__root + 'api/public/paginator')
 
 class WalletsController {
     index(req, res, next) {
-        res.send({
-            data: '/api/wallets'
-        })
+        let page = parseInt(req.query.page || 1);
+        let perPage = parseInt(req.query.perPage || 50);
+
+        accounts.paginate({}, page, perPage).then(result => {
+            const paginator = new Paginator(req, result.count, page, perPage)
+
+            responseOk.send(req, res, {
+                data: result.rows,
+                links: paginator.links(),
+                meta: Object.assign(paginator.meta(), {
+                    count: result.count
+                }),
+            })
+        });
 
         next()
     }
@@ -24,41 +38,112 @@ class WalletsController {
     }
 
     show(req, res, next) {
-        if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-            db.getAccount(req.query.address)
-                .then(account => {
-                    responseOk.send(req, res, {
-                        account: account
-                    })
-                })
-                .catch(error => {
-                    logger.error(error)
-
-                    responseIntervalServerError.send(req, res, {
-                        error
-                    })
-                })
-        } else {
-            responseUnprocessableEntity.send(req, res, [
-                "Object didn't pass validation for format address: " + req.query.address,
-            ])
-        }
+        accounts.findById(req.params.id).then(result => {
+            res.send({
+                data: result
+            })
+        });
 
         next()
     }
 
     transactions(req, res, next) {
-        res.send({
-            data: '/api/wallets/:id/transactions'
-        })
+        accounts.findById(req.params.id).then(result => {
+            const page = parseInt(req.query.page || 1);
+            const perPage = parseInt(req.query.perPage || 50);
+
+            transactions.paginate({
+                where: {
+                    senderPublicKey: result.publicKey
+                }
+            }, page, perPage).then(result => {
+                const paginator = new Paginator(req, result.count, page, perPage)
+
+                responseOk.send(req, res, {
+                    data: result.rows,
+                    links: paginator.links(),
+                    meta: Object.assign(paginator.meta(), {
+                        count: result.count
+                    }),
+                })
+            });
+        });
+
+        next()
+    }
+
+    transactionsSend(req, res, next) {
+        accounts.findById(req.params.id).then(result => {
+            const page = parseInt(req.query.page || 1);
+            const perPage = parseInt(req.query.perPage || 50);
+
+            transactions.paginate({
+                where: {
+                    senderPublicKey: result.publicKey
+                }
+            }, page, perPage).then(result => {
+                const paginator = new Paginator(req, result.count, page, perPage)
+
+                responseOk.send(req, res, {
+                    data: result.rows,
+                    links: paginator.links(),
+                    meta: Object.assign(paginator.meta(), {
+                        count: result.count
+                    }),
+                })
+            });
+        });
+
+        next()
+    }
+
+    transactionsReceived(req, res, next) {
+        accounts.findById(req.params.id).then(result => {
+            const page = parseInt(req.query.page || 1);
+            const perPage = parseInt(req.query.perPage || 50);
+
+            transactions.paginate({
+                where: {
+                    recipientId: result.address
+                }
+            }, page, perPage).then(result => {
+                const paginator = new Paginator(req, result.count, page, perPage)
+
+                responseOk.send(req, res, {
+                    data: result.rows,
+                    links: paginator.links(),
+                    meta: Object.assign(paginator.meta(), {
+                        count: result.count
+                    }),
+                })
+            });
+        });
 
         next()
     }
 
     votes(req, res, next) {
-        res.send({
-            data: '/api/wallets/:id/votes'
-        })
+        accounts.findById(req.params.id).then(result => {
+            const page = parseInt(req.query.page || 1);
+            const perPage = parseInt(req.query.perPage || 50);
+
+            transactions.paginate({
+                where: {
+                    senderPublicKey: result.publicKey,
+                    type: 3
+                }
+            }, page, perPage).then(result => {
+                const paginator = new Paginator(req, result.count, page, perPage)
+
+                responseOk.send(req, res, {
+                    data: result.rows,
+                    links: paginator.links(),
+                    meta: Object.assign(paginator.meta(), {
+                        count: result.count
+                    }),
+                })
+            });
+        });
 
         next()
     }
