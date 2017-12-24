@@ -1,6 +1,5 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const p2pInterface = require(__root + 'api/p2p/p2pinterface')
 const responder = require(__root + 'api/responder')
 
 class LoaderController {
