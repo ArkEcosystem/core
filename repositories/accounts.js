@@ -1,6 +1,5 @@
 const blockchain = require(__root + 'core/blockchainManager')
-const Sequelize = require('sequelize')
-const Op = Sequelize.Op;
+const Op = require('sequelize').Op
 
 class AccountsRepository {
     constructor() {
@@ -17,6 +16,35 @@ class AccountsRepository {
     findById(id) {
         return this.db.accounts.findOne({
             where: {
+                [Op.or]: [{
+                    address: id,
+                }, {
+                    publicKey: id,
+                }, {
+                    username: id,
+                }]
+            }
+        })
+    }
+
+    paginateDelegates(params, page, perPage) {
+        return this.db.accounts.findAndCountAll(Object.assign(params, {
+            where: {
+                username: {
+                    [Op.ne]: null
+                },
+            },
+            offset: page * perPage,
+            limit: perPage,
+        }))
+    }
+
+    findDelegateById(id) {
+        return this.db.accounts.findOne({
+            where: {
+                username: {
+                    [Op.ne]: null
+                },
                 [Op.or]: [{
                     address: id,
                 }, {

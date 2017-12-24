@@ -8,6 +8,7 @@ const responseUnprocessableEntity = require(__root + 'api/public/v2/responses/ex
 const accounts = require(__root + 'repositories/accounts')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/public/paginator')
+const Op = require('sequelize').Op
 
 class WalletsController {
     index(req, res, next) {
@@ -54,7 +55,11 @@ class WalletsController {
 
             transactions.paginate({
                 where: {
-                    senderPublicKey: result.publicKey
+                    [Op.or]: [{
+                        senderPublicKey: result.publicKey,
+                    }, {
+                        recipientId: result.address,
+                    }]
                 }
             }, page, perPage).then(result => {
                 const paginator = new Paginator(req, result.count, page, perPage)
