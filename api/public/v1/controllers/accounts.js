@@ -1,8 +1,9 @@
-const logger = require(__root + 'core/logger')
+const accounts = require(__root + 'repositories/accounts')
 const arkjs = require('arkjs')
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
-const accounts = require(__root + 'repositories/accounts')
+const logger = require(__root + 'core/logger')
+const responder = require(__root + 'api/responder')
 
 class WalletsController {
   index(req, res, next) {
@@ -20,7 +21,7 @@ class WalletsController {
 
   show(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.getAccount(req.query.address)
+      accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             account: account
@@ -44,7 +45,7 @@ class WalletsController {
 
   balance(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.getAccount(req.query.address)
+      accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             balance: account ? account.balance : '0',
@@ -69,7 +70,7 @@ class WalletsController {
 
   publicKey(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.getAccount(req.query.address)
+      accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             publicKey: account.publicKey,
@@ -101,9 +102,9 @@ class WalletsController {
 
   delegates(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.getAccount(req.query.address)
+      accounts.findById(req.query.address)
         .then(account => {
-          db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+          accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
             .then(delegate => {
               responder.ok(req, res, {
                 delegates: [{
@@ -150,7 +151,6 @@ class WalletsController {
       })
     })
 
-
     next()
   }
 
@@ -163,7 +163,6 @@ class WalletsController {
 
     next()
   }
-
 }
 
 module.exports = new WalletsController

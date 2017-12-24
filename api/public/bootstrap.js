@@ -9,6 +9,11 @@ class PublicAPI {
   }
 
   mount() {
+    if (!this.config.server.api.mount) {
+      logger.info('Public API not mounted as not configured to do so')
+      return
+    }
+
     this.createServer()
     this.registerPlugins()
     this.registerRouters()
