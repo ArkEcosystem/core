@@ -29,12 +29,12 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          res.send(200, {
+          responder.error(req, res, {
             error: error
           })
         })
     } else {
-      res.send(200, {
+      responder.error(req, res, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address
       })
     }
@@ -54,12 +54,12 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          res.send(200, {
+          responder.error(req, res, {
             error: error
           })
         })
     } else  {
-      res.send(200, {
+      responder.error(req, res, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
     }
@@ -78,16 +78,14 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          res.send(200, {
-            success: false,
+          responder.error(req, res, {
             error: error
           })
         })
     } else {
-      res.send(200, {
+      responder.error(req, res, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
-
     }
 
     next()
@@ -125,12 +123,12 @@ class WalletsController {
         .catch(error => {
           logger.error(error)
 
-          res.send(200, {
+          responder.error(req, res, {
             error: error
           })
         })
     } else {
-      res.send(200, {
+      responder.error(req, res, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })
     }

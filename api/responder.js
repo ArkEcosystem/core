@@ -22,6 +22,10 @@ class Responder {
     this.createResponse('no-content', req, res, data, headers)
   }
 
+  error(req, res, data, headers = {}) {
+    this.createResponse('error', req, res, data, headers) // only for v1
+  }
+
   badRequest(message) {
     return new errors.BadRequestError(message) // (400 Bad Request)
   }
