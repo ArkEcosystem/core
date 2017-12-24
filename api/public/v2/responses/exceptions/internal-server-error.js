@@ -1,9 +1,9 @@
 const response = require('../response')
 
 class InternalServerErrorHttpException {
-    send(req, res, data)
+    send(req, res, data, headers = {})
     {
-        response.send(req, res, data, 500)
+        response.send(req, res, data, 500, headers)
     }
 }
 

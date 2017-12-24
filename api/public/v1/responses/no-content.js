@@ -1,11 +1,11 @@
 const response = require('./response')
 
 class NoContentResponse {
-    send(req, res, data)
+    send(req, res, data, headers = {})
     {
         response.send(req, res, Object.assign(data, {
             success: true
-        }), 204)
+        }), 204, headers)
     }
 }
 

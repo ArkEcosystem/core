@@ -1,11 +1,11 @@
 const response = require('../response')
 
 class UnprocessableEntityHttpException {
-    send(req, res, data)
+    send(req, res, data, headers = {})
     {
         response.send(req, res, Object.assign(data, {
             success: false
-        }), 422)
+        }), 422, headers)
     }
 }
 

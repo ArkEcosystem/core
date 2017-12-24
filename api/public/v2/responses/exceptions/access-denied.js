@@ -1,9 +1,9 @@
 const response = require('../response')
 
 class AccessDeniedHttpException {
-    send(req, res, data)
+    send(req, res, data, headers = {})
     {
-        response.send(req, res, data, 403)
+        response.send(req, res, data, 403, headers)
     }
 }
 

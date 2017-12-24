@@ -1,9 +1,9 @@
 const response = require('../response')
 
 class GoneHttpException {
-    send(req, res, data)
+    send(req, res, data, headers = {})
     {
-        response.send(req, res, data, 410)
+        response.send(req, res, data, 410, headers)
     }
 }
 
