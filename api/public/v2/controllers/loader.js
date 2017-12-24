@@ -1,18 +1,17 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
+const responseOk = require(__root + 'api/public/v2/responses/ok')
 
 class LoaderController {
     status(req, res, next) {
         // TODO finish
-        res.send(200, {
-            success: true,
-            loaded: blockchain.getInstance().isSynced(blockchain.getInstance().lastBlock),
-            now: blockchain.getInstance().lastBlock ? blockchain.getInstance().lastBlock.data.height : 0,
-            blocksCount: blockchain.getInstance().networkInterface.getNetworkHeight() - blockchain.getInstance().lastBlock.data.height,
-            meta: {
-                requestedVersion: req.version(),
-                matchedVersion: req.matchedVersion()
-            }
+
+        const instance = blockchain.getInstance()
+
+        responseOk.send(res, {
+            loaded: instance.isSynced(instance.lastBlock),
+            now: instance.lastBlock ? instance.lastBlock.data.height : 0,
+            blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
         })
 
         next()
@@ -27,13 +26,8 @@ class LoaderController {
     }
 
     configure(req, res, next) {
-        res.send(200, {
-            success: true,
-            network: config.network,
-            meta: {
-                requestedVersion: req.version(),
-                matchedVersion: req.matchedVersion()
-            }
+        responseOk.send(res, {
+            network: config.network
         })
 
         next()

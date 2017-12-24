@@ -1,9 +1,10 @@
 const response = require('../response')
 
 class UnsupportedMediaTypeHttpException {
-    send(req, res, data, headers = {})
-    {
-        response.send(req, res, data, 415, headers)
+    send(res, data, headers = {}) {
+        response.send(res, {
+            errors: data
+        }, 415, headers)
     }
 }
 

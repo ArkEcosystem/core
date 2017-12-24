@@ -2,6 +2,9 @@ const arkjs = require('arkjs')
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const logger = require(__root + 'core/logger')
+const responseOk = require(__root + 'api/public/v2/responses/ok')
+const responseIntervalServerError = require(__root + 'api/public/v2/responses/exceptions/internal-server-error')
+const responseUnprocessableEntity = require(__root + 'api/public/v2/responses/exceptions/unprocessable-entity')
 
 class WalletsController {
     index(req, res, next) {
@@ -24,39 +27,24 @@ class WalletsController {
         if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
             db.getAccount(req.query.address)
                 .then(account => {
-                    res.send(200, {
-                        success: true,
-                        account: account,
-                        meta: {
-                            requestedVersion: req.version(),
-                            matchedVersion: req.matchedVersion()
-                        }
+                    okResponse.send(res, {
+                        account: account
                     })
-
-                    next()
                 })
                 .catch(error => {
                     logger.error(error)
 
-                    res.send(500, {
-                        success: false,
-                        error: error
+                    responseIntervalServerError.send(res, {
+                        error
                     })
-
-                    next()
                 })
         } else {
-            res.send(200, {
-                success: false,
-                error: 'Object didn\'t pass validation for format address: ' + req.query.address,
-                meta: {
-                    requestedVersion: req.version(),
-                    matchedVersion: req.matchedVersion()
-                }
+            responseUnprocessableEntity.send(res, {
+                'Object didn\'t pass validation for format address: ' + req.query.address,
             })
-
-            next()
         }
+
+        next()
     }
 
     transactions(req, res, next) {

@@ -3,6 +3,10 @@ const arkjs = require('arkjs')
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 
+const responseOk = require(__root + 'api/public/v1/responses/ok')
+const responseIntervalServerError = require(__root + 'api/public/v1/responses/exceptions/internal-server-error')
+const responseUnprocessableEntity = require(__root + 'api/public/v1/responses/exceptions/unprocessable-entity')
+
 class WalletsController {
     index(req, res, next) {
         res.send({
@@ -16,125 +20,80 @@ class WalletsController {
         if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
             db.getAccount(req.query.address)
                 .then(account => {
-                    res.send(200, {
-                        success: true,
-                        account: account,
-                        meta: {
-                            requestedVersion: req.version(),
-                            matchedVersion: req.matchedVersion()
-                        }
+                    responseOk.send(res, {
+                        account: account
                     })
-
-                    next()
                 })
                 .catch(error => {
                     logger.error(error)
-                    res.send(500, {
-                        success: false,
+
+                    responseIntervalServerError.send(res, {
                         error: error
                     })
-
-                    next()
                 })
         } else {
-            res.send(200, {
-                success: false,
-                error: 'Object didn\'t pass validation for format address: ' + req.query.address,
-                meta: {
-                    requestedVersion: req.version(),
-                    matchedVersion: req.matchedVersion()
-                }
+            responseUnprocessableEntity.send(res, {
+                error: 'Object didn\'t pass validation for format address: ' + req.query.address
             })
-
-            next()
         }
+
+        next()
     }
 
     balance(req, res, next) {
         if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
             db.getAccount(req.query.address)
                 .then(account => {
-                    res.send(200, {
-                        success: true,
+                    responseOk.send(res, {
                         balance: account ? account.balance : '0',
-                        unconfirmedBalance: account ? account.balance : '0',
-                        meta: {
-                            requestedVersion: req.version(),
-                            matchedVersion: req.matchedVersion()
-                        }
+                        unconfirmedBalance: account ? account.balance : '0'
                     })
-                    next()
                 })
                 .catch(error => {
                     logger.error(error)
-                    res.send(500, {
-                        success: false,
+
+                    responseIntervalServerError.send(res, {
                         error: error
                     })
-
-                    next()
                 })
-        } else {
-            res.send(200, {
-                success: false,
+        } else  {
+            responseUnprocessableEntity.send(res, {
                 error: 'Object didn\'t pass validation for format address: ' + req.query.address,
-                meta: {
-                    requestedVersion: req.version(),
-                    matchedVersion: req.matchedVersion()
-                }
             })
-
-            next()
         }
+
+        next()
     }
 
     publicKey(req, res, next) {
         if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
             db.getAccount(req.query.address)
                 .then(account => {
-                    res.send(200, {
-                        success: true,
+                    responseOk.send(res, {
                         publicKey: account.publicKey,
-                        meta: {
-                            requestedVersion: req.version(),
-                            matchedVersion: req.matchedVersion()
-                        }
                     })
-
-                    next()
                 })
                 .catch(error => {
                     logger.error(error)
 
-                    res.send(500, {
+                    responseIntervalServerError.send(res, {
                         success: false,
                         error: error
                     })
-
-                    next()
                 })
         } else {
-            res.send(200, {
-                success: false,
+            responseUnprocessableEntity.send(res, {
                 error: 'Object didn\'t pass validation for format address: ' + req.query.address,
-                meta: {
-                    requestedVersion: req.version(),
-                    matchedVersion: req.matchedVersion()
-                }
             })
 
-            next()
         }
+
+        next()
     }
 
     fee(req, res, next) {
-        res.send(200, {
-            success: true,
+        responseUnprocessableEntity.send(res, {
             fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
-            meta: {
-                requestedVersion: req.version(),
-                matchedVersion: req.matchedVersion()
-            }
         })
 
         next()
@@ -146,8 +105,7 @@ class WalletsController {
                 .then(account => {
                     db.getAccount(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
                         .then(delegate => {
-                            res.send(200, {
-                                success: true,
+                            responseOk.send(res, {
                                 delegates: [{
                                     username: delegate.username,
                                     address: delegate.address,
@@ -158,35 +116,24 @@ class WalletsController {
                                     rate: -1,
                                     approval: 1.14,
                                     productivity: 99.3
-                                }],
-                                meta: {
-                                    requestedVersion: req.version(),
-                                    matchedVersion: req.matchedVersion()
-                                }
+                                }]
                             })
                         })
                 })
                 .catch(error => {
                     logger.error(error)
-                    res.send(500, {
-                        success: false,
+
+                    responseIntervalServerError.send(res, {
                         error: error
                     })
-
-                    next()
                 })
         } else {
-            res.send(200, {
-                success: false,
+            responseUnprocessableEntity.send(res, {
                 error: 'Object didn\'t pass validation for format address: ' + req.query.address,
-                meta: {
-                    requestedVersion: req.version(),
-                    matchedVersion: req.matchedVersion()
-                }
             })
-
-            next()
         }
+
+        next()
     }
 
     accounts(req, res, next) {

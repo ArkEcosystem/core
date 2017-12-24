@@ -1,9 +1,10 @@
 const response = require('../response')
 
 class LengthRequiredResponse {
-    send(req, res, data, headers = {})
-    {
-        response.send(req, res, data, 411, headers)
+    send(res, data, headers = {}) {
+        response.send(res, {
+            errors: data
+        }, 411, headers)
     }
 }
 

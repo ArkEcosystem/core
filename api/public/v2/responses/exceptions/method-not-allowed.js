@@ -1,9 +1,10 @@
 const response = require('../response')
 
 class MethodNotAllowedResponse {
-    send(req, res, data, headers = {})
-    {
-        response.send(req, res, data, 405, headers)
+    send(res, data, headers = {}) {
+        response.send(res, {
+            errors: data
+        }, 405, headers)
     }
 }
 

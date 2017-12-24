@@ -1,9 +1,10 @@
 const response = require('../response')
 
 class PreconditionFailedHttpException {
-    send(req, res, data, headers = {})
-    {
-        response.send(req, res, data, 412, headers)
+    send(res, data, headers = {}) {
+        response.send(res, {
+            errors: data
+        }, 412, headers)
     }
 }
 
