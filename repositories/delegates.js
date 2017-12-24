@@ -1,7 +1,7 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const Op = require('sequelize').Op
 
-class AccountsRepository {
+class DelegatesRepository {
   constructor() {
     this.db = blockchain.getInstance().getDb()
   }
@@ -48,4 +48,4 @@ class AccountsRepository {
   }
 }
 
-module.exports = new AccountsRepository
+module.exports = new DelegatesRepository

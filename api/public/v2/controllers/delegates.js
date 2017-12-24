@@ -1,7 +1,7 @@
 const blockchain = require(__root + 'core/blockchainManager')
 const config = require(__root + 'core/config')
 const responseOk = require(__root + 'api/public/v2/responses/ok')
-const accounts = require(__root + 'repositories/accounts')
+const delegates = require(__root + 'repositories/delegates')
 const blocks = require(__root + 'repositories/blocks')
 const transactions = require(__root + 'repositories/transactions')
 const Paginator = require(__root + 'api/paginator')
@@ -12,7 +12,7 @@ class DelegatesController {
     let page = parseInt(req.query.page || 1);
     let perPage = parseInt(req.query.perPage || 100);
 
-    accounts.paginateDelegates({
+    delegates.paginate({
         order: [[ 'publicKey', 'ASC' ]]
     }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
@@ -38,7 +38,7 @@ class DelegatesController {
   }
 
   show(req, res, next) {
-    accounts.findDelegateById(req.params.id).then(result => {
+    delegates.findById(req.params.id).then(result => {
       res.send({
         data: result
       })
@@ -48,7 +48,7 @@ class DelegatesController {
   }
 
   blocks(req, res, next) {
-    accounts.findDelegateById(req.params.id).then(result => {
+    delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
       const perPage = parseInt(req.query.perPage || 100);
 
@@ -73,7 +73,7 @@ class DelegatesController {
   }
 
   transactions(req, res, next) {
-    accounts.findDelegateById(req.params.id).then(result => {
+    delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
       const perPage = parseInt(req.query.perPage || 100);
 
@@ -102,7 +102,7 @@ class DelegatesController {
   }
 
   transactionsSend(req, res, next) {
-    accounts.findDelegateById(req.params.id).then(result => {
+    delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
       const perPage = parseInt(req.query.perPage || 100);
 
@@ -127,7 +127,7 @@ class DelegatesController {
   }
 
   transactionsReceived(req, res, next) {
-    accounts.findDelegateById(req.params.id).then(result => {
+    delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1);
       const perPage = parseInt(req.query.perPage || 100);
 
