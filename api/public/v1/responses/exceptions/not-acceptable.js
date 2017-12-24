@@ -1,8 +1,8 @@
 const response = require('../response')
 
 class NotAcceptableResponse {
-    send(res, data, headers = {}) {
-        response.send(res, Object.assign(data, {
+    send(req, res, data, headers = {}) {
+        response.send(req, res, Object.assign(data, {
             success: false
         }), 406, headers)
     }

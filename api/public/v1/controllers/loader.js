@@ -8,7 +8,7 @@ class LoaderController {
 
         const instance = blockchain.getInstance()
 
-        responseOk.send(res, {
+        responseOk.send(req, res, {
             loaded: instance.isSynced(instance.lastBlock),
             now: instance.lastBlock ? instance.lastBlock.data.height : 0,
             blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
@@ -28,7 +28,7 @@ class LoaderController {
     autoconfigure(req, res, next) {
         const instance = blockchain.getInstance()
 
-        responseOk.send(res, {
+        responseOk.send(req, res, {
             loaded: instance.isSynced(instance.lastBlock),
             now: instance.lastBlock ? instance.lastBlock.data.height : 0,
             blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,

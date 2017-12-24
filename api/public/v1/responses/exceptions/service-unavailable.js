@@ -1,8 +1,8 @@
 const response = require('../response')
 
 class ServiceUnavailableHttpException {
-    send(res, data, headers = {}) {
-        response.send(res, Object.assign(data, {
+    send(req, res, data, headers = {}) {
+        response.send(req, res, Object.assign(data, {
             success: false
         }), 503, headers)
     }

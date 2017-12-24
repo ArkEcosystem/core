@@ -1,8 +1,8 @@
 const response = require('./response')
 
 class OkResponse {
-    send(res, data, headers = {}) {
-        response.send(res, data, 200, headers)
+    send(req, res, data, headers = {}) {
+        response.send(req, res, data, 200, headers)
     }
 }
 

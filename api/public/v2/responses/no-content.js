@@ -1,8 +1,8 @@
 const response = require('./response')
 
 class NoContentResponse {
-    send(res, data, headers = {}) {
-        response.send(res, data, 204, headers)
+    send(req, res, data, headers = {}) {
+        response.send(req, res, data, 204, headers)
     }
 }
 

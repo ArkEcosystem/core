@@ -22,7 +22,7 @@ class PublicAPI {
     }
 
     registerPlugins() {
-    	this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
+        this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
         this.server.use(restify.plugins.bodyParser({
             mapParams: true
         }))
@@ -46,7 +46,7 @@ class PublicAPI {
         if (!req.header('accept-version')) {
             req.headers['accept-version'] = this.config.server.api.version
 
-            logger.info('Accept-Version Header is undefined. Using [' +  req.headers['accept-version'] + '] as default.')
+            logger.info('Accept-Version Header is undefined. Using [' + req.headers['accept-version'] + '] as default.')
         }
 
         next()

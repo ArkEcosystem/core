@@ -27,21 +27,21 @@ class WalletsController {
         if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
             db.getAccount(req.query.address)
                 .then(account => {
-                    okResponse.send(res, {
+                    responseOk.send(req, res, {
                         account: account
                     })
                 })
                 .catch(error => {
                     logger.error(error)
 
-                    responseIntervalServerError.send(res, {
+                    responseIntervalServerError.send(req, res, {
                         error
                     })
                 })
         } else {
-            responseUnprocessableEntity.send(res, {
-                'Object didn\'t pass validation for format address: ' + req.query.address,
-            })
+            responseUnprocessableEntity.send(req, res, [
+                "Object didn't pass validation for format address: " + req.query.address,
+            ])
         }
 
         next()

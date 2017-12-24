@@ -1,3 +1,7 @@
+const blockchain = require(__root + 'core/blockchainManager')
+const config = require(__root + 'core/config')
+const responseOk = require(__root + 'api/public/v2/responses/ok')
+
 class BlocksController {
     index(req, res, next) {
         res.send({
@@ -17,15 +21,18 @@ class BlocksController {
 
     epoch(req, res, next) {
         res.send({
-            data: '/api/blocks/getEpoch'
+            epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch
         })
 
         next()
     }
 
     height(req, res, next) {
+        let block = blockchain.getInstance().lastBlock.data;
+
         res.send({
-            data: '/api/blocks/getHeight'
+            height: block.height,
+            id: block.id
         })
 
         next()
@@ -33,7 +40,7 @@ class BlocksController {
 
     nethash(req, res, next) {
         res.send({
-            data: '/api/blocks/getNethash'
+            nethash: config.network.nethash
         })
 
         next()
@@ -41,7 +48,7 @@ class BlocksController {
 
     fee(req, res, next) {
         res.send({
-            data: '/api/blocks/getFee'
+            fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
         })
 
         next()
@@ -49,39 +56,55 @@ class BlocksController {
 
     fees(req, res, next) {
         res.send({
-            data: '/api/blocks/getFees'
+            fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
         })
 
         next()
     }
 
     milestone(req, res, next) {
+    	// @TODO
+
         res.send({
-            data: '/api/blocks/getMilestone'
+            milestone: __private.blockReward.calcMilestone(modules.blockchain.getLastBlock().height)
         })
 
         next()
     }
 
     reward(req, res, next) {
+    	// @TODO
+
         res.send({
-            data: '/api/blocks/getReward'
+            reward: __private.blockReward.calcReward(modules.blockchain.getLastBlock().height)
         })
 
         next()
     }
 
     supply(req, res, next) {
+    	// @TODO
+
         res.send({
-            data: '/api/blocks/getSupply'
+            supply: __private.blockReward.calcSupply(modules.blockchain.getLastBlock().height)
         })
 
         next()
     }
 
     status(req, res, next) {
+    	// @TODO
+
+        let block = blockchain.getInstance().lastBlock.data;
+
         res.send({
-            data: '/api/blocks/getStatus'
+            epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
+            height: block.height,
+            fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
+            milestone: __private.blockReward.calcMilestone(block.height),
+            nethash: library.config.nethash,
+            reward: __private.blockReward.calcReward(block.height),
+            supply: __private.blockReward.calcSupply(block.height)
         })
 
         next()
