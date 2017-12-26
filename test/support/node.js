@@ -69,6 +69,7 @@ if (process.env.SILENT === 'true') {
 }
 
 let p2p
+let publicApi
 node.startRelay = options => {
   if (! options) {
     options = {
@@ -119,7 +120,10 @@ node.startRelay = options => {
     .then(() => {
       logger.info('\t> Blockchain synced'.cyan)
     })
-    .then(() => new PublicAPI(config).start())
+    .then(() => {
+      publicApi = new PublicAPI(config)
+      publicApi.start()
+    })
     .then(() => {
       logger.info('\t> Public API ready'.cyan)
       Promise.resolve('hell yeah!')
@@ -129,12 +133,19 @@ node.startRelay = options => {
 
 node.stopRelay = () => {
   return new Promise((resolve, reject) => {
-    if (p2p) {
-      p2p.up.server.close(() => {
-        resolve()
+    if (publicApi) {
+      publicApi.server.close(() => {
+        if (p2p) {
+          p2p.up.server.close(() => {
+            console.log('BYE');
+            resolve()
+          })
+        } else {
+          reject()
+        }
       })
     } else {
-      resolve()
+      reject()
     }
   })
 }
@@ -440,7 +451,13 @@ const abstractRequest = options => {
     // node.debug('> Response:'.grey, JSON.stringify(res.body))
   })
   request.catch(err => {
-    node.debug('> ERROR:'.red, err)
+    if (err.message.match(/ECONNREFUSED/)) {
+      node.debug('> ERROR:'.red, err.message)
+      node.debug('> nethash:'.grey, networkConfig.nethash)
+    } else {
+      node.debug('> ERROR:'.red, err)
+    }
+    // Promise.reject(err)
   })
 
   return request
@@ -460,6 +477,13 @@ node.post = function (path, params, done) {
 node.put = function (path, params, done) {
   return abstractRequest({ verb: 'PUT', path, params }, done)
 }
+
+before(() => {
+  return node.resumeRelay()
+})
+after(() => {
+  return node.stopRelay()
+})
 
 // Exports
 module.exports = node

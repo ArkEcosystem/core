@@ -4,10 +4,10 @@ const { expect } = require('chai')
 
 describe('GET /peers/status', function () {
 
-  before(() => {
-    this.timeout(10 * 1000)
-    return node.resumeRelay()
-  })
+  // before(() => {
+  //   this.timeout(10 * 1000)
+  //   return node.resumeRelay()
+  // })
 
   // FIXME stop tests
   // after(() => {

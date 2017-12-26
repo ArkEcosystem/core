@@ -5,21 +5,30 @@ const { expect } = require('chai')
 const uri = '/peer/blocks'
 describe(`GET ${uri}`, function () {
 
-  before(function () {
-    return node.startRelay()
-    // FIXME create db
-  })
+  // before(() => {
+  //   return node.resumeRelay()
+  // })
 
-  after(function () {
-    return node.stopRelay()
-  })
+  // FIXME stop tests
+  // after(() => {
+  //   return node.stopRelay()
+  // })
 
   context('using valid headers and nethash', () => {
     it('should be OK', function () {
       // node.config.nethash = 'example'
       return node.get(uri)
         .then(response => {
-          node.debug('> Response:'.grey, JSON.stringify(response.body))
+          expect(response.body).to.have.property('blocks').that.is.an('array')
+        })
+    })
+
+    // TODO query
+    // TODO block properties are different from v1 (ark-core)
+    it('should return blocks', function () {
+      // node.config.nethash = 'example'
+      return node.get(uri)
+        .then(response => {
           expect(response.body).to.have.property('blocks').that.is.an('array')
           response.body.blocks.forEach(block => {
             expect(block).to.have.property('id').that.is.a('string')

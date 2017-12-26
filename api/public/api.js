@@ -14,21 +14,21 @@ class PublicAPI {
       logger.info('Public API not mounted as not configured to do so')
       return
     }
-    let server = restify.createServer({name: 'arkpublic'})
+    this.server = restify.createServer({name: 'arkpublic'})
     // server.use((req, res, next) => this.acceptRequest(req, res, next))
-    server.use(restify.plugins.bodyParser({mapParams: true}))
-    server.use(restify.plugins.queryParser())
-    server.use(restify.plugins.gzipResponse())
+    this.server.use(restify.plugins.bodyParser({mapParams: true}))
+    this.server.use(restify.plugins.queryParser())
+    this.server.use(restify.plugins.gzipResponse())
 
-    this.mountPublicAPI(server)
+    this.mountPublicAPI()
 
-    server.listen(this.port, () => {
-      logger.info('%s interface listening at %s', server.name, server.url)
+    this.server.listen(this.port, () => {
+      logger.info('%s interface listening at %s', this.server.name, this.server.url)
     })
   }
 
-  mountPublicAPI (server) {
-    server.get('/api/loader/autoconfigure', (req, res, next) => this.getAutoConfigure(req, res, next))
+  mountPublicAPI () {
+    this.server.get('/api/loader/autoconfigure', (req, res, next) => this.getAutoConfigure(req, res, next))
   }
 
   isLocalhost (request) {

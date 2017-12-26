@@ -22,7 +22,9 @@ class Config {
   }
 
   init (config) {
+    // Configuration of this server
     this.server = config.server
+    // Configuration of the network
     this.network = config.network
     this.genesisBlock = config.genesisBlock
     this.delegates = config.delegates

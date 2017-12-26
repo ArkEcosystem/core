@@ -1,6 +1,6 @@
 const node = require('test/support/node')
 
-describe('GET /peer/list', function () {
+xdescribe('GET /peer/list', function () {
 
   // FIXME
   before(function (done) {
