@@ -1,4 +1,6 @@
 // @ts-check
+global.__root = `${__dirname}/../`;
+
 const deepmerge = require('deepmerge')
 
 let instance = null
@@ -8,6 +10,7 @@ class Config {
     if (!instance) {
       instance = this
     }
+
     return instance
   }
 
