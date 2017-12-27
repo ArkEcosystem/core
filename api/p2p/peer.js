@@ -1,9 +1,9 @@
-const axios = require('axios')
+const popsicle = require('popsicle')
 const schema = require('./schema')
 const logger = require(`${__root}/core/logger`)
 const PromiseWorker = require('promise-worker')
 const Worker = require('tiny-worker')
-const worker = new Worker(`${__dirname}/downloadWorker.js`)
+const worker = new Worker(`./downloadWorker.js`)
 const promiseWorker = new PromiseWorker(worker)
 
 class Peer {
@@ -34,18 +34,21 @@ class Peer {
   get (api, timeout) {
     const temp = new Date().getTime()
     const that = this
-    return axios
-      .get(this.url + api, {
+    return popsicle
+      .request({
+        method: 'GET',
+        url: this.url + api,
         headers: this.headers,
         timeout: timeout || 10000
       })
+      .use(popsicle.plugins.parse('json'))
       .then(res => {
         that.delay = new Date().getTime() - temp
         return Promise.resolve(res)
       })
       .then(res => this.parseHeaders(res))
       .catch(error => (this.status = error.code))
-      .then(res => Promise.resolve(res.data))
+      .then(res => Promise.resolve(res.body))
   }
 
   parseHeaders (res) {
