@@ -5,39 +5,39 @@ class RouteRegistrar {
     this.prefix = prefix
   }
 
-  get(path, action) {
-    this.server.get({
-      path: this.prefix + '/' + path,
-      version: this.version
-    }, action)
+  get(path, action, schema) {
+    this.server.get(this.buildConfig(path, schema), action)
   }
 
-  post(path, action) {
-    this.server.post({
-      path: this.prefix + '/' + path,
-      version: this.version
-    }, action)
+  post(path, action, schema) {
+    this.server.post(this.buildConfig(path, schema), action)
   }
 
-  put(path, action) {
-    this.server.put({
-      path: this.prefix + '/' + path,
-      version: this.version
-    }, action)
+  put(path, action, schema) {
+    this.server.put(this.buildConfig(path, schema), action)
   }
 
-  patch(path, action) {
-    this.server.patch({
-      path: this.prefix + '/' + path,
-      version: this.version
-    }, action)
+  patch(path, action, schema) {
+    this.server.patch(this.buildConfig(path, schema), action)
   }
 
-  delete(path, action) {
-    this.server.delete({
+  delete(path, action, schema) {
+    this.server.delete(this.buildConfig(path, schema), action)
+  }
+
+  buildConfig(path, schema) {
+    let config = {
       path: this.prefix + '/' + path,
       version: this.version
-    }, action)
+    }
+
+    if (schema) {
+      config = Object.assign(config, {
+        schema: schema
+      });
+    }
+
+    return config
   }
 }
 

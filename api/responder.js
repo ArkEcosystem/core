@@ -235,4 +235,4 @@ class Responder {
   }
 }
 
-module.exports = new Responder
+module.exports = new Responder()

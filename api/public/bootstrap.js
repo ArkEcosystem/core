@@ -2,7 +2,9 @@ const logger = require(`${__root}/core/logger`)
 const fs = require('fs')
 const restify = require('restify')
 const RouteRegistrar = require('../registrar')
+
 const Throttle = require('../plugins/throttle')
+const Validator = require('../plugins/validator')
 
 class PublicAPI {
   constructor(config) {
@@ -17,6 +19,10 @@ class PublicAPI {
 
     if (!this.throttle) {
       this.throttle = new Throttle(this.config.server.api.throttle)
+    }
+
+    if (!this.validator) {
+      this.validator = new Validator()
     }
 
     this.createServer()
@@ -35,6 +41,8 @@ class PublicAPI {
     this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
 
     this.server.use((req, res, next) => this.throttle.mount(req, res, next))
+
+    this.server.use((req, res, next) => this.validator.mount(req, res, next))
 
     this.server.use(restify.plugins.bodyParser({
       mapParams: true
