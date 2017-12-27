@@ -1,10 +1,10 @@
-const blockchain = require(__root + 'core/blockchainManager')
-const config = require(__root + 'core/config')
-const responder = require(__root + 'api/responder')
-const delegates = require(__root + 'repositories/delegates')
-const blocks = require(__root + 'repositories/blocks')
-const transactions = require(__root + 'repositories/transactions')
-const Paginator = require(__root + 'api/paginator')
+const blockchain = require(`${__root}/core/blockchainManager`)
+const config = require(`${__root}/core/config`)
+const responder = require(`${__root}/api/responder`)
+const delegates = require(`${__root}/repositories/delegates`)
+const blocks = require(`${__root}/repositories/blocks`)
+const transactions = require(`${__root}/repositories/transactions`)
+const Paginator = require(`${__root}/api/paginator`)
 const Op = require('sequelize').Op
 
 class DelegatesController {

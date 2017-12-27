@@ -1,9 +1,9 @@
-const accounts = require(__root + 'repositories/accounts')
+const accounts = require(`${__root}/repositories/accounts`)
 const arkjs = require('arkjs')
-const blockchain = require(__root + 'core/blockchainManager')
-const config = require(__root + 'core/config')
-const logger = require(__root + 'core/logger')
-const responder = require(__root + 'api/responder')
+const blockchain = require(`${__root}/core/blockchainManager`)
+const config = require(`${__root}/core/config`)
+const logger = require(`${__root}/core/logger`)
+const responder = require(`${__root}/api/responder`)
 
 class WalletsController {
   index(req, res, next) {

@@ -1,7 +1,8 @@
-const logger = require(__root + 'core/logger')
+const logger = require(`${__root}/core/logger`)
 const fs = require('fs')
 const restify = require('restify')
 const RouteRegistrar = require('../registrar')
+const Throttle = require('../plugins/throttle')
 
 class PublicAPI {
   constructor(config) {
@@ -12,6 +13,10 @@ class PublicAPI {
     if (!this.config.server.api.mount) {
       logger.info('Public API not mounted as not configured to do so')
       return
+    }
+
+    if (!this.throttle) {
+      this.throttle = new Throttle(this.config.server.api.throttle)
     }
 
     this.createServer()
@@ -28,9 +33,13 @@ class PublicAPI {
 
   registerPlugins() {
     this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
+
+    this.server.use((req, res, next) => this.throttle.mount(req, res, next));
+
     this.server.use(restify.plugins.bodyParser({
       mapParams: true
     }))
+
     this.server.use(restify.plugins.queryParser())
     this.server.use(restify.plugins.gzipResponse())
   }

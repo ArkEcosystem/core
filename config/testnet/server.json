@@ -12,7 +12,17 @@
   "api": {
     "mount": true,
     "port": 4003,
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "throttle": {
+      "burst": 60,
+      "rate": 1,
+      "whitelist": {
+        "::1": {
+          "rate": 0,
+          "burst": 0
+        }
+      }
+    }
   },
   "peers": {
     "blackList": []

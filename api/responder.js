@@ -2,12 +2,12 @@ var errors = require('restify-errors')
 
 class Responder {
   createResponse(name, req, res, data, headers) {
-    let version = {
+    const version = {
       '1.0.0': 'v1',
       '2.0.0': 'v2',
     }[req.version()]
 
-    require(__root + 'api/public/' + version + '/responses/' + name).send(req, res, data, headers)
+    require(`${__root}/api/public/${version}/responses/${name}`).send(req, res, data, headers)
   }
 
   ok(req, res, data, headers = {}) {

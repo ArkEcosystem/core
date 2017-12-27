@@ -1,4 +1,4 @@
-const blockchain = require(__root + 'core/blockchainManager')
+const blockchain = require(`${__root}/core/blockchainManager`)
 const Op = require('sequelize').Op
 
 class DelegatesRepository {

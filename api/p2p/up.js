@@ -1,7 +1,7 @@
 const restify = require('restify')
-const logger = require(__root + 'core/logger')
-const db = require(__root + 'core/dbinterface').getInstance()
-const blockchain = require(__root + 'core/blockchainManager')
+const logger = require(`${__root}/core/logger`)
+const db = require(`${__root}/core/dbinterface`).getInstance()
+const blockchain = require(`${__root}/core/blockchainManager`)
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 

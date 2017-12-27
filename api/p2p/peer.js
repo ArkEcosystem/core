@@ -1,6 +1,6 @@
 const popsicle = require('popsicle')
 const schema = require('./schema')
-const logger = require(__root + 'core/logger')
+const logger = require(`${__root}/core/logger`)
 const PromiseWorker = require('promise-worker')
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/downloadWorker.js`)
