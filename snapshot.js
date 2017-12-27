@@ -1,5 +1,5 @@
-global.__root = __dirname + '/';
-
+const fs = require('fs')
+const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
@@ -17,13 +17,17 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-if (commander.config) {
-  config.init({
-    server: require(path.resolve(commander.config, 'server.json')),
-    genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-    network: require(path.resolve(commander.config, 'network.json'))
-  })
+assert.string(commander.config, 'commander.config')
+
+if (!fs.existsSync(path.resolve(commander.config))){
+  throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
+
+config.init({
+  server: require(path.resolve(commander.config, 'server.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  network: require(path.resolve(commander.config, 'network.json'))
+})
 
 const logger = require('./core/logger')
 logger.init(config.server.fileLogLevel, config.network.name)

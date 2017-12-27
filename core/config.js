@@ -1,5 +1,5 @@
 // @ts-check
-global.__root = `${__dirname}/../`;
+global.__root = `${__dirname}/../`
 
 const deepmerge = require('deepmerge')
 
