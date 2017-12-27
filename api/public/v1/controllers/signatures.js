@@ -4,13 +4,13 @@ const responder = require(__root + 'api/responder')
 
 class SignaturesController {
   index(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   fee(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }

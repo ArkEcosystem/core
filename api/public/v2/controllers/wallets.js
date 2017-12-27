@@ -29,16 +29,20 @@ class WalletsController {
   }
 
   search(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
     accounts.findById(req.params.id).then(result => {
-      res.send({
-        data: result
-      })
+      if (result) {
+        responder.ok(req, res, {
+          data: result
+        })
+      } else {
+        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+      }
     })
 
     next()

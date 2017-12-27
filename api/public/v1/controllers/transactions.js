@@ -28,13 +28,13 @@ class TransactionsController {
   }
 
   unconfirmed(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   showUnconfirmed(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }

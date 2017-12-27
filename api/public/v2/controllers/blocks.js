@@ -26,17 +26,21 @@ class BlocksController {
   }
 
   search(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
     blocks.findById(req.params.id).then(result => {
-      responder.ok(req, res, {
-        data: result
-      })
-    })
+      if (result) {
+        responder.ok(req, res, {
+          data: result
+        })
+      } else {
+        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+      }
+    });
 
     next()
   }

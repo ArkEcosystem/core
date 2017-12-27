@@ -25,41 +25,45 @@ class TransactionsController {
   }
 
   search(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   store(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   show(req, res, next) {
     transactions.findById(req.params.id).then(result => {
-      responder.ok(req, res, {
-        data: result
-      })
+      if (result) {
+        responder.ok(req, res, {
+          data: result
+        })
+      } else {
+        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+      }
     })
 
     next()
   }
 
   unconfirmed(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   showUnconfirmed(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     next()
   }
 
   fees(req, res, next) {
-    res.send({
+    responder.ok({
       data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
 
@@ -67,7 +71,7 @@ class TransactionsController {
   }
 
   showFee(req, res, next) {
-    res.send({
+    responder.ok({
       data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees[req.params.type]
     })
 

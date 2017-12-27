@@ -71,7 +71,7 @@ class BlocksController {
   }
 
   milestone(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     // res.send({
     //   milestone: __private.blockReward.calcMilestone(modules.blockchain.getLastBlock().height)
@@ -81,7 +81,7 @@ class BlocksController {
   }
 
   reward(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     // res.send({
     //   reward: __private.blockReward.calcReward(modules.blockchain.getLastBlock().height)
@@ -91,7 +91,7 @@ class BlocksController {
   }
 
   supply(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     // res.send({
     //   supply: __private.blockReward.calcSupply(modules.blockchain.getLastBlock().height)
@@ -101,7 +101,7 @@ class BlocksController {
   }
 
   status(req, res, next) {
-    responder.notImplemented('Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.');
 
     // let block = blockchain.getInstance().lastBlock.data
 
