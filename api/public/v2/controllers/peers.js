@@ -1,6 +1,6 @@
-const blockchain = require(__root + 'core/blockchainManager')
-const config = require(__root + 'core/config')
-const responder = require(__root + 'api/responder')
+const blockchain = require(`${__root}/core/blockchainManager`)
+const config = require(`${__root}/core/config`)
+const responder = require(`${__root}/api/responder`)
 
 class PeersController {
   index(req, res, next) {
