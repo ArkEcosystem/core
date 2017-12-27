@@ -29,6 +29,7 @@
   "dependencies": {
     "ajv": "^5.4.0",
     "arkjs": "github:arkecosystem/ark-js#master",
+    "assert-plus": "^1.0.0",
     "async": "^2.6.0",
     "axios": "^0.17.1",
     "bignum": "^0.12.5",

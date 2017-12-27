@@ -3,6 +3,7 @@ const controllers = require('../controllers/accounts')
 class AccountsRouter {
   register(registrar) {
     registrar.get('accounts', controllers.index)
+    registrar.get('account', controllers.index)
     registrar.get('accounts/getBalance', controllers.balance)
     registrar.get('accounts/getPublickey', controllers.publicKey)
     registrar.get('accounts/delegates/fee', controllers.fee)

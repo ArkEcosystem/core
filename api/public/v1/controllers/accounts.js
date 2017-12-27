@@ -4,6 +4,7 @@ const blockchain = require(`${__root}/core/blockchainManager`)
 const config = require(`${__root}/core/config`)
 const logger = require(`${__root}/core/logger`)
 const responder = require(`${__root}/api/responder`)
+const AccountTransformer = require(`${__root}/api/public/v1/transformers/account`)
 
 class WalletsController {
   index(req, res, next) {
@@ -24,7 +25,7 @@ class WalletsController {
       accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
-            account: account
+            account: new AccountTransformer(account)
           })
         })
         .catch(error => {

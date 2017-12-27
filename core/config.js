@@ -1,5 +1,6 @@
 // @ts-check
-global.__root = `${__dirname}/../`
+const path = require('path')
+global.__root = path.resolve(`${__dirname}/../`)
 
 const deepmerge = require('deepmerge')
 
