@@ -4,31 +4,31 @@ const responder = require(`${__root}/api/responder`)
 
 class DelegatesController {
   index(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   show(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   count(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   voters(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
@@ -42,25 +42,25 @@ class DelegatesController {
   }
 
   forged(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   next(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   enable(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
   disable(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }

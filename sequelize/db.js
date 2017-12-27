@@ -75,7 +75,7 @@ class SequelizeDB extends DBInterface {
         } else return Promise.resolve(data)
       })
       .then(data => {
-        // logger.info(`got ${data.length} voted delegates`);
+        // logger.info(`got ${data.length} voted delegates`)
         const round = parseInt(block.data.height / 51)
         that.activedelegates = data
           .sort((a, b) => b.balance - a.balance)

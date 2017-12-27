@@ -93,9 +93,9 @@ class Account {
 
   canApply (transaction) {
     let check = (transaction.recipientId === this.address) || (transaction.senderPublicKey === this.publicKey && this.balance - transaction.amount - transaction.fee > -1)
-    // console.log(check);
+    // console.log(check)
     check = check && (!this.secondPublicKey || (transaction.senderPublicKey === this.publicKey && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)))
-    // console.log(check);
+    // console.log(check)
     if (!check) return false
     switch (transaction.type) {
       case 0:

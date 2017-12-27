@@ -20,8 +20,8 @@ class Throttle {
     let rate = this.burst
 
     if (this.whitelist && this.whitelist[address]) {
-      burst = this.whitelist[address].burst;
-      rate = this.whitelist[address].rate;
+      burst = this.whitelist[address].burst
+      rate = this.whitelist[address].rate
     }
 
     let bucket = this.table.get(address)
@@ -35,9 +35,9 @@ class Throttle {
       this.table.set(address, bucket)
     }
 
-    res.header('X-RateLimit-Remaining', Math.floor(bucket.tokens));
-    res.header('X-RateLimit-Limit', burst);
-    res.header('X-RateLimit-Rate', rate);
+    res.header('X-RateLimit-Remaining', Math.floor(bucket.tokens))
+    res.header('X-RateLimit-Limit', burst)
+    res.header('X-RateLimit-Rate', rate)
 
     if (!bucket.consume(1)) {
       responder.tooManyRequests(res, 'Too Many Attempts.')

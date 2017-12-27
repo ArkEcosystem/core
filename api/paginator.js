@@ -29,13 +29,13 @@ class Paginator {
   firstPageUrl() {
     return this.toFullUrl({
       page: 1
-    });
+    })
   }
 
   lastPageUrl() {
     return this.toFullUrl({
       page: this.totalPages
-    });
+    })
   }
 
   nextPageUrl() {
@@ -47,7 +47,7 @@ class Paginator {
       query.page = this.page + 1
     }
 
-    return this.toFullUrl(query);
+    return this.toFullUrl(query)
   }
 
   previousPageUrl() {
@@ -59,7 +59,7 @@ class Paginator {
       query.page = this.page - 1
     }
 
-    return this.toFullUrl(query);
+    return this.toFullUrl(query)
   }
 
   toFullUrl(query) {
@@ -67,7 +67,7 @@ class Paginator {
       query.perPage = this.perPage
     }
 
-    return this.request.path() + '?' + querystring.stringify(query);
+    return this.request.path() + '?' + querystring.stringify(query)
   }
 }
 

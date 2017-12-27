@@ -51,7 +51,7 @@ class Block {
   }
 
   verifySignature () {
-    // console.log(this.data);
+    // console.log(this.data)
     var bytes = Block.serialize(this.data, false)
     var hash = crypto.createHash('sha256').update(bytes).digest()
     var blockSignatureBuffer = new Buffer(this.data.blockSignature, 'hex')
@@ -72,7 +72,7 @@ class Block {
 
     const constants = config.getConstants(block.height)
 
-    // var previousBlock = null;
+    // var previousBlock = null
 
     if (block.height !== 1) {
       if (!block.previousBlock) {
@@ -100,9 +100,9 @@ class Block {
 
     // Disabling to allow orphanedBlocks?
     // if(previousBlock){
-    //   var lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp);
+    //   var lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
     //   if(blockSlotNumber < lastBlockSlotNumber) {
-    //      result.errors.push('block timestamp is smaller than previous block timestamp');
+    //      result.errors.push('block timestamp is smaller than previous block timestamp')
     //   }
     // }
 

@@ -26,7 +26,7 @@ class BlocksController {
   }
 
   search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.');
+    responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }

@@ -34,7 +34,7 @@ class PublicAPI {
   registerPlugins() {
     this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
 
-    this.server.use((req, res, next) => this.throttle.mount(req, res, next));
+    this.server.use((req, res, next) => this.throttle.mount(req, res, next))
 
     this.server.use(restify.plugins.bodyParser({
       mapParams: true
