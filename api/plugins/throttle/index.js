@@ -35,11 +35,6 @@ class Throttle {
       this.table.set(address, bucket)
     }
 
-    console.log({
-        capacity: burst,
-        fillRate: rate
-      });
-
     res.header('X-RateLimit-Remaining', Math.floor(bucket.tokens));
     res.header('X-RateLimit-Limit', burst);
     res.header('X-RateLimit-Rate', rate);
