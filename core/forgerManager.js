@@ -57,7 +57,7 @@ class ForgerManager {
         headers: this.headers,
         timeout: 2000
       })
-      .then((result) => result.success)
+      .then((response) => response.data.success)
   }
 
   pickForgingDelegate (round) {
@@ -70,7 +70,7 @@ class ForgerManager {
         headers: this.headers,
         timeout: 2000
       })
-      .then((result) => result.body.round)
+      .then((response) => response.data.round)
   }
 }
 

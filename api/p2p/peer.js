@@ -45,7 +45,7 @@ class Peer {
       })
       .then(res => this.parseHeaders(res))
       .catch(error => (this.status = error.code))
-      .then(res => Promise.resolve(res.body))
+      .then(res => Promise.resolve(res.data))
   }
 
   parseHeaders (res) {
