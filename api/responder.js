@@ -7,7 +7,7 @@ class Responder {
       '2.0.0': 'v2',
     }[req.version()]
 
-    require(`${__root}/api/public/${version}/responses/${name}`).send(req, res, data, headers)
+    requireFrom(`api/public/${version}/responses/${name}`).send(req, res, data, headers)
   }
 
   ok(req, res, data, headers = {}) {

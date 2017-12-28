@@ -1,10 +1,10 @@
-const accounts = require(`${__root}/repositories/accounts`)
+const accounts = requireFrom('repositories/accounts')
 const arkjs = require('arkjs')
-const blockchain = require(`${__root}/core/blockchainManager`)
-const config = require(`${__root}/core/config`)
-const logger = require(`${__root}/core/logger`)
-const responder = require(`${__root}/api/responder`)
-const transformer = require(`${__root}/api/transformer`)
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
+const logger = requireFrom('core/logger')
+const responder = requireFrom('api/responder')
+const transformer = requireFrom('api/transformer')
 
 class WalletsController {
   index(req, res, next) {
@@ -13,7 +13,7 @@ class WalletsController {
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
       responder.ok(req, res, {
-        accounts: result
+        accounts: new transformer(req).collection(result.rows, 'account')
       })
     })
 
@@ -23,9 +23,9 @@ class WalletsController {
   show(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       accounts.findById(req.query.address)
-        .then(account => {
+        .then(result => {
           responder.ok(req, res, {
-            account: new transformer(req, account, 'account')
+            account: new transformer(req).resource(result, 'account')
           })
         })
         .catch(error => {

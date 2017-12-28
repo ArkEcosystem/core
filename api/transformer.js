@@ -1,11 +1,23 @@
+const _ = require('lodash');
+
 class Transformer {
-  constructor(req, model, name) {
-    const version = {
+  constructor(req) {
+    this.version = {
       '1.0.0': 'v1',
       '2.0.0': 'v2',
     }[req.version()]
+  }
 
-    let instance = require(`${__root}/api/public/${version}/transformers/${name}`)
+  resource(model, transformer) {
+    return this.transform(model, transformer)
+  }
+
+  collection(models, transformer) {
+    return models.map((model) => this.resource(model, transformer));
+  }
+
+  transform(model, transformer) {
+    let instance = requireFrom(`api/public/${this.version}/transformers/${transformer}`)
 
     return new instance(model)
   }

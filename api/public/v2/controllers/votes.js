@@ -1,8 +1,8 @@
-const blockchain = require(`${__root}/core/blockchainManager`)
-const config = require(`${__root}/core/config`)
-const responder = require(`${__root}/api/responder`)
-const transactions = require(`${__root}/repositories/transactions`)
-const Paginator = require(`${__root}/api/paginator`)
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
+const responder = requireFrom('api/responder')
+const transactions = requireFrom('repositories/transactions')
+const Paginator = requireFrom('api/paginator')
 
 class VotesController {
   index(req, res, next) {

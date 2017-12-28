@@ -1,5 +1,5 @@
 const ajv = require('ajv')
-const responder = require(`${__root}/api/responder`)
+const responder = requireFrom('api/responder')
 
 class Validator {
   constructor() {

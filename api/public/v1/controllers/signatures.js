@@ -1,6 +1,6 @@
-const blockchain = require(`${__root}/core/blockchainManager`)
-const config = require(`${__root}/core/config`)
-const responder = require(`${__root}/api/responder`)
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
+const responder = requireFrom('api/responder')
 
 class SignaturesController {
   index(req, res, next) {

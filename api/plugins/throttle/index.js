@@ -1,6 +1,6 @@
 const TokenBucket = require('./bucket.js')
 const TokenTable = require('./table.js')
-const responder = require(`${__root}/api/responder`)
+const responder = requireFrom('api/responder')
 
 class Throttle {
   constructor(config) {

@@ -1,9 +1,9 @@
-const blockchain = require(`${__root}/core/blockchainManager`)
-const config = require(`${__root}/core/config`)
-const responder = require(`${__root}/api/responder`)
-const transactions = require(`${__root}/repositories/transactions`)
-const Paginator = require(`${__root}/api/paginator`)
-const Transaction = require(`${__root}/model/transaction`)
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
+const responder = requireFrom('api/responder')
+const transactions = requireFrom('repositories/transactions')
+const Paginator = requireFrom('api/paginator')
+const Transaction = requireFrom('model/transaction')
 
 class TransactionsController {
   index(req, res, next) {
