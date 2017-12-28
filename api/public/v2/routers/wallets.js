@@ -12,4 +12,4 @@ class WalletsRouter {
   }
 }
 
-module.exports = new WalletsRouter
+module.exports = new WalletsRouter()

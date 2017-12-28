@@ -12,4 +12,4 @@ class BlockchainController {
   }
 }
 
-module.exports = new BlockchainController
+module.exports = new BlockchainController()

@@ -8,4 +8,4 @@ class NoContentResponse {
   }
 }
 
-module.exports = new NoContentResponse
+module.exports = new NoContentResponse()

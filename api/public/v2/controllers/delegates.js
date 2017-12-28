@@ -160,4 +160,4 @@ class DelegatesController {
   }
 }
 
-module.exports = new DelegatesController
+module.exports = new DelegatesController()

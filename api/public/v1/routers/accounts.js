@@ -14,4 +14,4 @@ class AccountsRouter {
   }
 }
 
-module.exports = new AccountsRouter
+module.exports = new AccountsRouter()

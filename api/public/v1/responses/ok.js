@@ -8,4 +8,4 @@ class OkResponse {
   }
 }
 
-module.exports = new OkResponse
+module.exports = new OkResponse()

@@ -10,9 +10,6 @@ const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
 const PublicAPI = require('./api/public/bootstrap')
 
-let blockchainManager = null
-let p2p = null
-
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
@@ -33,8 +30,8 @@ config.init({
 
 logger.init(config.server.fileLogLevel, config.network.name)
 
-blockchainManager = new BlockchainManager(config)
-p2p = new P2PInterface(config)
+let blockchainManager = new BlockchainManager(config)
+let p2p = new P2PInterface(config)
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

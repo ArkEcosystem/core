@@ -119,7 +119,7 @@ class DBInterface {
   snapshot (path) {
     const fs = require('fs')
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
-    let max = 100000
+    let max = 100000 // eslint-disable-line no-unused-vars
     let offset = 0
     const writeQueue = async.queue((block, qcallback) => {
       wstream.write(block)
@@ -129,7 +129,7 @@ class DBInterface {
       writeQueue.push(blocks)
       max = blocks.length
       offset += 100000
-      console.log(offset, max) // log max to make eslint shut up
+      console.log(offset)
     })
     writeQueue.drain = () => {
       console.log('drain')

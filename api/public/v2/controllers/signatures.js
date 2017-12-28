@@ -14,4 +14,4 @@ class SignaturesController {
   }
 }
 
-module.exports = new SignaturesController
+module.exports = new SignaturesController()

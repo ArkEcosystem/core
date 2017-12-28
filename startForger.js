@@ -7,8 +7,6 @@ const config = require('./core/config')
 const logger = require('./core/logger')
 const ForgerManager = require('./core/forgerManager')
 
-let forgerManager = null
-
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
@@ -30,7 +28,7 @@ config.init({
 
 logger.init(config.server.fileLogLevel, config.network.name + '-forger')
 
-forgerManager = new ForgerManager(config)
+let forgerManager = new ForgerManager(config)
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

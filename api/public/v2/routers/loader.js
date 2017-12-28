@@ -8,4 +8,4 @@ class LoaderRouter {
   }
 }
 
-module.exports = new LoaderRouter
+module.exports = new LoaderRouter()

@@ -13,4 +13,4 @@ class DelegatesRouter {
   }
 }
 
-module.exports = new DelegatesRouter
+module.exports = new DelegatesRouter()

@@ -8,4 +8,4 @@ class PeersRouter {
   }
 }
 
-module.exports = new PeersRouter
+module.exports = new PeersRouter()

@@ -16,4 +16,4 @@ class BlocksRouter {
   }
 }
 
-module.exports = new BlocksRouter
+module.exports = new BlocksRouter()

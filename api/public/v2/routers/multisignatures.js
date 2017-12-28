@@ -9,4 +9,4 @@ class MultiSignaturesRouter {
   }
 }
 
-module.exports = new MultiSignaturesRouter
+module.exports = new MultiSignaturesRouter()

@@ -8,4 +8,4 @@ class ForgingRouter {
   }
 }
 
-module.exports = new ForgingRouter
+module.exports = new ForgingRouter()

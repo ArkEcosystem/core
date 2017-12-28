@@ -9,4 +9,4 @@ class TransactionsRouter {
   }
 }
 
-module.exports = new TransactionsRouter
+module.exports = new TransactionsRouter()

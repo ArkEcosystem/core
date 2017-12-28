@@ -7,4 +7,4 @@ class SignaturesRouter {
   }
 }
 
-module.exports = new SignaturesRouter
+module.exports = new SignaturesRouter()

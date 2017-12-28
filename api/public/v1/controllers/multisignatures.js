@@ -26,4 +26,4 @@ class MultiSignaturesController {
   }
 }
 
-module.exports = new MultiSignaturesController
+module.exports = new MultiSignaturesController()
