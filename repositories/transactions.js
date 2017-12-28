@@ -11,7 +11,7 @@ class TransactionsRepository {
 
   paginate(params, page, perPage) {
     return this.db.transactions.findAndCountAll(Object.assign(params, {
-      offset: page * perPage,
+      offset: page > 1 ? page * perPage : 0,
       limit: perPage,
     }))
   }
