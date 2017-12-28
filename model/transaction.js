@@ -45,61 +45,61 @@ class Transaction {
       bb.writeByte(0x00)
     }
     switch (transaction.type) {
-      case 0: // Transfer
-        bb.writeUInt64(transaction.amount)
-        bb.writeUInt32(transaction.expiration || 0)
-        bb.append(bs58check.decode(transaction.recipientId))
-        break
+    case 0: // Transfer
+      bb.writeUInt64(transaction.amount)
+      bb.writeUInt32(transaction.expiration || 0)
+      bb.append(bs58check.decode(transaction.recipientId))
+      break
 
-      case 1: // Signature
-        bb.append(transaction.asset.signature.publicKey, 'hex')
-        break
+    case 1: // Signature
+      bb.append(transaction.asset.signature.publicKey, 'hex')
+      break
 
-      case 2: // Delegate
-        var delegateBytes = new Buffer(transaction.asset.delegate.username, 'utf8')
-        bb.writeByte(delegateBytes.length)
-        bb.append(delegateBytes, 'hex')
-        break
+    case 2: // Delegate
+      var delegateBytes = new Buffer(transaction.asset.delegate.username, 'utf8')
+      bb.writeByte(delegateBytes.length)
+      bb.append(delegateBytes, 'hex')
+      break
 
-      case 3: // Vote
-        var voteBytes = transaction.asset.votes.map(function (vote) {
+    case 3: // Vote
+      var voteBytes = transaction.asset.votes.map(function (vote) {
         return (vote[0] === '+' ? '01' : '00') + vote.slice(1)
-        }).join('')
-        bb.writeByte(transaction.asset.votes.length)
-        bb.append(voteBytes, 'hex')
-        break
+      }).join('')
+      bb.writeByte(transaction.asset.votes.length)
+      bb.append(voteBytes, 'hex')
+      break
 
-      case 4: // Multi-Signature
-        var keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.map((k) => k.slice(1)).join(''), 'hex')
-        bb.writeByte(transaction.asset.multisignature.min)
-        bb.writeByte(transaction.asset.multisignature.keysgroup.length)
-        bb.writeByte(transaction.asset.multisignature.lifetime)
-        bb.append(keysgroupBuffer, 'hex')
-        bb.append(transaction.signatures.join(''), 'hex')
-        break
+    case 4: // Multi-Signature
+      var keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.map((k) => k.slice(1)).join(''), 'hex')
+      bb.writeByte(transaction.asset.multisignature.min)
+      bb.writeByte(transaction.asset.multisignature.keysgroup.length)
+      bb.writeByte(transaction.asset.multisignature.lifetime)
+      bb.append(keysgroupBuffer, 'hex')
+      bb.append(transaction.signatures.join(''), 'hex')
+      break
 
-      case 5: // IPFS
-        bb.writeByte(transaction.asset.ipfs.dag.length / 2)
-        bb.append(transaction.asset.ipfs.dag, 'hex')
-        break
+    case 5: // IPFS
+      bb.writeByte(transaction.asset.ipfs.dag.length / 2)
+      bb.append(transaction.asset.ipfs.dag, 'hex')
+      break
 
-      case 6: // timelock transfer
-        bb.writeUInt64(transaction.amount)
-        bb.writeByte(transaction.timelocktype)
-        bb.writeUInt32(transaction.timelock)
-        bb.append(bs58check.decode(transaction.recipientId))
-        break
+    case 6: // timelock transfer
+      bb.writeUInt64(transaction.amount)
+      bb.writeByte(transaction.timelocktype)
+      bb.writeUInt32(transaction.timelock)
+      bb.append(bs58check.decode(transaction.recipientId))
+      break
 
-      case 7: // multipayment
-        bb.writeUInt32(transaction.asset.payments.length)
-        transaction.asset.payments.forEach(function (p) {
-          bb.writeUInt64(p.amount)
-          bb.append(bs58check.decode(p.recipientId))
-        })
-        break
+    case 7: // multipayment
+      bb.writeUInt32(transaction.asset.payments.length)
+      transaction.asset.payments.forEach(function (p) {
+        bb.writeUInt64(p.amount)
+        bb.append(bs58check.decode(p.recipientId))
+      })
+      break
 
-      case 8: // delegate resignation - empty payload
-        break
+    case 8: // delegate resignation - empty payload
+      break
     }
     if (transaction.signature) bb.append(transaction.signature, 'hex')
     if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')

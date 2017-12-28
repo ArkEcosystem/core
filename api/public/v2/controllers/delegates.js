@@ -13,7 +13,7 @@ class DelegatesController {
     let perPage = parseInt(req.query.perPage || 100)
 
     delegates.paginate({
-        order: [[ 'publicKey', 'ASC' ]]
+      order: [[ 'publicKey', 'ASC' ]]
     }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
