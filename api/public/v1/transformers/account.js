@@ -12,4 +12,4 @@ class AccountTransformer {
   }
 }
 
-module.exports = AccountTransformer()
+module.exports = AccountTransformer
