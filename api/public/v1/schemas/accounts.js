@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-  getPublicKey: {
-    id: 'accounts.getPublicKey',
+  getPublickey: {
+    id: 'accounts.getPublickey',
     type: 'object',
     properties: {
       address: {
@@ -11,5 +11,18 @@ module.exports = {
       }
     },
     required: ['address']
+  },
+
+  getAccount: {
+      id: 'accounts.getAccount',
+      type: 'object',
+      properties: {
+        address: {
+          type: 'string',
+          minLength: 1
+        }
+      },
+      required: ['address']
   }
+
 }
