@@ -4,8 +4,8 @@ const responder = require(`${__root}/api/responder`)
 class Validator {
   constructor() {
     this.ajv = new ajv({
-      v5: true,
-      allErrors: true,
+      schemaId: '$id',
+      extendRefs: 'fail',
       useDefaults: true,
       coerceTypes: true
     })

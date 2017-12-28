@@ -2,6 +2,7 @@
 
 module.exports = {
   getPublicKey: {
+    id: 'accounts.getPublicKey',
     type: 'object',
     properties: {
       address: {
