@@ -195,6 +195,10 @@ class BlockchainManager {
     db = dbinterface
     return this
   }
+
+  getDb () {
+    return db
+  }
 }
 
 module.exports = BlockchainManager

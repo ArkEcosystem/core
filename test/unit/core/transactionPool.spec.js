@@ -1,6 +1,3 @@
-const { expect } = require('chai')
-const sinon = require('sinon')
-
 // const TransactionPool = require('core/transactionPool')
 
 // describe('Core | TransactionPool', ()=> {

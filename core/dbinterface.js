@@ -3,7 +3,6 @@ const Account = require('../model/account')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
-const Block = require('../model/block')
 const async = require('async')
 
 let instance
@@ -120,7 +119,7 @@ class DBInterface {
   snapshot (path) {
     const fs = require('fs')
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
-    let max = 100000
+    let max = 100000 // eslint-disable-line no-unused-vars
     let offset = 0
     const writeQueue = async.queue((block, qcallback) => {
       wstream.write(block)

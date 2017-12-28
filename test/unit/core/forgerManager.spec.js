@@ -1,5 +1,4 @@
 const { expect } = require('chai')
-const sinon = require('sinon')
 
 const ForgerManager = require('core/forgerManager')
 const Delegate = require('model/delegate')

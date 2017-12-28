@@ -1,7 +1,7 @@
 const { expect } = require('chai')
-const sinon = require('sinon')
 
 const Delegate = require('model/delegate')
+const Account = require('model/account')
 
 describe('Model | Delegate', () => {
   describe('static sortTransactions', () => {
