@@ -6,4 +6,7 @@ npm-debug.log
 .DS_Store
 .nvmrc
 .nyc_output/
+yarn.lock
+.idea/
+.vscode/
 package-lock.json
