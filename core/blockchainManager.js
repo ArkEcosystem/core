@@ -142,17 +142,13 @@ class BlockchainManager {
           })
       } else if (block.data.height > this.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
-        // this.processQueue.push(block.data)
-        logger.info('Block disregarded because blockchain not ready to accept it')
+        this.processQueue.push(block.data)
         qcallback()
       } else {
         // TODO: manage fork here
-        logger.info('Block disregarded because on a fork')
+        logger.info('Block disregarded')
         qcallback()
       }
-    } else {
-      logger.info('Block disregarded because not legit')
-      qcallback()
     }
   }
 
