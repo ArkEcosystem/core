@@ -11,7 +11,7 @@ class BlocksRepository {
 
   paginate(params, page, perPage) {
     return this.db.blocks.findAndCountAll(Object.assign(params, {
-      offset: page > 1 ? page * perPage : 0,
+      offset: page * perPage,
       limit: perPage,
     }))
   }

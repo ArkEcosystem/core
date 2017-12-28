@@ -10,7 +10,7 @@ class BlocksController {
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
       responder.ok(req, res, {
-        blocks: result.rows
+        blocks: result
       })
     })
 

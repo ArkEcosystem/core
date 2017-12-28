@@ -12,7 +12,7 @@ class AccountsRepository {
 
   paginate(params, page, perPage) {
     return this.all(Object.assign(params, {
-      offset: page > 1 ? page * perPage : 0,
+      offset: page * perPage,
       limit: perPage,
     }))
   }

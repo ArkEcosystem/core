@@ -25,7 +25,7 @@ class DelegatesRepository {
           [Op.ne]: null
         },
       },
-      offset: page > 1 ? page * perPage : 0,
+      offset: page * perPage,
       limit: perPage,
     }))
   }
