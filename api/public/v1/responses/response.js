@@ -9,4 +9,4 @@ class Response {
   }
 }
 
-module.exports = new Response
+module.exports = new Response()

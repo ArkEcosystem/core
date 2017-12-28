@@ -6,4 +6,4 @@ class BlockchainRouter {
   }
 }
 
-module.exports = new BlockchainRouter
+module.exports = new BlockchainRouter()

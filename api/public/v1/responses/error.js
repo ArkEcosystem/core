@@ -8,4 +8,4 @@ class GeneralErrorResponse {
   }
 }
 
-module.exports = new GeneralErrorResponse
+module.exports = new GeneralErrorResponse()

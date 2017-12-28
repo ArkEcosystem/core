@@ -20,4 +20,4 @@ class ForgingController {
   }
 }
 
-module.exports = new ForgingController
+module.exports = new ForgingController()

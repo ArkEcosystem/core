@@ -43,4 +43,4 @@ class LoaderController {
   }
 }
 
-module.exports = new LoaderController
+module.exports = new LoaderController()

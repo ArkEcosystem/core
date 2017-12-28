@@ -6,4 +6,4 @@ class CreatedResponse {
   }
 }
 
-module.exports = new CreatedResponse
+module.exports = new CreatedResponse()

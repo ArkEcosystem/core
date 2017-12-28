@@ -79,4 +79,4 @@ class TransactionsController {
   }
 }
 
-module.exports = new TransactionsController
+module.exports = new TransactionsController()

@@ -8,4 +8,4 @@ class VotesRouter {
   }
 }
 
-module.exports = new VotesRouter
+module.exports = new VotesRouter()

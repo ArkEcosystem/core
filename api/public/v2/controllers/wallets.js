@@ -150,4 +150,4 @@ class WalletsController {
   }
 }
 
-module.exports = new WalletsController
+module.exports = new WalletsController()

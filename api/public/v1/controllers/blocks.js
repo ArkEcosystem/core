@@ -118,4 +118,4 @@ class BlocksController {
 
 }
 
-module.exports = new BlocksController
+module.exports = new BlocksController()

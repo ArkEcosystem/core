@@ -20,4 +20,4 @@ class PeersController {
   }
 }
 
-module.exports = new PeersController
+module.exports = new PeersController()
