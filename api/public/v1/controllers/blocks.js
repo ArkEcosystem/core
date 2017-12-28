@@ -2,8 +2,6 @@ const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 const blocks = requireFrom('repositories/blocks')
-const transactions = requireFrom('repositories/transactions')
-const Paginator = requireFrom('api/paginator')
 
 class BlocksController {
   index(req, res, next) {
@@ -21,7 +19,7 @@ class BlocksController {
 
   show(req, res, next) {
     blocks.findById(req.params.id).then(result => {
-      responseOk.send(req, res, result)
+      responder.ok(req, res, result)
     })
 
     next()

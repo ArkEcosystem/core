@@ -192,7 +192,7 @@ class BlockchainManager {
     return this
   }
 
-  getDb (dbinterface) {
+  getDb () {
     return db
   }
 }

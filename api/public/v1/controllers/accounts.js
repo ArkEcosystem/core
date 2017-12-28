@@ -60,7 +60,7 @@ class WalletsController {
             error: error
           })
         })
-    } else  {
+    } else {
       responder.error(req, res, {
         error: 'Object didn\'t pass validation for format address: ' + req.query.address,
       })

@@ -1,10 +1,9 @@
 const arkjs = require('arkjs')
-var crypto = require('crypto')
-var bignum = require('bignum')
-var ByteBuffer = require('bytebuffer')
-var Transaction = require('./transaction')
-var logger = require('../core/logger')
-var config = require('../core/config')
+const crypto = require('crypto')
+const bignum = require('bignum')
+const ByteBuffer = require('bytebuffer')
+const Transaction = require('./transaction')
+const config = require('../core/config')
 
 class Block {
   constructor (data) {

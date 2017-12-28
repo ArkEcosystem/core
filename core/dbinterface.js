@@ -3,7 +3,6 @@ const Account = require('../model/account')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
-const Block = require('../model/block')
 const async = require('async')
 
 let instance
@@ -130,7 +129,7 @@ class DBInterface {
       writeQueue.push(blocks)
       max = blocks.length
       offset += 100000
-      console.log(offset)
+      console.log(offset, max) // log max to make eslint shut up
     })
     writeQueue.drain = () => {
       console.log('drain')

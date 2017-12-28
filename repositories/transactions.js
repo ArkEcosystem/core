@@ -1,5 +1,4 @@
 const blockchain = requireFrom('core/blockchainManager')
-const Op = require('sequelize').Op
 
 class TransactionsRepository {
   constructor() {

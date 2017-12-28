@@ -1,5 +1,3 @@
-const blockchain = requireFrom('core/blockchainManager')
-const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 const delegates = requireFrom('repositories/delegates')
 const blocks = requireFrom('repositories/blocks')

@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 class Transformer {
   constructor(req) {
     this.version = {

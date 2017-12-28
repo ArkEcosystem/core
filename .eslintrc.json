@@ -4,11 +4,15 @@
     "node": true,
     "mocha": true
   },
+  "globals": {
+    "requireFrom": true
+  },
   "extends": "eslint:recommended",
   "parserOptions": {
     "sourceType": "module"
   },
   "rules": {
+    "no-console": "off",
     "indent": [
       "error",
       2

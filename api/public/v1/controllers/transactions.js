@@ -1,9 +1,5 @@
-const blockchain = requireFrom('core/blockchainManager')
-const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 const transactions = requireFrom('repositories/transactions')
-const Paginator = requireFrom('api/paginator')
-const Transaction = requireFrom('model/transaction')
 
 class TransactionsController {
   index(req, res, next) {
@@ -21,7 +17,7 @@ class TransactionsController {
 
   show(req, res, next) {
     transactions.findById(req.params.id).then(result => {
-      responseOk.send(req, res, result)
+      responder.ok(req, res, result)
     })
 
     next()

@@ -187,7 +187,7 @@ class Transaction {
       }
       var total = buf.readInt8(assetOffset / 2) & 0xff
       var offset = assetOffset / 2 + 1
-      for (var i = 0; i < total; i++) {
+      for (var j = 0; j < total; j++) {
         var payment = {}
         payment.amount = buf.readUInt64(offset).toNumber()
         payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21))

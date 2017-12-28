@@ -4,12 +4,7 @@ const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
 const config = require('./core/config')
-const BlockchainManager = require('./core/blockchainManager')
-const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
-
-let blockchainManager = null
-let p2p = null
 
 commander
   .version(packageJson.version)
