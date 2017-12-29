@@ -42,14 +42,15 @@ class PublicAPI {
 
     this.server.use((req, res, next) => this.throttle.mount(req, res, next))
 
-    this.server.use((req, res, next) => this.validator.mount(req, res, next))
-
     this.server.use(restify.plugins.bodyParser({
       mapParams: true
     }))
 
     this.server.use(restify.plugins.queryParser())
+
     this.server.use(restify.plugins.gzipResponse())
+
+    this.server.use((req, res, next) => this.validator.mount(req, res, next))
   }
 
   registerRouters() {
