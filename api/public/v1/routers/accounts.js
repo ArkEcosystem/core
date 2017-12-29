@@ -3,9 +3,9 @@ const schema = require('../schemas/accounts')
 
 class AccountsRouter {
   register(registrar) {
-    registrar.get('accounts', controllers.index)
-    registrar.get('account', controllers.show)
-    registrar.get('accounts/getBalance', controllers.balance)
+    registrar.get('accounts/getAllAccounts', controllers.index)
+    registrar.get('accounts', controllers.show, schema.getAccount)
+    registrar.get('accounts/getBalance', controllers.balance, schema.getBalance)
     registrar.get('accounts/getPublickey', controllers.publicKey, schema.getPublicKey)
     registrar.get('accounts/delegates/fee', controllers.fee)
     registrar.get('accounts/delegates', controllers.delegates)
