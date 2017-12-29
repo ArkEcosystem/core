@@ -1,9 +1,8 @@
-const blockchain = requireFrom('core/blockchainManager')
 const Op = require('sequelize').Op
 
 class AccountsRepository {
-  constructor() {
-    this.db = blockchain.getInstance().getDb()
+  constructor(db) {
+    this.db = db
   }
 
   all(params = {}) {
@@ -32,4 +31,4 @@ class AccountsRepository {
   }
 }
 
-module.exports = new AccountsRepository()
+module.exports = AccountsRepository

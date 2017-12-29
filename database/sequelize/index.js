@@ -21,12 +21,8 @@ class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
+      // @TODO - Move this.blocks, this.accounts to different variables so the repositories can be bound to those instead
       .then(tables => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
-  }
-
-  repository(name)
-  {
-    return require(`${__dirname}/repositories/${name}`)
   }
 
   getActiveDelegates (height) {

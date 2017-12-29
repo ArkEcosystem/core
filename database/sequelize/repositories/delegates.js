@@ -48,4 +48,4 @@ class DelegatesRepository {
   }
 }
 
-module.exports = new DelegatesRepository
+module.exports = DelegatesRepository

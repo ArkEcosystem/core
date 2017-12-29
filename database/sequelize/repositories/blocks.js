@@ -1,8 +1,6 @@
-const blockchain = requireFrom('core/blockchainManager')
-
 class BlocksRepository {
-  constructor() {
-    this.db = blockchain.getInstance().getDb()
+  constructor(db) {
+    this.db = db
   }
 
   all(params = {}) {
@@ -21,4 +19,4 @@ class BlocksRepository {
   }
 }
 
-module.exports = new BlocksRepository
+module.exports = BlocksRepository

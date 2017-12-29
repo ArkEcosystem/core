@@ -8,7 +8,7 @@ const transformer = requireFrom('api/transformer')
 
 class WalletsController {
   index(req, res, next) {
-    db.repository('accounts').all({
+    db.accountsRepository.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
@@ -22,7 +22,7 @@ class WalletsController {
 
   show(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.repository('accounts').findById(req.query.address)
+      db.accountsRepository.findById(req.query.address)
         .then(result => {
           responder.ok(req, res, {
             account: new transformer(req).resource(result, 'account')
@@ -46,7 +46,7 @@ class WalletsController {
 
   balance(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.repository('accounts').findById(req.query.address)
+      db.accountsRepository.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             balance: account ? account.balance : '0',
@@ -71,7 +71,7 @@ class WalletsController {
 
   publicKey(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.repository('accounts').findById(req.query.address)
+      db.accountsRepository.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             publicKey: account.publicKey,
@@ -103,14 +103,14 @@ class WalletsController {
 
   delegates(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.repository('accounts').findById(req.query.address)
+      db.accountsRepository.findById(req.query.address)
         .then(account => {
           if (!account.vote) {
             responder.ok(req, res, {
               delegates: []
             })
           } else {
-            db.repository('accounts').findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+            db.accountsRepository.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
               .then(delegate => {
                 responder.ok(req, res, {
                   delegates: [{
@@ -145,7 +145,7 @@ class WalletsController {
   }
 
   top(req, res, next) {
-    db.repository('accounts').all({
+    db.accountsRepository.all({
       attributes: ['address', 'balance', 'publicKey'],
       order: [
         ['balance', 'DESC']
@@ -162,7 +162,7 @@ class WalletsController {
   }
 
   count(req, res, next) {
-    db.repository('accounts').all().then(result => {
+    db.accountsRepository.all().then(result => {
       responder.ok(req, res, {
         count: result.count,
       })

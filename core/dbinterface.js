@@ -4,6 +4,8 @@ const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
 const async = require('async')
+const fs = require('fs')
+const path = require('path')
 
 let instance
 
@@ -18,6 +20,19 @@ class DBInterface {
     return db
       .init(params)
       .then(() => (instance = db))
+      .then(() => this.registerRepositories(params.class))
+      .then(() => instance)
+  }
+
+  static registerRepositories(driver)
+  {
+    let directory = path.resolve(`database/${driver}/repositories`)
+
+    fs.readdirSync(directory).forEach(file => {
+      if (file.indexOf('.js') != -1) {
+        instance[file.slice(0, -3) + 'Repository'] = new (requireFrom(directory + '/' + file))(instance)
+      }
+    })
   }
 
   // getActiveDelegates (height) {
