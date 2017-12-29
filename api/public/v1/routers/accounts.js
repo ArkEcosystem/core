@@ -8,7 +8,7 @@ class AccountsRouter {
     registrar.get('accounts/getBalance', controllers.balance, schema.getBalance)
     registrar.get('accounts/getPublickey', controllers.publicKey, schema.getPublicKey)
     registrar.get('accounts/delegates/fee', controllers.fee)
-    registrar.get('accounts/delegates', controllers.delegates)
+    registrar.get('accounts/delegates', controllers.delegates, schema.getDelegates)
     registrar.get('accounts/top', controllers.top)
     registrar.get('accounts/count', controllers.count)
   }
