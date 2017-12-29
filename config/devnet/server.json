@@ -5,8 +5,10 @@
   "fastRebuild": true,
   "db": {
     "class": "sequelize/db",
-    "uri": "sqlite:storage/devnet.sqlite",
-    "dialect": "sqlite",
+    "uriXX": "sqlite:storage/devnet.sqlite",
+    "uri": "postgresql://arkman:ark-is-awesome@127.0.0.1:5432/ark_devnet2",
+    "dialectXX": "sqlite",
+    "dialect": "postgres",
     "logging": false
   },
   "api": {

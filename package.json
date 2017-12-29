@@ -7,6 +7,8 @@
     "start:mainnet": "node startRelayNode.js -c config/mainnet",
     "start:devnet": "nodemon startRelayNode.js -c config/devnet",
     "start:testnet": "nodemon startRelayNode.js -c config/testnet",
+    "api:devnet": "nodemon --inspect-brk=9229 startPublicApi.js -c config/devnet",
+    "api:mainnet": "nodemon startPublicApi.js -c config/mainnet",
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
     "forge:testnet": "nodemon startForger.js -c config/testnet",
