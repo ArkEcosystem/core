@@ -32,4 +32,4 @@ class AccountsRepository {
   }
 }
 
-module.exports = new AccountsRepository
+module.exports = new AccountsRepository()

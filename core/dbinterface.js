@@ -13,8 +13,8 @@ class DBInterface {
   }
 
   static create (params) {
-    const InstanceDB = (require(`${__dirname}/../${params.class}`))
-    const db = new InstanceDB()
+    const db = new (requireFrom(`database/${params.class}`))
+
     return db
       .init(params)
       .then(() => (instance = db))

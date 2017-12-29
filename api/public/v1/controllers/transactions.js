@@ -1,9 +1,9 @@
+const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transactions = requireFrom('repositories/transactions')
 
 class TransactionsController {
   index(req, res, next) {
-    transactions.all({
+    db.repository('transactions').all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
@@ -16,7 +16,7 @@ class TransactionsController {
   }
 
   show(req, res, next) {
-    transactions.findById(req.params.id).then(result => {
+    db.repository('transactions').findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
 

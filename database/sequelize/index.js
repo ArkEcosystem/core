@@ -1,12 +1,12 @@
 const Sequelize = require('sequelize')
 const arkjs = require('arkjs')
-const Block = require('../model/block')
-const Transaction = require('../model/transaction')
-const Account = require('../model/account')
-const config = require('../core/config')
-const logger = require('../core/logger')
+const Block = requireFrom('model/block')
+const Transaction = requireFrom('model/transaction')
+const Account = requireFrom('model/account')
+const config = requireFrom('core/config')
+const logger = requireFrom('core/logger')
 const schema = require('./schema')
-const DBInterface = require('../core/dbinterface')
+const DBInterface = requireFrom('core/dbinterface')
 
 class SequelizeDB extends DBInterface {
   init (params) {
@@ -22,6 +22,11 @@ class SequelizeDB extends DBInterface {
       .authenticate()
       .then(() => schema.syncTables(this.db))
       .then(tables => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
+  }
+
+  repository(name)
+  {
+    return require(`${__dirname}/repositories/${name}`)
   }
 
   getActiveDelegates (height) {

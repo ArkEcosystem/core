@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "fileLogLevel": "info",
   "db": {
-    "class": "sequelize/db",
+    "class": "sequelize",
     "uri": "sqlite:storage/test.sqlite",
     "dialect": "sqlite",
     "logging": true
