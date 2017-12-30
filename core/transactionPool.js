@@ -24,7 +24,11 @@ class TransactionPool {
   }
 
   addBlock (block) {
-    block.transactions.forEach(tx => delete this.pool[tx.id])
+    return Promise.all(block.transactions.map(tx => delete this.pool[tx.id]))
+  }
+
+  undoBlock (block) {
+    return Promise.all(block.transactions.map(tx => this.addTransaction(tx)))
   }
 
   // rebuildBlockHeader (block) {
