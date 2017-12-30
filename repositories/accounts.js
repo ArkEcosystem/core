@@ -30,6 +30,10 @@ class AccountsRepository {
       }
     })
   }
+  // TODO - update
+  findDelegate(address) {
+    return this.db.getActiveDelegates (blockchain.getInstance().lastBlock.data.height)
+  }
 }
 
 module.exports = new AccountsRepository

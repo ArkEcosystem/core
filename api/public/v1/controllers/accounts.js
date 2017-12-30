@@ -116,20 +116,14 @@ class WalletsController {
               delegates: []
             })
           } else {
-            accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+
+            // TODO fix with balance and productivity calculation
+            // https://github.com/ArkEcosystem/ark-node/blob/development/modules/delegates.js#L494
+            // https://github.com/fix/ark-core/blob/master/api/p2p/up.js#L149
+            accounts.findDelegate(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
               .then(delegate => {
                 responder.ok(req, res, {
-                  delegates: [{
-                    username: delegate.username,
-                    address: delegate.address,
-                    publicKey: delegate.publicKey,
-                    vote: '0',
-                    producedblocks: '000',
-                    missedblocks: '000',
-                    rate: -1,
-                    approval: 1.14,
-                    productivity: 99.3
-                  }]
+                  delegates: [ delegate ],
                 })
               })
           }
