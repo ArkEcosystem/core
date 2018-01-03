@@ -2,6 +2,7 @@ const restify = require('restify')
 const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const blockchain = requireFrom('core/blockchainManager')
+const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 
@@ -42,7 +43,7 @@ class Up {
     // server.get('/peer/blocks/common', this.getCommonBlocks);
     server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
     // server.get('/peer/transactions', this.getTransactions);
-    // server.get('/peer/transactionsFromIds', this.getTransactionsFromIds);
+    server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
     server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
     server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
 
@@ -53,6 +54,7 @@ class Up {
   mountInternal (server) {
     server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
     server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
+    server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
   isLocalhost (req) {
@@ -136,6 +138,18 @@ class Up {
       success: true
     })
     next()
+  }
+
+  postVerifyTransaction (req, res, next) {
+    // console.log(req.body)
+    const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
+    db.verifyTransaction(transaction)
+      .then(result => {
+        res.send(200, {
+          success: result
+        })
+        next()
+      })
   }
 
   postBlock (req, res, next) {

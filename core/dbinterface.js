@@ -80,6 +80,13 @@ class DBInterface {
       )
   }
 
+  verifyTransaction (transaction) {
+    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+    let sender = this.localaccounts[senderId] // should exist
+    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
+    return sender.canApply(transaction.data)
+  }
+
   applyTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
     const recipientId = transaction.data.recipientId // may not exist
