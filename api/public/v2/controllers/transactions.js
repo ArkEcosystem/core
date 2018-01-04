@@ -1,7 +1,7 @@
+const db = requireFrom('core/dbinterface').getInstance()
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
-const transactions = requireFrom('repositories/transactions')
 const Paginator = requireFrom('api/paginator')
 
 class TransactionsController {
@@ -9,7 +9,7 @@ class TransactionsController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    transactions.paginate({}, page, perPage).then(result => {
+    db.transactions.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
@@ -37,7 +37,7 @@ class TransactionsController {
   }
 
   show(req, res, next) {
-    transactions.findById(req.params.id).then(result => {
+    db.transactions.findById(req.params.id).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result
