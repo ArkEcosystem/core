@@ -7,15 +7,48 @@ const logger = requireFrom('core/logger')
 
 class BlocksController {
   index(req, res, next) {
+
+    var whereStatement = {}
+    var orderBy = []
+
+    // TODO make nicer
+    if (!!req.query.generatorPublicKey) {
+      whereStatement.generatorPublicKey = req.query.generatorPublicKey
+    }
+    if (!!req.query.totalAmount) {
+      whereStatement.totalAmount = req.query.totalAmount
+    }
+    if (!!req.query.totalFee) {
+      whereStatement.totalFee = req.query.totalFee
+    }
+    if (!!req.query.reward) {
+      whereStatement.reward = req.query.reward
+    }
+    if (!!req.query.previousBlock) {
+      whereStatement.previousBlock = req.query.previousBlock
+    }
+    if (!!req.query.height) {
+      whereStatement.height = req.query.height
+    }
+    if (!!req.query.orderBy){
+      orderBy.push(req.query.orderBy.split(':'))
+    }
+
     blocks.all({
-      order: [
-        ['height', 'DESC']
-      ],
+      where: whereStatement,
+      order: orderBy,
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)})
       .then(result => {
         responder.ok(req, res, {
           blocks: new transformer(req).collection(result.rows, 'block')
+        })
+      })
+      .catch(error => {
+        logger.error(error)
+
+        responder.error(req, res, {
+          error: error
         })
       })
 
@@ -26,9 +59,7 @@ class BlocksController {
     blocks.findById(req.query.id)
       .then(result => {
         if (!result) {
-          responder.error(req, res, {
-            error: `Block with id ${req.query.id} not found`
-          })
+          responder.resourceNotFound(res, `Block with id ${req.query.id} not found`);
         } else {
           responder.ok(req, res, {
             blocks: new transformer(req).resource(result, 'block')
@@ -57,7 +88,7 @@ class BlocksController {
   height(req, res, next) {
     let block = blockchain.getInstance().lastBlock.data
 
-    res.send({
+    responder.ok(req,res,{
       height: block.height,
       id: block.id
     })
@@ -66,7 +97,7 @@ class BlocksController {
   }
 
   nethash(req, res, next) {
-    res.send({
+    responder.ok(req,res,{
       nethash: config.network.nethash
     })
 
@@ -74,7 +105,7 @@ class BlocksController {
   }
 
   fee(req, res, next) {
-    res.send({
+    responder.ok(req,res,{
       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
 
@@ -82,7 +113,7 @@ class BlocksController {
   }
 
   fees(req, res, next) {
-    res.send({
+    responder.ok(req,res,{
       fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
     })
 
@@ -120,19 +151,17 @@ class BlocksController {
   }
 
   status(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
+     let block = blockchain.getInstance().lastBlock.data
 
-    // let block = blockchain.getInstance().lastBlock.data
-
-    // res.send({
-    //   epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
-    //   height: block.height,
-    //   fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
-    //   milestone: __private.blockReward.calcMilestone(block.height),
-    //   nethash: library.config.nethash,
-    //   reward: __private.blockReward.calcReward(block.height),
-    //   supply: __private.blockReward.calcSupply(block.height)
-    // })
+    responder.ok(req,res,{
+       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
+       height: block.height,
+       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
+//       milestone: __private.blockReward.calcMilestone(block.height),
+       nethash: config.network.nethash,
+//reward: __private.blockReward.calcReward(block.height),
+//       supply: __private.blockReward.calcSupply(block.height)
+     })
 
     next()
   }
