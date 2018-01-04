@@ -1,14 +1,16 @@
 {
-  "port": 4002,
+  "port": 15487,
   "version": "2.0.0",
   "fileLogLevel": "debug",
-  "fastRebuild": true,
+  "fastRebuild": false,
   "db": {
     "class": "sequelize/db",
-    "uriXX": "sqlite:storage/devnet.sqlite",
-    "uri": "postgresql://arkman:ark-is-awesome@127.0.0.1:5432/ark_devnet2",
-    "dialectXX": "sqlite",
-    "dialect": "postgres",
+    "uri": "sqlite:storage/devnetFull.sqlite",
+    "uri1": "postgresql://arkman:ark-is-awesome@127.0.0.1:5432/ark_devnet2",
+    "uri2": "mysql://ark:ark@127.0.0.1:3306/ark-cored2",
+    "dialect": "sqlite",
+    "dialect1": "postgres",
+    "dialect2": "mysql",
     "logging": false
   },
   "api": {
