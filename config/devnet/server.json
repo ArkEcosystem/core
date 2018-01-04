@@ -4,7 +4,7 @@
   "fileLogLevel": "debug",
   "fastRebuild": true,
   "db": {
-    "class": "sequelize/db",
+    "class": "sequelize",
     "uri": "sqlite:storage/devnet.sqlite",
     "dialect": "sqlite",
     "logging": false

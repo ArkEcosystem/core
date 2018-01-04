@@ -1,11 +1,11 @@
 const blockchain = requireFrom('core/blockchainManager')
+const db = requireFrom('core/dbinterface').getInstance()
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
-const blocks = requireFrom('repositories/blocks')
 
 class BlocksController {
   index(req, res, next) {
-    blocks.all({
+    db.blocks.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
@@ -18,7 +18,7 @@ class BlocksController {
   }
 
   show(req, res, next) {
-    blocks.findById(req.params.id).then(result => {
+    db.blocks.findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
 
