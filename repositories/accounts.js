@@ -30,9 +30,14 @@ class AccountsRepository {
       }
     })
   }
+
   // TODO - update
-  findDelegate(address) {
+  findDelegate(vote) {
     return this.db.getActiveDelegates (blockchain.getInstance().lastBlock.data.height)
+    /*.then(delegates => {
+      var o2 = delegates.find(function (obj) { return obj.publicKey === vote })
+      return Promise.resolve(o2)
+    })*/
   }
 }
 

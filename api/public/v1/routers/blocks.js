@@ -1,9 +1,10 @@
-const controller = require('../controllers/blocks')
+const controller = requireFrom('api/public/v1/controllers/blocks')
+const schema = requireFrom('api/public/v1/schemas/blocks')
 
 class BlocksRouter {
   register(registrar) {
-    registrar.get('blocks', controller.index)
-    registrar.get('blocks/get', controller.show)
+    registrar.get('blocks', controller.index, schema.getBlocks)
+    registrar.get('blocks/get', controller.show, schema.getBlock)
     registrar.get('blocks/getEpoch', controller.epoch)
     registrar.get('blocks/getHeight', controller.height)
     registrar.get('blocks/getNethash', controller.nethash)

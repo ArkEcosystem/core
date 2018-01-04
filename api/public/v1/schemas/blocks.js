@@ -1,8 +1,16 @@
-'use strict';
-
-const config = requireFrom('core/config').constants;
+//const config = requireFrom('core/config').constants;
 
 module.exports = {
+  getBlock: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+        minLength: 1
+      }
+    },
+    required: ['id']
+  },
   getHeight: {
     type: 'object',
     properties: {
@@ -19,16 +27,7 @@ module.exports = {
   loadBlocksFromPeer: {
     type: 'array'
   },
-  getBlock: {
-    type: 'object',
-    properties: {
-      id: {
-        type: 'string',
-        minLength: 1
-      }
-    },
-    required: ['id']
-  },
+
   getBlocks: {
     type: 'object',
     properties: {
@@ -51,12 +50,12 @@ module.exports = {
       totalAmount: {
         type: 'integer',
         minimum: 0,
-        maximum: constants.totalAmount
+       // maximum: constants.totalAmount
       },
       totalFee: {
         type: 'integer',
         minimum: 0,
-        maximum: constants.totalAmount
+        //maximum: constants.totalAmount
       },
       reward: {
         type: 'integer',
@@ -70,4 +69,4 @@ module.exports = {
       }
     }
   }
-};
+}
