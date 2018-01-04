@@ -60,8 +60,8 @@ class PublicAPI {
 
   startServer() {
     this.server.listen(this.config.server.api.port, () => {
-      console.log('ARK Core - Public API - Mounted')
-      console.log('[%s] listening at [%s].', this.server.name, this.server.url)
+      logger.info('ARK Core - Public API - Mounted')
+      logger.info('[%s] listening at [%s].', this.server.name, this.server.url)
     })
   }
 
