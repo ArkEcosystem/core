@@ -1,9 +1,8 @@
-const blockchain = requireFrom('core/blockchainManager')
 const Op = require('sequelize').Op
 
 class DelegatesRepository {
-  constructor() {
-    this.db = blockchain.getInstance().getDb()
+  constructor(db) {
+    this.db = db
   }
 
   all(params = {}) {

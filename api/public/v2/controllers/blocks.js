@@ -7,7 +7,7 @@ class BlocksController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.blocksRepository.paginate({}, page, perPage).then(result => {
+    db.blocks.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
@@ -29,7 +29,7 @@ class BlocksController {
   }
 
   show(req, res, next) {
-    db.blocksRepository.findById(req.params.id).then(result => {
+    db.blocks.findById(req.params.id).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result
@@ -43,11 +43,11 @@ class BlocksController {
   }
 
   transactions(req, res, next) {
-    db.blocksRepository.findById(req.params.id).then(result => {
+    db.blocks.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactionsRepository.paginate({
+      db.transactions.paginate({
         where: {
           blockId: result.id
         }

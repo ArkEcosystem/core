@@ -30,7 +30,7 @@ class DBInterface {
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') != -1) {
-        instance[file.slice(0, -3) + 'Repository'] = new (requireFrom(directory + '/' + file))(instance)
+        instance[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(instance)
       }
     })
   }

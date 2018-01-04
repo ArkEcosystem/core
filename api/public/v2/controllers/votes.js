@@ -7,7 +7,7 @@ class VotesController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.transactionsRepository.paginate({
+    db.transactions.paginate({
       where: {
         type: 3
       }
@@ -33,7 +33,7 @@ class VotesController {
   }
 
   show(req, res, next) {
-    db.transactionsRepository.findByIdAndType(req.params.id, 3).then(result => {
+    db.transactions.findByIdAndType(req.params.id, 3).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result

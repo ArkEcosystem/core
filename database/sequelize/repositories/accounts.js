@@ -6,7 +6,7 @@ class AccountsRepository {
   }
 
   all(params = {}) {
-    return this.db.accounts.findAndCountAll(params)
+    return this.db.accountsTable.findAndCountAll(params)
   }
 
   paginate(params, page, perPage) {
@@ -17,7 +17,7 @@ class AccountsRepository {
   }
 
   findById(id) {
-    return this.db.accounts.findOne({
+    return this.db.accountsTable.findOne({
       where: {
         [Op.or]: [{
           address: id,

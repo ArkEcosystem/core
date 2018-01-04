@@ -9,7 +9,7 @@ class TransactionsController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.transactionsRepository.paginate({}, page, perPage).then(result => {
+    db.transactions.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
@@ -37,7 +37,7 @@ class TransactionsController {
   }
 
   show(req, res, next) {
-    db.transactionsRepository.findById(req.params.id).then(result => {
+    db.transactions.findById(req.params.id).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result

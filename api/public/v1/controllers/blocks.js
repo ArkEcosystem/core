@@ -5,7 +5,7 @@ const responder = requireFrom('api/responder')
 
 class BlocksController {
   index(req, res, next) {
-    db.blocksRepository.all({
+    db.blocks.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
@@ -18,7 +18,7 @@ class BlocksController {
   }
 
   show(req, res, next) {
-    db.blocksRepository.findById(req.params.id).then(result => {
+    db.blocks.findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
 

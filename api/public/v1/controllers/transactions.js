@@ -3,7 +3,7 @@ const responder = requireFrom('api/responder')
 
 class TransactionsController {
   index(req, res, next) {
-    db.transactionsRepository.all({
+    db.transactions.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
@@ -16,7 +16,7 @@ class TransactionsController {
   }
 
   show(req, res, next) {
-    db.transactionsRepository.findById(req.params.id).then(result => {
+    db.transactions.findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
 

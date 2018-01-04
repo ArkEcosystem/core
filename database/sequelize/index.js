@@ -21,8 +21,7 @@ class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      // @TODO - Move this.blocks, this.accounts to different variables so the repositories can be bound to those instead
-      .then(tables => ([this.blocks, this.transactions, this.accounts, this.rounds] = tables))
+      .then(tables => ([this.blocksTable, this.transactionsTable, this.accountsTable, this.roundsTable] = tables))
   }
 
   getActiveDelegates (height) {
@@ -30,7 +29,7 @@ class SequelizeDB extends DBInterface {
     const round = ~~(height / activeDelegates)
     if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) return Promise.resolve(this.activedelegates)
     else {
-      return this.rounds
+      return this.roundsTable
         .findAll({
           where: {
             round: round
@@ -44,7 +43,7 @@ class SequelizeDB extends DBInterface {
   buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
-    return this.accounts
+    return this.accountsTable
       .findAll({
         attributes: [
           ['vote', 'publicKey'],
@@ -59,7 +58,7 @@ class SequelizeDB extends DBInterface {
       })
       .then(data => {
         if (data.length < activeDelegates) {
-          return this.accounts
+          return this.accountsTable
             .findAll({
               attributes: [
                 'publicKey'
@@ -88,7 +87,7 @@ class SequelizeDB extends DBInterface {
   }
 
   buildAccounts () {
-    return this.transactions
+    return this.transactionsTable
       .findAll({
         attributes: [
           'recipientId',
@@ -102,7 +101,7 @@ class SequelizeDB extends DBInterface {
           account.balance = parseInt(row.amount)
           this.localaccounts[row.recipientId] = account
         })
-        return this.blocks.findAll({
+        return this.blocksTable.findAll({
           attributes: [
             'generatorPublicKey',
             [Sequelize.fn('SUM', Sequelize.col('reward')), 'reward'],
@@ -123,7 +122,7 @@ class SequelizeDB extends DBInterface {
             this.localaccounts[account.address] = account
           }
         })
-        return this.transactions.findAll({
+        return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
             [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
@@ -148,7 +147,7 @@ class SequelizeDB extends DBInterface {
           }
         })
         logger.info('SPV rebuild finished', Object.keys(this.localaccounts).length)
-        return this.transactions.findAll({
+        return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
             'serialized'
@@ -161,7 +160,7 @@ class SequelizeDB extends DBInterface {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
         })
-        return this.transactions.findAll({
+        return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
             'serialized'
@@ -177,7 +176,7 @@ class SequelizeDB extends DBInterface {
         Object.keys(this.localaccounts)
           .filter(a => this.localaccounts[a].balance < 0)
           .forEach(a => logger.info(this.localaccounts[a]))
-        return this.transactions.findAll({
+        return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
             'serialized'
@@ -207,7 +206,7 @@ class SequelizeDB extends DBInterface {
           Object.values(this.localaccounts || [])
             // cold addresses are not saved on database
             .filter(acc => acc.publicKey && (force || acc.dirty))
-            .map(acc => this.accounts.upsert(acc, {transaction: t}))
+            .map(acc => this.accountsTable.upsert(acc, {transaction: t}))
         )
       )
       .then(() => logger.info('Rebuilt accounts saved'))
@@ -216,20 +215,20 @@ class SequelizeDB extends DBInterface {
 
   saveBlock (block) {
     return this.db.transaction(t =>
-      this.blocks
+      this.blocksTable
         .create(block.data, {transaction: t})
-        .then(() => this.transactions.bulkCreate(block.transactions || [], {transaction: t}))
+        .then(() => this.transactionsTable.bulkCreate(block.transactions || [], {transaction: t}))
     )
   }
 
   getBlock (id) {
-    return this.blocks
+    return this.blocksTable
       .findOne({id: id})
       .then(data => Promise.resolve(new Block(data)))
   }
 
   getLastBlock () {
-    return this.blocks
+    return this.blocksTable
       .findOne({order: [['height', 'DESC']]})
       .then(data => {
         if (data) {
@@ -239,7 +238,7 @@ class SequelizeDB extends DBInterface {
         }
       })
       .then((block) =>
-        this.transactions
+        this.transactionsTable
           .findAll({where: {blockId: block.id}})
           .then(data => {
             block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
@@ -250,10 +249,10 @@ class SequelizeDB extends DBInterface {
 
   getBlocks (offset, limit) {
     const last = offset + limit
-    return this.blocks
+    return this.blocksTable
       .findAll({
         include: [{
-          model: this.transactions,
+          model: this.transactionsTable,
           attributes: ['serialized']
         }],
         attributes: {
@@ -276,7 +275,7 @@ class SequelizeDB extends DBInterface {
 
   getBlockHeaders (offset, limit) {
     const last = offset + limit
-    return this.blocks
+    return this.blocksTable
       .findAll({
         attributes: {
           exclude: ['createdAt', 'updatedAt']
