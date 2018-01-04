@@ -11,25 +11,12 @@ class BlocksController {
     var whereStatement = {}
     var orderBy = []
 
-    // TODO make nicer
-    if (!!req.query.generatorPublicKey) {
-      whereStatement.generatorPublicKey = req.query.generatorPublicKey
+    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+    for (const elem of filter) {
+      if (!!req.query[elem])
+        whereStatement[elem] = req.query[elem]
     }
-    if (!!req.query.totalAmount) {
-      whereStatement.totalAmount = req.query.totalAmount
-    }
-    if (!!req.query.totalFee) {
-      whereStatement.totalFee = req.query.totalFee
-    }
-    if (!!req.query.reward) {
-      whereStatement.reward = req.query.reward
-    }
-    if (!!req.query.previousBlock) {
-      whereStatement.previousBlock = req.query.previousBlock
-    }
-    if (!!req.query.height) {
-      whereStatement.height = req.query.height
-    }
+
     if (!!req.query.orderBy){
       orderBy.push(req.query.orderBy.split(':'))
     }
