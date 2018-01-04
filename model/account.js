@@ -1,5 +1,5 @@
 const arkjs = require('arkjs')
-const config = require('../core/config')
+const config = requireFrom('core/config')
 
 class Account {
   constructor (address) {
@@ -16,28 +16,28 @@ class Account {
 
   toString () {
     // TODO is it 10000000 or 100000000 TODO use constant to avoid typos
-    return `${this.address}=${this.balance / 10000000}`
+    return `${this.address}=${this.balance / 100000000}`
   }
 
   applyTransactionToSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || arkjs.crypto.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance -= transaction.amount + transaction.fee
       switch (transaction.type) {
-      case 1:
-        this.secondPublicKey = transaction.asset.signature.publicKey
-        break
-      case 2:
-        this.username = transaction.asset.username
-        break
-      case 3:
-        if (transaction.asset.votes[0].startsWith('+')) {
-          this.vote = transaction.asset.votes[0].slice(1)
-        } else if (transaction.asset.votes[0].startsWith('-')) {
-          this.vote = this.previousVote
-        }
-        break
-      case 4:
-        this.multisignature = transaction.asset.multisignature
+        case 1:
+          this.secondPublicKey = transaction.asset.signature.publicKey
+          break
+        case 2:
+          this.username = transaction.asset.username
+          break
+        case 3:
+          if (transaction.asset.votes[0].startsWith('+')) {
+            this.vote = transaction.asset.votes[0].slice(1)
+          } else if (transaction.asset.votes[0].startsWith('-')) {
+            this.vote = this.previousVote
+          }
+          break
+        case 4:
+          this.multisignature = transaction.asset.multisignature
       }
       this.dirty = true
     }
@@ -47,17 +47,26 @@ class Account {
     if (transaction.senderPublicKey === this.publicKey || arkjs.crypto.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance += transaction.amount + transaction.fee
       switch (transaction.type) {
-      case 1:
-        this.secondPublicKey = null
-        break
-      case 2:
-        this.username = null
-        break
-      case 3:
-        if (transaction.asset.votes[0].startsWith('+')) { this.vote = null } else if (transaction.asset.votes[0].startsWith('-')) { this.vote = transaction.asset.votes[0].slice(1) }
-        break
-      case 4:
-        this.multisignature = null
+        case 1:
+          this.secondPublicKey = null
+          break
+        case 2:
+          this.username = null
+          break
+        case 3:
+          if (transaction.asset.votes[0].startsWith('+')) { this.vote = null } else if (transaction.asset.votes[0].startsWith('-')) { this.vote = transaction.asset.votes[0].slice(1) }
+          break
+        case 4:
+          this.multisignature = null
+          break
+        case 5:
+          break
+        case 6:
+          break
+        case 7:
+          this.multisignature = null
+          break
+
       }
       this.dirty = true
     }
@@ -92,29 +101,55 @@ class Account {
   }
 
   canApply (transaction) {
-    let check = (transaction.recipientId === this.address) || (transaction.senderPublicKey === this.publicKey && this.balance - transaction.amount - transaction.fee > -1)
-    // console.log(check)
-    check = check && (!this.secondPublicKey || (transaction.senderPublicKey === this.publicKey && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)))
+    let check = true
+    if (this.multisignature) {
+      check = check && this.verifySignatures(transaction)
+    } else {
+      check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
+      check = check && (!this.secondPublicKey || (transaction.senderPublicKey === this.publicKey && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)))
+    }
     // console.log(check)
     if (!check) return false
+
     switch (transaction.type) {
-    case 0:
-      return true
-    case 1:
-      if (this.secondPublicKey) return false
-      break
-    case 2:
-      if (this.username) return false
-      break
-    case 3:
-      if (transaction.asset.votes[0].startsWith('+') && this.vote) return false
-      else if (transaction.asset.votes[0].startsWith('-') && !this.vote) return false
-      break
-    case 4:
-      return transaction.signatures.length === transaction.asset.multisignature.keysgroup.length
-    default:
-      return false
+      case 0: // transfer
+        return true
+
+      case 1: // second signature registration
+        return !this.secondPublicKey
+
+      case 2:
+        return !this.username
+
+      case 3:
+        if (transaction.asset.votes[0].startsWith('-') && this.vote) return true
+        else if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
+        else return false
+
+      case 4:
+        return !this.multisignature && transaction.signatures.length === transaction.asset.multisignature.keysgroup.length
+
+      case 5:
+        return true
+
+      case 6:
+        return true
+
+      case 7: // multipayment
+        return this.balance - transaction.asset.payments.reduce((a, p) => (a += p.amount), 0) - transaction.fee > -1
+
+      case 8: // delegate resignation
+        return !!this.username
+
+      default:
+        return false
     }
+  }
+
+  verifySignatures (transaction) {
+    let validSignatures = 0
+    if (!transaction.signatures) return false
+
     return true
   }
 }

@@ -1,5 +1,6 @@
-const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
+const blocks = requireFrom('repositories/blocks')
+const transactions = requireFrom('repositories/transactions')
 const Paginator = requireFrom('api/paginator')
 
 class BlocksController {
@@ -7,7 +8,7 @@ class BlocksController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.blocks.paginate({}, page, perPage).then(result => {
+    blocks.paginate({}, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
@@ -29,7 +30,7 @@ class BlocksController {
   }
 
   show(req, res, next) {
-    db.blocks.findById(req.params.id).then(result => {
+    blocks.findById(req.params.id).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result
@@ -43,11 +44,11 @@ class BlocksController {
   }
 
   transactions(req, res, next) {
-    db.blocks.findById(req.params.id).then(result => {
+    blocks.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactions.paginate({
+      transactions.paginate({
         where: {
           blockId: result.id
         }

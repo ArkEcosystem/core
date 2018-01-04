@@ -42,14 +42,15 @@ class PublicAPI {
 
     this.server.use((req, res, next) => this.throttle.mount(req, res, next))
 
-    this.server.use((req, res, next) => this.validator.mount(req, res, next))
-
     this.server.use(restify.plugins.bodyParser({
       mapParams: true
     }))
 
     this.server.use(restify.plugins.queryParser())
+
     this.server.use(restify.plugins.gzipResponse())
+
+    this.server.use((req, res, next) => this.validator.mount(req, res, next))
   }
 
   registerRouters() {
@@ -65,10 +66,19 @@ class PublicAPI {
   }
 
   setDefaultVersion(req, res, next) {
-    if (!req.header('accept-version')) {
+    let version = req.header('Accept-Version') ||  req.header('accept-version');
+
+    if (!version) {
       req._version = this.config.server.api.version
 
       logger.info('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
+    }
+
+    if (version.startsWith('~')) {
+      req._version = {
+        1: '1.0.0',
+        2: '2.0.0',
+      }[version.charAt(1)];
     }
 
     next()
