@@ -29,6 +29,21 @@ class AccountsRepository {
       }
     })
   }
+
+  //Helper methods
+  getDelegateInfo(address){
+    delegate = db.localaccounts[address]
+
+    //get produced blocks
+
+    //get missed blocks
+
+    //calc productivity
+
+    //get rank
+
+
+  }
 }
 
 module.exports = AccountsRepository
