@@ -5,6 +5,7 @@ const packageJson = require('./package.json')
 const path = require('path')
 const config = require('./core/config')
 const DB = require('./core/dbinterface')
+const DependencyHandler = require('./core/dependency-handler')
 
 commander
   .version(packageJson.version)
@@ -14,7 +15,7 @@ commander
 
 assert.string(commander.config, 'commander.config')
 
-if (!fs.existsSync(path.resolve(commander.config))){
+if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
@@ -31,8 +32,10 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-DB
-  .create(config.server.db)
-  .then((db) => db.snapshot(`${__dirname}/snapshot`))
-  .then(() => logger.info('Snapshot saved'))
-  .catch(fatal => logger.error('fatal error', fatal))
+DependencyHandler.database(config).then(res => {
+  DB
+    .create(config.server.db)
+    .then((db) => db.snapshot(`${__dirname}/snapshot`))
+    .then(() => logger.info('Snapshot saved'))
+    .catch(fatal => logger.error('fatal error', fatal))
+})

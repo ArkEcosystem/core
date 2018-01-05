@@ -15,7 +15,7 @@ commander
 
 assert.string(commander.config, 'commander.config')
 
-if (!fs.existsSync(path.resolve(commander.config))){
+if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
