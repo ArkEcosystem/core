@@ -47,21 +47,5 @@ module.exports = {
         type: 'integer'
       }
     }
-  },
-  getHeight: {
-    type: 'object',
-    properties: {
-      success: {
-        type: 'boolean'
-      },
-      height: {
-        type: 'integer',
-        minimum: 0
-      }
-    },
-    required: ['success', 'height']
-  },
-  loadBlocksFromPeer: {
-    type: 'array'
-  },
+  }
 }
