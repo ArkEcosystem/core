@@ -1,6 +1,8 @@
 const blockchain = requireFrom('core/blockchainManager')
+const db = requireFrom('core/dbinterface').getInstance()
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
+<<<<<<< HEAD
 const blocks = requireFrom('repositories/blocks')
 const transformer = requireFrom('api/transformer')
 const logger = requireFrom('core/logger')
@@ -24,6 +26,12 @@ class BlocksController {
     blocks.all({
       where: whereStatement,
       order: orderBy,
+=======
+
+class BlocksController {
+  index(req, res, next) {
+    db.blocks.all({
+>>>>>>> upstream/fix-core
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)})
       .then(result => {
@@ -43,6 +51,7 @@ class BlocksController {
   }
 
   show(req, res, next) {
+<<<<<<< HEAD
     blocks.findById(req.query.id)
       .then(result => {
         if (!result) {
@@ -60,6 +69,11 @@ class BlocksController {
           error: error
         })
       })
+=======
+    db.blocks.findById(req.params.id).then(result => {
+      responder.ok(req, res, result)
+    })
+>>>>>>> upstream/fix-core
 
     next()
   }
