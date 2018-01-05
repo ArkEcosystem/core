@@ -1,7 +1,7 @@
 const Promise = require('bluebird')
 
 class DependencyHandler {
-  database(config) {
+  checkDatabaseLibraries(config) {
     let dependencies = {
       'sequelize': {
         'mysql': ['sequelize', 'mysql2'],
