@@ -30,30 +30,30 @@ class Peer {
     }
   }
 
-  get (apiPath, timeout) {
-    const startTime = new Date().getTime()
-    return new Promise((resolve, reject) => {
-      popsicle
-        .get(`${this.url}${apiPath}`, {
-          headers: this.headers,
-          timeout: timeout || 10000
-        })
-        .use(popsicle.plugins.parse('json'))
-        .then(response => {
-          this.parseHeaders(response.headers)
-          this.status = 'OK'
-          this.delay = new Date().getTime() - startTime
-          resolve(response.body)
-        })
-        .catch(error => {
-          this.status = error.code
-          reject(error)
-        })
-    })
+  get (api, timeout) {
+    const temp = new Date().getTime()
+    const that = this
+    return popsicle
+      .request({
+        method: 'GET',
+        url: this.url + api,
+        headers: this.headers,
+        timeout: timeout || 10000
+      })
+      .use(popsicle.plugins.parse('json'))
+      .then(res => {
+        that.delay = new Date().getTime() - temp
+        return Promise.resolve(res)
+      })
+      .then(res => this.parseHeaders(res))
+      .catch(error => (this.status = error.code))
+      .then(res => Promise.resolve(res.body))
   }
 
-  parseHeaders (headers) {
-    ;['nethash', 'os', 'version', 'height'].forEach(key => this[key] = headers[key])
+  parseHeaders (res) {
+    ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
+    this.status = 'OK'
+    return Promise.resolve(res)
   }
 
   downloadBlocks (fromBlockHeight) {
@@ -78,7 +78,7 @@ class Peer {
   ping () {
     return this
       .get('/peer/status', 2000)
-      .then(body => this.height = (body || {}).height)
+      .then(body => (this.height = (body || {}).height))
   }
 
   getPeers () {

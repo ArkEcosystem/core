@@ -1,4 +1,3 @@
 test/support/setup.js
 test/unit/**/*.spec.js
 --recursive
---reporter dot

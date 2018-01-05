@@ -12,7 +12,7 @@ class BlockchainManager {
   constructor (config) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
-
+    const that = this
     this.config = config
     this.monitoring = false
     this.lastBlock = null
@@ -25,14 +25,14 @@ class BlockchainManager {
     )
     this.downloadQueue = async.queue(
       (block, qcallback) => {
-        this.lastDownloadedBlock = block
-        this.processQueue.push(block)
+        that.lastDownloadedBlock = block
+        that.processQueue.push(block)
         qcallback()
       },
       1
     )
     this.downloadQueue.drain = () => {
-      logger.info('Block Process Queue Size', this.processQueue.length())
+      logger.info('Block Process Queue Size', that.processQueue.length())
       this.syncWithNetwork({data: this.lastDownloadedBlock})
     }
     this.processQueue.drain = () => this.finishedNetworkSync()
@@ -92,10 +92,8 @@ class BlockchainManager {
         const constants = that.config.getConstants(block.data.height)
         // no fast rebuild if in last round
         that.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastRebuild
-
         logger.info('Fast Rebuild:', that.fastRebuild)
         logger.info('Last block in database:', block.data.height)
-
         if (block.data.height === 1) {
           return db
             .buildAccounts()
@@ -109,8 +107,8 @@ class BlockchainManager {
             .then(() => block)
         }
       })
-      .catch(error => {
-        logger.debug('Blockchain initialization error'.red, error)
+      .catch((error) => {
+        logger.debug(error)
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
           that.lastBlock = genesis
@@ -138,7 +136,7 @@ class BlockchainManager {
           .then(() => (that.lastBlock = block))
           .then(() => qcallback())
           .catch(error => {
-            logger.error('Error while processing blogk', error)
+            logger.error(error)
             logger.debug('Refused new block', block.data)
             qcallback()
           })

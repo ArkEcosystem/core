@@ -13,13 +13,10 @@ class SequelizeDB extends DBInterface {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
     }
-
     this.localaccounts = {}
-
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
-      // @see https://github.com/sequelize/sequelize/issues/7821
-      logging: params.logging ? (msg => logger.info(msg)) : (msg => logger.ignore(msg))
+      logging: !!params.logging
     })
     return this.db
       .authenticate()
@@ -34,7 +31,9 @@ class SequelizeDB extends DBInterface {
     else {
       return this.roundsTable
         .findAll({
-          where: { round },
+          where: {
+            round: round
+          },
           order: [[ 'publicKey', 'ASC' ]]
         })
         .then(data => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
@@ -144,7 +143,7 @@ class SequelizeDB extends DBInterface {
             account.publicKey = row.senderPublicKey
             account.balance = -parseInt(row.amount) - parseInt(row.fee)
             this.localaccounts[account.address] = account
-            logger.error('Error while building accounts', account.address, row.amount, row.fee)
+            logger.error(account.address, row.amount, row.fee)
           }
         })
         logger.info('SPV rebuild finished', Object.keys(this.localaccounts).length)

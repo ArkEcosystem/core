@@ -1,4 +1,3 @@
-/* eslint-env node, mocha */
 const { expect } = require('chai')
 
 const Transaction = require('model/transaction')
