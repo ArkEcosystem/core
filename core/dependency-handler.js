@@ -1,4 +1,3 @@
-const npm = require('global-npm')
 const Promise = require('bluebird')
 
 class DependencyHandler {
