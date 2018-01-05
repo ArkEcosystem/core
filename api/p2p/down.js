@@ -5,7 +5,9 @@ class Down {
   constructor (config) {
     this.config = config
     this.peers = {}
-    config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+    config.network.peers.forEach(({ ip, port }) => {
+      this.peers[ip] = new Peer(ip, port, config)
+    })
   }
 
   start (p2p) {
@@ -25,13 +27,13 @@ class Down {
   }
 
   cleanPeers () {
-    let keys = Object.keys(this.peers)
-    const that = this
+    const keys = Object.keys(this.peers)
     return Promise.all(keys.map(ip =>
-      that.peers[ip]
+      this.peers[ip]
         .ping()
         .catch(() => {
-          delete that.peers[ip]
+          delete this.peers[ip]
+          logger.info('Peer cleaned at', ip)
           return Promise.resolve(null)
         })
     ))
@@ -39,11 +41,15 @@ class Down {
 
   acceptNewPeer (peer) {
     if (this.peers[peer.ip]) return Promise.resolve()
-    if (peer.nethash !== this.config.network.nethash) return Promise.reject(new Error('Request is made on the wrong network'))
-    const npeer = new Peer(peer.ip, peer.port, this.config)
-    return npeer.ping()
-      .then(() => (this.peers[peer.ip] = npeer))
-      .catch(e => logger.warn('Peer not connectable', npeer, e))
+
+    if (peer.nethash !== this.config.network.nethash) {
+      return Promise.reject(new Error('Request is made on the wrong network'))
+    }
+
+    const newPeer = new Peer(peer.ip, peer.port, this.config)
+    return newPeer.ping()
+      .then(() => this.peers[peer.ip] = newPeer)
+      .catch(error => logger.warn('Peer not connectable', newPeer, error))
   }
 
   getPeers () {
@@ -57,7 +63,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      logger.error('Not random peer', this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -71,7 +77,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      logger.error('Not random peer', this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -79,17 +85,20 @@ class Down {
   }
 
   discoverPeers () {
-    const that = this
     return this.getRandomPeer().getPeers()
-      .then((list) => {
-        list.forEach(peer => {
-          if (peer.status === 'OK' && !that.peers[peer.ip]) {
-            that.peers[peer.ip] = new Peer(peer.ip, peer.port, that.config)
+      .then(peersData => {
+        // TODO uxe it?
+        // if (!peersData || !peersData.length) {
+        //   throw new Error('No peers have been found')
+        // }
+        peersData.forEach(({ ip, port, status }) => {
+          if (status === 'OK' && !this.peers[ip]) {
+            this.peers[ip] = new Peer(ip, port, this.config)
           }
         })
-        return Promise.resolve(that.peers)
+        return Promise.resolve(this.peers)
       })
-      .catch(() => that.discoverPeers())
+      .catch(() => this.discoverPeers())
   }
 
   later (delay, value) {

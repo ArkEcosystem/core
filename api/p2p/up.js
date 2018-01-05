@@ -1,7 +1,8 @@
 const restify = require('restify')
 const logger = requireFrom('core/logger')
+// const dbInterface = require('../../core/dbinterface')
 const db = requireFrom('core/dbinterface').getInstance()
-const blockchain = requireFrom('core/blockchainManager')
+const BlockchainManager = requireFrom('core/blockchainManager')
 const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
@@ -11,8 +12,7 @@ const _headers = {
 }
 
 function setHeaders (res) {
-  ['nethash', 'os', 'version', 'port'].forEach((key) => res.header(key, _headers[key]))
-  return Promise.resolve()
+  ;['nethash', 'os', 'version', 'port'].forEach(key => res.header(key, _headers[key]))
 }
 
 class Up {
@@ -25,139 +25,152 @@ class Up {
   }
 
   start (p2p) {
-    this.p2p = p2p
-    let server = restify.createServer({name: 'arkp2p'})
-    server.use((req, res, next) => this.acceptRequest(req, res, next))
-    server.use(restify.plugins.bodyParser({mapParams: true}))
-    server.use(restify.plugins.queryParser())
-    server.use(restify.plugins.gzipResponse())
+    return new Promise((resolve, reject) => {
+      this.p2p = p2p
+      this.server = restify.createServer({name: 'arkp2p'})
+      this.server.use((req, res, next) => this.acceptRequest(req, res, next))
+      this.server.use(restify.plugins.bodyParser({mapParams: true}))
+      this.server.use(restify.plugins.queryParser())
+      this.server.use(restify.plugins.gzipResponse())
 
-    this.mountInternal(server)
-    this.mountV1(server)
+      this.mountInternal()
+      this.mountV1()
 
-    server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
+      this.server.listen(this.port, () => {
+        logger.info('%s interface listening at %s', this.server.name, this.server.url)
+      })
+
+      resolve('mounted')
+    })
   }
 
-  mountV1 (server) {
-    server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
+  mountV1 () {
+    this.server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
     // server.get('/peer/blocks/common', this.getCommonBlocks);
-    server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
+    this.server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
     // server.get('/peer/transactions', this.getTransactions);
-    server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
-    server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
-    server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
+    this.server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
+    this.server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
+    this.server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
 
-    server.post('/blocks', this.postBlock)
+    this.server.post('/blocks', this.postInternalBlock) // Currently the `internal` behaviour is the same
     // server.post('/transactions', this.postTransactions);
   }
 
   mountInternal (server) {
-    server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
-    server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
-    server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
+    this.server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
+    this.server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
+    this.server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
-  isLocalhost (req) {
-    return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
+  isLocalhost (request) {
+    const ip = request.connection.remoteAddress
+    return ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
   }
 
   acceptRequest (req, res, next) {
     if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req)) {
-      res.send(500, {success: false, message: 'API not existing'})
+      this.fail(res, `API endpoint does not exist: ${req.route.path}`)
     }
-    const peer = {}
-    peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
+
+    const peer = {
+      ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    }
+    // FIXME when mixing IPv6 and IPv4
+    if (peer.ip === '::ffff:127.0.0.1') {
+      peer.ip = '127.0.0.1'
+    }
+    ;['port', 'nethash', 'os', 'version'].forEach(key => peer[key] = req.headers[key])
+
     this.p2p
       .acceptNewPeer(peer)
-      .then(() => setHeaders(res))
-      .then(() => next())
-      .catch(error => res.send(500, {success: false, message: error}))
+      .then(() => {
+        setHeaders(res)
+        next()
+      })
+      .catch(error => this.fail(res, error))
+  }
+
+  success(res, next, data={}) {
+    data.success = true
+    res.send(200, data)
+    next()
+  }
+
+  fail(res, error) {
+    logger.error('Request error', error)
+    res.send(500, {success: false, message: error})
   }
 
   getPeers (req, res, next) {
     this.p2p
       .getPeers()
       .then(peers => {
-        const rpeers = peers
+        const randomPeers = peers
           .map(peer => peer.toBroadcastInfo())
           .sort(() => Math.random() - 0.5)
-        res.send(200, {success: true, peers: rpeers})
-        next()
+        this.success(res, next, { peers: randomPeers})
       })
-      .catch(error => res.send(500, {success: false, message: error}))
+      .catch(error => this.fail(res, error))
   }
 
   getHeight (req, res, next) {
-    res.send(200, {
-      success: true,
-      height: blockchain.getInstance().lastBlock.data.height,
-      id: blockchain.getInstance().lastBlock.data.id
+    this.success(res, next, {
+      height: BlockchainManager.getInstance().lastBlock.data.height,
+      id: BlockchainManager.getInstance().lastBlock.data.id
     })
-    next()
   }
 
   getStatus (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock.getHeader()
-    res.send(200, {
-      success: true,
-      height: lastBlock.height,
-      forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
-      currentSlot: arkjs.slots.getSlotNumber(),
-      header: lastBlock
+    const { lastBlock } = BlockchainManager.getInstance()
+
+    // TODO comment to explain "slot"
+    const { slots } = arkjs
+    const forgingAllowed = slots.getSlotNumber() === slots.getSlotNumber(slots.getTime() + slots.interval / 2)
+
+    const header = lastBlock.getHeader()
+    // Avoid converting a circular structure to JSON
+    // TODO remove the metadata + "private" (_xxx) attributes
+    delete header._modelOptions
+
+    this.success(res, next, {
+      height: lastBlock.data.height,
+      forgingAllowed,
+      currentSlot: slots.getSlotNumber(),
+      header
     })
-    next()
   }
 
   getRound (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock
+    const { lastBlock } = BlockchainManager.getInstance()
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
-    const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
-    const reward = this.config.getConstants(lastBlock.data.height).reward
+    const { blockTime } = this.config.getConstants(lastBlock.data.height)
+    const { reward } = this.config.getConstants(lastBlock.data.height)
+
     this.getActiveDelegates(lastBlock.data.height).then(delegates => {
-      res.send(200, {
-        success: true,
+      this.success(res, next, {
         round: {
           current: parseInt(lastBlock.data.height / maxActive),
-          reward: reward,
+          reward,
           timestamp: arkjs.slots.getTime(),
-          delegates: delegates,
+          delegates,
           delegate: delegates[lastBlock.data.height % maxActive],
           lastBlock: lastBlock.data,
           canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
         }
       })
-      next()
-    }).catch(error => res.send(500, {success: false, message: error}))
+    }).catch(error => this.fail(res, error))
   }
 
   postInternalBlock (req, res, next) {
-    // console.log(req.body)
-    blockchain.getInstance().postBlock(req.body)
-    res.send(200, {
-      success: true
-    })
-    next()
+    BlockchainManager.getInstance().postBlock(req.body)
+    this.success(res, next)
   }
 
   postVerifyTransaction (req, res, next) {
-    // console.log(req.body)
     const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
     db.verifyTransaction(transaction)
-      .then(result => {
-        res.send(200, {
-          success: result
-        })
-        next()
-      })
-  }
-
-  postBlock (req, res, next) {
-    blockchain.getInstance().postBlock(req.body)
-    res.send(200, {
-      success: true
-    })
-    next()
+      .then(result => this.success(res, next, { success: result }))
   }
 
   getActiveDelegates (height) {
@@ -180,16 +193,12 @@ class Up {
   }
 
   getBlocks (req, res, next) {
-    db.getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
-      .then(blocks => {
-        res.send(200, {success: true, blocks: blocks})
-        next()
-      })
-      .catch(error => {
-        logger.error(error)
-        res.send(500, {success: false, error: error})
-        next()
-      })
+    // TODO should lastBlock query param be mandatory?
+    const height = (req.query.lastBlockHeight ? parseInt(req.query.lastBlockHeight) : 0) + 1
+
+    db.getBlocks(height, 400)
+      .then(blocks => this.success(res, next, { blocks }))
+      .catch(error => this.fail(res, error))
   }
 }
 

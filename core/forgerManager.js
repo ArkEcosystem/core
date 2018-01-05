@@ -39,7 +39,7 @@ class ForgerManager {
         .then(delegate => delegate.forge([], data))
         .then(block => that.broadcast(block))
         .catch(error => {
-          logger.info('Not able to forge:', error.message)
+          logger.error('Not able to forge:', error.message)
           logger.info('round:', round ? round.current : '', 'height:', round.lastBlock.height)
           return Promise.resolve()
         })

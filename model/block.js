@@ -113,9 +113,10 @@ class Block {
       result.errors.push('Invalid number of transactions')
     }
 
-    if (block.transactions.length > constants.block.maxTransactions) {
-      result.errors.push('Transactions length is too high')
-    }
+    console.log('Transactions', block.transactions.length);
+    // if (block.transactions.length > constants.block.maxTransactions) {
+    //   result.errors.push('Transactions length is too high')
+    // }
 
     // Checking if transactions of the block adds up to block values.
     var totalAmount = 0,
