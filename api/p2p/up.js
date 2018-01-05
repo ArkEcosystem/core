@@ -39,13 +39,17 @@ class Up {
   }
 
   mountV1 (server) {
-    server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
-    // server.get('/peer/blocks/common', this.getCommonBlocks);
-    server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
-    // server.get('/peer/transactions', this.getTransactions);
-    server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
-    server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
-    server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
+    const mapping = {
+      '/peer/list': this.getPeers,
+      '/peer/blocks': this.getBlocks,
+      '/peer/transactionsFromIds': this.getTransactionsFromIds,
+      '/peer/height': this.getHeight,
+      // '/peer/transactions': this.getTransactions,
+      // '/peer/blocks/common': this.getCommonBlocks,
+      '/peer/status': this.getStatus
+    }
+
+    Promise.all(Object.keys(mapping).map(k => server.get(k, (req, res, next) => mapping[k].call(this, req, res, next))))
 
     server.post('/blocks', this.postBlock)
     // server.post('/transactions', this.postTransactions);

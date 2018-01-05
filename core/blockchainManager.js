@@ -73,7 +73,7 @@ class BlockchainManager {
 
     return this.networkInterface.updateNetworkStatus()
       .then(() => this.syncWithNetwork(this.lastBlock))
-      .then(() => sleep(60000))
+      .then(() => sleep(180000))
       .then(() => this.updateBlockchainFromNetwork())
   }
 
