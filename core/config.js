@@ -1,4 +1,8 @@
 // @ts-check
+global.requireFrom = function(name) {
+  return require(require('path').resolve(`${__dirname}/../`, name))
+}
+
 const deepmerge = require('deepmerge')
 
 let instance = null
@@ -18,6 +22,7 @@ class Config {
     if (!instance) {
       instance = this
     }
+
     return instance
   }
 

@@ -1,10 +1,11 @@
+const fs = require('fs')
+const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
 const config = require('./core/config')
+const logger = require('./core/logger')
 const ForgerManager = require('./core/forgerManager')
-
-let forgerManager = null
 
 commander
   .version(packageJson.version)
@@ -12,19 +13,22 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-if (commander.config) {
-  config.init({
-    server: require(path.resolve(commander.config, 'server.json')),
-    genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-    network: require(path.resolve(commander.config, 'network.json')),
-    delegates: require(path.resolve(commander.config, 'delegate.json'))
-  })
+assert.string(commander.config, 'commander.config')
+
+if (!fs.existsSync(path.resolve(commander.config))){
+  throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-const logger = require('./core/logger')
+config.init({
+  server: require(path.resolve(commander.config, 'server.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  network: require(path.resolve(commander.config, 'network.json')),
+  delegates: require(path.resolve(commander.config, 'delegate.json'))
+})
+
 logger.init(config.server.fileLogLevel, config.network.name + '-forger')
 
-forgerManager = new ForgerManager(config)
+let forgerManager = new ForgerManager(config)
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

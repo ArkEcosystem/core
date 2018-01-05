@@ -1,9 +1,12 @@
 .DS_Store
+.idea/
 .nvmrc
 .nyc_output/
+.vscode/
 logs/*
 node_modules/
 npm-debug.log
 package-lock.json
 snapshot/*.data
 storage/*
+yarn.lock

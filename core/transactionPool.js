@@ -1,5 +1,4 @@
 const async = require('async')
-const db = require('./db')
 const arkjs = require('arkjs')
 
 class TransactionPool {
@@ -25,12 +24,16 @@ class TransactionPool {
   }
 
   addBlock (block) {
-    block.transactions.forEach(tx => delete this.pool[tx.id])
+    return Promise.all(block.transactions.map(tx => delete this.pool[tx.id]))
   }
 
-  rebuildBlockHeader (block) {
-    
+  undoBlock (block) {
+    return Promise.all(block.transactions.map(tx => this.addTransaction(tx)))
   }
+
+  // rebuildBlockHeader (block) {
+
+  // }
 }
 
 module.exports = TransactionPool

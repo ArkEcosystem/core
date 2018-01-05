@@ -3,8 +3,9 @@ const Account = require('../model/account')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
-const Block = require('../model/block')
 const async = require('async')
+const fs = require('fs')
+const path = require('path')
 
 let instance
 
@@ -14,11 +15,24 @@ class DBInterface {
   }
 
   static create (params) {
-    const InstanceDB = require(`${__dirname}/../${params.class}`)
-    const db = new InstanceDB()
+    const db = new (requireFrom(`database/${params.class}`))
+
     return db
       .init(params)
-      .then(() => instance = db)
+      .then(() => (instance = db))
+      .then(() => this.registerRepositories(params.class))
+      .then(() => instance)
+  }
+
+  static registerRepositories(driver)
+  {
+    let directory = path.resolve(`database/${driver}/repositories`)
+
+    fs.readdirSync(directory).forEach(file => {
+      if (file.indexOf('.js') != -1) {
+        instance[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(instance)
+      }
+    })
   }
 
   // getActiveDelegates (height) {
@@ -81,6 +95,13 @@ class DBInterface {
       )
   }
 
+  verifyTransaction (transaction) {
+    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+    let sender = this.localaccounts[senderId] // should exist
+    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
+    return sender.canApply(transaction.data)
+  }
+
   applyTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
     const sender = this.localaccounts[senderId] // should exist
@@ -132,7 +153,7 @@ class DBInterface {
   snapshot (path) {
     const fs = require('fs')
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
-    let max = 100000
+    let max = 100000 // eslint-disable-line no-unused-vars
     let offset = 0
     const writeQueue = async.queue((block, qcallback) => {
       wstream.write(block)

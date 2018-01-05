@@ -1,7 +1,9 @@
 const restify = require('restify')
-const logger = require('../../core/logger')
-const dbInterface = require('../../core/dbinterface')
-const BlockchainManager = require('../../core/blockchainManager')
+const logger = requireFrom('core/logger')
+// const dbInterface = require('../../core/dbinterface')
+const db = requireFrom('core/dbinterface').getInstance()
+const BlockchainManager = requireFrom('core/blockchainManager')
+const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 
@@ -47,7 +49,7 @@ class Up {
     // server.get('/peer/blocks/common', this.getCommonBlocks);
     this.server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
     // server.get('/peer/transactions', this.getTransactions);
-    // server.get('/peer/transactionsFromIds', this.getTransactionsFromIds);
+    this.server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
     this.server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
     this.server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
 
@@ -55,9 +57,10 @@ class Up {
     // server.post('/transactions', this.postTransactions);
   }
 
-  mountInternal () {
+  mountInternal (server) {
     this.server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
     this.server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
+    this.server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
   isLocalhost (request) {
@@ -164,11 +167,17 @@ class Up {
     this.success(res, next)
   }
 
+  postVerifyTransaction (req, res, next) {
+    const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
+    db.verifyTransaction(transaction)
+      .then(result => this.success(res, next, { success: result }))
+  }
+
   getActiveDelegates (height) {
     const round = parseInt(height / this.config.getConstants(height).activeDelegates)
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-    return dbInterface.getInstance().getActiveDelegates(height)
+    return db.getActiveDelegates(height)
       .then(activedelegates => {
         for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
           for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -187,7 +196,7 @@ class Up {
     // TODO should lastBlock query param be mandatory?
     const height = (req.query.lastBlockHeight ? parseInt(req.query.lastBlockHeight) : 0) + 1
 
-    dbInterface.getInstance().getBlocks(height, 400)
+    db.getBlocks(height, 400)
       .then(blocks => this.success(res, next, { blocks }))
       .catch(error => this.fail(res, error))
   }

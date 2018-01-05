@@ -1,5 +1,5 @@
 const Peer = require('./peer.js')
-const logger = require('../../core/logger')
+const logger = requireFrom('core/logger')
 
 class Down {
   constructor (config) {

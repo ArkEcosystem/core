@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "fileLogLevel": "info",
   "db": {
-    "class": "sequelize/db",
+    "class": "sequelize",
     "uri": "sqlite:storage/test.sqlite",
     "dialect": "sqlite",
     "logging": true
@@ -12,8 +12,16 @@
   "api": {
     "mount": true,
     "port": 4003,
-    "access": {
-      "whiteList": []
+    "version": "1.0.0",
+    "throttle": {
+      "burst": 60,
+      "rate": 1,
+      "whitelist": {
+        "::1": {
+          "rate": 0,
+          "burst": 0
+        }
+      }
     }
   },
   "peers": {
