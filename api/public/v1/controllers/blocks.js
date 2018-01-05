@@ -108,46 +108,41 @@ class BlocksController {
   }
 
   milestone(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    // res.send({
-    //   milestone: __private.blockReward.calcMilestone(modules.blockchain.getLastBlock().height)
-    // })
+    responder.ok(req,res,{
+      milestone: ~~(blockchain.getInstance().lastBlock.data.height / 3000000)
+    })
 
     next()
   }
 
   reward(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    // res.send({
-    //   reward: __private.blockReward.calcReward(modules.blockchain.getLastBlock().height)
-    // })
+    responder.ok(req,res,{
+      reward: config.getConstants(blockchain.getInstance().lastBlock.data.height).reward
+    })
 
     next()
   }
 
   supply(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    // res.send({
-    //   supply: __private.blockReward.calcSupply(modules.blockchain.getLastBlock().height)
-    // })
+    let lastblock = blockchain.getInstance().lastBlock.data
+    responder.ok(req,res,{
+      supply: config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+    })
 
     next()
   }
 
   status(req, res, next) {
-     let block = blockchain.getInstance().lastBlock.data
+     let lastblock = blockchain.getInstance().lastBlock.data
 
     responder.ok(req,res,{
-       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch,
-       height: block.height,
-       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send,
-//       milestone: __private.blockReward.calcMilestone(block.height),
+       epoch: config.getConstants(lastblock.height).epoch,
+       height: lastblock.height,
+       fee: config.getConstants(lastblock.height).fees.send,
+       milestone: ~~(lastblock.height / 3000000),
        nethash: config.network.nethash,
-//reward: __private.blockReward.calcReward(block.height),
-//       supply: __private.blockReward.calcSupply(block.height)
+       reward: config.getConstants(lastblock.height).reward,
+       supply: config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
      })
 
     next()
