@@ -32,10 +32,9 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-DependencyHandler.checkDatabaseLibraries(config).then(res => {
-  DB
-    .create(config.server.db)
-    .then((db) => db.snapshot(`${__dirname}/snapshot`))
-    .then(() => logger.info('Snapshot saved'))
-    .catch(fatal => logger.error('fatal error', fatal))
-})
+DependencyHandler
+  .checkDatabaseLibraries(config)
+  .then(() => DB.create(config.server.db))
+  .then((db) => db.snapshot(`${__dirname}/snapshot`))
+  .then(() => logger.info('Snapshot saved'))
+  .catch(fatal => logger.error('fatal error', fatal))

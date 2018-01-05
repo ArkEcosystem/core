@@ -38,18 +38,17 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-DependencyHandler.checkDatabaseLibraries(config).then(res => {
-  DB
-    .create(config.server.db)
-    .then((db) => blockchainManager.attachDBInterface(db))
-    .then(() => logger.info('Database started'))
-    .then(() => p2p.warmup())
-    .then(() => logger.info('Network interface started'))
-    .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-    .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {
-      height: 0
-    }).height))
-    .then(() => blockchainManager.syncWithNetwork())
-    .then(() => new PublicAPI(config).mount())
-    .catch(fatal => logger.error('fatal error', fatal))
-})
+DependencyHandler
+  .checkDatabaseLibraries(config)
+  .then(() => DB.create(config.server.db))
+  .then(db => blockchainManager.attachDBInterface(db))
+  .then(() => logger.info('Database started'))
+  .then(() => p2p.warmup())
+  .then(() => logger.info('Network interface started'))
+  .then(() => blockchainManager.attachNetworkInterface(p2p).init())
+  .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {
+    height: 0
+  }).height))
+  .then(() => blockchainManager.syncWithNetwork())
+  .then(() => new PublicAPI(config).mount())
+  .catch(fatal => logger.error('fatal error', fatal))
