@@ -8,6 +8,7 @@ const logger = require('./core/logger')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
+const DependencyHandler = require('./core/dependency-handler')
 const PublicAPI = require('./api/public/bootstrap')
 
 commander
@@ -18,7 +19,7 @@ commander
 
 assert.string(commander.config, 'commander.config')
 
-if (!fs.existsSync(path.resolve(commander.config))){
+if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
@@ -37,14 +38,18 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-DB
-  .create(config.server.db)
-  .then((db) => blockchainManager.attachDBInterface(db))
-  .then(() => logger.info('Database started'))
-  .then(() => p2p.warmup())
-  .then(() => logger.info('Network interface started'))
-  .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-  .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {height: 0}).height))
-  .then(() => blockchainManager.syncWithNetwork())
-  .then(() => new PublicAPI(config).mount())
-  .catch(fatal => logger.error('fatal error', fatal))
+DependencyHandler.checkDatabaseLibraries(config).then(res => {
+  DB
+    .create(config.server.db)
+    .then((db) => blockchainManager.attachDBInterface(db))
+    .then(() => logger.info('Database started'))
+    .then(() => p2p.warmup())
+    .then(() => logger.info('Network interface started'))
+    .then(() => blockchainManager.attachNetworkInterface(p2p).init())
+    .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {
+      height: 0
+    }).height))
+    .then(() => blockchainManager.syncWithNetwork())
+    .then(() => new PublicAPI(config).mount())
+    .catch(fatal => logger.error('fatal error', fatal))
+})
