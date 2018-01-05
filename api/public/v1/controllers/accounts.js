@@ -1,14 +1,14 @@
-const accounts = requireFrom('repositories/accounts')
 const arkjs = require('arkjs')
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
 const logger = requireFrom('core/logger')
+const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
 
 class WalletsController {
   index(req, res, next) {
-    accounts.all({
+    db.accounts.all({
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -28,7 +28,7 @@ class WalletsController {
 
   show(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      accounts.findById(req.query.address)
+      db.accounts.findById(req.query.address)
         .then(result => {
           responder.ok(req, res, {
             account: new transformer(req).resource(result, 'account')
@@ -52,7 +52,7 @@ class WalletsController {
 
   balance(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      accounts.findById(req.query.address)
+      db.accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             balance: account ? account.balance : '0',
@@ -77,7 +77,7 @@ class WalletsController {
 
   publicKey(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      accounts.findById(req.query.address)
+      db.accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
             publicKey: account.publicKey,
@@ -109,14 +109,13 @@ class WalletsController {
 
   delegates(req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      accounts.findById(req.query.address)
+      db.accounts.findById(req.query.address)
         .then(account => {
           if (!account.vote) {
             responder.ok(req, res, {
               delegates: []
             })
           } else {
-
             // TODO fix with balance and productivity calculation
             // https://github.com/ArkEcosystem/ark-node/blob/development/modules/delegates.js#L494
             // https://github.com/fix/ark-core/blob/master/api/p2p/up.js#L149
@@ -131,7 +130,7 @@ class WalletsController {
             "approval": 4.7,
             "productivity": 57.5
             */
-            accounts.findDelegate(account.vote)
+            db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
               .then(delegate => {
                 responder.ok(req, res, {
                   delegates: [ delegate ],
@@ -156,7 +155,7 @@ class WalletsController {
   }
 
   top(req, res, next) {
-    accounts.all({
+    db.accounts.all({
       attributes: ['address', 'balance', 'publicKey'],
       order: [
         ['balance', 'DESC']
@@ -173,7 +172,7 @@ class WalletsController {
   }
 
   count(req, res, next) {
-    accounts.all().then(result => {
+    db.accounts.all().then(result => {
       responder.ok(req, res, {
         count: result.count,
       })
