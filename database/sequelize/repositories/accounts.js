@@ -33,6 +33,10 @@ class AccountsRepository {
     })
   }
 
+  count(){
+    return this.db.accountsTable.count()
+  }
+
   //Helper methods
   getProducedBlocks(publicKey){
     return this.db.blocksTable.count({
