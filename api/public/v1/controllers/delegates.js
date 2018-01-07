@@ -4,6 +4,8 @@ const responder = requireFrom('api/responder')
 
 class DelegatesController {
   index(req, res, next) {
+
+
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
