@@ -8,8 +8,8 @@ const logger = requireFrom('core/logger')
 class BlocksController {
   index(req, res, next) {
 
-    var whereStatement = {}
-    var orderBy = []
+    let whereStatement = {}
+    let orderBy = []
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
