@@ -1,4 +1,7 @@
+const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
+const blockchain = requireFrom('core/blockchainManager')
+
 
 class AccountsRepository {
   constructor(db) {
@@ -31,17 +34,12 @@ class AccountsRepository {
   }
 
   //Helper methods
-  getDelegateInfo(address){
-    delegate = db.localaccounts[address]
-
-    //get produced blocks
-
-    //get missed blocks
-
-    //calc productivity
-
-    //get rank
-
+  getProducedBlocks(publicKey){
+    return this.db.blocksTable.count({
+        where: {
+          generatorPublicKey: publicKey
+        }
+      })
 
   }
 }

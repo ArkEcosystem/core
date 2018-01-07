@@ -47,7 +47,7 @@ class BlocksController {
     db.blocks.findById(req.query.id)
       .then(result => {
         if (!result) {
-          responder.resourceNotFound(res, `Block with id ${req.query.id} not found`);
+          responder.resourceNotFound(res, `Block with id ${req.query.id} not found`)
         } else {
           responder.ok(req, res, {
             blocks: new transformer(req).resource(result, 'block')

@@ -12,6 +12,8 @@ class Account {
     this.votebalance = 0
     this.multisignature = null
     this.dirty = true
+    this.producedBlocks = 0
+    this.missedBlocks = 0
   }
 
   toString () {
@@ -89,6 +91,7 @@ class Account {
   applyBlock (block) {
     if (block.generatorPublicKey === this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance += block.reward + block.totalFee
+      this.producedBlocks++
     }
     this.dirty = true
   }
@@ -96,6 +99,7 @@ class Account {
   undoBlock (block) {
     if (block.generatorPublicKey === this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance -= block.reward + block.totalFee
+      this.producedBlocks--
     }
     this.dirty = true
   }

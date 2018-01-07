@@ -12,13 +12,13 @@ class DelegatesRepository {
       },
     })
 
-    return this.db.accounts.findAndCountAll(Object.assign(params, {
+    return this.db.accountstable.findAndCountAll(Object.assign(params, {
       where: where
     }))
   }
 
   paginate(params, page, perPage) {
-    return this.db.accounts.findAndCountAll(Object.assign(params, {
+    return this.db.accountstable.findAndCountAll(Object.assign(params, {
       where: {
         username: {
           [Op.ne]: null
@@ -30,7 +30,7 @@ class DelegatesRepository {
   }
 
   findById(id) {
-    return this.db.accounts.findOne({
+    return this.db.accountstable.findOne({
       where: {
         username: {
           [Op.ne]: null
@@ -45,6 +45,13 @@ class DelegatesRepository {
       }
     })
   }
+/*
+  getBlockDetails(publicKey) {
+    return this.db.blockstable.findAndCountAll{
+
+    }
+
+  }*/
 }
 
 module.exports = DelegatesRepository

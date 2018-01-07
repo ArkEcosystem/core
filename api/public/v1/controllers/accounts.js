@@ -5,6 +5,8 @@ const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
+const crypto = require('crypto')
+
 
 class WalletsController {
   index(req, res, next) {
@@ -108,32 +110,37 @@ class WalletsController {
   }
 
   delegates(req, res, next) {
+    let lastblock = blockchain.getInstance().lastBlock.data
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
           if (!account.vote) {
-            responder.ok(req, res, {
-              delegates: []
+            responder.error(req, res, {
+              error: `Address ${req.query.address} hasn\'t voted yet.`
             })
           } else {
-            // TODO fix with balance and productivity calculation
-            // https://github.com/ArkEcosystem/ark-node/blob/development/modules/delegates.js#L494
-            // https://github.com/fix/ark-core/blob/master/api/p2p/up.js#L149
-            /*
-            "username": "d_arky",
-            "address": "DKf1RUGCM3G3DxdE7V7DW7SFJ4Afmvb4YU",
-            "publicKey": "02dcb94d73fb54e775f734762d26975d57f18980314f3b67bc52beb393893bc706",
-            "vote": "609016146846508",
-            "producedblocks": 27242,
-            "missedblocks": 20132,
-            "rate": 2,
-            "approval": 4.7,
-            "productivity": 57.5
-            */
-            db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
-              .then(delegate => {
-                responder.ok(req, res, {
-                  delegates: [ delegate ],
+            let totalSupply = config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+            db.getActiveDelegates(blockchain.getInstance().lastBlock.data.height)
+              .then(activedelegates => {
+                let delPos = activedelegates.findIndex(del => {return del.publicKey === account.vote})
+                let votedDel = activedelegates[delPos]
+                db.accounts.getProducedBlocks(account.vote).then(producedBlocks => {
+                  db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+                    .then(account => {
+                      responder.ok(req, res, {
+                        delegates: [{
+                          username: account.username,
+                          address: account.address,
+                          publicKey: account.publicKey,
+                          vote: account.vote,
+                          producedblocks: producedBlocks,
+                          missedblocks: 0, //TODO how?
+                          rate: delPos+1,
+                          approval: (votedDel.balance / totalSupply) * 100,
+                          productivity: 100,
+                        }],
+                      })
+                    })
                 })
               })
           }
@@ -180,6 +187,7 @@ class WalletsController {
 
     next()
   }
+
 }
 
 module.exports = new WalletsController()

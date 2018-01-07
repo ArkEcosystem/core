@@ -105,7 +105,8 @@ class SequelizeDB extends DBInterface {
           attributes: [
             'generatorPublicKey',
             [Sequelize.fn('SUM', Sequelize.col('reward')), 'reward'],
-            [Sequelize.fn('SUM', Sequelize.col('totalFee')), 'totalFee']
+            [Sequelize.fn('SUM', Sequelize.col('totalFee')), 'totalFee'],
+            [Sequelize.fn('COUNT', Sequelize.col('generatorPublicKey')), 'produced']
           ],
           group: 'generatorPublicKey'}
         )
@@ -115,10 +116,12 @@ class SequelizeDB extends DBInterface {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
             account.balance += parseInt(row.reward) + parseInt(row.totalFee)
+            account.producedBlocks += parseInt(row.produced)
           } else {
             account = new Account(arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash))
             account.publicKey = row.generatorPublicKey
             account.balance = parseInt(row.reward) + parseInt(row.totalFee)
+            account.producedBlocks = parseInt(row.produced)
             this.localaccounts[account.address] = account
           }
         })
