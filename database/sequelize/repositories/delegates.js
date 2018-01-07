@@ -45,13 +45,6 @@ class DelegatesRepository {
       }
     })
   }
-/*
-  getBlockDetails(publicKey) {
-    return this.db.blockstable.findAndCountAll{
-
-    }
-
-  }*/
 }
 
 module.exports = DelegatesRepository
