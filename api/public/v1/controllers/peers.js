@@ -62,7 +62,7 @@ class PeersController {
           }
         }else {
           responder.error(req, res, {
-            error: `Peer ${req.query.ip}:${req.query.port} not found`,
+            error: `No peers found`,
           })
         }
     }).catch(error => {
