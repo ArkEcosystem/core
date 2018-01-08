@@ -11,12 +11,6 @@ const crypto = require('crypto')
 class WalletsController {
   index(req, res, next) {
     db.accounts.all({
-      attributes: {
-        exclude: ['createdAt', 'updatedAt'],
-      },
-      order: [
-        ['balance', 'DESC']
-      ],
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
