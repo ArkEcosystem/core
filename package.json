@@ -42,6 +42,8 @@
     "popsicle": "^9.2.0",
     "promise-worker": "^1.1.1",
     "restify": "^6.3.4",
+    "sequelize": "^4.29.2",
+    "sqlite3": "^3.1.13",
     "standard": "^10.0.3",
     "tiny-worker": "^2.1.1",
     "wif": "^2.0.6",
