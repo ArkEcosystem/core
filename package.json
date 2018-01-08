@@ -6,7 +6,6 @@
   "scripts": {
     "start:mainnet": "node startRelayNode.js -c config/mainnet",
     "start:devnet": "node startRelayNode.js -c config/devnet",
-    "debug:devnet": "node %NODE_DEBUG_OPTION% startRelayNode.js -c config/devnet",
     "start:testnet": "nodemon startRelayNode.js -c config/testnet",
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
@@ -42,7 +41,6 @@
     "lru-cache": "^4.1.1",
     "popsicle": "^9.2.0",
     "promise-worker": "^1.1.1",
-    "query-string": "^5.0.1",
     "restify": "^6.3.4",
     "standard": "^10.0.3",
     "tiny-worker": "^2.1.1",
