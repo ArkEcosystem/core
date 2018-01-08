@@ -26,9 +26,15 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(result => {
-          responder.ok(req, res, {
-            account: new transformer(req).resource(result, 'account')
-          })
+          if (result) {
+            responder.ok(req, res, {
+              account: new transformer(req).resource(result, 'account')
+            })
+          }else {
+            responder.error(req, res, {
+              error: 'Not found',
+            })
+          }
         })
         .catch(error => {
           logger.error(error)
@@ -50,10 +56,17 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
-          responder.ok(req, res, {
-            balance: account ? account.balance : '0',
-            unconfirmedBalance: account ? account.balance : '0'
-          })
+          if (account) {
+            responder.ok(req, res, {
+              balance: account ? account.balance : '0',
+              unconfirmedBalance: account ? account.balance : '0'
+            })
+          }
+          else {
+            responder.error(req, res, {
+              error: 'Not found',
+            })
+          }
         })
         .catch(error => {
           logger.error(error)
@@ -75,9 +88,15 @@ class WalletsController {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
-          responder.ok(req, res, {
-            publicKey: account.publicKey,
-          })
+          if (account) {
+            responder.ok(req, res, {
+              publicKey: account.publicKey,
+            })
+          }else {
+            responder.error(req, res, {
+              error: 'Not found',
+            })
+          }
         })
         .catch(error => {
           logger.error(error)
