@@ -1,7 +1,7 @@
 const chai = require('chai')
 const { expect } = require('chai')
 
-let base = 'http://localhost:4003'
+const base = 'http://localhost:4003'
 
 /*
   registrar.get('blocks', controller.index, schema.getBlocks)
@@ -18,7 +18,7 @@ let base = 'http://localhost:4003'
  */
 
 describe('GET api/blocks/get?id', () => {
-  it('should return blocks based on id', () => {
+  it('should return blocks based on id', (done) => {
     chai.request(base)
       .get(`/api/blocks/get?id=1877716674628308671`)
       .end((err, res)  => {
@@ -28,24 +28,26 @@ describe('GET api/blocks/get?id', () => {
         expect(res.body.block.id).to.be.a('string')
         expect(res.body.block.height).to.be.a('number')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+        done()
       })
   })
 
-  it('should return block not found', () => {
+  it('should return block not found', (done) => {
     chai.request(base)
       .get(`/api/blocks/get?id=18777we16674628308671`)
       .end((err, res)  => {
         expect(res).to.have.status(200)
         expect(res).to.be.json
-        expect(res.body.success).to.be.equal(true)
+        expect(res.body.success).to.be.equal(false)
         expect(res.body.error).to.be.a('string').contains('not found')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+        done()
       })
   })
 })
 
 describe('GET api/blocks/?limit=XX', () => {
-  it('should return 5 blocks', () => {
+  it('should return 5 blocks', (done) => {
     chai.request(base)
       .get(`/api/blocks?limit=5`)
       .end((err, res)  => {
@@ -55,21 +57,22 @@ describe('GET api/blocks/?limit=XX', () => {
         expect(res.body.blocks).to.be.a('array')
         expect(res.body.blocks.length).to.equal(5)
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+        done()
       })
   })
 
-  it('should return limit error info', () => {
+  it('should return limit error info', (done) => {
     chai.request(base)
       .get(`/api/blocks?limit=500`)
       .end((err, res)  => {
         expect(res).to.have.status(200)
         expect(res).to.be.json
         expect(res.body.success).to.be.equal(false)
+        expect(res.body.error).to.be.a('string').contains('should be <= 100')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+        done()
       })
   })
-
-
 })
 
 
