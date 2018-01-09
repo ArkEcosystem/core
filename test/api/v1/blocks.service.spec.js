@@ -1,9 +1,9 @@
 const chai = require('chai')
 const { expect } = require('chai')
-
 const config = require('../../../core/config')
 const blockchain = requireFrom('core/blockchainManager')
 
+const Helpers = require('../helpers')
 
 const base = 'http://localhost:4003'
 
@@ -26,9 +26,7 @@ describe('GET api/blocks/get?id', () => {
     chai.request(base)
       .get(`/api/blocks/get?id=1877716674628308671`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
         expect(res.body.block.id).to.be.a('string')
         expect(res.body.block.height).to.be.a('number')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -40,9 +38,8 @@ describe('GET api/blocks/get?id', () => {
     chai.request(base)
       .get(`/api/blocks/get?id=18777we16674628308671`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(false)
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
         expect(res.body.error).to.be.a('string').contains('not found')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
@@ -55,9 +52,8 @@ describe('GET api/blocks/?limit=XX', () => {
     chai.request(base)
       .get(`/api/blocks?limit=5`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body.blocks).to.be.a('array')
         expect(res.body.blocks.length).to.equal(5)
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -69,8 +65,8 @@ describe('GET api/blocks/?limit=XX', () => {
     chai.request(base)
       .get(`/api/blocks?limit=500`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
         expect(res.body.success).to.be.equal(false)
         expect(res.body.error).to.be.a('string').contains('should be <= 100')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -86,8 +82,8 @@ describe('GET /api/blocks/getfees', () => {
     chai.request(base)
       .get('/api/blocks/getFees')
       .end((err, res) => {
-        expect(res).to.have.status(200)
-        expect(res.body).to.have.property('success').to.be.ok
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body).to.have.property('fees')
         // TODO adjust when environment setup properly
         //expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().lastBlock.data.height).fees)
@@ -104,7 +100,8 @@ describe('GET /api/blocks/getNethash',  () => {
     chai.request(base)
       .get('/api/blocks/getNethash')
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.ok
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body).to.have.property('nethash').to.be.a('string')
         // TODO adjust when environment setup properly
        // expect(res.body.nethash).to.equal(config.network.nethash)
@@ -119,8 +116,10 @@ describe('GET /api/blocks/getMilestone',  () => {
     chai.request(base)
       .get('/api/blocks/getMilestone')
       .end((err, res) => {
-         expect(res.body).to.have.property('milestone').to.be.a('number')
-         done()
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
+        expect(res.body).to.have.property('milestone').to.be.a('number')
+        done()
     })
   })
 })
@@ -130,7 +129,9 @@ describe('GET /api/blocks/getReward',  ()  =>{
     chai.request(base)
       .get('/api/blocks/getReward')
       .end((err, res) => {
-          expect(res.body).to.have.property('reward').to.be.a('number')
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
+        expect(res.body).to.have.property('reward').to.be.a('number')
       done()
     })
   })
@@ -141,7 +142,10 @@ describe('GET /api/blocks/getSupply',  ()  => {
     chai.request(base)
       .get('/api/blocks/getSupply')
       .end((err, res) => {
-          expect(res.body).to.have.property('supply').to.be.a('number')
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
+        expect(res.body.supply).to.be.a('number')
+
         done()
     })
   })
@@ -152,7 +156,8 @@ describe('GET /api/blocks/getStatus',  ()  => {
     chai.request(base)
       .get('/api/blocks/getStatus')
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.ok
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body).to.have.property('epoch').to.be.a('string')
         expect(res.body).to.have.property('height').to.be.a('number')
         expect(res.body).to.have.property('fee').to.be.a('number')

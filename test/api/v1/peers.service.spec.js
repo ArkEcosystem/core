@@ -1,6 +1,6 @@
 const chai = require('chai')
 const { expect } = require('chai')
-
+const Helpers = require('../helpers')
 
 const base = 'http://localhost:4003'
 const peerIp = '167.114.29.55'
@@ -12,8 +12,9 @@ describe('GET /api/peers/version', () => {
     chai.request(base)
       .get('/api/peers/version')
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.ok
-        expect(res.body).to.have.property('version').to.be.a('string')
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
+        expect(res.body.version).to.be.a('string')
         done()
     })
   })
@@ -34,8 +35,9 @@ describe('GET /api/peers',  () => {
     chai.request(base)
       .get('/api/peers?' + params.join('&'))
       .end((err, res) => {
-          expect(res.body).to.have.property('success').to.be.not.ok
-          expect(res.body).to.have.property('error')
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.be.a('string').contains('should be integer')
         done()
     })
   })
@@ -48,8 +50,9 @@ describe('GET /api/peers',  () => {
     chai.request(base)
       .get('/api/peers?' + params)
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.not.ok
-        expect(res.body).to.have.property('error')
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.be.a('string')
 
         done()
     })
@@ -69,8 +72,9 @@ describe('GET /api/peers',  () => {
     chai.request(base)
       .get('/api/peers?' + params.join('&'))
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.not.ok
-        expect(res.body).to.have.property('error')
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.be.a('string')
         done()
     })
   })
@@ -81,8 +85,9 @@ describe('GET /api/peers/get', () => {
     chai.request(base)
       .get('/api/peers/get?ip=127.0.0.1')
       .end((err, res) => {
-        expect(res.body).to.have.property('success').to.be.not.ok;
-        expect(res.body).to.have.property('error').to.equal('should have required property \'port\'')
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.equal('should have required property \'port\'')
         done()
     })
   })
@@ -91,8 +96,9 @@ describe('GET /api/peers/get', () => {
     chai.request(base)
       .get('/api/peers/get?port=4002')
       .end((err,res) => {
-        expect(res.body).to.have.property('success').to.be.not.ok
-        expect(res.body).to.have.property('error').to.equal('should have required property \'ip\'')
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.equal('should have required property \'ip\'')
         done()
     })
   })
@@ -101,8 +107,9 @@ describe('GET /api/peers/get', () => {
     chai.request(base)
       .get(`/api/peers/get?ip=${peerIp}&port=${peerPort}`)
       .end((err,res) => {
-        expect(res.body).to.have.property('success').to.be.ok
-        expect(res.body).to.have.property('peer').to.be.an('object')
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
+        expect(res.body.peer).to.be.an('object')
         done()
     })
   })
@@ -111,8 +118,9 @@ describe('GET /api/peers/get', () => {
     chai.request(base)
       .get(`/api/peers/get?ip=99.99.99.99&port=${peerPort}`)
       .end((err,res) => {
-        expect(res.body).to.have.property('success').to.be.not.ok
-        expect(res.body).to.have.property('error').to.equal(`Peer 99.99.99.99:${peerPort} not found`)
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+        expect(res.body.error).to.equal(`Peer 99.99.99.99:${peerPort} not found`)
         done()
     })
   })

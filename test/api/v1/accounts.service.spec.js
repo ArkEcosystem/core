@@ -1,6 +1,9 @@
 const chai = require('chai')
 const { expect } = require('chai')
+const config = require('../../../core/config')
+const blockchain = requireFrom('core/blockchainManager')
 
+const Helpers = require('../helpers')
 
 const base = 'http://localhost:4003'
 
@@ -13,10 +16,8 @@ describe('GET api/accounts/?address', () => {
     chai.request(base)
       .get(`/api/accounts/?address=${AddressActive}`)
       .end((err, res)  => {
-        expect(err).to.be.a('null')
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body.account).to.have.all.keys(['address','publicKey','secondPublicKey','vote','username','balance','votebalance'])
         expect(res.body.account.vote).to.be.a('string')
         expect(res.body.account.balance).to.be.a('number')
@@ -32,8 +33,8 @@ describe('GET api/accounts/?address', () => {
     chai.request(base)
       .get(`/api/accounts/?address=${AddressCold}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
         expect(res.body.error).to.be.a('string').contains('Not found')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
@@ -46,9 +47,8 @@ describe('GET api/accounts/getBalance?address', () => {
     chai.request(base)
       .get(`/api/accounts/getBalance?address=${AddressActive}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body.balance).to.be.a('number')
         expect(res.body.unconfirmedBalance).to.be.a('number')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -60,9 +60,8 @@ describe('GET api/accounts/getBalance?address', () => {
     chai.request(base)
       .get(`/api/accounts/getBalance?address=${AddressCold}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.equal(false)
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
         expect(res.body.error).to.be.a('string').contains('Not found')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
@@ -75,9 +74,8 @@ describe('GET /api/accounts/getPublicKey?address', () => {
     chai.request(base)
       .get(`/api/accounts/getPublicKey?address=${AddressActive}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body.publicKey).to.be.a('string')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
@@ -88,9 +86,9 @@ describe('GET /api/accounts/getPublicKey?address', () => {
     chai.request(base)
       .get(`/api/accounts/getPublicKey?address=${AddressCold}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.equal(false)
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
+
         expect(res.body.error).to.be.a('string').contains('Not found')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
@@ -103,9 +101,8 @@ describe('GET /api/accounts/delegates?address', () => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressActive}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(true)
+        Helpers.ValidateResponseStatus(err,res,200,true)
+
         expect(res.body.delegates).to.be.an('array')
         expect(res.body.delegates[0].producedblocks).to.be.a('number')
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -117,9 +114,8 @@ describe('GET /api/accounts/delegates?address', () => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressCold}`)
       .end((err, res)  => {
-        expect(res).to.have.status(200)
-        expect(res).to.be.json
-        expect(res.body.success).to.be.equal(false)
+        Helpers.ValidateResponseStatus(err,res,200,false)
+
         expect(res.body.error).to.be.a('string').contains(`Address not found.`)
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
         done()
