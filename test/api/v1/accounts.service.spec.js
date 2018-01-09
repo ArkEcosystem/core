@@ -24,7 +24,7 @@ describe('GET api/accounts/?address', () => {
         expect(res.body.account.votebalance).to.be.a('number')
         expect(res.body.account.address).to.be.a('string')
         expect(res.body.account.publicKey).to.be.a('string')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -36,7 +36,7 @@ describe('GET api/accounts/?address', () => {
         Helpers.ValidateResponseStatus(err,res,200,false)
 
         expect(res.body.error).to.be.a('string').contains('Not found')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -51,7 +51,7 @@ describe('GET api/accounts/getBalance?address', () => {
 
         expect(res.body.balance).to.be.a('number')
         expect(res.body.unconfirmedBalance).to.be.a('number')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -63,7 +63,7 @@ describe('GET api/accounts/getBalance?address', () => {
         Helpers.ValidateResponseStatus(err,res,200,false)
 
         expect(res.body.error).to.be.a('string').contains('Not found')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -77,7 +77,7 @@ describe('GET /api/accounts/getPublicKey?address', () => {
         Helpers.ValidateResponseStatus(err,res,200,true)
 
         expect(res.body.publicKey).to.be.a('string')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -90,7 +90,7 @@ describe('GET /api/accounts/getPublicKey?address', () => {
 
 
         expect(res.body.error).to.be.a('string').contains('Not found')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -105,7 +105,7 @@ describe('GET /api/accounts/delegates?address', () => {
 
         expect(res.body.delegates).to.be.an('array')
         expect(res.body.delegates[0].producedblocks).to.be.a('number')
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
@@ -117,7 +117,7 @@ describe('GET /api/accounts/delegates?address', () => {
         Helpers.ValidateResponseStatus(err,res,200,false)
 
         expect(res.body.error).to.be.a('string').contains(`Address not found.`)
-        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+
         done()
       })
   })
