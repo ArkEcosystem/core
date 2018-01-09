@@ -3,15 +3,13 @@ const Promise = require('bluebird')
 class DependencyHandler {
   checkDatabaseLibraries(config) {
     let dependencies = {
-      'sequelize': {
+      'database/sequelize': {
         'mysql': ['sequelize', 'mysql2'],
         'sqlite': ['sequelize', 'sqlite3'],
         'postgres': ['sequelize', 'pg', 'pg-hstore'],
         'mssql': ['sequelize', 'tedious'],
-      }[config.server.db.dialect],
-      'leveldb': ['leveldown', 'levelup'],
-      'mongodb': ['mongodb'],
-    }[config.server.db.class]
+      }[config.server.db.dialect]
+    }[config.server.db.driver]
 
     return this._install(dependencies)
   }
