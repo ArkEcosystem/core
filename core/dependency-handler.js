@@ -8,9 +8,7 @@ class DependencyHandler {
         'sqlite': ['sequelize', 'sqlite3'],
         'postgres': ['sequelize', 'pg', 'pg-hstore'],
         'mssql': ['sequelize', 'tedious'],
-      }[config.server.db.dialect],
-      'leveldb': ['leveldown', 'levelup'],
-      'mongodb': ['mongodb'],
+      }[config.server.db.dialect]
     }[config.server.db.class]
 
     return this._install(dependencies)
