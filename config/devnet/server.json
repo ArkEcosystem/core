@@ -4,13 +4,9 @@
   "fileLogLevel": "debug",
   "fastRebuild": false,
   "db": {
-    "class": "sequelize",
-    "uri": "sqlite:storage/devnetFull.sqlite",
-    "uri1": "postgresql://arkman:ark-is-awesome@127.0.0.1:5432/ark_devnet2",
-    "uri2": "mysql://ark:ark@127.0.0.1:3306/ark-cored2",
+    "driver": "database/sequelize",
+    "uri": "sqlite:storage/devnet.sqlite",
     "dialect": "sqlite",
-    "dialect1": "postgres",
-    "dialect2": "mysql",
     "logging": false
   },
   "api": {
