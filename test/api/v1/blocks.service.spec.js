@@ -89,7 +89,7 @@ describe('GET /api/blocks/getfees', () => {
         expect(res).to.have.status(200)
         expect(res.body).to.have.property('success').to.be.ok
         expect(res.body).to.have.property('fees')
-
+        // TODO adjust when environment setup properly
         //expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().lastBlock.data.height).fees)
 
         expect(res.body.meta.matchedVersion).to.equal('1.0.0')
@@ -98,4 +98,70 @@ describe('GET /api/blocks/getfees', () => {
   })
 })
 
+describe('GET /api/blocks/getNethash',  () => {
+
+  it('should be ok',  (done) => {
+    chai.request(base)
+      .get('/api/blocks/getNethash')
+      .end((err, res) => {
+        expect(res.body).to.have.property('success').to.be.ok
+        expect(res.body).to.have.property('nethash').to.be.a('string')
+        // TODO adjust when environment setup properly
+       // expect(res.body.nethash).to.equal(config.network.nethash)
+        done()
+    })
+  })
+})
+
+describe('GET /api/blocks/getMilestone',  () => {
+
+  it('should be ok',  (done) => {
+    chai.request(base)
+      .get('/api/blocks/getMilestone')
+      .end((err, res) => {
+         expect(res.body).to.have.property('milestone').to.be.a('number')
+         done()
+    })
+  })
+})
+
+describe('GET /api/blocks/getReward',  ()  =>{
+  it('should be ok',  (done) => {
+    chai.request(base)
+      .get('/api/blocks/getReward')
+      .end((err, res) => {
+          expect(res.body).to.have.property('reward').to.be.a('number')
+      done()
+    })
+  })
+})
+
+describe('GET /api/blocks/getSupply',  ()  => {
+  it('should be ok',  (done) => {
+    chai.request(base)
+      .get('/api/blocks/getSupply')
+      .end((err, res) => {
+          expect(res.body).to.have.property('supply').to.be.a('number')
+        done()
+    })
+  })
+})
+
+describe('GET /api/blocks/getStatus',  ()  => {
+  it('should be ok',  (done) => {
+    chai.request(base)
+      .get('/api/blocks/getStatus')
+      .end((err, res) => {
+        expect(res.body).to.have.property('success').to.be.ok
+        expect(res.body).to.have.property('epoch').to.be.a('string')
+        expect(res.body).to.have.property('height').to.be.a('number')
+        expect(res.body).to.have.property('fee').to.be.a('number')
+        expect(res.body).to.have.property('milestone').to.be.a('number')
+        expect(res.body).to.have.property('nethash').to.be.a('string')
+        expect(res.body).to.have.property('reward').to.be.a('number')
+        expect(res.body).to.have.property('supply').to.be.a('number')
+        done()
+    })
+  })
+})
 
