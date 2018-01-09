@@ -1,6 +1,10 @@
 const chai = require('chai')
 const { expect } = require('chai')
 
+const config = require('../../../core/config')
+const blockchain = requireFrom('core/blockchainManager')
+
+
 const base = 'http://localhost:4003'
 
 /*
@@ -76,5 +80,22 @@ describe('GET api/blocks/?limit=XX', () => {
 })
 
 
+describe('GET /api/blocks/getfees', () => {
+
+  it('should return matching fees with the config', (done) => {
+    chai.request(base)
+      .get('/api/blocks/getFees')
+      .end((err, res) => {
+        expect(res).to.have.status(200)
+        expect(res.body).to.have.property('success').to.be.ok
+        expect(res.body).to.have.property('fees')
+
+        //expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().lastBlock.data.height).fees)
+
+        expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+        done()
+    })
+  })
+})
 
 
