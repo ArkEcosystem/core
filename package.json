@@ -41,6 +41,7 @@
     "lru-cache": "^4.1.1",
     "popsicle": "^9.2.0",
     "promise-worker": "^1.1.1",
+    "public-ip": "^2.4.0",
     "restify": "^6.3.4",
     "standard": "^10.0.3",
     "tiny-worker": "^2.1.1",

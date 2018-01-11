@@ -74,7 +74,7 @@ class PublicAPI {
       logger.info('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
     }
 
-    if (version.startsWith('~')) {
+    if (req.version().startsWith('~')) {
       req._version = {
         1: '1.0.0',
         2: '2.0.0',

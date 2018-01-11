@@ -6,7 +6,7 @@ class PeerTransformer {
       version: model.version,
       height: model.height,
       status: model.status,
-      latency: model.latency,
+      latency: model.latency ? model.latency : 0,
     };
   }
 }
