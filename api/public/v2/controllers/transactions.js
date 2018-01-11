@@ -43,7 +43,7 @@ class TransactionsController {
           data: result
         })
       } else {
-        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+        responder.resourceNotFound(res, 'Record could not be found.');
       }
     })
 

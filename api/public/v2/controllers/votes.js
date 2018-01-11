@@ -26,12 +26,6 @@ class VotesController {
     next()
   }
 
-  store(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
-
   show(req, res, next) {
     db.transactions.findByIdAndType(req.params.id, 3).then(result => {
       if (result) {
@@ -39,7 +33,7 @@ class VotesController {
           data: result
         })
       } else {
-        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+        responder.resourceNotFound(res, 'Record could not be found.');
       }
     })
 

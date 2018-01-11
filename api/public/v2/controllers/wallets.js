@@ -23,12 +23,6 @@ class WalletsController {
     next()
   }
 
-  search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
-
   show(req, res, next) {
     db.accounts.findById(req.params.id).then(result => {
       if (result) {
@@ -36,7 +30,7 @@ class WalletsController {
           data: result
         })
       } else {
-        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
+        responder.resourceNotFound(res, 'Record could not be found.');
       }
     })
 

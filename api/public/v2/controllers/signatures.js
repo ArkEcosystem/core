@@ -6,12 +6,6 @@ class SignaturesController {
 
     next()
   }
-
-  store(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
 }
 
 module.exports = new SignaturesController()
