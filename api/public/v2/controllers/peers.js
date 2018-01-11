@@ -16,7 +16,7 @@ class PeersController {
         result = req.query.status ? peers.filter(peer => { return peer.status === req.query.status }) : result
         result = req.query.port ? peers.filter(peer => { return peer.port === req.query.port }) : result
         result = req.query.version ? peers.filter(peer => { return peer.version === req.query.version }) : result
-        result = result.slice(page * perPage, perPage)
+        result = result.slice(page * perPage, (page * perPage) + perPage)
         result = result.sort((a, b) => a.delay - b.delay)
 
         if (req.query.orderBy) {
