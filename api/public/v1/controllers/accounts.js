@@ -5,8 +5,6 @@ const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
-const crypto = require('crypto')
-
 
 class WalletsController {
   index(req, res, next) {
