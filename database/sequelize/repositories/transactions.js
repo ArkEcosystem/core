@@ -1,9 +1,16 @@
+const Sequelize = require('sequelize')
+
 class TransactionsRepository {
   constructor(db) {
     this.db = db
   }
 
   all(params = {}) {
+    // TODO sql migration - add height block to TX table - much much faster !!!
+    params['include'] = [{
+      model: this.db.blocksTable,
+      attributes: ['height']
+    }]
     return this.db.transactionsTable.findAndCountAll(params)
   }
 
