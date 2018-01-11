@@ -2,22 +2,18 @@ const responder = requireFrom('api/responder')
 const blockchain = requireFrom('core/blockchainManager')
 const transformer = requireFrom('api/transformer')
 const logger = requireFrom('core/logger')
-const publicIp = require('public-ip');
+const publicIp = require('public-ip')
 
 class PeersController {
   index(req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
-        const page = parseInt(req.query.page || 0)
-        const perPage = parseInt(req.query.perPage || 100)
-
-        let result = peers
-        result = req.query.os ? peers.filter(peer => { return peer.os === req.query.os }) : result
-        result = req.query.status ? peers.filter(peer => { return peer.status === req.query.status }) : result
-        result = req.query.port ? peers.filter(peer => { return peer.port === req.query.port }) : result
-        result = req.query.version ? peers.filter(peer => { return peer.version === req.query.version }) : result
-        result = result.slice(page * perPage, (page * perPage) + perPage)
-        result = result.sort((a, b) => a.delay - b.delay)
+        let result = peers.sort(() => .5 - Math.random())
+        result = req.query.os ? result.filter(peer => { return peer.os === req.query.os }) : result
+        result = req.query.status ? result.filter(peer => { return peer.status === req.query.status }) : result
+        result = req.query.port ? result.filter(peer => { return peer.port === req.query.port }) : result
+        result = req.query.version ? result.filter(peer => { return peer.version === req.query.version }) : result
+        result = result.slice(0, (req.query.limit || 100))
 
         if (req.query.orderBy) {
           const order = req.query.orderBy.split(':')
