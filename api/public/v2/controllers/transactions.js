@@ -1,23 +1,17 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
-const Paginator = requireFrom('api/paginator')
+const Controller = require('./controller')
 
-class TransactionsController {
+class TransactionsController extends Controller {
   index(req, res, next) {
-    let page = parseInt(req.query.page || 1)
-    let perPage = parseInt(req.query.perPage || 100)
+    const pager = super.pager(req)
 
-    db.transactions.paginate(page, perPage).then(transactions => {
-      const paginator = new Paginator(req, transactions.count, page, perPage)
-
-      responder.ok(req, res, {
-        data: new transformer(req).collection(transactions.rows, 'transaction'),
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: transactions.count
-        })
-      })
+    db.transactions.paginate(pager).then(transactions => {
+      if (transactions.count) {
+        super.respondWithPagination(transactions, 'transaction', pager, req, res)
+      } else {
+        responder.resourceNotFound(res, 'No resources could not be found.');
+      }
     })
 
     next()
@@ -38,9 +32,7 @@ class TransactionsController {
   show(req, res, next) {
     db.transactions.findById(req.params.id).then(transaction => {
       if (transaction) {
-        responder.ok(req, res, {
-          data: new transformer(req).collection(transaction, 'transaction'),
-        })
+        super.respondWithResource(req, res, transaction, 'transaction')
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
       }

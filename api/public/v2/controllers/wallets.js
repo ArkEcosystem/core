@@ -1,24 +1,13 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
-const Paginator = requireFrom('api/paginator')
-const Op = require('sequelize').Op
+const Controller = require('./controller')
 
-class WalletsController {
+class WalletsController extends Controller {
   index(req, res, next) {
-    let page = parseInt(req.query.page || 1)
-    let perPage = parseInt(req.query.perPage || 100)
+    const pager = super.pager(req)
 
-    db.accounts.paginate(page, perPage).then(wallets => {
-      const paginator = new Paginator(req, wallets.count, page, perPage)
-
-      responder.ok(req, res, {
-        data: new transformer(req).collection(wallets.rows, 'wallet'),
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: wallets.count
-        }),
-      })
+    db.accounts.paginate(pager).then(wallets => {
+      super.respondWithPagination(wallets, 'wallet', pager, req, res)
     })
 
     next()
@@ -27,9 +16,7 @@ class WalletsController {
   show(req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
       if (wallet) {
-        responder.ok(req, res, {
-          data: new transformer(req).resource(wallet, 'wallet'),
-        })
+        super.respondWithResource(req, res, wallet, 'wallet')
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
       }
@@ -40,20 +27,11 @@ class WalletsController {
 
   transactions(req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
+      const pager = super.pager(req)
 
-      db.transactions.paginateAllByWallet(wallet, page, perPage).then(transactions => {
+      db.transactions.paginateAllByWallet(wallet, pager).then(transactions => {
         if (transactions.count) {
-          const paginator = new Paginator(req, transactions.count, page, perPage)
-
-          responder.ok(req, res, {
-            data: new transformer(req).collection(transactions.rows, 'transaction'),
-            links: paginator.links(),
-            meta: Object.assign(paginator.meta(), {
-              count: transactions.count
-            }),
-          })
+          super.respondWithPagination(transactions, 'transaction', pager, req, res)
         } else {
           responder.resourceNotFound(res, 'No resources could not be found.');
         }
@@ -65,20 +43,11 @@ class WalletsController {
 
   transactionsSend(req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
+      const pager = super.pager(req)
 
-      db.transactions.paginateAllBySender(wallet.publicKey, page, perPage).then(transactions => {
+      db.transactions.paginateAllBySender(wallet.publicKey, pager).then(transactions => {
         if (transactions.count) {
-          const paginator = new Paginator(req, transactions.count, page, perPage)
-
-          responder.ok(req, res, {
-            data: new transformer(req).collection(transactions.rows, 'transaction'),
-            links: paginator.links(),
-            meta: Object.assign(paginator.meta(), {
-              count: transactions.count
-            }),
-          })
+          super.respondWithPagination(transactions, 'transaction', pager, req, res)
         } else {
           responder.resourceNotFound(res, 'No resources could not be found.');
         }
@@ -90,20 +59,11 @@ class WalletsController {
 
   transactionsReceived(req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
+      const pager = super.pager(req)
 
-      db.transactions.paginateAllByRecipient(wallet.address, page, perPage).then(transactions => {
+      db.transactions.paginateAllByRecipient(wallet.address, pager).then(transactions => {
         if (transactions.count) {
-          const paginator = new Paginator(req, transactions.count, page, perPage)
-
-          responder.ok(req, res, {
-            data: new transformer(req).collection(transactions.rows, 'transaction'),
-            links: paginator.links(),
-            meta: Object.assign(paginator.meta(), {
-              count: transactions.count
-            }),
-          })
+          super.respondWithPagination(transactions, 'transaction', pager, req, res)
         } else {
           responder.resourceNotFound(res, 'No resources could not be found.');
         }
@@ -114,21 +74,12 @@ class WalletsController {
   }
 
   votes(req, res, next) {
-      db.accounts.findById(req.params.id).then(wallet => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
+    db.accounts.findById(req.params.id).then(wallet => {
+      const pager = super.pager(req)
 
-      db.transactions.paginateVotesBySender(wallet.publicKey, page, perPage).then(transactions => {
+      db.transactions.paginateVotesBySender(wallet.publicKey, pager).then(transactions => {
         if (transactions.count) {
-          const paginator = new Paginator(req, transactions.count, page, perPage)
-
-          responder.ok(req, res, {
-            data: new transformer(req).collection(transactions.rows, 'transaction'),
-            links: paginator.links(),
-            meta: Object.assign(paginator.meta(), {
-              count: transactions.count
-            }),
-          })
+          super.respondWithPagination(transactions, 'transaction', pager, req, res)
         } else {
           responder.resourceNotFound(res, 'No resources could not be found.');
         }

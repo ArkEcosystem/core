@@ -1,23 +1,17 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
-const Paginator = requireFrom('api/paginator')
+const Controller = require('./controller')
 
-class BlocksController {
+class BlocksController extends Controller {
   index(req, res, next) {
-    let page = parseInt(req.query.page || 1)
-    let perPage = parseInt(req.query.perPage || 100)
+    const pager = super.pager(req)
 
-    db.blocks.paginate(page, perPage).then(blocks => {
-      const paginator = new Paginator(req, blocks.count, page, perPage)
-
-      responder.ok(req, res, {
-        data: new transformer(req).collection(blocks.rows, 'block'),
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: blocks.count
-        }),
-      })
+    db.blocks.paginate(pager).then(blocks => {
+      if (blocks.count) {
+        super.respondWithPagination(blocks, 'block', pager, req, res)
+      } else {
+        responder.resourceNotFound(res, 'No resources could not be found.');
+      }
     })
 
     next()
@@ -26,9 +20,7 @@ class BlocksController {
   show(req, res, next) {
     db.blocks.findById(req.params.id).then(block => {
       if (block) {
-        responder.ok(req, res, {
-          data: block
-        })
+        super.respondWithResource(req, res, block, 'block')
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
       }
@@ -39,19 +31,14 @@ class BlocksController {
 
   transactions(req, res, next) {
     db.blocks.findById(req.params.id).then(block => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
+      const pager = super.pager(req)
 
-      db.transactions.paginateByBlock(block.id, page, perPage).then(transactions => {
-        const paginator = new Paginator(req, transactions.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: new transformer(req).collection(transactions.rows, 'transaction'),
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: transactions.count
-          }),
-        })
+      db.transactions.paginateByBlock(block.id, pager).then(transactions => {
+        if (transactions.count) {
+          super.respondWithPagination(transactions, 'transaction', pager, req, res)
+        } else {
+          responder.resourceNotFound(res, 'No resources could not be found.');
+        }
       })
     })
 

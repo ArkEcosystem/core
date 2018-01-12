@@ -9,16 +9,16 @@ class AccountsRepository {
     return this.db.accountsTable.findAndCountAll(params)
   }
 
-  paginate(page, perPage, params = {}) {
+  paginate(pager, params = {}) {
     let offset = 0
 
-    if (page > 1) {
-      offset = page * perPage
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
     }
 
     return this.all(Object.assign(params, {
       offset: offset,
-      limit: perPage,
+      limit: pager.perPage,
     }))
   }
 

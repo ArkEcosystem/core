@@ -7,16 +7,16 @@ class BlocksRepository {
     return this.db.blocksTable.findAndCountAll(params)
   }
 
-  paginate(page, perPage, params = {}) {
+  paginate(pager, params = {}) {
     let offset = 0
 
-    if (page > 1) {
-      offset = page * perPage
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
     }
 
     return this.db.blocksTable.findAndCountAll(Object.assign(params, {
       offset: offset,
-      limit: perPage,
+      limit: pager.perPage,
     }))
   }
 

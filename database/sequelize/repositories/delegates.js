@@ -17,11 +17,11 @@ class DelegatesRepository {
     }))
   }
 
-  paginate(page, perPage, params = {}) {
+  paginate(pager, params = {}) {
     let offset = 0
 
-    if (page > 1) {
-      offset = page * perPage
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
     }
 
     return this.db.accountsTable.findAndCountAll(Object.assign(params, {
@@ -31,7 +31,7 @@ class DelegatesRepository {
         },
       },
       offset: offset,
-      limit: perPage,
+      limit: pager.perPage,
     }))
   }
 

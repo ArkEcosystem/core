@@ -9,21 +9,21 @@ class TransactionsRepository {
     return this.db.transactionsTable.findAndCountAll(params)
   }
 
-  paginate(page, perPage, params = {}) {
+  paginate(pager, params = {}) {
     let offset = 0
 
-    if (page > 1) {
-      offset = page * perPage
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
     }
 
     return this.db.transactionsTable.findAndCountAll(Object.assign(params, {
       offset: offset,
-      limit: perPage,
+      limit: pager.perPage,
     }))
   }
 
-  paginateAllByWallet(wallet, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateAllByWallet(wallet, pager) {
+    return this.paginate(pager, {
       where: {
         [Op.or]: [{
           senderPublicKey: wallet.publicKey,
@@ -34,24 +34,24 @@ class TransactionsRepository {
     })
   }
 
-  paginateAllBySender(senderPublicKey, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateAllBySender(senderPublicKey, pager) {
+    return this.paginate(pager, {
       where: {
           senderPublicKey: senderPublicKey,
       }
     })
   }
 
-  paginateAllByRecipient(recipientId, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateAllByRecipient(recipientId, pager) {
+    return this.paginate(pager, {
       where: {
         recipientId: recipientId,
       }
     })
   }
 
-  paginateVotesBySender(senderPublicKey, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateVotesBySender(senderPublicKey, pager) {
+    return this.paginate(pager, {
       where: {
         senderPublicKey: senderPublicKey,
         type: 3
@@ -59,16 +59,16 @@ class TransactionsRepository {
     })
   }
 
-  paginateByBlock(blockId, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateByBlock(blockId, pager) {
+    return this.paginate(pager, {
       where: {
         blockId: blockId
       }
     })
   }
 
-  paginateByType(type, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginateByType(type, pager) {
+    return this.paginate(pager, {
       where: {
         type: type
       }

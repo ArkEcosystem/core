@@ -1,12 +1,12 @@
 const querystring = require('querystring')
 
 class Paginator {
-  constructor(request, count, page, perPage) {
+  constructor(request, count, pager) {
     this.request = request
     this.count = count
-    this.page = page
-    this.perPage = perPage
-    this.totalPages = Math.round(count / perPage)
+    this.page = pager.page
+    this.perPage = pager.perPage
+    this.totalPages = Math.round(count / pager.perPage)
   }
 
   meta() {
