@@ -4,7 +4,7 @@ const Controller = require('./controller')
 
 class PeersController extends Controller {
   index(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res, next).then(db => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
           let result = peers.sort(() => .5 - Math.random())
@@ -26,26 +26,22 @@ class PeersController extends Controller {
 
           super.respondWithCollection(result, result, 'peer')
       })
-
-      next()
     })
   }
 
   show(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res, next).then(db => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
           const peer = peers.find(p => p.ip === req.params.ip)
 
           super.respondWithResource(peer, peer, 'peer')
       })
-
-      next()
     })
   }
 
   me(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res, next).then(db => {
       publicIp.v4().then(ip => {
         blockchain.getInstance().networkInterface.getPeers()
           .then(peers => {
@@ -54,8 +50,6 @@ class PeersController extends Controller {
             super.respondWithResource(peer, peer, 'peer')
         })
       })
-
-      next()
     })
   }
 }

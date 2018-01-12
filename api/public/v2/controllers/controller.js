@@ -4,9 +4,10 @@ const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class Controller {
-  setState(request, response) {
+  setState(request, response, next) {
     this.request = request
     this.response = response
+    this.next = next
 
     this.pager = {
       page: parseInt(this.request.query.page || 1),
@@ -26,20 +27,24 @@ class Controller {
         meta: Object.assign(paginator.meta(), {
           count: data.count
         })
-      });
+      })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
     }
+
+    this.next()
   }
 
   respondWithResource(condition, data, transformerClass) {
     if (condition) {
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data, transformerClass),
+        data: new transformer(this.request).resource(data, transformerClass),
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
     }
+
+    this.next()
   }
 
   respondWithCollection(condition, data, transformerClass) {
@@ -50,6 +55,8 @@ class Controller {
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
     }
+
+    this.next()
   }
 }
 

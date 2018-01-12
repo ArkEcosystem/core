@@ -3,19 +3,11 @@ const Controller = require('./controller')
 
 class TransactionsController extends Controller {
   index(req, res, next) {
-    super.setState(req, res).then(db => {
+    super.setState(req, res, next).then(db => {
       db.transactions.paginate(this.pager).then(transactions => {
         super.respondWithPagination(transactions.count, transactions, 'transaction')
       })
-
-      next()
     })
-  }
-
-  search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
   }
 
   store(req, res, next) {
@@ -25,12 +17,10 @@ class TransactionsController extends Controller {
   }
 
   show(req, res, next) {
-    super.setState(req, res).then(db => {
+    super.setState(req, res, next).then(db => {
       db.transactions.findById(req.params.id).then(transaction => {
         super.respondWithResource(transaction, transaction, 'transaction')
       })
-
-      next()
     })
   }
 

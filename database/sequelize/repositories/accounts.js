@@ -22,6 +22,14 @@ class AccountsRepository {
     }))
   }
 
+  paginateByVote(publicKey, pager) {
+    return this.paginate(pager, {
+      where: {
+        vote: publicKey,
+      }
+    })
+  }
+
   findById(id) {
     return this.db.accountsTable.findOne({
       where: {
