@@ -5,7 +5,7 @@ const _ = require('lodash')
 class StatisticsController extends Controller {
   transactions(req, res, next) {
     super.init(req, res, next).then(db => {
-      db.transactions.allByDateTimeRange(req.query.from, req.query.to).then(blocks => {
+      db.transactions.allByDateAndType(0, req.query.from, req.query.to).then(blocks => {
         responder.ok(req, res, {
           data: {
             count: blocks.count,

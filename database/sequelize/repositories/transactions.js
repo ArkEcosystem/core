@@ -89,10 +89,11 @@ class TransactionsRepository {
     })
   }
 
-  allByDateTimeRange(from, to) {
+  allByDateAndType(type, from, to) {
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['amount', 'fee'],
       where: {
+        type: type,
         createdAt: {
           [Op.lte]: moment(to).endOf('day').toDate(),
           [Op.gte]: moment(from).startOf('day').toDate(),
