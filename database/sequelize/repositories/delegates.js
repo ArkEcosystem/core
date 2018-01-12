@@ -18,13 +18,19 @@ class DelegatesRepository {
   }
 
   paginate(params, page, perPage) {
+    let offset = 0
+
+    if (page > 1) {
+      offset = page * perPage
+    }
+
     return this.db.accounts.findAndCountAll(Object.assign(params, {
       where: {
         username: {
           [Op.ne]: null
         },
       },
-      offset: page * perPage,
+      offset: offset,
       limit: perPage,
     }))
   }

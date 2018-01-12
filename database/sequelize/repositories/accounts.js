@@ -10,8 +10,14 @@ class AccountsRepository {
   }
 
   paginate(params, page, perPage) {
+    let offset = 0
+
+    if (page > 1) {
+      offset = page * perPage
+    }
+
     return this.all(Object.assign(params, {
-      offset: page * perPage,
+      offset: offset,
       limit: perPage,
     }))
   }

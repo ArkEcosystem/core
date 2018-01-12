@@ -8,8 +8,14 @@ class TransactionsRepository {
   }
 
   paginate(params, page, perPage) {
+    let offset = 0
+
+    if (page > 1) {
+      offset = page * perPage
+    }
+
     return this.db.transactionsTable.findAndCountAll(Object.assign(params, {
-      offset: page * perPage,
+      offset: offset,
       limit: perPage,
     }))
   }
