@@ -6,11 +6,7 @@ class TransactionsController extends Controller {
   index(req, res, next) {
     super.setState(req, res).then(() => {
       db.transactions.paginate(this.pager).then(transactions => {
-        if (transactions.count) {
-          super.respondWithPagination(transactions, 'transaction')
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+        super.respondWithPagination(transactions.count, transactions, 'transaction')
       })
 
       next()
@@ -32,11 +28,7 @@ class TransactionsController extends Controller {
   show(req, res, next) {
     super.setState(req, res).then(() => {
       db.transactions.findById(req.params.id).then(transaction => {
-        if (transaction) {
-          super.respondWithResource(transaction, 'transaction')
-        } else {
-          responder.resourceNotFound(res, 'Record could not be found.');
-        }
+        super.respondWithResource(transaction, transaction, 'transaction')
       })
 
       next()

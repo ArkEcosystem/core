@@ -1,5 +1,4 @@
 const db = requireFrom('core/dbinterface').getInstance()
-const responder = requireFrom('api/responder')
 const Controller = require('./controller')
 
 class DelegatesController extends Controller {
@@ -8,11 +7,7 @@ class DelegatesController extends Controller {
       db.delegates.paginate(super.pager, {
         order: [[ 'publicKey', 'ASC' ]]
       }).then(delegates => {
-        if (delegates.count) {
-          super.respondWithPagination(delegates, 'delegate')
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+        super.respondWithPagination(delegates.count, delegates, 'delegate')
       })
 
       next()
@@ -22,15 +17,11 @@ class DelegatesController extends Controller {
   show(req, res, next) {
     super.setState(req, res).then(() => {
       db.delegates.findById(req.params.id).then(delegate => {
-        if (delegate) {
-          db.blocks.findLastByPublicKey(delegate.publicKey).then(lastBlock => {
-            delegate.lastBlock = lastBlock
+        db.blocks.findLastByPublicKey(delegate.publicKey).then(lastBlock => {
+          delegate.lastBlock = lastBlock
 
-            super.respondWithResource(delegate, 'delegate')
-          });
-        } else {
-          responder.resourceNotFound(res, 'Record could not be found.');
-        }
+          super.respondWithResource(delegate, delegate, 'delegate')
+        });
       })
 
       next()
@@ -41,11 +32,7 @@ class DelegatesController extends Controller {
     super.setState(req, res).then(() => {
       db.delegates.findById(req.params.id).then(delegate => {
         db.blocks.paginateByGenerator(delegate.publicKey, this.pager).then(blocks => {
-          if (blocks.count) {
-            super.respondWithPagination(blocks, 'block')
-          } else {
-            responder.resourceNotFound(res, 'No resources could not be found.');
-          }
+          super.respondWithPagination(blocks.count, blocks, 'block')
         })
       })
 
