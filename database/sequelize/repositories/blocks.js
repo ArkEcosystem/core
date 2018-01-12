@@ -23,6 +23,14 @@ class BlocksRepository {
   findById(id) {
     return this.db.blocksTable.findById(id)
   }
+
+  findLastByPublicKey(publicKey) {
+    return this.db.blocksTable.findOne({
+      limit: 1,
+      where: { generatorPublicKey: publicKey },
+      order: [ [ 'createdAt', 'DESC' ]]
+    })
+  }
 }
 
 module.exports = BlocksRepository

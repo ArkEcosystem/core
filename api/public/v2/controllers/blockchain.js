@@ -10,6 +10,14 @@ class BlockchainController {
 
     next()
   }
+
+  fees(req, res, next) {
+    responder.ok({
+      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
+    })
+
+    next()
+  }
 }
 
 module.exports = new BlockchainController()

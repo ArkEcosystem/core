@@ -1,5 +1,6 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
+const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 const Op = require('sequelize').Op
 
@@ -14,7 +15,7 @@ class DelegatesController {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
-        data: result.rows,
+        data: new transformer(req).collection(result.rows, 'delegate'),
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
           count: result.count
@@ -26,11 +27,15 @@ class DelegatesController {
   }
 
   show(req, res, next) {
-    db.delegates.findById(req.params.id).then(result => {
-      if (result) {
-        responder.ok(req, res, {
-          data: result
-        })
+    db.delegates.findById(req.params.id).then(delegate => {
+      if (delegate) {
+        db.blocks.findLastByPublicKey(delegate.publicKey).then(lastBlock => {
+          delegate.lastBlock = lastBlock
+
+          responder.ok(req, res, {
+            data: new transformer(req).resource(delegate, 'delegate')
+          })
+        });
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
       }
@@ -40,22 +45,22 @@ class DelegatesController {
   }
 
   blocks(req, res, next) {
-    db.delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(delegate => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.blocks.paginate({
         where: {
-          generatorPublicKey: result.publicKey
+          generatorPublicKey: delegate.publicKey
         }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(blocks => {
+        const paginator = new Paginator(req, blocks.count, page, perPage)
 
         responder.ok(req, res, {
-          data: result.rows,
+          data: new transformer(req).collection(blocks.rows, 'block'),
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
-            count: result.count
+            count: blocks.count
           }),
         })
       })
@@ -65,26 +70,26 @@ class DelegatesController {
   }
 
   transactions(req, res, next) {
-    db.delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(delegate => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
           [Op.or]: [{
-            senderPublicKey: result.publicKey,
+            senderPublicKey: delegate.publicKey,
           }, {
-            recipientId: result.address,
+            recipientId: delegate.address,
           }]
         }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        const paginator = new Paginator(req, transactions.count, page, perPage)
 
         responder.ok(req, res, {
-          data: result.rows,
+          data: new transformer(req).collection(transactions.rows, 'transaction'),
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
-            count: result.count
+            count: transactions.count
           }),
         })
       })
@@ -94,22 +99,22 @@ class DelegatesController {
   }
 
   transactionsSend(req, res, next) {
-    db.delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(delegate => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
-          senderPublicKey: result.publicKey
+          senderPublicKey: delegate.publicKey
         }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        const paginator = new Paginator(req, transactions.count, page, perPage)
 
         responder.ok(req, res, {
-          data: result.rows,
+          data: new transformer(req).collection(transactions.rows, 'transaction'),
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
-            count: result.count
+            count: transactions.count
           }),
         })
       })
@@ -119,22 +124,22 @@ class DelegatesController {
   }
 
   transactionsReceived(req, res, next) {
-    db.delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(delegate => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
-          recipientId: result.address
+          recipientId: delegate.address
         }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        const paginator = new Paginator(req, transactions.count, page, perPage)
 
         responder.ok(req, res, {
-          data: result.rows,
+          data: new transformer(req).collection(transactions.rows, 'transaction'),
           links: paginator.links(),
           meta: Object.assign(paginator.meta(), {
-            count: result.count
+            count: transactions.count
           }),
         })
       })

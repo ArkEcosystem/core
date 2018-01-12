@@ -10,8 +10,8 @@ class DelegateTransformer {
         produced: model.producedblocks,
         missed: model.missedblocks,
         last: {
-          id: models.lastBlock.id,
-          created_at: models.lastBlock.created_at,
+          id: model.lastBlock.id,
+          created_at: model.lastBlock.createdAt,
         },
       },
       production: {

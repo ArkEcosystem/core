@@ -12,7 +12,7 @@ class DelegatesRepository {
       },
     })
 
-    return this.db.accounts.findAndCountAll(Object.assign(params, {
+    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
       where: where
     }))
   }
@@ -24,7 +24,7 @@ class DelegatesRepository {
       offset = page * perPage
     }
 
-    return this.db.accounts.findAndCountAll(Object.assign(params, {
+    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
       where: {
         username: {
           [Op.ne]: null
@@ -36,7 +36,7 @@ class DelegatesRepository {
   }
 
   findById(id) {
-    return this.db.accounts.findOne({
+    return this.db.accountsTable.findOne({
       where: {
         username: {
           [Op.ne]: null

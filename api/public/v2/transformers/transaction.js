@@ -1,23 +1,20 @@
+const arkjs = require('arkjs')
+const config = requireFrom('core/config')
+
 class TransactionTransformer {
   constructor(model) {
     return {
       id: model.id,
-      block_id: model.block.id,
+      block_id: model.blockId,
       type: model.type,
       amount: model.amount,
       fee: model.fee,
-      sender: {
-        address: model.sender.address,
-        publicKey: model.sender.publicKey,
-      },
-      recipient: {
-        address: model.recipient.address,
-        publicKey: model.recipient.publicKey,
-      },
+      sender: arkjs.crypto.getAddress(model.senderPublicKey, config.network.pubKeyHash),
+      recipient: model.recipientId,
       signature: model.signature,
       asset: model.asset,
       confirmations: model.confirmations,
-      created_at: model.timestamp,
+      created_at: model.createdAt,
     };
   }
 }

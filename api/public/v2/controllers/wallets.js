@@ -9,14 +9,14 @@ class WalletsController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.accounts.paginate({}, page, perPage).then(result => {
-      const paginator = new Paginator(req, result.count, page, perPage)
+    db.accounts.paginate({}, page, perPage).then(wallets => {
+      const paginator = new Paginator(req, wallets.count, page, perPage)
 
       responder.ok(req, res, {
-        data: new transformer(req).collection(result.rows, 'wallet'),
+        data: new transformer(req).collection(wallets.rows, 'wallet'),
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
-          count: result.count
+          count: wallets.count
         }),
       })
     })
@@ -25,10 +25,10 @@ class WalletsController {
   }
 
   show(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      if (result) {
+    db.accounts.findById(req.params.id).then(wallet => {
+      if (wallet) {
         responder.ok(req, res, {
-          data: new transformer(req).resource(result, 'wallet'),
+          data: new transformer(req).resource(wallet, 'wallet'),
         })
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
@@ -39,27 +39,27 @@ class WalletsController {
   }
 
   transactions(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
+    db.accounts.findById(req.params.id).then(wallet => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
           [Op.or]: [{
-            senderPublicKey: result.publicKey,
+            senderPublicKey: wallet.publicKey,
           }, {
-            recipientId: result.address,
+            recipientId: wallet.address,
           }]
         }
-      }, page, perPage).then(result => {
-        if (result.length) {
-          const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        if (transactions.count) {
+          const paginator = new Paginator(req, transactions.count, page, perPage)
 
           responder.ok(req, res, {
-            data: new transformer(req).collection(result.rows, 'transaction'),
+            data: new transformer(req).collection(transactions.rows, 'transaction'),
             links: paginator.links(),
             meta: Object.assign(paginator.meta(), {
-              count: result.count
+              count: transactions.count
             }),
           })
         } else {
@@ -72,23 +72,23 @@ class WalletsController {
   }
 
   transactionsSend(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
+    db.accounts.findById(req.params.id).then(wallet => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
-          senderPublicKey: result.publicKey
+          senderPublicKey: wallet.publicKey
         }
-      }, page, perPage).then(result => {
-        if (result.length) {
-          const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        if (transactions.count) {
+          const paginator = new Paginator(req, transactions.count, page, perPage)
 
           responder.ok(req, res, {
-            data: new transformer(req).collection(result.rows, 'transaction'),
+            data: new transformer(req).collection(transactions.rows, 'transaction'),
             links: paginator.links(),
             meta: Object.assign(paginator.meta(), {
-              count: result.count
+              count: transactions.count
             }),
           })
         } else {
@@ -101,23 +101,23 @@ class WalletsController {
   }
 
   transactionsReceived(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
+    db.accounts.findById(req.params.id).then(wallet => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
-          recipientId: result.address
+          recipientId: wallet.address
         }
-      }, page, perPage).then(result => {
-        if (result.length) {
-          const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        if (transactions.count) {
+          const paginator = new Paginator(req, transactions.count, page, perPage)
 
           responder.ok(req, res, {
-            data: new transformer(req).collection(result.rows, 'transaction'),
+            data: new transformer(req).collection(transactions.rows, 'transaction'),
             links: paginator.links(),
             meta: Object.assign(paginator.meta(), {
-              count: result.count
+              count: transactions.count
             }),
           })
         } else {
@@ -130,24 +130,24 @@ class WalletsController {
   }
 
   votes(req, res, next) {
-      db.accounts.findById(req.params.id).then(result => {
+      db.accounts.findById(req.params.id).then(wallet => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
       db.transactions.paginate({
         where: {
-          senderPublicKey: result.publicKey,
+          senderPublicKey: wallet.publicKey,
           type: 3
         }
-      }, page, perPage).then(result => {
-        if (result.length) {
-          const paginator = new Paginator(req, result.count, page, perPage)
+      }, page, perPage).then(transactions => {
+        if (transactions.count) {
+          const paginator = new Paginator(req, transactions.count, page, perPage)
 
           responder.ok(req, res, {
-            data: new transformer(req).collection(result.rows, 'transaction'),
+            data: new transformer(req).collection(transactions.rows, 'transaction'),
             links: paginator.links(),
             meta: Object.assign(paginator.meta(), {
-              count: result.count
+              count: transactions.count
             }),
           })
         } else {

@@ -1,5 +1,6 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
+const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class VotesController {
@@ -11,14 +12,14 @@ class VotesController {
       where: {
         type: 3
       }
-    }, page, perPage).then(result => {
-      const paginator = new Paginator(req, result.count, page, perPage)
+    }, page, perPage).then(transactions => {
+      const paginator = new Paginator(req, transactions.count, page, perPage)
 
       responder.ok(req, res, {
-        data: result.rows,
+        data: new transformer(req).collection(transactions.rows, 'transaction'),
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
-          count: result.count
+          count: transactions.count
         }),
       })
     })
@@ -27,10 +28,10 @@ class VotesController {
   }
 
   show(req, res, next) {
-    db.transactions.findByIdAndType(req.params.id, 3).then(result => {
-      if (result) {
+    db.transactions.findByIdAndType(req.params.id, 3).then(transactions => {
+      if (transactions) {
         responder.ok(req, res, {
-          data: result
+          data: transactions
         })
       } else {
         responder.resourceNotFound(res, 'Record could not be found.');
