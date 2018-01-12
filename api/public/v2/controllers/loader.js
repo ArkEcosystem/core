@@ -3,7 +3,7 @@ const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 
 class LoaderController {
-  status(req, res, next) {
+  status (req, res, next) {
     const instance = blockchain.getInstance()
 
     responder.ok(req, res, {
@@ -17,7 +17,7 @@ class LoaderController {
     next()
   }
 
-  syncing(req, res, next) {
+  syncing (req, res, next) {
     const instance = blockchain.getInstance()
 
     responder.ok(req, res, {
@@ -32,7 +32,7 @@ class LoaderController {
     next()
   }
 
-  configuration(req, res, next) {
+  configuration (req, res, next) {
     responder.ok(req, res, {
       data: {
         nethash: config.network.nethash,

@@ -2,15 +2,15 @@ const Op = require('sequelize').Op
 const moment = require('moment')
 
 class TransactionsRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  all(params = {}) {
+  all (params = {}) {
     return this.db.transactionsTable.findAndCountAll(params)
   }
 
-  paginate(pager, params = {}) {
+  paginate (pager, params = {}) {
     let offset = 0
 
     if (pager.page > 1) {
@@ -19,39 +19,39 @@ class TransactionsRepository {
 
     return this.db.transactionsTable.findAndCountAll(Object.assign(params, {
       offset: offset,
-      limit: pager.perPage,
+      limit: pager.perPage
     }))
   }
 
-  paginateAllByWallet(wallet, pager) {
+  paginateAllByWallet (wallet, pager) {
     return this.paginate(pager, {
       where: {
         [Op.or]: [{
-          senderPublicKey: wallet.publicKey,
+          senderPublicKey: wallet.publicKey
         }, {
-          recipientId: wallet.address,
+          recipientId: wallet.address
         }]
       }
     })
   }
 
-  paginateAllBySender(senderPublicKey, pager) {
+  paginateAllBySender (senderPublicKey, pager) {
     return this.paginate(pager, {
       where: {
-          senderPublicKey: senderPublicKey,
+          senderPublicKey: senderPublicKey
       }
     })
   }
 
-  paginateAllByRecipient(recipientId, pager) {
+  paginateAllByRecipient (recipientId, pager) {
     return this.paginate(pager, {
       where: {
-        recipientId: recipientId,
+        recipientId: recipientId
       }
     })
   }
 
-  paginateVotesBySender(senderPublicKey, pager) {
+  paginateVotesBySender (senderPublicKey, pager) {
     return this.paginate(pager, {
       where: {
         senderPublicKey: senderPublicKey,
@@ -60,7 +60,7 @@ class TransactionsRepository {
     })
   }
 
-  paginateByBlock(blockId, pager) {
+  paginateByBlock (blockId, pager) {
     return this.paginate(pager, {
       where: {
         blockId: blockId
@@ -68,7 +68,7 @@ class TransactionsRepository {
     })
   }
 
-  paginateByType(type, pager) {
+  paginateByType (type, pager) {
     return this.paginate(pager, {
       where: {
         type: type
@@ -76,27 +76,27 @@ class TransactionsRepository {
     })
   }
 
-  findById(id) {
+  findById (id) {
     return this.db.transactionsTable.findById(id)
   }
 
-  findByIdAndType(id, type) {
+  findByIdAndType (id, type) {
     return this.db.transactionsTable.findOne({
       where: {
         id: id,
-        type: type,
+        type: type
       }
     })
   }
 
-  allByDateAndType(type, from, to) {
+  allByDateAndType (type, from, to) {
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['amount', 'fee'],
       where: {
         type: type,
         createdAt: {
           [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate(),
+          [Op.gte]: moment(from).startOf('day').toDate()
         }
       }
     })

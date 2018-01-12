@@ -3,11 +3,11 @@ const publicIp = require('public-ip')
 const Controller = require('./controller')
 
 class PeersController extends Controller {
-  index(req, res, next) {
+  index (req, res, next) {
     super.init(req, res, next).then(() => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
-          let result = peers.sort(() => .5 - Math.random())
+          let result = peers.sort(() => 0.5 - Math.random())
           result = req.query.os ? result.filter(peer => { return peer.os === req.query.os }) : result
           result = req.query.status ? result.filter(peer => { return peer.status === req.query.status }) : result
           result = req.query.port ? result.filter(peer => { return peer.port === req.query.port }) : result
@@ -29,7 +29,7 @@ class PeersController extends Controller {
     })
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
     super.init(req, res, next).then(() => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
@@ -38,7 +38,7 @@ class PeersController extends Controller {
     })
   }
 
-  me(req, res, next) {
+  me (req, res, next) {
     super.init(req, res, next).then(() => {
       publicIp.v4().then(ip => {
         blockchain.getInstance().networkInterface.getPeers()

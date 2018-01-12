@@ -4,7 +4,7 @@ const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class Controller {
-  init(request, response, next) {
+  init (request, response, next) {
     this.request = request
     this.response = response
     this.next = next
@@ -17,7 +17,7 @@ class Controller {
     return Promise.resolve(db)
   }
 
-  respondWithPagination(data, transformerClass) {
+  respondWithPagination (data, transformerClass) {
     if (data.count) {
       const paginator = new Paginator(this.request, data.count, this.pager)
 
@@ -35,10 +35,10 @@ class Controller {
     this.next()
   }
 
-  respondWithResource(data, transformerClass) {
+  respondWithResource (data, transformerClass) {
     if (data) {
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).resource(data, transformerClass),
+        data: new transformer(this.request).resource(data, transformerClass)
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
@@ -47,10 +47,10 @@ class Controller {
     this.next()
   }
 
-  respondWithCollection(data, transformerClass) {
+  respondWithCollection (data, transformerClass) {
     if (data) {
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data, transformerClass),
+        data: new transformer(this.request).collection(data, transformerClass)
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')

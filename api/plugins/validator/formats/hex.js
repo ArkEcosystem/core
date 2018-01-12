@@ -1,5 +1,5 @@
 class HexFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('hex', {
       type: 'string',
       validate: (value) => {

@@ -1,11 +1,11 @@
 class Bucket {
-  constructor(options) {
+  constructor (options) {
     this.tokens = this.capacity = options.capacity
     this.fillRate = options.fillRate
     this.time = Date.now()
   }
 
-  consume(tokens) {
+  consume (tokens) {
     if (this.fillRate === 0 && this.capacity === 0) {
       return true
     }
@@ -19,7 +19,7 @@ class Bucket {
     return false
   }
 
-  fill() {
+  fill () {
     let now = Date.now()
 
     // reset account for clock drift (like DST)

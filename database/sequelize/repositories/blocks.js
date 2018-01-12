@@ -2,15 +2,15 @@ const Op = require('sequelize').Op
 const moment = require('moment')
 
 class BlocksRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  all(params = {}) {
+  all (params = {}) {
     return this.db.blocksTable.findAndCountAll(params)
   }
 
-  paginate(pager, params = {}) {
+  paginate (pager, params = {}) {
     let offset = 0
 
     if (pager.page > 1) {
@@ -19,11 +19,11 @@ class BlocksRepository {
 
     return this.db.blocksTable.findAndCountAll(Object.assign(params, {
       offset: offset,
-      limit: pager.perPage,
+      limit: pager.perPage
     }))
   }
 
-  paginateByGenerator(generatorPublicKey, page, perPage) {
+  paginateByGenerator (generatorPublicKey, page, perPage) {
     return this.paginate(page, perPage, {
       where: {
         generatorPublicKey: generatorPublicKey
@@ -31,11 +31,11 @@ class BlocksRepository {
     })
   }
 
-  findById(id) {
+  findById (id) {
     return this.db.blocksTable.findById(id)
   }
 
-  findLastByPublicKey(publicKey) {
+  findLastByPublicKey (publicKey) {
     return this.db.blocksTable.findOne({
       limit: 1,
       where: { generatorPublicKey: publicKey },
@@ -43,13 +43,13 @@ class BlocksRepository {
     })
   }
 
-  allByDateTimeRange(from, to) {
+  allByDateTimeRange (from, to) {
     return this.db.blocksTable.findAndCountAll({
       attributes: ['totalFee', 'reward'],
       where: {
         createdAt: {
           [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate(),
+          [Op.gte]: moment(from).startOf('day').toDate()
         }
       }
     })

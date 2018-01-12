@@ -1,5 +1,5 @@
 class IpFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('ip', {
       type: 'string',
       validate: (value) => {

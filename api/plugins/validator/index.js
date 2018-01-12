@@ -3,17 +3,17 @@ const ajv = require('ajv')
 const responder = requireFrom('api/responder')
 
 class Validator {
-  constructor() {
+  constructor () {
     this.ajv = new ajv({
       extendRefs: 'fail',
       useDefaults: true,
-      coerceTypes: true,
+      coerceTypes: true
     })
 
     this.registerCustomFormats()
   }
 
-  mount(req, res, next) {
+  mount (req, res, next) {
     if (!req.route.hasOwnProperty('schema')) {
       return next()
     }
@@ -43,7 +43,7 @@ class Validator {
     return next()
   }
 
-  registerCustomFormats() {
+  registerCustomFormats () {
     let directory = __dirname + '/formats'
 
     fs.readdirSync(directory).forEach(file => {

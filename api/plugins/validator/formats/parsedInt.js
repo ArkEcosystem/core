@@ -1,5 +1,5 @@
 class ParsedIntFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('parsedInt', {
       type: 'string',
       validate: (value) => {

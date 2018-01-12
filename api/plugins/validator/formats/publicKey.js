@@ -1,5 +1,5 @@
 class PublicKeyFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('publicKey', {
       type: 'string',
       validate: (value) => {

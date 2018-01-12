@@ -1,7 +1,7 @@
 const querystring = require('querystring')
 
 class Paginator {
-  constructor(request, count, pager) {
+  constructor (request, count, pager) {
     this.request = request
     this.count = count
     this.page = pager.page
@@ -9,48 +9,48 @@ class Paginator {
     this.totalPages = Math.round(count / pager.perPage)
   }
 
-  meta() {
+  meta () {
     return {
       page: this.page,
       per_page: this.perPage,
-      total: this.totalPages,
+      total: this.totalPages
     }
   }
 
-  links() {
+  links () {
     return {
       first_page_url: this.firstPageUrl(),
       last_page_url: this.lastPageUrl(),
       next_page_url: this.nextPageUrl(),
-      prev_page_url: this.previousPageUrl(),
+      prev_page_url: this.previousPageUrl()
     }
   }
 
-  firstPageUrl() {
+  firstPageUrl () {
     return this.toFullUrl({
       page: 1
     })
   }
 
-  lastPageUrl() {
+  lastPageUrl () {
     return this.toFullUrl({
       page: this.totalPages
     })
   }
 
-  nextPageUrl() {
+  nextPageUrl () {
     return this.toFullUrl({
       page: (this.page >= this.totalPages) ? this.totalPages : this.page + 1
     })
   }
 
-  previousPageUrl() {
+  previousPageUrl () {
     return this.toFullUrl({
       page: (this.page <= 1) ? 1 : this.page - 1
     })
   }
 
-  toFullUrl(query) {
+  toFullUrl (query) {
     if (query.page <= 0) {
       query.page = 1
     }

@@ -1,5 +1,5 @@
 class VendorFieldFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('vendorField', {
       type: 'string',
       validate: (value) => {

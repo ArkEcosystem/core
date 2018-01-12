@@ -2,10 +2,10 @@ const bs58check = require('bs58check')
 const config = requireFrom('core/config')
 
 class AddressFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('address', {
       type: 'string',
-      validate: function(value, parentSchema) {
+      validate: function (value, parentSchema) {
         if (value.length === 0) {
           return true
         }

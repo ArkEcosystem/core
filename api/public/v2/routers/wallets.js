@@ -1,7 +1,7 @@
 const controllers = require('../controllers/wallets')
 
 class WalletsRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('wallets', controllers.index)
     registrar.get('wallets/:id', controllers.show)
     registrar.get('wallets/:id/transactions', controllers.transactions)

@@ -4,7 +4,7 @@ const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 
 class BlocksController {
-  index(req, res, next) {
+  index (req, res, next) {
     db.blocks.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
@@ -17,7 +17,7 @@ class BlocksController {
     next()
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
     db.blocks.findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
@@ -25,7 +25,7 @@ class BlocksController {
     next()
   }
 
-  epoch(req, res, next) {
+  epoch (req, res, next) {
     res.send({
       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch
     })
@@ -33,7 +33,7 @@ class BlocksController {
     next()
   }
 
-  height(req, res, next) {
+  height (req, res, next) {
     let block = blockchain.getInstance().lastBlock.data
 
     res.send({
@@ -44,7 +44,7 @@ class BlocksController {
     next()
   }
 
-  nethash(req, res, next) {
+  nethash (req, res, next) {
     res.send({
       nethash: config.network.nethash
     })
@@ -52,7 +52,7 @@ class BlocksController {
     next()
   }
 
-  fee(req, res, next) {
+  fee (req, res, next) {
     res.send({
       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
@@ -60,7 +60,7 @@ class BlocksController {
     next()
   }
 
-  fees(req, res, next) {
+  fees (req, res, next) {
     res.send({
       fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
     })
@@ -68,7 +68,7 @@ class BlocksController {
     next()
   }
 
-  milestone(req, res, next) {
+  milestone (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     // res.send({
@@ -78,7 +78,7 @@ class BlocksController {
     next()
   }
 
-  reward(req, res, next) {
+  reward (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     // res.send({
@@ -88,7 +88,7 @@ class BlocksController {
     next()
   }
 
-  supply(req, res, next) {
+  supply (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     // res.send({
@@ -98,7 +98,7 @@ class BlocksController {
     next()
   }
 
-  status(req, res, next) {
+  status (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     // let block = blockchain.getInstance().lastBlock.data
@@ -115,7 +115,6 @@ class BlocksController {
 
     next()
   }
-
 }
 
 module.exports = new BlocksController()

@@ -1,15 +1,15 @@
 const Op = require('sequelize').Op
 
 class DelegatesRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  all(params = {}) {
+  all (params = {}) {
     let where = Object.assign(params.where, {
       username: {
         [Op.ne]: null
-      },
+      }
     })
 
     return this.db.accountsTable.findAndCountAll(Object.assign(params, {
@@ -17,7 +17,7 @@ class DelegatesRepository {
     }))
   }
 
-  paginate(pager, params = {}) {
+  paginate (pager, params = {}) {
     let offset = 0
 
     if (pager.page > 1) {
@@ -28,25 +28,25 @@ class DelegatesRepository {
       where: {
         username: {
           [Op.ne]: null
-        },
+        }
       },
       offset: offset,
-      limit: pager.perPage,
+      limit: pager.perPage
     }))
   }
 
-  findById(id) {
+  findById (id) {
     return this.db.accountsTable.findOne({
       where: {
         username: {
           [Op.ne]: null
         },
         [Op.or]: [{
-          address: id,
+          address: id
         }, {
-          publicKey: id,
+          publicKey: id
         }, {
-          username: id,
+          username: id
         }]
       }
     })

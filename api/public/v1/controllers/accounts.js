@@ -7,7 +7,7 @@ const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
 
 class WalletsController {
-  index(req, res, next) {
+  index (req, res, next) {
     db.accounts.all({
       offset: parseInt(req.query.offset || 1),
       limit: parseInt(req.query.limit || 100)
@@ -20,7 +20,7 @@ class WalletsController {
     next()
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(result => {
@@ -44,7 +44,7 @@ class WalletsController {
     next()
   }
 
-  balance(req, res, next) {
+  balance (req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
@@ -62,19 +62,19 @@ class WalletsController {
         })
     } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+        error: 'Object didn\'t pass validation for format address: ' + req.query.address
       })
     }
 
     next()
   }
 
-  publicKey(req, res, next) {
+  publicKey (req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
           responder.ok(req, res, {
-            publicKey: account.publicKey,
+            publicKey: account.publicKey
           })
         })
         .catch(error => {
@@ -86,22 +86,22 @@ class WalletsController {
         })
     } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+        error: 'Object didn\'t pass validation for format address: ' + req.query.address
       })
     }
 
     next()
   }
 
-  fee(req, res, next) {
+  fee (req, res, next) {
     res.send(200, {
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
+      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
     })
 
     next()
   }
 
-  delegates(req, res, next) {
+  delegates (req, res, next) {
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
       db.accounts.findById(req.query.address)
         .then(account => {
@@ -137,21 +137,21 @@ class WalletsController {
         })
     } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+        error: 'Object didn\'t pass validation for format address: ' + req.query.address
       })
     }
 
     next()
   }
 
-  top(req, res, next) {
+  top (req, res, next) {
     db.accounts.all({
       attributes: ['address', 'balance', 'publicKey'],
       order: [
         ['balance', 'DESC']
       ],
       offset: parseInt(req.query.offset || 1),
-      limit: parseInt(req.query.limit || 100),
+      limit: parseInt(req.query.limit || 100)
     }).then(result => {
       responder.ok(req, res, {
         accounts: result.rows
@@ -161,10 +161,10 @@ class WalletsController {
     next()
   }
 
-  count(req, res, next) {
+  count (req, res, next) {
     db.accounts.all().then(result => {
       responder.ok(req, res, {
-        count: result.count,
+        count: result.count
       })
     })
 

@@ -1,5 +1,5 @@
 // @ts-check
-global.requireFrom = function(name) {
+global.requireFrom = function (name) {
   return require(require('path').resolve(`${__dirname}/../`, name))
 }
 

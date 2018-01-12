@@ -1,7 +1,7 @@
 const controller = require('../controllers/statistics')
 
 class StatisticsRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('statistics/transactions', controller.transactions)
     registrar.get('statistics/blocks', controller.blocks)
 

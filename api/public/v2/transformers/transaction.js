@@ -2,7 +2,7 @@ const arkjs = require('arkjs')
 const config = requireFrom('core/config')
 
 class TransactionTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       id: model.id,
       block_id: model.blockId,
@@ -14,7 +14,7 @@ class TransactionTransformer {
       signature: model.signature,
       asset: model.asset,
       confirmations: model.confirmations,
-      created_at: model.createdAt,
+      created_at: model.createdAt
     };
   }
 }

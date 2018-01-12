@@ -1,5 +1,5 @@
 class AccountTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       address: model.address,
       publicKey: model.publicKey,

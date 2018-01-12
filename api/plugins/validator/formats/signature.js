@@ -1,5 +1,5 @@
 class SignatureFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('signature', {
       type: 'string',
       validate: (value) => {
