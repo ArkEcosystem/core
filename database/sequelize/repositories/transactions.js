@@ -5,13 +5,36 @@ class TransactionsRepository {
     this.db = db
   }
 
-  all(params = {}) {
-    // TODO sql migration - add height block to TX table - much much faster !!!
-    params['include'] = [{
-      model: this.db.blocksTable,
+  all(queryParams) {
+    let whereStatement = {}
+    let orderBy = []
+
+    const filter = ['type', 'senderPublicKey', 'vendorField', 'senderId', 'recipientId', 'amount', 'fee']
+    for (const elem of filter) {
+      if (!!queryParams[elem])
+        whereStatement[elem] = queryParams[elem]
+    }
+
+    //owner meaninig anyone
+    /*if (req.query.ownerAddress && req.query.ownerPublicKey) {
+      whereStatement['senderPublicKey'] = req.query.ownerPublicKey
+      whereStatement['$or':
+      owner = '("senderPublicKey"::bytea = ${ownerPublicKey} OR "recipientId" = ${ownerAddress})';
+      params.ownerPublicKey = filter.ownerPublicKey;
+      params.ownerAddress = filter.ownerAddress;
+    }*/
+
+    if (!!queryParams.orderBy){
+      orderBy.push(queryParams.orderBy.split(':'))
+    }
+    return this.db.transactionsTable.findAndCountAll({
+      where: whereStatement,
+      order: orderBy,
+      offset: parseInt(queryParams.offset || 1),
+      limit: parseInt(queryParams.limit || 100),
+      model: this.db.blocksTable, // TODO sql migration - add height block to TX table - much much faster !!!
       attributes: ['height']
-    }]
-    return this.db.transactionsTable.findAndCountAll(params)
+    })
   }
 
   paginate(params, page, perPage) {
