@@ -8,10 +8,7 @@ const transformer = requireFrom('api/transformer')
 
 class WalletsController {
   index(req, res, next) {
-    db.accounts.all({
-      offset: parseInt(req.query.offset || 1),
-      limit: parseInt(req.query.limit || 100)
-    }).then(result => {
+    db.accounts.all(req.query).then(result => {
       responder.ok(req, res, {
         accounts: new transformer(req).collection(result.rows, 'account')
       })

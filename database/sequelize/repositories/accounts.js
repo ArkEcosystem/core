@@ -8,8 +8,11 @@ class AccountsRepository {
     this.db = db
   }
 
-  all(params = {}) {
-    return this.db.accountsTable.findAndCountAll(params)
+  all(queryParams) {
+    return this.db.accountsTable.findAndCountAll({
+      offset: parseInt(queryParams.offset || 1),
+      limit: parseInt(queryParams.limit || 100)
+    })
   }
 
   paginate(params, page, perPage) {
