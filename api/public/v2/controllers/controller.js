@@ -1,3 +1,4 @@
+const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
@@ -12,7 +13,7 @@ class Controller {
       perPage: parseInt(this.request.query.perPage || 100)
     }
 
-    return Promise.resolve(true)
+    return Promise.resolve(db)
   }
 
   respondWithPagination(condition, data, transformerClass) {

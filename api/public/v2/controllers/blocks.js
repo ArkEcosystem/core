@@ -1,9 +1,8 @@
-const db = requireFrom('core/dbinterface').getInstance()
 const Controller = require('./controller')
 
 class BlocksController extends Controller {
   index(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res).then(db => {
       db.blocks.paginate(this.pager).then(blocks => {
         super.respondWithPagination(blocks.count, blocks, 'block')
       })
@@ -13,7 +12,7 @@ class BlocksController extends Controller {
   }
 
   show(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res).then(db => {
       db.blocks.findById(req.params.id).then(block => {
         super.respondWithResource(block, block, 'block')
       });
@@ -23,7 +22,7 @@ class BlocksController extends Controller {
   }
 
   transactions(req, res, next) {
-    super.setState(req, res).then(() => {
+    super.setState(req, res).then(db => {
       db.blocks.findById(req.params.id).then(block => {
         db.transactions.paginateByBlock(block.id, this.pager).then(transactions => {
           super.respondWithPagination(transactions.count, transactions, 'transaction')
