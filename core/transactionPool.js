@@ -2,7 +2,7 @@ const async = require('async')
 const arkjs = require('arkjs')
 
 class TransactionPool {
-  contructor (config) {
+  constructor (config) {
     this.config = config
 
     const that = this

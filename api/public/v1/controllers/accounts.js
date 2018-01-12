@@ -1,10 +1,10 @@
-const arkjs = require('arkjs')
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
 const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
 const transformer = requireFrom('api/transformer')
+const arkjs = require('arkjs')
 
 class WalletsController {
   index(req, res, next) {
@@ -18,93 +18,75 @@ class WalletsController {
   }
 
   show(req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.accounts.findById(req.query.address)
-        .then(result => {
-          if (result) {
-            responder.ok(req, res, {
-              account: new transformer(req).resource(result, 'account')
-            })
-          }else {
-            responder.error(req, res, {
-              error: 'Not found',
-            })
-          }
+    db.accounts.findById(req.query.address)
+    .then(result => {
+      if (result) {
+        responder.ok(req, res, {
+          account: new transformer(req).resource(result, 'account')
         })
-        .catch(error => {
-          logger.error(error)
+      }else {
+        responder.error(req, res, {
+          error: 'Not found',
+        })
+      }
+    })
+    .catch(error => {
+      logger.error(error)
 
-          responder.error(req, res, {
-            error: error
-          })
-        })
-    } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address
+        error: error
       })
-    }
+    })
 
     next()
   }
 
   balance(req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.accounts.findById(req.query.address)
-        .then(account => {
-          if (account) {
-            responder.ok(req, res, {
-              balance: account ? account.balance : '0',
-              unconfirmedBalance: account ? account.balance : '0'
-            })
-          }
-          else {
-            responder.error(req, res, {
-              error: 'Not found',
-            })
-          }
+    db.accounts.findById(req.query.address)
+    .then(account => {
+      if (account) {
+        responder.ok(req, res, {
+          balance: account ? account.balance : '0',
+          unconfirmedBalance: account ? account.balance : '0'
         })
-        .catch(error => {
-          logger.error(error)
+      }
+      else {
+        responder.error(req, res, {
+          error: 'Not found',
+        })
+      }
+    })
+    .catch(error => {
+      logger.error(error)
 
-          responder.error(req, res, {
-            error: error
-          })
-        })
-    } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+        error: error
       })
-    }
+    })
 
     next()
   }
 
   publicKey(req, res, next) {
-    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.accounts.findById(req.query.address)
-        .then(account => {
-          if (account) {
-            responder.ok(req, res, {
-              publicKey: account.publicKey,
-            })
-          }else {
-            responder.error(req, res, {
-              error: 'Not found',
-            })
-          }
+    db.accounts.findById(req.query.address)
+    .then(account => {
+      if (account) {
+        responder.ok(req, res, {
+          publicKey: account.publicKey,
         })
-        .catch(error => {
-          logger.error(error)
+      }else {
+        responder.error(req, res, {
+          error: 'Not found',
+        })
+      }
+    })
+    .catch(error => {
+      logger.error(error)
 
-          responder.error(req, res, {
-            error: error
-          })
-        })
-    } else {
       responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+        error: error
       })
-    }
+    })
 
     next()
   }
@@ -117,6 +99,7 @@ class WalletsController {
     next()
   }
 
+  // TODO - pretify this below
   delegates(req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
     if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
@@ -176,14 +159,7 @@ class WalletsController {
   }
 
   top(req, res, next) {
-    db.accounts.all({
-      attributes: ['address', 'balance', 'publicKey'],
-      order: [
-        ['balance', 'DESC']
-      ],
-      offset: parseInt(req.query.offset || 1),
-      limit: parseInt(req.query.limit || 100),
-    }).then(result => {
+    db.accounts.top(req.query).then(result => {
       responder.ok(req, res, {
         accounts: result.rows
       })

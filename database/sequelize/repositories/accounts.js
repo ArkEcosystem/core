@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
-const blockchain = requireFrom('core/blockchainManager')
 
 
 class AccountsRepository {
@@ -13,13 +12,6 @@ class AccountsRepository {
       offset: parseInt(queryParams.offset || 1),
       limit: parseInt(queryParams.limit || 100)
     })
-  }
-
-  paginate(params, page, perPage) {
-    return this.all(Object.assign(params, {
-      offset: page * perPage,
-      limit: perPage,
-    }))
   }
 
   findById(id) {
@@ -40,15 +32,24 @@ class AccountsRepository {
     return this.db.accountsTable.count()
   }
 
+  top(queryParams){
+    return this.db.accountsTable.findAndCountAll({
+      attributes: ['address', 'balance', 'publicKey'],
+      order: [['balance', 'DESC']],
+      offset: parseInt(queryParams.offset || 1),
+      limit: parseInt(queryParams.limit || 100)
+    })
+  }
+
   //Helper methods
   getProducedBlocks(publicKey){
     return this.db.blocksTable.count({
-        where: {
-          generatorPublicKey: publicKey
-        }
-      })
-
+      where: {
+        generatorPublicKey: publicKey
+      }
+    })
   }
+
 }
 
 module.exports = AccountsRepository

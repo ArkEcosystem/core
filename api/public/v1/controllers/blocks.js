@@ -118,7 +118,7 @@ class BlocksController {
   }
 
   status(req, res, next) {
-     let lastblock = blockchain.getInstance().lastBlock.data
+    let lastblock = blockchain.getInstance().lastBlock.data
 
     responder.ok(req,res,{
        epoch: config.getConstants(lastblock.height).epoch,
