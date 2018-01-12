@@ -2,7 +2,7 @@ const Controller = require('./controller')
 
 class VotesController extends Controller {
   index(req, res, next) {
-    super.setState(req, res, next).then(db => {
+    super.init(req, res, next).then(db => {
       db.transactions.paginateByType(3, this.pager).then(transactions => {
         super.respondWithPagination(transactions, 'transaction')
       })
@@ -10,7 +10,7 @@ class VotesController extends Controller {
   }
 
   show(req, res, next) {
-    super.setState(req, res, next).then(db => {
+    super.init(req, res, next).then(db => {
       db.transactions.findByIdAndType(req.params.id, 3).then(transaction => {
         super.respondWithCollection(transaction, 'transaction')
       })

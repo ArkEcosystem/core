@@ -4,7 +4,7 @@ const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class Controller {
-  setState(request, response, next) {
+  init(request, response, next) {
     this.request = request
     this.response = response
     this.next = next
