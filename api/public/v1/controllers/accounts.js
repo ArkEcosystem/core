@@ -4,7 +4,7 @@ const config = requireFrom('core/config')
 const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
+const Transformer = requireFrom('api/transformer')
 
 class WalletsController {
   index (req, res, next) {
@@ -13,7 +13,7 @@ class WalletsController {
       limit: parseInt(req.query.limit || 100)
     }).then(result => {
       responder.ok(req, res, {
-        accounts: new transformer(req).collection(result.rows, 'account')
+        accounts: new Transformer(req).collection(result.rows, 'account')
       })
     })
 
@@ -25,7 +25,7 @@ class WalletsController {
       db.accounts.findById(req.query.address)
         .then(result => {
           responder.ok(req, res, {
-            account: new transformer(req).resource(result, 'account')
+            account: new Transformer(req).resource(result, 'account')
           })
         })
         .catch(error => {

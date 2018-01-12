@@ -8,7 +8,7 @@ class SignatureFormat {
         }
 
         try {
-          return Buffer(value, 'hex').length < 73
+          return Buffer.from(value, 'hex').length < 73
         } catch (e) {
           return false
         }

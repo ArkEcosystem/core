@@ -1,8 +1,8 @@
-const lru = require('lru-cache')
+const LRU = require('lru-cache')
 
 class Table {
   constructor (options) {
-    this.table = new lru(options.size || 10000)
+    this.table = new LRU(options.size || 10000)
   }
 
   get (key) {

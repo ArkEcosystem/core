@@ -39,7 +39,7 @@ class BlocksRepository {
     return this.db.blocksTable.findOne({
       limit: 1,
       where: { generatorPublicKey: publicKey },
-      order: [ [ 'createdAt', 'DESC' ]]
+      order: [[ 'createdAt', 'DESC' ]]
     })
   }
 

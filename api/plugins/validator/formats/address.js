@@ -10,7 +10,7 @@ class AddressFormat {
           return true
         }
         try {
-          return bs58check.decode(value)[0] == config.network.pubKeyHash
+          return bs58check.decode(value)[0] === config.network.pubKeyHash
         } catch (e) {
           return false
         }

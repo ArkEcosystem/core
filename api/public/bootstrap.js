@@ -1,5 +1,6 @@
 const logger = requireFrom('core/logger')
 const fs = require('fs')
+const path = require('path')
 const restify = require('restify')
 const RouteRegistrar = require('../registrar')
 
@@ -66,7 +67,7 @@ class PublicAPI {
   }
 
   setDefaultVersion (req, res, next) {
-    let version = req.header('Accept-Version') ||  req.header('accept-version');
+    let version = req.header('Accept-Version') || req.header('accept-version');
 
     if (!version) {
       req._version = this.config.server.api.version
@@ -85,10 +86,10 @@ class PublicAPI {
   }
 
   registerVersion (directory, version) {
-    directory = __dirname + '/' + directory + '/routers'
+    directory = path.resolve(__dirname, directory + '/routers')
 
     fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') != -1) {
+      if (file.indexOf('.js') !== -1) {
         require(directory + '/' + file).register(
           new RouteRegistrar(this.server, version)
         )

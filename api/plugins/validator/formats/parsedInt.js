@@ -3,7 +3,7 @@ class ParsedIntFormat {
     ajv.addFormat('parsedInt', {
       type: 'string',
       validate: (value) => {
-        if (isNaN(value) || parseInt(value) != value || isNaN(parseInt(value, 10))) {
+        if (isNaN(value) || parseInt(value) !== value || isNaN(parseInt(value, 10))) {
           return false
         }
 

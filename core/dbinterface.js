@@ -28,7 +28,7 @@ class DBInterface {
     let directory = path.resolve(driver, 'repositories')
 
     fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') != -1) {
+      if (file.indexOf('.js') !== -1) {
         instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
       }
     })

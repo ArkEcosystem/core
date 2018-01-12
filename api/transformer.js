@@ -15,9 +15,9 @@ class Transformer {
   }
 
   transform (model, transformer) {
-    let instance = requireFrom(`api/public/${this.version}/transformers/${transformer}`)
+    let Instance = requireFrom(`api/public/${this.version}/transformers/${transformer}`)
 
-    return new instance(model)
+    return new Instance(model)
   }
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const config = requireFrom('core/config').constants;
+const constants = requireFrom('core/config').constants;
 
 module.exports = {
   getHeight: {

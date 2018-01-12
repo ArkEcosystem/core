@@ -8,7 +8,7 @@ class VendorFieldFormat {
         }
 
         try {
-          return Buffer(value).length < 65
+          return Buffer.from(value).length < 65
         } catch (e) {
           return false
         }

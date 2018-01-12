@@ -1,10 +1,11 @@
 const fs = require('fs')
-const ajv = require('ajv')
+const path = require('path')
+const AJV = require('ajv')
 const responder = requireFrom('api/responder')
 
 class Validator {
   constructor () {
-    this.ajv = new ajv({
+    this.ajv = new AJV({
       extendRefs: 'fail',
       useDefaults: true,
       coerceTypes: true
@@ -44,11 +45,11 @@ class Validator {
   }
 
   registerCustomFormats () {
-    let directory = __dirname + '/formats'
+    let directory = path.resolve(__dirname, 'formats')
 
     fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') != -1) {
-        new (require(directory + '/' + file))(this.ajv)
+      if (file.indexOf('.js') !== -1) {
+        (require(directory + '/' + file))(this.ajv)
       }
     })
   }

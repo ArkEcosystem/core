@@ -1,6 +1,6 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
+const Transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class Controller {
@@ -22,7 +22,7 @@ class Controller {
       const paginator = new Paginator(this.request, data.count, this.pager)
 
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data.rows, transformerClass),
+        data: new Transformer(this.request).collection(data.rows, transformerClass),
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
           count: data.count
@@ -38,7 +38,7 @@ class Controller {
   respondWithResource (data, transformerClass) {
     if (data) {
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).resource(data, transformerClass)
+        data: new Transformer(this.request).resource(data, transformerClass)
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
@@ -50,7 +50,7 @@ class Controller {
   respondWithCollection (data, transformerClass) {
     if (data) {
       responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data, transformerClass)
+        data: new Transformer(this.request).collection(data, transformerClass)
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
