@@ -51,6 +51,10 @@ class Paginator {
   }
 
   toFullUrl(query) {
+    if (query.page <= 0) {
+      query.page = 1
+    }
+
     if (this.perPage > 0) {
       query.perPage = this.perPage
     }
