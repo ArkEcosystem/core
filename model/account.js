@@ -106,7 +106,7 @@ class Account {
       check = check && this.verifySignatures(transaction)
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
-      check = check && (!this.secondPublicKey || (transaction.senderPublicKey === this.publicKey && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)))
+      check = check && (!this.secondPublicKey || arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network))
     }
     // console.log(check)
     if (!check) return false

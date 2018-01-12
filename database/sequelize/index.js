@@ -221,16 +221,42 @@ class SequelizeDB extends DBInterface {
     )
   }
 
+  deleteBlock (block) {
+    return this.db.transaction(t =>
+      this.transactionsTable
+        .destroy({where: {blockId: block.data.id}}, {transaction: t})
+        .then(() => this.blocksTable.destroy({where: {id: block.data.id}}, {transaction: t}))
+    )
+  }
+
   getBlock (id) {
     return this.blocksTable
-      .findOne({id: id})
-      .then(data => Promise.resolve(new Block(data)))
+      .findOne({
+        include: [{
+          model: this.transactionsTable,
+          attributes: ['serialized']
+        }],
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
+        where: {
+          id: id
+        }
+      })
+      .then((block) =>
+        this.transactionsTable
+          .findAll({where: {blockId: block.id}})
+          .then(data => {
+            block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+            return Promise.resolve(new Block(block))
+          })
+      )
   }
 
   getLastBlock () {
     return this.blocksTable
       .findOne({order: [['height', 'DESC']]})
-      .then(data => {
+      .then(data => { // TODO to remove as it would fail anyway next in the pipeline?
         if (data) {
           return Promise.resolve(data)
         } else {

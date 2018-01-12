@@ -21,7 +21,11 @@ class Logger {
 
     Object.assign(this, new winston.Logger({
       transports: [
-        new winston.transports.Console(),
+        new winston.transports.Console({
+          colorize: true,
+          level: level,
+          timestamp: true
+        }),
         rotatetransport
       ]
     }))

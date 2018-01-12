@@ -216,7 +216,8 @@ class Transaction {
           return '+' + k
         })
       }
-      tx.signSignature = tx.secondSignature
+      
+      if (tx.secondSignature) tx.signSignature = tx.secondSignature
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)
       }
@@ -226,16 +227,6 @@ class Transaction {
 
   // TODO support multisignatures
   static parseSignatures (hexString, tx, startOffset) {
-    if (tx.type === 4) {
-      let signatures = hexString.substring(startOffset)
-      tx.signatures = []
-      for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
-        const length = parseInt('0x' + signatures.substring(2, 4), 16) + 2
-        tx.signatures.push(signatures.substring(0, length * 2))
-        signatures = signatures.substring(length * 2)
-        startOffset += length * 2
-      }
-    }
     tx.signature = hexString.substring(startOffset)
     if (tx.signature.length === 0) delete tx.signature
     else {
@@ -243,6 +234,18 @@ class Transaction {
       tx.signature = hexString.substring(startOffset, startOffset + length * 2)
       tx.secondSignature = hexString.substring(startOffset + length * 2)
       if (tx.secondSignature.length === 0) delete tx.secondSignature
+      else if (tx.type === 4) {
+        console.log(JSON.stringify(tx, null, 2))
+        console.log(hexString)
+        console.log(hexString.substring(startOffset))
+        let signatures = hexString.substring(startOffset)
+        tx.signatures = []
+        for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
+          const length2 = parseInt('0x' + signatures.substring(2, 4), 16) + 2
+          tx.signatures.push(signatures.substring(0, length2 * 2))
+          signatures = signatures.substring(length2 * 2)
+        }
+      }
     }
   }
 }

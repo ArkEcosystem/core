@@ -6,7 +6,10 @@ const Promise = require('bluebird')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
+const human = require('interval-to-human')
+require('colors')
 
+let rebuildtracker
 let instance
 
 class DBInterface {
@@ -15,24 +18,23 @@ class DBInterface {
   }
 
   static create (params) {
-    const db = new (requireFrom(`database/${params.class}`))
-
+    const db = new (requireFrom(`database/${params.class}`))()
     return db
       .init(params)
       .then(() => (instance = db))
-      .then(() => this.registerRepositories(params.class))
-      .then(() => instance)
+      .then(() => DBInterface.registerRepositories(instance, params.class))
   }
 
-  static registerRepositories(driver)
-  {
+  static registerRepositories (holder, driver) {
     let directory = path.resolve(`database/${driver}/repositories`)
 
     fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') != -1) {
-        instance[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(instance)
+      if (file.indexOf('.js') !== -1) {
+        holder[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(holder)
       }
     })
+
+    return Promise.resolve(holder)
   }
 
   // getActiveDelegates (height) {
@@ -59,20 +61,59 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  applyRound (block, fastRebuild) {
+  applyRound (block, rebuild, fastRebuild) {
+    if (rebuild) { // basically don't make useless database interaction like saving account state
+      // process.stdout.write((block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(2) + '%\u{1b}[0G')
+      // logger.info(block.data.timestamp * 100 / arkjs.slots.getTime())
+      if (!rebuildtracker) {
+        rebuildtracker = {
+          starttimestamp: block.data.timestamp,
+          startdate: new Date().getTime()
+        }
+      }
+      const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - rebuildtracker.starttimestamp) / (new Date().getTime() - rebuildtracker.startdate)
+      const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
+
+      process.stdout.write('  ' + 'Rebuilding'.blue + ' [')
+      process.stdout.write(('='.repeat(progress / 2)).green)
+      process.stdout.write(' '.repeat(50 - progress / 2) + '] ')
+      process.stdout.write((block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3) + '% ')
+      process.stdout.write(human(remainingtime))
+      process.stdout.write('\u{1b}[0G')
+    }
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
-      return this
-        .saveAccounts()
-        .then(() => this.buildDelegates(block))
-        .then(() => this.rounds.bulkCreate(this.activedelegates))
+      if (rebuild) { // basically don't make useless database interaction like saving account state
+        return this.buildDelegates(block)
+          .then(() => this.rounds.bulkCreate(this.activedelegates))
+          .then(() => block)
+      } else {
+        logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
+        return this
+          .saveAccounts(true) // save only modified accounts during the last round
+          .then(() => this.buildDelegates(block)) // active build delegate list from database state
+          .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
+          .then(() => block)
+      }
+    } else {
+      return Promise.resolve(block)
+    }
+  }
+
+  undoRound (block) {
+    const previousHeight = block.data.height - 1
+    const round = block.data.height / config.getConstants(block.data.height).activeDelegates
+    const previousRound = previousHeight / config.getConstants(previousHeight).activeDelegates
+    if (previousRound + 1 === round && block.data.height > 51) {
+      logger.info('Back to previous round', previousRound)
+      return this.getDelegates(block) // active delegate list from database round
+        .then(() => this.rounds.remove(round)) // remove round delegate list
         .then(() => block)
     } else {
       return Promise.resolve(block)
     }
   }
 
-  applyBlock (block, fastRebuild) {
+  applyBlock (block, rebuild, fastRebuild) {
     const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
     let delegate = this.localaccounts[generator]
     if (!delegate && block.data.height === 1) {
@@ -88,9 +129,28 @@ class DBInterface {
         .then(() => appliedTransactions.push(tx))
       )
       .then(() => delegate.applyBlock(block.data))
-      .then(() => this.applyRound(block, fastRebuild))
+      .then(() => this.applyRound(block, rebuild, fastRebuild))
       .catch(error => Promise
         .each(appliedTransactions, tx => that.undoTransaction(tx))
+        .then(() => Promise.reject(error))
+      )
+  }
+
+  undoBlock (block) {
+    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+    let delegate = this.localaccounts[generator]
+    const appliedTransactions = []
+    const that = this
+    return Promise
+      .each(block.transactions, tx => this
+        .undoTransaction(tx)
+        .then(() => appliedTransactions.push(tx))
+      )
+      .then(() => delegate.undoBlock(block.data))
+      .then(() => this.undoRound(block))
+      .then(() => this.undoRound(block))
+      .catch(error => Promise
+        .each(appliedTransactions, tx => that.applyTransaction(tx))
         .then(() => Promise.reject(error))
       )
   }
