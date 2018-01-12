@@ -4,29 +4,31 @@ const Controller = require('./controller')
 
 class VotesController extends Controller {
   index(req, res, next) {
-    const pager = super.pager(req)
+    super.setState(req, res).then(() => {
+      db.transactions.paginateByType(3, this.pager).then(transactions => {
+        if (transactions.count) {
+          super.respondWithPagination(transactions, 'transaction')
+        } else {
+          responder.resourceNotFound(res, 'No resources could not be found.');
+        }
+      })
 
-    db.transactions.paginateByType(3, pager).then(transactions => {
-      if (transactions.count) {
-        super.respondWithPagination(transactions, 'transaction', pager, req, res)
-      } else {
-        responder.resourceNotFound(res, 'No resources could not be found.');
-      }
+      next()
     })
-
-    next()
   }
 
   show(req, res, next) {
-    db.transactions.findByIdAndType(req.params.id, 3).then(transactions => {
-      if (transactions) {
-        super.respondWithCollection(req, res, transactions, 'transaction')
-      } else {
-        responder.resourceNotFound(res, 'Record could not be found.');
-      }
-    })
+    super.setState(req, res).then(() => {
+      db.transactions.findByIdAndType(req.params.id, 3).then(transactions => {
+        if (transactions) {
+          super.respondWithCollection(transactions, 'transaction')
+        } else {
+          responder.resourceNotFound(res, 'Record could not be found.');
+        }
+      })
 
-    next()
+      next()
+    })
   }
 }
 

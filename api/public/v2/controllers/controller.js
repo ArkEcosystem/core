@@ -3,11 +3,25 @@ const transformer = requireFrom('api/transformer')
 const Paginator = requireFrom('api/paginator')
 
 class Controller {
-  respondWithPagination(data, transformerClass, pager, req, res) {
-    const paginator = new Paginator(req, data.count, pager)
+  setState(request, response) {
+    this.request = request
+    this.response = response
 
-    responder.ok(req, res, {
-      data: new transformer(req).collection(data.rows, transformerClass),
+    if (this.request.query.page) {
+      this.pager = {
+        page: parseInt(this.request.query.page || 1),
+        perPage: parseInt(this.request.query.perPage || 100)
+      }
+    }
+
+    return Promise.resolve(true)
+  }
+
+  respondWithPagination(data, transformerClass) {
+    const paginator = new Paginator(this.request, data.count, this.pager)
+
+    responder.ok(this.request, this.response, {
+      data: new transformer(this.request).collection(data.rows, transformerClass),
       links: paginator.links(),
       meta: Object.assign(paginator.meta(), {
         count: data.count
@@ -15,23 +29,16 @@ class Controller {
     })
   }
 
-  respondWithResource(req, res, data, transformer) {
-    return responder.ok(req, res, {
-      data: new transformer(req).collection(data, transformer),
+  respondWithResource(data, transformer) {
+    return responder.ok(this.request, this.response, {
+      data: new transformer(this.request).collection(data, transformer),
     })
   }
 
-  respondWithCollection(req, res, data, transformer) {
-    return responder.ok(req, res, {
-      data: new transformer(req).collection(data, transformer),
+  respondWithCollection(data, transformer) {
+    return responder.ok(this.request, this.response, {
+      data: new transformer(this.request).collection(data, transformer),
     })
-  }
-
-  pager(req) {
-      return {
-        page: parseInt(req.query.page || 1),
-        perPage: parseInt(req.query.perPage || 100)
-      }
   }
 }
 

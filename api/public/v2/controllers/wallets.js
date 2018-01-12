@@ -4,89 +4,91 @@ const Controller = require('./controller')
 
 class WalletsController extends Controller {
   index(req, res, next) {
-    const pager = super.pager(req)
+    super.setState(req, res).then(() => {
+      db.accounts.paginate(this.pager).then(wallets => {
+        super.respondWithPagination(wallets, 'wallet')
+      })
 
-    db.accounts.paginate(pager).then(wallets => {
-      super.respondWithPagination(wallets, 'wallet', pager, req, res)
+      next()
     })
-
-    next()
   }
 
   show(req, res, next) {
-    db.accounts.findById(req.params.id).then(wallet => {
-      if (wallet) {
-        super.respondWithResource(req, res, wallet, 'wallet')
-      } else {
-        responder.resourceNotFound(res, 'Record could not be found.');
-      }
-    })
+    super.setState(req, res).then(() => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        if (wallet) {
+          super.respondWithResource(wallet, 'wallet')
+        } else {
+          responder.resourceNotFound(res, 'Record could not be found.');
+        }
+      })
 
-    next()
+      next()
+    })
   }
 
   transactions(req, res, next) {
-    db.accounts.findById(req.params.id).then(wallet => {
-      const pager = super.pager(req)
-
-      db.transactions.paginateAllByWallet(wallet, pager).then(transactions => {
-        if (transactions.count) {
-          super.respondWithPagination(transactions, 'transaction', pager, req, res)
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+    super.setState(req, res).then(() => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllByWallet(wallet, this.pager).then(transactions => {
+          if (transactions.count) {
+            super.respondWithPagination(transactions, 'transaction')
+          } else {
+            responder.resourceNotFound(res, 'No resources could not be found.');
+          }
+        })
       })
-    })
 
-    next()
+      next()
+    })
   }
 
   transactionsSend(req, res, next) {
-    db.accounts.findById(req.params.id).then(wallet => {
-      const pager = super.pager(req)
-
-      db.transactions.paginateAllBySender(wallet.publicKey, pager).then(transactions => {
-        if (transactions.count) {
-          super.respondWithPagination(transactions, 'transaction', pager, req, res)
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+    super.setState(req, res).then(() => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllBySender(wallet.publicKey, this.pager).then(transactions => {
+          if (transactions.count) {
+            super.respondWithPagination(transactions, 'transaction')
+          } else {
+            responder.resourceNotFound(res, 'No resources could not be found.');
+          }
+        })
       })
-    })
 
-    next()
+      next()
+    })
   }
 
   transactionsReceived(req, res, next) {
-    db.accounts.findById(req.params.id).then(wallet => {
-      const pager = super.pager(req)
-
-      db.transactions.paginateAllByRecipient(wallet.address, pager).then(transactions => {
-        if (transactions.count) {
-          super.respondWithPagination(transactions, 'transaction', pager, req, res)
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+    super.setState(req, res).then(() => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllByRecipient(wallet.address, this.pager).then(transactions => {
+          if (transactions.count) {
+            super.respondWithPagination(transactions, 'transaction')
+          } else {
+            responder.resourceNotFound(res, 'No resources could not be found.');
+          }
+        })
       })
-    })
 
-    next()
+      next()
+    })
   }
 
   votes(req, res, next) {
-    db.accounts.findById(req.params.id).then(wallet => {
-      const pager = super.pager(req)
-
-      db.transactions.paginateVotesBySender(wallet.publicKey, pager).then(transactions => {
-        if (transactions.count) {
-          super.respondWithPagination(transactions, 'transaction', pager, req, res)
-        } else {
-          responder.resourceNotFound(res, 'No resources could not be found.');
-        }
+    super.setState(req, res).then(() => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateVotesBySender(wallet.publicKey, this.pager).then(transactions => {
+          if (transactions.count) {
+            super.respondWithPagination(transactions, 'transaction')
+          } else {
+            responder.resourceNotFound(res, 'No resources could not be found.');
+          }
+        })
       })
-    })
 
-    next()
+      next()
+    })
   }
 }
 

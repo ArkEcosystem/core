@@ -4,17 +4,17 @@ const Controller = require('./controller')
 
 class TransactionsController extends Controller {
   index(req, res, next) {
-    const pager = super.pager(req)
+    super.setState(req, res).then(() => {
+      db.transactions.paginate(this.pager).then(transactions => {
+        if (transactions.count) {
+          super.respondWithPagination(transactions, 'transaction')
+        } else {
+          responder.resourceNotFound(res, 'No resources could not be found.');
+        }
+      })
 
-    db.transactions.paginate(pager).then(transactions => {
-      if (transactions.count) {
-        super.respondWithPagination(transactions, 'transaction', pager, req, res)
-      } else {
-        responder.resourceNotFound(res, 'No resources could not be found.');
-      }
+      next()
     })
-
-    next()
   }
 
   search(req, res, next) {
@@ -30,15 +30,17 @@ class TransactionsController extends Controller {
   }
 
   show(req, res, next) {
-    db.transactions.findById(req.params.id).then(transaction => {
-      if (transaction) {
-        super.respondWithResource(req, res, transaction, 'transaction')
-      } else {
-        responder.resourceNotFound(res, 'Record could not be found.');
-      }
-    })
+    super.setState(req, res).then(() => {
+      db.transactions.findById(req.params.id).then(transaction => {
+        if (transaction) {
+          super.respondWithResource(transaction, 'transaction')
+        } else {
+          responder.resourceNotFound(res, 'Record could not be found.');
+        }
+      })
 
-    next()
+      next()
+    })
   }
 
   unconfirmed(req, res, next) {
