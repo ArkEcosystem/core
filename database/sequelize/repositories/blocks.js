@@ -3,15 +3,27 @@ class BlocksRepository {
     this.db = db
   }
 
-  all(params = {}) {
-    return this.db.blocksTable.findAndCountAll(params)
-  }
+  all(queryParams) {
 
-  paginate(params, page, perPage) {
-    return this.db.blocksTable.findAndCountAll(Object.assign(params, {
-      offset: page * perPage,
-      limit: perPage,
-    }))
+    let whereStatement = {}
+    let orderBy = []
+
+    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+    for (const elem of filter) {
+      if (!!queryParams[elem])
+        whereStatement[elem] = queryParams[elem]
+    }
+
+    if (!!queryParams.orderBy) {
+      orderBy.push(queryParams.orderBy.split(':'))
+    }
+
+    return this.db.blocksTable.findAndCountAll({
+      where: whereStatement,
+      order: orderBy,
+      offset: parseInt(queryParams.offset || 1),
+      limit: parseInt(queryParams.limit || 100)
+    })
   }
 
   findById(id) {

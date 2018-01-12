@@ -7,25 +7,7 @@ const logger = requireFrom('core/logger')
 
 class BlocksController {
   index(req, res, next) {
-
-    let whereStatement = {}
-    let orderBy = []
-
-    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
-    for (const elem of filter) {
-      if (!!req.query[elem])
-        whereStatement[elem] = req.query[elem]
-    }
-
-    if (!!req.query.orderBy){
-      orderBy.push(req.query.orderBy.split(':'))
-    }
-
-    db.blocks.all({
-      where: whereStatement,
-      order: orderBy,
-      offset: parseInt(req.query.offset || 1),
-      limit: parseInt(req.query.limit || 100)})
+    db.blocks.all(req.query)
       .then(result => {
         responder.ok(req, res, {
           blocks: new transformer(req).collection(result.rows, 'block')
