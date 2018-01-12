@@ -17,8 +17,8 @@ class Controller {
     return Promise.resolve(db)
   }
 
-  respondWithPagination(condition, data, transformerClass) {
-    if (condition) {
+  respondWithPagination(data, transformerClass) {
+    if (data.count) {
       const paginator = new Paginator(this.request, data.count, this.pager)
 
       responder.ok(this.request, this.response, {
@@ -35,8 +35,8 @@ class Controller {
     this.next()
   }
 
-  respondWithResource(condition, data, transformerClass) {
-    if (condition) {
+  respondWithResource(data, transformerClass) {
+    if (data) {
       responder.ok(this.request, this.response, {
         data: new transformer(this.request).resource(data, transformerClass),
       })
@@ -47,8 +47,8 @@ class Controller {
     this.next()
   }
 
-  respondWithCollection(condition, data, transformerClass) {
-    if (condition) {
+  respondWithCollection(data, transformerClass) {
+    if (data) {
       responder.ok(this.request, this.response, {
         data: new transformer(this.request).collection(data, transformerClass),
       })

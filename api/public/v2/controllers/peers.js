@@ -4,7 +4,7 @@ const Controller = require('./controller')
 
 class PeersController extends Controller {
   index(req, res, next) {
-    super.setState(req, res, next).then(db => {
+    super.setState(req, res, next).then(() => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
           let result = peers.sort(() => .5 - Math.random())
@@ -24,30 +24,26 @@ class PeersController extends Controller {
             }
           }
 
-          super.respondWithCollection(result, result, 'peer')
+          super.respondWithCollection(result, 'peer')
       })
     })
   }
 
   show(req, res, next) {
-    super.setState(req, res, next).then(db => {
+    super.setState(req, res, next).then(() => {
       blockchain.getInstance().networkInterface.getPeers()
         .then(peers => {
-          const peer = peers.find(p => p.ip === req.params.ip)
-
-          super.respondWithResource(peer, peer, 'peer')
+          super.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer')
       })
     })
   }
 
   me(req, res, next) {
-    super.setState(req, res, next).then(db => {
+    super.setState(req, res, next).then(() => {
       publicIp.v4().then(ip => {
         blockchain.getInstance().networkInterface.getPeers()
           .then(peers => {
-            const peer = peers.find(p => p.ip === ip)
-
-            super.respondWithResource(peer, peer, 'peer')
+            super.respondWithResource(peers.find(p => p.ip === ip), 'peer')
         })
       })
     })

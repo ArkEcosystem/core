@@ -5,7 +5,7 @@ class TransactionsController extends Controller {
   index(req, res, next) {
     super.setState(req, res, next).then(db => {
       db.transactions.paginate(this.pager).then(transactions => {
-        super.respondWithPagination(transactions.count, transactions, 'transaction')
+        super.respondWithPagination(transactions, 'transaction')
       })
     })
   }
@@ -19,7 +19,7 @@ class TransactionsController extends Controller {
   show(req, res, next) {
     super.setState(req, res, next).then(db => {
       db.transactions.findById(req.params.id).then(transaction => {
-        super.respondWithResource(transaction, transaction, 'transaction')
+        super.respondWithResource(transaction, 'transaction')
       })
     })
   }
