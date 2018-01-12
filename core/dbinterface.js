@@ -15,22 +15,22 @@ class DBInterface {
   }
 
   static create (params) {
-    const db = new (requireFrom(`database/${params.class}`))
+    const db = new (require(path.resolve(params.driver)))
 
     return db
       .init(params)
       .then(() => (instance = db))
-      .then(() => this.registerRepositories(params.class))
+      .then(() => this.registerRepositories(params.driver))
       .then(() => instance)
   }
 
   static registerRepositories(driver)
   {
-    let directory = path.resolve(`database/${driver}/repositories`)
+    let directory = path.resolve(driver, 'repositories')
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') != -1) {
-        instance[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(instance)
+        instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
       }
     })
   }
