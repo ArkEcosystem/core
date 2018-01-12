@@ -4,7 +4,7 @@ const Controller = require('./controller')
 class DelegatesController extends Controller {
   index(req, res, next) {
     super.setState(req, res).then(() => {
-      db.delegates.paginate(super.pager, {
+      db.delegates.paginate(this.pager, {
         order: [[ 'publicKey', 'ASC' ]]
       }).then(delegates => {
         super.respondWithPagination(delegates.count, delegates, 'delegate')

@@ -7,11 +7,9 @@ class Controller {
     this.request = request
     this.response = response
 
-    if (this.request.query.page) {
-      this.pager = {
-        page: parseInt(this.request.query.page || 1),
-        perPage: parseInt(this.request.query.perPage || 100)
-      }
+    this.pager = {
+      page: parseInt(this.request.query.page || 1),
+      perPage: parseInt(this.request.query.perPage || 100)
     }
 
     return Promise.resolve(true)
