@@ -1,9 +1,8 @@
-const responder = requireFrom('api/responder')
 const blockchain = requireFrom('core/blockchainManager')
-const logger = requireFrom('core/logger')
 const publicIp = require('public-ip')
+const Controller = require('./controller')
 
-class PeersController {
+class PeersController extends Controller {
   index(req, res, next) {
     super.setState(req, res).then(() => {
       blockchain.getInstance().networkInterface.getPeers()
@@ -26,10 +25,6 @@ class PeersController {
           }
 
           super.respondWithCollection(result, result, 'peer')
-      }).catch(error => {
-          logger.error(error)
-
-          responder.internalServerError(res, error)
       })
 
       next()
@@ -43,10 +38,6 @@ class PeersController {
           const peer = peers.find(p => p.ip === req.params.ip)
 
           super.respondWithResource(peer, peer, 'peer')
-      }).catch(error => {
-        logger.error(error)
-
-        responder.internalServerError(res, error)
       })
 
       next()
@@ -61,10 +52,6 @@ class PeersController {
             const peer = peers.find(p => p.ip === ip)
 
             super.respondWithResource(peer, peer, 'peer')
-        }).catch(error => {
-          logger.error(error)
-
-          responder.internalServerError(res, error)
         })
       })
 
