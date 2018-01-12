@@ -1,4 +1,5 @@
 const Op = require('sequelize').Op
+const moment = require('moment')
 
 class TransactionsRepository {
   constructor(db) {
@@ -84,6 +85,18 @@ class TransactionsRepository {
       where: {
         id: id,
         type: type,
+      }
+    })
+  }
+
+  allByDateTimeRange(from, to) {
+    return this.db.transactionsTable.findAndCountAll({
+      attributes: ['amount', 'fee'],
+      where: {
+        createdAt: {
+          [Op.lte]: moment(to).endOf('day').toDate(),
+          [Op.gte]: moment(from).startOf('day').toDate(),
+        }
       }
     })
   }

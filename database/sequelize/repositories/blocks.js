@@ -1,3 +1,6 @@
+const Op = require('sequelize').Op
+const moment = require('moment')
+
 class BlocksRepository {
   constructor(db) {
     this.db = db
@@ -37,6 +40,18 @@ class BlocksRepository {
       limit: 1,
       where: { generatorPublicKey: publicKey },
       order: [ [ 'createdAt', 'DESC' ]]
+    })
+  }
+
+  allByDateTimeRange(from, to) {
+    return this.db.blocksTable.findAndCountAll({
+      attributes: ['totalFee', 'reward'],
+      where: {
+        createdAt: {
+          [Op.lte]: moment(to).endOf('day').toDate(),
+          [Op.gte]: moment(from).startOf('day').toDate(),
+        }
+      }
     })
   }
 }
