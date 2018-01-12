@@ -12,7 +12,7 @@ class BlockchainController {
   }
 
   fees(req, res, next) {
-    responder.ok({
+    responder.ok(req, res, {
       data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
 
