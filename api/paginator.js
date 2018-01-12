@@ -39,27 +39,15 @@ class Paginator {
   }
 
   nextPageUrl() {
-    let query = {}
-
-    if (this.page >= this.totalPages) {
-      query.page = this.totalPages
-    } else {
-      query.page = this.page + 1
-    }
-
-    return this.toFullUrl(query)
+    return this.toFullUrl({
+      page: (this.page >= this.totalPages) ? this.totalPages : this.page + 1
+    })
   }
 
   previousPageUrl() {
-    let query = {}
-
-    if (this.page <= 1) {
-      query.page = 1
-    } else {
-      query.page = this.page - 1
-    }
-
-    return this.toFullUrl(query)
+    return this.toFullUrl({
+      page: (this.page <= 1) ? 1 : this.page - 1
+    })
   }
 
   toFullUrl(query) {
