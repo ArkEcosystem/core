@@ -10,19 +10,21 @@ class PeersController {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
         if (!!peers) {
-          let retPeers = peers
+          let result = peers.sort(() => .5 - Math.random())
           retPeers = req.query.os ? peers.filter(peer => { return peer.os === req.query.os }) : retPeers
           retPeers = req.query.status ? peers.filter(peer => { return peer.status === req.query.status }) : retPeers
           retPeers = req.query.port ? peers.filter(peer => { return peer.port === req.query.port }) : retPeers
           retPeers = req.query.version ? peers.filter(peer => { return peer.version === req.query.version }) : retPeers
-          retPeers = retPeers.slice(req.query.offset || 0, (req.query.offset || 0) + (req.query.limit || 100))
+          retPeers = retPeers.slice(0, (req.query.limit || 100))
 
           retPeers = retPeers.sort((a, b) => a.delay - b.delay)
 
           if (req.query.orderBy) {
             let order = req.query.orderBy.split(':')
             if (['port', 'status', 'os', 'version'].includes(order[0])) {
-              retPeers = order[1].toUpperCase() === 'ASC' ? retPeers.sort((a, b) => a[order[0]] - b[order[0]]) : retPeers.sort((a, b) => a[order[0]] + b[order[0]])
+              retPeers = order[1].toUpperCase() === 'ASC'
+                ? retPeers.sort((a, b) => a[order[0]] - b[order[0]])
+                : retPeers.sort((a, b) => a[order[0]] + b[order[0]])
             }
           }
 
