@@ -32,20 +32,20 @@ class Controller {
     }
   }
 
-  respondWithResource(condition, data, transformer) {
+  respondWithResource(condition, data, transformerClass) {
     if (condition) {
-      return responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data, transformer),
+      responder.ok(this.request, this.response, {
+        data: new transformer(this.request).collection(data, transformerClass),
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')
     }
   }
 
-  respondWithCollection(condition, data, transformer) {
+  respondWithCollection(condition, data, transformerClass) {
     if (condition) {
-      return responder.ok(this.request, this.response, {
-        data: new transformer(this.request).collection(data, transformer),
+      responder.ok(this.request, this.response, {
+        data: new transformer(this.request).collection(data, transformerClass),
       })
     } else {
       responder.resourceNotFound(this.response, 'Record could not be found.')

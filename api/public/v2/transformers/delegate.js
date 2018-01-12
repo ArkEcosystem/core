@@ -9,10 +9,10 @@ class DelegateTransformer {
       blocks: {
         produced: model.producedblocks,
         missed: model.missedblocks,
-        last: {
-          id: model.lastBlock.id,
-          created_at: model.lastBlock.createdAt,
-        },
+        // last: {
+        //   id: model.lastBlock.id,
+        //   created_at: model.lastBlock.createdAt,
+        // },
       },
       production: {
         approval: model.approval,

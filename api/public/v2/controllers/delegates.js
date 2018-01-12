@@ -16,11 +16,7 @@ class DelegatesController extends Controller {
   show(req, res, next) {
     super.setState(req, res).then(db => {
       db.delegates.findById(req.params.id).then(delegate => {
-        db.blocks.findLastByPublicKey(delegate.publicKey).then(lastBlock => {
-          delegate.lastBlock = lastBlock
-
-          super.respondWithResource(delegate, delegate, 'delegate')
-        });
+        super.respondWithResource(delegate, delegate, 'delegate')
       })
 
       next()
