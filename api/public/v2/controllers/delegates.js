@@ -1,7 +1,5 @@
+const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const delegates = requireFrom('repositories/delegates')
-const blocks = requireFrom('repositories/blocks')
-const transactions = requireFrom('repositories/transactions')
 const Paginator = requireFrom('api/paginator')
 const Op = require('sequelize').Op
 
@@ -10,7 +8,7 @@ class DelegatesController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    delegates.paginate({
+    db.delegates.paginate({
       order: [[ 'publicKey', 'ASC' ]]
     }, page, perPage).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
@@ -34,7 +32,7 @@ class DelegatesController {
   }
 
   show(req, res, next) {
-    delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result
@@ -48,11 +46,11 @@ class DelegatesController {
   }
 
   blocks(req, res, next) {
-    delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      blocks.paginate({
+      db.blocks.paginate({
         where: {
           generatorPublicKey: result.publicKey
         }
@@ -73,11 +71,11 @@ class DelegatesController {
   }
 
   transactions(req, res, next) {
-    delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      transactions.paginate({
+      db.transactions.paginate({
         where: {
           [Op.or]: [{
             senderPublicKey: result.publicKey,
@@ -102,11 +100,11 @@ class DelegatesController {
   }
 
   transactionsSend(req, res, next) {
-    delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      transactions.paginate({
+      db.transactions.paginate({
         where: {
           senderPublicKey: result.publicKey
         }
@@ -127,11 +125,11 @@ class DelegatesController {
   }
 
   transactionsReceived(req, res, next) {
-    delegates.findById(req.params.id).then(result => {
+    db.delegates.findById(req.params.id).then(result => {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      transactions.paginate({
+      db.transactions.paginate({
         where: {
           recipientId: result.address
         }

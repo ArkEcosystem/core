@@ -1,5 +1,5 @@
+const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transactions = requireFrom('repositories/transactions')
 const Paginator = requireFrom('api/paginator')
 
 class VotesController {
@@ -7,7 +7,7 @@ class VotesController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    transactions.paginate({
+    db.transactions.paginate({
       where: {
         type: 3
       }
@@ -33,7 +33,7 @@ class VotesController {
   }
 
   show(req, res, next) {
-    transactions.findByIdAndType(req.params.id, 3).then(result => {
+    db.transactions.findByIdAndType(req.params.id, 3).then(result => {
       if (result) {
         responder.ok(req, res, {
           data: result

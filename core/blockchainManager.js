@@ -20,7 +20,7 @@ class BlockchainManager {
     this.downloadpaused = false
 
     this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), this.fastRebuild, qcallback),
+      (block, qcallback) => this.processBlock(new Block(block), !this.monitoring, this.fastRebuild, qcallback),
       1
     )
     this.downloadQueue = async.queue(
@@ -37,6 +37,8 @@ class BlockchainManager {
     }
     this.processQueue.drain = () => this.finishedNetworkSync()
 
+    // sleep(60000).then(() => this.testRandomRebuild())
+
     if (!instance) instance = this
   }
 
@@ -49,6 +51,32 @@ class BlockchainManager {
     this.downloadQueue.push(block)
   }
 
+  rebuild () {
+    this.stopNetworkMonitoring()
+    return this.pauseQueues()
+      .then(() => this.undoLastBlock())
+      .then(() => this.resumeQueues())
+  }
+
+  testRandomRebuild () {
+    logger.info('test: undoing one block', this.lastBlock.data.height)
+    return this.rebuild()
+      .then(() => sleep(1000))
+      .then(() => this.testRandomRebuild())
+  }
+
+  pauseQueues () {
+    this.downloadQueue.pause()
+    this.processQueue.pause()
+    return Promise.resolve()
+  }
+
+  resumeQueues () {
+    this.downloadQueue.resume()
+    this.processQueue.resume()
+    return Promise.resolve()
+  }
+
   finishedNetworkSync () {
     if (this.isSynced(this.lastBlock)) {
       logger.info('Blockchain updated to height', this.lastBlock.data.height)
@@ -58,6 +86,7 @@ class BlockchainManager {
       this.downloadpaused = false
       return this.syncWithNetwork(this.lastBlock)
     } else {
+      this.stopNetworkMonitoring()
       return Promise.resolve()
     }
   }
@@ -69,7 +98,7 @@ class BlockchainManager {
   }
 
   updateBlockchainFromNetwork () {
-    if (!this.monitoring) return Promise.reject(new Error('stopped by user'))
+    if (!this.monitoring) return Promise.resolve()
 
     return this.networkInterface.updateNetworkStatus()
       .then(() => this.syncWithNetwork(this.lastBlock))
@@ -124,20 +153,21 @@ class BlockchainManager {
       })
   }
 
-  processBlock (block, fastRebuild, qcallback) {
+  processBlock (block, rebuild, fastRebuild, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
       this.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
       if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.lastBlock.data.timestamp / constants.blocktime)) {
         const that = this
-        db.applyBlock(block, fastRebuild)
+        db.applyBlock(block, rebuild, fastRebuild)
           .then(() => db.saveBlock(block))
           .then(() => (that.lastBlock = block))
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
             logger.debug('Refused new block', block.data)
+            that.lastDownloadedBlock = this.lastBlock
             qcallback()
           })
       } else if (block.data.height > this.lastBlock.data.height + 1) {
@@ -159,6 +189,8 @@ class BlockchainManager {
   undoLastBlock () {
     const lastBlock = this.lastBlock
     return db.undoBlock(lastBlock)
+      .then(() => db.deleteBlock(lastBlock))
+      .then(() => db.getBlock(lastBlock.data.previousBlock))
       .then(newLastBlock => (this.lastBlock = newLastBlock))
   }
 
@@ -179,7 +211,7 @@ class BlockchainManager {
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
       if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
       else {
-        logger.info('Downloaded new blocks', blocks.length, 'with', blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0), 'transactions')
+        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         return Promise.resolve(blocks.length)
       }

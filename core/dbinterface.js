@@ -18,23 +18,24 @@ class DBInterface {
   }
 
   static create (params) {
-    const db = new (requireFrom(`database/${params.class}`))()
+    const db = new (require(path.resolve(params.driver)))()
+
     return db
       .init(params)
       .then(() => (instance = db))
-      .then(() => DBInterface.registerRepositories(instance, params.class))
+      .then(() => this.registerRepositories(params.driver))
   }
 
-  static registerRepositories (holder, driver) {
-    let directory = path.resolve(`database/${driver}/repositories`)
+  static registerRepositories (driver) {
+    let directory = path.resolve(driver, 'repositories')
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
-        holder[file.slice(0, -3)] = new (requireFrom(directory + '/' + file))(holder)
+        instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
       }
     })
 
-    return Promise.resolve(holder)
+    return Promise.resolve(instance)
   }
 
   // getActiveDelegates (height) {
@@ -50,6 +51,9 @@ class DBInterface {
   // }
 
   // saveBlock (block) {
+  // }
+
+  // deleteBlock (block) {
   // }
 
   // getBlock (id) {
