@@ -16,8 +16,12 @@ class TransactionsRepository {
     }
 
     if (!!queryParams.orderBy){
-      orderBy.push(queryParams.orderBy.split(':'))
+      let order = queryParams.orderBy.split(':')
+      if (['timestamp', 'type', 'amount'].includes(order[0])) {
+        orderBy.push(queryParams.orderBy.split(':'))
+      }
     }
+
     return this.db.transactionsTable.findAndCountAll({
       where: whereStatement,
       order: orderBy,
