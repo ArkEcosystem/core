@@ -8,7 +8,7 @@ class TransactionsController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.transactions.paginate({}, page, perPage).then(transactions => {
+    db.transactions.paginate(page, perPage).then(transactions => {
       const paginator = new Paginator(req, transactions.count, page, perPage)
 
       responder.ok(req, res, {

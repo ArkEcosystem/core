@@ -1,3 +1,5 @@
+const Op = require('sequelize').Op
+
 class TransactionsRepository {
   constructor(db) {
     this.db = db
@@ -7,7 +9,7 @@ class TransactionsRepository {
     return this.db.transactionsTable.findAndCountAll(params)
   }
 
-  paginate(params, page, perPage) {
+  paginate(page, perPage, params = {}) {
     let offset = 0
 
     if (page > 1) {
@@ -18,6 +20,59 @@ class TransactionsRepository {
       offset: offset,
       limit: perPage,
     }))
+  }
+
+  paginateAllByWallet(wallet, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        [Op.or]: [{
+          senderPublicKey: wallet.publicKey,
+        }, {
+          recipientId: wallet.address,
+        }]
+      }
+    })
+  }
+
+  paginateAllBySender(senderPublicKey, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+          senderPublicKey: senderPublicKey,
+      }
+    })
+  }
+
+  paginateAllByRecipient(recipientId, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        recipientId: recipientId,
+      }
+    })
+  }
+
+  paginateVotesBySender(senderPublicKey, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        senderPublicKey: senderPublicKey,
+        type: 3
+      }
+    })
+  }
+
+  paginateByBlock(blockId, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        blockId: blockId
+      }
+    })
+  }
+
+  paginateByType(type, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        type: type
+      }
+    })
   }
 
   findById(id) {

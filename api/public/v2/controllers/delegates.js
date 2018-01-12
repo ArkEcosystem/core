@@ -9,9 +9,9 @@ class DelegatesController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.delegates.paginate({
+    db.delegates.paginate(page, perPage, {
       order: [[ 'publicKey', 'ASC' ]]
-    }, page, perPage).then(result => {
+    }).then(result => {
       const paginator = new Paginator(req, result.count, page, perPage)
 
       responder.ok(req, res, {
@@ -49,11 +49,7 @@ class DelegatesController {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.blocks.paginate({
-        where: {
-          generatorPublicKey: delegate.publicKey
-        }
-      }, page, perPage).then(blocks => {
+      db.blocks.paginateByGenerator(delegate.publicKey, page, perPage).then(blocks => {
         const paginator = new Paginator(req, blocks.count, page, perPage)
 
         responder.ok(req, res, {

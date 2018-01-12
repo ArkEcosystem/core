@@ -17,7 +17,7 @@ class DelegatesRepository {
     }))
   }
 
-  paginate(params, page, perPage) {
+  paginate(page, perPage, params = {}) {
     let offset = 0
 
     if (page > 1) {

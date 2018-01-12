@@ -9,7 +9,7 @@ class WalletsController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.accounts.paginate({}, page, perPage).then(wallets => {
+    db.accounts.paginate(page, perPage).then(wallets => {
       const paginator = new Paginator(req, wallets.count, page, perPage)
 
       responder.ok(req, res, {
@@ -43,15 +43,7 @@ class WalletsController {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactions.paginate({
-        where: {
-          [Op.or]: [{
-            senderPublicKey: wallet.publicKey,
-          }, {
-            recipientId: wallet.address,
-          }]
-        }
-      }, page, perPage).then(transactions => {
+      db.transactions.paginateAllByWallet(wallet, page, perPage).then(transactions => {
         if (transactions.count) {
           const paginator = new Paginator(req, transactions.count, page, perPage)
 
@@ -76,11 +68,7 @@ class WalletsController {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactions.paginate({
-        where: {
-          senderPublicKey: wallet.publicKey
-        }
-      }, page, perPage).then(transactions => {
+      db.transactions.paginateAllBySender(wallet.publicKey, page, perPage).then(transactions => {
         if (transactions.count) {
           const paginator = new Paginator(req, transactions.count, page, perPage)
 
@@ -105,11 +93,7 @@ class WalletsController {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactions.paginate({
-        where: {
-          recipientId: wallet.address
-        }
-      }, page, perPage).then(transactions => {
+      db.transactions.paginateAllByRecipient(wallet.address, page, perPage).then(transactions => {
         if (transactions.count) {
           const paginator = new Paginator(req, transactions.count, page, perPage)
 
@@ -134,12 +118,7 @@ class WalletsController {
       const page = parseInt(req.query.page || 1)
       const perPage = parseInt(req.query.perPage || 100)
 
-      db.transactions.paginate({
-        where: {
-          senderPublicKey: wallet.publicKey,
-          type: 3
-        }
-      }, page, perPage).then(transactions => {
+      db.transactions.paginateVotesBySender(wallet.publicKey, page, perPage).then(transactions => {
         if (transactions.count) {
           const paginator = new Paginator(req, transactions.count, page, perPage)
 

@@ -7,7 +7,7 @@ class BlocksRepository {
     return this.db.blocksTable.findAndCountAll(params)
   }
 
-  paginate(params, page, perPage) {
+  paginate(page, perPage, params = {}) {
     let offset = 0
 
     if (page > 1) {
@@ -18,6 +18,14 @@ class BlocksRepository {
       offset: offset,
       limit: perPage,
     }))
+  }
+
+  paginateByGenerator(generatorPublicKey, page, perPage) {
+    return this.paginate(page, perPage, {
+      where: {
+        generatorPublicKey: generatorPublicKey
+      }
+    })
   }
 
   findById(id) {

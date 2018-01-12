@@ -8,11 +8,7 @@ class VotesController {
     let page = parseInt(req.query.page || 1)
     let perPage = parseInt(req.query.perPage || 100)
 
-    db.transactions.paginate({
-      where: {
-        type: 3
-      }
-    }, page, perPage).then(transactions => {
+    db.transactions.paginateByType(3, page, perPage).then(transactions => {
       const paginator = new Paginator(req, transactions.count, page, perPage)
 
       responder.ok(req, res, {
