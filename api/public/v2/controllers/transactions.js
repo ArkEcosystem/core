@@ -4,7 +4,7 @@ const Controller = require('./controller')
 class TransactionsController extends Controller {
   index(req, res, next) {
     super.setState(req, res).then(db => {
-      super.db.transactions.paginate(this.pager).then(transactions => {
+      db.transactions.paginate(this.pager).then(transactions => {
         super.respondWithPagination(transactions.count, transactions, 'transaction')
       })
 
@@ -26,7 +26,7 @@ class TransactionsController extends Controller {
 
   show(req, res, next) {
     super.setState(req, res).then(db => {
-      super.db.transactions.findById(req.params.id).then(transaction => {
+      db.transactions.findById(req.params.id).then(transaction => {
         super.respondWithResource(transaction, transaction, 'transaction')
       })
 

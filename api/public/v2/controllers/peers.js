@@ -1,6 +1,5 @@
 const responder = requireFrom('api/responder')
 const blockchain = requireFrom('core/blockchainManager')
-const transformer = requireFrom('api/transformer')
 const logger = requireFrom('core/logger')
 const publicIp = require('public-ip')
 
@@ -25,9 +24,7 @@ class PeersController {
           }
         }
 
-        responder.ok(req, res, {
-          data: new transformer(req).collection(result, 'peer'),
-        })
+        super.respondWithCollection(result, result, 'peer')
     }).catch(error => {
         logger.error(error)
 
@@ -42,15 +39,7 @@ class PeersController {
       .then(peers => {
         const peer = peers.find(p => p.ip === req.params.ip)
 
-        if (peer) {
-          responder.ok(req, res, {
-            data: new transformer(req).resource(peer, 'peer'),
-          })
-        } else {
-          responder.notFound(res, {
-            error: `Peer [${req.params.ip}] not found`,
-          })
-        }
+        super.respondWithResource(peer, peer, 'peer')
     }).catch(error => {
       logger.error(error)
 
@@ -61,23 +50,22 @@ class PeersController {
   }
 
   me(req, res, next) {
-    publicIp.v4().then(ip => {
-      blockchain.getInstance().networkInterface.getPeers()
-        .then(peers => {
-          const peer = peers.find(p => p.ip === ip)
+    super.setState(req, res).then(() => {
+      publicIp.v4().then(ip => {
+        blockchain.getInstance().networkInterface.getPeers()
+          .then(peers => {
+            const peer = peers.find(p => p.ip === ip)
 
-          responder.ok(req, res, {
-            data: new transformer(req).resource(peer, 'peer'),
-          })
-      }).catch(error => {
-        logger.error(error)
+            super.respondWithResource(peer, peer, 'peer')
+        }).catch(error => {
+          logger.error(error)
 
-        responder.internalServerError(res, error)
+          responder.internalServerError(res, error)
+        })
       })
+
+      next()
     })
-
-
-    next()
   }
 }
 
