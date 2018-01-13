@@ -1,11 +1,19 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
+const logger = requireFrom('core/logger')
+const db = requireFrom('core/dbinterface').getInstance()
+const transformer = requireFrom('api/transformer')
+
 
 class DelegatesController {
-  index (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
 
+  index (req, res, next) {
+    db.delegates.all().then(result => {
+      responder.ok(req,res, {
+        data: result
+      })
+    })
     next()
   }
 

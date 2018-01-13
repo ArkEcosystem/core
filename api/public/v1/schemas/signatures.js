@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   addSignature: {
     type: 'object',
@@ -22,5 +20,16 @@ module.exports = {
       }
     },
     required: ['secret', 'secondSecret']
-  }
-};
+  },
+  getFee: {
+    type: 'object',
+    properties: {
+      address: {
+        type: 'string',
+        minLength: 1,
+        format: 'address'
+      }
+    },
+    required: ['address']
+  },
+}

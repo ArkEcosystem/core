@@ -66,7 +66,10 @@ function syncTables (db) {
     },
     {
       fields: ['vendorFieldHex']
-    }
+    },
+    {
+      fields: ['timestamp']
+    },
 
     ]
   })

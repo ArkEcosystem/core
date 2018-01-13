@@ -1,14 +1,12 @@
 const responder = requireFrom('api/responder')
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
 
 class SignaturesController {
-  index (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
-
   fee (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
+    responder.ok(req, res,{
+      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.secondsignature
+    })
 
     next()
   }
