@@ -7,7 +7,7 @@
   "globals": {
     "requireFrom": true
   },
-  "extends": "eslint:recommended",
+  "extends": "standard",
   "parserOptions": {
     "sourceType": "module"
   },

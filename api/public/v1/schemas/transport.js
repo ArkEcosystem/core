@@ -54,7 +54,7 @@ module.exports = {
       lastBlockHeight: {
         type: 'integer'
       }
-    },
+    }
   },
   block: {
     type: 'object',
@@ -62,7 +62,7 @@ module.exports = {
       id: {
         type: 'string'
       }
-    },
+    }
   },
   signatures: {
     type: 'object',

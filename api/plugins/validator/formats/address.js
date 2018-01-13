@@ -2,15 +2,15 @@ const bs58check = require('bs58check')
 const config = requireFrom('core/config')
 
 class AddressFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('address', {
       type: 'string',
-      validate: function(value, parentSchema) {
+      validate: function (value, parentSchema) {
         if (value.length === 0) {
           return true
         }
         try {
-          return bs58check.decode(value)[0] == config.network.pubKeyHash
+          return bs58check.decode(value)[0] === config.network.pubKeyHash
         } catch (e) {
           return false
         }

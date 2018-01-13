@@ -1,19 +1,19 @@
 const responder = requireFrom('api/responder')
 
 class PeersController {
-  index(req, res, next) {
+  index (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()
   }
 
-  version(req, res, next) {
+  version (req, res, next) {
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()

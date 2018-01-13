@@ -41,7 +41,7 @@ class Block {
 
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
-    const temp = new Buffer(8)
+    const temp = Buffer.from(8)
     for (let i = 0; i < 8; i++) {
       temp[i] = hash[7 - i]
     }
@@ -57,20 +57,20 @@ class Block {
 
   verifySignature () {
     // console.log(this.data)
-    var bytes = Block.serialize(this.data, false)
-    var hash = crypto.createHash('sha256').update(bytes).digest()
-    var blockSignatureBuffer = new Buffer(this.data.blockSignature, 'hex')
-    var generatorPublicKeyBuffer = new Buffer(this.data.generatorPublicKey, 'hex')
-    var ecpair = arkjs.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
-    var ecsignature = arkjs.ECSignature.fromDER(blockSignatureBuffer)
-    var res = ecpair.verify(hash, ecsignature)
+    let bytes = Block.serialize(this.data, false)
+    let hash = crypto.createHash('sha256').update(bytes).digest()
+    let blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
+    let generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
+    let ecpair = arkjs.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
+    let ecsignature = arkjs.ECSignature.fromDER(blockSignatureBuffer)
+    let res = ecpair.verify(hash, ecsignature)
 
     return res
   }
 
   verify () {
-    var block = this.data
-    var result = {
+    let block = this.data
+    let result = {
       verified: false,
       errors: []
     }
@@ -89,13 +89,13 @@ class Block {
       result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
     }
 
-    var valid = this.verifySignature(block)
+    let valid = this.verifySignature(block)
 
     if (!valid) {
       result.errors.push('Failed to verify block signature')
     }
 
-    if (block.version != constants.block.version) {
+    if (block.version !== constants.block.version) {
       result.errors.push('Invalid block version')
     }
 
@@ -124,14 +124,14 @@ class Block {
     }
 
     // Checking if transactions of the block adds up to block values.
-    var totalAmount = 0,
-      totalFee = 0,
-      size = 0,
-      payloadHash = crypto.createHash('sha256'),
-      appliedTransactions = {}
+    let totalAmount = 0
+    let totalFee = 0
+    let size = 0
+    let payloadHash = crypto.createHash('sha256')
+    let appliedTransactions = {}
 
     block.transactions.forEach((transaction) => {
-      var bytes = new Buffer(transaction.id, 'hex')
+      var bytes = Buffer.from(transaction.id, 'hex')
 
       if (appliedTransactions[transaction.id]) {
         result.errors.push('Encountered duplicate transaction: ' + transaction.id)
@@ -173,7 +173,7 @@ class Block {
     var blockSignatureBuffer = null
 
     if (includeSignature) {
-      blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
+      blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
     var b, i
@@ -205,12 +205,12 @@ class Block {
 
       bb.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

@@ -1,7 +1,7 @@
 const controller = require('../controllers/delegates')
 
 class DelegatesRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('delegates', controller.index)
     registrar.get('delegates/get', controller.show)
     registrar.get('delegates/count', controller.count)

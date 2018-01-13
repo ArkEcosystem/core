@@ -3,7 +3,7 @@ const TokenTable = require('./table.js')
 const responder = requireFrom('api/responder')
 
 class Throttle {
-  constructor(config) {
+  constructor (config) {
     this.burst = config.burst
     this.rate = config.rate
     this.whitelist = config.whitelist
@@ -13,7 +13,7 @@ class Throttle {
     })
   }
 
-  mount(req, res, next) {
+  mount (req, res, next) {
     let address = req.headers['HTTP_CF_CONNECTING_IP'] || req.headers['X-FORWARDED-FOR'] || req.connection.remoteAddress
 
     let burst = this.burst

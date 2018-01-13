@@ -1,9 +1,9 @@
 class RoundsRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  bulkCreate(data) {
+  bulkCreate (data) {
     return this.db.roundsTable.bulkCreate(data)
   }
 }

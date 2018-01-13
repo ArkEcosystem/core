@@ -1,5 +1,5 @@
 class CsvFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('csv', {
       type: 'string',
       validate: (value) => {

@@ -1,151 +1,60 @@
-const db = requireFrom('core/dbinterface').getInstance()
-const responder = requireFrom('api/responder')
-const Paginator = requireFrom('api/paginator')
-const Op = require('sequelize').Op
+const Controller = require('./controller')
 
-class WalletsController {
-  index(req, res, next) {
-    let page = parseInt(req.query.page || 1)
-    let perPage = parseInt(req.query.perPage || 100)
-
-    db.accounts.paginate({}, page, perPage).then(result => {
-      const paginator = new Paginator(req, result.count, page, perPage)
-
-      responder.ok(req, res, {
-        data: result.rows,
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: result.count
-        }),
+class WalletsController extends Controller {
+  index (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.paginate(this.pager).then(wallets => {
+        super.respondWithPagination(wallets, 'wallet')
       })
     })
-
-    next()
   }
 
-  search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
-
-  show(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      if (result) {
-        responder.ok(req, res, {
-          data: result
-        })
-      } else {
-        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
-      }
+  show (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        super.respondWithResource(wallet, 'wallet')
+      })
     })
-
-    next()
   }
 
-  transactions(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
-
-      db.transactions.paginate({
-        where: {
-          [Op.or]: [{
-            senderPublicKey: result.publicKey,
-          }, {
-            recipientId: result.address,
-          }]
-        }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: result.rows,
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: result.count
-          }),
+  transactions (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllByWallet(wallet, this.pager).then(transactions => {
+          super.respondWithPagination(transactions, 'transaction')
         })
       })
     })
-
-    next()
   }
 
-  transactionsSend(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
-
-      db.transactions.paginate({
-        where: {
-          senderPublicKey: result.publicKey
-        }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: result.rows,
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: result.count
-          }),
+  transactionsSend (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllBySender(wallet.publicKey, this.pager).then(transactions => {
+          super.respondWithPagination(transactions, 'transaction')
         })
       })
     })
-
-    next()
   }
 
-  transactionsReceived(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
-
-      db.transactions.paginate({
-        where: {
-          recipientId: result.address
-        }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: result.rows,
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: result.count
-          }),
+  transactionsReceived (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateAllByRecipient(wallet.address, this.pager).then(transactions => {
+          super.respondWithPagination(transactions, 'transaction')
         })
       })
     })
-
-    next()
   }
 
-  votes(req, res, next) {
-    db.accounts.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
-
-      db.transactions.paginate({
-        where: {
-          senderPublicKey: result.publicKey,
-          type: 3
-        }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: result.rows,
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: result.count
-          }),
+  votes (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.accounts.findById(req.params.id).then(wallet => {
+        db.transactions.paginateVotesBySender(wallet.publicKey, this.pager).then(transactions => {
+          super.respondWithPagination(transactions, 'transaction')
         })
       })
     })
-
-    next()
   }
 }
 

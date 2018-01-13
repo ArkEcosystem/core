@@ -1,68 +1,60 @@
 const querystring = require('querystring')
 
 class Paginator {
-  constructor(request, count, page, perPage) {
+  constructor (request, count, pager) {
     this.request = request
     this.count = count
-    this.page = page
-    this.perPage = perPage
-    this.totalPages = Math.round(count / perPage)
+    this.page = pager.page
+    this.perPage = pager.perPage
+    this.totalPages = Math.round(count / pager.perPage)
   }
 
-  meta() {
+  meta () {
     return {
       page: this.page,
       per_page: this.perPage,
-      total: this.totalPages,
+      total: this.totalPages
     }
   }
 
-  links() {
+  links () {
     return {
       first_page_url: this.firstPageUrl(),
       last_page_url: this.lastPageUrl(),
       next_page_url: this.nextPageUrl(),
-      prev_page_url: this.previousPageUrl(),
+      prev_page_url: this.previousPageUrl()
     }
   }
 
-  firstPageUrl() {
+  firstPageUrl () {
     return this.toFullUrl({
       page: 1
     })
   }
 
-  lastPageUrl() {
+  lastPageUrl () {
     return this.toFullUrl({
       page: this.totalPages
     })
   }
 
-  nextPageUrl() {
-    let query = {}
-
-    if (this.page >= this.totalPages) {
-      query.page = this.totalPages
-    } else {
-      query.page = this.page + 1
-    }
-
-    return this.toFullUrl(query)
+  nextPageUrl () {
+    return this.toFullUrl({
+      page: (this.page >= this.totalPages) ? this.totalPages : this.page + 1
+    })
   }
 
-  previousPageUrl() {
-    let query = {}
+  previousPageUrl () {
+    return this.toFullUrl({
+      page: (this.page <= 1) ? 1 : this.page - 1
+    })
+  }
 
-    if (this.page <= 1) {
+  toFullUrl (query) {
+    if (query.page <= 0) {
       query.page = 1
-    } else {
-      query.page = this.page - 1
     }
 
-    return this.toFullUrl(query)
-  }
-
-  toFullUrl(query) {
     if (this.perPage > 0) {
       query.perPage = this.perPage
     }

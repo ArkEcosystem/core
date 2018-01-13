@@ -1,20 +1,20 @@
 const Promise = require('bluebird')
 
 class DependencyHandler {
-  checkDatabaseLibraries(config) {
+  checkDatabaseLibraries (config) {
     let dependencies = {
       'database/sequelize': {
         'mysql': ['sequelize', 'mysql2'],
         'sqlite': ['sequelize', 'sqlite3'],
         'postgres': ['sequelize', 'pg', 'pg-hstore'],
-        'mssql': ['sequelize', 'tedious'],
+        'mssql': ['sequelize', 'tedious']
       }[config.server.db.dialect]
     }[config.server.db.driver]
 
     return this._install(dependencies)
   }
 
-  _install(dependencies) {
+  _install (dependencies) {
     dependencies = dependencies.filter(value => !this._exists(value))
 
     if (!dependencies.length) {
@@ -26,7 +26,7 @@ class DependencyHandler {
       .execAsync(`npm install ${dependencies.join(' ')} --save`)
   }
 
-  _exists(dependency) {
+  _exists (dependency) {
     try {
       require.resolve(dependency)
 

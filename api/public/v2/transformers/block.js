@@ -1,5 +1,5 @@
 class BlockTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       id: model.id,
       version: model.version,
@@ -8,11 +8,11 @@ class BlockTransformer {
       forged: {
         reward: model.reward,
         fee: model.totalFee,
-        total: model.totalForged,
+        total: model.totalForged
       },
       payload: {
         length: model.payloadLength,
-        hash: model.payloadHash,
+        hash: model.payloadHash
       },
       generator: {
         id: model.generatorId,
@@ -21,7 +21,7 @@ class BlockTransformer {
       signature: model.blockSignature,
       confirmations: model.confirmations,
       transactions: model.numberOfTransactions,
-      created_at: model.timestamp,
+      created_at: model.timestamp
     };
   }
 }

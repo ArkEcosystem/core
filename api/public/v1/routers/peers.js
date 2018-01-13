@@ -1,7 +1,7 @@
 const controller = require('../controllers/peers')
 
 class PeersRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('peers', controller.index)
     registrar.get('peers/get', controller.show)
     registrar.get('peers/version', controller.version)
