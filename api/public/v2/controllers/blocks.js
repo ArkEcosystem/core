@@ -1,70 +1,30 @@
-const db = requireFrom('core/dbinterface').getInstance()
-const responder = requireFrom('api/responder')
-const Paginator = requireFrom('api/paginator')
+const Controller = require('./controller')
 
-class BlocksController {
-  index(req, res, next) {
-    let page = parseInt(req.query.page || 1)
-    let perPage = parseInt(req.query.perPage || 100)
-
-    db.blocks.paginate({}, page, perPage).then(result => {
-      const paginator = new Paginator(req, result.count, page, perPage)
-
-      responder.ok(req, res, {
-        data: result.rows,
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: result.count
-        }),
+class BlocksController extends Controller {
+  index (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.blocks.paginate(this.pager).then(blocks => {
+        super.respondWithPagination(blocks, 'block')
       })
     })
-
-    next()
   }
 
-  search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+  show (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.blocks.findById(req.params.id).then(block => {
+        super.respondWithResource(block, 'block')
+      })
+    })
   }
 
-  show(req, res, next) {
-    db.blocks.findById(req.params.id).then(result => {
-      if (result) {
-        responder.ok(req, res, {
-          data: result
-        })
-      } else {
-        responder.resourceNotFound(res, 'Sorry no DB entry could be found!');
-      }
-    });
-
-    next()
-  }
-
-  transactions(req, res, next) {
-    db.blocks.findById(req.params.id).then(result => {
-      const page = parseInt(req.query.page || 1)
-      const perPage = parseInt(req.query.perPage || 100)
-
-      db.transactions.paginate({
-        where: {
-          blockId: result.id
-        }
-      }, page, perPage).then(result => {
-        const paginator = new Paginator(req, result.count, page, perPage)
-
-        responder.ok(req, res, {
-          data: result.rows,
-          links: paginator.links(),
-          meta: Object.assign(paginator.meta(), {
-            count: result.count
-          }),
+  transactions (req, res, next) {
+    super.init(req, res, next).then(db => {
+      db.blocks.findById(req.params.id).then(block => {
+        db.transactions.paginateByBlock(block.id, this.pager).then(transactions => {
+          super.respondWithPagination(transactions, 'transaction')
         })
       })
     })
-
-    next()
   }
 }
 

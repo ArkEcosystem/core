@@ -1,10 +1,11 @@
 class WalletTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       address: model.address,
       public_key: model.publicKey,
       balance: model.balance,
-    };
+      is_delegate: !!model.username
+    }
   }
 }
 

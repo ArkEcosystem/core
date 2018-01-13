@@ -17,7 +17,8 @@
     "test:api:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.api",
     "test:unit": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.unit",
     "test:unit:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.unit",
-    "coverage": "NODE_PATH=. NODE_ENV=test nyc mocha"
+    "coverage": "NODE_PATH=. NODE_ENV=test nyc mocha",
+    "lint": "eslint ./ --fix"
   },
   "keywords": [
     "ark",
@@ -44,6 +45,7 @@
     "popsicle": "^9.2.0",
     "progress": "^2.0.0",
     "promise-worker": "^1.1.1",
+    "public-ip": "^2.4.0",
     "restify": "^6.3.4",
     "sequelize": "^4.31.0",
     "sqlite3": "^3.1.13",
@@ -55,6 +57,11 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "mocha": "^4.0.1",
     "nyc": "^11.3.0",
     "sinon": "^4.1.3",

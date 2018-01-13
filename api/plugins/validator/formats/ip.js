@@ -1,9 +1,9 @@
 class IpFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('ip', {
       type: 'string',
       validate: (value) => {
-        return require('ip').isV4Format(str)
+        return require('ip').isV4Format(value)
       }
     });
   }

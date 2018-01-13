@@ -38,6 +38,6 @@ describe('Model | Transaction', () => {
   })
 
   describe('serialize', () => {
-    
+
   })
 })

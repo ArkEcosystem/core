@@ -1,5 +1,5 @@
 class PublicKeyFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('publicKey', {
       type: 'string',
       validate: (value) => {
@@ -8,7 +8,7 @@ class PublicKeyFormat {
         }
 
         try {
-          return Buffer(value, 'hex').length === 33
+          return Buffer.from(value, 'hex').length === 33
         } catch (e) {
           return false
         }

@@ -1,28 +1,52 @@
-const responder = requireFrom('api/responder')
+const blockchain = requireFrom('core/blockchainManager')
+const publicIp = require('public-ip')
+const Controller = require('./controller')
 
-class PeersController {
-  index(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
+class PeersController extends Controller {
+  index (req, res, next) {
+    super.init(req, res, next).then(() => {
+      blockchain.getInstance().networkInterface.getPeers()
+        .then(peers => {
+          let result = peers.sort(() => 0.5 - Math.random())
+          result = req.query.os ? result.filter(peer => { return peer.os === req.query.os }) : result
+          result = req.query.status ? result.filter(peer => { return peer.status === req.query.status }) : result
+          result = req.query.port ? result.filter(peer => { return peer.port === req.query.port }) : result
+          result = req.query.version ? result.filter(peer => { return peer.version === req.query.version }) : result
+          result = result.slice(0, (req.query.limit || 100))
 
-    next()
+          if (req.query.orderBy) {
+            const order = req.query.orderBy.split(':')
+
+            if (['port', 'status', 'os', 'version'].includes(order[0])) {
+              result = order[1].toUpperCase() === 'ASC'
+                ? result.sort((a, b) => a[order[0]] - b[order[0]])
+                : result.sort((a, b) => a[order[0]] + b[order[0]])
+            }
+          }
+
+          super.respondWithCollection(result, 'peer')
+      })
+    })
   }
 
-  search(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+  show (req, res, next) {
+    super.init(req, res, next).then(() => {
+      blockchain.getInstance().networkInterface.getPeers()
+        .then(peers => {
+          super.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer')
+      })
+    })
   }
 
-  me(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
-  }
-
-  show(req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+  me (req, res, next) {
+    super.init(req, res, next).then(() => {
+      publicIp.v4().then(ip => {
+        blockchain.getInstance().networkInterface.getPeers()
+          .then(peers => {
+            super.respondWithResource(peers.find(p => p.ip === ip), 'peer')
+        })
+      })
+    })
   }
 }
 
