@@ -1,3 +1,4 @@
+const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
 const moment = require('moment')
 
@@ -6,8 +7,33 @@ class TransactionsRepository {
     this.db = db
   }
 
-  all (params = {}) {
-    return this.db.transactionsTable.findAndCountAll(params)
+  all (queryParams) {
+    let whereStatement = {}
+    let orderBy = []
+
+    const filter = ['type', 'senderPublicKey', 'vendorField', 'senderId', 'recipientId', 'amount', 'fee', 'blockId']
+    for (const elem of filter) {
+      if (!!queryParams[elem])
+        whereStatement[elem] = queryParams[elem]
+    }
+
+    if (!!queryParams.orderBy){
+      let order = queryParams.orderBy.split(':')
+      if (['timestamp', 'type', 'amount'].includes(order[0])) {
+        orderBy.push(queryParams.orderBy.split(':'))
+      }
+    }
+
+    return this.db.transactionsTable.findAndCountAll({
+      where: whereStatement,
+      order: orderBy,
+      offset: parseInt(queryParams.offset || 1),
+      limit: parseInt(queryParams.limit || 100),
+      include: {
+        model: this.db.blocksTable,
+        attributes: ['height'],
+      }
+    })
   }
 
   paginate (pager, params = {}) {

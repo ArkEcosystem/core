@@ -1,6 +1,3 @@
-'use strict';
-
-var constants = require('../helpers/constants.js');
 
 module.exports = {
   getTransactions: {
@@ -52,12 +49,12 @@ module.exports = {
       amount: {
         type: 'integer',
         minimum: 0,
-        maximum: constants.fixedPoint
+        maximum: Math.pow(10, 8),
       },
       fee: {
         type: 'integer',
         minimum: 0,
-        maximum: constants.fixedPoint
+        maximum: Math.pow(10, 8),
       }
     }
   },

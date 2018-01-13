@@ -79,10 +79,9 @@ module.exports = {
         minimum: 1,
         maximum: 65535
       },
-      state: {
-        type: 'integer',
-        minimum: 0,
-        maximum: 3
+      status: {
+        type: 'string',
+        maxLength: 20
       },
       os: {
         type: 'string',

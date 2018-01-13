@@ -1,8 +1,8 @@
 {
-  "port": 4002,
+  "port": 15487,
   "version": "2.0.0",
   "fileLogLevel": "debug",
-  "fastRebuild": true,
+  "fastRebuild": false,
   "db": {
     "driver": "database/sequelize",
     "uri": "sqlite:storage/devnet.sqlite",

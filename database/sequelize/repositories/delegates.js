@@ -1,4 +1,13 @@
+const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
+const arkjs = require('arkjs')
+const blockchain = requireFrom('core/blockchainManager')
+const config = requireFrom('core/config')
+const logger = requireFrom('core/logger')
+const db = requireFrom('core/dbinterface').getInstance()
+const responder = requireFrom('api/responder')
+const transformer = requireFrom('api/transformer')
+const crypto = require('crypto')
 
 class DelegatesRepository {
   constructor (db) {

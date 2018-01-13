@@ -61,8 +61,8 @@ class PublicAPI {
 
   startServer () {
     this.server.listen(this.config.server.api.port, () => {
-      console.log('ARK Core - Public API - Mounted')
-      console.log('[%s] listening at [%s].', this.server.name, this.server.url)
+      logger.info('ARK Core - Public API - Mounted')
+      logger.info('[%s] listening at [%s].', this.server.name, this.server.url)
     })
   }
 
@@ -72,7 +72,7 @@ class PublicAPI {
     if (!version) {
       req._version = this.config.server.api.version
 
-      logger.info('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
+      logger.debug('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
     }
 
     if (req.version().startsWith('~')) {
