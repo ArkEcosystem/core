@@ -31,11 +31,15 @@ class BlockchainManager {
       },
       1
     )
+
     this.downloadQueue.drain = () => {
       logger.info('Block Process Queue Size', that.processQueue.length())
+      // beware we are starting a new thread here
       this.syncWithNetwork({data: this.lastDownloadedBlock})
     }
-    this.processQueue.drain = () => this.finishedNetworkSync()
+
+    // beware we are starting a new thread here
+    this.processQueue.drain = () => this.continueNetworkSync()
 
     // sleep(60000).then(() => this.testRandomRebuild())
 
@@ -77,16 +81,18 @@ class BlockchainManager {
     return Promise.resolve()
   }
 
-  finishedNetworkSync () {
+  continueNetworkSync () {
+    logger.debug('Process queue drained, function continueNetworkSync called at height', this.lastBlock.data.height)
     if (this.isSynced(this.lastBlock)) {
       logger.info('Blockchain updated to height', this.lastBlock.data.height)
       this.fastRebuild = false
       return this.startNetworkMonitoring()
     } else if (this.downloadpaused) {
+      logger.info('Download was paused, restarting synchronisation from height', this.lastBlock.data.height)
       this.downloadpaused = false
       return this.syncWithNetwork(this.lastBlock)
     } else {
-      this.stopNetworkMonitoring()
+      logger.debug('Network still syncing, exiting without doing anything')
       return Promise.resolve()
     }
   }
@@ -102,12 +108,13 @@ class BlockchainManager {
 
     return this.networkInterface.updateNetworkStatus()
       .then(() => this.syncWithNetwork(this.lastBlock))
-      .then(() => sleep(180000))
+      .then(() => sleep(60000))
       .then(() => this.updateBlockchainFromNetwork())
   }
 
   stopNetworkMonitoring () {
     this.monitoring = false
+    return Promise.resolve(this.monitoring)
   }
 
   init () {
@@ -195,7 +202,8 @@ class BlockchainManager {
   }
 
   isSynced (block) {
-    return arkjs.slots.getTime() - block.data.timestamp < 2 * this.config.getConstants(block.data.height).blocktime
+    // TODO: move to config how many blocktime from current slot is considered 'in synced'
+    return arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
   }
 
   syncWithNetwork (block) {
@@ -209,8 +217,10 @@ class BlockchainManager {
     if (this.config.server.test) return Promise.resolve()
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
-      if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
-      else {
+      if (!blocks || blocks.length === 0) {
+        logger.info('No new block found on this peer')
+        return that.syncWithNetwork(block)
+      } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         return Promise.resolve(blocks.length)

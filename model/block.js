@@ -18,7 +18,8 @@ class Block {
       return txx
     })
     this.verification = this.verify()
-    if (this.data.height === 3084276 || this.data.height === 34420) { // order of transactions messed up in V1
+    // order of transactions messed up in mainnet V1
+    if (this.transactions.length === 2 && (this.data.height === 3084276 || this.data.height === 34420)) {
       const temp = this.transactions[0]
       this.transactions[0] = this.transactions[1]
       this.transactions[1] = temp

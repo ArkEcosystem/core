@@ -65,10 +65,8 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  applyRound (block, rebuild, fastRebuild) {
+  tickRebuildTracker (block, rebuild, fastRebuild) {
     if (rebuild) { // basically don't make useless database interaction like saving account state
-      // process.stdout.write((block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(2) + '%\u{1b}[0G')
-      // logger.info(block.data.timestamp * 100 / arkjs.slots.getTime())
       if (!rebuildtracker) {
         rebuildtracker = {
           starttimestamp: block.data.timestamp,
@@ -77,14 +75,19 @@ class DBInterface {
       }
       const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - rebuildtracker.starttimestamp) / (new Date().getTime() - rebuildtracker.startdate)
       const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
-
-      process.stdout.write('  ' + 'Rebuilding'.blue + ' [')
+      process.stdout.write('  ')
+      if (fastRebuild) process.stdout.write('Fast '.blue)
+      process.stdout.write('Rebuilding'.blue + ' [')
       process.stdout.write(('='.repeat(progress / 2)).green)
       process.stdout.write(' '.repeat(50 - progress / 2) + '] ')
       process.stdout.write((block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3) + '% ')
       process.stdout.write(human(remainingtime))
       process.stdout.write('\u{1b}[0G')
     }
+  }
+
+  applyRound (block, rebuild, fastRebuild) {
+    this.tickRebuildTracker(block, rebuild, fastRebuild)
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving account state
         return this.buildDelegates(block)
