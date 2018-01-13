@@ -1,5 +1,5 @@
 class DelegateTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       username: model.username,
       address: model.address,
@@ -8,15 +8,15 @@ class DelegateTransformer {
       rank: model.rank,
       blocks: {
         produced: model.producedblocks,
-        missed: model.missedblocks,
-        last: {
-          id: models.lastBlock.id,
-          created_at: models.lastBlock.created_at,
-        },
+        missed: model.missedblocks
+        // last: {
+        //   id: model.lastBlock.id,
+        //   created_at: model.lastBlock.createdAt,
+        // },
       },
       production: {
         approval: model.approval,
-        productivity: model.productivity,
+        productivity: model.productivity
       }
     };
   }

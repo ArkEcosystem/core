@@ -1,19 +1,19 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
+const Transformer = requireFrom('api/transformer')
 
 class TransactionsController {
-  index(req, res, next) {
+  index (req, res, next) {
     db.transactions.all(req.query).then(result => {
       responder.ok(req, res, {
-        transactions: new transformer(req).collection(result.rows, 'transaction')
+        transactions: new Transformer(req).collection(result.rows, 'transaction')
       })
     })
 
     next()
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
     db.transactions.findById(req.params.id).then(result => {
       responder.ok(req, res, result)
     })
@@ -21,7 +21,7 @@ class TransactionsController {
     next()
   }
 
-  unconfirmed(req, res, next) {
+  unconfirmed (req, res, next) {
 
     //needs to be picked up from transaction pool
     responder.notImplemented(res, 'Method has not yet been implemented.')
@@ -29,8 +29,8 @@ class TransactionsController {
     next()
   }
 
-  showUnconfirmed(req, res, next) {
-    //needs to be picked up from transaction pool
+  showUnconfirmed (req, res, next) {
+    // needs to be picked up from transaction pool
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()

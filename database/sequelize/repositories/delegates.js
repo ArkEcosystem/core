@@ -10,59 +10,52 @@ const transformer = requireFrom('api/transformer')
 const crypto = require('crypto')
 
 class DelegatesRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  all(params = {}) {
-    const that = this
-    this.delegates = {}
-    return this.db.accountsTable
-      .findAll({
-        attributes: [
-          ['vote', 'publicKey'],
-          [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
-        ],
-        group: 'vote',
-        where: {
-          vote: {
-            [Sequelize.Op.ne]: null
-          }
-        }
-      })
-      .then(data => {
-        // logger.info(`got ${data.length} voted delegates`)
-        that.delegates = data
-          .sort((a, b) => b.balance - a.balance)
-        logger.debug(`Found ${that.delegates.length} active delegates`)
-        return Promise.resolve(that.delegates)
-      })
-  }
+  all (params = {}) {
+    let where = Object.assign(params.where, {
+      username: {
+        [Op.ne]: null
+      }
+    })
 
-  paginate(params, page, perPage) {
-    return this.db.accountstable.findAndCountAll(Object.assign(params, {
-      where: {
-        username: {
-          [Op.ne]: null
-        },
-      },
-      offset: page * perPage,
-      limit: perPage,
+    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
+      where: where
     }))
   }
 
-  findById(id) {
-    return this.db.accountstable.findOne({
+  paginate (pager, params = {}) {
+    let offset = 0
+
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
+    }
+
+    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
+      where: {
+        username: {
+          [Op.ne]: null
+        }
+      },
+      offset: offset,
+      limit: pager.perPage
+    }))
+  }
+
+  findById (id) {
+    return this.db.accountsTable.findOne({
       where: {
         username: {
           [Op.ne]: null
         },
         [Op.or]: [{
-          address: id,
+          address: id
         }, {
-          publicKey: id,
+          publicKey: id
         }, {
-          username: id,
+          username: id
         }]
       }
     })

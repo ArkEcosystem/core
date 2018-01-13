@@ -2,7 +2,7 @@ const controller = requireFrom('api/public/v1/controllers/signatures')
 const schema = requireFrom('api/public/v1/schemas/peers')
 
 class SignaturesRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('signatures/fee', controller.fee)
   }
 }

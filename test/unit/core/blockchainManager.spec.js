@@ -5,12 +5,12 @@ const BlockchainManager = require('core/blockchainManager')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {
-    expect(BlockchainManager).to.be
+    expect(BlockchainManager).to.be.an('object')
   })
 
   it('works with sinons', () => {
     const spy = sinon.spy()
     spy()
-    expect(spy).to.have.been.called
+    expect(spy).to.have.been.called()
   })
 })

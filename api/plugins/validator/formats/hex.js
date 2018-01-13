@@ -1,10 +1,10 @@
 class HexFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('hex', {
       type: 'string',
       validate: (value) => {
         try {
-          Buffer(value, 'hex')
+          Buffer.from(value, 'hex')
         } catch (e) {
           return false
         }

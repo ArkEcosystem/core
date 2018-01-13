@@ -1,9 +1,8 @@
 const controller = require('../controllers/signatures')
 
 class SignaturesRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('signatures', controller.index)
-    registrar.post('signatures', controller.store)
   }
 }
 

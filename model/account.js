@@ -68,7 +68,6 @@ class Account {
         case 7:
           this.multisignature = null
           break
-
       }
       this.dirty = true
     }

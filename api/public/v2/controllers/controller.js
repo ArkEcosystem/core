@@ -1,0 +1,63 @@
+const db = requireFrom('core/dbinterface').getInstance()
+const responder = requireFrom('api/responder')
+const Transformer = requireFrom('api/transformer')
+const Paginator = requireFrom('api/paginator')
+
+class Controller {
+  init (request, response, next) {
+    this.request = request
+    this.response = response
+    this.next = next
+
+    this.pager = {
+      page: parseInt(this.request.query.page || 1),
+      perPage: parseInt(this.request.query.perPage || 100)
+    }
+
+    return Promise.resolve(db)
+  }
+
+  respondWithPagination (data, transformerClass) {
+    if (data.count) {
+      const paginator = new Paginator(this.request, data.count, this.pager)
+
+      responder.ok(this.request, this.response, {
+        data: new Transformer(this.request).collection(data.rows, transformerClass),
+        links: paginator.links(),
+        meta: Object.assign(paginator.meta(), {
+          count: data.count
+        })
+      })
+    } else {
+      responder.resourceNotFound(this.response, 'Record could not be found.')
+    }
+
+    this.next()
+  }
+
+  respondWithResource (data, transformerClass) {
+    if (data) {
+      responder.ok(this.request, this.response, {
+        data: new Transformer(this.request).resource(data, transformerClass)
+      })
+    } else {
+      responder.resourceNotFound(this.response, 'Record could not be found.')
+    }
+
+    this.next()
+  }
+
+  respondWithCollection (data, transformerClass) {
+    if (data) {
+      responder.ok(this.request, this.response, {
+        data: new Transformer(this.request).collection(data, transformerClass)
+      })
+    } else {
+      responder.resourceNotFound(this.response, 'Record could not be found.')
+    }
+
+    this.next()
+  }
+}
+
+module.exports = Controller

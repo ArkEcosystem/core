@@ -3,9 +3,17 @@ const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
 
 class BlockchainController {
-  index(req, res, next) {
+  index (req, res, next) {
     responder.ok(req, res, {
       data: config.getConstants(blockchain.getInstance().lastBlock.data.height)
+    })
+
+    next()
+  }
+
+  fees (req, res, next) {
+    responder.ok(req, res, {
+      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
 
     next()

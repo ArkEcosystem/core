@@ -1,5 +1,5 @@
 class SignatureFormat {
-  constructor(ajv) {
+  constructor (ajv) {
     ajv.addFormat('signature', {
       type: 'string',
       validate: (value) => {
@@ -8,7 +8,7 @@ class SignatureFormat {
         }
 
         try {
-          return Buffer(value, 'hex').length < 73
+          return Buffer.from(value, 'hex').length < 73
         } catch (e) {
           return false
         }

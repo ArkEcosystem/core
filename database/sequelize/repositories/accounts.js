@@ -3,26 +3,34 @@ const Op = require('sequelize').Op
 
 
 class AccountsRepository {
-  constructor(db) {
+  constructor (db) {
     this.db = db
   }
 
-  all(queryParams) {
+  all (queryParams) {
     return this.db.accountsTable.findAndCountAll({
       offset: parseInt(queryParams.offset || 1),
       limit: parseInt(queryParams.limit || 100)
     })
   }
 
-  findById(id) {
+  paginateByVote (publicKey, pager) {
+    return this.paginate(pager, {
+      where: {
+        vote: publicKey
+      }
+    })
+  }
+
+  findById (id) {
     return this.db.accountsTable.findOne({
       where: {
         [Op.or]: [{
-          address: id,
+          address: id
         }, {
-          publicKey: id,
+          publicKey: id
         }, {
-          username: id,
+          username: id
         }]
       }
     })

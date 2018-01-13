@@ -3,26 +3,27 @@ const config = requireFrom('core/config')
 const logger = requireFrom('core/logger')
 const db = requireFrom('core/dbinterface').getInstance()
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
+const Transformer = requireFrom('api/transformer')
 const arkjs = require('arkjs')
 
 class WalletsController {
   index(req, res, next) {
     db.accounts.all(req.query).then(result => {
       responder.ok(req, res, {
-        accounts: new transformer(req).collection(result.rows, 'account')
+        accounts: new Transformer(req).collection(result.rows, 'account')
       })
     })
 
     next()
   }
 
-  show(req, res, next) {
+
+  show (req, res, next) {
     db.accounts.findById(req.query.address)
     .then(result => {
       if (result) {
         responder.ok(req, res, {
-          account: new transformer(req).resource(result, 'account')
+          account: new Transformer(req).resource(result, 'account')
         })
       }else {
         responder.error(req, res, {
@@ -41,7 +42,7 @@ class WalletsController {
     next()
   }
 
-  balance(req, res, next) {
+  balance (req, res, next) {
     db.accounts.findById(req.query.address)
     .then(account => {
       if (account) {
@@ -58,7 +59,6 @@ class WalletsController {
     })
     .catch(error => {
       logger.error(error)
-
       responder.error(req, res, {
         error: error
       })
@@ -67,7 +67,8 @@ class WalletsController {
     next()
   }
 
-  publicKey(req, res, next) {
+
+  publicKey (req, res, next) {
     db.accounts.findById(req.query.address)
     .then(account => {
       if (account) {
@@ -82,7 +83,6 @@ class WalletsController {
     })
     .catch(error => {
       logger.error(error)
-
       responder.error(req, res, {
         error: error
       })
@@ -91,74 +91,67 @@ class WalletsController {
     next()
   }
 
-  fee(req, res, next) {
+  fee (req, res, next) {
     res.send(200, {
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate,
+      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
     })
 
     next()
   }
 
   // TODO - pretify this below
-  delegates(req, res, next) {
+  delegates (req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
-    if (arkjs.crypto.validateAddress(req.query.address, config.network.pubKeyHash)) {
-      db.accounts.findById(req.query.address)
-        .then(account => {
-          if (!account){
-            responder.error(req, res, {
-              error: `Address not found.`
-            })
-            return
-          }
-          if (!account.vote) {
-            responder.error(req, res, {
-              error: `Address ${req.query.address} hasn\'t voted yet.`
-            })
-            return
-          }
-          let totalSupply = config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
-          db.getActiveDelegates(blockchain.getInstance().lastBlock.data.height)
-            .then(activedelegates => {
-              let delPos = activedelegates.findIndex(del => {return del.publicKey === account.vote})
-              let votedDel = activedelegates[delPos]
-              db.accounts.getProducedBlocks(account.vote).then(producedBlocks => {
-                db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
-                  .then(account => {
-                    responder.ok(req, res, {
-                      delegates: [{
-                        username: account.username,
-                        address: account.address,
-                        publicKey: account.publicKey,
-                        vote: ''+votedDel.balance,
-                        producedblocks: producedBlocks,
-                        missedblocks: 0, //TODO how?
-                        rate: delPos+1,
-                        approval: (votedDel.balance / totalSupply) * 100,
-                        productivity: 100,
-                      }],
-                    })
-                  })
-              })
-            })
-        })
-        .catch(error => {
-          logger.error(error)
-
+    db.accounts.findById(req.query.address)
+      .then(account => {
+        if (!account){
           responder.error(req, res, {
-            error: error
+            error: `Address not found.`
           })
-        })
-    } else {
-      responder.error(req, res, {
-        error: 'Object didn\'t pass validation for format address: ' + req.query.address,
+          return
+        }
+        if (!account.vote) {
+          responder.error(req, res, {
+            error: `Address ${req.query.address} hasn\'t voted yet.`
+          })
+          return
+        }
+        let totalSupply = config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+        db.getActiveDelegates(blockchain.getInstance().lastBlock.data.height)
+          .then(activedelegates => {
+            let delPos = activedelegates.findIndex(del => {return del.publicKey === account.vote})
+            let votedDel = activedelegates[delPos]
+            db.accounts.getProducedBlocks(account.vote).then(producedBlocks => {
+              db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+                .then(account => {
+                  responder.ok(req, res, {
+                    delegates: [{
+                      username: account.username,
+                      address: account.address,
+                      publicKey: account.publicKey,
+                      vote: ''+votedDel.balance,
+                      producedblocks: producedBlocks,
+                      missedblocks: 0, //TODO how?
+                      rate: delPos+1,
+                      approval: (votedDel.balance / totalSupply) * 100,
+                      productivity: 100,
+                    }],
+                  })
+                })
+            })
+          })
       })
-    }
+      .catch(error => {
+        logger.error(error)
 
+        responder.error(req, res, {
+          error: error
+        })
+      })
     next()
   }
 
-  top(req, res, next) {
+  top (req, res, next) {
     db.accounts.top(req.query).then(result => {
       responder.ok(req, res, {
         accounts: result.rows
@@ -168,10 +161,10 @@ class WalletsController {
     next()
   }
 
-  count(req, res, next) {
+  count (req, res, next) {
     db.accounts.all().then(result => {
       responder.ok(req, res, {
-        count: result.count,
+        count: result.count
       })
     })
 

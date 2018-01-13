@@ -5,8 +5,7 @@ const logger = requireFrom('core/logger')
 const config = requireFrom('core/config')
 
 class PeersController {
-
-  index(req, res, next) {
+  index (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
         if (!!peers) {
@@ -46,8 +45,7 @@ class PeersController {
 
     next()
   }
-
-  show(req, res, next) {
+  show (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
         if (!!peers) {
@@ -78,7 +76,7 @@ class PeersController {
     next()
   }
 
-  version(req, res, next) {
+  version (req, res, next) {
     responder.ok(req,res, {
       version: config.server.version
     })

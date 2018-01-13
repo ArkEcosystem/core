@@ -2,15 +2,15 @@ const blockchain = requireFrom('core/blockchainManager')
 const db = requireFrom('core/dbinterface').getInstance()
 const config = requireFrom('core/config')
 const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
+const Transformer = requireFrom('api/transformer')
 const logger = requireFrom('core/logger')
 
 class BlocksController {
-  index(req, res, next) {
+  index (req, res, next) {
     db.blocks.all(req.query)
       .then(result => {
         responder.ok(req, res, {
-          blocks: new transformer(req).collection(result.rows, 'block')
+          blocks: new Transformer(req).collection(result.rows, 'block')
         })
       })
       .catch(error => {
@@ -24,7 +24,7 @@ class BlocksController {
     next()
   }
 
-  show(req, res, next) {
+  show (req, res, next) {
 
     db.blocks.findById(req.query.id)
       .then(result => {
@@ -34,13 +34,12 @@ class BlocksController {
           })
         } else {
           responder.ok(req, res, {
-            block: new transformer(req).resource(result, 'block')
+            block: new Transformer(req).resource(result, 'block')
           })
         }
       })
       .catch(error => {
         logger.error(error)
-
         responder.error(req, res, {
           error: error
         })
@@ -49,7 +48,7 @@ class BlocksController {
     next()
   }
 
-  epoch(req, res, next) {
+  epoch (req, res, next) {
     responder.ok(req,res,{
       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch
     })
@@ -57,7 +56,7 @@ class BlocksController {
     next()
   }
 
-  height(req, res, next) {
+  height (req, res, next) {
     let block = blockchain.getInstance().lastBlock.data
 
     responder.ok(req,res,{
@@ -68,7 +67,7 @@ class BlocksController {
     next()
   }
 
-  nethash(req, res, next) {
+  nethash (req, res, next) {
     responder.ok(req,res,{
       nethash: config.network.nethash
     })
@@ -76,7 +75,7 @@ class BlocksController {
     next()
   }
 
-  fee(req, res, next) {
+  fee (req, res, next) {
     responder.ok(req,res,{
       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
@@ -84,7 +83,7 @@ class BlocksController {
     next()
   }
 
-  fees(req, res, next) {
+  fees (req, res, next) {
     responder.ok(req,res,{
       fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
     })
@@ -92,7 +91,7 @@ class BlocksController {
     next()
   }
 
-  milestone(req, res, next) {
+  milestone (req, res, next) {
     responder.ok(req,res,{
       milestone: ~~(blockchain.getInstance().lastBlock.data.height / 3000000)
     })
@@ -100,7 +99,7 @@ class BlocksController {
     next()
   }
 
-  reward(req, res, next) {
+  reward (req, res, next) {
     responder.ok(req,res,{
       reward: config.getConstants(blockchain.getInstance().lastBlock.data.height).reward
     })
@@ -108,7 +107,7 @@ class BlocksController {
     next()
   }
 
-  supply(req, res, next) {
+  supply (req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
     responder.ok(req,res,{
       supply: config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
@@ -117,7 +116,7 @@ class BlocksController {
     next()
   }
 
-  status(req, res, next) {
+  status (req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
 
     responder.ok(req,res,{
@@ -132,7 +131,6 @@ class BlocksController {
 
     next()
   }
-
 }
 
 module.exports = new BlocksController()

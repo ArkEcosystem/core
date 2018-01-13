@@ -56,7 +56,7 @@ class Transaction {
       break
 
     case 2: // Delegate
-      var delegateBytes = new Buffer(transaction.asset.delegate.username, 'utf8')
+      var delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
       break
@@ -70,7 +70,7 @@ class Transaction {
       break
 
     case 4: // Multi-Signature
-      var keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.map((k) => k.slice(1)).join(''), 'hex')
+      var keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map((k) => k.slice(1)).join(''), 'hex')
       bb.writeByte(transaction.asset.multisignature.min)
       bb.writeByte(transaction.asset.multisignature.keysgroup.length)
       bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -209,7 +209,7 @@ class Transaction {
         tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
       if (tx.vendorFieldHex) {
-        tx.vendorField = new Buffer(tx.vendorFieldHex, 'hex').toString('utf8')
+        tx.vendorField = Buffer.from(tx.vendorFieldHex, 'hex').toString('utf8')
       }
       if (tx.type === 4) {
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map((k) => {
