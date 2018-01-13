@@ -15,7 +15,7 @@ describe('GET api/accounts/?address', () => {
   it('should return account/wallet information', (done) => {
     chai.request(base)
       .get(`/api/accounts/?address=${AddressActive}`)
-      .end((err, res)  => {
+      .end((err, res) => {
         Helpers.ValidateResponseStatus(err,res,200,true)
 
         expect(res.body.account).to.have.all.keys(['address','publicKey','secondPublicKey','vote','username','balance','votebalance'])
@@ -101,7 +101,7 @@ describe('GET /api/accounts/delegates?address', () => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressActive}`)
       .end((err, res)  => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.delegates).to.be.an('array')
         expect(res.body.delegates[0].producedblocks).to.be.a('number')
@@ -114,7 +114,7 @@ describe('GET /api/accounts/delegates?address', () => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressCold}`)
       .end((err, res)  => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body.error).to.be.a('string').contains(`Address not found.`)
 
@@ -122,5 +122,4 @@ describe('GET /api/accounts/delegates?address', () => {
       })
   })
 })
-
 
