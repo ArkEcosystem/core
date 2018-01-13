@@ -1,7 +1,5 @@
 const chai = require('chai')
 const { expect } = require('chai')
-const config = require('../../../core/config')
-const blockchain = requireFrom('core/blockchainManager')
 
 const Helpers = require('../helpers')
 const base = 'http://localhost:4003'
@@ -10,7 +8,7 @@ const Address1 = 'DQUjMT6fhJWbwhaYL5pPdX9v5qPiRcAzRb'
 const Address2 = 'DGihocTkwDygiFvmg6aG8jThYTic47GzU9'
 
 let transactionList = []
-let offsetTimestamp = 0
+// let offsetTimestamp = 0
 
 describe('GET /api/transactions', () => {
   it('using valid parameters should be ok', (done) => {
@@ -108,7 +106,7 @@ describe('GET /api/transactions', () => {
             expect(res.body.transactions[i].timestamp).to.be.at.most(res.body.transactions[i + 1].timestamp)
 
             if (flag === 0) {
-              offsetTimestamp = res.body.transactions[i + 1].timestamp
+              //offsetTimestamp = res.body.transactions[i + 1].timestamp
               flag = 1
             }
           }
@@ -255,7 +253,6 @@ describe('GET /api/transactions/unconfirmed', () => {
     .end((err, res) => {
       Helpers.ValidateResponseStatus(err, res, 200, true)
 
-      expect(res.body.success).to.be.ok
       expect(res.body.transactions).that.is.an('array')
       done()
     })

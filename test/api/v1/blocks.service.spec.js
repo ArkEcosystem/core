@@ -1,8 +1,5 @@
 const chai = require('chai')
 const { expect } = require('chai')
-const config = require('../../../core/config')
-const blockchain = requireFrom('core/blockchainManager')
-
 const Helpers = require('../helpers')
 const base = 'http://localhost:4003'
 
