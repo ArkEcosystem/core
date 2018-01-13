@@ -7,7 +7,7 @@ const Transformer = requireFrom('api/transformer')
 const arkjs = require('arkjs')
 
 class WalletsController {
-  index(req, res, next) {
+  index (req, res, next) {
     db.accounts.all(req.query).then(result => {
       responder.ok(req, res, {
         accounts: new Transformer(req).collection(result.rows, 'account')
@@ -17,7 +17,6 @@ class WalletsController {
     next()
   }
 
-
   show (req, res, next) {
     db.accounts.findById(req.query.address)
     .then(result => {
@@ -25,9 +24,9 @@ class WalletsController {
         responder.ok(req, res, {
           account: new Transformer(req).resource(result, 'account')
         })
-      }else {
+      } else {
         responder.error(req, res, {
-          error: 'Not found',
+          error: 'Not found'
         })
       }
     })
@@ -50,10 +49,9 @@ class WalletsController {
           balance: account ? account.balance : '0',
           unconfirmedBalance: account ? account.balance : '0'
         })
-      }
-      else {
+      } else {
         responder.error(req, res, {
-          error: 'Not found',
+          error: 'Not found'
         })
       }
     })
@@ -67,17 +65,16 @@ class WalletsController {
     next()
   }
 
-
   publicKey (req, res, next) {
     db.accounts.findById(req.query.address)
     .then(account => {
       if (account) {
         responder.ok(req, res, {
-          publicKey: account.publicKey,
+          publicKey: account.publicKey
         })
-      }else {
+      } else {
         responder.error(req, res, {
-          error: 'Not found',
+          error: 'Not found'
         })
       }
     })
@@ -104,22 +101,22 @@ class WalletsController {
     let lastblock = blockchain.getInstance().lastBlock.data
     db.accounts.findById(req.query.address)
       .then(account => {
-        if (!account){
+        if (!account) {
           responder.error(req, res, {
-            error: `Address not found.`
+            error: 'Address not found.'
           })
           return
         }
         if (!account.vote) {
           responder.error(req, res, {
-            error: `Address ${req.query.address} hasn\'t voted yet.`
+            error: `Address ${req.query.address} hasn't voted yet.`
           })
           return
         }
-        let totalSupply = config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+        let totalSupply = config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
         db.getActiveDelegates(blockchain.getInstance().lastBlock.data.height)
           .then(activedelegates => {
-            let delPos = activedelegates.findIndex(del => {return del.publicKey === account.vote})
+            let delPos = activedelegates.findIndex(del => { return del.publicKey === account.vote })
             let votedDel = activedelegates[delPos]
             db.accounts.getProducedBlocks(account.vote).then(producedBlocks => {
               db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
@@ -129,13 +126,13 @@ class WalletsController {
                       username: account.username,
                       address: account.address,
                       publicKey: account.publicKey,
-                      vote: ''+votedDel.balance,
+                      vote: '' + votedDel.balance,
                       producedblocks: producedBlocks,
-                      missedblocks: 0, //TODO how?
-                      rate: delPos+1,
+                      missedblocks: 0, // TODO how?
+                      rate: delPos + 1,
                       approval: (votedDel.balance / totalSupply) * 100,
-                      productivity: 100,
-                    }],
+                      productivity: 100
+                    }]
                   })
                 })
             })
@@ -170,7 +167,6 @@ class WalletsController {
 
     next()
   }
-
 }
 
 module.exports = new WalletsController()
