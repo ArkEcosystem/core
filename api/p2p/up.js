@@ -32,7 +32,7 @@ class Up {
     server.use(restify.plugins.gzipResponse())
 
     this.mountInternal(server)
-    if (this.config.server.api.testinterface) this.mountTestInterface(server)
+    if (this.config.server.api.remoteinterface) this.mountRemoteInterface(server)
     this.mountV1(server)
 
     server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
@@ -61,8 +61,8 @@ class Up {
     server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
-  mountTestInterface (server) {
-    server.get('/test/blockchain/:event', (req, res, next) => this.sendBlockchainEvent(req, res, next))
+  mountRemoteInterface (server) {
+    server.get('/remote/blockchain/:event', (req, res, next) => this.sendBlockchainEvent(req, res, next))
   }
 
   isLocalhost (req) {
@@ -70,7 +70,7 @@ class Up {
   }
 
   acceptRequest (req, res, next) {
-    if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/test/')) && !this.isLocalhost(req)) {
+    if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/remote/')) && !this.isLocalhost(req)) {
       res.send(500, {success: false, message: 'API not existing'})
     }
     const peer = {}
