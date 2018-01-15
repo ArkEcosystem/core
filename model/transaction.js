@@ -217,7 +217,6 @@ class Transaction {
           return '+' + k
         })
         tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
-        console.log(JSON.stringify(tx, null, 2))
       }
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)

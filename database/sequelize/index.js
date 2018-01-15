@@ -213,9 +213,24 @@ class SequelizeDB extends DBInterface {
           }
         })
         logger.printTracker('SPV Building', 7, 7, 'multisignatures')
-        // TODO
-
-        logger.info('SPV rebuild finished', Object.keys(this.localaccounts).length)
+        return this.transactionsTable.findAll({
+          attributes: [
+            'senderPublicKey',
+            'serialized'
+          ],
+          order: [[ 'createdAt', 'DESC' ]],
+          where: {type: 4}}
+        )
+      })
+      .then(data => {
+        data.forEach(row => {
+          const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
+          account.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
+        })
+        logger.info('SPV rebuild finished, accounts in memory:', Object.keys(this.localaccounts).length)
+        Object.keys(this.localaccounts)
+          .filter(a => this.localaccounts[a].balance < 0)
+          .forEach(a => logger.info(this.localaccounts[a]))
         return Promise.resolve(this.localaccounts || [])
       })
       .catch(error => logger.error(error))

@@ -111,7 +111,6 @@ class Account {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
       check = check && (!this.secondPublicKey || arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network))
     }
-    // console.log(check)
     if (!check) return false
 
     switch (transaction.type) {
@@ -130,7 +129,7 @@ class Account {
         else return false
 
       case 4:
-        return !this.multisignature && transaction.signatures.length === transaction.asset.multisignature.keysgroup.length
+        return !this.multisignature && this.verifySignatures(transaction)
 
       case 5:
         return true
@@ -150,7 +149,6 @@ class Account {
   }
 
   verifySignatures (transaction) {
-    let validSignatures = 0
     if (!transaction.signatures) return false
 
     return true

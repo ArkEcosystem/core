@@ -77,7 +77,7 @@ class Peer {
 
   ping () {
     return this
-      .get('/peer/status', 2000)
+      .get('/peer/status', 5000)
       .then(body => (this.height = (body || {}).height))
   }
 

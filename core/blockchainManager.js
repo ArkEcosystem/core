@@ -255,7 +255,6 @@ class BlockchainManager {
         status.lastDownloadedBlock = status.lastBlock.data
         qcallback()
       } else if (block.data.height < status.lastBlock.data.height) {
-        // TODO: manage fork here
         logger.info('Block disregarded because already in blockchain')
         qcallback()
       } else {

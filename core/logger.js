@@ -39,10 +39,12 @@ class Logger {
     line += ' ['
     line += ('='.repeat(progress / 2)).green
     line += ' '.repeat(50 - progress / 2) + '] '
-    line += progress.toFixed(figures) + '% '
     const hundred = 100
-    if (progress.toFixed(4) === hundred.toFixed(4)) line += '                              \n'
-    else if (posttitle) line += posttitle + ' '
+    if (progress.toFixed(4) === hundred.toFixed(4)) line += '✔️                              \n'
+    else {
+      line += progress.toFixed(figures) + '% '
+      if (posttitle) line += posttitle + ' '
+    }
     process.stdout.write(line)
   }
 }
