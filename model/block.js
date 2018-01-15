@@ -35,7 +35,7 @@ class Block {
 
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
-    const temp = Buffer.from(8)
+    const temp = Buffer(8)
     for (let i = 0; i < 8; i++) {
       temp[i] = hash[7 - i]
     }

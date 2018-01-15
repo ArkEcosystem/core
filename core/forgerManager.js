@@ -1,4 +1,4 @@
-const axios = require('axios')
+const popsicle = require('popsicle')
 const Delegate = require('../model/delegate')
 const logger = require('./logger')
 
@@ -51,12 +51,16 @@ class ForgerManager {
 
   broadcast (block) {
     console.log(block.data)
-    return axios
-      .post(this.proxy + '/internal/block', block.data, {
+    return popsicle
+      .request({
+        method: 'POST',
+        url: this.proxy + '/internal/block',
+        body: block.data,
         headers: this.headers,
         timeout: 2000
       })
-      .then((response) => response.data.success)
+      .use(popsicle.plugins.parse('json'))
+      .then((result) => result.success)
   }
 
   pickForgingDelegate (round) {
@@ -64,12 +68,15 @@ class ForgerManager {
   }
 
   getRound () {
-    return axios
-      .get(this.proxy + '/internal/round', {
+    return popsicle
+      .request({
+        method: 'GET',
+        url: this.proxy + '/internal/round',
         headers: this.headers,
         timeout: 2000
       })
-      .then((response) => response.data.round)
+      .use(popsicle.plugins.parse('json'))
+      .then((result) => result.body.round)
   }
 }
 
