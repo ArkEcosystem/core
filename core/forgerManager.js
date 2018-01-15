@@ -39,7 +39,7 @@ class ForgerManager {
         .then(block => that.broadcast(block))
         .catch(error => {
           logger.info('Not able to forge:', error.message)
-          logger.info('round:', round ? round.current : '', 'height:', round.lastBlock.height)
+          logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
           return Promise.resolve()
         })
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
