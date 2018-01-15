@@ -1,7 +1,5 @@
 const chai = require('chai')
 const { expect } = require('chai')
-const config = require('../../../core/config')
-const blockchain = requireFrom('core/blockchainManager')
 
 const Helpers = require('../helpers')
 const base = 'http://localhost:4003'
@@ -9,15 +7,11 @@ const base = 'http://localhost:4003'
 const Address1 = 'DQUjMT6fhJWbwhaYL5pPdX9v5qPiRcAzRb'
 const Address2 = 'DGihocTkwDygiFvmg6aG8jThYTic47GzU9'
 
-
 let transactionList = []
-let offsetTimestamp = 0
+// let offsetTimestamp = 0
 
-
-describe('GET /api/transactions',  () => {
-
-  it('using valid parameters should be ok',  (done) => {
-
+describe('GET /api/transactions', () => {
+  it('using valid parameters should be ok', (done) => {
     let limit = 10;
     let offset = 0;
     let orderBy = 'amount:asc'
@@ -32,22 +26,24 @@ describe('GET /api/transactions',  () => {
     ]
 
     chai.request(base)
-      .get('/api/transactions?' + params.join('&'), (err, res)  => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions?' + params.join('&'))
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.transactions).that.is.an('array')
 
         done()
-      })
+    })
   })
 
-  it('using type should be ok',  (done) => {
+  it('using type should be ok', (done) => {
     let type = 1
     let params = 'type=' + type
 
     chai.request(base)
-      .get('/api/transactions?' + params, (err, res)  => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.transactions).that.is.an('array')
 
@@ -56,15 +52,15 @@ describe('GET /api/transactions',  () => {
             expect(res.body.transactions[i].type).to.equal(type)
           }
         }
-
         done()
     })
   })
 
   it('using no params should be ok', (done) => {
     chai.request(base)
-      .get('/api/transactions', (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions')
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.transactions).that.is.an('array')
 
@@ -83,8 +79,9 @@ describe('GET /api/transactions',  () => {
     let params = 'limit=' + limit
 
     chai.request(base)
-      .get('/api/transactions?' + params,  (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+      .get('/api/transactions?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body).to.have.property('error')
 
@@ -97,8 +94,9 @@ describe('GET /api/transactions',  () => {
     let params = 'orderBy=' + orderBy;
 
     chai.request(base)
-      .get('/api/transactions?' + params, (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.transactions).that.is.an('array')
 
@@ -108,7 +106,7 @@ describe('GET /api/transactions',  () => {
             expect(res.body.transactions[i].timestamp).to.be.at.most(res.body.transactions[i + 1].timestamp)
 
             if (flag === 0) {
-              offsetTimestamp = res.body.transactions[i + 1].timestamp
+              //offsetTimestamp = res.body.transactions[i + 1].timestamp
               flag = 1
             }
           }
@@ -118,13 +116,14 @@ describe('GET /api/transactions',  () => {
     })
   })
 
-  it('using offset == 1 should be ok',  (done) => {
+  it('using offset == 1 should be ok', (done) => {
     let offset = 1
     let params = 'offset=' + offset
 
     chai.request(base)
-      .get('/api/transactions?' + params,  (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body).to.have.property('error')
 
@@ -137,8 +136,9 @@ describe('GET /api/transactions',  () => {
     let params = 'offset=' + offset;
 
     chai.request(base)
-      .get('/api/transactions?' + params,  (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+      .get('/api/transactions?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body).to.have.property('error')
 
@@ -146,7 +146,7 @@ describe('GET /api/transactions',  () => {
       })
   })
 
-  it('using completely invalid fields should fail',  (done) => {
+  it('using completely invalid fields should fail', (done) => {
     let params = [
       'blockId=invalid',
       'senderId=invalid',
@@ -157,8 +157,9 @@ describe('GET /api/transactions',  () => {
     ]
 
     chai.request(base)
-      .get('/api/transactions?' + params.join('&'),  (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+      .get('/api/transactions?' + params.join('&'))
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body).to.have.property('error')
 
@@ -166,7 +167,7 @@ describe('GET /api/transactions',  () => {
       })
   })
 
-  it('using partially invalid fields should fail',  (done) => {
+  it('using partially invalid fields should fail', (done) => {
     let params = [
       'blockId=invalid',
       'senderId=invalid',
@@ -177,8 +178,9 @@ describe('GET /api/transactions',  () => {
     ]
 
     chai.request(base)
-      .get('/api/transactions?' + params.join('&'),  (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+      .get('/api/transactions?' + params.join('&'))
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body).to.have.property('error')
 
@@ -188,19 +190,19 @@ describe('GET /api/transactions',  () => {
 })
 
 describe('GET /api/transactions/get?id=', () => {
-
-  it('using valid id should be ok',  (done) => {
+  it('using valid id should be ok', (done) => {
     let transactionInCheck = transactionList[0]
     let params = 'id=' + transactionInCheck.txId
 
     chai.request(base)
-      .get('/api/transactions/get?' + params, (err, res)  => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions/get?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body).to.have.property('transaction').that.is.an('object')
         expect(res.body.transaction.id).to.equal(transactionInCheck.txId)
-        //expect(res.body.transaction.amount / node.normalizer).to.equal(transactionInCheck.netSent)
-        //expect(res.body.transaction.fee / node.normalizer).to.equal(transactionInCheck.fee)
+        // expect(res.body.transaction.amount / node.normalizer).to.equal(transactionInCheck.netSent)
+        // expect(res.body.transaction.fee / node.normalizer).to.equal(transactionInCheck.fee)
         expect(res.body.transaction.recipientId).to.equal(transactionInCheck.recipient)
         expect(res.body.transaction.senderId).to.equal(transactionInCheck.sender)
         expect(res.body.transaction.type).to.equal(transactionInCheck.type)
@@ -209,12 +211,13 @@ describe('GET /api/transactions/get?id=', () => {
     })
   })
 
-  it('using invalid id should fail',  (done) => {
+  it('using invalid id should fail', (done) => {
     let params = 'id=invalid';
 
     chai.request(base)
-      .get('/api/transactions/get?' + params, (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,false)
+      .get('/api/transactions/get?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, false)
 
         expect(res.body).to.have.property('error')
 
@@ -224,13 +227,13 @@ describe('GET /api/transactions/get?id=', () => {
 })
 
 describe('GET /api/transactions/unconfirmed/get?id=', () => {
-
-  it('using valid id should be ok',  (done) => {
+  it('using valid id should be ok', (done) => {
     let params = 'id=' + transactionList[transactionList.length - 1].txId
 
     chai.request(base)
-      .get('/api/transactions/unconfirmed/get?' + params, (err, res) => {
-        Helpers.ValidateResponseStatus(err,res,200,true)
+      .get('/api/transactions/unconfirmed/get?' + params)
+      .end((err, res) => {
+        Helpers.ValidateResponseStatus(err, res, 200, true)
 
         if (res.body.success && res.body.transaction != null) {
           expect(res.body).to.have.property('transaction').that.is.an('object')
@@ -243,13 +246,15 @@ describe('GET /api/transactions/unconfirmed/get?id=', () => {
   })
 })
 
-describe('GET /api/transactions/unconfirmed', function () {
+describe('GET /api/transactions/unconfirmed', () => {
+  it('should be ok', (done) => {
+    chai.request(base)
+    .get('/api/transactions/unconfirmed')
+    .end((err, res) => {
+      Helpers.ValidateResponseStatus(err, res, 200, true)
 
-  it('should be ok', function (done) {
-    node.get('/api/transactions/unconfirmed', function (err, res) {
-      node.expect(res.body).to.have.property('success').to.be.ok;
-      node.expect(res.body).to.have.property('transactions').that.is.an('array');
-      done();
-    });
-  });
-});
+      expect(res.body.transactions).that.is.an('array')
+      done()
+    })
+  })
+})

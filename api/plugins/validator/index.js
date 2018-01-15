@@ -49,7 +49,7 @@ class Validator {
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
-        (require(directory + '/' + file))(this.ajv)
+        new (require(directory + '/' + file))(this.ajv)
       }
     })
   }

@@ -69,7 +69,7 @@ function syncTables (db) {
     },
     {
       fields: ['timestamp']
-    },
+    }
 
     ]
   })

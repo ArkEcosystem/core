@@ -1,6 +1,5 @@
 const restify = require('restify')
 const logger = requireFrom('core/logger')
-const db = requireFrom('core/dbinterface').getInstance()
 const blockchain = requireFrom('core/blockchainManager')
 const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
@@ -161,7 +160,7 @@ class Up {
   postVerifyTransaction (req, res, next) {
     // console.log(req.body)
     const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
-    db.verifyTransaction(transaction)
+    blockchain.getInstance().getDb().verifyTransaction(transaction)
       .then(result => {
         res.send(200, {
           success: result
@@ -182,7 +181,7 @@ class Up {
     const round = parseInt(height / this.config.getConstants(height).activeDelegates)
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-    return db.getActiveDelegates(height)
+    return blockchain.getInstance().getDb().getActiveDelegates(height)
       .then(activedelegates => {
         for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
           for (let x = 0; x < 4 && i < delCount; i++, x++) {
@@ -198,7 +197,7 @@ class Up {
   }
 
   getBlocks (req, res, next) {
-    db.getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
+    blockchain.getInstance().getDb().getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
       .then(blocks => {
         res.send(200, {success: true, blocks: blocks})
         next()
