@@ -29,8 +29,6 @@ class BlockchainManager {
       1
     )
 
-    // this.eventQueue.drain = () => this.continueNetworkSync()
-
     this.processQueue = async.queue(
       (block, qcallback) => this.processBlock(new Block(block), this.status, qcallback),
       1
@@ -78,8 +76,10 @@ class BlockchainManager {
     logger.debug(`event ${event.type}`)
     switch (event.type) {
       case 'check':
-        if (this.isSynced(this.status.lastBlock)) this.status.syncing = false
-        else this.eventQueue.push({type: 'sync/start'})
+        if (this.isSynced(this.status.lastBlock)) {
+          this.status.syncing = false
+          logger.info('Node Synced, congratulations! 🦄')
+        } else this.eventQueue.push({type: 'sync/start'})
         return qcallback()
       case 'updateNetworkStatus':
         return this.networkInterface.updateNetworkStatus().then(() => qcallback())
@@ -88,6 +88,7 @@ class BlockchainManager {
         return qcallback()
       case 'processQueue/stop':
         if (!this.isSynced(this.status.lastBlock) && !this.status.syncing) this.eventQueue.push({type: 'sync/start'})
+        else logger.info('Node Synced, congratulations! 🦄')
         return qcallback()
       case 'rebuild/start':
         if (!this.status.rebuild) {
@@ -147,9 +148,9 @@ class BlockchainManager {
   }
 
   __removeBlocks (nblocks) {
-    logger.info('Undoing block', this.status.lastBlock.data.height)
     if (!nblocks) return Promise.resolve()
     else {
+      logger.info('Undoing block', this.status.lastBlock.data.height)
       return this
         .undoLastBlock()
         .then(() => this.__removeBlocks(nblocks - 1))
@@ -252,6 +253,10 @@ class BlockchainManager {
         // this.processQueue.push(block.data)
         logger.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
         status.lastDownloadedBlock = status.lastBlock.data
+        qcallback()
+      } else if (block.data.height < status.lastBlock.data.height) {
+        // TODO: manage fork here
+        logger.info('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
