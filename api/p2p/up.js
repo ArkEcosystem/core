@@ -71,7 +71,10 @@ class Up {
 
   acceptRequest (req, res, next) {
     if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/remote/')) && !this.isLocalhost(req)) {
-      res.send(500, {success: false, message: 'API not existing'})
+      res.send(500, {
+        code: 'ResourceNotFound',
+        message: `${req.route.path} does not exist`
+      })
     }
     const peer = {}
     peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
