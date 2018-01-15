@@ -6,11 +6,24 @@ const Promise = require('bluebird')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const human = require('interval-to-human')
-require('colors')
 
-let rebuildtracker
+let synctracker
 let instance
+
+const tickSyncTracker = (block, rebuild, fastRebuild) => {
+  if (rebuild) { // basically don't make useless database interaction like saving account state
+    if (!synctracker) {
+      synctracker = {
+        starttimestamp: block.data.timestamp,
+        startdate: new Date().getTime()
+      }
+    }
+    const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
+    const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
+    const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
+    logger.printTracker(title, progress, (block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3), remainingtime)
+  }
+}
 
 class DBInterface {
   static getInstance () {
@@ -65,31 +78,10 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  tickRebuildTracker (block, rebuild, fastRebuild) {
-    if (rebuild) { // basically don't make useless database interaction like saving account state
-      if (!rebuildtracker) {
-        rebuildtracker = {
-          starttimestamp: block.data.timestamp,
-          startdate: new Date().getTime()
-        }
-      }
-      const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - rebuildtracker.starttimestamp) / (new Date().getTime() - rebuildtracker.startdate)
-      const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
-      process.stdout.write('  ')
-      if (fastRebuild) process.stdout.write('Fast '.blue)
-      process.stdout.write('Rebuilding'.blue + ' [')
-      process.stdout.write(('='.repeat(progress / 2)).green)
-      process.stdout.write(' '.repeat(50 - progress / 2) + '] ')
-      process.stdout.write((block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3) + '% ')
-      process.stdout.write(human(remainingtime))
-      process.stdout.write('\u{1b}[0G')
-    }
-  }
-
-  applyRound (block, rebuild, fastRebuild) {
-    this.tickRebuildTracker(block, rebuild, fastRebuild)
-    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      if (rebuild) { // basically don't make useless database interaction like saving account state
+  applyRound (block, syncing, fastSync) {
+    tickSyncTracker(block, syncing, fastSync)
+    if ((!fastSync && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
+      if (syncing) { // basically don't make useless database interaction like saving account state
         return this.buildDelegates(block)
           .then(() => this.rounds.bulkCreate(this.activedelegates))
           .then(() => block)

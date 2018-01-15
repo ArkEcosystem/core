@@ -1,5 +1,7 @@
 const winston = require('winston')
+const human = require('interval-to-human')
 require('winston-daily-rotate-file')
+require('colors')
 
 let logger = null
 
@@ -29,6 +31,18 @@ class Logger {
         rotatetransport
       ]
     }))
+  }
+
+  printTracker (title, progress, percent, remainingSeconds) {
+    process.stdout.write('\u{1b}[0G')
+    process.stdout.write('  ')
+    process.stdout.write(title.blue)
+    process.stdout.write(' [')
+    process.stdout.write(('='.repeat(progress / 2)).green)
+    process.stdout.write(' '.repeat(50 - progress / 2) + '] ')
+    if (percent) process.stdout.write(percent + '% ')
+    if (remainingSeconds) process.stdout.write(human(remainingSeconds))
+    process.stdout.write('\u{1b}[0G')
   }
 }
 

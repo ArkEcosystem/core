@@ -96,6 +96,7 @@ class SequelizeDB extends DBInterface {
   }
 
   buildAccounts () {
+    logger.printTracker('SPV Building', 0, 0, '')
     return this.transactionsTable
       .findAll({
         attributes: [
@@ -121,6 +122,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 25, 25, '')
         data.forEach(row => {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
@@ -144,6 +146,7 @@ class SequelizeDB extends DBInterface {
         })
       })
       .then(data => {
+        logger.printTracker('SPV Building', 50, 50, '')
         data.forEach(row => {
           if (!row.senderPublicKey) return
           let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
@@ -168,6 +171,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 75, 75, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -181,6 +185,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 90, 90, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -198,6 +203,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 95, 95, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (!account.voted) {
@@ -206,6 +212,7 @@ class SequelizeDB extends DBInterface {
             account.voted = true
           }
         })
+        logger.printTracker('SPV Building', 100, 100, '')
         return Promise.resolve(this.localaccounts || [])
       })
       .catch(error => logger.error(error))

@@ -49,6 +49,7 @@ DependencyHandler
   .then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || {
     height: 0
   }).height))
-  .then(() => blockchainManager.syncWithNetwork())
+  .then(() => blockchainManager.start())
+  .then(() => logger.info('Mounting Public API'))
   .then(() => new PublicAPI(config).mount())
   .catch(fatal => logger.error('fatal error', fatal))

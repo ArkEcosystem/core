@@ -62,7 +62,7 @@ class Up {
   }
 
   mountTestInterface (server) {
-    server.get('/test/rebuild', (req, res, next) => this.rebuild(req, res, next))
+    server.get('/test/blockchain/:event', (req, res, next) => this.sendBlockchainEvent(req, res, next))
   }
 
   isLocalhost (req) {
@@ -105,11 +105,12 @@ class Up {
     next()
   }
 
-  rebuild (req, res, next) {
-    blockchain.getInstance().rebuild(20)
+  sendBlockchainEvent (req, res, next) {
+    if (req.query.param) blockchain.getInstance()[req.params.event](req.params.param)
+    else blockchain.getInstance()[req.params.event]()
     res.send(200, {
       success: true,
-      blocksRemoved: 20
+      event: req.params.event
     })
     next()
   }
