@@ -27,6 +27,9 @@ class Down {
   cleanPeers () {
     let keys = Object.keys(this.peers)
     const that = this
+    let count = 0
+    const max = keys.length
+    logger.info('Looking for network peers')
     return Promise.all(keys.map(ip =>
       that.peers[ip]
         .ping()
@@ -34,7 +37,9 @@ class Down {
           delete that.peers[ip]
           return Promise.resolve(null)
         })
+        .then(() => logger.printTracker('Peers Discovery', ++count * 100 / max, max, null, null))
     ))
+    .then(() => logger.info('Found ' + Object.keys(this.peers).length + ' responsive peers on the network'))
   }
 
   acceptNewPeer (peer) {

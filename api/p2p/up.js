@@ -32,19 +32,24 @@ class Up {
     server.use(restify.plugins.gzipResponse())
 
     this.mountInternal(server)
+    if (this.config.server.api.remoteinterface) this.mountRemoteInterface(server)
     this.mountV1(server)
 
     server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
   }
 
   mountV1 (server) {
-    server.get('/peer/list', (req, res, next) => this.getPeers(req, res, next))
-    // server.get('/peer/blocks/common', this.getCommonBlocks);
-    server.get('/peer/blocks', (req, res, next) => this.getBlocks(req, res, next))
-    // server.get('/peer/transactions', this.getTransactions);
-    server.get('/peer/transactionsFromIds', (req, res, next) => this.getTransactionsFromIds(req, res, next))
-    server.get('/peer/height', (req, res, next) => this.getHeight(req, res, next))
-    server.get('/peer/status', (req, res, next) => this.getStatus(req, res, next))
+    const mapping = {
+      '/peer/list': this.getPeers,
+      '/peer/blocks': this.getBlocks,
+      '/peer/transactionsFromIds': this.getTransactionsFromIds,
+      '/peer/height': this.getHeight,
+      // '/peer/transactions': this.getTransactions,
+      // '/peer/blocks/common': this.getCommonBlocks,
+      '/peer/status': this.getStatus
+    }
+
+    Promise.all(Object.keys(mapping).map(k => server.get(k, (req, res, next) => mapping[k].call(this, req, res, next))))
 
     server.post('/blocks', this.postBlock)
     // server.post('/transactions', this.postTransactions);
@@ -56,12 +61,16 @@ class Up {
     server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
+  mountRemoteInterface (server) {
+    server.get('/remote/blockchain/:event', (req, res, next) => this.sendBlockchainEvent(req, res, next))
+  }
+
   isLocalhost (req) {
     return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
   }
 
   acceptRequest (req, res, next) {
-    if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req)) {
+    if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/remote/')) && !this.isLocalhost(req)) {
       res.send(500, {success: false, message: 'API not existing'})
     }
     const peer = {}
@@ -92,6 +101,16 @@ class Up {
       success: true,
       height: blockchain.getInstance().lastBlock.data.height,
       id: blockchain.getInstance().lastBlock.data.id
+    })
+    next()
+  }
+
+  sendBlockchainEvent (req, res, next) {
+    if (req.query.param) blockchain.getInstance()[req.params.event](req.params.param)
+    else blockchain.getInstance()[req.params.event]()
+    res.send(200, {
+      success: true,
+      event: req.params.event
     })
     next()
   }

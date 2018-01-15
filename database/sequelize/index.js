@@ -40,6 +40,15 @@ class SequelizeDB extends DBInterface {
     }
   }
 
+  deleteRound (round) {
+    return this.roundsTable
+      .destroy({
+        where: {
+          round: round
+        }
+      })
+  }
+
   buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
@@ -87,6 +96,7 @@ class SequelizeDB extends DBInterface {
   }
 
   buildAccounts () {
+    logger.printTracker('SPV Building', 0, 0, '')
     return this.transactionsTable
       .findAll({
         attributes: [
@@ -112,6 +122,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 25, 25, '')
         data.forEach(row => {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
@@ -135,6 +146,7 @@ class SequelizeDB extends DBInterface {
         })
       })
       .then(data => {
+        logger.printTracker('SPV Building', 50, 50, '')
         data.forEach(row => {
           if (!row.senderPublicKey) return
           let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
@@ -159,6 +171,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 75, 75, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -172,6 +185,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 90, 90, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -189,6 +203,7 @@ class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
+        logger.printTracker('SPV Building', 95, 95, '')
         data.forEach(row => {
           const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (!account.voted) {
@@ -197,6 +212,7 @@ class SequelizeDB extends DBInterface {
             account.voted = true
           }
         })
+        logger.printTracker('SPV Building', 100, 100, '')
         return Promise.resolve(this.localaccounts || [])
       })
       .catch(error => logger.error(error))
@@ -224,16 +240,42 @@ class SequelizeDB extends DBInterface {
     )
   }
 
+  deleteBlock (block) {
+    return this.db.transaction(t =>
+      this.transactionsTable
+        .destroy({where: {blockId: block.data.id}}, {transaction: t})
+        .then(() => this.blocksTable.destroy({where: {id: block.data.id}}, {transaction: t}))
+    )
+  }
+
   getBlock (id) {
     return this.blocksTable
-      .findOne({id: id})
-      .then(data => Promise.resolve(new Block(data)))
+      .findOne({
+        include: [{
+          model: this.transactionsTable,
+          attributes: ['serialized']
+        }],
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
+        where: {
+          id: id
+        }
+      })
+      .then((block) =>
+        this.transactionsTable
+          .findAll({where: {blockId: block.id}})
+          .then(data => {
+            block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+            return Promise.resolve(new Block(block))
+          })
+      )
   }
 
   getLastBlock () {
     return this.blocksTable
       .findOne({order: [['height', 'DESC']]})
-      .then(data => {
+      .then(data => { // TODO to remove as it would fail anyway next in the pipeline?
         if (data) {
           return Promise.resolve(data)
         } else {

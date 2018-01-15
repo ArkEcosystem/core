@@ -14,30 +14,41 @@ class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.monitoring = false
-    this.lastBlock = null
-    this.lastDownloadedBlock = null
-    this.downloadpaused = false
+    this.status = {
+      monitoring: false,
+      lastBlock: null,
+      lastDownloadedBlock: null,
+      downloadpaused: false,
+      rebuild: false,
+      syncing: true,
+      fastSync: true
+    }
 
-    this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), !this.monitoring, this.fastRebuild, qcallback),
+    this.eventQueue = async.queue(
+      (event, qcallback) => this.processEvent(event, qcallback),
       1
     )
+
+    // this.eventQueue.drain = () => this.continueNetworkSync()
+
+    this.processQueue = async.queue(
+      (block, qcallback) => this.processBlock(new Block(block), this.status, qcallback),
+      1
+    )
+
     this.downloadQueue = async.queue(
       (block, qcallback) => {
-        that.lastDownloadedBlock = block
+        if (that.downloadQueue.paused) return qcallback()
+        that.status.lastDownloadedBlock = block
         that.processQueue.push(block)
-        qcallback()
+        return qcallback()
       },
       1
     )
-    this.downloadQueue.drain = () => {
-      logger.info('Block Process Queue Size', that.processQueue.length())
-      this.syncWithNetwork({data: this.lastDownloadedBlock})
-    }
-    this.processQueue.drain = () => this.finishedNetworkSync()
 
-    // sleep(60000).then(() => this.testRandomRebuild())
+    this.processQueue.drain = () => this.eventQueue.push({type: 'processQueue/stop'})
+
+    this.downloadQueue.drain = () => this.eventQueue.push({type: 'downloadQueue/stop'})
 
     if (!instance) instance = this
   }
@@ -46,28 +57,123 @@ class BlockchainManager {
     return instance
   }
 
+  start () {
+    this.monitorNetwork()
+    return Promise.resolve()
+  }
+
+  checkNetwork () {
+    this.eventQueue.push({type: 'check'})
+  }
+
+  updateNetworkStatus () {
+    this.eventQueue.push({type: 'updateNetworkStatus'})
+  }
+
+  rebuild (nblocks) {
+    this.eventQueue.push({type: 'rebuild/start', nblocks: nblocks || 1})
+  }
+
+  processEvent (event, qcallback) {
+    logger.debug(`event ${event.type}`)
+    switch (event.type) {
+      case 'check':
+        if (this.isSynced(this.status.lastBlock)) this.status.syncing = false
+        else this.eventQueue.push({type: 'sync/start'})
+        return qcallback()
+      case 'updateNetworkStatus':
+        return this.networkInterface.updateNetworkStatus().then(() => qcallback())
+      case 'downloadQueue/stop':
+        if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next'})
+        return qcallback()
+      case 'processQueue/stop':
+        if (!this.isSynced(this.status.lastBlock) && !this.status.syncing) this.eventQueue.push({type: 'sync/start'})
+        return qcallback()
+      case 'rebuild/start':
+        if (!this.status.rebuild) {
+          this.status.rebuild = true
+          this.status.downloadpaused = true
+          this.removeBlocks(event.nblocks).then((status) => qcallback())
+        } else return qcallback()
+        break
+      case 'rebuild/stop':
+        this.status.rebuild = false
+        this.eventQueue.push({type: 'sync/start'})
+        return qcallback()
+      case 'sync/start':
+        if (this.config.server.test) return qcallback()
+        if (!this.status.rebuild) {
+          logger.info('Syncing started')
+          this.status.syncing = true
+          this.status.lastDownloadedBlock = this.status.lastBlock.data
+          this.status.downloadpaused = false
+          return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
+        } else return qcallback()
+      case 'download/pause':
+        this.status.downloadpaused = true
+        return qcallback()
+      case 'download/next':
+        if (this.processQueue.length() > 10000) {
+          this.status.downloadpaused = true
+          return qcallback()
+        }
+        if (this.status.downloadpaused) {
+          logger.info('Download paused')
+          return qcallback()
+        } else {
+          return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
+        }
+      case 'sync/stop':
+        qcallback()
+        break
+      default:
+        logger.error('Event unknown', event)
+        qcallback()
+    }
+  }
+
   postBlock (block) {
     logger.info('Received new block at height', block.height)
     this.downloadQueue.push(block)
   }
 
-  rebuild () {
-    this.stopNetworkMonitoring()
+  removeBlocks (nblocks) {
+    logger.info(`Starting ${nblocks} blocks undo from height`, this.status.lastBlock.data.height)
     return this.pauseQueues()
-      .then(() => this.undoLastBlock())
+      .then(() => this.__removeBlocks(nblocks))
+      .then(() => this.clearQueues())
       .then(() => this.resumeQueues())
+      .then(() => this.eventQueue.push({type: 'rebuild/stop'}))
   }
 
-  testRandomRebuild () {
-    logger.info('test: undoing one block', this.lastBlock.data.height)
-    return this.rebuild()
-      .then(() => sleep(1000))
-      .then(() => this.testRandomRebuild())
+  __removeBlocks (nblocks) {
+    logger.info('Undoing block', this.status.lastBlock.data.height)
+    if (!nblocks) return Promise.resolve()
+    else {
+      return this
+        .undoLastBlock()
+        .then(() => this.__removeBlocks(nblocks - 1))
+    }
+  }
+
+  undoLastBlock () {
+    const lastBlock = this.status.lastBlock
+    return db.undoBlock(lastBlock)
+      .then(() => db.deleteBlock(lastBlock))
+      .then(() => db.getBlock(lastBlock.data.previousBlock))
+      .then(newLastBlock => (this.status.lastBlock = newLastBlock))
   }
 
   pauseQueues () {
     this.downloadQueue.pause()
     this.processQueue.pause()
+    return Promise.resolve()
+  }
+
+  clearQueues () {
+    this.downloadQueue.remove(() => true)
+    this.status.lastDownloadedBlock = this.status.lastBlock.data
+    this.processQueue.remove(() => true)
     return Promise.resolve()
   }
 
@@ -77,37 +183,9 @@ class BlockchainManager {
     return Promise.resolve()
   }
 
-  finishedNetworkSync () {
-    if (this.isSynced(this.lastBlock)) {
-      logger.info('Blockchain updated to height', this.lastBlock.data.height)
-      this.fastRebuild = false
-      return this.startNetworkMonitoring()
-    } else if (this.downloadpaused) {
-      this.downloadpaused = false
-      return this.syncWithNetwork(this.lastBlock)
-    } else {
-      this.stopNetworkMonitoring()
-      return Promise.resolve()
-    }
-  }
-
-  startNetworkMonitoring () {
-    if (this.monitoring) return
-    this.monitoring = true
-    return this.updateBlockchainFromNetwork()
-  }
-
-  updateBlockchainFromNetwork () {
-    if (!this.monitoring) return Promise.resolve()
-
-    return this.networkInterface.updateNetworkStatus()
-      .then(() => this.syncWithNetwork(this.lastBlock))
-      .then(() => sleep(60000))
-      .then(() => this.updateBlockchainFromNetwork())
-  }
-
-  stopNetworkMonitoring () {
-    this.monitoring = false
+  monitorNetwork () {
+    this.eventQueue.push({type: 'check'})
+    return sleep(60000).then(() => this.monitorNetwork())
   }
 
   init () {
@@ -117,17 +195,17 @@ class BlockchainManager {
         if (!block) {
           return Promise.reject(new Error('No block found in database'))
         }
-        that.lastBlock = block
+        that.status.lastBlock = block
         const constants = that.config.getConstants(block.data.height)
         // no fast rebuild if in last round
-        that.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastRebuild
-        logger.info('Fast Rebuild:', that.fastRebuild)
+        that.status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
+        logger.info('Fast Sync:', that.status.fastSync)
         logger.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
             .buildAccounts()
             .then(() => db.saveAccounts(true))
-            .then(() => db.applyRound(block, that.fastRebuild))
+            .then(() => db.applyRound(block, false, false))
             .then(() => block)
         } else {
           return db
@@ -140,9 +218,9 @@ class BlockchainManager {
         logger.debug(error)
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
-          that.lastBlock = genesis
-          that.fastRebuild = true
-          logger.info('Fast Rebuild:', that.fastRebuild)
+          that.status.lastBlock = genesis
+          that.status.fastSync = true
+          logger.info('Fast Rebuild:', that.status.fastSync)
           return db.saveBlock(genesis)
             .then(() => db.buildAccounts())
             .then(() => db.saveAccounts(true))
@@ -153,27 +231,27 @@ class BlockchainManager {
       })
   }
 
-  processBlock (block, rebuild, fastRebuild, qcallback) {
+  processBlock (block, status, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
-      this.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
-      if (block.data.previousBlock === this.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.lastBlock.data.timestamp / constants.blocktime)) {
-        const that = this
-        db.applyBlock(block, rebuild, fastRebuild)
+      status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
+      if (block.data.previousBlock === this.status.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.status.lastBlock.data.timestamp / constants.blocktime)) {
+        db.applyBlock(block, status.syncing, status.fastSync)
           .then(() => db.saveBlock(block))
-          .then(() => (that.lastBlock = block))
+          .then(() => (status.lastBlock = block))
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
             logger.debug('Refused new block', block.data)
-            that.lastDownloadedBlock = this.lastBlock
+            status.lastDownloadedBlock = status.lastBlock.data
             qcallback()
           })
-      } else if (block.data.height > this.lastBlock.data.height + 1) {
+      } else if (block.data.height > status.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
-        logger.info('Block disregarded because blockchain not ready to accept it')
+        logger.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
+        status.lastDownloadedBlock = status.lastBlock.data
         qcallback()
       } else {
         // TODO: manage fork here
@@ -186,35 +264,23 @@ class BlockchainManager {
     }
   }
 
-  undoLastBlock () {
-    const lastBlock = this.lastBlock
-    return db.undoBlock(lastBlock)
-      .then(() => db.deleteBlock(lastBlock))
-      .then(() => db.getBlock(lastBlock.data.previousBlock))
-      .then(newLastBlock => (this.lastBlock = newLastBlock))
-  }
-
   isSynced (block) {
-    return arkjs.slots.getTime() - block.data.timestamp < 2 * this.config.getConstants(block.data.height).blocktime
+    // TODO: move to config how many blocktime from current slot is considered 'in synced'
+    return arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
   }
 
   syncWithNetwork (block) {
-    block = block || this.lastBlock
-    if (this.isSynced(block)) return Promise.resolve()
-    if (this.processQueue.length() > 10000) {
-      logger.info('Pausing download blocks to wait for process queue drain')
-      this.downloadpaused = true
-      return Promise.resolve()
-    }
-    if (this.config.server.test) return Promise.resolve()
+    block = block || this.status.lastBlock
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
-      if (!blocks || blocks.length === 0) return that.syncWithNetwork(block)
-      else {
+      if (!blocks || blocks.length === 0) {
+        logger.info('No new block found on this peer')
+        that.eventQueue.push({type: 'download/next'})
+      } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
-        return Promise.resolve(blocks.length)
       }
+      return Promise.resolve()
     })
   }
 

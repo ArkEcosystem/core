@@ -8,9 +8,13 @@ const config = require('../core/config')
 class Block {
   constructor (data) {
     this.data = data
+
+    // START Fix for v1 api
     this.data.totalAmount = parseInt(this.data.totalAmount)
     this.data.totalFee = parseInt(this.data.totalFee)
     this.data.reward = parseInt(this.data.reward)
+    // END Fix for v1 api
+
     this.genesis = data.height === 1
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
@@ -18,6 +22,12 @@ class Block {
       return txx
     })
     this.verification = this.verify()
+    // order of transactions messed up in mainnet V1
+    if (this.transactions.length === 2 && (this.data.height === 3084276 || this.data.height === 34420)) {
+      const temp = this.transactions[0]
+      this.transactions[0] = this.transactions[1]
+      this.transactions[1] = temp
+    }
   }
 
   static create (data, keys) {

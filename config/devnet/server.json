@@ -1,5 +1,5 @@
 {
-  "port": 15487,
+  "port": 4002,
   "version": "2.0.0",
   "fileLogLevel": "debug",
   "fastRebuild": false,
@@ -11,6 +11,7 @@
   },
   "api": {
     "mount": true,
+    "testinterface": true,
     "port": 4003,
     "version": "1.0.0",
     "throttle": {

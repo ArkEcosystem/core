@@ -1,16 +1,17 @@
 {
   "port": 4001,
   "version": "2.0.0",
-  "fileLogLevel": "info",
-  "fastRebuild": true,
+  "fileLogLevel": "debug",
+  "fastRebuild": false,
   "db": {
     "driver": "database/sequelize",
-    "uri": "sqlite:storage/mainnet2.sqlite",
+    "uri": "sqlite:storage/mainnet3.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
   "api": {
     "mount": true,
+    "remoteinterface": true,
     "port": 4003,
     "version": "1.0.0",
     "throttle": {

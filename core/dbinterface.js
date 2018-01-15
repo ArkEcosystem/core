@@ -7,7 +7,23 @@ const async = require('async')
 const fs = require('fs')
 const path = require('path')
 
+let synctracker
 let instance
+
+const tickSyncTracker = (block, rebuild, fastRebuild) => {
+  if (rebuild) { // basically don't make useless database interaction like saving account state
+    if (!synctracker) {
+      synctracker = {
+        starttimestamp: block.data.timestamp,
+        startdate: new Date().getTime()
+      }
+    }
+    const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
+    const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
+    const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
+    logger.printTracker(title, progress, (block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3), remainingtime)
+  }
+}
 
 class DBInterface {
   static getInstance () {
@@ -21,7 +37,6 @@ class DBInterface {
       .init(params)
       .then(() => (instance = db))
       .then(() => this.registerRepositories(params.driver))
-      .then(() => instance)
   }
 
   static registerRepositories (driver) {
@@ -32,6 +47,8 @@ class DBInterface {
         instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
       }
     })
+
+    return Promise.resolve(instance)
   }
 
   // getActiveDelegates (height) {
@@ -49,6 +66,9 @@ class DBInterface {
   // saveBlock (block) {
   // }
 
+  // deleteBlock (block) {
+  // }
+
   // getBlock (id) {
   // }
 
@@ -58,20 +78,41 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  applyRound (block, fastRebuild) {
-    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
-      return this
-        .saveAccounts()
-        .then(() => this.buildDelegates(block))
-        .then(() => this.rounds.bulkCreate(this.activedelegates))
+  applyRound (block, syncing, fastSync) {
+    tickSyncTracker(block, syncing, fastSync)
+    if ((!fastSync && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
+      if (syncing) { // basically don't make useless database interaction like saving account state
+        return this.buildDelegates(block)
+          .then(() => this.rounds.bulkCreate(this.activedelegates))
+          .then(() => block)
+      } else {
+        logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
+        return this
+          .saveAccounts(true) // save only modified accounts during the last round
+          .then(() => this.buildDelegates(block)) // active build delegate list from database state
+          .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
+          .then(() => block)
+      }
+    } else {
+      return Promise.resolve(block)
+    }
+  }
+
+  undoRound (block) {
+    const previousHeight = block.data.height - 1
+    const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
+    const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
+    if (previousRound + 1 === round && block.data.height > 51) {
+      logger.info('Back to previous round', previousRound)
+      return this.getActiveDelegates(previousHeight) // active delegate list from database round
+        .then(() => this.deleteRound(round)) // remove round delegate list
         .then(() => block)
     } else {
       return Promise.resolve(block)
     }
   }
 
-  applyBlock (block, fastRebuild) {
+  applyBlock (block, rebuild, fastRebuild) {
     const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
     let delegate = this.localaccounts[generator]
     if (!delegate && block.data.height === 1) {
@@ -87,10 +128,30 @@ class DBInterface {
         .then(() => appliedTransactions.push(tx))
       )
       .then(() => delegate.applyBlock(block.data))
-      .then(() => this.applyRound(block, fastRebuild))
+      .then(() => this.applyRound(block, rebuild, fastRebuild))
       .catch(error => Promise
         .each(appliedTransactions, tx => that.undoTransaction(tx))
         .then(() => Promise.reject(error))
+      )
+  }
+
+  undoBlock (block) {
+    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+    let delegate = this.localaccounts[generator]
+    const undoedTransactions = []
+    const that = this
+    return Promise
+      .each(block.transactions, tx =>
+        that.undoTransaction(tx)
+        .then(() => undoedTransactions.push(tx))
+      )
+      .then(() => delegate.undoBlock(block.data))
+      .then(() => this.undoRound(block))
+      .catch(error => Promise
+        .each(undoedTransactions, tx =>
+          that.applyTransaction(tx))
+         .then(() => Promise.reject(error)
+        )
       )
   }
 

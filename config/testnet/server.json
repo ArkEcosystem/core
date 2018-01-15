@@ -11,6 +11,7 @@
   },
   "api": {
     "mount": true,
+    "remoteinterface": true,
     "port": 4003,
     "version": "1.0.0",
     "throttle": {
