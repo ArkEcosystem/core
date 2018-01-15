@@ -1,7 +1,7 @@
 {
   "port": 4002,
   "version": "2.0.0",
-  "fileLogLevel": "debug",
+  "fileLogLevel": "info",
   "fastRebuild": false,
   "db": {
     "driver": "database/sequelize",
@@ -11,7 +11,7 @@
   },
   "api": {
     "mount": true,
-    "testinterface": true,
+    "remoteinterface": true,
     "port": 4003,
     "version": "1.0.0",
     "throttle": {

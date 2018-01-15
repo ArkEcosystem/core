@@ -37,7 +37,7 @@ class Down {
           delete that.peers[ip]
           return Promise.resolve(null)
         })
-        .then(() => logger.printTracker('Peers Discovery', ++count * 100 / max, max, null, null))
+        .then(() => logger.printTracker('Peers Discovery', ++count, max, null, null))
     ))
     .then(() => logger.info('Found ' + Object.keys(this.peers).length + ' responsive peers on the network'))
   }

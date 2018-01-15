@@ -6,6 +6,7 @@ const Promise = require('bluebird')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
+const human = require('interval-to-human')
 
 let synctracker
 let instance
@@ -19,9 +20,8 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
       }
     }
     const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
-    const progress = block.data.timestamp * 100 / arkjs.slots.getTime()
     const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    logger.printTracker(title, progress, (block.data.timestamp * 100 / arkjs.slots.getTime()).toFixed(3), remainingtime)
+    logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
   }
 }
 

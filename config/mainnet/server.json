@@ -1,7 +1,7 @@
 {
   "port": 4001,
   "version": "2.0.0",
-  "fileLogLevel": "debug",
+  "fileLogLevel": "info",
   "fastRebuild": false,
   "db": {
     "driver": "database/sequelize",
