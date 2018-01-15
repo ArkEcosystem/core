@@ -108,12 +108,12 @@ class DBInterface {
 
   undoRound (block) {
     const previousHeight = block.data.height - 1
-    const round = block.data.height / config.getConstants(block.data.height).activeDelegates
-    const previousRound = previousHeight / config.getConstants(previousHeight).activeDelegates
+    const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
+    const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
     if (previousRound + 1 === round && block.data.height > 51) {
       logger.info('Back to previous round', previousRound)
-      return this.getDelegates(block) // active delegate list from database round
-        .then(() => this.rounds.remove(round)) // remove round delegate list
+      return this.getActiveDelegates(previousHeight) // active delegate list from database round
+        .then(() => this.deleteRound(round)) // remove round delegate list
         .then(() => block)
     } else {
       return Promise.resolve(block)
@@ -146,19 +146,20 @@ class DBInterface {
   undoBlock (block) {
     const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
     let delegate = this.localaccounts[generator]
-    const appliedTransactions = []
+    const undoedTransactions = []
     const that = this
     return Promise
-      .each(block.transactions, tx => this
-        .undoTransaction(tx)
-        .then(() => appliedTransactions.push(tx))
+      .each(block.transactions, tx =>
+        that.undoTransaction(tx)
+        .then(() => undoedTransactions.push(tx))
       )
       .then(() => delegate.undoBlock(block.data))
       .then(() => this.undoRound(block))
-      .then(() => this.undoRound(block))
       .catch(error => Promise
-        .each(appliedTransactions, tx => that.applyTransaction(tx))
-        .then(() => Promise.reject(error))
+        .each(undoedTransactions, tx =>
+          that.applyTransaction(tx))
+         .then(() => Promise.reject(error)
+        )
       )
   }
 

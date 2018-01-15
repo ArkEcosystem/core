@@ -8,9 +8,13 @@ const config = require('../core/config')
 class Block {
   constructor (data) {
     this.data = data
+
+    // START Fix for v1 api
     this.data.totalAmount = parseInt(this.data.totalAmount)
     this.data.totalFee = parseInt(this.data.totalFee)
     this.data.reward = parseInt(this.data.reward)
+    // END Fix for v1 api
+
     this.genesis = data.height === 1
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)

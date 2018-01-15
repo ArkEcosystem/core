@@ -33,6 +33,7 @@ class Up {
     server.use(restify.plugins.gzipResponse())
 
     this.mountInternal(server)
+    if (this.config.server.api.testinterface) this.mountTestInterface(server)
     this.mountV1(server)
 
     server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
@@ -61,12 +62,16 @@ class Up {
     server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
   }
 
+  mountTestInterface (server) {
+    server.get('/test/rebuild', (req, res, next) => this.rebuild(req, res, next))
+  }
+
   isLocalhost (req) {
     return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
   }
 
   acceptRequest (req, res, next) {
-    if (req.route.path.startsWith('/internal/') && !this.isLocalhost(req)) {
+    if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/test/')) && !this.isLocalhost(req)) {
       res.send(500, {success: false, message: 'API not existing'})
     }
     const peer = {}
@@ -97,6 +102,15 @@ class Up {
       success: true,
       height: blockchain.getInstance().lastBlock.data.height,
       id: blockchain.getInstance().lastBlock.data.id
+    })
+    next()
+  }
+
+  rebuild (req, res, next) {
+    blockchain.getInstance().rebuild(20)
+    res.send(200, {
+      success: true,
+      blocksRemoved: 20
     })
     next()
   }

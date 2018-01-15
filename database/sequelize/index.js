@@ -40,6 +40,15 @@ class SequelizeDB extends DBInterface {
     }
   }
 
+  deleteRound (round) {
+    return this.roundsTable
+      .destroy({
+        where: {
+          round: round
+        }
+      })
+  }
+
   buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
