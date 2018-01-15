@@ -103,7 +103,7 @@ class Transaction {
     if (transaction.signature) bb.append(transaction.signature, 'hex')
     if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')
     else if (transaction.signSignature) bb.append(transaction.signSignature, 'hex')
-    else if (transaction.signatures) bb.append(transaction.signatures.join(''), 'hex')
+    if (transaction.signatures) bb.append(transaction.signatures.join(''), 'hex')
     bb.flip()
     return bb.toBuffer()
   }
@@ -205,6 +205,7 @@ class Transaction {
     }
 
     if (tx.version === 1) {
+      if (tx.secondSignature) tx.signSignature = tx.secondSignature
       if (!tx.recipientId && tx.type === 3) {
         tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
@@ -215,9 +216,9 @@ class Transaction {
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map((k) => {
           return '+' + k
         })
+        tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
+        console.log(JSON.stringify(tx, null, 2))
       }
-      
-      if (tx.secondSignature) tx.signSignature = tx.secondSignature
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)
       }
@@ -228,17 +229,21 @@ class Transaction {
   // TODO support multisignatures
   static parseSignatures (hexString, tx, startOffset) {
     tx.signature = hexString.substring(startOffset)
+    let multioffset = 0
     if (tx.signature.length === 0) delete tx.signature
     else {
-      const length = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2
-      tx.signature = hexString.substring(startOffset, startOffset + length * 2)
-      tx.secondSignature = hexString.substring(startOffset + length * 2)
+      const length1 = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2
+      tx.signature = hexString.substring(startOffset, startOffset + length1 * 2)
+      multioffset += length1 * 2
+      tx.secondSignature = hexString.substring(startOffset + length1 * 2)
       if (tx.secondSignature.length === 0) delete tx.secondSignature
-      else if (tx.type === 4) {
-        console.log(JSON.stringify(tx, null, 2))
-        console.log(hexString)
-        console.log(hexString.substring(startOffset))
-        let signatures = hexString.substring(startOffset)
+      else {
+        const length2 = parseInt('0x' + tx.secondSignature.substring(2, 4), 16) + 2
+        tx.secondSignature = tx.secondSignature.substring(0, length2 * 2)
+        multioffset += length2 * 2
+      }
+      if (tx.type === 4) {
+        let signatures = hexString.substring(startOffset + multioffset)
         tx.signatures = []
         for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
           const length2 = parseInt('0x' + signatures.substring(2, 4), 16) + 2
