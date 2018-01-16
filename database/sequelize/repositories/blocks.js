@@ -7,30 +7,43 @@ class BlocksRepository {
   }
 
   all (queryParams) {
+      let whereStatement = {}
+      let orderBy = []
 
-    let whereStatement = {}
-    let orderBy = []
+      const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+      for (const elem of filter) {
+        if (queryParams[elem]) {
+          whereStatement[elem] = queryParams[elem]
+        }
+      }
 
-    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
-    for (const elem of filter) {
-      if (!!queryParams[elem])
-        whereStatement[elem] = queryParams[elem]
-    }
+      if (queryParams.orderBy) {
+        orderBy.push(queryParams.orderBy.split(':'))
+      }
 
-    if (!!queryParams.orderBy) {
-      orderBy.push(queryParams.orderBy.split(':'))
-    }
-
-    return this.db.blocksTable.findAndCountAll({
-      where: whereStatement,
-      order: orderBy,
-      offset: parseInt(queryParams.offset || 1),
-      limit: parseInt(queryParams.limit || 100)
-    })
+      return this.db.blocksTable.findAndCountAll({
+        where: whereStatement,
+        order: orderBy,
+        offset: parseInt(queryParams.offset || 1),
+        limit: parseInt(queryParams.limit || 100)
+      })
   }
 
-  paginateByGenerator (generatorPublicKey, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginate (pager, queryParams = {}) {
+    let offset = 0
+
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
+    }
+
+    return this.all(Object.assign(queryParams, {
+      offset: offset,
+      limit: pager.perPage
+    }))
+  }
+
+  paginateByGenerator (generatorPublicKey, pager) {
+    return this.paginate(pager, {
       where: {
         generatorPublicKey: generatorPublicKey
       }

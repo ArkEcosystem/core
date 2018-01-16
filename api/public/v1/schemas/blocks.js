@@ -30,11 +30,11 @@ module.exports = {
       },
       totalAmount: {
         type: 'integer',
-        minimum: 0,
+        minimum: 0
       },
       totalFee: {
         type: 'integer',
-        minimum: 0,
+        minimum: 0
       },
       reward: {
         type: 'integer',

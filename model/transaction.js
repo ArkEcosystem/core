@@ -216,7 +216,7 @@ class Transaction {
           return '+' + k
         })
       }
-      
+
       if (tx.secondSignature) tx.signSignature = tx.secondSignature
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)

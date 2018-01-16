@@ -1,7 +1,9 @@
 const blockchain = requireFrom('core/blockchainManager')
 
 class BlockTransformer {
-  constructor(model) {
+  constructor (model) {
+    const lastBlock = blockchain.getInstance().lastBlock
+
     return {
       id: model.id,
       version: model.version,
@@ -16,7 +18,7 @@ class BlockTransformer {
       payloadHash: model.payloadHash,
       generatorPublicKey: model.generatorPublicKey,
       blockSignature: model.blockSignature,
-      confirmations: blockchain.getInstance().lastBlock.data.height - model.height
+      confirmations: lastBlock ? lastBlock.data.height - model.height : 0
     }
   }
 }

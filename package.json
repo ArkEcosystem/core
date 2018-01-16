@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start:mainnet": "node startRelayNode.js -c config/mainnet",
-    "start:devnet": "node startRelayNode.js -c config/devnet",
+    "start:devnet": "nodemon startRelayNode.js -c config/devnet",
     "start:testnet": "nodemon startRelayNode.js -c config/testnet",
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
@@ -46,6 +46,7 @@
     "progress": "^2.0.0",
     "promise-worker": "^1.1.1",
     "public-ip": "^2.4.0",
+    "redis": "^2.8.0",
     "restify": "^6.3.4",
     "sequelize": "^4.31.0",
     "sqlite3": "^3.1.13",

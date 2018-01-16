@@ -4,15 +4,15 @@ class Paginator {
   constructor (request, count, pager) {
     this.request = request
     this.count = count
-    this.page = pager.page
-    this.perPage = pager.perPage
-    this.totalPages = Math.round(count / pager.perPage)
+    this.page = pager.offset
+    this.perPage = pager.limit
+    this.totalPages = Math.round(count / pager.limit)
   }
 
   meta () {
     return {
-      page: this.page,
-      per_page: this.perPage,
+      page: this.offset,
+      per_page: this.limit,
       total: this.totalPages
     }
   }

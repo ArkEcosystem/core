@@ -2,21 +2,23 @@ const Transaction = requireFrom('model/transaction')
 const blockchain = requireFrom('core/blockchainManager')
 
 class TransactionTransformer {
-  constructor(model) {
-    this.data = Transaction.deserialize(model.serialized.toString('hex'))
+  constructor (model) {
+    const lastBlock = blockchain.getInstance().lastBlock
+    const data = Transaction.deserialize(model.serialized.toString('hex'))
+
     return {
-      id: this.data.id,
-      blockid: this.data.blockId,
-      type: this.data.type,
-      timestamp: this.data.timestamp,
-      amount: this.data.amount,
-      fee: this.data.fee,
-      senderId: this.data.senderId,
-      recipientId: this.data.recepientId,
-      senderPublicKey: this.data.senderPublicKey,
-      signature: this.data.signature,
-      asset: this.data.asset,
-      confirmations: blockchain.getInstance().lastBlock.data.height - model.block.height
+      id: data.id,
+      blockid: data.blockId,
+      type: data.type,
+      timestamp: data.timestamp,
+      amount: data.amount,
+      fee: data.fee,
+      senderId: data.senderId,
+      recipientId: data.recepientId,
+      senderPublicKey: data.senderPublicKey,
+      signature: data.signature,
+      asset: data.asset,
+      confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
     }
   }
 }

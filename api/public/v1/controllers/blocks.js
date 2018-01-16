@@ -25,11 +25,10 @@ class BlocksController {
   }
 
   show (req, res, next) {
-
     db.blocks.findById(req.query.id)
       .then(result => {
         if (!result) {
-          responder.error(req, res,{
+          responder.error(req, res, {
             error: `Block with id ${req.query.id} not found`
           })
         } else {
@@ -49,7 +48,7 @@ class BlocksController {
   }
 
   epoch (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch
     })
 
@@ -59,7 +58,7 @@ class BlocksController {
   height (req, res, next) {
     let block = blockchain.getInstance().lastBlock.data
 
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       height: block.height,
       id: block.id
     })
@@ -68,7 +67,7 @@ class BlocksController {
   }
 
   nethash (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       nethash: config.network.nethash
     })
 
@@ -76,7 +75,7 @@ class BlocksController {
   }
 
   fee (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
     })
 
@@ -84,7 +83,7 @@ class BlocksController {
   }
 
   fees (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
     })
 
@@ -92,7 +91,7 @@ class BlocksController {
   }
 
   milestone (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       milestone: ~~(blockchain.getInstance().lastBlock.data.height / 3000000)
     })
 
@@ -100,7 +99,7 @@ class BlocksController {
   }
 
   reward (req, res, next) {
-    responder.ok(req,res,{
+    responder.ok(req, res, {
       reward: config.getConstants(blockchain.getInstance().lastBlock.data.height).reward
     })
 
@@ -109,8 +108,8 @@ class BlocksController {
 
   supply (req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
-    responder.ok(req,res,{
-      supply: config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+    responder.ok(req, res, {
+      supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
     })
 
     next()
@@ -119,14 +118,14 @@ class BlocksController {
   status (req, res, next) {
     let lastblock = blockchain.getInstance().lastBlock.data
 
-    responder.ok(req,res,{
+    responder.ok(req, res, {
        epoch: config.getConstants(lastblock.height).epoch,
        height: lastblock.height,
        fee: config.getConstants(lastblock.height).fees.send,
        milestone: ~~(lastblock.height / 3000000),
        nethash: config.network.nethash,
        reward: config.getConstants(lastblock.height).reward,
-       supply: config.genesisBlock.totalAmount +  (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+       supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
      })
 
     next()
