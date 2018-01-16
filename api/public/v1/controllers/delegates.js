@@ -39,7 +39,7 @@ class DelegatesController {
 
   fee (req, res, next) {
     res.send({
-      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
+      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.delegate
     })
 
     next()

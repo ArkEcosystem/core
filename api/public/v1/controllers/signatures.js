@@ -5,7 +5,7 @@ const config = requireFrom('core/config')
 class SignaturesController {
   fee (req, res, next) {
     responder.ok(req, res, {
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.secondsignature
+      fee: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.secondsignature
     })
 
     next()

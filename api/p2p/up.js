@@ -102,8 +102,8 @@ class Up {
   getHeight (req, res, next) {
     res.send(200, {
       success: true,
-      height: blockchain.getInstance().lastBlock.data.height,
-      id: blockchain.getInstance().lastBlock.data.id
+      height: blockchain.getInstance().status.lastBlock.data.height,
+      id: blockchain.getInstance().status.lastBlock.data.id
     })
     next()
   }
@@ -119,7 +119,7 @@ class Up {
   }
 
   getStatus (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock.getHeader()
+    const lastBlock = blockchain.getInstance().status.lastBlock.getHeader()
     res.send(200, {
       success: true,
       height: lastBlock.height,
@@ -131,7 +131,7 @@ class Up {
   }
 
   getRound (req, res, next) {
-    const lastBlock = blockchain.getInstance().lastBlock
+    const lastBlock = blockchain.getInstance().status.lastBlock
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward

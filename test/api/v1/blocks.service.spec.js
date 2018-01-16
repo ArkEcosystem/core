@@ -66,7 +66,7 @@ describe('GET /api/blocks/getfees', () => {
 
         expect(res.body).to.have.property('fees')
         // TODO adjust when environment setup properly
-        // expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().lastBlock.data.height).fees)
+        // expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees)
 
         done()
     })

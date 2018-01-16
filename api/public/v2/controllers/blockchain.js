@@ -5,7 +5,7 @@ const responder = requireFrom('api/responder')
 class BlockchainController {
   index (req, res, next) {
     responder.ok(req, res, {
-      data: config.getConstants(blockchain.getInstance().lastBlock.data.height)
+      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height)
     })
 
     next()
@@ -13,7 +13,7 @@ class BlockchainController {
 
   fees (req, res, next) {
     responder.ok(req, res, {
-      data: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
+      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send
     })
 
     next()

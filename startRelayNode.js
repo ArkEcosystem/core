@@ -41,7 +41,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 DependencyHandler
   .checkDatabaseLibraries(config)
-  .then(() => Cache.create())
+  .then(() => new Cache(config.server.redis))
   .then(() => DB.create(config.server.db))
   .then(db => blockchainManager.attachDBInterface(db))
   .then(() => logger.info('Database started'))
