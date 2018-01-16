@@ -32,6 +32,7 @@ class Logger {
     }))
   }
 
+  // TODO: add some interception in winston logging event to add \n at then end of tracker if a new log is going to be printed
   printTracker (title, current, max, posttitle, figures = 0) {
     const progress = 100 * current / max
     let line = '\u{1b}[0G  '
