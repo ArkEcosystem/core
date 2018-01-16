@@ -8,6 +8,7 @@ const logger = require('./core/logger')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
+const Cache = require('./core/cache')
 const DependencyHandler = require('./core/dependency-handler')
 const PublicAPI = require('./api/public/bootstrap')
 
@@ -40,6 +41,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 DependencyHandler
   .checkDatabaseLibraries(config)
+  .then(() => Cache.create())
   .then(() => DB.create(config.server.db))
   .then(db => blockchainManager.attachDBInterface(db))
   .then(() => logger.info('Database started'))

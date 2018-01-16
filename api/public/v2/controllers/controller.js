@@ -9,9 +9,10 @@ class Controller {
     this.response = response
     this.next = next
 
+    // limit and offset are fucking aids, rename this bullshit
     this.pager = {
-      page: parseInt(this.request.query.page || 1),
-      perPage: parseInt(this.request.query.perPage || 100)
+      offset: parseInt(this.request.query.page || 1),
+      limit: parseInt(this.request.query.perPage || 100)
     }
 
     return Promise.resolve(db)

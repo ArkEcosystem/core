@@ -1,5 +1,5 @@
 class PeerTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       ip: model.ip,
       port: model.port,
@@ -7,7 +7,7 @@ class PeerTransformer {
       height: model.height,
       status: model.status,
       os: model.os,
-      delay: model.delay,
+      delay: model.delay
     };
   }
 }

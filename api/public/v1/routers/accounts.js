@@ -2,7 +2,7 @@ const controllers = require('../controllers/accounts')
 const schema = require('../schemas/accounts')
 
 class AccountsRouter {
-  register(registrar) {
+  register (registrar) {
     registrar.get('accounts/getAllAccounts', controllers.index)
     registrar.get('accounts', controllers.show, schema.getAccount)
     registrar.get('accounts/getBalance', controllers.balance, schema.getBalance)

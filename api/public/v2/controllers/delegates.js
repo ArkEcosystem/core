@@ -3,7 +3,7 @@ const Controller = require('./controller')
 class DelegatesController extends Controller {
   index (req, res, next) {
     super.init(req, res, next).then(db => {
-      db.delegates.paginate(this.pager, {
+      db.delegatesCache.paginate(this.pager, {
         order: [[ 'publicKey', 'ASC' ]]
       }).then(delegates => {
         super.respondWithPagination(delegates, 'delegate')
@@ -13,7 +13,7 @@ class DelegatesController extends Controller {
 
   show (req, res, next) {
     super.init(req, res, next).then(db => {
-      db.delegates.findById(req.params.id).then(delegate => {
+      db.delegatesCache.findById(req.params.id).then(delegate => {
         super.respondWithResource(delegate, 'delegate')
       })
     })
@@ -21,8 +21,8 @@ class DelegatesController extends Controller {
 
   blocks (req, res, next) {
     super.init(req, res, next).then(db => {
-      db.delegates.findById(req.params.id).then(delegate => {
-        db.blocks.paginateByGenerator(delegate.publicKey, this.pager).then(blocks => {
+      db.delegatesCache.findById(req.params.id).then(delegate => {
+        db.blocksCache.paginateByGenerator(delegate.publicKey, this.pager).then(blocks => {
           super.respondWithPagination(blocks, 'block')
         })
       })
@@ -31,8 +31,8 @@ class DelegatesController extends Controller {
 
   voters (req, res, next) {
     super.init(req, res, next).then(db => {
-      db.delegates.findById(req.params.id).then(delegate => {
-        db.accounts.paginateByVote(delegate.publicKey, this.pager).then(wallets => {
+      db.delegatesCache.findById(req.params.id).then(delegate => {
+        db.accountsCache.paginateByVote(delegate.publicKey, this.pager).then(wallets => {
           super.respondWithPagination(wallets, 'wallet')
         })
       })
