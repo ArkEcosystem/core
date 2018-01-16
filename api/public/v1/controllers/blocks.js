@@ -49,14 +49,14 @@ class BlocksController {
 
   epoch (req, res, next) {
     responder.ok(req, res, {
-      epoch: config.getConstants(blockchain.getInstance().lastBlock.data.height).epoch
+      epoch: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).epoch
     })
 
     next()
   }
 
   height (req, res, next) {
-    let block = blockchain.getInstance().lastBlock.data
+    let block = blockchain.getInstance().status.lastBlock.data
 
     responder.ok(req, res, {
       height: block.height,
@@ -76,7 +76,7 @@ class BlocksController {
 
   fee (req, res, next) {
     responder.ok(req, res, {
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.send
+      fee: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send
     })
 
     next()
@@ -84,7 +84,7 @@ class BlocksController {
 
   fees (req, res, next) {
     responder.ok(req, res, {
-      fees: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees
+      fees: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees
     })
 
     next()
@@ -92,7 +92,7 @@ class BlocksController {
 
   milestone (req, res, next) {
     responder.ok(req, res, {
-      milestone: ~~(blockchain.getInstance().lastBlock.data.height / 3000000)
+      milestone: ~~(blockchain.getInstance().status.lastBlock.data.height / 3000000)
     })
 
     next()
@@ -100,14 +100,14 @@ class BlocksController {
 
   reward (req, res, next) {
     responder.ok(req, res, {
-      reward: config.getConstants(blockchain.getInstance().lastBlock.data.height).reward
+      reward: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).reward
     })
 
     next()
   }
 
   supply (req, res, next) {
-    let lastblock = blockchain.getInstance().lastBlock.data
+    let lastblock = blockchain.getInstance().status.lastBlock.data
     responder.ok(req, res, {
       supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
     })
@@ -116,7 +116,7 @@ class BlocksController {
   }
 
   status (req, res, next) {
-    let lastblock = blockchain.getInstance().lastBlock.data
+    let lastblock = blockchain.getInstance().status.lastBlock.data
 
     responder.ok(req, res, {
        epoch: config.getConstants(lastblock.height).epoch,

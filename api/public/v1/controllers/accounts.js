@@ -90,7 +90,7 @@ class WalletsController {
 
   fee (req, res, next) {
     res.send(200, {
-      fee: config.getConstants(blockchain.getInstance().lastBlock.data.height).fees.delegate
+      fee: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.delegate
     })
 
     next()
@@ -98,7 +98,7 @@ class WalletsController {
 
   // TODO - pretify this below
   delegates (req, res, next) {
-    let lastblock = blockchain.getInstance().lastBlock.data
+    let lastblock = blockchain.getInstance().status.lastBlock.data
     db.accounts.findById(req.query.address)
       .then(account => {
         if (!account) {
@@ -114,7 +114,7 @@ class WalletsController {
           return
         }
         let totalSupply = config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
-        db.getActiveDelegates(blockchain.getInstance().lastBlock.data.height)
+        db.getActiveDelegates(blockchain.getInstance().status.lastBlock.data.height)
           .then(activedelegates => {
             let delPos = activedelegates.findIndex(del => { return del.publicKey === account.vote })
             let votedDel = activedelegates[delPos]

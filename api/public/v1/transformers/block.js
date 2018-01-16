@@ -2,7 +2,7 @@ const blockchain = requireFrom('core/blockchainManager')
 
 class BlockTransformer {
   constructor (model) {
-    const lastBlock = blockchain.getInstance().lastBlock
+    const lastBlock = blockchain.getInstance().status.lastBlock
 
     return {
       id: model.id,

@@ -3,7 +3,7 @@ const blockchain = requireFrom('core/blockchainManager')
 
 class TransactionTransformer {
   constructor (model) {
-    const lastBlock = blockchain.getInstance().lastBlock
+    const lastBlock = blockchain.getInstance().status.lastBlock
     const data = Transaction.deserialize(model.serialized.toString('hex'))
 
     return {
