@@ -8,8 +8,8 @@ class PeersController {
   index (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
-        if (!!peers) {
-          let retPeers = peers.sort(() => .5 - Math.random())
+        if (peers) {
+          let retPeers = peers.sort(() => 0.5 - Math.random())
           retPeers = req.query.os ? peers.filter(peer => { return peer.os === req.query.os }) : retPeers
           retPeers = req.query.status ? peers.filter(peer => { return peer.status === req.query.status }) : retPeers
           retPeers = req.query.port ? peers.filter(peer => { return peer.port === req.query.port }) : retPeers
@@ -28,11 +28,11 @@ class PeersController {
           }
 
           responder.ok(req, res, {
-            peers: new transformer(req).collection(retPeers, 'peer'),
+            peers: new transformer(req).collection(retPeers, 'peer')
           })
         } else {
           responder.error(req, res, {
-            error: `No peers found`,
+            error: 'No peers found'
           })
         }
     }).catch(error => {
@@ -48,21 +48,21 @@ class PeersController {
   show (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
-        if (!!peers) {
-          let peer = peers.find(elem => {return elem.ip === req.query.ip && elem.port === req.query.port})
+        if (peers) {
+          let peer = peers.find(elem => { return elem.ip === req.query.ip && elem.port === req.query.port })
 
-          if (!!peer) {
+          if (peer) {
             responder.ok(req, res, {
-              peer: new transformer(req).resource(peer, 'peer'),
+              peer: new transformer(req).resource(peer, 'peer')
             })
-          }else {
+          } else {
             responder.error(req, res, {
-              error: `Peer ${req.query.ip}:${req.query.port} not found`,
+              error: `Peer ${req.query.ip}:${req.query.port} not found`
             })
           }
-        }else {
+        } else {
           responder.error(req, res, {
-            error: `No peers found`,
+            error: 'No peers found'
           })
         }
     }).catch(error => {
@@ -77,7 +77,7 @@ class PeersController {
   }
 
   version (req, res, next) {
-    responder.ok(req,res, {
+    responder.ok(req, res, {
       version: config.server.version
     })
 

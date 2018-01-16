@@ -22,8 +22,7 @@ class TransactionsController {
   }
 
   unconfirmed (req, res, next) {
-
-    //needs to be picked up from transaction pool
+    // needs to be picked up from transaction pool
     responder.notImplemented(res, 'Method has not yet been implemented.')
 
     next()

@@ -3,7 +3,7 @@ const Controller = require('./controller')
 class BlocksController extends Controller {
   index (req, res, next) {
     super.init(req, res, next).then(db => {
-      db.blocks.paginate(this.pager).then(blocks => {
+      db.blocks.all(this.pager).then(blocks => {
         super.respondWithPagination(blocks, 'block')
       })
     })

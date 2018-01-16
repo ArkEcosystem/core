@@ -1,13 +1,5 @@
-const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
-const arkjs = require('arkjs')
-const blockchain = requireFrom('core/blockchainManager')
-const config = requireFrom('core/config')
-const logger = requireFrom('core/logger')
-const db = requireFrom('core/dbinterface').getInstance()
-const responder = requireFrom('api/responder')
-const transformer = requireFrom('api/transformer')
-const crypto = require('crypto')
+const cache = requireFrom('core/cache')
 
 class DelegatesRepository {
   constructor (db) {
@@ -26,14 +18,14 @@ class DelegatesRepository {
     }))
   }
 
-  paginate (pager, params = {}) {
+  paginate (pager, queryParams = {}) {
     let offset = 0
 
     if (pager.page > 1) {
       offset = pager.page * pager.perPage
     }
 
-    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
+    return this.db.accountsTable.findAndCountAll(Object.assign(queryParams, {
       where: {
         username: {
           [Op.ne]: null
@@ -45,19 +37,29 @@ class DelegatesRepository {
   }
 
   findById (id) {
-    return this.db.accountsTable.findOne({
-      where: {
-        username: {
-          [Op.ne]: null
-        },
-        [Op.or]: [{
-          address: id
-        }, {
-          publicKey: id
-        }, {
-          username: id
-        }]
-      }
+    const cacheKey = cache.generateKey(`delegates/id:${id}`)
+
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.accountsTable.findOne({
+        where: {
+          username: {
+            [Op.ne]: null
+          },
+          [Op.or]: [{
+            address: id
+          }, {
+            publicKey: id
+          }, {
+            username: id
+          }]
+        }
+      }).then(res => {
+        cache.set(cacheKey, res);
+
+        return res;
+      })
     })
   }
 }

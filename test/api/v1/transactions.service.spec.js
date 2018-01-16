@@ -106,7 +106,7 @@ describe('GET /api/transactions', () => {
             expect(res.body.transactions[i].timestamp).to.be.at.most(res.body.transactions[i + 1].timestamp)
 
             if (flag === 0) {
-              //offsetTimestamp = res.body.transactions[i + 1].timestamp
+              // offsetTimestamp = res.body.transactions[i + 1].timestamp
               flag = 1
             }
           }

@@ -1,7 +1,6 @@
 const controller = requireFrom('api/public/v1/controllers/peers')
 const schema = requireFrom('api/public/v1/schemas/peers')
 
-
 class PeersRouter {
   register (registrar) {
     registrar.get('peers', controller.index, schema.getPeers)

@@ -1,5 +1,6 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
+const cache = requireFrom('core/cache')
 
 class BlocksRepository {
   constructor (db) {
@@ -7,30 +8,51 @@ class BlocksRepository {
   }
 
   all (queryParams) {
+    const cacheKey = cache.generateKey(queryParams)
 
-    let whereStatement = {}
-    let orderBy = []
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
 
-    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
-    for (const elem of filter) {
-      if (!!queryParams[elem])
-        whereStatement[elem] = queryParams[elem]
-    }
+      let whereStatement = {}
+      let orderBy = []
 
-    if (!!queryParams.orderBy) {
-      orderBy.push(queryParams.orderBy.split(':'))
-    }
+      const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+      for (const elem of filter) {
+        if (queryParams[elem]) {
+          whereStatement[elem] = queryParams[elem]
+        }
+      }
 
-    return this.db.blocksTable.findAndCountAll({
-      where: whereStatement,
-      order: orderBy,
-      offset: parseInt(queryParams.offset || 1),
-      limit: parseInt(queryParams.limit || 100)
+      if (queryParams.orderBy) {
+        orderBy.push(queryParams.orderBy.split(':'))
+      }
+
+      return this.db.blocksTable.findAndCountAll({
+        where: whereStatement,
+        order: orderBy,
+        offset: parseInt(queryParams.offset || 1),
+        limit: parseInt(queryParams.limit || 100)
+      }).then(res => {
+        cache.set(cacheKey, res); return res;
+      })
     })
   }
 
-  paginateByGenerator (generatorPublicKey, page, perPage) {
-    return this.paginate(page, perPage, {
+  paginate (pager, queryParams = {}) {
+    let offset = 0
+
+    if (pager.page > 1) {
+      offset = pager.page * pager.perPage
+    }
+
+    return this.all(Object.assign(queryParams, {
+      offset: offset,
+      limit: pager.perPage
+    }))
+  }
+
+  paginateByGenerator (generatorPublicKey, pager) {
+    return this.paginate(pager, {
       where: {
         generatorPublicKey: generatorPublicKey
       }
@@ -38,26 +60,56 @@ class BlocksRepository {
   }
 
   findById (id) {
-    return this.db.blocksTable.findById(id)
+    const cacheKey = cache.generateKey(`blocks/id:${id}`)
+
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.blocksTable.findById(id).then(res => {
+        cache.set(cacheKey, res);
+
+        return res;
+      })
+    })
   }
 
   findLastByPublicKey (publicKey) {
-    return this.db.blocksTable.findOne({
-      limit: 1,
-      where: { generatorPublicKey: publicKey },
-      order: [[ 'createdAt', 'DESC' ]]
+    const cacheKey = cache.generateKey(`blocks/publicKey:${publicKey}`)
+
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.blocksTable.findOne({
+        limit: 1,
+        where: { generatorPublicKey: publicKey },
+        order: [[ 'createdAt', 'DESC' ]]
+      }).then(res => {
+        cache.set(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   allByDateTimeRange (from, to) {
-    return this.db.blocksTable.findAndCountAll({
-      attributes: ['totalFee', 'reward'],
-      where: {
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
+    const cacheKey = cache.generateKey(`statistics/blocks/from:${from}/to:${to}`)
+
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.blocksTable.findAndCountAll({
+        attributes: ['totalFee', 'reward'],
+        where: {
+          createdAt: {
+            [Op.lte]: moment(to).endOf('day').toDate(),
+            [Op.gte]: moment(from).startOf('day').toDate()
+          }
         }
-      }
+      }).then(res => {
+        cache.set(cacheKey, res);
+
+        return res;
+      })
     })
   }
 }

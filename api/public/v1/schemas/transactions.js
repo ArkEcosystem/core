@@ -1,3 +1,6 @@
+'use strict';
+
+const constants = requireFrom('core/config').constants;
 
 module.exports = {
   getTransactions: {
@@ -49,12 +52,12 @@ module.exports = {
       amount: {
         type: 'integer',
         minimum: 0,
-        maximum: Math.pow(10, 8),
+        maximum: Math.pow(10, 8)
       },
       fee: {
         type: 'integer',
         minimum: 0,
-        maximum: Math.pow(10, 8),
+        maximum: Math.pow(10, 8)
       }
     }
   },

@@ -1,7 +1,7 @@
 const blockchain = requireFrom('core/blockchainManager')
 
 class BlockTransformer {
-  constructor(model) {
+  constructor (model) {
     return {
       id: model.id,
       version: model.version,

@@ -2,7 +2,7 @@ const Transaction = requireFrom('model/transaction')
 const blockchain = requireFrom('core/blockchainManager')
 
 class TransactionTransformer {
-  constructor(model) {
+  constructor (model) {
     this.data = Transaction.deserialize(model.serialized.toString('hex'))
     return {
       id: this.data.id,

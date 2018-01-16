@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize')
 const Op = require('sequelize').Op
 const moment = require('moment')
+const cache = requireFrom('core/cache')
 
 class TransactionsRepository {
   constructor (db) {
@@ -13,11 +13,10 @@ class TransactionsRepository {
 
     const filter = ['type', 'senderPublicKey', 'vendorField', 'senderId', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
-      if (!!queryParams[elem])
-        whereStatement[elem] = queryParams[elem]
+      if (queryParams[elem]) { whereStatement[elem] = queryParams[elem] }
     }
 
-    if (!!queryParams.orderBy){
+    if (queryParams.orderBy) {
       let order = queryParams.orderBy.split(':')
       if (['timestamp', 'type', 'amount'].includes(order[0])) {
         orderBy.push(queryParams.orderBy.split(':'))
@@ -31,25 +30,30 @@ class TransactionsRepository {
       limit: parseInt(queryParams.limit || 100),
       include: {
         model: this.db.blocksTable,
-        attributes: ['height'],
+        attributes: ['height']
       }
     })
   }
 
-  paginate (pager, params = {}) {
+  paginate (pager, queryParams = {}) {
     let offset = 0
 
     if (pager.page > 1) {
       offset = pager.page * pager.perPage
     }
 
-    return this.db.transactionsTable.findAndCountAll(Object.assign(params, {
+    return this.all(Object.assign(queryParams, {
       offset: offset,
       limit: pager.perPage
     }))
   }
 
   paginateAllByWallet (wallet, pager) {
+    const cacheKey = cache.generateKey(`transactions/senderPublicKey:${wallet.publicKey}/recipientId:${wallet.address}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
         [Op.or]: [{
@@ -58,64 +62,144 @@ class TransactionsRepository {
           recipientId: wallet.address
         }]
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   paginateAllBySender (senderPublicKey, pager) {
+    const cacheKey = cache.generateKey(`transactions/senderPublicKey:${senderPublicKey}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
           senderPublicKey: senderPublicKey
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   paginateAllByRecipient (recipientId, pager) {
+    const cacheKey = cache.generateKey(`transactions/recipientId:${recipientId}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
         recipientId: recipientId
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   paginateVotesBySender (senderPublicKey, pager) {
+    const cacheKey = cache.generateKey(`transactions/senderPublicKey:${senderPublicKey}/type:3`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
         senderPublicKey: senderPublicKey,
         type: 3
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   paginateByBlock (blockId, pager) {
+    const cacheKey = cache.generateKey(`transactions/blockId:${blockId}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
         blockId: blockId
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   paginateByType (type, pager) {
+    const cacheKey = cache.generateKey(`transactions/type:${type}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
     return this.paginate(pager, {
       where: {
         type: type
       }
+    }).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
   findById (id) {
-    return this.db.transactionsTable.findById(id)
-  }
+    const cacheKey = cache.generateKey(`transactions/id:${id}`)
 
-  findByIdAndType (id, type) {
-    return this.db.transactionsTable.findOne({
-      where: {
-        id: id,
-        type: type
-      }
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.transactionsTable.findById(id).then(res => {
+        cache.setKey(cacheKey, res);
+
+        return res;
+      })
     })
   }
 
+  findByIdAndType (id, type) {
+    const cacheKey = cache.generateKey(`transactions/id:${id}/type:${type}`)
+
+    return cache.getKey(cacheKey).then((data) => {
+      if (data) return data
+
+      return this.db.transactionsTable.findOne({
+        where: {
+          id: id,
+          type: type
+        }
+      }).then(res => {
+          cache.setKey(cacheKey, res);
+
+          return res;
+        })
+      })
+  }
+
   allByDateAndType (type, from, to) {
+    const cacheKey = cache.generateKey(`statistics/transactions/from:${from}/to:${to}`)
+
+    return cache.get(cacheKey).then((data) => {
+      if (data) return data
+
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['amount', 'fee'],
       where: {
@@ -125,6 +209,11 @@ class TransactionsRepository {
           [Op.gte]: moment(from).startOf('day').toDate()
         }
       }
+    }).then(res => {
+        cache.set(cacheKey, res);
+
+        return res;
+      })
     })
   }
 }
