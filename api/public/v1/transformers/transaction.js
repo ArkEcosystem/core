@@ -1,5 +1,7 @@
 const Transaction = requireFrom('model/transaction')
 const blockchain = requireFrom('core/blockchainManager')
+const arkjs = require('arkjs')
+const config = requireFrom('core/config')
 
 class TransactionTransformer {
   constructor (model) {
@@ -8,13 +10,13 @@ class TransactionTransformer {
 
     return {
       id: data.id,
-      blockid: data.blockId,
+      blockid: model.blockId,
       type: data.type,
       timestamp: data.timestamp,
       amount: data.amount,
       fee: data.fee,
-      senderId: data.senderId,
-      recipientId: data.recepientId,
+      recipientId: data.recipientId,
+      senderId: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
       senderPublicKey: data.senderPublicKey,
       signature: data.signature,
       asset: data.asset,
