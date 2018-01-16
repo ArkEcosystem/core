@@ -10,7 +10,7 @@ class TransactionsRepository {
     let whereStatement = {}
     let orderBy = []
 
-    const filter = ['type', 'senderPublicKey', 'vendorField', 'recipientId', 'amount', 'fee', 'blockId']
+    const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
       if (queryParams[elem]) { whereStatement[elem] = queryParams[elem] }
     }
