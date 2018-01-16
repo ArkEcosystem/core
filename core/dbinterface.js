@@ -37,7 +37,6 @@ class DBInterface {
       .init(params)
       .then(() => (instance = db))
       .then(() => this.registerRepositories(params.driver))
-      .then(() => this.registerCacheDecorators(params.driver))
   }
 
   static registerRepositories (driver) {
@@ -46,18 +45,6 @@ class DBInterface {
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
         instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
-      }
-    })
-
-    return Promise.resolve(instance)
-  }
-
-  static registerCacheDecorators (driver) {
-    let directory = path.resolve(driver, 'cache')
-
-    fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') !== -1) {
-        instance[file.slice(0, -3) + 'Cache'] = new (require(directory + '/' + file))(instance)
       }
     })
 
