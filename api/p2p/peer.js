@@ -50,6 +50,21 @@ class Peer {
       .then(res => Promise.resolve(res.body))
   }
 
+  postBlock (block) {
+    return popsicle
+      .request({
+        method: 'POST',
+        url: this.url + '/peer/block/',
+        data: block,
+        headers: this.headers,
+        timeout: 2000
+      })
+      .use(popsicle.plugins.parse('json'))
+      .then(res => this.parseHeaders(res))
+      .catch(error => (this.status = error.code))
+      .then(res => Promise.resolve(res.body))
+  }
+
   parseHeaders (res) {
     ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
     this.status = 'OK'

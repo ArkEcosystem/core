@@ -27,6 +27,14 @@ class P2PInterface {
     return this.down.downloadBlocks(fromBlockHeight)
   }
 
+  broadcastBlock (block) {
+    this.down.broadcastBlock(block)
+  }
+
+  broadcastTransactions (transactions) {
+    this.down.broadcastTransactions(transactions)
+  }
+
   acceptNewPeer (peer) {
     return this.down.acceptNewPeer(peer)
   }

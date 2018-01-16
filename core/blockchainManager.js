@@ -15,12 +15,11 @@ class BlockchainManager {
     const that = this
     this.config = config
     this.status = {
-      monitoring: false,
       lastBlock: null,
       lastDownloadedBlock: null,
       downloadpaused: false,
       rebuild: false,
-      syncing: true,
+      syncing: false,
       fastSync: true
     }
 
@@ -81,6 +80,9 @@ class BlockchainManager {
           logger.info('Node Synced, congratulations! 🦄')
         } else this.eventQueue.push({type: 'sync/start'})
         return qcallback()
+      case 'broadcast':
+        this.networkInterface.broadcastBlock(event.block)
+        return qcallback()
       case 'updateNetworkStatus':
         return this.networkInterface.updateNetworkStatus().then(() => qcallback())
       case 'downloadQueue/stop':
@@ -88,7 +90,10 @@ class BlockchainManager {
         return qcallback()
       case 'processQueue/stop':
         if (!this.isSynced(this.status.lastBlock) && !this.status.syncing) this.eventQueue.push({type: 'sync/start'})
-        else logger.info('Node Synced, congratulations! 🦄')
+        else {
+          this.status.syncing = false
+          logger.info('Node Synced, congratulations! 🦄')
+        }
         return qcallback()
       case 'rebuild/start':
         if (!this.status.rebuild) {
@@ -103,7 +108,7 @@ class BlockchainManager {
         return qcallback()
       case 'sync/start':
         if (this.config.server.test) return qcallback()
-        if (!this.status.rebuild) {
+        if (!this.status.rebuild && !this.status.syncing) {
           logger.info('Syncing started')
           this.status.syncing = true
           this.status.lastDownloadedBlock = this.status.lastBlock.data
