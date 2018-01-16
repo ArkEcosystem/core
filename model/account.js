@@ -149,10 +149,27 @@ class Account {
   }
 
   verifySignatures (transaction) {
-    if (!transaction.signatures) return false
-
+    if (!transaction.signatures || !transaction.signatures.length > this.multisignature.min - 1) return false
+    let index = 0
+    let publicKey = this.multisignature.keysgroup[index]
+    for (let signature in transaction.signatures) {
+      if (!verify(transaction, signature, publicKey)) {
+        if (index++ > transaction.signatures.length - 1) return false
+        else publicKey = this.multisignature.keysgroup[index]
+      }
+    }
     return true
   }
+}
+
+function verify (transaction, signature, publicKey) {
+  const hash = arkjs.crypto.getHash(transaction)
+
+  const signSignatureBuffer = Buffer.alloc(signature, 'hex')
+  const publicKeyBuffer = Buffer.alloc(publicKey, 'hex')
+  const ecpair = arkjs.ECPair.fromPublicKeyBuffer(publicKeyBuffer, config.network)
+  const ecsignature = arkjs.ECSignature.fromDER(signSignatureBuffer)
+  return ecpair.verify(hash, ecsignature)
 }
 
 module.exports = Account
