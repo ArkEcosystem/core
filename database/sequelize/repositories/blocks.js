@@ -8,7 +8,7 @@ class BlocksRepository {
   }
 
   all (queryParams) {
-    const cacheKey = cache.generateKey(queryParams)
+    const cacheKey = cache.generateKey(Object.assign(queryParams, { resource: 'blocks' }))
 
     return cache.get(cacheKey).then((data) => {
       if (data) return data
@@ -60,7 +60,7 @@ class BlocksRepository {
   }
 
   findById (id) {
-    const cacheKey = cache.generateKey(`blocks/id:${id}`)
+    const cacheKey = cache.generateKey({ resource: 'blocks', id })
 
     return cache.get(cacheKey).then((data) => {
       if (data) return data
@@ -74,7 +74,7 @@ class BlocksRepository {
   }
 
   findLastByPublicKey (publicKey) {
-    const cacheKey = cache.generateKey(`blocks/publicKey:${publicKey}`)
+    const cacheKey = cache.generateKey({ resource: 'blocks', publicKey })
 
     return cache.get(cacheKey).then((data) => {
       if (data) return data
@@ -92,7 +92,7 @@ class BlocksRepository {
   }
 
   allByDateTimeRange (from, to) {
-    const cacheKey = cache.generateKey(`statistics/blocks/from:${from}/to:${to}`)
+    const cacheKey = cache.generateKey({ resource: 'blocks', from, to })
 
     return cache.get(cacheKey).then((data) => {
       if (data) return data

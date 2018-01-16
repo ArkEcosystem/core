@@ -37,7 +37,7 @@ class DelegatesRepository {
   }
 
   findById (id) {
-    const cacheKey = cache.generateKey(`delegates/id:${id}`)
+    const cacheKey = cache.generateKey({ resource: 'delegates', id })
 
     return cache.get(cacheKey).then((data) => {
       if (data) return data
