@@ -1,6 +1,5 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
-const bs58check = require('bs58check')
 
 class TransactionsRepository {
   constructor (db) {
