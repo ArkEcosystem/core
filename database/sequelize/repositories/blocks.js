@@ -1,6 +1,5 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
-const cache = requireFrom('core/cache')
 
 class BlocksRepository {
   constructor (db) {
@@ -8,11 +7,6 @@ class BlocksRepository {
   }
 
   all (queryParams) {
-    const cacheKey = cache.generateKey(Object.assign(queryParams, { resource: 'blocks' }))
-
-    return cache.get(cacheKey).then((data) => {
-      if (data) return data
-
       let whereStatement = {}
       let orderBy = []
 
@@ -32,10 +26,7 @@ class BlocksRepository {
         order: orderBy,
         offset: parseInt(queryParams.offset || 1),
         limit: parseInt(queryParams.limit || 100)
-      }).then(res => {
-        cache.set(cacheKey, res); return res;
       })
-    })
   }
 
   paginate (pager, queryParams = {}) {
@@ -60,56 +51,26 @@ class BlocksRepository {
   }
 
   findById (id) {
-    const cacheKey = cache.generateKey({ resource: 'blocks', id })
-
-    return cache.get(cacheKey).then((data) => {
-      if (data) return data
-
-      return this.db.blocksTable.findById(id).then(res => {
-        cache.set(cacheKey, res);
-
-        return res;
-      })
-    })
+    return this.db.blocksTable.findById(id)
   }
 
   findLastByPublicKey (publicKey) {
-    const cacheKey = cache.generateKey({ resource: 'blocks', publicKey })
-
-    return cache.get(cacheKey).then((data) => {
-      if (data) return data
-
-      return this.db.blocksTable.findOne({
-        limit: 1,
-        where: { generatorPublicKey: publicKey },
-        order: [[ 'createdAt', 'DESC' ]]
-      }).then(res => {
-        cache.set(cacheKey, res);
-
-        return res;
-      })
+    return this.db.blocksTable.findOne({
+      limit: 1,
+      where: { generatorPublicKey: publicKey },
+      order: [[ 'createdAt', 'DESC' ]]
     })
   }
 
   allByDateTimeRange (from, to) {
-    const cacheKey = cache.generateKey({ resource: 'blocks', from, to })
-
-    return cache.get(cacheKey).then((data) => {
-      if (data) return data
-
-      return this.db.blocksTable.findAndCountAll({
-        attributes: ['totalFee', 'reward'],
-        where: {
-          createdAt: {
-            [Op.lte]: moment(to).endOf('day').toDate(),
-            [Op.gte]: moment(from).startOf('day').toDate()
-          }
+    return this.db.blocksTable.findAndCountAll({
+      attributes: ['totalFee', 'reward'],
+      where: {
+        createdAt: {
+          [Op.lte]: moment(to).endOf('day').toDate(),
+          [Op.gte]: moment(from).startOf('day').toDate()
         }
-      }).then(res => {
-        cache.set(cacheKey, res);
-
-        return res;
-      })
+      }
     })
   }
 }

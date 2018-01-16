@@ -29,6 +29,12 @@ class Cache {
   static generateKey (value) {
     return Buffer.from(JSON.stringify(value)).toString('base64')
   }
+
+  static flushdb () {
+    instance.flushdb(success => {
+        console.log(success);
+    });
+  }
 }
 
 module.exports = Cache

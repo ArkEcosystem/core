@@ -1,5 +1,4 @@
 const Op = require('sequelize').Op
-const cache = requireFrom('core/cache')
 
 class DelegatesRepository {
   constructor (db) {
@@ -37,29 +36,19 @@ class DelegatesRepository {
   }
 
   findById (id) {
-    const cacheKey = cache.generateKey({ resource: 'delegates', id })
-
-    return cache.get(cacheKey).then((data) => {
-      if (data) return data
-
-      return this.db.accountsTable.findOne({
-        where: {
-          username: {
-            [Op.ne]: null
-          },
-          [Op.or]: [{
-            address: id
-          }, {
-            publicKey: id
-          }, {
-            username: id
-          }]
-        }
-      }).then(res => {
-        cache.set(cacheKey, res);
-
-        return res;
-      })
+    return this.db.accountsTable.findOne({
+      where: {
+        username: {
+          [Op.ne]: null
+        },
+        [Op.or]: [{
+          address: id
+        }, {
+          publicKey: id
+        }, {
+          username: id
+        }]
+      }
     })
   }
 }
