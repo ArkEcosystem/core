@@ -159,7 +159,7 @@ class SequelizeDB extends DBInterface {
             account.publicKey = row.senderPublicKey
             account.balance = -parseInt(row.amount) - parseInt(row.fee)
             this.localaccounts[account.address] = account
-            logger.error(account.address, row.amount, row.fee)
+            logger.debug(account.address, row.amount, row.fee)
           }
         })
         return this.transactionsTable.findAll({
@@ -192,7 +192,7 @@ class SequelizeDB extends DBInterface {
         })
         Object.keys(this.localaccounts)
           .filter(a => this.localaccounts[a].balance < 0)
-          .forEach(a => logger.info(this.localaccounts[a]))
+          .forEach(a => logger.debug(this.localaccounts[a]))
         return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',

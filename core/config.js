@@ -3,6 +3,8 @@ global.requireFrom = function (name) {
   return require(require('path').resolve(`${__dirname}/../`, name))
 }
 
+const Sntp = require('sntp')
+
 const deepmerge = require('deepmerge')
 
 let instance = null
@@ -16,7 +18,9 @@ class Config {
     return instance
   }
 
+  // TODO should return a Promise
   init (config) {
+    this.ntp().then(time => console.warn('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.server = config.server
     this.network = config.network
     this.genesisBlock = config.genesisBlock
@@ -37,6 +41,10 @@ class Config {
       this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
       lastmerged++
     }
+  }
+
+  ntp () {
+    return Sntp.time()
   }
 
   getConstants (height) {

@@ -20,7 +20,9 @@ class BlockchainManager {
       downloadpaused: false,
       rebuild: false,
       syncing: false,
-      fastSync: true
+      fastSync: true,
+      noblock: 0,
+      forked: false
     }
 
     this.eventQueue = async.queue(
@@ -78,7 +80,10 @@ class BlockchainManager {
         if (this.isSynced(this.status.lastBlock)) {
           this.status.syncing = false
           logger.info('Node Synced, congratulations! 🦄')
-        } else this.eventQueue.push({type: 'sync/start'})
+        } else if (!this.status.syncing) {
+          this.status.noblock = 0
+          this.eventQueue.push({type: 'sync/start'})
+        }
         return qcallback()
       case 'broadcast':
         this.networkInterface.broadcastBlock(event.block)
@@ -86,7 +91,7 @@ class BlockchainManager {
       case 'updateNetworkStatus':
         return this.networkInterface.updateNetworkStatus().then(() => qcallback())
       case 'downloadQueue/stop':
-        if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next'})
+        if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next', noblock: false})
         return qcallback()
       case 'processQueue/stop':
         if (!this.isSynced(this.status.lastBlock) && !this.status.syncing) this.eventQueue.push({type: 'sync/start'})
@@ -127,7 +132,15 @@ class BlockchainManager {
           logger.info('Download paused')
           return qcallback()
         } else {
-          return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
+          if (event.noblock) this.status.noblock++
+          else this.status.noblock = 0
+          if (this.status.noblock < 5) return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
+          else {
+            this.status.syncing = false
+            logger.warn('Node looks synced with network, but either local time is drifted or the network is missing blocks 🤔')
+            this.config.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
+            return qcallback()
+          }
         }
       case 'sync/stop':
         qcallback()
@@ -257,18 +270,20 @@ class BlockchainManager {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
         logger.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
-        status.lastDownloadedBlock = status.lastBlock.data
+        status.lastDownloadedBlock = status.lastBlock.data;
+        ['updateNetworkStatus', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
         qcallback()
       } else if (block.data.height < status.lastBlock.data.height) {
         logger.info('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
+        status.forked = true
         logger.info('Block disregarded because on a fork')
         qcallback()
       }
     } else {
-      logger.info('Block disregarded because not legit')
+      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
@@ -284,7 +299,7 @@ class BlockchainManager {
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
-        that.eventQueue.push({type: 'download/next'})
+        that.eventQueue.push({type: 'download/next', noblock: true})
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)

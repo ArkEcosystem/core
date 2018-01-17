@@ -25,6 +25,9 @@
       }
     }
   },
+  "redis": {
+    "enabled": false
+  },
   "peers": {
     "minimumNetworkReach": 20,
     "list": [

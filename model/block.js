@@ -43,6 +43,10 @@ class Block {
     return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}`
   }
 
+  toBroadcastV1 () {
+    return this.data
+  }
+
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)

@@ -76,14 +76,17 @@ class Up {
         message: `${req.route.path} does not exist`
       })
     }
-    const peer = {}
-    peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
-    this.p2p
-      .acceptNewPeer(peer)
-      .then(() => setHeaders(res))
-      .then(() => next())
-      .catch(error => res.send(500, {success: false, message: error}))
+    if (req.route.path.startsWith('/peer/')) {
+      const peer = {}
+      peer.ip = req.headers['HTTP_CF_CONNECTING_IP'] || req.headers['X-FORWARDED-FOR'] || req.connection.remoteAddress;
+      ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
+      return this.p2p
+        .acceptNewPeer(peer)
+        .then(() => setHeaders(res))
+        .then(() => next())
+        .catch(error => res.send(500, {success: false, message: error}))
+    }
+    return next()
   }
 
   getPeers (req, res, next) {

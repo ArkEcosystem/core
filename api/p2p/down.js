@@ -29,17 +29,19 @@ class Down {
     const that = this
     let count = 0
     const max = keys.length
+    let wrongpeers = 0
     logger.info('Looking for network peers')
     return Promise.all(keys.map(ip =>
       that.peers[ip]
         .ping()
         .catch(() => {
+          wrongpeers++
           delete that.peers[ip]
           return Promise.resolve(null)
         })
         .then(() => logger.printTracker('Peers Discovery', ++count, max, null, null))
     ))
-    .then(() => logger.info('Found ' + Object.keys(this.peers).length + ' responsive peers on the network'))
+    .then(() => logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
   }
 
   acceptNewPeer (peer) {
@@ -48,7 +50,7 @@ class Down {
     const npeer = new Peer(peer.ip, peer.port, this.config)
     return npeer.ping()
       .then(() => (this.peers[peer.ip] = npeer))
-      .catch(e => logger.warn('Peer not connectable', npeer, e))
+      .catch(e => logger.debug('Peer not connectable', npeer, e))
   }
 
   getPeers () {
@@ -62,7 +64,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      // logger.error(this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -76,7 +78,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      logger.error(this.peers)
+      // logger.error(this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -116,6 +118,14 @@ class Down {
       .ping()
       .then(() => randomPeer.downloadBlocks(fromBlockHeight))
       .catch(() => this.downloadBlocks(fromBlockHeight))
+  }
+
+  broadcastBlock (block) {
+    return Promise.all(Object.values(this.peers).map((peer) => peer.broadcastBlock(block.toBroadcastV1())))
+  }
+
+  broadcastTransactions (transactions) {
+
   }
 }
 

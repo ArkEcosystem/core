@@ -7,7 +7,7 @@
     "driver": "database/sequelize",
     "uri": "sqlite:storage/test.sqlite",
     "dialect": "sqlite",
-    "logging": true
+    "logging": false
   },
   "api": {
     "mount": true,
@@ -24,6 +24,9 @@
         }
       }
     }
+  },
+  "redis": {
+    "enabled": false
   },
   "peers": {
     "blackList": []

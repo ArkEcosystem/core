@@ -93,7 +93,10 @@ class Peer {
   ping () {
     return this
       .get('/peer/status', 5000)
-      .then(body => (this.height = (body || {}).height))
+      .then(body => {
+        if (body) return Promise.resolve(this.height = body.height)
+        else throw new Error('Peer unreachable')
+      })
   }
 
   getPeers () {

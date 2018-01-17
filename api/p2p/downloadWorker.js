@@ -11,5 +11,6 @@ registerPromiseWorker(message => {
         timeout: 60000
       })
       .use(popsicle.plugins.parse('json'))
+      .catch(error => console.warn(error.message))
   }
 })
