@@ -1,33 +1,17 @@
 const errors = require('restify-errors')
 const MethodMissing = requireFrom('helpers/method-missing')
 const State = requireFrom('api/plugins/state')
+const path = require('path')
+const fs = require('fs')
 
 class Responder extends MethodMissing {
-  createResponse (name, data, headers) {
-    const request = State.getRequest()
-
+  getFilePath (name) {
     const version = {
       '1.0.0': 'v1',
       '2.0.0': 'v2'
-    }[request.version()]
+    }[State.getRequest().version()]
 
-    requireFrom(`api/public/${version}/responses/${name}`).send(request, State.getResponse(), data, headers)
-  }
-
-  ok (data, headers = {}) {
-    this.createResponse('ok', data, headers)
-  }
-
-  created (data, headers = {}) {
-    this.createResponse('created', data, headers)
-  }
-
-  noContent (data, headers = {}) {
-    this.createResponse('no-content', data, headers)
-  }
-
-  error (data, headers = {}) {
-    this.createResponse('error', data, headers) // only for v1
+    return path.resolve(__dirname, `public/${version}/responses/${name}`)
   }
 
   methodMissing (name, ...args) {
@@ -35,6 +19,12 @@ class Responder extends MethodMissing {
 
     if (errors.hasOwnProperty(errorClass)) {
       return State.getResponse().send(new errors[errorClass](args[0]))
+    }
+
+    const file = this.getFilePath(name)
+
+    if (fs.statSync(file + '.js').isFile()) {
+      return require(file).send(State.getRequest(), State.getResponse(), args[0], args[1] || {})
     }
 
     throw new Error(`Method "${name}" does not exist.`)
