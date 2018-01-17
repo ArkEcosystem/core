@@ -3,7 +3,7 @@ const Transformer = requireFrom('api/transformer')
 const State = requireFrom('api/plugins/state')
 
 class Helpers {
-  initState () {
+  getCurrentState () {
     this.request = State.getRequest()
     this.response = State.getResponse()
 
@@ -23,7 +23,7 @@ class Helpers {
   }
 
   respondWith (method, data) {
-    this.initState()
+    this.getCurrentState()
 
     if (data) {
       if (['ok', 'created', 'noContent'].some(m => method.indexOf(m) >= 0)) {
@@ -39,13 +39,13 @@ class Helpers {
   }
 
   toResource (data, transformerClass) {
-    this.initState()
+    this.getCurrentState()
 
     return new Transformer(this.request).resource(data, transformerClass)
   }
 
   toCollection (data, transformerClass) {
-    this.initState()
+    this.getCurrentState()
 
     return new Transformer(this.request).collection(data, transformerClass)
   }

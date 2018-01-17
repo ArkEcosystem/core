@@ -4,7 +4,7 @@ const Paginator = requireFrom('api/paginator')
 const State = requireFrom('api/plugins/state')
 
 class Helpers {
-  initState () {
+  getCurrentState () {
     this.request = State.getRequest()
     this.response = State.getResponse()
 
@@ -24,7 +24,7 @@ class Helpers {
   }
 
   respondWith (method, data) {
-    this.initState()
+    this.getCurrentState()
 
     if (data) {
       if (['ok', 'created', 'noContent'].some(m => method.indexOf(m) >= 0)) {
@@ -40,7 +40,7 @@ class Helpers {
   }
 
   respondWithPagination (data, transformerClass) {
-    this.initState()
+    this.getCurrentState()
 
     if (data.count) {
       const paginator = new Paginator(this.request, data.count, this.pager)
@@ -60,7 +60,7 @@ class Helpers {
   }
 
   respondWithResource (data, transformerClass) {
-    this.initState()
+    this.getCurrentState()
 
     if (data) {
       responder.ok(this.request, this.response, {
@@ -74,7 +74,7 @@ class Helpers {
   }
 
   respondWithCollection (data, transformerClass) {
-    this.initState()
+    this.getCurrentState()
 
     if (data) {
       responder.ok(this.request, this.response, {
