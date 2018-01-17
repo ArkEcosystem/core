@@ -1,8 +1,8 @@
 const response = require('./response')
 
 class CreatedResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, data, 201, headers)
+  send (data, headers = {}) {
+    response.send(201, data, headers)
   }
 }
 

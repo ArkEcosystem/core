@@ -1,10 +1,10 @@
 const response = require('./response')
 
 class CreatedResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, Object.assign(data, {
+  send (data, headers = {}) {
+    response.send(201, Object.assign(data, {
       success: true
-    }), 201, headers)
+    }), headers)
   }
 }
 

@@ -1,10 +1,10 @@
 const response = require('./response')
 
 class GeneralErrorResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, Object.assign(data, {
+  send (data, headers = {}) {
+    response.send(200, Object.assign(data, {
       success: false
-    }), 200, headers)
+    }), headers)
   }
 }
 
