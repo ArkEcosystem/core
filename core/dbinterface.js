@@ -48,6 +48,9 @@ class DBInterface {
       }
     })
 
+    // this is a special case repository and will be forced to be read from memory...
+    instance['accounts'] = new (requireFrom('database/repositories/accounts'))(instance)
+
     return Promise.resolve(instance)
   }
 
