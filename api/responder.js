@@ -18,13 +18,15 @@ class Responder extends MethodMissing {
       return State.getResponse().send(new errors[errorClass](args[0]))
     }
 
-    const responderFile = this.getFilePath(name)
+    try {
+      const responderFile = this.getFilePath(name)
 
-    if (fs.statSync(responderFile + '.js').isFile()) {
-      return require(responderFile)(args[0], args[1] || {})
+      if (fs.statSync(responderFile + '.js').isFile()) {
+        return require(responderFile)(args[0], args[1] || {})
+      }
+    } catch (error) {
+      return State.getResponse().send(new errors.InternalServerError('An unknown error has occurred.'))
     }
-
-    throw new Error(`Method "${name}" does not exist.`)
   }
 }
 
