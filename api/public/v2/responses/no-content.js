@@ -1,9 +1,3 @@
-const response = require('./response')
-
-class NoContentResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, data, 204, headers)
-  }
+module.exports = (data, headers = {}) => {
+  require('./response').send(204, data, headers)
 }
-
-module.exports = new NoContentResponse()

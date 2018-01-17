@@ -1,28 +1,23 @@
-const Controller = require('./controller')
+const db = requireFrom('core/dbinterface').getInstance()
+const helpers = require('../helpers')
 
-class BlocksController extends Controller {
+class BlocksController {
   index (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.blocks.all(this.pager).then(blocks => {
-        super.respondWithPagination(blocks, 'block')
-      })
+    db.blocks.all(helpers.getPaginator()).then(blocks => {
+      helpers.respondWithPagination(blocks, 'block')
     })
   }
 
   show (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.blocks.findById(req.params.id).then(block => {
-        super.respondWithResource(block, 'block')
-      })
+    db.blocks.findById(req.params.id).then(block => {
+      helpers.respondWithResource(block, 'block')
     })
   }
 
   transactions (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.blocks.findById(req.params.id).then(block => {
-        db.blocks.paginateByBlock(block.id, this.pager).then(transactions => {
-          super.respondWithPagination(transactions, 'transaction')
-        })
+    db.blocks.findById(req.params.id).then(block => {
+      db.blocks.paginateByBlock(block.id, helpers.getPaginator()).then(transactions => {
+        helpers.respondWithPagination(transactions, 'transaction')
       })
     })
   }

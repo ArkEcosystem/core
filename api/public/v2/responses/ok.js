@@ -1,9 +1,3 @@
-const response = require('./response')
-
-class OkResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, data, 200, headers)
-  }
+module.exports = (data, headers = {}) => {
+  require('./response').send(200, data, headers)
 }
-
-module.exports = new OkResponse()

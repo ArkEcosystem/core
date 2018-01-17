@@ -74,9 +74,8 @@ describe('GET /api/transactions', () => {
     })
   })
 
-  //fixquery
-  //http://localhost:4003/api/transactions?orderBy=timestamp:desc&offset=0&limit=50&recipientId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr&senderId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr
-
+  // fixquery
+  // http://localhost:4003/api/transactions?orderBy=timestamp:desc&offset=0&limit=50&recipientId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr&senderId=ANwZGjK55pe4xSWfnggt324S9XKY3TSwAr
 
   it('using limit > 100 should fail', (done) => {
     let limit = 101

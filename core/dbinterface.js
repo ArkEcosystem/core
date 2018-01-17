@@ -30,13 +30,13 @@ class DBInterface {
     return instance
   }
 
-  static create (params) {
-    const db = new (require(path.resolve(params.driver)))()
+  static create (config) {
+    const db = new (require(path.resolve(config.driver)))()
 
     return db
-      .init(params)
+      .init(config)
       .then(() => (instance = db))
-      .then(() => this.registerRepositories(params.driver))
+      .then(() => this.registerRepositories(config.driver))
   }
 
   static registerRepositories (driver) {

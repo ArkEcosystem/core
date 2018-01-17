@@ -1,6 +1,6 @@
 const querystring = require('querystring')
 
-class Paginator {
+module.exports = class Paginator {
   constructor (request, count, pager) {
     this.request = request
     this.count = count
@@ -62,5 +62,3 @@ class Paginator {
     return this.request.path() + '?' + querystring.stringify(query)
   }
 }
-
-module.exports = Paginator

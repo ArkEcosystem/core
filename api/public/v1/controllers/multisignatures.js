@@ -1,28 +1,20 @@
-const responder = requireFrom('api/responder')
+const helpers = require('../helpers')
 
 class MultiSignaturesController {
   index (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   store (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   pending (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   accounts (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 

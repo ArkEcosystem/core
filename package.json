@@ -47,6 +47,7 @@
     "promise-worker": "^1.1.1",
     "public-ip": "^2.4.0",
     "redis": "^2.8.0",
+    "request-ip": "^2.0.2",
     "restify": "^6.3.4",
     "sequelize": "^4.31.2",
     "sntp": "^3.0.1",

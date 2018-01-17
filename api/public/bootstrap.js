@@ -7,6 +7,8 @@ const RouteRegistrar = require('../registrar')
 const Throttle = require('../plugins/throttle')
 const Validator = require('../plugins/validator')
 const Cache = require('../plugins/cache')
+const State = require('../plugins/state')
+const VersionPlugin = require('../plugins/version')
 
 class PublicAPI {
   constructor (config) {
@@ -27,6 +29,10 @@ class PublicAPI {
       this.validator = new Validator()
     }
 
+    if (!this.cache) {
+      this.cache = new Cache()
+    }
+
     this.createServer()
     this.registerPlugins()
     this.registerRouters()
@@ -40,13 +46,11 @@ class PublicAPI {
   }
 
   registerPlugins () {
-    this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
+    this.server.pre((req, res, next) => VersionPlugin(req, next))
 
     this.server.use((req, res, next) => this.throttle.mount(req, res, next))
 
-    this.server.use(restify.plugins.bodyParser({
-      mapParams: true
-    }))
+    this.server.use(restify.plugins.bodyParser({ mapParams: true }))
 
     this.server.use(restify.plugins.queryParser())
 
@@ -54,9 +58,11 @@ class PublicAPI {
 
     this.server.use((req, res, next) => this.validator.mount(req, res, next))
 
+    this.server.use((req, res, next) => new State(req, res, next))
+
     if (this.config.server.redis.enabled) {
-      this.server.use(Cache.before)
-      this.server.on('after', Cache.after)
+      this.server.use(this.cache.before)
+      this.server.on('after', this.cache.after)
     }
   }
 
@@ -67,38 +73,18 @@ class PublicAPI {
 
   startServer () {
     this.server.listen(this.config.server.api.port, () => {
-      logger.info('ARK Core - Public API - Mounted')
-      logger.info('[%s] listening at [%s].', this.server.name, this.server.url)
+      logger.info(`[${this.server.name}] listening at [${this.server.url}] 📦`)
     })
   }
 
-  setDefaultVersion (req, res, next) {
-    let version = req.header('Accept-Version') || req.header('accept-version');
-
-    if (!version) {
-      req._version = this.config.server.api.version
-
-      logger.debug('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
-    }
-
-    if (req.version().startsWith('~')) {
-      req._version = {
-        1: '1.0.0',
-        2: '2.0.0'
-      }[version.charAt(1)];
-    }
-
-    next()
-  }
-
   registerVersion (directory, version) {
+    const registrar = new RouteRegistrar(this.server, version)
+
     directory = path.resolve(__dirname, directory + '/routers')
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
-        require(directory + '/' + file).register(
-          new RouteRegistrar(this.server, version)
-        )
+        require(directory + '/' + file)(registrar)
       }
     })
   }

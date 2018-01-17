@@ -1,33 +1,29 @@
 const redis = requireFrom('core/cache')
-const logger = requireFrom('core/logger')
 
-class Cache {
-    before (req, res, next) {
-        const cacheKey = redis.generateKey({
-            url: req.url,
-            params: req.params
-        })
+module.exports = class Cache {
+  before (request, response, next) {
+    const cacheKey = this.generateKey(request)
 
-        return redis.get(cacheKey).then((data) => {
-            if (!data) {
-                res.header('X-Cache', 'MISS')
-                return next()
-            }
+    return redis.get(cacheKey).then((data) => {
+      if (!data) {
+        response.header('X-Cache', 'MISS')
+        return next()
+      }
 
-            res.header('X-Cache', 'HIT')
-            res.writeHead(200)
-            res.end(data)
-        })
-    }
+      response.header('X-Cache', 'HIT')
+      response.writeHead(200)
+      response.end(data)
+    })
+  }
 
-    after (req, res, route, error) {
-        const cacheKey = redis.generateKey({
-            url: req.url,
-            params: req.params
-        })
+  after (request, response, route, error) {
+    redis.set(this.generateKey(request), response._data);
+  }
 
-        redis.set(cacheKey, res._data);
-    }
+  generateKey (request) {
+    return redis.generateKey({
+      url: request.url,
+      params: request.params
+    })
+  }
 }
-
-module.exports = new Cache()

@@ -1,18 +1,14 @@
-class HexFormat {
-  constructor (ajv) {
-    ajv.addFormat('hex', {
-      type: 'string',
-      validate: (value) => {
-        try {
-          Buffer.from(value, 'hex')
-        } catch (e) {
-          return false
-        }
+module.exports = (ajv) => {
+  ajv.addFormat('hex', {
+    type: 'string',
+    validate: (value) => {
+      try {
+        Buffer.from(value, 'hex')
 
         return true
+      } catch (e) {
+        return false
       }
-    });
-  }
+    }
+  })
 }
-
-module.exports = HexFormat

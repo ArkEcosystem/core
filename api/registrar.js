@@ -1,4 +1,4 @@
-class RouteRegistrar {
+module.exports = class RouteRegistrar {
   constructor (server, version, prefix = 'api') {
     this.server = server
     this.version = version
@@ -34,11 +34,9 @@ class RouteRegistrar {
     if (schema) {
       config = Object.assign(config, {
         schema: schema
-      });
+      })
     }
 
     return config
   }
 }
-
-module.exports = RouteRegistrar
