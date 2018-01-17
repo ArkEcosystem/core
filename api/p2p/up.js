@@ -4,6 +4,7 @@ const blockchain = requireFrom('core/blockchainManager')
 const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
+const requestIp = require('request-ip')
 
 const _headers = {
   os: require('os').platform()
@@ -74,7 +75,7 @@ class Up {
       res.send(500, {success: false, message: 'API not existing'})
     }
     const peer = {}
-    peer.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    peer.ip = requestIp.getClientIp(req)
     ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
     this.p2p
       .acceptNewPeer(peer)
