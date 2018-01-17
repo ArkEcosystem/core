@@ -1,8 +1,8 @@
 const responder = requireFrom('api/responder')
 const blockchain = requireFrom('core/blockchainManager')
-const transformer = requireFrom('api/transformer')
 const logger = requireFrom('core/logger')
 const config = requireFrom('core/config')
+const helpers = require('../helpers')
 
 class PeersController {
   index (req, res, next) {
@@ -27,23 +27,21 @@ class PeersController {
             }
           }
 
-          responder.ok(req, res, {
-            peers: new transformer(req).collection(retPeers, 'peer')
+          helpers.respondWith('ok', {
+            peers: helpers.toCollection(retPeers, 'peer')
           })
         } else {
-          responder.error(req, res, {
+          helpers.respondWith('error', {
             error: 'No peers found'
           })
         }
     }).catch(error => {
         logger.error(error)
 
-        responder.error(req, res, {
+        helpers.respondWith('error', {
           error: error
         })
     })
-
-    next()
   }
   show (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
@@ -52,36 +50,32 @@ class PeersController {
           let peer = peers.find(elem => { return elem.ip === req.query.ip && elem.port === req.query.port })
 
           if (peer) {
-            responder.ok(req, res, {
-              peer: new transformer(req).resource(peer, 'peer')
+            helpers.respondWith('ok', {
+              peer: helpers.toResource(peer, 'peer')
             })
           } else {
-            responder.error(req, res, {
+            helpers.respondWith('error', {
               error: `Peer ${req.query.ip}:${req.query.port} not found`
             })
           }
         } else {
-          responder.error(req, res, {
+          helpers.respondWith('error', {
             error: 'No peers found'
           })
         }
     }).catch(error => {
       logger.error(error)
 
-      responder.error(req, res, {
+      helpers.respondWith('error', {
         error: error
       })
     })
-
-    next()
   }
 
   version (req, res, next) {
-    responder.ok(req, res, {
+    helpers.respondWith('ok', {
       version: config.server.version
     })
-
-    next()
   }
 }
 
