@@ -1,77 +1,55 @@
-const Op = require('sequelize').Op
+const _ = require('lodash')
 
 class AccountsRepository {
   constructor (db) {
     this.db = db
   }
 
-  all (queryParams) {
-    return this.db.accountsTable.findAndCountAll({
-      offset: parseInt(queryParams.offset || 1),
-      limit: parseInt(queryParams.limit || 100)
-    })
+  all () {
+    return Promise.resolve(this._getLocalAccounts())
   }
 
   paginate (pager, queryParams = {}) {
     let offset = 0
 
-    if (pager.page > 1) {
-      offset = pager.page * pager.perPage
-    }
+    if (pager.offset > 1) offset = pager.offset * pager.limit
 
-    return this.db.accountsTable.findAndCountAll(Object.assign(queryParams, {
-      where: {
-        username: {
-          [Op.ne]: null
-        }
-      },
-      offset: offset,
-      limit: pager.perPage
-    }))
+    const accounts = this._getLocalAccounts()
+
+    return Promise.resolve({
+      rows: accounts.slice(offset, offset + pager.limit),
+      count: accounts.length
+    })
   }
 
   paginateByVote (publicKey, pager) {
-    return this.paginate(pager, {
-      where: {
-        vote: publicKey
-      }
-    })
+    return Promise.resolve(this._getLocalAccounts().filter(a => a.vote === publicKey))
   }
 
   findById (id) {
-    return this.db.accountsTable.findOne({
-      where: {
-        [Op.or]: [{
-          address: id
-        }, {
-          publicKey: id
-        }, {
-          username: id
-        }]
-      }
-    })
+    return Promise.resolve(this._getLocalAccounts().find(a => {
+      return (a.address === id || a.publicKey === id || a.username === id)
+    }))
+  }
+
+  findAllByVote (publicKey) {
+    return Promise.resolve(this._getLocalAccounts().filter(a => a.vote === publicKey))
   }
 
   count () {
-    return this.db.accountsTable.count()
+    return Promise.resolve(this._getLocalAccounts().length)
   }
 
   top (queryParams) {
-    return this.db.accountsTable.findAndCountAll({
-      attributes: ['address', 'balance', 'publicKey'],
-      order: [['balance', 'DESC']],
-      offset: parseInt(queryParams.offset || 1),
-      limit: parseInt(queryParams.limit || 100)
-    })
+    return Promise.resolve(_.sortBy(this._getLocalAccounts(), 'balance').reverse())
   }
 
-  // Helper methods
-  getProducedBlocks (publicKey) {
-    return this.db.blocksTable.count({
-      where: {
-        generatorPublicKey: publicKey
-      }
-    })
+  getProducedBlocks (generatorPublicKey) {
+    return this.db.blocksTable.count({ where: { generatorPublicKey } })
+  }
+
+  _getLocalAccounts () {
+    return Object.values(this.db.localaccounts)
   }
 }
 
