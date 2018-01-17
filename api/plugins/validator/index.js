@@ -21,13 +21,7 @@ class Validator {
 
     let requestData = {};
 
-    ['POST', 'PUT', 'PATCH'].some(method => {
-      if (req.route.method.indexOf(method) >= 0) {
-        requestData = req.body;
-      } else {
-        requestData = req.query;
-      }
-    })
+    ['POST', 'PUT', 'PATCH'].some(method => (requestData = req.route.method.indexOf(method) >= 0 ? req.body : req.query))
 
     let validate = this.ajv.compile(req.route.schema)
 
@@ -36,9 +30,9 @@ class Validator {
         return responder.error(req, res, {
           error: validate.errors[0].message
         })
-      } else {
-        return responder.unprocessableEntity(res, validate.errors[0].message)
       }
+
+      return responder.unprocessableEntity(res, validate.errors[0].message)
     }
 
     return next()
