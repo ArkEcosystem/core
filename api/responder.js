@@ -1,6 +1,7 @@
-const errors = require('restify-errors')
+const logger = requireFrom('core/logger')
 const MethodMissing = requireFrom('helpers/method-missing')
 const State = requireFrom('api/plugins/state')
+const errors = require('restify-errors')
 const path = require('path')
 const fs = require('fs')
 
@@ -25,6 +26,8 @@ class Responder extends MethodMissing {
         return require(responderFile)(args[0], args[1] || {})
       }
     } catch (error) {
+      logger.error(error.message)
+
       return State.getResponse().send(new errors.InternalServerError('An unknown error has occurred.'))
     }
   }
