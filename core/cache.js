@@ -5,10 +5,6 @@ const logger = require('./logger')
 let instance
 
 class Cache {
-  static getInstance () {
-    return instance
-  }
-
   constructor (config) {
     this.enabled = config.enabled
 
@@ -21,7 +17,7 @@ class Cache {
     }
 
     instance.on('ready', function () {
-      logger.info('[Cache] Connected with redis')
+      logger.debug('[Cache] Connected with redis')
     })
 
     instance.on('error', function (err) {

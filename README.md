@@ -8,7 +8,7 @@ Still alpha
 ### Installation
 - Clone repo
 - Windows PreRequsities:
-  - install https://slproweb.com/download/Win64OpenSSL-1_0_2m.exe 
+  - install https://slproweb.com/download/Win64OpenSSL-1_0_2m.exe
   - `npm install --global --production windows-build-tools` (pay atention to have correct msbuild tools).
   - if there is still a build error "missing CL.exe" --> create an empty C++ project in Microsoft Visual Studio. If missing it will reinstall correct build tools.
 
@@ -22,7 +22,7 @@ Still alpha
 - Start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
 - Start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
 
-## TODO: 
+## TODO:
 
   - [x] Rebuild devnet
   - [x] Rebuild mainnet
@@ -37,14 +37,12 @@ Still alpha
   - [x] Internal API for forger
   - [x] Forger on independent core
 
-Upcoming: 
+Upcoming:
   - [ ] Testing
   - [ ] P2P API compatibility (60%)
   - [ ] Transaction Pool (20%)
   - [ ] Connect forger to Transaction Pool
   - [ ] New P2P API
-  - [ ] Support for MongoDB
-  - [ ] Support for LevelDB
   - [ ] Fork management
   - [ ] BIP38 encryption of delegate passphrase
   - [ ] Documentation

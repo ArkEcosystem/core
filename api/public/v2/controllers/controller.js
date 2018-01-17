@@ -18,6 +18,20 @@ class Controller {
     return Promise.resolve(db)
   }
 
+  respondWith (method, data) {
+    if (data) {
+      if (['ok', 'created', 'noContent'].some(m => method.indexOf(m) >= 0)) {
+        responder[method](this.request, this.response, data)
+      } else {
+        responder[method](this.response, data)
+      }
+    } else {
+      responder.internalServerError(this.response, 'Record could not be found.')
+    }
+
+    this.next()
+  }
+
   respondWithPagination (data, transformerClass) {
     if (data.count) {
       const paginator = new Paginator(this.request, data.count, this.pager)
