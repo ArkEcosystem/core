@@ -3,13 +3,19 @@ const TokenTable = require('./table.js')
 const responder = requireFrom('api/responder')
 const requestIp = require('request-ip')
 
+let instance
+
 module.exports = class Throttle {
   constructor (config) {
-    this.burst = config.burst
-    this.rate = config.rate
-    this.whitelist = config.whitelist
+    if (!instance) {
+      instance = this
+    }
 
-    this.table = new TokenTable({
+    instance.burst = config.burst
+    instance.rate = config.rate
+    instance.whitelist = config.whitelist
+
+    instance.table = new TokenTable({
       size: 10000
     })
   }
@@ -17,15 +23,15 @@ module.exports = class Throttle {
   mount (req, res, next) {
     let address = requestIp.getClientIp(req)
 
-    let burst = this.burst
-    let rate = this.burst
+    let burst = instance.burst
+    let rate = instance.burst
 
-    if (this.whitelist && this.whitelist[address]) {
-      burst = this.whitelist[address].burst
-      rate = this.whitelist[address].rate
+    if (instance.whitelist && instance.whitelist[address]) {
+      burst = instance.whitelist[address].burst
+      rate = instance.whitelist[address].rate
     }
 
-    let bucket = this.table.get(address)
+    let bucket = instance.table.get(address)
 
     if (!bucket) {
       bucket = new TokenBucket({
@@ -33,7 +39,7 @@ module.exports = class Throttle {
         fillRate: rate
       })
 
-      this.table.set(address, bucket)
+      instance.table.set(address, bucket)
     }
 
     res.header('X-RateLimit-Remaining', Math.floor(bucket.tokens))

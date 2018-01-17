@@ -5,7 +5,7 @@ module.exports = class State {
     return instance
   }
 
-  constructor (request, response, next) {
+  mount (request, response, next) {
     if (!instance) {
       instance = this
     }
