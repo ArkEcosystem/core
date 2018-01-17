@@ -28,66 +28,13 @@ class Responder extends MethodMissing {
   }
 
   methodMissing (name, ...args) {
-    const errorClasses = {
-      badRequest: 'BadRequestError',
-      unauthorized: 'UnauthorizedError',
-      paymentRequired: 'PaymentRequiredError',
-      forbidden: 'ForbiddenError',
-      notFound: 'NotFoundError',
-      methodNotAllowed: 'MethodNotAllowedError',
-      notAcceptable: 'NotAcceptableError',
-      proxyAuthenticationRequired: 'ProxyAuthenticationRequiredError',
-      requestTimeout: 'RequestTimeoutError',
-      conflict: 'ConflictError',
-      gone: 'GoneError',
-      lengthRequired: 'LengthRequiredError',
-      preconditionFailed: 'PreconditionFailedError',
-      requestEntityTooLarge: 'RequestEntityTooLargeError',
-      requesturiTooLarge: 'RequesturiTooLargeError',
-      unsupportedMediaType: 'UnsupportedMediaTypeError',
-      requestedRangeNotSatisfiable: 'RequestedRangeNotSatisfiableError',
-      expectationFailed: 'ExpectationFailedError',
-      imATeapot: 'ImATeapotError',
-      unprocessableEntity: 'UnprocessableEntityError',
-      locked: 'LockedError',
-      failedDependency: 'FailedDependencyError',
-      unorderedCollection: 'UnorderedCollectionError',
-      upgradeRequired: 'UpgradeRequiredError',
-      preconditionRequired: 'PreconditionRequiredError',
-      tooManyRequests: 'TooManyRequestsError',
-      requestHeaderFieldsTooLarge: 'RequestHeaderFieldsTooLargeError',
-      internalServerError: 'InternalServerError',
-      notImplemented: 'NotImplementedError',
-      badGateway: 'BadGatewayError',
-      serviceUnavailable: 'ServiceUnavailableError',
-      gatewayTimeout: 'GatewayTimeoutError',
-      httpVersionNotSupported: 'HttpVersionNotSupportedError',
-      variantAlsoNegotiates: 'VariantAlsoNegotiatesError',
-      insufficientStorage: 'InsufficientStorageError',
-      bandwidthLimitExceeded: 'BandwidthLimitExceededError',
-      notExtended: 'NotExtendedError',
-      networkAuthenticationRequired: 'NetworkAuthenticationRequiredError',
-      badDigest: 'BadDigestError',
-      badMethod: 'BadMethodError',
-      internal: 'InternalError',
-      invalidArgument: 'InvalidArgumentError',
-      invalidContent: 'InvalidContentError',
-      invalidCredentials: 'InvalidCredentialsError',
-      invalidHeader: 'InvalidHeaderError',
-      invalidVersion: 'InvalidVersionError',
-      missingParameter: 'MissingParameterError',
-      notAuthorized: 'NotAuthorizedError',
-      requestExpired: 'RequestExpiredError',
-      requestThrottled: 'RequestThrottledError',
-      resourceNotFound: 'ResourceNotFoundError',
-      wrongAccept: 'WrongAcceptError'
+    const errorClass = `${name.charAt(0).toUpperCase() + name.slice(1)}Error`
+
+    if (errors.hasOwnProperty(errorClass)) {
+      return args[0].send(new errors[errorClass](args[1]))
     }
 
-    if (errors.hasOwnProperty(errorClasses[name])) {
-      return args[0].send(new errors[errorClasses[name]](args[1]))
-    }
-
-    throw new Error(`Method "${name}" does not exist.`);
+    throw new Error(`Method "${name}" does not exist.`)
   }
 }
 
