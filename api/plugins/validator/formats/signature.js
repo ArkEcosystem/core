@@ -1,20 +1,12 @@
-class SignatureFormat {
-  constructor (ajv) {
-    ajv.addFormat('signature', {
-      type: 'string',
-      validate: (value) => {
-        if (value.length === 0) {
-          return true
-        }
-
-        try {
-          return Buffer.from(value, 'hex').length < 73
-        } catch (e) {
-          return false
-        }
+module.exports = (ajv) => {
+  ajv.addFormat('signature', {
+    type: 'string',
+    validate: (value) => {
+      try {
+        return Buffer.from(value, 'hex').length < 73
+      } catch (e) {
+        return false
       }
-    });
-  }
+    }
+  })
 }
-
-module.exports = SignatureFormat

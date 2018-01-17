@@ -24,7 +24,7 @@ class Responder extends MethodMissing {
     const responderFile = this.getFilePath(name)
 
     if (fs.statSync(responderFile + '.js').isFile()) {
-      return require(responderFile).send(args[0], args[1] || {})
+      return require(responderFile)(args[0], args[1] || {})
     }
 
     throw new Error(`Method "${name}" does not exist.`)

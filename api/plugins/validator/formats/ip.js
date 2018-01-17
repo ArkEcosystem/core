@@ -1,12 +1,10 @@
-class IpFormat {
-  constructor (ajv) {
-    ajv.addFormat('ip', {
-      type: 'string',
-      validate: (value) => {
-        return require('ip').isV4Format(value)
-      }
-    });
-  }
-}
+const ip = require('ip')
 
-module.exports = IpFormat
+module.exports = (ajv) => {
+  ajv.addFormat('ip', {
+    type: 'string',
+    validate: (value) => {
+      return ip.isV4Format(value) || ip.isV6Format(value)
+    }
+  })
+}
