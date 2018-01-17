@@ -28,6 +28,10 @@ class PublicAPI {
       this.validator = new Validator()
     }
 
+    if (!this.cache) {
+      this.cache = new Cache()
+    }
+
     this.createServer()
     this.registerPlugins()
     this.registerRouters()
@@ -58,8 +62,8 @@ class PublicAPI {
     this.server.use((req, res, next) => new State(req, res, next))
 
     if (this.config.server.redis.enabled) {
-      this.server.use(Cache.before)
-      this.server.on('after', Cache.after)
+      this.server.use(this.cache.before)
+      this.server.on('after', this.cache.after)
     }
   }
 
@@ -75,17 +79,17 @@ class PublicAPI {
     })
   }
 
-  setDefaultVersion (req, res, next) {
-    let version = req.header('Accept-Version') || req.header('accept-version');
+  setDefaultVersion (request, res, next) {
+    let version = request.header('Accept-Version') || request.header('accept-version');
 
     if (!version) {
-      req._version = this.config.server.api.version
+      request._version = this.config.server.api.version
 
-      logger.debug('Accept-Version Header is undefined. Using [' + req._version + '] as default.')
+      logger.debug('Accept-Version Header is undefined. Using [' + request._version + '] as default.')
     }
 
-    if (req.version().startsWith('~')) {
-      req._version = {
+    if (request.version().startsWith('~')) {
+      request._version = {
         1: '1.0.0',
         2: '2.0.0'
       }[version.charAt(1)];
@@ -95,13 +99,13 @@ class PublicAPI {
   }
 
   registerVersion (directory, version) {
+    const registrar = new RouteRegistrar(this.server, version)
+
     directory = path.resolve(__dirname, directory + '/routers')
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
-        require(directory + '/' + file).register(
-          new RouteRegistrar(this.server, version)
-        )
+        require(directory + '/' + file)(registrar)
       }
     })
   }

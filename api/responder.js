@@ -6,10 +6,7 @@ const fs = require('fs')
 
 class Responder extends MethodMissing {
   getFilePath (name) {
-    const version = {
-      '1.0.0': 'v1',
-      '2.0.0': 'v2'
-    }[State.getRequest().version()]
+    const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[State.getRequest().version()]
 
     return path.resolve(__dirname, `public/${version}/responses/${name}`)
   }

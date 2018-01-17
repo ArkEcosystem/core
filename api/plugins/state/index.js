@@ -1,6 +1,6 @@
 let instance = null
 
-class State {
+module.exports = class State {
   static getInstance () {
     return instance
   }
@@ -29,5 +29,3 @@ class State {
     return instance.next
   }
 }
-
-module.exports = State

@@ -2,15 +2,15 @@ const responder = requireFrom('api/responder')
 const Transformer = requireFrom('api/transformer')
 const State = requireFrom('api/plugins/state')
 
-class Helpers {
-  getCurrentState () {
+module.exports = class Helpers {
+  static getCurrentState () {
     this.request = State.getRequest()
     this.response = State.getResponse()
 
     this.getPaginator()
   }
 
-  getPaginator () {
+  static getPaginator () {
     const request = State.getRequest()
 
     this.paginator = {
@@ -21,7 +21,7 @@ class Helpers {
     return this.paginator
   }
 
-  respondWith (method, data) {
+  static respondWith (method, data) {
     this.getCurrentState()
 
     if (data) {
@@ -33,17 +33,15 @@ class Helpers {
     State.getNext()
   }
 
-  toResource (data, transformerClass) {
+  static toResource (data, transformerClass) {
     this.getCurrentState()
 
-    return new Transformer(this.request).resource(data, transformerClass)
+    return Transformer.resource(data, transformerClass)
   }
 
-  toCollection (data, transformerClass) {
+  static toCollection (data, transformerClass) {
     this.getCurrentState()
 
-    return new Transformer(this.request).collection(data, transformerClass)
+    return Transformer.collection(data, transformerClass)
   }
 }
-
-module.exports = new Helpers()

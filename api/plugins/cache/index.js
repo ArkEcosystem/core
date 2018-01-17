@@ -1,6 +1,6 @@
 const redis = requireFrom('core/cache')
 
-class Cache {
+module.exports = class Cache {
   before (request, response, next) {
     const cacheKey = this.generateKey(request)
 
@@ -27,5 +27,3 @@ class Cache {
     })
   }
 }
-
-module.exports = new Cache()

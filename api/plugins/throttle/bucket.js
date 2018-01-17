@@ -1,4 +1,4 @@
-class Bucket {
+module.exports = class Bucket {
   constructor (options) {
     this.tokens = this.capacity = options.capacity
     this.fillRate = options.fillRate
@@ -38,5 +38,3 @@ class Bucket {
     return this.tokens
   }
 }
-
-module.exports = Bucket

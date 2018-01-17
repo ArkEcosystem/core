@@ -1,4 +1,4 @@
-class RouteRegistrar {
+module.exports = class RouteRegistrar {
   constructor (server, version, prefix = 'api') {
     this.server = server
     this.version = version
@@ -40,5 +40,3 @@ class RouteRegistrar {
     return config
   }
 }
-
-module.exports = RouteRegistrar

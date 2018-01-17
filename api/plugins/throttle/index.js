@@ -2,7 +2,7 @@ const TokenBucket = require('./bucket.js')
 const TokenTable = require('./table.js')
 const responder = requireFrom('api/responder')
 
-class Throttle {
+module.exports = class Throttle {
   constructor (config) {
     this.burst = config.burst
     this.rate = config.rate
@@ -48,5 +48,3 @@ class Throttle {
     return next()
   }
 }
-
-module.exports = Throttle
