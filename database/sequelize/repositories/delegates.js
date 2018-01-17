@@ -1,57 +1,33 @@
-const Op = require('sequelize').Op
-
 class DelegatesRepository {
   constructor (db) {
     this.db = db
   }
 
   all (params = {}) {
-    let where = Object.assign(params.where, {
-      username: {
-        [Op.ne]: null
-      }
-    })
-
-    return this.db.accountsTable.findAndCountAll(Object.assign(params, {
-      where: where
-    }))
+    return Promise.resolve(this._getLocalAccounts())
   }
 
   paginate (pager, queryParams = {}) {
     let offset = 0
 
-    if (pager.page > 1) {
-      offset = pager.page * pager.perPage
-    }
+    if (pager.offset > 1) offset = pager.offset * pager.limit
 
-    queryParams.order = [[ 'publicKey', 'ASC' ]]
+    const accounts = this._getLocalAccounts()
 
-    return this.db.accountsTable.findAndCountAll(Object.assign(queryParams, {
-      where: {
-        username: {
-          [Op.ne]: null
-        }
-      },
-      offset: offset,
-      limit: pager.perPage
-    }))
+    return Promise.resolve({
+      rows: accounts.slice(offset, offset + pager.limit),
+      count: accounts.length
+    })
   }
 
   findById (id) {
-    return this.db.accountsTable.findOne({
-      where: {
-        username: {
-          [Op.ne]: null
-        },
-        [Op.or]: [{
-          address: id
-        }, {
-          publicKey: id
-        }, {
-          username: id
-        }]
-      }
-    })
+    return Promise.resolve(this._getLocalAccounts().find(a => {
+      return (a.address === id || a.publicKey === id || a.username === id)
+    }))
+  }
+
+  _getLocalAccounts () {
+    return Object.values(this.db.localaccounts).filter(a => !!a.username)
   }
 }
 
