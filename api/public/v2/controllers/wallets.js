@@ -1,58 +1,47 @@
-const Controller = require('./controller')
+const db = requireFrom('core/dbinterface').getInstance()
+const helpers = require('../helpers')
 
-class WalletsController extends Controller {
+class WalletsController {
   index (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.paginate(this.pager).then(wallets => {
-        super.respondWithPagination(wallets, 'wallet')
-      })
+    db.accounts.paginate(helpers.initPager()).then(wallets => {
+      helpers.respondWithPagination(wallets, 'wallet')
     })
   }
 
   show (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.findById(req.params.id).then(wallet => {
-        super.respondWithResource(wallet, 'wallet')
-      })
+    db.accounts.findById(req.params.id).then(wallet => {
+      helpers.respondWithResource(wallet, 'wallet')
     })
   }
 
   transactions (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.findById(req.params.id).then(wallet => {
-        db.transactions.paginateAllByWallet(wallet, this.pager).then(transactions => {
-          super.respondWithPagination(transactions, 'transaction')
-        })
+    db.accounts.findById(req.params.id).then(wallet => {
+      db.transactions.paginateAllByWallet(wallet, helpers.initPager()).then(transactions => {
+        helpers.respondWithPagination(transactions, 'transaction')
       })
     })
   }
 
   transactionsSend (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.findById(req.params.id).then(wallet => {
-        db.transactions.paginateAllBySender(wallet.publicKey, this.pager).then(transactions => {
-          super.respondWithPagination(transactions, 'transaction')
-        })
+    db.accounts.findById(req.params.id).then(wallet => {
+      db.transactions.paginateAllBySender(wallet.publicKey, helpers.initPager()).then(transactions => {
+        helpers.respondWithPagination(transactions, 'transaction')
       })
     })
   }
 
   transactionsReceived (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.findById(req.params.id).then(wallet => {
-        db.transactions.paginateAllByRecipient(wallet.address, this.pager).then(transactions => {
-          super.respondWithPagination(transactions, 'transaction')
-        })
+    db.accounts.findById(req.params.id).then(wallet => {
+      db.transactions.paginateAllByRecipient(wallet.address, helpers.initPager()).then(transactions => {
+        helpers.respondWithPagination(transactions, 'transaction')
       })
     })
   }
 
   votes (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.accounts.findById(req.params.id).then(wallet => {
-        db.transactions.paginateVotesBySender(wallet.publicKey, this.pager).then(transactions => {
-          super.respondWithPagination(transactions, 'transaction')
-        })
+    db.accounts.findById(req.params.id).then(wallet => {
+      db.transactions.paginateVotesBySender(wallet.publicKey, helpers.initPager()).then(transactions => {
+        helpers.respondWithPagination(transactions, 'transaction')
       })
     })
   }

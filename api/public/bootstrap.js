@@ -7,6 +7,7 @@ const RouteRegistrar = require('../registrar')
 const Throttle = require('../plugins/throttle')
 const Validator = require('../plugins/validator')
 const Cache = require('../plugins/cache')
+const State = require('../plugins/state')
 
 class PublicAPI {
   constructor (config) {
@@ -53,6 +54,8 @@ class PublicAPI {
     this.server.use(restify.plugins.gzipResponse())
 
     this.server.use((req, res, next) => this.validator.mount(req, res, next))
+
+    this.server.use((req, res, next) => new State(req, res, next))
 
     if (this.config.server.redis.enabled) {
       this.server.use(Cache.before)

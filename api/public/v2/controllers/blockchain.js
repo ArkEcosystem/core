@@ -1,21 +1,17 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
-const Controller = require('./controller')
+const helpers = require('../helpers')
 
-class BlockchainController extends Controller {
+class BlockchainController {
   index (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('ok', {
-        data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height)
-      })
+    helpers.respondWith('ok', {
+      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height)
     })
   }
 
   fees (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('ok', {
-        data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send
-      })
+    helpers.respondWith('ok', {
+      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send
     })
   }
 }

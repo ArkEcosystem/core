@@ -1,10 +1,8 @@
-const Controller = require('./controller')
+const helpers = require('../helpers')
 
-class SignaturesController extends Controller {
+class SignaturesController {
   index (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 

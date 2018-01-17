@@ -1,22 +1,16 @@
-const Controller = require('./controller')
+const helpers = require('../helpers')
 
-class MultiSignaturesController extends Controller {
+class MultiSignaturesController {
   index (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   pending (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   wallets (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 

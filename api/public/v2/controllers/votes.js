@@ -1,19 +1,16 @@
-const Controller = require('./controller')
+const db = requireFrom('core/dbinterface').getInstance()
+const helpers = require('../helpers')
 
-class VotesController extends Controller {
+class VotesController {
   index (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.transactions.paginateByType(3, this.pager).then(transactions => {
-        super.respondWithPagination(transactions, 'transaction')
-      })
+    db.transactions.paginateByType(3, helpers.initPager()).then(transactions => {
+      helpers.respondWithPagination(transactions, 'transaction')
     })
   }
 
   show (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.transactions.findByIdAndType(req.params.id, 3).then(transaction => {
-        super.respondWithCollection(transaction, 'transaction')
-      })
+    db.transactions.findByIdAndType(req.params.id, 3).then(transaction => {
+      helpers.respondWithCollection(transaction, 'transaction')
     })
   }
 }

@@ -1,38 +1,29 @@
-const Controller = require('./controller')
+const db = requireFrom('core/dbinterface').getInstance()
+const helpers = require('../helpers')
 
-class TransactionsController extends Controller {
+class TransactionsController {
   index (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.transactions.paginate(this.pager).then(transactions => {
-        super.respondWithPagination(transactions, 'transaction')
-      })
+    db.transactions.paginate(helpers.initPager()).then(transactions => {
+      helpers.respondWithPagination(transactions, 'transaction')
     })
   }
 
   store (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   show (req, res, next) {
-    super.init(req, res, next).then(db => {
-      db.transactions.findById(req.params.id).then(transaction => {
-        super.respondWithResource(transaction, 'transaction')
-      })
+    db.transactions.findById(req.params.id).then(transaction => {
+      helpers.respondWithResource(transaction, 'transaction')
     })
   }
 
   unconfirmed (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   showUnconfirmed (req, res, next) {
-    super.init(req, res, next).then(() => {
-      super.respondWith('notImplemented', 'Method has not yet been implemented.')
-    })
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 
