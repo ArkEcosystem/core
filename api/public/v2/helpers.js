@@ -12,12 +12,11 @@ class Helpers {
   }
 
   getPaginator () {
-    if (this.paginator) return this.paginator
+    const request = State.getRequest()
 
-    // limit and offset are fucking aids, rename this bullshit
     this.paginator = {
-      offset: parseInt(State.getRequest().query.page || 1),
-      limit: parseInt(State.getRequest().query.perPage || 100)
+      offset: parseInt(request.query.page || 1),
+      limit: parseInt(request.query.perPage || 100)
     }
 
     return this.paginator
@@ -27,13 +26,9 @@ class Helpers {
     this.getCurrentState()
 
     if (data) {
-      if (['ok', 'created', 'noContent'].some(m => method.indexOf(m) >= 0)) {
-        responder[method](this.request, this.response, data)
-      } else {
-        responder[method](this.response, data)
-      }
+      responder[method](data)
     } else {
-      responder.internalServerError(this.response, 'Record could not be found.')
+      responder.internalServerError('Record could not be found.')
     }
 
     State.getNext()
@@ -45,15 +40,15 @@ class Helpers {
     if (data.count) {
       const paginator = new Paginator(this.request, data.count, this.paginator)
 
-      responder.ok(this.request, this.response, {
-        data: new Transformer(this.request).collection(data.rows, transformerClass),
+      responder.ok({
+        data: this.toCollection(data.rows, transformerClass),
         links: paginator.links(),
         meta: Object.assign(paginator.meta(), {
           count: data.count
         })
       })
     } else {
-      responder.resourceNotFound(this.response, 'Record could not be found.')
+      responder.resourceNotFound('Record could not be found.')
     }
 
     State.getNext()
@@ -63,11 +58,9 @@ class Helpers {
     this.getCurrentState()
 
     if (data) {
-      responder.ok(this.request, this.response, {
-        data: new Transformer(this.request).resource(data, transformerClass)
-      })
+      responder.ok({ data: this.toResource(data, transformerClass) })
     } else {
-      responder.resourceNotFound(this.response, 'Record could not be found.')
+      responder.resourceNotFound('Record could not be found.')
     }
 
     State.getNext()
@@ -77,14 +70,24 @@ class Helpers {
     this.getCurrentState()
 
     if (data) {
-      responder.ok(this.request, this.response, {
-        data: new Transformer(this.request).collection(data, transformerClass)
-      })
+      responder.ok({ data: this.toCollection(data, transformerClass) })
     } else {
-      responder.resourceNotFound(this.response, 'Record could not be found.')
+      responder.resourceNotFound('Record could not be found.')
     }
 
     State.getNext()
+  }
+
+  toResource (data, transformerClass) {
+    this.getCurrentState()
+
+    return new Transformer(this.request).resource(data, transformerClass)
+  }
+
+  toCollection (data, transformerClass) {
+    this.getCurrentState()
+
+    return new Transformer(this.request).collection(data, transformerClass)
   }
 }
 
