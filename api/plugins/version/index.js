@@ -1,7 +1,7 @@
 const logger = requireFrom('core/logger')
 const config = requireFrom('core/config')
 
-module.exports = (request, next) => {
+module.exports = (request, response, next) => {
   let version = request.header('Accept-Version') || request.header('accept-version');
 
   if (!version) {
