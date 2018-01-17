@@ -1,7 +1,8 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
+const Controller = require('./controller')
 
-class LoaderController {
+class LoaderController extends Controller {
   status (req, res, next) {
     super.init(req, res, next).then(() => {
       const instance = blockchain.getInstance()
