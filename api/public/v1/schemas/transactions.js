@@ -1,5 +1,3 @@
-'use strict';
-
 const constants = requireFrom('core/config').constants;
 
 module.exports = {

@@ -24,6 +24,8 @@ class DelegatesRepository {
       offset = pager.page * pager.perPage
     }
 
+    queryParams.order = [[ 'publicKey', 'ASC' ]]
+
     return this.db.accountsTable.findAndCountAll(Object.assign(queryParams, {
       where: {
         username: {

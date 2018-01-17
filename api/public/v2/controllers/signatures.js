@@ -1,10 +1,8 @@
-const responder = requireFrom('api/responder')
+const helpers = require('../helpers')
 
 class SignaturesController {
   index (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 

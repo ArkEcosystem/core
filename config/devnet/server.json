@@ -10,7 +10,7 @@
     "logging": false
   },
   "redis": {
-    "enabled": true,
+    "enabled": false,
     "host": "127.0.0.1",
     "port": 6379,
     "password": null
@@ -19,7 +19,7 @@
     "mount": true,
     "testinterface": true,
     "port": 4003,
-    "version": "1.0.0",
+    "version": "2.0.0",
     "throttle": {
       "burst": 60,
       "rate": 1,

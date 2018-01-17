@@ -1,8 +1,9 @@
 const TokenBucket = require('./bucket.js')
 const TokenTable = require('./table.js')
 const responder = requireFrom('api/responder')
+const requestIp = require('request-ip')
 
-class Throttle {
+module.exports = class Throttle {
   constructor (config) {
     this.burst = config.burst
     this.rate = config.rate
@@ -14,7 +15,7 @@ class Throttle {
   }
 
   mount (req, res, next) {
-    let address = req.headers['HTTP_CF_CONNECTING_IP'] || req.headers['X-FORWARDED-FOR'] || req.connection.remoteAddress
+    let address = requestIp.getClientIp(req)
 
     let burst = this.burst
     let rate = this.burst
@@ -48,5 +49,3 @@ class Throttle {
     return next()
   }
 }
-
-module.exports = Throttle

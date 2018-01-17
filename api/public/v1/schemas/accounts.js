@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   open: {
     type: 'object',

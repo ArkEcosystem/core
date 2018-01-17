@@ -1,26 +1,24 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
-const responder = requireFrom('api/responder')
+const helpers = require('../helpers')
 
 class LoaderController {
   status (req, res, next) {
     const instance = blockchain.getInstance()
 
-    responder.ok(req, res, {
+    helpers.respondWith('ok', {
       data: {
         loaded: instance.isSynced(instance.lastBlock),
         now: instance.lastBlock ? instance.lastBlock.data.height : 0,
         blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
       }
     })
-
-    next()
   }
 
   syncing (req, res, next) {
     const instance = blockchain.getInstance()
 
-    responder.ok(req, res, {
+    helpers.respondWith('ok', {
       data: {
         syncing: !instance.isSynced(instance.lastBlock),
         blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
@@ -28,12 +26,10 @@ class LoaderController {
         id: instance.lastBlock.data.id
       }
     })
-
-    next()
   }
 
   configuration (req, res, next) {
-    responder.ok(req, res, {
+    helpers.respondWith('ok', {
       data: {
         nethash: config.network.nethash,
         token: config.network.client.token,
@@ -42,8 +38,6 @@ class LoaderController {
         version: config.network.pubKeyHash
       }
     })
-
-    next()
   }
 }
 

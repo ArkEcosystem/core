@@ -1,11 +1,3 @@
-const response = require('./response')
-
-class CreatedResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, Object.assign(data, {
-      success: true
-    }), 201, headers)
-  }
+module.exports = (data, headers = {}) => {
+  require('./response').send(201, Object.assign(data, { success: true }), headers)
 }
-
-module.exports = new CreatedResponse()

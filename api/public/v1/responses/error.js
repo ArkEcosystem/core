@@ -1,11 +1,3 @@
-const response = require('./response')
-
-class GeneralErrorResponse {
-  send (req, res, data, headers = {}) {
-    response.send(req, res, Object.assign(data, {
-      success: false
-    }), 200, headers)
-  }
+module.exports = (data, headers = {}) => {
+  require('./response').send(200, Object.assign(data, { success: false }), headers)
 }
-
-module.exports = new GeneralErrorResponse()

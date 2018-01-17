@@ -1,11 +1,7 @@
-class Transformer {
-  constructor (req) {
-    this.version = {
-      '1.0.0': 'v1',
-      '2.0.0': 'v2'
-    }[req.version()]
-  }
+const path = require('path')
+const State = require('./plugins/state')
 
+module.exports = class Transformer {
   resource (model, transformer) {
     return this.transform(model, transformer)
   }
@@ -15,10 +11,8 @@ class Transformer {
   }
 
   transform (model, transformer) {
-    let Instance = requireFrom(`api/public/${this.version}/transformers/${transformer}`)
+    const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[State.getRequest().version()]
 
-    return new Instance(model)
+    return require(path.resolve(__dirname, `public/${version}/transformers/${transformer}`))(model)
   }
 }
-
-module.exports = Transformer

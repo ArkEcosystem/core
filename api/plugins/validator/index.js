@@ -3,7 +3,7 @@ const path = require('path')
 const AJV = require('ajv')
 const responder = requireFrom('api/responder')
 
-class Validator {
+module.exports = class Validator {
   constructor () {
     this.ajv = new AJV({
       extendRefs: 'fail',
@@ -21,13 +21,7 @@ class Validator {
 
     let requestData = {};
 
-    ['POST', 'PUT', 'PATCH'].some(method => {
-      if (req.route.method.indexOf(method) >= 0) {
-        requestData = req.body;
-      } else {
-        requestData = req.query;
-      }
-    })
+    ['POST', 'PUT', 'PATCH'].some(method => (requestData = req.route.method.indexOf(method) >= 0 ? req.body : req.query))
 
     let validate = this.ajv.compile(req.route.schema)
 
@@ -36,9 +30,9 @@ class Validator {
         return responder.error(req, res, {
           error: validate.errors[0].message
         })
-      } else {
-        return responder.unprocessableEntity(res, validate.errors[0].message)
       }
+
+      return responder.unprocessableEntity(res, validate.errors[0].message)
     }
 
     return next()
@@ -49,10 +43,8 @@ class Validator {
 
     fs.readdirSync(directory).forEach(file => {
       if (file.indexOf('.js') !== -1) {
-        new (require(directory + '/' + file))(this.ajv)
+        require(directory + '/' + file)(this.ajv)
       }
     })
   }
 }
-
-module.exports = Validator

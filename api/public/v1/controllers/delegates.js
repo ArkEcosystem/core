@@ -1,72 +1,53 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
-const responder = requireFrom('api/responder')
 const db = requireFrom('core/dbinterface').getInstance()
+const helpers = require('../helpers')
 
 class DelegatesController {
   index (req, res, next) {
     db.delegates.all().then(result => {
-      responder.ok(req, res, {
+      helpers.respondWith('ok', {
         data: result
       })
     })
-    next()
   }
 
   show (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   count (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   search (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   voters (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   fee (req, res, next) {
-    res.send({
+    helpers.respondWith('ok', {
       data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.delegate
     })
-
-    next()
   }
 
   forged (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   next (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   enable (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   disable (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 

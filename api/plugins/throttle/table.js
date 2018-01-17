@@ -1,6 +1,6 @@
 const LRU = require('lru-cache')
 
-class Table {
+module.exports = class Table {
   constructor (options) {
     this.table = new LRU(options.size || 10000)
   }
@@ -13,5 +13,3 @@ class Table {
     return this.table.set(key, value)
   }
 }
-
-module.exports = Table
