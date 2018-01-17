@@ -1,4 +1,3 @@
-const responder = requireFrom('api/responder')
 const Controller = require('./controller')
 
 class TransactionsController extends Controller {
@@ -11,9 +10,9 @@ class TransactionsController extends Controller {
   }
 
   store (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    super.init(req, res, next).then(() => {
+      super.respondWith('notImplemented', 'Method has not yet been implemented.')
+    })
   }
 
   show (req, res, next) {
@@ -25,15 +24,15 @@ class TransactionsController extends Controller {
   }
 
   unconfirmed (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    super.init(req, res, next).then(() => {
+      super.respondWith('notImplemented', 'Method has not yet been implemented.')
+    })
   }
 
   showUnconfirmed (req, res, next) {
-    responder.notImplemented(res, 'Method has not yet been implemented.')
-
-    next()
+    super.init(req, res, next).then(() => {
+      super.respondWith('notImplemented', 'Method has not yet been implemented.')
+    })
   }
 }
 
