@@ -8,19 +8,19 @@ class Helpers {
     this.request = State.getRequest()
     this.response = State.getResponse()
 
-    this.initPager()
+    this.getPaginator()
   }
 
-  initPager () {
-    if (this.pager) return this.pager
+  getPaginator () {
+    if (this.paginator) return this.paginator
 
     // limit and offset are fucking aids, rename this bullshit
-    this.pager = {
+    this.paginator = {
       offset: parseInt(State.getRequest().query.page || 1),
       limit: parseInt(State.getRequest().query.perPage || 100)
     }
 
-    return this.pager
+    return this.paginator
   }
 
   respondWith (method, data) {
@@ -43,7 +43,7 @@ class Helpers {
     this.getCurrentState()
 
     if (data.count) {
-      const paginator = new Paginator(this.request, data.count, this.pager)
+      const paginator = new Paginator(this.request, data.count, this.paginator)
 
       responder.ok(this.request, this.response, {
         data: new Transformer(this.request).collection(data.rows, transformerClass),

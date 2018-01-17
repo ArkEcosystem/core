@@ -3,7 +3,7 @@ const helpers = require('../helpers')
 
 class TransactionsController {
   index (req, res, next) {
-    db.transactions.paginate(helpers.initPager()).then(transactions => {
+    db.transactions.paginate(helpers.getPaginator()).then(transactions => {
       helpers.respondWithPagination(transactions, 'transaction')
     })
   }

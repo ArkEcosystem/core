@@ -3,7 +3,7 @@ const helpers = require('../helpers')
 
 class WalletsController {
   index (req, res, next) {
-    db.accounts.paginate(helpers.initPager()).then(wallets => {
+    db.accounts.paginate(helpers.getPaginator()).then(wallets => {
       helpers.respondWithPagination(wallets, 'wallet')
     })
   }
@@ -16,7 +16,7 @@ class WalletsController {
 
   transactions (req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      db.transactions.paginateAllByWallet(wallet, helpers.initPager()).then(transactions => {
+      db.transactions.paginateAllByWallet(wallet, helpers.getPaginator()).then(transactions => {
         helpers.respondWithPagination(transactions, 'transaction')
       })
     })
@@ -24,7 +24,7 @@ class WalletsController {
 
   transactionsSend (req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      db.transactions.paginateAllBySender(wallet.publicKey, helpers.initPager()).then(transactions => {
+      db.transactions.paginateAllBySender(wallet.publicKey, helpers.getPaginator()).then(transactions => {
         helpers.respondWithPagination(transactions, 'transaction')
       })
     })
@@ -32,7 +32,7 @@ class WalletsController {
 
   transactionsReceived (req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      db.transactions.paginateAllByRecipient(wallet.address, helpers.initPager()).then(transactions => {
+      db.transactions.paginateAllByRecipient(wallet.address, helpers.getPaginator()).then(transactions => {
         helpers.respondWithPagination(transactions, 'transaction')
       })
     })
@@ -40,7 +40,7 @@ class WalletsController {
 
   votes (req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
-      db.transactions.paginateVotesBySender(wallet.publicKey, helpers.initPager()).then(transactions => {
+      db.transactions.paginateVotesBySender(wallet.publicKey, helpers.getPaginator()).then(transactions => {
         helpers.respondWithPagination(transactions, 'transaction')
       })
     })

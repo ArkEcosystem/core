@@ -3,7 +3,7 @@ const helpers = require('../helpers')
 
 class VotesController {
   index (req, res, next) {
-    db.transactions.paginateByType(3, helpers.initPager()).then(transactions => {
+    db.transactions.paginateByType(3, helpers.getPaginator()).then(transactions => {
       helpers.respondWithPagination(transactions, 'transaction')
     })
   }

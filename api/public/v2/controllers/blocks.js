@@ -3,7 +3,7 @@ const helpers = require('../helpers')
 
 class BlocksController {
   index (req, res, next) {
-    db.blocks.all(helpers.initPager()).then(blocks => {
+    db.blocks.all(helpers.getPaginator()).then(blocks => {
       helpers.respondWithPagination(blocks, 'block')
     })
   }
@@ -16,7 +16,7 @@ class BlocksController {
 
   transactions (req, res, next) {
     db.blocks.findById(req.params.id).then(block => {
-      db.blocks.paginateByBlock(block.id, helpers.initPager()).then(transactions => {
+      db.blocks.paginateByBlock(block.id, helpers.getPaginator()).then(transactions => {
         helpers.respondWithPagination(transactions, 'transaction')
       })
     })

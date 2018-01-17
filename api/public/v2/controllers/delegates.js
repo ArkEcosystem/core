@@ -3,7 +3,7 @@ const helpers = require('../helpers')
 
 class DelegatesController {
   index (req, res, next) {
-    db.delegates.paginate(helpers.initPager()).then(delegates => {
+    db.delegates.paginate(helpers.getPaginator()).then(delegates => {
       helpers.respondWithPagination(delegates, 'delegate')
     })
   }
@@ -16,7 +16,7 @@ class DelegatesController {
 
   blocks (req, res, next) {
     db.delegates.findById(req.params.id).then(delegate => {
-      db.blocks.paginateByGenerator(delegate.publicKey, helpers.initPager()).then(blocks => {
+      db.blocks.paginateByGenerator(delegate.publicKey, helpers.getPaginator()).then(blocks => {
         helpers.respondWithPagination(blocks, 'block')
       })
     })
@@ -24,7 +24,7 @@ class DelegatesController {
 
   voters (req, res, next) {
     db.delegates.findById(req.params.id).then(delegate => {
-      db.accounts.paginateByVote(delegate.publicKey, helpers.initPager()).then(wallets => {
+      db.accounts.paginateByVote(delegate.publicKey, helpers.getPaginator()).then(wallets => {
         helpers.respondWithPagination(wallets, 'wallet')
       })
     })
