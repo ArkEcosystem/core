@@ -8,6 +8,7 @@ const Throttle = require('../plugins/throttle')
 const Validator = require('../plugins/validator')
 const Cache = require('../plugins/cache')
 const State = require('../plugins/state')
+const VersionPlugin = require('../plugins/version')
 
 class PublicAPI {
   constructor (config) {
@@ -45,13 +46,11 @@ class PublicAPI {
   }
 
   registerPlugins () {
-    this.server.pre((req, res, next) => this.setDefaultVersion(req, res, next))
+    this.server.pre((req, res, next) => VersionPlugin(req, next))
 
     this.server.use((req, res, next) => this.throttle.mount(req, res, next))
 
-    this.server.use(restify.plugins.bodyParser({
-      mapParams: true
-    }))
+    this.server.use(restify.plugins.bodyParser({ mapParams: true }))
 
     this.server.use(restify.plugins.queryParser())
 
@@ -76,25 +75,6 @@ class PublicAPI {
     this.server.listen(this.config.server.api.port, () => {
       logger.info(`[${this.server.name}] listening at [${this.server.url}] 📦`)
     })
-  }
-
-  setDefaultVersion (request, res, next) {
-    let version = request.header('Accept-Version') || request.header('accept-version');
-
-    if (!version) {
-      request._version = this.config.server.api.version
-
-      logger.debug('Accept-Version Header is undefined. Using [' + request._version + '] as default.')
-    }
-
-    if (request.version().startsWith('~')) {
-      request._version = {
-        1: '1.0.0',
-        2: '2.0.0'
-      }[version.charAt(1)];
-    }
-
-    next()
   }
 
   registerVersion (directory, version) {
