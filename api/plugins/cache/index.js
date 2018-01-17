@@ -1,5 +1,4 @@
 const redis = requireFrom('core/cache')
-const logger = requireFrom('core/logger')
 
 class Cache {
     before (req, res, next) {

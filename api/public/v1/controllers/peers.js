@@ -1,4 +1,3 @@
-const responder = requireFrom('api/responder')
 const blockchain = requireFrom('core/blockchainManager')
 const logger = requireFrom('core/logger')
 const config = requireFrom('core/config')

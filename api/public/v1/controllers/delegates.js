@@ -1,6 +1,5 @@
 const blockchain = requireFrom('core/blockchainManager')
 const config = requireFrom('core/config')
-const responder = requireFrom('api/responder')
 const db = requireFrom('core/dbinterface').getInstance()
 const helpers = require('../helpers')
 
