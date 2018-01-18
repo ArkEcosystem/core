@@ -113,14 +113,6 @@ class SequelizeDB extends DBInterface {
           this.localaccounts[row.recipientId] = account
         })
         return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
-        // return this.blocksTable.findAll({
-        //   attributes: [
-        //     'generatorPublicKey',
-        //     [Sequelize.fn('SUM', (Sequelize.col('reward'), Sequelize.literal('+'), Sequelize.col('totalFee'))), 'reward'],
-        //     [Sequelize.fn('COUNT', Sequelize.col('generatorPublicKey')), 'produced']
-        //   ],
-        //   group: 'generatorPublicKey'}
-        // )
       })
       .then(data => {
         logger.printTracker('SPV Building', 2, 7, 'block rewards')
@@ -288,6 +280,16 @@ class SequelizeDB extends DBInterface {
             return Promise.resolve(new Block(block))
           })
       )
+  }
+
+  getCommonBlock (ids) {
+    return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
+  }
+
+  getTransactionsFromIds (txids) {
+    return this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+      .then(rows => rows.map(row => Transaction.deserialize(row.serialized.toString('hex'))))
+      .then(transactions => txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i]))))
   }
 
   getLastBlock () {

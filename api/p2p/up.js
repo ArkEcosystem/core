@@ -45,15 +45,15 @@ class Up {
       '/peer/blocks': this.getBlocks,
       '/peer/transactionsFromIds': this.getTransactionsFromIds,
       '/peer/height': this.getHeight,
-      // '/peer/transactions': this.getTransactions,
-      // '/peer/blocks/common': this.getCommonBlocks,
+      '/peer/transactions': this.getTransactions,
+      '/peer/blocks/common': this.getCommonBlock,
       '/peer/status': this.getStatus
     }
 
     Promise.all(Object.keys(mapping).map(k => server.get(k, (req, res, next) => mapping[k].call(this, req, res, next))))
 
-    server.post('/blocks', this.postBlock)
-    // server.post('/transactions', this.postTransactions);
+    server.post('/blocks', (req, res, next) => this.postBlock(req, res, next))
+    server.post('/transactions', (req, res, next) => this.postTransactions(req, res, next))
   }
 
   mountInternal (server) {
@@ -86,8 +86,7 @@ class Up {
         .then(() => setHeaders(res))
         .then(() => next())
         .catch(error => res.send(500, {success: false, message: error}))
-    }
-    return next()
+    } else return next()
   }
 
   getPeers (req, res, next) {
@@ -108,6 +107,39 @@ class Up {
       success: true,
       height: blockchain.getInstance().status.lastBlock.data.height,
       id: blockchain.getInstance().status.lastBlock.data.id
+    })
+    next()
+  }
+
+  getCommonBlock (req, res, next) {
+    const ids = req.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
+    blockchain.getInstance().getDb().getCommonBlock(ids).then(commonBlock => {
+      res.send(200, {
+        success: true,
+        common: commonBlock.length ? commonBlock[0] : null,
+        lastBlockHeight: blockchain.getInstance().status.lastBlock.data.height
+      })
+      next()
+    })
+    .catch(error => res.send(500, {success: false, message: error}))
+  }
+
+  getTransactionsFromIds (req, res, next) {
+    const txids = req.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    blockchain.getInstance().getDb().getTransactionsFromIds(txids).then(transactions => {
+      res.send(200, {
+        success: true,
+        transactions: transactions
+      })
+      next()
+    })
+    .catch(error => res.send(500, {success: false, message: error}))
+  }
+
+  getTransactions (req, res, next) {
+    res.send(200, {
+      success: true,
+      transactions: []
     })
     next()
   }
