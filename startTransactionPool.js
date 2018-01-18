@@ -3,7 +3,6 @@ const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
-const config = require('./core/config')
 
 commander
   .version(packageJson.version)
@@ -17,8 +16,8 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-config.init({
+require('./core/config').init({
   server: require(path.resolve(commander.config, 'server.json')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network.json'))
-})
+}).then(config => {})

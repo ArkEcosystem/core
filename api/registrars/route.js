@@ -32,9 +32,7 @@ module.exports = class RouteRegistrar {
     }
 
     if (schema) {
-      config = Object.assign(config, {
-        schema: schema
-      })
+      config = Object.assign(config, { schema })
     }
 
     return config
