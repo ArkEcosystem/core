@@ -40,8 +40,8 @@ require('./core/config').init({
 
   DependencyHandler
     .checkDatabaseLibraries(config)
-    .then(() => new Queue(config.server.redis))
-    .then(() => new Cache(config.server.redis))
+    // .then(() => new Queue(config.server.redis))
+    // .then(() => new Cache(config.server.redis))
     .then(() => DB.create(config.server.db))
     .then(db => blockchainManager.attachDBInterface(db))
     .then(() => logger.info('Database started'))
