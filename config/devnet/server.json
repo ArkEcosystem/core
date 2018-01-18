@@ -2,6 +2,7 @@
   "port": 4002,
   "version": "2.0.0",
   "fileLogLevel": "info",
+  "consoleLogLevel": "info",
   "fastRebuild": false,
   "db": {
     "driver": "database/sequelize",

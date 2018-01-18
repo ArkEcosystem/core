@@ -112,27 +112,27 @@ class SequelizeDB extends DBInterface {
           account.balance = parseInt(row.amount)
           this.localaccounts[row.recipientId] = account
         })
-        return this.blocksTable.findAll({
-          attributes: [
-            'generatorPublicKey',
-            [Sequelize.fn('SUM', Sequelize.col('reward')), 'reward'],
-            [Sequelize.fn('SUM', Sequelize.col('totalFee')), 'totalFee'],
-            [Sequelize.fn('COUNT', Sequelize.col('generatorPublicKey')), 'produced']
-          ],
-          group: 'generatorPublicKey'}
-        )
+        return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+        // return this.blocksTable.findAll({
+        //   attributes: [
+        //     'generatorPublicKey',
+        //     [Sequelize.fn('SUM', (Sequelize.col('reward'), Sequelize.literal('+'), Sequelize.col('totalFee'))), 'reward'],
+        //     [Sequelize.fn('COUNT', Sequelize.col('generatorPublicKey')), 'produced']
+        //   ],
+        //   group: 'generatorPublicKey'}
+        // )
       })
       .then(data => {
         logger.printTracker('SPV Building', 2, 7, 'block rewards')
         data.forEach(row => {
           let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
           if (account) {
-            account.balance += parseInt(row.reward) + parseInt(row.totalFee)
+            account.balance += parseInt(row.reward)
             account.producedBlocks += parseInt(row.produced)
           } else {
             account = new Account(arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash))
             account.publicKey = row.generatorPublicKey
-            account.balance = parseInt(row.reward) + parseInt(row.totalFee)
+            account.balance = parseInt(row.reward)
             account.producedBlocks = parseInt(row.produced)
             this.localaccounts[account.address] = account
           }

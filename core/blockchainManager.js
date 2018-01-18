@@ -80,7 +80,7 @@ class BlockchainManager {
         if (this.isSynced(this.status.lastBlock)) {
           this.status.syncing = false
           logger.info('Node Synced, congratulations! 🦄')
-        } else if (!this.status.syncing) {
+        } else {
           this.status.noblock = 0
           this.eventQueue.push({type: 'sync/start'})
         }
@@ -103,6 +103,7 @@ class BlockchainManager {
       case 'rebuild/start':
         if (!this.status.rebuild) {
           this.status.rebuild = true
+          this.status.syncing = false
           this.status.downloadpaused = true
           this.removeBlocks(event.nblocks).then((status) => qcallback())
         } else return qcallback()
@@ -303,6 +304,10 @@ class BlockchainManager {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
+        else { // TODO Fork
+          this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
+          logger.error('bang')
+        }
       }
       return Promise.resolve()
     })
