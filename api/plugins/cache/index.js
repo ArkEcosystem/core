@@ -1,12 +1,13 @@
-const redis = requireFrom('core/cache')
+const cache = requireFrom('core/cache')
 
-module.exports = class Cache {
+class CachePlugin {
   before (request, response, next) {
-    const cacheKey = this.generateKey(request)
+    const cacheKey = this._generateKey(request)
 
-    return redis.get(cacheKey).then((data) => {
+    return this._getInstance().get(cacheKey).then((data) => {
       if (!data) {
         response.header('X-Cache', 'MISS')
+
         return next()
       }
 
@@ -17,13 +18,19 @@ module.exports = class Cache {
   }
 
   after (request, response, route, error) {
-    redis.set(this.generateKey(request), response._data);
+    this._getInstance().set(this._generateKey(request), response._data);
   }
 
-  generateKey (request) {
-    return redis.generateKey({
+  _generateKey (request) {
+    return this._getInstance().generateKey({
       url: request.url,
       params: request.params
     })
   }
+
+  _getInstance () {
+    return cache.getInstance('ark_api_cache')
+  }
 }
+
+module.exports = new CachePlugin()

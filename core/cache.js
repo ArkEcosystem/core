@@ -4,66 +4,50 @@ const logger = require('./logger')
 
 let instance
 
-class Cache {
+module.exports = class Cache {
   constructor (config) {
-    this.enabled = config.enabled
-
-    if (!config.enabled) {
-      return Promise.resolve(false)
-    }
-
-    if (!instance) {
-      instance = redis.createClient(Object.keys(config).forEach((key) => (config[key] == null) && delete config[key]))
-    }
-
-    instance.on('ready', function () {
-      logger.debug('[Cache] Connected with redis')
-    })
-
-    instance.on('error', function (err) {
-      logger.error(`[Cache] ${err}`)
-    })
-
     Promise.promisifyAll(redis.RedisClient.prototype)
 
-    return Promise.resolve(instance)
+    if (!instance) {
+      logger.debug('Cache has been instantiated.');
+
+      instance = this
+    } else {
+      logger.debug('Cache already instantiated.');
+    }
+
+    this.client = redis.createClient(Object.keys(config).forEach((key) => (config[key] == null) && delete config[key]))
+
+    return instance
   }
 
-  static connected () {
-    return this.enabled && instance.ready
+  static getInstance (connection) {
+    instance.connection = connection || 'ark'
+
+    return instance
   }
 
-  static get (key) {
-    logger.debug(`[Cache] Get value for ${key}`)
-
-    return instance.getAsync(key).then((data) => {
-      return data ? JSON.parse(data) : false
-    })
+  isConnected () {
+    return this.client.ready
   }
 
-  static set (key, value) {
-    logger.debug(`[Cache] Set value for ${key}`)
-
-    return instance.set(key, JSON.stringify(value))
+  get (key) {
+    return this.client.getAsync(`${this.connection}_${key}`).then((data) => data ? JSON.parse(data) : false)
   }
 
-  static del (key) {
-    logger.debug(`[Cache] Delete value for ${key}`)
-
-    return instance.del(key)
+  set (key, value) {
+    return Promise.resolve(this.client.set(`${this.connection}_${key}`, JSON.stringify(value)))
   }
 
-  static generateKey (value) {
-    logger.debug('[Cache] Generate Key')
+  del (key) {
+    return Promise.resolve(this.client.del(`${this.connection}_${key}`))
+  }
 
+  flush () {
+    return Promise.resolve(this.client.flushdb())
+  }
+
+  generateKey (value) {
     return Buffer.from(JSON.stringify(value)).toString('base64')
   }
-
-  static flush () {
-    logger.debug('[Cache] Flush Database')
-
-    return instance.flushdb()
-  }
 }
-
-module.exports = Cache
