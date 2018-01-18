@@ -17,7 +17,6 @@
   "api": {
     "mount": true,
     "cache": false,
-    "testinterface": true,
     "remoteinterface": true,
     "port": 4003,
     "version": "2.0.0",
