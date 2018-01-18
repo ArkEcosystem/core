@@ -152,8 +152,8 @@ class Account {
     if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) return false
     let index = 0
     let publicKey = multisignature.keysgroup[index]
-    for (let signature in transaction.signatures) {
-      if (!verify(transaction, signature, publicKey)) {
+    for (let i in transaction.signatures) {
+      if (!verify(transaction, transaction.signatures[i], publicKey)) {
         if (index++ > transaction.signatures.length - 1) return false
         else publicKey = multisignature.keysgroup[index]
       }
