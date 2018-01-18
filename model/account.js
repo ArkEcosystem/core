@@ -165,8 +165,8 @@ class Account {
 function verify (transaction, signature, publicKey) {
   const hash = arkjs.crypto.getHash(transaction)
 
-  const signSignatureBuffer = Buffer.alloc(signature, 'hex')
-  const publicKeyBuffer = Buffer.alloc(publicKey, 'hex')
+  const signSignatureBuffer = Buffer.from(signature, 'hex')
+  const publicKeyBuffer = Buffer.from(publicKey, 'hex')
   const ecpair = arkjs.ECPair.fromPublicKeyBuffer(publicKeyBuffer, config.network)
   const ecsignature = arkjs.ECSignature.fromDER(signSignatureBuffer)
   return ecpair.verify(hash, ecsignature)
