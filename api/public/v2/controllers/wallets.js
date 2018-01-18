@@ -8,6 +8,10 @@ class WalletsController {
     })
   }
 
+  top (req, res, next) {
+    db.accounts.top().then(wallet => helpers.respondWithCollection(wallet, 'wallet'))
+  }
+
   show (req, res, next) {
     db.accounts.findById(req.params.id).then(wallet => {
       helpers.respondWithResource(wallet, 'wallet')

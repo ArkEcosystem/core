@@ -24,8 +24,8 @@ class DelegatesController {
 
   voters (req, res, next) {
     db.delegates.findById(req.params.id).then(delegate => {
-      db.accounts.paginateByVote(delegate.publicKey, helpers.getPaginator()).then(wallets => {
-        helpers.respondWithPagination(wallets, 'wallet')
+      db.accounts.findAllByVote(delegate.publicKey).then(accounts => {
+        helpers.respondWithCollection(accounts, 'wallet')
       })
     })
   }
