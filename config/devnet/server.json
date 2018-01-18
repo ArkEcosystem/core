@@ -1,7 +1,7 @@
 {
   "port": 4002,
   "version": "2.0.0",
-  "fileLogLevel": "debug",
+  "fileLogLevel": "info",
   "consoleLogLevel": "info",
   "fastRebuild": false,
   "db": {
@@ -11,13 +11,13 @@
     "logging": false
   },
   "redis": {
+    "enabled": false,
     "host": "127.0.0.1",
     "port": 6379,
     "password": null
   },
   "api": {
     "mount": true,
-    "cache": false,
     "remoteinterface": true,
     "port": 4003,
     "version": "2.0.0",
