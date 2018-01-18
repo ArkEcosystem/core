@@ -106,7 +106,7 @@ class Account {
   canApply (transaction) {
     let check = true
     if (this.multisignature) {
-      check = check && this.verifySignatures(transaction)
+      check = check && this.verifySignatures(transaction, this.multisignature)
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
       check = check && (!this.secondPublicKey || arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network))
@@ -129,7 +129,7 @@ class Account {
         else return false
 
       case 4:
-        return !this.multisignature && this.verifySignatures(transaction)
+        return !this.multisignature && this.verifySignatures(transaction, transaction.asset.multisignature)
 
       case 5:
         return true
@@ -148,14 +148,14 @@ class Account {
     }
   }
 
-  verifySignatures (transaction) {
-    if (!transaction.signatures || !transaction.signatures.length > this.multisignature.min - 1) return false
+  verifySignatures (transaction, multisignature) {
+    if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) return false
     let index = 0
-    let publicKey = this.multisignature.keysgroup[index]
+    let publicKey = multisignature.keysgroup[index]
     for (let signature in transaction.signatures) {
       if (!verify(transaction, signature, publicKey)) {
         if (index++ > transaction.signatures.length - 1) return false
-        else publicKey = this.multisignature.keysgroup[index]
+        else publicKey = multisignature.keysgroup[index]
       }
     }
     return true
