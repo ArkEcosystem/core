@@ -31,9 +31,6 @@
       }
     }
   },
-  "redis": {
-    "enabled": false
-  },
   "peers": {
     "blackList": []
   }
