@@ -1,8 +1,9 @@
 const controller = require('../controllers/statistics')
 
 module.exports = (registrar) => {
-  registrar.get('statistics/transactions', controller.transactions)
-  registrar.get('statistics/blocks', controller.blocks)
+  registrar.get('stats/blockchain', controller.blockchain)
+  registrar.get('stats/transactions', controller.transactions)
+  registrar.get('stats/blocks', controller.blocks)
 
   // tx per block
   // tx per hour

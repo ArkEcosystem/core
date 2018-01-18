@@ -50,12 +50,12 @@ module.exports = {
       amount: {
         type: 'integer',
         minimum: 0,
-        maximum: Math.pow(10, 8)
+        maximum: 10 ** 8
       },
       fee: {
         type: 'integer',
         minimum: 0,
-        maximum: Math.pow(10, 8)
+        maximum: 10 ** 8
       }
     }
   },
