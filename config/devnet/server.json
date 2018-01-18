@@ -16,8 +16,8 @@
   },
   "api": {
     "mount": true,
-    "cache": false,
     "remoteinterface": true,
+    "cache": false,
     "port": 4003,
     "version": "2.0.0",
     "throttle": {
