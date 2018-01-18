@@ -52,8 +52,8 @@ class Up {
 
     Promise.all(Object.keys(mapping).map(k => server.get(k, (req, res, next) => mapping[k].call(this, req, res, next))))
 
-    server.post('/blocks', this.postBlock)
-    // server.post('/transactions', this.postTransactions);
+    server.post('/blocks', (req, res, next) => this.postBlock(req, res, next))
+    server.post('/transactions', (req, res, next) => this.postTransactions(req, res, next))
   }
 
   mountInternal (server) {
