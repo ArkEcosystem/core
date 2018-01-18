@@ -4,7 +4,6 @@ const path = require('path')
 const restify = require('restify')
 
 const RouteRegistrar = require('../registrars/route')
-const PluginRegistrar = require('../registrars/plugin')
 
 const Throttle = require('../plugins/throttle')
 const Validator = require('../plugins/validator')
@@ -34,23 +33,17 @@ class PublicAPI {
   }
 
   registerPlugins () {
-    const registrar = new PluginRegistrar(this.server)
+    this.server.pre((req, res, next) => VersionPlugin(req, res, next))
+    this.server.use((req, res, next) => new Throttle(this.config.server.api.throttle).mount(req, res, next))
+    this.server.use(restify.plugins.bodyParser({ mapParams: true }))
+    this.server.use(restify.plugins.queryParser())
+    this.server.use(restify.plugins.gzipResponse())
+    this.server.use((req, res, next) => new Validator().mount(req, res, next))
+    this.server.use((req, res, next) => new State().mount(req, res, next))
 
-    registrar
-      .pre(VersionPlugin)
-      .use(new Throttle(this.config.server.api.throttle).mount)
-      .use(restify.plugins.bodyParser({ mapParams: true }), true)
-      .use(restify.plugins.queryParser(), true)
-      .use(restify.plugins.gzipResponse(), true)
-      .use(new Validator().mount)
-      .use(new State().mount)
-
-    if (this.config.server.redis.enabled) {
-      const cache = new Cache()
-
-      registrar
-        .use(cache.before)
-        .on('after', cache.after)
+    if (this.config.server.api.cache) {
+      this.server.use((req, res, next) => Cache.before(req, res, next))
+      this.server.on('after', Cache.after)
     }
   }
 
@@ -61,7 +54,7 @@ class PublicAPI {
 
   startServer () {
     this.server.listen(this.config.server.api.port, () => {
-      logger.info(`[${this.server.name}] listening at [${this.server.url}] 📦`)
+      logger.info(`[${this.server.name}] listening on [${this.server.url}] 📦`)
     })
   }
 

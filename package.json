@@ -36,6 +36,7 @@
     "bip38": "^2.0.1",
     "bluebird": "^3.5.1",
     "bs58check": "^2.1.1",
+    "bull": "^3.3.8",
     "colors": "^1.1.2",
     "commander": "^2.11.0",
     "deepmerge": "^2.0.1",

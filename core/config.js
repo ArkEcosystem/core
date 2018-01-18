@@ -22,6 +22,8 @@ class Config {
     this.genesisBlock = config.genesisBlock
     this.delegates = config.delegates
     this.buildConstants()
+
+    return Promise.resolve(this)
   }
 
   buildConstants () {
