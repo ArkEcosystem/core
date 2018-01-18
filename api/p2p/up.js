@@ -46,7 +46,7 @@ class Up {
       '/peer/transactionsFromIds': this.getTransactionsFromIds,
       '/peer/height': this.getHeight,
       // '/peer/transactions': this.getTransactions,
-      // '/peer/blocks/common': this.getCommonBlocks,
+      '/peer/blocks/common': this.getCommonBlock,
       '/peer/status': this.getStatus
     }
 
@@ -86,8 +86,7 @@ class Up {
         .then(() => setHeaders(res))
         .then(() => next())
         .catch(error => res.send(500, {success: false, message: error}))
-    }
-    return next()
+    } else return next()
   }
 
   getPeers (req, res, next) {
@@ -110,6 +109,19 @@ class Up {
       id: blockchain.getInstance().status.lastBlock.data.id
     })
     next()
+  }
+
+  getCommonBlock (req, res, next) {
+    const ids = req.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
+    blockchain.getInstance().getDb().getCommonBlock(ids).then(commonBlock => {
+      res.send(200, {
+        success: true,
+        common: commonBlock.length ? commonBlock[0] : null,
+        lastBlockHeight: blockchain.getInstance().status.lastBlock.data.height
+      })
+      next()
+    })
+    .catch(error => res.send(500, {success: false, message: error}))
   }
 
   sendBlockchainEvent (req, res, next) {
