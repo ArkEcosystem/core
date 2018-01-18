@@ -45,7 +45,7 @@ class Up {
       '/peer/blocks': this.getBlocks,
       '/peer/transactionsFromIds': this.getTransactionsFromIds,
       '/peer/height': this.getHeight,
-      // '/peer/transactions': this.getTransactions,
+      '/peer/transactions': this.getTransactions,
       '/peer/blocks/common': this.getCommonBlock,
       '/peer/status': this.getStatus
     }
@@ -122,6 +122,26 @@ class Up {
       next()
     })
     .catch(error => res.send(500, {success: false, message: error}))
+  }
+
+  getTransactionsFromIds (req, res, next) {
+    const txids = req.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    blockchain.getInstance().getDb().getTransactionsFromIds(txids).then(transactions => {
+      res.send(200, {
+        success: true,
+        transactions: transactions
+      })
+      next()
+    })
+    .catch(error => res.send(500, {success: false, message: error}))
+  }
+
+  getTransactions (req, res, next) {
+    res.send(200, {
+      success: true,
+      transactions: []
+    })
+    next()
   }
 
   sendBlockchainEvent (req, res, next) {
