@@ -49,6 +49,12 @@ class WalletsController {
       })
     })
   }
+
+  search (req, res, next) {
+    db.accounts.search(req.body).then(wallets => {
+      helpers.respondWithPagination(wallets, 'wallet')
+    })
+  }
 }
 
 module.exports = new WalletsController()
