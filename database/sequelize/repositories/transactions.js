@@ -132,6 +132,54 @@ class TransactionsRepository {
       }
     })
   }
+
+  search (queryParams) {
+    let where = {}
+
+    const exactFilters = ['id', 'type', 'version', 'senderPublicKey', 'recipientId']
+    const betweenFilters = ['createdAt', 'blockId', 'timestamp', 'amount', 'fee']
+    const wildcardFilters = ['vendorFieldHex']
+    for (const elem of exactFilters) {
+      if (queryParams[elem]) {
+        where[elem] = queryParams[elem]
+      }
+    }
+    for (const elem of betweenFilters) {
+      if (!queryParams[elem]) {
+        continue;
+      }
+      if (!queryParams[elem].from && !queryParams[elem].to) {
+        where[elem] = queryParams[elem]
+      } else if (queryParams[elem].from || queryParams[elem].to) {
+        where[elem] = {}
+        if (queryParams[elem].from) {
+          if (elem === 'createdAt') {
+            where[Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
+          } else {
+            where[Op.gte] = queryParams[elem].from
+          }
+        }
+        if (queryParams[elem].to) {
+          if (elem === 'createdAt') {
+            where[Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
+          } else {
+            where[Op.lte] = queryParams[elem].to
+          }
+        }
+      }
+    }
+    for (const elem of wildcardFilters) {
+      if (queryParams[elem]) {
+        where[elem] = {
+          [Op.like]: `%${queryParams[elem]}%`
+        }
+      }
+    }
+
+    return this.db.transactionsTable.findAndCountAll({
+      where
+    })
+  }
 }
 
 module.exports = TransactionsRepository

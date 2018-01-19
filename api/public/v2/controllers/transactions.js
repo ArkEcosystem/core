@@ -25,6 +25,12 @@ class TransactionsController {
   showUnconfirmed (req, res, next) {
     helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
+
+  search(req, res, next) {
+    db.transactions.search(req.body).then(transactions => {
+      helpers.respondWithPagination(transactions, 'transaction')
+    })
+  }
 }
 
 module.exports = new TransactionsController()
