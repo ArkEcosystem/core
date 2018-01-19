@@ -4,6 +4,7 @@ const State = requireFrom('api/plugins/state')
 const errors = require('restify-errors')
 const path = require('path')
 const fs = require('fs')
+const _ = require('lodash')
 
 class Responder extends MethodMissing {
   getFilePath (name) {
@@ -20,7 +21,7 @@ class Responder extends MethodMissing {
     }
 
     try {
-      const responderFile = this.getFilePath(name)
+      const responderFile = this.getFilePath(_.kebabCase(name))
 
       if (fs.statSync(responderFile + '.js').isFile()) {
         return require(responderFile)(args[0], args[1] || {})
