@@ -136,8 +136,8 @@ class TransactionsRepository {
   search (queryParams) {
     let where = {}
 
-    const exactFilters = ['id', 'type', 'version', 'senderPublicKey', 'recipientId']
-    const betweenFilters = ['createdAt', 'blockId', 'timestamp', 'amount', 'fee']
+    const exactFilters = ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId']
+    const betweenFilters = ['createdAt', 'timestamp', 'amount', 'fee']
     const wildcardFilters = ['vendorFieldHex']
     for (const elem of exactFilters) {
       if (queryParams[elem]) {
@@ -154,16 +154,16 @@ class TransactionsRepository {
         where[elem] = {}
         if (queryParams[elem].from) {
           if (elem === 'createdAt') {
-            where[Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
+            where[elem][Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
           } else {
-            where[Op.gte] = queryParams[elem].from
+            where[elem][Op.gte] = queryParams[elem].from
           }
         }
         if (queryParams[elem].to) {
           if (elem === 'createdAt') {
-            where[Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
+            where[elem][Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
           } else {
-            where[Op.lte] = queryParams[elem].to
+            where[elem][Op.lte] = queryParams[elem].to
           }
         }
       }

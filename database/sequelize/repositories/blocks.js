@@ -77,8 +77,8 @@ class BlocksRepository {
   search(queryParams) {
     let where = {}
 
-    const exactFilters = ['version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature']
-    const betweenFilters = ['id', 'createdAt', 'timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+    const exactFilters = ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature']
+    const betweenFilters = ['createdAt', 'timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
     for (const elem of exactFilters) {
       if (queryParams[elem]) {
         where[elem] = queryParams[elem]
@@ -94,16 +94,16 @@ class BlocksRepository {
         where[elem] = {}
         if (queryParams[elem].from) {
           if (elem === 'createdAt') {
-            where[Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
+            where[elem][Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
           } else {
-            where[Op.gte] = queryParams[elem].from
+            where[elem][Op.gte] = queryParams[elem].from
           }
         }
         if (queryParams[elem].to) {
           if (elem === 'createdAt') {
-            where[Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
+            where[elem][Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
           } else {
-            where[Op.lte] = queryParams[elem].to
+            where[elem][Op.lte] = queryParams[elem].to
           }
         }
       }
