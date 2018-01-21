@@ -25,11 +25,7 @@ module.exports = class Helpers {
   static respondWith (method, data) {
     this.getCurrentState()
 
-    if (data) {
-      responder[method](data)
-    } else {
-      responder.internalServerError('Record could not be found.')
-    }
+    data ? responder[method](data) ? responder.internalServerError('Record could not be found.')
 
     State.getNext()
   }
@@ -38,7 +34,7 @@ module.exports = class Helpers {
     this.getCurrentState()
 
     if (data.count) {
-      const paginator = new Paginator(this.request, data.count, this.paginator)
+      const paginator = new Paginator(data.count, this.paginator)
 
       responder.ok({
         data: this.toCollection(data.rows, transformerClass),

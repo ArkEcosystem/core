@@ -1,8 +1,7 @@
 module.exports = class Paginator {
-  constructor (request, count, pager) {
-    this.request = request
+  constructor (count, pager) {
     this.count = count
-    this.skip = pager.offset
+    this.cursor = pager.offset
     this.limit = pager.limit
   }
 
@@ -10,7 +9,7 @@ module.exports = class Paginator {
     return {
       cursor: {
         previous: this.previous(),
-        current: this.skip,
+        current: this.cursor,
         next: this.next(),
         count: this.limit
       },
@@ -19,13 +18,13 @@ module.exports = class Paginator {
   }
 
   next () {
-    const next = this.skip + this.limit
+    const next = this.cursor + this.limit
 
     return (next > this.count) ? 0 : next
   }
 
   previous () {
-    const previous = this.skip - this.limit
+    const previous = this.cursor - this.limit
 
     return (previous <= 0) ? 0 : previous
   }
