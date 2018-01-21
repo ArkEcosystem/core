@@ -9,7 +9,7 @@ module.exports = class Paginator {
     return {
       cursor: {
         previous: this.previous(),
-        current: this.cursor,
+        current: this.current(),
         next: this.next(),
         count: this.limit
       },
@@ -17,15 +17,21 @@ module.exports = class Paginator {
     }
   }
 
+  current () {
+    const current = this.cursor
+
+    return (current === 0) ? null : current
+  }
+
   next () {
     const next = this.cursor + this.limit
 
-    return (next > this.count) ? 0 : next
+    return (next >= this.count) ? null : next
   }
 
   previous () {
     const previous = this.cursor - this.limit
 
-    return (previous <= 0) ? 0 : previous
+    return (previous <= 0) ? null : previous
   }
 }

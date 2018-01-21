@@ -25,7 +25,7 @@ module.exports = class Helpers {
   static respondWith (method, data) {
     this.getCurrentState()
 
-    data ? responder[method](data) ? responder.internalServerError('Record could not be found.')
+    data ? responder[method](data) : responder.internalServerError('Record could not be found.')
 
     State.getNext()
   }
