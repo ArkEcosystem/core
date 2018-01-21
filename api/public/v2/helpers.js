@@ -15,8 +15,8 @@ module.exports = class Helpers {
     const request = State.getRequest()
 
     this.paginator = {
-      offset: parseInt(request.query.page || 1),
-      limit: parseInt(request.query.perPage || 100)
+      offset: parseInt(request.query.offset || 0),
+      limit: parseInt(request.query.limit || 100)
     }
 
     return this.paginator
@@ -42,10 +42,7 @@ module.exports = class Helpers {
 
       responder.ok({
         data: this.toCollection(data.rows, transformerClass),
-        links: paginator.links(),
-        meta: Object.assign(paginator.meta(), {
-          count: data.count
-        })
+        meta: paginator.meta()
       })
     } else {
       responder.resourceNotFound('Record could not be found.')
