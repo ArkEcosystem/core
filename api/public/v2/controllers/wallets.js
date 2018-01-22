@@ -51,9 +51,9 @@ class WalletsController {
   }
 
   search (req, res, next) {
-    db.accounts.search(req.body).then(wallets => {
-      helpers.respondWithPagination(wallets, 'wallet')
-    })
+    db.accounts
+      .search(req.body)
+      .then(wallets => helpers.respondWithPagination(wallets, 'wallet'))
   }
 }
 

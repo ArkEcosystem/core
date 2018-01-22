@@ -27,9 +27,9 @@ class TransactionsController {
   }
 
   search(req, res, next) {
-    db.transactions.search(req.body).then(transactions => {
-      helpers.respondWithPagination(transactions, 'transaction')
-    })
+    db.transactions
+      .search(req.body)
+      .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
   }
 }
 

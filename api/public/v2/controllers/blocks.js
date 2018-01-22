@@ -23,9 +23,9 @@ class BlocksController {
   }
 
   search(req, res, next) {
-    db.blocks.search(req.body).then(blocks => {
-      helpers.respondWithPagination(blocks, 'block')
-    })
+    db.blocks
+      .search(req.body)
+      .then(blocks => helpers.respondWithPagination(blocks, 'block'))
   }
 }
 
