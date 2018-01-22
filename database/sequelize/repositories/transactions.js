@@ -1,5 +1,6 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
+const Transaction = requireFrom('model/transaction')
 
 class TransactionsRepository {
   constructor (db) {
@@ -168,9 +169,14 @@ class TransactionsRepository {
       }
     }
 
-    return this.db.transactionsTable.findAndCountAll({
-      where
-    })
+    return this.db.transactionsTable
+      .findAndCountAll({ attributes: ['serialized'], where })
+      .then(results => {
+        return {
+          count: results.count,
+          rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+        }
+      })
   }
 }
 
