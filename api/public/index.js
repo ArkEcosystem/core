@@ -17,33 +17,37 @@ class PublicAPI {
   }
 
   mount () {
-    if (!this.config.server.api.mount) {
-      logger.info('Public API not mounted as not configured to do so')
-      return
-    }
+    if (!this.config.server.api.mount) return logger.info('Public API not mounted as not configured to do so')
 
-    this.createServer()
-    this.registerPlugins()
-    this.registerRouters()
-    this.startServer()
+    this
+      .createServer()
+      .then(server => (this.server = server))
+      .then(() => this.registerPlugins())
+      .then(() => this.registerRouters())
+      .then(() => this.startServer())
   }
 
   createServer () {
-    this.server = restify.createServer({ name: 'ARK Core - Public API' })
+    return Promise.resolve(restify.createServer({
+      name: 'ARK Core - Public API',
+      handleUncaughtExceptions: true
+    }))
   }
 
   registerPlugins () {
-    this.server.pre((req, res, next) => VersionPlugin(req, res, next))
-    this.server.use((req, res, next) => new Throttle(this.config.server.api.throttle).mount(req, res, next))
-    this.server.use(restify.plugins.bodyParser({ mapParams: true }))
-    this.server.use(restify.plugins.queryParser())
-    this.server.use(restify.plugins.gzipResponse())
-    this.server.use((req, res, next) => new Validator().mount(req, res, next))
-    this.server.use((req, res, next) => new State().mount(req, res, next))
+    this.server
+      .pre((req, res, next) => VersionPlugin(req, res, next))
+      .use((req, res, next) => new Throttle(this.config.server.api.throttle).mount(req, res, next))
+      .use(restify.plugins.bodyParser({ mapParams: true }))
+      .use(restify.plugins.queryParser())
+      .use(restify.plugins.gzipResponse())
+      .use((req, res, next) => new Validator().mount(req, res, next))
+      .use((req, res, next) => new State().mount(req, res, next))
 
     if (this.config.server.api.cache) {
-      this.server.use((req, res, next) => Cache.before(req, res, next))
-      this.server.on('after', Cache.after)
+      this.server
+        .use((req, res, next) => Cache.before(req, res, next))
+        .on('after', Cache.after)
     }
   }
 
@@ -53,9 +57,11 @@ class PublicAPI {
   }
 
   startServer () {
-    this.server.listen(this.config.server.api.port, () => {
-      logger.info(`[${this.server.name}] listening on [${this.server.url}] 📦`)
-    })
+    this.server
+      // .on('InternalServer', (req, res, route, err) => require('./v1/helpers').respondWith('ok', {err}))
+      // .on('uncaughtException', (req, res, route, err) => require('./v1/helpers').respondWith('ok', {err}))
+      // .on('restifyError', (req, res, err, cb) => require('./v1/helpers').respondWith('ok', {err}))
+      .listen(this.config.server.api.port, () => logger.info(`[${this.server.name}] listening on [${this.server.url}] 📦`))
   }
 
   registerVersion (directory, version) {

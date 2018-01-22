@@ -16,6 +16,8 @@ class Responder extends MethodMissing {
     const errorClass = `${name.charAt(0).toUpperCase() + name.slice(1)}Error`
 
     if (errors.hasOwnProperty(errorClass)) {
+      logger.error(args[0])
+
       return State.getResponse().send(new errors[errorClass](args[0]))
     }
 
