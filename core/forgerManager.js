@@ -3,7 +3,8 @@ const Delegate = require('../model/delegate')
 const logger = require('./logger')
 
 class ForgerManager {
-  constructor (config) {
+  constructor (config, password) {
+    this.password = password
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
     this.headers = {
@@ -16,7 +17,7 @@ class ForgerManager {
   loadDelegates () {
     if (!this.secrets) { return Promise.reject(new Error('No delegates found')) }
 
-    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
     return Promise.resolve(this.delegates)
   }
 

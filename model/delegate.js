@@ -1,12 +1,30 @@
 const arkjs = require('arkjs')
+const bip38 = require('bip38')
+const wif = require('wif')
 const crypto = require('crypto')
 const Block = require('./block')
 
 class Delegate {
-  constructor (passphrase, network) {
-    this.keys = arkjs.crypto.getKeys(passphrase)
+  constructor (passphrase, network, password) {
+    this.keys = bip38.verify(passphrase) ? this.decrypt(passphrase, network, password) : arkjs.crypto.getKeys(passphrase)
     this.publicKey = this.keys.publicKey
     this.address = this.keys.getAddress(network.pubKeyHash)
+  }
+
+  static encrypt (passphrase, network, password) {
+    const keys = arkjs.crypto.getKeys(passphrase, network)
+    const wifKey = keys.toWIF()
+    const decoded = wif.decode(wifKey)
+
+    const encryptedKey = bip38.encrypt(decoded.privateKey, decoded.compressed, password)
+
+    return encryptedKey
+  }
+
+  decrypt (passphrase, network, password) {
+    const decryptedWif = bip38.decrypt(passphrase, password)
+    const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
+    return arkjs.ECPair.fromWIF(wifKey, network)
   }
 
   // we consider transactions are signed, verified and unique
