@@ -1,6 +1,7 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
 const Transaction = requireFrom('model/transaction')
+const buildFilterQuery = requireFrom('../utils/filter-query')
 
 class TransactionsRepository {
   constructor (db) {
@@ -43,14 +44,10 @@ class TransactionsRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = 0
-
-    if (pager.page > 1) {
-      offset = pager.page * pager.perPage
-    }
+    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
     return this.all(Object.assign(queryParams, {
-      offset: offset,
+      offset,
       limit: pager.perPage
     }))
   }
@@ -68,44 +65,23 @@ class TransactionsRepository {
   }
 
   paginateAllBySender (senderPublicKey, pager) {
-    return this.paginate(pager, {
-      where: {
-          senderPublicKey: senderPublicKey
-      }
-    })
+    return this.paginate(pager, { where: { senderPublicKey } })
   }
 
   paginateAllByRecipient (recipientId, pager) {
-    return this.paginate(pager, {
-      where: {
-        recipientId: recipientId
-      }
-    })
+    return this.paginate(pager, { where: {recipientId} })
   }
 
   paginateVotesBySender (senderPublicKey, pager) {
-    return this.paginate(pager, {
-      where: {
-        senderPublicKey: senderPublicKey,
-        type: 3
-      }
-    })
+    return this.paginate(pager, { where: { senderPublicKey, type: 3 } })
   }
 
   paginateByBlock (blockId, pager) {
-    return this.paginate(pager, {
-      where: {
-        blockId: blockId
-      }
-    })
+    return this.paginate(pager, { where: { blockId } })
   }
 
   paginateByType (type, pager) {
-    return this.paginate(pager, {
-      where: {
-        type: type
-      }
-    })
+    return this.paginate(pager, { where: { type } })
   }
 
   findById (id) {
@@ -114,10 +90,7 @@ class TransactionsRepository {
 
   findByIdAndType (id, type) {
     return this.db.transactionsTable.findOne({
-      where: {
-        id: id,
-        type: type
-      }
+      where: {id, type}
     })
   }
 
@@ -134,43 +107,19 @@ class TransactionsRepository {
     })
   }
 
-  search (queryParams) {
-    let where = {}
-
-    const exactFilters = ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId']
-    const betweenFilters = ['timestamp', 'amount', 'fee']
-    const wildcardFilters = ['vendorFieldHex']
-    for (const elem of exactFilters) {
-      if (queryParams[elem]) {
-        where[elem] = queryParams[elem]
-      }
-    }
-    for (const elem of betweenFilters) {
-      if (!queryParams[elem]) {
-        continue;
-      }
-      if (!queryParams[elem].from && !queryParams[elem].to) {
-        where[elem] = queryParams[elem]
-      } else if (queryParams[elem].from || queryParams[elem].to) {
-        where[elem] = {}
-        if (queryParams[elem].from) {
-          where[elem][Op.gte] = queryParams[elem].from
-        }
-        if (queryParams[elem].to) {
-          where[elem][Op.lte] = queryParams[elem].to
-        }
-      }
-    }
-    for (const elem of wildcardFilters) {
-      if (queryParams[elem]) {
-        where[elem] = {
-          [Op.like]: `%${queryParams[elem]}%`
-        }
-      }
-    }
-
+  search (params) {
     return this.db.transactionsTable
-      .findAndCountAll({ attributes: ['serialized'], where })
+      .findAndCountAll({
+        attributes: ['serialized'],
+        where: buildFilterQuery(
+          params,
+          {
+            exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+            between: ['timestamp', 'amount', 'fee'],
+            wildcard: ['vendorFieldHex']
+          }
+        )
+      })
       .then(results => {
         return {
           count: results.count,

@@ -26,7 +26,7 @@ class TransactionsController {
     helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
-  search(req, res, next) {
+  search (req, res, next) {
     db.transactions
       .search(req.body)
       .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
