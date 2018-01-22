@@ -1,64 +1,37 @@
-const querystring = require('querystring')
-
 module.exports = class Paginator {
-  constructor (request, count, pager) {
-    this.request = request
+  constructor (count, pager) {
     this.count = count
-    this.page = pager.offset
-    this.perPage = pager.limit
-    this.totalPages = Math.round(count / pager.limit)
+    this.cursor = pager.offset
+    this.limit = pager.limit
   }
 
   meta () {
     return {
-      page: this.offset,
-      per_page: this.limit,
-      total: this.totalPages
+      cursor: {
+        previous: this.previous(),
+        current: this.current(),
+        next: this.next(),
+        count: this.limit
+      },
+      count: this.count
     }
   }
 
-  links () {
-    return {
-      first_page_url: this.firstPageUrl(),
-      last_page_url: this.lastPageUrl(),
-      next_page_url: this.nextPageUrl(),
-      prev_page_url: this.previousPageUrl()
-    }
+  current () {
+    const current = this.cursor
+
+    return (current === 0) ? null : current
   }
 
-  firstPageUrl () {
-    return this.toFullUrl({
-      page: 1
-    })
+  next () {
+    const next = this.cursor + this.limit
+
+    return (next >= this.count) ? null : next
   }
 
-  lastPageUrl () {
-    return this.toFullUrl({
-      page: this.totalPages
-    })
-  }
+  previous () {
+    const previous = this.cursor - this.limit
 
-  nextPageUrl () {
-    return this.toFullUrl({
-      page: (this.page >= this.totalPages) ? this.totalPages : this.page + 1
-    })
-  }
-
-  previousPageUrl () {
-    return this.toFullUrl({
-      page: (this.page <= 1) ? 1 : this.page - 1
-    })
-  }
-
-  toFullUrl (query) {
-    if (query.page <= 0) {
-      query.page = 1
-    }
-
-    if (this.perPage > 0) {
-      query.perPage = this.perPage
-    }
-
-    return this.request.path() + '?' + querystring.stringify(query)
+    return (previous <= 0) ? null : previous
   }
 }
