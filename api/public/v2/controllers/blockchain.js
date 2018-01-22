@@ -4,15 +4,11 @@ const helpers = require('../helpers')
 
 class BlockchainController {
   index (req, res, next) {
-    helpers.respondWith('ok', {
-      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height)
-    })
+    helpers.respondWith('ok', config.getConstants(blockchain.getInstance().status.lastBlock.data.height))
   }
 
   fees (req, res, next) {
-    helpers.respondWith('ok', {
-      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send
-    })
+    helpers.respondWith('ok', config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.send)
   }
 }
 

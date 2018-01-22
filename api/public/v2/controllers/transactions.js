@@ -3,9 +3,9 @@ const helpers = require('../helpers')
 
 class TransactionsController {
   index (req, res, next) {
-    db.transactions.paginate(helpers.getPaginator()).then(transactions => {
-      helpers.respondWithPagination(transactions, 'transaction')
-    })
+    db.transactions
+      .paginate(helpers.getPaginator())
+      .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
   }
 
   store (req, res, next) {
@@ -13,9 +13,9 @@ class TransactionsController {
   }
 
   show (req, res, next) {
-    db.transactions.findById(req.params.id).then(transaction => {
-      helpers.respondWithResource(transaction, 'transaction')
-    })
+    db.transactions
+      .findById(req.params.id)
+      .then(transaction => helpers.respondWithResource(transaction, 'transaction'))
   }
 
   unconfirmed (req, res, next) {
