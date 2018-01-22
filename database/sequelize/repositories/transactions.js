@@ -1,5 +1,6 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
+const Transaction = requireFrom('model/transaction')
 
 class TransactionsRepository {
   constructor (db) {
@@ -131,6 +132,51 @@ class TransactionsRepository {
         }
       }
     })
+  }
+
+  search (queryParams) {
+    let where = {}
+
+    const exactFilters = ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId']
+    const betweenFilters = ['timestamp', 'amount', 'fee']
+    const wildcardFilters = ['vendorFieldHex']
+    for (const elem of exactFilters) {
+      if (queryParams[elem]) {
+        where[elem] = queryParams[elem]
+      }
+    }
+    for (const elem of betweenFilters) {
+      if (!queryParams[elem]) {
+        continue;
+      }
+      if (!queryParams[elem].from && !queryParams[elem].to) {
+        where[elem] = queryParams[elem]
+      } else if (queryParams[elem].from || queryParams[elem].to) {
+        where[elem] = {}
+        if (queryParams[elem].from) {
+          where[elem][Op.gte] = queryParams[elem].from
+        }
+        if (queryParams[elem].to) {
+          where[elem][Op.lte] = queryParams[elem].to
+        }
+      }
+    }
+    for (const elem of wildcardFilters) {
+      if (queryParams[elem]) {
+        where[elem] = {
+          [Op.like]: `%${queryParams[elem]}%`
+        }
+      }
+    }
+
+    return this.db.transactionsTable
+      .findAndCountAll({ attributes: ['serialized'], where })
+      .then(results => {
+        return {
+          count: results.count,
+          rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+        }
+      })
   }
 }
 

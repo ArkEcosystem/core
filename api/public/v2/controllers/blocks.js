@@ -21,6 +21,12 @@ class BlocksController {
         .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
     })
   }
+
+  search(req, res, next) {
+    db.blocks
+      .search(req.body)
+      .then(blocks => helpers.respondWithPagination(blocks, 'block'))
+  }
 }
 
 module.exports = new BlocksController()

@@ -41,7 +41,7 @@ module.exports = class Helpers {
         meta: paginator.meta()
       })
     } else {
-      responder.resourceNotFound('Record could not be found.')
+      responder.noContent('Record could not be found.')
     }
 
     State.getNext()
@@ -65,7 +65,7 @@ module.exports = class Helpers {
     if (data) {
       responder.ok({ data: this.toCollection(data, transformerClass) })
     } else {
-      responder.resourceNotFound('Record could not be found.')
+      responder.noContent('Record could not be found.')
     }
 
     State.getNext()

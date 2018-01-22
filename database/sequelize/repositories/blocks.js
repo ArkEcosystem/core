@@ -73,6 +73,40 @@ class BlocksRepository {
       }
     })
   }
+
+  search(queryParams) {
+    let where = {}
+
+    const exactFilters = ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature']
+    const betweenFilters = ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+    for (const elem of exactFilters) {
+      if (queryParams[elem]) {
+        where[elem] = queryParams[elem]
+      }
+    }
+    for (const elem of betweenFilters) {
+      if (!queryParams[elem]) {
+        continue;
+      }
+      if (!queryParams[elem].from && !queryParams[elem].to) {
+        where[elem] = queryParams[elem]
+      } else if (queryParams[elem].from || queryParams[elem].to) {
+        where[elem] = {}
+        if (queryParams[elem].from) {
+          where[elem][Op.gte] = queryParams[elem].from
+        }
+        if (queryParams[elem].to) {
+          where[elem][Op.lte] = queryParams[elem].to
+        }
+      }
+    }
+
+    console.log('WHERE', where);
+
+    return this.db.blocksTable.findAndCountAll({
+      where
+    })
+  }
 }
 
 module.exports = BlocksRepository
