@@ -78,7 +78,7 @@ class BlocksRepository {
     let where = {}
 
     const exactFilters = ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature']
-    const betweenFilters = ['createdAt', 'timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+    const betweenFilters = ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
     for (const elem of exactFilters) {
       if (queryParams[elem]) {
         where[elem] = queryParams[elem]
@@ -93,18 +93,10 @@ class BlocksRepository {
       } else if (queryParams[elem].from || queryParams[elem].to) {
         where[elem] = {}
         if (queryParams[elem].from) {
-          if (elem === 'createdAt') {
-            where[elem][Op.gte] = moment(queryParams[elem].from).endOf('day').toDate()
-          } else {
-            where[elem][Op.gte] = queryParams[elem].from
-          }
+          where[elem][Op.gte] = queryParams[elem].from
         }
         if (queryParams[elem].to) {
-          if (elem === 'createdAt') {
-            where[elem][Op.lte] = moment(queryParams[elem].to).endOf('day').toDate()
-          } else {
-            where[elem][Op.lte] = queryParams[elem].to
-          }
+          where[elem][Op.lte] = queryParams[elem].to
         }
       }
     }
