@@ -30,9 +30,15 @@ class Logger {
         rotatetransport
       ]
     }))
+    this.filters.push((level, msg, meta) => {
+      if (this.tracker) {
+        process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
+        this.tracker = false
+      }
+      return msg
+    })
   }
 
-  // TODO: add some interception in winston logging event to add \n at then end of tracker if a new log is going to be printed
   printTracker (title, current, max, posttitle, figures = 0) {
     const progress = 100 * current / max
     let line = '\u{1b}[0G  '
@@ -44,9 +50,10 @@ class Logger {
     if (progress.toFixed(4) === hundred.toFixed(4)) line += '✔️                              \n'
     else {
       line += progress.toFixed(figures) + '% '
-      if (posttitle) line += posttitle + ' '
+      if (posttitle) line += posttitle + '                     '
     }
     process.stdout.write(line)
+    this.tracker = true
   }
 }
 
