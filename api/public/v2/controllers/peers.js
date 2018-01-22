@@ -29,17 +29,13 @@ class PeersController {
 
   show (req, res, next) {
     blockchain.getInstance().networkInterface.getPeers()
-      .then(peers => {
-        helpers.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer')
-    })
+      .then(peers => helpers.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer'))
   }
 
   me (req, res, next) {
     publicIp.v4().then(ip => {
       blockchain.getInstance().networkInterface.getPeers()
-        .then(peers => {
-          helpers.respondWithResource(peers.find(p => p.ip === ip), 'peer')
-      })
+        .then(peers => helpers.respondWithResource(peers.find(p => p.ip === ip), 'peer'))
     })
   }
 }

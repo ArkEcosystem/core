@@ -21,7 +21,7 @@ describe('Model | Delegate', () => {
       xit('doesn\'t sort the transactions', () => {
         const address = 'Abcde'
         const account = new Account(address)
-        account.balance = Math.pow(10, 8)
+        account.balance = 10 ** 8
 
         expect(account.toString()).to.eql(`${address}=1`)
       })

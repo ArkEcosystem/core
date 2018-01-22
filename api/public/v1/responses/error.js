@@ -1,3 +1,3 @@
-module.exports = (data, headers = {}) => {
-  require('./response').send(200, Object.assign(data, { success: false }), headers)
+module.exports = (error, headers = {}) => {
+  require('./response').send(200, Object.assign({error}, { success: false }), headers)
 }

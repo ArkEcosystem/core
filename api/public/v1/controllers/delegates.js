@@ -1,15 +1,13 @@
-const blockchain = requireFrom('core/blockchainManager')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
 const db = requireFrom('core/dbinterface').getInstance()
 const helpers = require('../helpers')
 
 class DelegatesController {
   index (req, res, next) {
-    db.delegates.all().then(result => {
-      helpers.respondWith('ok', {
-        data: result
-      })
-    })
+    db.delegates
+      .all()
+      .then(delegates => helpers.respondWith('ok', {delegates}))
   }
 
   show (req, res, next) {
@@ -30,7 +28,7 @@ class DelegatesController {
 
   fee (req, res, next) {
     helpers.respondWith('ok', {
-      data: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.delegate
+      data: config.getConstants(blockchain.status.lastBlock.data.height).fees.delegate
     })
   }
 

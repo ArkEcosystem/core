@@ -83,7 +83,7 @@ describe('Model | Account', () =>
       const address = 'Abcde'
       const account = new Account(address)
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
-      account.balance = balance * Math.pow(10, 8)
+      account.balance = balance * 10 ** 8
 
       expect(account.toString()).to.eql(`${address}=${balance}`)
     })

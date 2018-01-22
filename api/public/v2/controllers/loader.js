@@ -7,11 +7,9 @@ class LoaderController {
     const instance = blockchain.getInstance()
 
     helpers.respondWith('ok', {
-      data: {
-        loaded: instance.isSynced(instance.lastBlock),
-        now: instance.lastBlock ? instance.lastBlock.data.height : 0,
-        blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
-      }
+      loaded: instance.isSynced(instance.lastBlock),
+      now: instance.lastBlock ? instance.lastBlock.data.height : 0,
+      blocksCount: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height
     })
   }
 
@@ -19,24 +17,20 @@ class LoaderController {
     const instance = blockchain.getInstance()
 
     helpers.respondWith('ok', {
-      data: {
-        syncing: !instance.isSynced(instance.lastBlock),
-        blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
-        height: instance.lastBlock.data.height,
-        id: instance.lastBlock.data.id
-      }
+      syncing: !instance.isSynced(instance.lastBlock),
+      blocks: instance.networkInterface.getNetworkHeight() - instance.lastBlock.data.height,
+      height: instance.lastBlock.data.height,
+      id: instance.lastBlock.data.id
     })
   }
 
   configuration (req, res, next) {
     helpers.respondWith('ok', {
-      data: {
-        nethash: config.network.nethash,
-        token: config.network.client.token,
-        symbol: config.network.client.symbol,
-        explorer: config.network.client.explorer,
-        version: config.network.pubKeyHash
-      }
+      nethash: config.network.nethash,
+      token: config.network.client.token,
+      symbol: config.network.client.symbol,
+      explorer: config.network.client.explorer,
+      version: config.network.pubKeyHash
     })
   }
 }

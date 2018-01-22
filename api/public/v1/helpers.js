@@ -14,7 +14,7 @@ module.exports = class Helpers {
     const request = State.getRequest()
 
     this.paginator = {
-      offset: parseInt(request.query.offset || 1),
+      offset: parseInt(request.query.offset || 0),
       limit: parseInt(request.query.limit || 100)
     }
 
