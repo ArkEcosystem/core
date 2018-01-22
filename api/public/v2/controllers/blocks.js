@@ -3,22 +3,22 @@ const helpers = require('../helpers')
 
 class BlocksController {
   index (req, res, next) {
-    db.blocks.all(helpers.getPaginator()).then(blocks => {
-      helpers.respondWithPagination(blocks, 'block')
-    })
+    db.blocks
+      .all(helpers.getPaginator())
+      .then(blocks => helpers.respondWithPagination(blocks, 'block'))
   }
 
   show (req, res, next) {
-    db.blocks.findById(req.params.id).then(block => {
-      helpers.respondWithResource(block, 'block')
-    })
+    db.blocks
+      .findById(req.params.id)
+      .then(block => helpers.respondWithResource(block, 'block'))
   }
 
   transactions (req, res, next) {
     db.blocks.findById(req.params.id).then(block => {
-      db.blocks.paginateByBlock(block.id, helpers.getPaginator()).then(transactions => {
-        helpers.respondWithPagination(transactions, 'transaction')
-      })
+      db.blocks
+        .paginateByBlock(block.id, helpers.getPaginator())
+        .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
     })
   }
 }
