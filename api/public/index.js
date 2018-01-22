@@ -59,7 +59,7 @@ class PublicAPI {
   startServer () {
     this.server
       .on('uncaughtException', (req, res, route, error) => {
-        const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[State.getRequest().version()]
+        const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[req.version()]
         const helpers = require(`./${version}/helpers`)
 
         version === 'v1'
