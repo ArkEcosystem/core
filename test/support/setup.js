@@ -8,7 +8,7 @@ const config = require('core/config')
 chai.use(sinonChai)
 chai.use(chaiHttp)
 
-const conf = 'config/testnet/'
+const conf = 'config/devnet/'
 
 config.init({
   server: require(path.resolve(conf, 'server.json')),
