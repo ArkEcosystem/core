@@ -58,9 +58,16 @@ class PublicAPI {
 
   startServer () {
     this.server
-      // .on('InternalServer', (req, res, route, err) => require('./v1/helpers').respondWith('ok', {err}))
-      // .on('uncaughtException', (req, res, route, err) => require('./v1/helpers').respondWith('ok', {err}))
-      // .on('restifyError', (req, res, err, cb) => require('./v1/helpers').respondWith('ok', {err}))
+      .on('uncaughtException', (req, res, route, error) => {
+        const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[State.getRequest().version()]
+        const helpers = require(`./${version}/helpers`)
+
+        version === 'v1'
+          ? helpers.respondWith('error', error.message)
+          : helpers.respondWith('InternalServer', error.message)
+
+        return true
+      })
       .listen(this.config.server.api.port, () => logger.info(`[${this.server.name}] listening on [${this.server.url}] 📦`))
   }
 
