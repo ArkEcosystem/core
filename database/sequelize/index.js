@@ -13,7 +13,6 @@ class SequelizeDB extends DBInterface {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
     }
-    this.localaccounts = {}
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
       logging: !!params.logging

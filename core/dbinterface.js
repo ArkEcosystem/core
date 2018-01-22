@@ -32,6 +32,7 @@ class DBInterface {
 
   static create (config) {
     const db = new (require(path.resolve(config.driver)))()
+    db.localaccounts = {}
 
     return db
       .init(config)
@@ -163,6 +164,17 @@ class DBInterface {
     let sender = this.localaccounts[senderId] // should exist
     if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
     return sender.canApply(transaction.data)
+  }
+
+  canApplyTransaction (transaction) {
+    switch (transaction.type) {
+      case 2: // expensive
+        return !this.localaccounts.find(a => a.username.toLowerCase() === transaction.asset.delegate.username.toLowerCase())
+
+      case 3: // expensive
+        const delegateKey = transaction.asset.votes[0].slice(1)
+        return !!this.localaccounts.find(a => !!a.username && a.publicKey === delegateKey)
+    }
   }
 
   applyTransaction (transaction) {

@@ -29,13 +29,13 @@ class Account {
           this.secondPublicKey = transaction.asset.signature.publicKey
           break
         case 2:
-          this.username = transaction.asset.username
+          this.username = transaction.asset.delegate.username
           break
         case 3:
           if (transaction.asset.votes[0].startsWith('+')) {
             this.vote = transaction.asset.votes[0].slice(1)
           } else if (transaction.asset.votes[0].startsWith('-')) {
-            this.vote = this.previousVote
+            this.vote = null
           }
           break
         case 4:
@@ -56,7 +56,11 @@ class Account {
           this.username = null
           break
         case 3:
-          if (transaction.asset.votes[0].startsWith('+')) { this.vote = null } else if (transaction.asset.votes[0].startsWith('-')) { this.vote = transaction.asset.votes[0].slice(1) }
+          if (transaction.asset.votes[0].startsWith('+')) {
+            this.vote = null
+          } else if (transaction.asset.votes[0].startsWith('-')) {
+            this.vote = transaction.asset.votes[0].slice(1)
+          }
           break
         case 4:
           this.multisignature = null
@@ -66,7 +70,6 @@ class Account {
         case 6:
           break
         case 7:
-          this.multisignature = null
           break
       }
       this.dirty = true
@@ -121,7 +124,8 @@ class Account {
         return !this.secondPublicKey
 
       case 2:
-        return !this.username
+        const username = transaction.asset.delegate.username
+        return !this.username && username && username === username.toLowerCase()
 
       case 3:
         if (transaction.asset.votes[0].startsWith('-') && this.vote) return true
@@ -129,7 +133,7 @@ class Account {
         else return false
 
       case 4:
-        return !this.multisignature && this.verifySignatures(transaction, transaction.asset.multisignature)
+        return !this.multisignature && transaction.asset.multisignature.keysgroup.length >= transaction.asset.multisignature.min - 1 && transaction.asset.multisignature.keysgroup.length === transaction.signatures.length && this.verifySignatures(transaction, transaction.asset.multisignature)
 
       case 5:
         return true
@@ -151,11 +155,12 @@ class Account {
   verifySignatures (transaction, multisignature) {
     if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) return false
     let index = 0
-    let publicKey = multisignature.keysgroup[index]
+    let publicKey = multisignature.keysgroup[index].slice(1)
+
     for (let i in transaction.signatures) {
       if (!verify(transaction, transaction.signatures[i], publicKey)) {
         if (index++ > transaction.signatures.length - 1) return false
-        else publicKey = multisignature.keysgroup[index]
+        else if (index < multisignature.keysgroup.length) publicKey = multisignature.keysgroup[index].slice(1)
       }
     }
     return true
@@ -164,7 +169,6 @@ class Account {
 
 function verify (transaction, signature, publicKey) {
   const hash = arkjs.crypto.getHash(transaction)
-
   const signSignatureBuffer = Buffer.from(signature, 'hex')
   const publicKeyBuffer = Buffer.from(publicKey, 'hex')
   const ecpair = arkjs.ECPair.fromPublicKeyBuffer(publicKeyBuffer, config.network)
