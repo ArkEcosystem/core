@@ -46,7 +46,10 @@ class Config {
   }
 
   ntp () {
-    return Sntp.time()
+    return Sntp.time().catch(e => {
+      console.warn('can\'t ping ntp')
+      return Promise.resolve({t: 0})
+    })
   }
 
   getConstants (height) {

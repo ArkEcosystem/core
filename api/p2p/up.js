@@ -145,13 +145,23 @@ class Up {
   }
 
   sendBlockchainEvent (req, res, next) {
-    if (req.query.param) blockchain.getInstance()[req.params.event](req.params.param)
-    else blockchain.getInstance()[req.params.event]()
-    res.send(200, {
-      success: true,
-      event: req.params.event
-    })
-    next()
+    const bm = blockchain.getInstance()
+    if (!bm[req.params.event]) {
+      res.send(500, {
+        success: false,
+        event: req.params.event,
+        message: 'No such event'
+      })
+      next()
+    } else {
+      if (req.query.param) blockchain.getInstance()[req.params.event](req.params.param)
+      else blockchain.getInstance()[req.params.event]()
+      res.send(200, {
+        success: true,
+        event: req.params.event
+      })
+      next()
+    }
   }
 
   getStatus (req, res, next) {

@@ -1,11 +1,16 @@
 const Peer = require('./peer.js')
 const logger = requireFrom('core/logger')
+const dns = require('dns')
 
 class Down {
   constructor (config) {
     this.config = config
     this.peers = {}
     config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+  }
+
+  isOnline () {
+    dns.lookupService('8.8.8.8', 53, (err, hostname, service) => !err)
   }
 
   start (p2p) {
@@ -18,6 +23,18 @@ class Down {
       .cleanPeers()
       .then(() => this.discoverPeers())
       .then(() => this.cleanPeers())
+      .then(() => {
+        if (Object.keys(this.peers).length < 2) {
+          this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+          return this.updateNetworkStatus()
+        }
+        return Promise.resolve()
+      })
+      .catch(error => {
+        logger.error(error)
+        this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+        return this.updateNetworkStatus()
+      })
   }
 
   stop () {
@@ -66,6 +83,9 @@ class Down {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
+      this.isOnline(online => {
+        if (!online) logger.error('Seems the noe cannott access to internet (tested google DNS)')
+      })
       return this.getRandomPeer()
     }
     return randomPeer
@@ -88,7 +108,7 @@ class Down {
   discoverPeers () {
     const that = this
     return this.getRandomPeer().getPeers()
-      .then((list) => {
+      .then(list => {
         list.forEach(peer => {
           if (peer.status === 'OK' && !that.peers[peer.ip]) {
             that.peers[peer.ip] = new Peer(peer.ip, peer.port, that.config)
