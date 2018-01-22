@@ -60,7 +60,7 @@ module.exports = class Helpers {
     if (data) {
       responder.ok({ data: this.toResource(data, transformerClass) })
     } else {
-      responder.noContent('Record could not be found.')
+      responder.resourceNotFound('Record could not be found.')
     }
 
     State.getNext()
