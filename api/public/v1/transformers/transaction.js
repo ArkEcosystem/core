@@ -19,6 +19,7 @@ module.exports = (model) => {
     senderPublicKey: data.senderPublicKey,
     signature: data.signature,
     asset: data.asset,
-    confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
+    confirmations: 0
+    // confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
   }
 }

@@ -52,7 +52,7 @@ class StatisticsController {
 
   transactions (req, res, next) {
     db.transactions
-      .allByDateAndType(0, req.query.from, req.query.to)
+      .allByDateAndType(0, req.params.from, req.params.to)
       .then(blocks => helpers.respondWith('ok', {
         count: blocks.count,
         amount: _.sumBy(blocks.rows, 'amount'),
@@ -62,7 +62,7 @@ class StatisticsController {
 
   blocks (req, res, next) {
     db.blocks
-      .allByDateTimeRange(req.query.from, req.query.to)
+      .allByDateTimeRange(req.params.from, req.params.to)
       .then(blocks => helpers.respondWith('ok', {
         count: blocks.count,
         rewards: _.sumBy(blocks.rows, 'reward'),
@@ -72,7 +72,7 @@ class StatisticsController {
 
   votes (req, res, next) {
     db.transactions
-      .allByDateAndType(3, req.query.from, req.query.to)
+      .allByDateAndType(3, req.params.from, req.params.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('+')))
       .then(transactions => helpers.respondWith('ok', {
         count: transactions.length,
@@ -83,7 +83,7 @@ class StatisticsController {
 
   unvotes (req, res, next) {
     db.transactions
-      .allByDateAndType(3, req.query.from, req.query.to)
+      .allByDateAndType(3, req.params.from, req.params.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('-')))
       .then(transactions => helpers.respondWith('ok', {
         count: transactions.length,

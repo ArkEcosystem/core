@@ -11,6 +11,7 @@ describe('GET api/accounts/?address', () => {
   it('should return account/wallet information', (done) => {
     chai.request(base)
       .get(`/api/accounts/?address=${AddressActive}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -28,6 +29,7 @@ describe('GET api/accounts/?address', () => {
   it('should return error with Not Found', (done) => {
     chai.request(base)
       .get(`/api/accounts/?address=${AddressCold}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -42,6 +44,7 @@ describe('GET api/accounts/getBalance?address', () => {
   it('should return balance', (done) => {
     chai.request(base)
       .get(`/api/accounts/getBalance?address=${AddressActive}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -55,6 +58,7 @@ describe('GET api/accounts/getBalance?address', () => {
   it('should return info not existing address', (done) => {
     chai.request(base)
       .get(`/api/accounts/getBalance?address=${AddressCold}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -69,6 +73,7 @@ describe('GET /api/accounts/getPublicKey?address', () => {
   it('should return public key for address', (done) => {
     chai.request(base)
       .get(`/api/accounts/getPublicKey?address=${AddressActive}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -81,6 +86,7 @@ describe('GET /api/accounts/getPublicKey?address', () => {
   it('should return info not existing address', (done) => {
     chai.request(base)
       .get(`/api/accounts/getPublicKey?address=${AddressCold}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -95,6 +101,7 @@ describe('GET /api/accounts/delegates?address', () => {
   it('should return delegate info the address has voted for', (done) => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressActive}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -108,6 +115,7 @@ describe('GET /api/accounts/delegates?address', () => {
   it('should return info that the address is not found', (done) => {
     chai.request(base)
       .get(`/api/accounts/delegates?address=${AddressCold}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 

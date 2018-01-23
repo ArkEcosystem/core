@@ -8,7 +8,7 @@ class TransactionsRepository {
     this.db = db
   }
 
-  all (queryParams) {
+  all (queryParams, legacy = false) {
     let whereStatement = {}
     let orderBy = []
 
@@ -29,6 +29,21 @@ class TransactionsRepository {
       if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(queryParams.orderBy.split(':'))
     }
 
+    // Version 1
+    if (legacy) {
+      return this.db.transactionsTable.findAndCountAll({
+        where: whereStatement,
+        order: orderBy,
+        offset: parseInt(queryParams.offset || 1),
+        limit: parseInt(queryParams.limit || 100),
+        include: {
+          model: this.db.blocksTable,
+          attributes: ['height']
+        }
+      })
+    }
+
+    // Version 2
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
       where: whereStatement,
@@ -39,7 +54,8 @@ class TransactionsRepository {
         model: this.db.blocksTable,
         attributes: ['height']
       }
-    }).then(results => {
+    })
+    .then(results => {
       return {
         count: results.count,
         rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
@@ -93,9 +109,7 @@ class TransactionsRepository {
   }
 
   findByIdAndType (id, type) {
-    return this.db.transactionsTable.findOne({
-      where: {id, type}
-    })
+    return this.db.transactionsTable.findOne({ where: {id, type} })
   }
 
   allByDateAndType (type, from, to) {
