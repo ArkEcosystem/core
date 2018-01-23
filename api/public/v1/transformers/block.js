@@ -1,7 +1,7 @@
-const blockchain = requireFrom('core/blockchainManager')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 
 module.exports = (model) => {
-  const lastBlock = blockchain.getInstance().status.lastBlock
+  const lastBlock = blockchain.status.lastBlock
 
   return {
     id: model.id,
