@@ -19,19 +19,18 @@ class TransactionsRepository {
 
     if (queryParams['senderId']) {
       let account = this.db.localaccounts[queryParams['senderId']]
-      if (account) {
-        whereStatement['senderPublicKey'] = account.publicKey
-      }
+
+      if (account) whereStatement['senderPublicKey'] = account.publicKey
     }
 
     if (queryParams.orderBy) {
       let order = queryParams.orderBy.split(':')
-      if (['timestamp', 'type', 'amount'].includes(order[0])) {
-        orderBy.push(queryParams.orderBy.split(':'))
-      }
+
+      if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(queryParams.orderBy.split(':'))
     }
 
     return this.db.transactionsTable.findAndCountAll({
+      attributes: ['serialized'],
       where: whereStatement,
       order: orderBy,
       offset: parseInt(queryParams.offset || 1),
@@ -39,6 +38,11 @@ class TransactionsRepository {
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
+      }
+    }).then(results => {
+      return {
+        count: results.count,
+        rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
       }
     })
   }
@@ -96,13 +100,18 @@ class TransactionsRepository {
 
   allByDateAndType (type, from, to) {
     return this.db.transactionsTable.findAndCountAll({
-      attributes: ['amount', 'fee'],
+      attributes: ['serialized'],
       where: {
         type: type,
         createdAt: {
           [Op.lte]: moment(to).endOf('day').toDate(),
           [Op.gte]: moment(from).startOf('day').toDate()
         }
+      }
+    }).then(results => {
+      return {
+        count: results.count,
+        rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
       }
     })
   }

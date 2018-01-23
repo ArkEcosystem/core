@@ -29,23 +29,21 @@ class StatisticsController {
         const walletsByProductivity = _.sortBy(accounts, 'productivity')
 
         helpers.respondWith('ok', {
-          data: {
-            supply: {
-              initial: initialSupply * 10 ** 8,
-              current: (initialSupply + ((height - config.getConstants(height).height) * rewardPerBlock)) * 10 ** 8
-            },
-            blocks: {
-              forged: height,
-              rewards: height * rewardPerBlock
-            },
-            rewards: {
-              start: constants.height,
-              total: height * rewardPerBlock
-            },
-            productivity: {
-              best: walletsByProductivity[0],
-              worst: walletsByProductivity.reverse()[0]
-            }
+          supply: {
+            initial: initialSupply * 10 ** 8,
+            current: (initialSupply + ((height - config.getConstants(height).height) * rewardPerBlock)) * 10 ** 8
+          },
+          blocks: {
+            forged: height,
+            rewards: height * rewardPerBlock
+          },
+          rewards: {
+            start: constants.height,
+            total: height * rewardPerBlock
+          },
+          productivity: {
+            best: walletsByProductivity[0],
+            worst: walletsByProductivity.reverse()[0]
           }
         })
       })
@@ -53,27 +51,45 @@ class StatisticsController {
   }
 
   transactions (req, res, next) {
-    db.transactions.allByDateAndType(0, req.query.from, req.query.to).then(blocks => {
-      helpers.respondWith('ok', {
-        data: {
-          count: blocks.count,
-          amount: _.sumBy(blocks.rows, 'amount'),
-          fees: _.sumBy(blocks.rows, 'fee')
-        }
-      })
-    })
+    db.transactions
+      .allByDateAndType(0, req.query.from, req.query.to)
+      .then(blocks => helpers.respondWith('ok', {
+        count: blocks.count,
+        amount: _.sumBy(blocks.rows, 'amount'),
+        fees: _.sumBy(blocks.rows, 'fee')
+      }))
   }
 
   blocks (req, res, next) {
-    db.blocks.allByDateTimeRange(req.query.from, req.query.to).then(blocks => {
-      helpers.respondWith('ok', {
-        data: {
-          count: blocks.count,
-          rewards: _.sumBy(blocks.rows, 'reward'),
-          fees: _.sumBy(blocks.rows, 'totalFee')
-        }
-      })
-    })
+    db.blocks
+      .allByDateTimeRange(req.query.from, req.query.to)
+      .then(blocks => helpers.respondWith('ok', {
+        count: blocks.count,
+        rewards: _.sumBy(blocks.rows, 'reward'),
+        fees: _.sumBy(blocks.rows, 'totalFee')
+      }))
+  }
+
+  votes (req, res, next) {
+    db.transactions
+      .allByDateAndType(3, req.query.from, req.query.to)
+      .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('+')))
+      .then(transactions => helpers.respondWith('ok', {
+        count: transactions.length,
+        amount: _.sumBy(transactions.rows, 'amount'),
+        fees: _.sumBy(transactions, 'fee')
+      }))
+  }
+
+  unvotes (req, res, next) {
+    db.transactions
+      .allByDateAndType(3, req.query.from, req.query.to)
+      .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('-')))
+      .then(transactions => helpers.respondWith('ok', {
+        count: transactions.length,
+        amount: _.sumBy(transactions.rows, 'amount'),
+        fees: _.sumBy(transactions, 'fee')
+      }))
   }
 }
 
