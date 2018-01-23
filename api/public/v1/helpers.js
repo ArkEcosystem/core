@@ -26,7 +26,7 @@ module.exports = class Helpers {
 
     data
       ? responder[method](data)
-      : responder.internalServerError(this.response, 'Record could not be found.')
+      : responder.error('Record could not be found.')
 
     State.getNext()
   }
@@ -34,12 +34,12 @@ module.exports = class Helpers {
   static toResource (data, transformerClass) {
     this.getCurrentState()
 
-    return Transformer.resource(data, transformerClass)
+    return new Transformer(this.request).resource(data, transformerClass)
   }
 
   static toCollection (data, transformerClass) {
     this.getCurrentState()
 
-    return Transformer.collection(data, transformerClass)
+    return new Transformer(this.request).collection(data, transformerClass)
   }
 }

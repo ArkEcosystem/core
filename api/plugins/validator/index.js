@@ -26,13 +26,9 @@ module.exports = class Validator {
     let validate = this.ajv.compile(req.route.schema)
 
     if (!validate(requestData)) {
-      if (req.version() === '1.0.0') {
-        return responder.error(req, res, {
-          error: validate.errors[0].message
-        })
-      }
-
-      return responder.unprocessableEntity(res, validate.errors[0].message)
+      return (req.version() === '1.0.0')
+        ? responder.error(validate.errors[0].message)
+        : responder.unprocessableEntity(validate.errors[0].message)
     }
 
     return next()

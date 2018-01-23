@@ -1,5 +1,5 @@
 const controller = require('../controllers/transactions')
-const schema = require('../schemas/blocks')
+const schema = require('../schemas/transactions')
 
 module.exports = (registrar) => {
   registrar.get('transactions', controller.index, schema.getTransactions)

@@ -7,8 +7,21 @@ const base = 'http://localhost:4003'
 const Address1 = 'DQUjMT6fhJWbwhaYL5pPdX9v5qPiRcAzRb'
 const Address2 = 'DGihocTkwDygiFvmg6aG8jThYTic47GzU9'
 
-let transactionList = []
-// let offsetTimestamp = 0
+let transactionList = [{
+  'id': '3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9',
+  'blockid': '9635341524063110283',
+  'type': 0,
+  'timestamp': 6070813,
+  'amount': 10000000000,
+  'fee': 10000000,
+  'recipientId': 'DSZpph3ANnFw9D7NK4fAdLkigkYWPDBqk6',
+  'senderId': 'DBi2HdDY8TqMCD2aFLVomEF92gzeDmEHmR',
+  'senderPublicKey': '03bd4f16e39aaba5cba6a87b7498b08ce540f279be367e68ae96fb05dfabe203ad',
+  'signature': '3045022100c8932300eb39829bf8178728bf8ab96e4b3085f876073e18e18087d61a3a5360022061749eaa3a20a02a362f358c16a681b46b03c60a07972996386d92e65790af4f',
+  'confirmations': 0
+}]
+
+let offsetTimestamp = 0
 
 describe('GET /api/transactions', () => {
   it('using valid parameters should be ok', (done) => {
@@ -27,6 +40,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params.join('&'))
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -42,6 +56,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -59,13 +74,14 @@ describe('GET /api/transactions', () => {
   it('using no params should be ok', (done) => {
     chai.request(base)
       .get('/api/transactions')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body.transactions).that.is.an('array')
 
-        for (let i = 0; i < res.body.transactions.length; i++) {
-          expect(res.body.transactions[i].amount).to.be.a.number
+        for (let i = 0; i < res.body.transactions.length - 1; i++) {
+          expect(res.body.transactions[i].amount).to.be.a('number')
         }
 
         transactionList = res.body.transactions
@@ -83,6 +99,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -98,6 +115,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -125,10 +143,11 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
-        expect(res.body).to.have.property('error')
+        expect(res.body.transactions).that.is.an('array')
 
         done()
       })
@@ -140,6 +159,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -161,6 +181,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params.join('&'))
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -182,6 +203,7 @@ describe('GET /api/transactions', () => {
 
     chai.request(base)
       .get('/api/transactions?' + params.join('&'))
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -192,25 +214,25 @@ describe('GET /api/transactions', () => {
   })
 })
 
-describe('GET /api/transactions/get?id=', () => {
+describe('GET /api/transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
   it('using valid id should be ok', (done) => {
     let transactionInCheck = transactionList[0]
-    let params = 'id=' + transactionInCheck.txId
 
     chai.request(base)
-      .get('/api/transactions/get?' + params)
+      .get(`/api/transactions/get?id=${transactionInCheck.id}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
         expect(res.body).to.have.property('transaction').that.is.an('object')
-        expect(res.body.transaction.id).to.equal(transactionInCheck.txId)
+        expect(res.body.transaction.id).to.equal(transactionInCheck.id)
         // expect(res.body.transaction.amount / node.normalizer).to.equal(transactionInCheck.netSent)
         // expect(res.body.transaction.fee / node.normalizer).to.equal(transactionInCheck.fee)
-        expect(res.body.transaction.recipientId).to.equal(transactionInCheck.recipient)
-        expect(res.body.transaction.senderId).to.equal(transactionInCheck.sender)
+        expect(res.body.transaction.recipientId).to.equal(transactionInCheck.recipientId)
+        expect(res.body.transaction.senderId).to.equal(transactionInCheck.senderId)
         expect(res.body.transaction.type).to.equal(transactionInCheck.type)
 
-      done()
+        done()
     })
   })
 
@@ -219,6 +241,7 @@ describe('GET /api/transactions/get?id=', () => {
 
     chai.request(base)
       .get('/api/transactions/get?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -235,6 +258,7 @@ describe('GET /api/transactions/unconfirmed/get?id=', () => {
 
     chai.request(base)
       .get('/api/transactions/unconfirmed/get?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -253,10 +277,12 @@ describe('GET /api/transactions/unconfirmed', () => {
   it('should be ok', (done) => {
     chai.request(base)
     .get('/api/transactions/unconfirmed')
+      .set('Accept-Version', '1.0.0')
     .end((err, res) => {
       Helpers.ValidateResponseStatus(err, res, 200, true)
 
       expect(res.body.transactions).that.is.an('array')
+
       done()
     })
   })

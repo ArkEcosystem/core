@@ -7,6 +7,7 @@ describe('GET api/blocks/get?id', () => {
   it('should return blocks based on id', (done) => {
     chai.request(base)
       .get('/api/blocks/get?id=1877716674628308671')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
         expect(res.body.block.id).to.be.a('string')
@@ -19,6 +20,7 @@ describe('GET api/blocks/get?id', () => {
   it('should return block not found', (done) => {
     chai.request(base)
       .get('/api/blocks/get?id=18777we16674628308671')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -33,6 +35,7 @@ describe('GET api/blocks/?limit=XX', () => {
   it('should return 5 blocks', (done) => {
     chai.request(base)
       .get('/api/blocks?limit=5')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -46,6 +49,7 @@ describe('GET api/blocks/?limit=XX', () => {
   it('should return limit error info', (done) => {
     chai.request(base)
       .get('/api/blocks?limit=500')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -61,6 +65,7 @@ describe('GET /api/blocks/getfees', () => {
   it('should return matching fees with the config', (done) => {
     chai.request(base)
       .get('/api/blocks/getFees')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -77,6 +82,7 @@ describe('GET /api/blocks/getNethash', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/blocks/getNethash')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -92,6 +98,7 @@ describe('GET /api/blocks/getMilestone', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/blocks/getMilestone')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
         expect(res.body.milestone).to.be.a('number')
@@ -104,6 +111,7 @@ describe('GET /api/blocks/getReward', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/blocks/getReward')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
         expect(res.body.reward).to.be.a('number')
@@ -116,6 +124,7 @@ describe('GET /api/blocks/getSupply', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/blocks/getSupply')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
         expect(res.body.supply).to.be.a('number')
@@ -128,6 +137,7 @@ describe('GET /api/blocks/getStatus', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/blocks/getStatus')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 

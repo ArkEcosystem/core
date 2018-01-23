@@ -4,19 +4,23 @@ const helpers = require('../helpers')
 
 class LoaderController {
   status (req, res, next) {
+    const lastBlock = blockchain.status.lastBlock
+
     helpers.respondWith('ok', {
-      loaded: blockchain.isSynced(blockchain.lastBlock),
-      now: blockchain.lastBlock ? blockchain.lastBlock.data.height : 0,
-      blocksCount: blockchain.networkInterface.getNetworkHeight() - blockchain.lastBlock.data.height
+      loaded: blockchain.isSynced(lastBlock),
+      now: lastBlock ? lastBlock.data.height : 0,
+      blocksCount: blockchain.networkInterface.getNetworkHeight() - lastBlock.data.height
     })
   }
 
   syncing (req, res, next) {
+    const lastBlock = blockchain.status.lastBlock
+
     helpers.respondWith('ok', {
-      syncing: !blockchain.isSynced(blockchain.lastBlock),
-      blocks: blockchain.networkInterface.getNetworkHeight() - blockchain.lastBlock.data.height,
-      height: blockchain.lastBlock.data.height,
-      id: blockchain.lastBlock.data.id
+      syncing: !blockchain.isSynced(lastBlock),
+      blocks: blockchain.networkInterface.getNetworkHeight() - lastBlock.data.height,
+      height: lastBlock.data.height,
+      id: lastBlock.data.id
     })
   }
 

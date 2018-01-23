@@ -10,6 +10,7 @@ describe('GET /api/peers/version', () => {
   it('should be ok', (done) => {
     chai.request(base)
       .get('/api/peers/version')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -33,6 +34,7 @@ describe('GET /api/peers', () => {
 
     chai.request(base)
       .get('/api/peers?' + params.join('&'))
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -47,6 +49,7 @@ describe('GET /api/peers', () => {
 
     chai.request(base)
       .get('/api/peers?' + params)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -69,6 +72,7 @@ describe('GET /api/peers', () => {
 
     chai.request(base)
       .get('/api/peers?' + params.join('&'))
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -82,6 +86,7 @@ describe('GET /api/peers/get', () => {
   it('using known ip address with no port should fail', (done) => {
     chai.request(base)
       .get('/api/peers/get?ip=127.0.0.1')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -93,6 +98,7 @@ describe('GET /api/peers/get', () => {
   it('using valid port with no ip address should fail', (done) => {
     chai.request(base)
       .get('/api/peers/get?port=4002')
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 
@@ -104,6 +110,7 @@ describe('GET /api/peers/get', () => {
   it('using known ip address and port should be ok', (done) => {
     chai.request(base)
       .get(`/api/peers/get?ip=${peerIp}&port=${peerPort}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, true)
 
@@ -115,6 +122,7 @@ describe('GET /api/peers/get', () => {
   it('using unknown ip address and port should fail', (done) => {
     chai.request(base)
       .get(`/api/peers/get?ip=99.99.99.99&port=${peerPort}`)
+      .set('Accept-Version', '1.0.0')
       .end((err, res) => {
         Helpers.ValidateResponseStatus(err, res, 200, false)
 

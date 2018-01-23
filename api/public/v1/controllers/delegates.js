@@ -11,19 +11,19 @@ class DelegatesController {
   }
 
   show (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   count (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   search (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   voters (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   fee (req, res, next) {
@@ -33,19 +33,19 @@ class DelegatesController {
   }
 
   forged (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   next (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   enable (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 
   disable (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    helpers.respondWith('error', 'Method has not yet been implemented.')
   }
 }
 
