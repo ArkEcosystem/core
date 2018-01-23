@@ -9,6 +9,7 @@ class TransactionsController {
   }
 
   store (req, res, next) {
+    // think about if this will be implemented here or in a "transport" controller
     helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
@@ -19,10 +20,12 @@ class TransactionsController {
   }
 
   unconfirmed (req, res, next) {
+    // needs to be picked up from transaction pool
     helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 
   showUnconfirmed (req, res, next) {
+    // needs to be picked up from transaction pool
     helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 

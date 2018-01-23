@@ -1,5 +1,5 @@
-const controller = requireFrom('api/public/v1/controllers/transactions')
-const schema = requireFrom('api/public/v1/schemas/blocks')
+const controller = require('../controllers/transactions')
+const schema = require('../schemas/blocks')
 
 module.exports = (registrar) => {
   registrar.get('transactions', controller.index, schema.getTransactions)

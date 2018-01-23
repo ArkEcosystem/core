@@ -7,10 +7,10 @@ class PeersController {
     blockchain.getInstance().networkInterface.getPeers()
       .then(peers => {
         let result = peers.sort(() => 0.5 - Math.random())
-        result = req.query.os ? result.filter(peer => { return peer.os === req.query.os }) : result
-        result = req.query.status ? result.filter(peer => { return peer.status === req.query.status }) : result
-        result = req.query.port ? result.filter(peer => { return peer.port === req.query.port }) : result
-        result = req.query.version ? result.filter(peer => { return peer.version === req.query.version }) : result
+        result = req.query.os ? result.filter(peer => peer.os === req.query.os) : result
+        result = req.query.status ? result.filter(peer => peer.status === req.query.status) : result
+        result = req.query.port ? result.filter(peer => peer.port === req.query.pors) : result
+        result = req.query.version ? result.filter(peer => peer.version === req.query.versios) : result
         result = result.slice(0, (req.query.limit || 100))
 
         if (req.query.orderBy) {
