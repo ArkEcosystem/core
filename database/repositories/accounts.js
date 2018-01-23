@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const filterObject = requireFrom('helpers/filter-object')
 
 class AccountsRepository {
   constructor (db) {
@@ -10,9 +11,7 @@ class AccountsRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = 0
-
-    if (pager.offset > 1) offset = pager.offset * pager.limit
+    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
     const accounts = this._getLocalAccounts()
 
@@ -27,9 +26,11 @@ class AccountsRepository {
   }
 
   findById (id) {
-    return Promise.resolve(this._getLocalAccounts().find(a => {
-      return (a.address === id || a.publicKey === id || a.username === id)
-    }))
+    return Promise.resolve(
+      this
+        ._getLocalAccounts()
+        .find(a => (a.address === id || a.publicKey === id || a.username === id))
+    )
   }
 
   findAllByVote (publicKey) {
@@ -48,54 +49,19 @@ class AccountsRepository {
     return this.db.blocksTable.count({ where: { generatorPublicKey } })
   }
 
-  _getLocalAccounts () {
-    return Object.values(this.db.localaccounts)
+  search (queryParams) {
+    return filterObject(
+      this._getLocalAccounts(),
+      queryParams,
+      {
+        exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+        between: ['balance', 'votebalance']
+      }
+    )
   }
 
-  search(queryParams) {
-    let where = {}
-
-    const exactFilters = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username']
-    const betweenFilters = ['balance', 'votebalance']
-    return Promise.resolve(this._getLocalAccounts().filter(account => {
-      for (const elem of exactFilters) {
-        if (queryParams[elem] && account[elem] !== queryParams[elem]) {
-          return false
-        }
-      }
-      for (const elem of betweenFilters) {
-        if (!queryParams[elem]) {
-          continue;
-        }
-        if (!queryParams[elem].from && !queryParams[elem].to && account[elem] !== queryParams[elem]) {
-          return false
-        } else if (queryParams[elem].from || queryParams[elem].to) {
-          let isLessThan = true
-          let isMoreThan = true
-
-          if (queryParams[elem].from) {
-            isMoreThan = false
-            if (elem === 'createdAt') {
-              isMoreThan = account[elem] >= moment(queryParams[elem].from).endOf('day').toDate()
-            } else {
-              isMoreThan = account[elem] >= queryParams[elem].from
-            }
-          }
-          if (queryParams[elem].to) {
-            isLessThan = false
-            if (elem === 'createdAt') {
-              isLessThan = account[elem] <= moment(queryParams[elem].from).endOf('day').toDate()
-            } else {
-              isLessThan = account[elem] <= queryParams[elem].from
-            }
-          }
-
-          if (!isLessThan || !isMoreThan) {
-            return false
-          }
-        }
-      }
-    }))
+  _getLocalAccounts () {
+    return Object.values(this.db.localaccounts)
   }
 }
 

@@ -8,9 +8,7 @@ class DelegatesRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = 0
-
-    if (pager.offset > 1) offset = pager.offset * pager.limit
+    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
     const accounts = this._getLocalAccounts()
 
@@ -21,9 +19,11 @@ class DelegatesRepository {
   }
 
   findById (id) {
-    return Promise.resolve(this._getLocalAccounts().find(a => {
-      return (a.address === id || a.publicKey === id || a.username === id)
-    }))
+    return Promise.resolve(
+      this
+        ._getLocalAccounts()
+        .find(a => (a.address === id || a.publicKey === id || a.username === id))
+    )
   }
 
   _getLocalAccounts () {
