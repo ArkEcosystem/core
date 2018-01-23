@@ -26,9 +26,7 @@ class PeersController {
           }
         }
 
-        helpers.respondWith('ok', {
-          peers: helpers.toCollection(retPeers, 'peer')
-        })
+        helpers.respondWith('ok', { peers: helpers.toCollection(retPeers, 'peer') })
     })
   }
   show (req, res, next) {
@@ -36,20 +34,16 @@ class PeersController {
       .then(peers => {
         if (!peers) return helpers.respondWith('error', 'No peers found')
 
-        let peer = peers.find(elem => { return elem.ip === req.query.ip && elem.port === req.query.port })
+        const peer = peers.find(elem => { return elem.ip === req.query.ip && elem.port === req.query.port })
 
         if (!peer) return helpers.respondWith('error', `Peer ${req.query.ip}:${req.query.port} not found`)
 
-        helpers.respondWith('ok', {
-          peer: helpers.toResource(peer, 'peer')
-        })
+        helpers.respondWith('ok', { peer: helpers.toResource(peer, 'peer') })
     })
   }
 
   version (req, res, next) {
-    helpers.respondWith('ok', {
-      version: config.server.version
-    })
+    helpers.respondWith('ok', { version: config.server.version })
   }
 }
 

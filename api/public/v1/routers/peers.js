@@ -1,5 +1,5 @@
-const controller = requireFrom('api/public/v1/controllers/peers')
-const schema = requireFrom('api/public/v1/schemas/peers')
+const controller = require('../controllers/peers')
+const schema = require('../schemas/peers')
 
 module.exports = (registrar) => {
   registrar.get('peers', controller.index, schema.getPeers)
