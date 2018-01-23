@@ -1,7 +1,7 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
 const Transaction = requireFrom('model/transaction')
-const buildFilterQuery = requireFrom('../utils/filter-query')
+const buildFilterQuery = require('../utils/filter-query')
 
 class TransactionsRepository {
   constructor (db) {

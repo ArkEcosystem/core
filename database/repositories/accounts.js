@@ -45,10 +45,6 @@ class AccountsRepository {
     return Promise.resolve(_.sortBy(this._getLocalAccounts(), 'balance').reverse())
   }
 
-  getProducedBlocks (generatorPublicKey) {
-    return this.db.blocksTable.count({ where: { generatorPublicKey } })
-  }
-
   search (queryParams) {
     return filterObject(
       this._getLocalAccounts(),

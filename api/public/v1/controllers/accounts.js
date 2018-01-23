@@ -1,4 +1,4 @@
-const blockchain = requireFrom('core/blockchainManager')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
 const db = requireFrom('core/dbinterface').getInstance()
 const arkjs = require('arkjs')
@@ -49,50 +49,39 @@ class WalletsController {
 
   fee (req, res, next) {
     helpers.respondWith('ok', {
-      fee: config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees.delegate
+      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.delegate
     })
   }
 
-  // TODO - pretify this below
   delegates (req, res, next) {
-    let lastblock = blockchain.getInstance().status.lastBlock.data
-    db.accounts.findById(req.query.address)
-      .then(account => {
-        if (!account) return helpers.respondWith('error', 'Address not found.')
+    db.accounts.findById(req.query.address).then(account => {
+      if (!account) return helpers.respondWith('error', 'Address not found.')
+      if (!account.vote) return helpers.respondWith('error', `Address ${req.query.address} hasn't voted yet.`)
 
-        if (!account.vote) {
-          helpers.respondWith('error', {
-            error: `Address ${req.query.address} hasn't voted yet.`
-          })
-          return
-        }
+      const lastBlock = blockchain.status.lastBlock.data
+      const constants = config.getConstants(lastBlock.height)
+      const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
 
-        let totalSupply = config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+      db.getActiveDelegates(lastBlock.height).then(delegates => {
+          const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
+          const delegate = delegates[delegateRank]
 
-        db.getActiveDelegates(blockchain.getInstance().status.lastBlock.data.height)
-          .then(activedelegates => {
-            let delPos = activedelegates.findIndex(del => { return del.publicKey === account.vote })
-            let votedDel = activedelegates[delPos]
-
-            db.accounts.getProducedBlocks(account.vote).then(producedBlocks => {
-              db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
-                .then(account => {
-                  helpers.respondWith('ok', {
-                    delegates: [{
-                      username: account.username,
-                      address: account.address,
-                      publicKey: account.publicKey,
-                      vote: '' + votedDel.balance,
-                      producedblocks: producedBlocks,
-                      missedblocks: 0, // TODO how?
-                      rate: delPos + 1,
-                      approval: (votedDel.balance / totalSupply) * 100,
-                      productivity: 100
-                    }]
-                  })
-                })
+          db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash)).then(account => {
+            helpers.respondWith('ok', {
+              delegates: [{
+                username: account.username,
+                address: account.address,
+                publicKey: account.publicKey,
+                vote: delegate.balance + '',
+                producedblocks: account.producedBlocks,
+                missedblocks: 0, // TODO how?
+                rate: delegateRank + 1,
+                approval: ((delegate.balance / totalSupply) * 100).toFixed(2),
+                productivity: (100 - (account.missedBlocks / ((account.producedBlocks + account.missedBlocks) / 100))).toFixed(2)
+              }]
             })
           })
+        })
       })
   }
 
