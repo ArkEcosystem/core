@@ -1,13 +1,45 @@
+const chai = require('chai')
 const { expect } = require('chai')
 
-class TestValidationHelpers {
-  ValidateResponseStatus (err, res, statusCode, success) {
+class Helpers {
+  request (url) {
+    return chai
+      .request('http://localhost:4003/api/')
+      .get(url)
+      .set('Accept-Version', '1.0.0')
+  }
+
+  assertJson (data) {
+    expect(data).to.be.a('object')
+  }
+
+  assertStatus (data, code) {
+    expect(data).to.have.status(code)
+  }
+
+  assertVersion (data, version) {
+    expect(data.body.meta.matchedVersion).to.equal(version)
+  }
+
+  assertState (data, state) {
+    expect(data.body.success).to.be.equal(state)
+  }
+
+  assertSuccessful (err, res) {
     expect(err).to.be.a('null')
-    expect(res).to.have.status(statusCode)
-    expect(res).to.be.json
-    expect(res.body.success).to.be.equal(success)
-    expect(res.body.meta.matchedVersion).to.equal('1.0.0')
+    this.assertStatus(res, 200)
+    this.assertJson(res)
+    this.assertState(res, true)
+    this.assertVersion(res, '1.0.0')
+  }
+
+  assertError (err, res) {
+    expect(err).to.be.a('null')
+    this.assertStatus(res, 200)
+    this.assertJson(res)
+    this.assertState(res, false)
+    this.assertVersion(res, '1.0.0')
   }
 }
 
-module.exports = new TestValidationHelpers()
+module.exports = new Helpers()
