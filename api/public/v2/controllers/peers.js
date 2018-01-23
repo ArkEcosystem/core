@@ -7,14 +7,14 @@ class PeersController {
     blockchain.networkInterface.getPeers()
       .then(peers => {
         let result = peers.sort(() => 0.5 - Math.random())
-        result = req.params.os ? result.filter(peer => peer.os === req.params.os) : result
-        result = req.params.status ? result.filter(peer => peer.status === req.params.status) : result
-        result = req.params.port ? result.filter(peer => peer.port === req.params.pors) : result
-        result = req.params.version ? result.filter(peer => peer.version === req.params.versios) : result
+        result = req.query.os ? result.filter(peer => peer.os === req.query.os) : result
+        result = req.query.status ? result.filter(peer => peer.status === req.query.status) : result
+        result = req.query.port ? result.filter(peer => peer.port === req.query.pors) : result
+        result = req.query.version ? result.filter(peer => peer.version === req.query.versios) : result
         result = result.slice(0, (req.params.limit || 100))
 
-        if (req.params.orderBy) {
-          const order = req.params.orderBy.split(':')
+        if (req.query.orderBy) {
+          const order = req.query.orderBy.split(':')
 
           if (['port', 'status', 'os', 'version'].includes(order[0])) {
             result = order[1].toUpperCase() === 'ASC'
