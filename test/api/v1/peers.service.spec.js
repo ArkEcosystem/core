@@ -21,7 +21,7 @@ describe('GET /api/peers/version', () => {
 
 describe('GET /api/peers', () => {
   it('using empty parameters should fail', (done) => {
-    var params = [
+    const params = [
       'state=',
       'os=',
       'shared=',
@@ -42,8 +42,8 @@ describe('GET /api/peers', () => {
   })
 
   it('using limit > 100 should fail', (done) => {
-    var limit = 101;
-    var params = 'limit=' + limit;
+    const limit = 101;
+    const params = 'limit=' + limit;
 
     chai.request(base)
       .get('/api/peers?' + params)
@@ -57,7 +57,7 @@ describe('GET /api/peers', () => {
   })
 
   it('using invalid parameters should fail', (done) => {
-    var params = [
+    const params = [
       'state=invalid',
       'os=invalid',
       'shared=invalid',

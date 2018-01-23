@@ -85,7 +85,7 @@ class Block {
 
     const constants = config.getConstants(block.height)
 
-    // var previousBlock = null
+    // let previousBlock = null
 
     if (block.height !== 1) {
       if (!block.previousBlock) {
@@ -113,7 +113,7 @@ class Block {
 
     // Disabling to allow orphanedBlocks?
     // if(previousBlock){
-    //   var lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
+    //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
     //   if(blockSlotNumber < lastBlockSlotNumber) {
     //      result.errors.push('block timestamp is smaller than previous block timestamp')
     //   }
@@ -139,7 +139,7 @@ class Block {
     let appliedTransactions = {}
 
     block.transactions.forEach((transaction) => {
-      var bytes = Buffer.from(transaction.id, 'hex')
+      const bytes = Buffer.from(transaction.id, 'hex')
 
       if (appliedTransactions[transaction.id]) {
         result.errors.push('Encountered duplicate transaction: ' + transaction.id)
@@ -177,23 +177,23 @@ class Block {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
-    var size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
-    var blockSignatureBuffer = null
+    let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
+    let blockSignatureBuffer = null
 
     if (includeSignature) {
       blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
-    var b, i
+    let b, i
 
     try {
-      var bb = new ByteBuffer(size, true)
+      let bb = new ByteBuffer(size, true)
       bb.writeInt(block.version)
       bb.writeInt(block.timestamp)
       bb.writeInt(block.height)
 
       if (block.previousBlock) {
-        var pb = bignum(block.previousBlock).toBuffer({
+        const pb = bignum(block.previousBlock).toBuffer({
           size: '8'
         })
 
@@ -213,12 +213,12 @@ class Block {
 
       bb.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
+      let payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      let generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

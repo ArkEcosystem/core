@@ -1,5 +1,5 @@
-var Down = require('./down')
-var Up = require('./up')
+const Down = require('./down')
+const Up = require('./up')
 
 class P2PInterface {
   constructor (config) {

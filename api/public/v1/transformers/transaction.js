@@ -1,10 +1,10 @@
 const Transaction = requireFrom('model/transaction')
-const blockchain = requireFrom('core/blockchainManager')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 const arkjs = require('arkjs')
 const config = requireFrom('core/config')
 
 module.exports = (model) => {
-  const lastBlock = blockchain.getInstance().status.lastBlock
+  const lastBlock = blockchain.status.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
   return {
