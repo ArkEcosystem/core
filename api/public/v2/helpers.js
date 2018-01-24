@@ -15,8 +15,8 @@ module.exports = class Helpers {
     const request = State.getRequest()
 
     this.paginator = {
-      offset: parseInt(request.query.cursor || 0),
-      limit: parseInt(request.query.limit || 100)
+      offset: parseInt(request.query.page || 0),
+      limit: parseInt(request.query.size || 100)
     }
 
     return this.paginator
@@ -34,11 +34,12 @@ module.exports = class Helpers {
     this.getCurrentState()
 
     if (data.count) {
-      const paginator = new Paginator(data.count, this.paginator)
+      const paginator = new Paginator(this.request, data.count, this.paginator)
 
       responder.ok({
         data: this.toCollection(data.rows, transformerClass),
-        meta: paginator.meta()
+        links: paginator.links(),
+        // meta: paginator.meta()
       })
     } else {
       responder.ok({ data: null })

@@ -1,37 +1,58 @@
+const url = require('url')
+
 module.exports = class Paginator {
-  constructor (count, pager) {
+  constructor (request, count, pager) {
+    this.request = request
     this.count = count
-    this.cursor = pager.offset
+    this.page = pager.offset
     this.limit = pager.limit
+    this.totalPages = Math.ceil(count / this.limit)
   }
 
   meta () {
+    return { count: this.count }
+  }
+
+  links () {
     return {
-      cursor: {
-        previous: this.previous(),
-        current: this.current(),
-        next: this.next(),
-        count: this.limit
-      },
-      count: this.count
+      self: this.self(),
+      first: this.first(),
+      prev: this.prev(),
+      next: this.next(),
+      last: this.last()
     }
   }
 
-  current () {
-    const current = this.cursor
+  self () {
+    return this.fullUrl(this.page)
+  }
 
-    return (current === 0) ? null : current
+  first () {
+    return this.fullUrl(1)
+  }
+
+  prev () {
+    const previous = this.page - 1
+
+    return this.fullUrl((previous <= 0) ? 1 : previous)
   }
 
   next () {
-    const next = this.cursor + this.limit
+    const next = this.page + 1
 
-    return (next >= this.count) ? null : next
+    return this.fullUrl((next >= this.count) ? this.totalPages : next)
   }
 
-  previous () {
-    const previous = this.cursor - this.limit
+  last () {
+    return this.fullUrl(this.totalPages)
+  }
 
-    return (previous <= 0) ? null : previous
+  fullUrl (page) {
+    return url.format({
+      protocol: this.request.isSecure() ? 'https' : 'http',
+      host: this.request.headers.host,
+      pathname: this.request.route.path,
+      query: { page: page, size: this.limit }
+    })
   }
 }

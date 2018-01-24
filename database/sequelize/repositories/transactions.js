@@ -18,37 +18,22 @@ class TransactionsRepository {
     }
 
     if (queryParams['senderId']) {
-      let account = this.db.localaccounts[queryParams['senderId']]
+      const account = this.db.localaccounts[queryParams['senderId']]
 
       if (account) whereStatement['senderPublicKey'] = account.publicKey
     }
 
     if (queryParams.orderBy) {
-      let order = queryParams.orderBy.split(':')
+      const order = queryParams.orderBy.split(':')
 
       if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(queryParams.orderBy.split(':'))
     }
 
-    // Version 1
-    if (legacy) {
-      return this.db.transactionsTable.findAndCountAll({
-        where: whereStatement,
-        order: orderBy,
-        offset: parseInt(queryParams.offset || 1),
-        limit: parseInt(queryParams.limit || 100),
-        include: {
-          model: this.db.blocksTable,
-          attributes: ['height']
-        }
-      })
-    }
-
-    // Version 2
     return this.db.transactionsTable.findAndCountAll({
-      // attributes: ['serialized'],
+      attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
-      offset: parseInt(queryParams.offset || 1),
+      offset: parseInt(queryParams.offset || 0),
       limit: parseInt(queryParams.limit || 100),
       include: {
         model: this.db.blocksTable,

@@ -21,7 +21,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/top', () => {
+  describe('GET /api/wallets/top', () => {
     it('should GET all the top wallets', (done) => {
       Helpers.request('GET', 'wallets/top').end((err, res) => {
         Helpers.assertSuccessful(err, res)

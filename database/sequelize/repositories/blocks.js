@@ -29,9 +29,7 @@ class BlocksRepository {
   paginate (pager, queryParams = {}) {
     let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
-    return this.all(Object.assign(queryParams, {
-      offset, limit: pager.perPage
-    }))
+    return this.all(Object.assign(queryParams, { offset, limit: pager.perPage }))
   }
 
   paginateByGenerator (generatorPublicKey, pager) {
@@ -64,13 +62,10 @@ class BlocksRepository {
 
   search (params) {
     return this.db.blocksTable.findAndCountAll({
-      where: buildFilterQuery(
-        params,
-        {
-          exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
-          between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
-        }
-      )
+      where: buildFilterQuery(params, {
+        exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
+        between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+      })
     })
   }
 }
