@@ -1,4 +1,6 @@
 test/support/setup.js
+test/unit/core/blockchainManager.spec.js
 #test/unit/**/*.spec.js
 #test/api/**/*.spec.js
 --recursive
+--timeout 5000
