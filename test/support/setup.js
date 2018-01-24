@@ -4,6 +4,9 @@ const chaiHttp = require('chai-http')
 const path = require('path')
 const config = require('core/config')
 
+// Chai config
+chai.should()
+
 // Chai plugins
 chai.use(sinonChai)
 chai.use(chaiHttp)

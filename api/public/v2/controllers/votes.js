@@ -11,7 +11,7 @@ class VotesController {
   show (req, res, next) {
     db.transactions
       .findByIdAndType(req.params.id, 3)
-      .then(transaction => helpers.respondWithCollection(transaction, 'transaction'))
+      .then(transaction => helpers.respondWithResource(transaction, 'transaction'))
   }
 }
 

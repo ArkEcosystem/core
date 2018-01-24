@@ -29,7 +29,7 @@ const tx = Transaction.fromBytes(hex)
 describe('Model | Transaction', () => {
   describe('static fromBytes', () => {
     it('returns a new transaction', () => {
-      expect(tx).to.be.an.instanceof(Transaction)
+      expect(tx).which.is.an.instanceof(Transaction)
       expect(tx.data).to.deep.equal(txdata)
     })
   })

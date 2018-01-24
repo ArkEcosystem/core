@@ -37,12 +37,12 @@ class PublicAPI {
   registerPlugins () {
     this.server
       .pre((req, res, next) => VersionPlugin(req, res, next))
+      .use((req, res, next) => new State().mount(req, res, next))
       .use((req, res, next) => new Throttle(this.config.server.api.throttle).mount(req, res, next))
       .use(restify.plugins.bodyParser({ mapParams: true }))
       .use(restify.plugins.queryParser())
       .use(restify.plugins.gzipResponse())
       .use((req, res, next) => new Validator().mount(req, res, next))
-      .use((req, res, next) => new State().mount(req, res, next))
 
     if (this.config.server.api.cache) {
       this.server

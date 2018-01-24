@@ -8,4 +8,5 @@ module.exports = (registrar) => {
   registrar.get('wallets/:id/transactions/send', controllers.transactionsSend)
   registrar.get('wallets/:id/transactions/received', controllers.transactionsReceived)
   registrar.get('wallets/:id/votes', controllers.votes)
+  registrar.post('wallets/search', controllers.search)
 }

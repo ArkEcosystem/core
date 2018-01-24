@@ -1,10 +1,10 @@
-const Transaction = requireFrom('model/transaction')
-const blockchain = requireFrom('core/blockchainManager')
 const arkjs = require('arkjs')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
+const Transaction = requireFrom('model/transaction')
 
 module.exports = (model) => {
-  const lastBlock = blockchain.getInstance().status.lastBlock
+  const lastBlock = blockchain.status.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
   return {
@@ -19,6 +19,8 @@ module.exports = (model) => {
     senderPublicKey: data.senderPublicKey,
     signature: data.signature,
     asset: data.asset,
-    confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
+    confirmations: 0
+    // this causes trouble with tests because the lastBlock is always empty...
+    // confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
   }
 }

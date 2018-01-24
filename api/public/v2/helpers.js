@@ -41,7 +41,7 @@ module.exports = class Helpers {
         meta: paginator.meta()
       })
     } else {
-      responder.resourceNotFound('Record could not be found.')
+      responder.ok({ data: null })
     }
 
     State.getNext()
@@ -50,11 +50,9 @@ module.exports = class Helpers {
   static respondWithResource (data, transformerClass) {
     this.getCurrentState()
 
-    if (data) {
-      responder.ok({ data: this.toResource(data, transformerClass) })
-    } else {
-      responder.resourceNotFound('Record could not be found.')
-    }
+    data
+      ? responder.ok({ data: this.toResource(data, transformerClass) })
+      : responder.resourceNotFound('Record could not be found.')
 
     State.getNext()
   }
@@ -62,11 +60,9 @@ module.exports = class Helpers {
   static respondWithCollection (data, transformerClass) {
     this.getCurrentState()
 
-    if (data) {
-      responder.ok({ data: this.toCollection(data, transformerClass) })
-    } else {
-      responder.resourceNotFound('Record could not be found.')
-    }
+    data
+      ? responder.ok({ data: this.toCollection(data, transformerClass) })
+      : responder.ok({ data: null })
 
     State.getNext()
   }

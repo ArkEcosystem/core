@@ -91,7 +91,7 @@ describe('Model | Account', () =>
 
   describe('apply transaction', () =>
     it('should be ok for a multitx', () => {
-      expect(testAccount.canApply(multitx)).to.be.true
+      expect(testAccount.canApply(multitx)).which.is.true
     })
   )
 )

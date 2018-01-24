@@ -15,19 +15,17 @@ class DelegatesController {
   }
 
   blocks (req, res, next) {
-    db.delegates.findById(req.params.id).then(delegate => {
-      db.blocks
-        .paginateByGenerator(delegate.publicKey, helpers.getPaginator())
-        .then(blocks => helpers.respondWithPagination(blocks, 'block'))
-    })
+    db.delegates
+      .findById(req.params.id)
+      .then(delegate => db.blocks.paginateByGenerator(delegate.publicKey, helpers.getPaginator()))
+      .then(blocks => helpers.respondWithPagination(blocks, 'block'))
   }
 
   voters (req, res, next) {
-    db.delegates.findById(req.params.id).then(delegate => {
-      db.accounts
-        .findAllByVote(delegate.publicKey)
-        .then(accounts => helpers.respondWithCollection(accounts, 'wallet'))
-    })
+    db.delegates
+      .findById(req.params.id)
+      .then(delegate => db.accounts.findAllByVote(delegate.publicKey))
+      .then(accounts => helpers.respondWithCollection(accounts, 'wallet'))
   }
 }
 

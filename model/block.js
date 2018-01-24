@@ -85,7 +85,7 @@ class Block {
 
     const constants = config.getConstants(block.height)
 
-    // var previousBlock = null
+    // let previousBlock = null
 
     if (block.height !== 1) {
       if (!block.previousBlock) {
@@ -113,7 +113,7 @@ class Block {
 
     // Disabling to allow orphanedBlocks?
     // if(previousBlock){
-    //   var lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
+    //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
     //   if(blockSlotNumber < lastBlockSlotNumber) {
     //      result.errors.push('block timestamp is smaller than previous block timestamp')
     //   }

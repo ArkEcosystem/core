@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const filterObject = requireFrom('helpers/filter-object')
 
 class AccountsRepository {
   constructor (db) {
@@ -10,9 +11,7 @@ class AccountsRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = 0
-
-    if (pager.offset > 1) offset = pager.offset * pager.limit
+    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
     const accounts = this._getLocalAccounts()
 
@@ -27,9 +26,11 @@ class AccountsRepository {
   }
 
   findById (id) {
-    return Promise.resolve(this._getLocalAccounts().find(a => {
-      return (a.address === id || a.publicKey === id || a.username === id)
-    }))
+    return Promise.resolve(
+      this
+        ._getLocalAccounts()
+        .find(a => (a.address === id || a.publicKey === id || a.username === id))
+    )
   }
 
   findAllByVote (publicKey) {
@@ -44,8 +45,20 @@ class AccountsRepository {
     return Promise.resolve(_.sortBy(this._getLocalAccounts(), 'balance').reverse())
   }
 
-  getProducedBlocks (generatorPublicKey) {
-    return this.db.blocksTable.count({ where: { generatorPublicKey } })
+  search (queryParams) {
+    return filterObject(
+      this._getLocalAccounts(),
+      queryParams,
+      {
+        exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+        between: ['balance', 'votebalance']
+      }
+    ).then(results => {
+      return {
+        count: results.length,
+        rows: results
+      }
+    })
   }
 
   _getLocalAccounts () {
