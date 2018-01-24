@@ -39,7 +39,7 @@ module.exports = class Helpers {
       responder.ok({
         data: this.toCollection(data.rows, transformerClass),
         links: paginator.links(),
-        // meta: paginator.meta()
+        meta: paginator.meta()
       })
     } else {
       responder.ok({ data: null })
