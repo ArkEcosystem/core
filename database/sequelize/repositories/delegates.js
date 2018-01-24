@@ -4,7 +4,7 @@ class DelegatesRepository {
   }
 
   all (params = {}) {
-    return Promise.resolve(Object.values(this.db.localaccounts).filter(a => !!a.username))
+    return Promise.resolve(this.db.accountManager.getLocalAccounts().filter(a => !!a.username))
   }
 
   paginate (pager, queryParams = {}) {

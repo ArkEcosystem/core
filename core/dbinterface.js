@@ -1,5 +1,6 @@
 const arkjs = require('arkjs')
-const Account = require('../model/account')
+const Account = requireFrom('model/account')
+const AccountManager = require('./accountManager')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
@@ -32,7 +33,7 @@ class DBInterface {
 
   static create (config) {
     const db = new (require(path.resolve(config.driver)))()
-    db.localaccounts = {}
+    db.accountManager = new AccountManager()
 
     return db
       .init(config)
@@ -117,100 +118,33 @@ class DBInterface {
   }
 
   applyBlock (block, rebuild, fastRebuild) {
-    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
-    let delegate = this.localaccounts[generator]
-    if (!delegate && block.data.height === 1) {
-      delegate = new Account(generator)
-      delegate.publicKey = block.data.generatorPublicKey
-      this.localaccounts[generator] = delegate
-    }
-    const appliedTransactions = []
-    const that = this
-    return Promise
-      .each(block.transactions, tx => this
-        .applyTransaction(tx)
-        .then(() => appliedTransactions.push(tx))
-      )
-      .then(() => delegate.applyBlock(block.data))
+    return this.accountManager
+      .applyBlock(block)
       .then(() => this.applyRound(block, rebuild, fastRebuild))
-      .catch(error => Promise
-        .each(appliedTransactions, tx => that.undoTransaction(tx))
-        .then(() => Promise.reject(error))
-      )
   }
 
   undoBlock (block) {
-    const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
-    let delegate = this.localaccounts[generator]
-    const undoedTransactions = []
-    const that = this
-    return Promise
-      .each(block.transactions, tx =>
-        that.undoTransaction(tx)
-        .then(() => undoedTransactions.push(tx))
-      )
-      .then(() => delegate.undoBlock(block.data))
+    return this.accountManager
+      .undoBlock(block)
       .then(() => this.undoRound(block))
-      .catch(error => Promise
-        .each(undoedTransactions, tx =>
-          that.applyTransaction(tx))
-         .then(() => Promise.reject(error)
-        )
-      )
   }
 
   verifyTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    let sender = this.localaccounts[senderId] // should exist
-    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
+    let sender = this.accountManager.getAccountByAddress[senderId] // should exist
+    if (!sender.publicKey) {
+      sender.publicKey = transaction.data.senderPublicKey
+      this.accountManager.updateAccount(sender)
+    }
     return sender.canApply(transaction.data)
   }
 
-  canApplyTransaction (transaction) {
-    switch (transaction.type) {
-      case 2: // expensive
-        return !this.localaccounts.find(a => a.username.toLowerCase() === transaction.asset.delegate.username.toLowerCase())
-
-      case 3: // expensive
-        const delegateKey = transaction.asset.votes[0].slice(1)
-        return !!this.localaccounts.find(a => !!a.username && a.publicKey === delegateKey)
-    }
-  }
-
   applyTransaction (transaction) {
-    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
-    let recipient = this.localaccounts[recipientId]
-    if (!recipient && recipientId) { // cold wallet
-      recipient = new Account(recipientId)
-      this.localaccounts[recipientId] = recipient
-    }
-    if (!config.network.exceptions[transaction.data.id] && !sender.canApply(transaction.data)) {
-      logger.error(sender)
-      logger.error(JSON.stringify(transaction.data))
-      return Promise.reject(new Error(`Can't apply transaction ${transaction.data.id}`))
-    }
-    sender.applyTransactionToSender(transaction.data)
-    if (recipient) recipient.applyTransactionToRecipient(transaction.data)
-    // TODO: faster way to maintain active delegate list (ie instead of db queries)
-    // if (sender.vote) {
-    //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-    //   const delegate = this.localaccounts[delegateAdress]
-    //   delegate.applyVote(sender, transaction.data.asset.votes[0])
-    // }
-    return Promise.resolve(transaction)
+    return this.accountManager.applyTransaction(transaction)
   }
 
   undoTransaction (transaction) {
-    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    const recipientId = transaction.data.recipientId // may not exist
-    let sender = this.localaccounts[senderId] // should exist
-    let recipient = this.localaccounts[recipientId]
-    sender.undoTransactionToSender(transaction.data)
-    if (recipient) recipient.undoTransactionToRecipient(transaction.data)
-    return Promise.resolve(transaction.data)
+    return this.accountManager.undoTransaction(transaction)
   }
 
   snapshot (path) {

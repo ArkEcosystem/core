@@ -7,7 +7,7 @@ class AccountsRepository {
   }
 
   all () {
-    return Promise.resolve(Object.values(this.db.localaccounts))
+    return Promise.resolve(this.db.accountManager.getLocalAccounts())
   }
 
   paginate (pager, queryParams = {}) {

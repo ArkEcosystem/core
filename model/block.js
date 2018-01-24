@@ -187,7 +187,7 @@ class Block {
     let b, i
 
     try {
-      let bb = new ByteBuffer(size, true)
+      const bb = new ByteBuffer(size, true)
       bb.writeInt(block.version)
       bb.writeInt(block.timestamp)
       bb.writeInt(block.height)
@@ -213,12 +213,12 @@ class Block {
 
       bb.writeInt(block.payloadLength)
 
-      let payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
+      const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      let generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

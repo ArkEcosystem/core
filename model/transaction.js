@@ -120,7 +120,7 @@ class Transaction {
       tx.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2)
     }
 
-    let assetOffset = (41 + 8 + 1) * 2 + vflength * 2
+    const assetOffset = (41 + 8 + 1) * 2 + vflength * 2
 
     if (tx.type === 0) { // transfer
       tx.amount = buf.readUInt64(assetOffset / 2).toNumber()

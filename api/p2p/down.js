@@ -20,11 +20,10 @@ class Down {
 
   updateNetworkStatus () {
     return this
-      .cleanPeers()
-      .then(() => this.discoverPeers())
+      .discoverPeers()
       .then(() => this.cleanPeers())
       .then(() => {
-        if (Object.keys(this.peers).length < 2) {
+        if (Object.keys(this.peers).length < this.config.network.peers.length) {
           this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
           return this.updateNetworkStatus()
         }
@@ -94,7 +93,7 @@ class Down {
   getRandomDownloadBlocksPeer () {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
-    keys = keys.filter(key => this.peers[key].delay < 2000 && this.peers[key].downloadSize !== 100)
+    keys = keys.filter(key => this.peers[key].downloadSize !== 100)
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
