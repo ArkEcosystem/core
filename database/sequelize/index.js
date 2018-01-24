@@ -108,26 +108,17 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 1, 7, 'received transactions')
         data.forEach(row => {
-          const account = this.localaccounts[row.recipientId] || new Account(row.recipientId)
+          const account = this.accountManager.getAccountByAddress(row.recipientId)
           account.balance = parseInt(row.amount)
-          this.localaccounts[row.recipientId] = account
         })
         return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
       })
       .then(data => {
         logger.printTracker('SPV Building', 2, 7, 'block rewards')
         data.forEach(row => {
-          let account = this.localaccounts[arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash)]
-          if (account) {
-            account.balance += parseInt(row.reward)
-            account.producedBlocks += parseInt(row.produced)
-          } else {
-            account = new Account(arkjs.crypto.getAddress(row.generatorPublicKey, config.network.pubKeyHash))
-            account.publicKey = row.generatorPublicKey
-            account.balance = parseInt(row.reward)
-            account.producedBlocks = parseInt(row.produced)
-            this.localaccounts[account.address] = account
-          }
+          const account = this.accountManager.getAccountByPublicKey(row.generatorPublicKey)
+          account.balance += parseInt(row.reward)
+          account.producedBlocks += parseInt(row.produced)
         })
         return this.transactionsTable.findAll({
           attributes: [
@@ -141,15 +132,9 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 3, 7, 'sent transactions')
         data.forEach(row => {
-          let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
-          if (account) {
-            account.publicKey = row.senderPublicKey
-            account.balance -= parseInt(row.amount) + parseInt(row.fee)
-          } else {
-            account = new Account(arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash))
-            account.publicKey = row.senderPublicKey
-            account.balance = -parseInt(row.amount) - parseInt(row.fee)
-            this.localaccounts[account.address] = account
+          let account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
+          account.balance -= parseInt(row.amount) + parseInt(row.fee)
+          if (account.balance < 0) {
             logger.warn('Negative balance should never happen except from premining address:')
             logger.warn(account)
           }
@@ -165,7 +150,7 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 4, 7, 'second signatures')
         data.forEach(row => {
-          const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
+          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
           account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
         })
         return this.transactionsTable.findAll({
@@ -179,12 +164,12 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 5, 7, 'delegates')
         data.forEach(row => {
-          const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
+          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
           account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
         })
-        Object.keys(this.localaccounts)
-          .filter(a => this.localaccounts[a].balance < 0)
-          .forEach(a => logger.debug(this.localaccounts[a]))
+        Object.values(this.accountManager.accountsByAddress)
+          .filter(a => a.balance < 0)
+          .forEach(a => logger.debug(a))
         return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
@@ -197,7 +182,7 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 6, 7, 'votes')
         data.forEach(row => {
-          const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
+          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
           if (!account.voted) {
             let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
             if (vote.startsWith('+')) account.vote = vote.slice(1)
@@ -216,14 +201,14 @@ class SequelizeDB extends DBInterface {
       })
       .then(data => {
         data.forEach(row => {
-          const account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
+          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
           account.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
         })
-        logger.info('SPV rebuild finished, accounts in memory:', Object.keys(this.localaccounts).length)
-        Object.keys(this.localaccounts)
-          .filter(a => this.localaccounts[a].balance < 0)
-          .forEach(a => logger.info(this.localaccounts[a]))
-        return Promise.resolve(this.localaccounts || [])
+        logger.info('SPV rebuild finished, accounts in memory:', Object.keys(this.accountManager.accountsByAddress).length)
+        Object.values(this.accountManager.accountsByAddress)
+          .filter(a => a.balance < 0)
+          .forEach(a => logger.info(a))
+        return Promise.resolve(this.accountManager.accountsByAddress || [])
       })
       .catch(error => logger.error(error))
   }
@@ -232,14 +217,14 @@ class SequelizeDB extends DBInterface {
     return this.db
       .transaction(t =>
         Promise.all(
-          Object.values(this.localaccounts || [])
+          Object.values(this.accountManager.accountsByPublicKey || {})
             // cold addresses are not saved on database
             .filter(acc => acc.publicKey && (force || acc.dirty))
             .map(acc => this.accountsTable.upsert(acc, {transaction: t}))
         )
       )
       .then(() => logger.info('Rebuilt accounts saved'))
-      .then(() => Object.values(this.localaccounts).forEach(acc => (acc.dirty = false)))
+      .then(() => Object.values(this.accountManager.accountsByAddress).forEach(acc => (acc.dirty = false)))
   }
 
   saveBlock (block) {

@@ -27,7 +27,7 @@ class DelegatesRepository {
   }
 
   _getLocalAccounts () {
-    return Object.values(this.db.localaccounts).filter(a => !!a.username)
+    return this.db.accountManager.getLocalAccounts().filter(a => !!a.username)
   }
 }
 

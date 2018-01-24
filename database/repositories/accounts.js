@@ -62,7 +62,7 @@ class AccountsRepository {
   }
 
   _getLocalAccounts () {
-    return Object.values(this.db.localaccounts)
+    return this.db.accountManager.getLocalAccounts()
   }
 }
 

@@ -18,7 +18,7 @@ class TransactionsRepository {
     }
 
     if (queryParams['senderId']) {
-      let account = this.db.localaccounts[queryParams['senderId']]
+      let account = this.db.accountManager.getAccountByAddress([queryParams['senderId']])
 
       if (account) whereStatement['senderPublicKey'] = account.publicKey
     }
