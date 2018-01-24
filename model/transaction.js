@@ -56,19 +56,19 @@ class Transaction {
         break
 
       case 2: // Delegate
-        var delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
+        const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
         bb.writeByte(delegateBytes.length)
         bb.append(delegateBytes, 'hex')
         break
 
       case 3: // Vote
-        var voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
+        const voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
         bb.writeByte(transaction.asset.votes.length)
         bb.append(voteBytes, 'hex')
         break
 
       case 4: // Multi-Signature
-        var keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join(''), 'hex')
+        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join(''), 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -120,7 +120,7 @@ class Transaction {
       tx.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2)
     }
 
-    var assetOffset = (41 + 8 + 1) * 2 + vflength * 2
+    const assetOffset = (41 + 8 + 1) * 2 + vflength * 2
 
     if (tx.type === 0) { // transfer
       tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
@@ -149,7 +149,7 @@ class Transaction {
         votes: []
       }
       let vote
-      for (var i = 0; i < votelength; i++) {
+      for (let i = 0; i < votelength; i++) {
         vote = hexString.substring(assetOffset + 2 + i * 2 * 34, assetOffset + 2 + (i + 1) * 2 * 34)
         vote = (vote[1] === '1' ? '+' : '-') + vote.slice(2)
         tx.asset.votes.push(vote)

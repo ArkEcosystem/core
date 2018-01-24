@@ -7,6 +7,7 @@ const Sntp = require('sntp')
 
 const deepmerge = require('deepmerge')
 
+let logger
 let instance = null
 
 class Config {
@@ -20,7 +21,8 @@ class Config {
 
   // TODO should return a Promise
   init (config) {
-    this.ntp().then(time => console.warn('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
+    logger = require('./logger') // need to do here to be sure logger is initialised
+    this.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.server = config.server
     this.network = config.network
     this.genesisBlock = config.genesisBlock
@@ -47,7 +49,8 @@ class Config {
 
   ntp () {
     return Sntp.time().catch(e => {
-      console.warn('can\'t ping ntp')
+      const logger = requireFrom('core/logger') // need to do here to be sure logger is initialised
+      logger.warn('can\'t ping ntp')
       return Promise.resolve({t: 0})
     })
   }
