@@ -3,7 +3,7 @@ const Helpers = require('../helpers')
 describe('API 1.0 - Blocks', () => {
   describe('GET /api/blocks/get?id', () => {
     it('should return blocks based on id', (done) => {
-      Helpers.request('GET', 'blocks/get?id=1877716674628308671').end((err, res) => {
+      Helpers.request('GET', 'blocks/get', { id: '1877716674628308671' }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
         res.body.should.have.property('block').which.is.an('object')
@@ -27,7 +27,7 @@ describe('API 1.0 - Blocks', () => {
 
   describe('GET /api/blocks/?limit=XX', () => {
     it('should return 5 blocks', (done) => {
-      Helpers.request('GET', 'blocks?limit=5').end((err, res) => {
+      Helpers.request('GET', 'blocks', { limit: 5 }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
         res.body.should.have.property('blocks').which.is.an('array').with.lengthOf(5)
@@ -37,7 +37,7 @@ describe('API 1.0 - Blocks', () => {
     })
 
     it('should return limit error info', (done) => {
-      Helpers.request('GET', 'blocks?limit=500').end((err, res) => {
+      Helpers.request('GET', 'blocks', { limit: 500 }).end((err, res) => {
         Helpers.assertError(err, res)
 
         res.body.should.have.property('success').which.equals(false)
