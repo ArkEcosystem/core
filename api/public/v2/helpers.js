@@ -42,7 +42,7 @@ module.exports = class Helpers {
         meta: paginator.meta()
       })
     } else {
-      responder.ok({ data: null })
+      responder.ok({ data: [] })
     }
 
     State.getNext()
@@ -63,7 +63,7 @@ module.exports = class Helpers {
 
     data
       ? responder.ok({ data: this.toCollection(data, transformerClass) })
-      : responder.ok({ data: null })
+      : responder.ok({ data: [] })
 
     State.getNext()
   }

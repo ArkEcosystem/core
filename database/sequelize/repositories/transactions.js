@@ -8,7 +8,7 @@ class TransactionsRepository {
     this.db = db
   }
 
-  all (queryParams, legacy = false) {
+  all (queryParams) {
     let whereStatement = {}
     let orderBy = []
 
@@ -40,12 +40,6 @@ class TransactionsRepository {
         attributes: ['height']
       }
     })
-    // .then(results => {
-    //   return {
-    //     count: results.count,
-    //     rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-    //   }
-    // })
   }
 
   paginate (pager, queryParams = {}) {
@@ -131,7 +125,7 @@ class TransactionsRepository {
   search (params) {
     return this.db.transactionsTable
       .findAndCountAll({
-        // attributes: ['serialized'],
+        attributes: ['blockId', 'serialized'],
         where: buildFilterQuery(
           params,
           {
@@ -145,12 +139,6 @@ class TransactionsRepository {
           attributes: ['height']
         }
       })
-      // .then(results => {
-      //   return {
-      //     count: results.count,
-      //     rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-      //   }
-      // })
   }
 }
 

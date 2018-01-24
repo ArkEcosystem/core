@@ -40,15 +40,13 @@ class AccountsRepository {
   }
 
   search (queryParams) {
-    return this.all().then((accounts) => {
-      return filterObject(accounts, queryParams, {
-        exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
-        between: ['balance', 'votebalance']
-      }).then(results => ({
-        count: results.length,
-        rows: results
-      }))
-    })
+    return this.all().then((accounts) => filterObject(accounts, queryParams, {
+      exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+      between: ['balance', 'votebalance']
+    }).then(results => ({
+      count: results.length,
+      rows: results
+    })))
   }
 }
 
