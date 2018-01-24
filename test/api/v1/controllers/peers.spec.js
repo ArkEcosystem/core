@@ -17,7 +17,7 @@ describe('API 1.0 - Peers', () => {
   })
 
   describe('GET /api/peers', () => {
-    it('using empty parameters should fail', (done) => {
+    it('should fail using empty parameters', (done) => {
       Helpers.request('GET', 'peers', {
         state: null,
         os: null,
@@ -35,7 +35,7 @@ describe('API 1.0 - Peers', () => {
       })
     })
 
-    it('using limit > 100 should fail', (done) => {
+    it('should fail using limit > 100', (done) => {
       Helpers.request('GET', 'peers', { limit: 101 }).end((err, res) => {
         Helpers.assertError(err, res)
 
@@ -45,7 +45,7 @@ describe('API 1.0 - Peers', () => {
       })
     })
 
-    it('using invalid parameters should fail', (done) => {
+    it('should fail using invalid parameters', (done) => {
       Helpers.request('GET', 'peers', {
         state: 'invalid',
         os: 'invalid',
