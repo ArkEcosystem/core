@@ -5,7 +5,7 @@ const BlockchainManager = require('core/blockchainManager')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {
-    expect(BlockchainManager).to.be.a('function')
+    expect(BlockchainManager).which.is.a('function')
   })
 
   it('works with sinons', () => {

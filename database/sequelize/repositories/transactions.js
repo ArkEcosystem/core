@@ -45,7 +45,7 @@ class TransactionsRepository {
 
     // Version 2
     return this.db.transactionsTable.findAndCountAll({
-      attributes: ['serialized'],
+      // attributes: ['serialized'],
       where: whereStatement,
       order: orderBy,
       offset: parseInt(queryParams.offset || 1),
@@ -55,12 +55,12 @@ class TransactionsRepository {
         attributes: ['height']
       }
     })
-    .then(results => {
-      return {
-        count: results.count,
-        rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-      }
-    })
+    // .then(results => {
+    //   return {
+    //     count: results.count,
+    //     rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+    //   }
+    // })
   }
 
   paginate (pager, queryParams = {}) {
@@ -74,34 +74,32 @@ class TransactionsRepository {
 
   paginateAllByWallet (wallet, pager) {
     return this.paginate(pager, {
-      where: {
-        [Op.or]: [{
-          senderPublicKey: wallet.publicKey
-        }, {
-          recipientId: wallet.address
-        }]
-      }
+      [Op.or]: [{
+        senderPublicKey: wallet.publicKey
+      }, {
+        recipientId: wallet.address
+      }]
     })
   }
 
   paginateAllBySender (senderPublicKey, pager) {
-    return this.paginate(pager, { where: { senderPublicKey } })
+    return this.paginate(pager, { senderPublicKey })
   }
 
   paginateAllByRecipient (recipientId, pager) {
-    return this.paginate(pager, { where: {recipientId} })
+    return this.paginate(pager, { recipientId })
   }
 
   paginateVotesBySender (senderPublicKey, pager) {
-    return this.paginate(pager, { where: { senderPublicKey, type: 3 } })
+    return this.paginate(pager, { senderPublicKey, type: 3 })
   }
 
   paginateByBlock (blockId, pager) {
-    return this.paginate(pager, { where: { blockId } })
+    return this.paginate(pager, { blockId })
   }
 
   paginateByType (type, pager) {
-    return this.paginate(pager, { where: { type } })
+    return this.paginate(pager, { type })
   }
 
   findById (id) {
@@ -133,7 +131,7 @@ class TransactionsRepository {
   search (params) {
     return this.db.transactionsTable
       .findAndCountAll({
-        attributes: ['serialized'],
+        // attributes: ['serialized'],
         where: buildFilterQuery(
           params,
           {
@@ -143,12 +141,12 @@ class TransactionsRepository {
           }
         )
       })
-      .then(results => {
-        return {
-          count: results.count,
-          rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-        }
-      })
+      // .then(results => {
+      //   return {
+      //     count: results.count,
+      //     rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+      //   }
+      // })
   }
 }
 

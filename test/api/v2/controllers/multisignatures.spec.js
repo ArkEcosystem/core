@@ -1,13 +1,27 @@
-const chai = require('chai')
-const { expect } = require('chai')
 const Helpers = require('../helpers')
 
-describe('GET api/multisignatures', () => {
-  it('should successfully send the request', (done) => {
-    Helpers.request('multisignatures').end((err, res) => {
-        Helpers.assertError(err, res, 501)
-
+describe('API 2.0 - Multi Signatures', () => {
+  describe.skip('GET /api/multisignatures', () => {
+    it('should GET all the multi signatures', (done) => {
+      Helpers.request('GET', 'multisignatures').end((err, res) => {
         done()
       })
+    })
+  })
+
+  describe.skip('GET /api/multisignatures/pending', () => {
+    it('should GET all the pending multi signatures', (done) => {
+      Helpers.request('GET', 'multisignatures/pending').end((err, res) => {
+        done()
+      })
+    })
+  })
+
+  describe.skip('GET /api/multisignatures/wallets', () => {
+    it('should GET all the wallets that belong to a multi signature', (done) => {
+      Helpers.request('GET', 'multisignatures/wallets').end((err, res) => {
+        done()
+      })
+    })
   })
 })

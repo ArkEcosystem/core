@@ -18,7 +18,7 @@ describe('Core | ForgerManager', () => {
       const promise = forger.loadDelegates()
       // Avoids the UnhandledPromiseRejectionWarning
       promise.catch(() => {})
-      expect(promise).to.be.a('promise')
+      expect(promise).which.is.a('promise')
     })
 
     context('without configured delegates', () => {
@@ -26,7 +26,7 @@ describe('Core | ForgerManager', () => {
         const forger = new ForgerManager(config)
         return forger.loadDelegates()
           .catch(error => {
-            expect(error).to.be.an('error')
+            expect(error).which.is.an('error')
             expect(error.message).to.match(/no delegate/i)
           })
       })
@@ -37,9 +37,9 @@ describe('Core | ForgerManager', () => {
         return forger.loadDelegates()
           .catch(error => console.error(error))
           .then(delegates => {
-            expect(delegates).to.be.an('array')
+            expect(delegates).which.is.an('array')
             delegates.forEach(delegate => {
-              expect(delegate).to.be.an.instanceof(Delegate)
+              expect(delegate).which.is.an.instanceof(Delegate)
             })
           })
       })
@@ -57,7 +57,7 @@ describe('Core | ForgerManager', () => {
       const forger = new ForgerManager(delegateConfig)
       forger.loadDelegates()
       const promise = forger.pickForgingDelegate({ delegate: {} })
-      expect(promise).to.be.a('promise')
+      expect(promise).which.is.a('promise')
     })
   })
 

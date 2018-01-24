@@ -53,7 +53,12 @@ class AccountsRepository {
         exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
         between: ['balance', 'votebalance']
       }
-    )
+    ).then(results => {
+      return {
+        count: results.length,
+        rows: results
+      }
+    })
   }
 
   _getLocalAccounts () {

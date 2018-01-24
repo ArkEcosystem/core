@@ -1,132 +1,134 @@
-const { expect } = require('chai')
 const Helpers = require('../helpers')
 
-describe('GET api/blocks/get?id', () => {
-  it('should return blocks based on id', (done) => {
-    Helpers.request('blocks/get?id=1877716674628308671').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
-      expect(res.body.block.id).to.be.a('string')
-      expect(res.body.block.height).to.be.a('number')
+describe('API 1.0 - Blocks', () => {
+  describe('GET /api/blocks/get?id', () => {
+    it('should return blocks based on id', (done) => {
+      Helpers.request('GET', 'blocks/get?id=1877716674628308671').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      done()
+        res.body.should.have.property('block').which.is.an('object')
+        res.body.block.should.have.property('id').which.is.a('string')
+        res.body.block.should.have.property('height').which.is.a('number')
+
+        done()
+      })
+    })
+
+    it('should return block not found', (done) => {
+      Helpers.request('GET', 'blocks/get', { id: '18777we16674628308671' }).end((err, res) => {
+        Helpers.assertError(err, res)
+
+        res.body.should.have.property('error').which.is.a('string').and.contains('not found')
+
+        done()
+      })
     })
   })
 
-  it('should return block not found', (done) => {
-    Helpers.request('blocks/get?id=18777we16674628308671').end((err, res) => {
-      Helpers.assertError(err, res)
+  describe('GET /api/blocks/?limit=XX', () => {
+    it('should return 5 blocks', (done) => {
+      Helpers.request('GET', 'blocks?limit=5').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.error).to.be.a('string').contains('not found')
+        res.body.should.have.property('blocks').which.is.an('array').with.lengthOf(5)
 
-      done()
+        done()
+      })
+    })
+
+    it('should return limit error info', (done) => {
+      Helpers.request('GET', 'blocks?limit=500').end((err, res) => {
+        Helpers.assertError(err, res)
+
+        res.body.should.have.property('success').which.equals(false)
+        res.body.should.have.property('error').which.is.a('string').and.contains('should be <= 100')
+
+        done()
+      })
     })
   })
-})
 
-describe('GET api/blocks/?limit=XX', () => {
-  it('should return 5 blocks', (done) => {
-    Helpers.request('blocks?limit=5').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+  describe('GET /api/blocks/getfees', () => {
+    it('should return matching fees with the config', (done) => {
+      Helpers.request('GET', 'blocks/getFees').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.blocks).to.be.a('array')
-      expect(res.body.blocks.length).to.equal(5)
+        res.body.should.have.property('fees').which.is.an('object')
 
-      done()
+        // TODO adjust when environment setup properly
+        // res.body.should.have.property('fees').which.equals(config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees)
+
+        done()
+      })
     })
   })
 
-  it('should return limit error info', (done) => {
-    Helpers.request('blocks?limit=500').end((err, res) => {
-      Helpers.assertError(err, res)
+  describe('GET /api/blocks/getNethash', () => {
+    it('should be ok', (done) => {
+      Helpers.request('GET', 'blocks/getNethash').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.success).to.be.equal(false)
-      expect(res.body.error).to.be.a('string').contains('should be <= 100')
+        res.body.should.have.property('nethash').which.is.an('string')
 
-      done()
+        // TODO adjust when environment setup properly
+        // res.body.should.have.property('nethash').which.equals(config.network.nethash)
+
+        done()
+      })
     })
   })
-})
 
-describe('GET /api/blocks/getfees', () => {
-  it('should return matching fees with the config', (done) => {
-    Helpers.request('blocks/getFees').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+  describe('GET /api/blocks/getMilestone', () => {
+    it('should be ok', (done) => {
+      Helpers.request('GET', 'blocks/getMilestone').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body).to.have.property('fees')
+        res.body.should.have.property('milestone').which.is.a('number')
 
-      // TODO adjust when environment setup properly
-      // expect(res.body.fees).to.equal(config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees)
-
-      done()
+        done()
+      })
     })
   })
-})
 
-describe('GET /api/blocks/getNethash', () => {
-  it('should be ok', (done) => {
-    Helpers.request('blocks/getNethash').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+  describe('GET /api/blocks/getReward', () => {
+    it('should be ok', (done) => {
+      Helpers.request('GET', 'blocks/getReward').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.nethash).to.be.a('string')
+        res.body.should.have.property('reward').which.is.a('number')
 
-      // TODO adjust when environment setup properly
-      // expect(res.body.nethash).to.equal(config.network.nethash)
-
-      done()
+        done()
+      })
     })
   })
-})
 
-describe('GET /api/blocks/getMilestone', () => {
-  it('should be ok', (done) => {
-    Helpers.request('blocks/getMilestone').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+  describe('GET /api/blocks/getSupply', () => {
+    it('should be ok', (done) => {
+      Helpers.request('GET', 'blocks/getSupply').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.milestone).to.be.a('number')
+        res.body.should.have.property('supply').which.is.a('number')
 
-      done()
+        done()
+      })
     })
   })
-})
 
-describe('GET /api/blocks/getReward', () => {
-  it('should be ok', (done) => {
-    Helpers.request('blocks/getReward').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+  describe('GET /api/blocks/getStatus', () => {
+    it('should be ok', (done) => {
+      Helpers.request('GET', 'blocks/getStatus').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.reward).to.be.a('number')
+        res.body.should.have.property('epoch').which.is.a('string')
+        res.body.should.have.property('height').which.is.a('number')
+        res.body.should.have.property('fee').which.is.a('number')
+        res.body.should.have.property('milestone').which.is.a('number')
+        res.body.should.have.property('nethash').which.is.a('string')
+        res.body.should.have.property('reward').which.is.a('number')
+        res.body.should.have.property('supply').which.is.a('number')
 
-      done()
-    })
-  })
-})
-
-describe('GET /api/blocks/getSupply', () => {
-  it('should be ok', (done) => {
-    Helpers.request('blocks/getSupply').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
-
-      expect(res.body.supply).to.be.a('number')
-
-      done()
-    })
-  })
-})
-
-describe('GET /api/blocks/getStatus', () => {
-  it('should be ok', (done) => {
-    Helpers.request('blocks/getStatus').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
-
-      expect(res.body.epoch).to.be.a('string')
-      expect(res.body.height).to.be.a('number')
-      expect(res.body.fee).to.be.a('number')
-      expect(res.body.milestone).to.be.a('number')
-      expect(res.body.nethash).to.be.a('string')
-      expect(res.body.reward).to.be.a('number')
-      expect(res.body.supply).to.be.a('number')
-
-      done()
+        done()
+      })
     })
   })
 })
