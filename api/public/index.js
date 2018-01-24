@@ -10,6 +10,7 @@ const Validator = require('../plugins/validator')
 const Cache = require('../plugins/cache')
 const State = require('../plugins/state')
 const VersionPlugin = require('../plugins/version')
+const Paginator = require('../plugins/pagination')
 
 class PublicAPI {
   constructor (config) {
@@ -43,6 +44,7 @@ class PublicAPI {
       .use(restify.plugins.queryParser())
       .use(restify.plugins.gzipResponse())
       .use((req, res, next) => new Validator().mount(req, res, next))
+      .use((req, res, next) => new Paginator().mount(req, res, next))
 
     if (this.config.server.api.cache) {
       this.server
