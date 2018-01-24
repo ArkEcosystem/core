@@ -1,13 +1,11 @@
-const chai = require('chai')
-const { expect } = require('chai')
 const Helpers = require('../helpers')
 
-describe('GET api/signatures', () => {
-  it('should successfully send the request', (done) => {
-    Helpers.request('signatures').end((err, res) => {
-        Helpers.assertError(err, res, 501)
-
+describe('API 2.0 - Signatures', () => {
+  describe.skip('GET /api/signatures', () => {
+    it('should GET all the signatures', (done) => {
+      Helpers.request('GET', 'signatures').end((err, res) => {
         done()
       })
+    })
   })
 })

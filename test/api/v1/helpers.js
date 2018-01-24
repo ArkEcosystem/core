@@ -1,32 +1,36 @@
 const chai = require('chai')
-const { expect } = require('chai')
+const should = chai.should()
 
 class Helpers {
-  request (url) {
-    return chai
+  request (method, path, params = {}) {
+    let request = chai
       .request('http://localhost:4003/api/')
-      .get(url)
-      .set('Accept-Version', '1.0.0')
+
+    request = request[method.toLowerCase()](path)
+    request = (method === 'GET') ? request.query(params) : request.send(params)
+
+    return request.set('Accept-Version', '1.0.0')
   }
 
   assertJson (data) {
-    expect(data).to.be.a('object')
+    data.body.should.be.a('object')
   }
 
   assertStatus (data, code) {
-    expect(data).to.have.status(code)
+    data.should.have.status(code)
   }
 
   assertVersion (data, version) {
-    expect(data.body.meta.matchedVersion).to.equal(version)
+    data.body.should.have.property('meta').which.is.an('object')
+    data.body.meta.should.have.property('matchedVersion').eql(version)
   }
 
   assertState (data, state) {
-    expect(data.body.success).to.be.equal(state)
+    data.body.should.have.property('success').eql(state)
   }
 
   assertSuccessful (err, res) {
-    expect(err).to.be.a('null')
+    should.not.exist(err)
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, true)
@@ -34,7 +38,7 @@ class Helpers {
   }
 
   assertError (err, res) {
-    expect(err).to.be.a('null')
+    should.not.exist(err)
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, false)

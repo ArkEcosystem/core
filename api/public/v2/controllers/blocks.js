@@ -17,7 +17,7 @@ class BlocksController {
   transactions (req, res, next) {
     db.blocks
       .findById(req.params.id)
-      .then(block => db.blocks.paginateByBlock(block.id, helpers.getPaginator()))
+      .then(block => db.transactions.paginateByBlock(block.id, helpers.getPaginator()))
       .then(transactions => helpers.respondWithPagination(transactions, 'transaction'))
   }
 

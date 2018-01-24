@@ -13,7 +13,7 @@
     "snapshot:devnet": "nodemon snapshot.js -c config/devnet",
     "test": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts",
     "test:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts",
-    "test:api": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.api",
+    "test:api": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.api --timeout 5000",
     "test:api:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.api",
     "test:unit": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.unit",
     "test:unit:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.unit",

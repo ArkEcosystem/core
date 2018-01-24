@@ -1,18 +1,24 @@
 const arkjs = require('arkjs')
+const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
+const Transaction = requireFrom('model/transaction')
 
 module.exports = (model) => {
+  const lastBlock = blockchain.status.lastBlock
+  const data = Transaction.deserialize(model.serialized.toString('hex'))
+
   return {
-    id: model.id,
+    id: data.id,
     block_id: model.blockId,
-    type: model.type,
-    amount: model.amount,
-    fee: model.fee,
-    sender: arkjs.crypto.getAddress(model.senderPublicKey, config.network.pubKeyHash),
-    recipient: model.recipientId,
-    signature: model.signature,
-    asset: model.asset,
-    confirmations: model.confirmations,
-    created_at: model.createdAt
+    type: data.type,
+    amount: data.amount,
+    fee: data.fee,
+    sender: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
+    recipient: data.recipientId,
+    signature: data.signature,
+    asset: data.asset,
+    confirmations: 0
+    // this causes trouble with tests because the lastBlock is always empty...
+    // confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
   }
 }

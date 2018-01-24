@@ -1,14 +1,15 @@
-const { expect } = require('chai')
 const Helpers = require('../helpers')
 
-describe('GET /api/signatures/fee', () => {
-  it('should return second signature value from config', (done) => {
-    Helpers.request('signatures/fee').end((err, res) => {
-      Helpers.assertSuccessful(err, res)
+describe('API 1.0 - Signatures', () => {
+  describe('GET /api/signatures/fee', () => {
+    it('should return second signature value from config', (done) => {
+      Helpers.request('GET', 'signatures/fee').end((err, res) => {
+        Helpers.assertSuccessful(err, res)
 
-      expect(res.body.fee).to.be.a('number')
+        res.body.should.have.property('fee').which.is.a('number')
 
-      done()
+        done()
+      })
     })
   })
 })
