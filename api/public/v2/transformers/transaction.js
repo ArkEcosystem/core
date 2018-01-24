@@ -17,8 +17,6 @@ module.exports = (model) => {
     recipient: data.recipientId,
     signature: data.signature,
     asset: data.asset,
-    confirmations: 0
-    // this causes trouble with tests because the lastBlock is always empty...
-    // confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
+    confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
   }
 }
