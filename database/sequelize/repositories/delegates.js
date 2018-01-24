@@ -4,30 +4,20 @@ class DelegatesRepository {
   }
 
   all (params = {}) {
-    return Promise.resolve(this._getLocalAccounts())
+    return Promise.resolve(Object.values(this.db.localaccounts).filter(a => !!a.username))
   }
 
   paginate (pager, queryParams = {}) {
     let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
-    const accounts = this._getLocalAccounts()
-
-    return Promise.resolve({
+    return this.all().then((accounts) => ({
       rows: accounts.slice(offset, offset + pager.limit),
       count: accounts.length
-    })
+    }))
   }
 
   findById (id) {
-    return Promise.resolve(
-      this
-        ._getLocalAccounts()
-        .find(a => (a.address === id || a.publicKey === id || a.username === id))
-    )
-  }
-
-  _getLocalAccounts () {
-    return Object.values(this.db.localaccounts).filter(a => !!a.username)
+    return this.all().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 }
 

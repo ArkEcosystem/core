@@ -4,7 +4,7 @@ const helpers = require('../helpers')
 class TransactionsController {
   index (req, res, next) {
     db.transactions
-      .all(req.query, true)
+      .all(req.query)
       .then(result => {
         if (!result) return helpers.respondWith('error', 'No transactions found')
 

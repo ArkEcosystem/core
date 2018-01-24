@@ -7,62 +7,46 @@ class AccountsRepository {
   }
 
   all () {
-    return Promise.resolve(this._getLocalAccounts())
+    return Promise.resolve(Object.values(this.db.localaccounts))
   }
 
   paginate (pager, queryParams = {}) {
     let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
 
-    const accounts = this._getLocalAccounts()
-
-    return Promise.resolve({
-      rows: accounts.slice(offset, offset + pager.limit),
-      count: accounts.length
-    })
+    return this.all().then((accounts) => ({
+      count: accounts.length,
+      rows: accounts.slice(offset, offset + pager.limit)
+    }))
   }
 
   paginateByVote (publicKey, pager) {
-    return Promise.resolve(this._getLocalAccounts().filter(a => a.vote === publicKey))
+    return this.all().then((accounts) => accounts.filter(a => a.vote === publicKey))
   }
 
   findById (id) {
-    return Promise.resolve(
-      this
-        ._getLocalAccounts()
-        .find(a => (a.address === id || a.publicKey === id || a.username === id))
-    )
+    return this.all().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 
   findAllByVote (publicKey) {
-    return Promise.resolve(this._getLocalAccounts().filter(a => a.vote === publicKey))
+    return this.all().then((accounts) => accounts.filter(a => a.vote === publicKey))
   }
 
   count () {
-    return Promise.resolve(this._getLocalAccounts().length)
+    return this.all().then((accounts) => accounts.length)
   }
 
   top (queryParams) {
-    return Promise.resolve(_.sortBy(this._getLocalAccounts(), 'balance').reverse())
+    return this.all().then((accounts) => _.sortBy(accounts, 'balance').reverse())
   }
 
   search (queryParams) {
-    return filterObject(
-      this._getLocalAccounts(),
-      queryParams,
-      {
-        exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
-        between: ['balance', 'votebalance']
-      }
-    ).then(results => {
-      return {
-        count: results.length,
-        rows: results
-      }
-    })
-  }
-
-  _getLocalAccounts () {
-    return Object.values(this.db.localaccounts)
+    return this.all().then((accounts) => filterObject(accounts, queryParams, {
+      exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+      between: ['balance', 'votebalance']
+    }).then(results => ({
+      count: results.length,
+      rows: results
+    })))
   }
 }
 
