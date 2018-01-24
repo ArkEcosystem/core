@@ -11,7 +11,7 @@
     "forge:devnet": "nodemon startForger.js -c config/devnet",
     "forge:testnet": "nodemon startForger.js -c config/testnet",
     "snapshot:devnet": "nodemon snapshot.js -c config/devnet",
-    "test": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts",
+    "test": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts --timeout 5000",
     "test:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts",
     "test:api": "NODE_PATH=. NODE_ENV=test mocha --opts test/mocha.opts.api --timeout 5000",
     "test:api:watch": "NODE_PATH=. NODE_ENV=test mocha -w --opts test/mocha.opts.api",
