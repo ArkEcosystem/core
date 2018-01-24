@@ -102,6 +102,7 @@ class SequelizeDB extends DBInterface {
           'recipientId',
           [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
         ],
+        where: {type: 0},
         group: 'recipientId'
       })
       .then(data => {
@@ -140,7 +141,6 @@ class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 3, 7, 'sent transactions')
         data.forEach(row => {
-          if (!row.senderPublicKey) return
           let account = this.localaccounts[arkjs.crypto.getAddress(row.senderPublicKey, config.network.pubKeyHash)]
           if (account) {
             account.publicKey = row.senderPublicKey
@@ -150,7 +150,8 @@ class SequelizeDB extends DBInterface {
             account.publicKey = row.senderPublicKey
             account.balance = -parseInt(row.amount) - parseInt(row.fee)
             this.localaccounts[account.address] = account
-            logger.debug(account.address, row.amount, row.fee)
+            logger.warn('Negative balance should never happen except from premining address:')
+            logger.warn(account)
           }
         })
         return this.transactionsTable.findAll({
