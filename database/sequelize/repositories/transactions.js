@@ -103,11 +103,22 @@ class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsTable.findById(id)
+    return this.db.transactionsTable.findById(id, {
+      include: {
+        model: this.db.blocksTable,
+        attributes: ['height']
+      }
+    })
   }
 
   findByIdAndType (id, type) {
-    return this.db.transactionsTable.findOne({ where: {id, type} })
+    return this.db.transactionsTable.findOne({
+      where: {id, type},
+      include: {
+        model: this.db.blocksTable,
+        attributes: ['height']
+      }
+    })
   }
 
   allByDateAndType (type, from, to) {
@@ -119,6 +130,10 @@ class TransactionsRepository {
           [Op.lte]: moment(to).endOf('day').toDate(),
           [Op.gte]: moment(from).startOf('day').toDate()
         }
+      },
+      include: {
+        model: this.db.blocksTable,
+        attributes: ['height']
       }
     }).then(results => {
       return {
@@ -139,7 +154,11 @@ class TransactionsRepository {
             between: ['timestamp', 'amount', 'fee'],
             wildcard: ['vendorFieldHex']
           }
-        )
+        ),
+        include: {
+          model: this.db.blocksTable,
+          attributes: ['height']
+        }
       })
       // .then(results => {
       //   return {
