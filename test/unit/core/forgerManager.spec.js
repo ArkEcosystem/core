@@ -7,9 +7,10 @@ describe('Core | ForgerManager', () => {
     network: { nethash: 'lol-hash' }
   }
 
-  const delegateConfig = Object.assign({
-    delegates: { secrets: ['do-not-tell-anyone'] }
-  }, config)
+  const delegateConfig = {
+    ...{ delegates: { secrets: ['do-not-tell-anyone'] } },
+    ...config
+  }
 
   describe('loadDelegates', () => {
     it('returns a promise', () => {

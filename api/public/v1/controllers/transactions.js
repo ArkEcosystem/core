@@ -4,7 +4,7 @@ const utils = require('../utils')
 class TransactionsController {
   index (req, res, next) {
     db.transactions
-      .findAll(Object.assign(req.query, utils.paginator()))
+      .findAll({...req.query, ...utils.paginator()})
       .then(result => {
         if (!result) return utils.respondWith('error', 'No transactions found')
 

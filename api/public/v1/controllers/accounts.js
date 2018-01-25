@@ -7,7 +7,7 @@ const utils = require('../utils')
 class WalletsController {
   index (req, res, next) {
     db.accounts
-      .findAll(Object.assign(req.query, utils.paginator()))
+      .findAll({...req.query, ...utils.paginator()})
       .then(result => utils.toCollection(result.rows, 'account'))
       .then(accounts => utils.respondWith('ok', {accounts}))
   }
