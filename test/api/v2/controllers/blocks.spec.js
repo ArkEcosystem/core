@@ -36,7 +36,7 @@ describe('API 2.0 - Blocks', () => {
   })
 
   describe('GET /api/blocks/:id', () => {
-    it('should GET a block by the given id', (done) => {
+    it('should GET a block by the given identifier', (done) => {
       Helpers.request('GET', `blocks/${blockId}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)

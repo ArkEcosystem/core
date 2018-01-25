@@ -7,27 +7,27 @@ class BlocksRepository {
     this.db = db
   }
 
-all (queryParams) {
+findAll (params) {
     let whereStatement = {}
     let orderBy = []
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
-      if (queryParams[elem]) whereStatement[elem] = queryParams[elem]
+      if (params[elem]) whereStatement[elem] = params[elem]
     }
 
-    if (queryParams.orderBy) orderBy.push(queryParams.orderBy.split(':'))
+    if (params.orderBy) orderBy.push(params.orderBy.split(':'))
 
     return this.db.blocksTable.findAndCountAll({
       where: whereStatement,
       order: orderBy,
-      offset: queryParams.offset,
-      limit: queryParams.limit
+      offset: params.offset,
+      limit: params.limit
     })
   }
 
-  allByGenerator (generatorPublicKey, paginator) {
-    return this.all(Object.assign({where: {generatorPublicKey}}, paginator))
+  findAllByGenerator (generatorPublicKey, paginator) {
+    return this.findAll(Object.assign({where: {generatorPublicKey}}, paginator))
   }
 
   findById (id) {
@@ -42,7 +42,7 @@ all (queryParams) {
     })
   }
 
-  allByDateTimeRange (from, to) {
+  findAllByDateTimeRange (from, to) {
     return this.db.blocksTable.findAndCountAll({
       attributes: ['totalFee', 'reward'],
       where: {

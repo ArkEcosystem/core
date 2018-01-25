@@ -8,7 +8,7 @@ class TransactionsRepository {
     this.db = db
   }
 
-  all (queryParams) {
+  findAll (queryParams) {
     let whereStatement = {}
     let orderBy = []
 
@@ -42,8 +42,8 @@ class TransactionsRepository {
     })
   }
 
-  allByWallet (wallet, paginator) {
-    return this.all(Object.assign({
+  findAllByWallet (wallet, paginator) {
+    return this.findAll(Object.assign({
       [Op.or]: [{
         senderPublicKey: wallet.publicKey
       }, {
@@ -52,24 +52,24 @@ class TransactionsRepository {
     }, paginator))
   }
 
-  allBySender (senderPublicKey, paginator) {
-    return this.all(Object.assign({senderPublicKey}, paginator))
+  findAllBySender (senderPublicKey, paginator) {
+    return this.findAll(Object.assign({senderPublicKey}, paginator))
   }
 
-  allByRecipient (recipientId, paginator) {
-    return this.all(Object.assign({recipientId}, paginator))
+  findAllByRecipient (recipientId, paginator) {
+    return this.findAll(Object.assign({recipientId}, paginator))
   }
 
   allVotesBySender (senderPublicKey, paginator) {
-    return this.all(Object.assign({senderPublicKey, type: 3}, paginator))
+    return this.findAll(Object.assign({senderPublicKey, type: 3}, paginator))
   }
 
-  allByBlock (blockId, paginator) {
-    return this.all(Object.assign({blockId}, paginator))
+  findAllByBlock (blockId, paginator) {
+    return this.findAll(Object.assign({blockId}, paginator))
   }
 
-  allByType (type, paginator) {
-    return this.all(Object.assign({type}, paginator))
+  findAllByType (type, paginator) {
+    return this.findAll(Object.assign({type}, paginator))
   }
 
   findById (id) {
@@ -91,7 +91,7 @@ class TransactionsRepository {
     })
   }
 
-  allByDateAndType (type, from, to) {
+  findAllByDateAndType (type, from, to) {
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
       where: {

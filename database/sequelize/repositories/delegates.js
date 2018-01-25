@@ -3,19 +3,19 @@ class DelegatesRepository {
     this.db = db
   }
 
-  all (params = {}) {
+  findAll (params = {}) {
     return Promise.resolve(this.db.accountManager.getLocalAccounts().filter(a => !!a.username))
   }
 
-  paginate (pager, queryParams = {}) {
-    return this.all().then((accounts) => ({
-      rows: accounts.slice(pager.offset, pager.offset + pager.limit),
+  paginate (params) {
+    return this.findAll().then((accounts) => ({
+      rows: accounts.slice(params.offset, params.offset + params.limit),
       count: accounts.length
     }))
   }
 
   findById (id) {
-    return this.all().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
+    return this.findAll().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 }
 
