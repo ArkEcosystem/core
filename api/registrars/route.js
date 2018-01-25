@@ -5,35 +5,33 @@ module.exports = class RouteRegistrar {
     this.prefix = prefix
   }
 
-  get (path, action, schema) {
-    this.server.get(this.buildConfig(path, schema), action)
+  get (path, action, options) {
+    this.server.get(this.buildConfig(path, options), action)
   }
 
-  post (path, action, schema) {
-    this.server.post(this.buildConfig(path, schema), action)
+  post (path, action, options) {
+    this.server.post(this.buildConfig(path, options), action)
   }
 
-  put (path, action, schema) {
-    this.server.put(this.buildConfig(path, schema), action)
+  put (path, action, options) {
+    this.server.put(this.buildConfig(path, options), action)
   }
 
-  patch (path, action, schema) {
-    this.server.patch(this.buildConfig(path, schema), action)
+  patch (path, action, options) {
+    this.server.patch(this.buildConfig(path, options), action)
   }
 
-  delete (path, action, schema) {
-    this.server.delete(this.buildConfig(path, schema), action)
+  delete (path, action, options) {
+    this.server.delete(this.buildConfig(path, options), action)
   }
 
-  buildConfig (path, schema) {
+  buildConfig (path, options) {
     let config = {
       path: this.prefix + '/' + path,
       version: this.version
     }
 
-    if (schema) {
-      config = {...config, ...{ schema }}
-    }
+    if (options) config = {...config, ...options}
 
     return config
   }
