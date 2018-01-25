@@ -5,12 +5,12 @@ const restify = require('restify')
 
 const RouteRegistrar = require('../registrars/route')
 
-const Throttle = require('../plugins/throttle')
-const Validator = require('../plugins/validator')
-const Cache = require('../plugins/cache')
-const State = require('../plugins/state')
+const ThrottlePlugin = require('../plugins/throttle')
+const ValidatorPlugin = require('../plugins/validator')
+const CachePlugin = require('../plugins/cache')
+const StatePlugin = require('../plugins/state')
 const VersionPlugin = require('../plugins/version')
-const Paginator = require('../plugins/paginator')
+const PaginatorPlugin = require('../plugins/paginator')
 
 class PublicAPI {
   constructor (config) {
@@ -41,15 +41,15 @@ class PublicAPI {
       .use(restify.plugins.bodyParser({ mapParams: true }))
       .use(restify.plugins.queryParser())
       .use(restify.plugins.gzipResponse())
-      .use((req, res, next) => new State().mount(req, res, next))
-      .use((req, res, next) => new Throttle(this.config.server.api.throttle).mount(req, res, next))
-      .use((req, res, next) => new Validator().mount(req, res, next))
-      .use((req, res, next) => new Paginator().mount(req, res, next))
+      .use((req, res, next) => new StatePlugin().mount(req, res, next))
+      .use((req, res, next) => new ThrottlePlugin(this.config.server.api.throttle).mount(req, res, next))
+      .use((req, res, next) => new ValidatorPlugin().mount(req, res, next))
+      .use((req, res, next) => new PaginatorPlugin().mount(req, res, next))
 
     if (this.config.server.api.cache) {
       this.server
-        .use((req, res, next) => Cache.before(req, res, next))
-        .on('after', Cache.after)
+        .use((req, res, next) => CachePlugin.before(req, res, next))
+        .on('after', CachePlugin.after)
     }
   }
 

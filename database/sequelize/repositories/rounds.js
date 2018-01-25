@@ -1,4 +1,4 @@
-class RoundsRepository {
+module.exports = class RoundsRepository {
   constructor (db) {
     this.db = db
   }
@@ -7,5 +7,3 @@ class RoundsRepository {
     return this.db.roundsTable.bulkCreate(data)
   }
 }
-
-module.exports = RoundsRepository

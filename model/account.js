@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
 const config = requireFrom('core/config')
 
-class Account {
+module.exports = class Account {
   constructor (address) {
     this.address = address
     this.publicKey = null
@@ -175,5 +175,3 @@ function verify (transaction, signature, publicKey) {
   const ecsignature = arkjs.ECSignature.fromDER(signSignatureBuffer)
   return ecpair.verify(hash, ecsignature)
 }
-
-module.exports = Account

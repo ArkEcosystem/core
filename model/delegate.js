@@ -2,7 +2,7 @@ const arkjs = require('arkjs')
 const crypto = require('crypto')
 const Block = require('./block')
 
-class Delegate {
+module.exports = class Delegate {
   constructor (passphrase, network) {
     this.keys = arkjs.crypto.getKeys(passphrase)
     this.publicKey = this.keys.publicKey
@@ -58,5 +58,3 @@ class Delegate {
       })
   }
 }
-
-module.exports = Delegate

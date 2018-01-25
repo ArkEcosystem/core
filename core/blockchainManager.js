@@ -8,7 +8,7 @@ let db = null
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-class BlockchainManager {
+module.exports = class BlockchainManager {
   constructor (config) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
@@ -327,5 +327,3 @@ class BlockchainManager {
     return db
   }
 }
-
-module.exports = BlockchainManager

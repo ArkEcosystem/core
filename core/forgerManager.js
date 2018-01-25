@@ -2,7 +2,7 @@ const popsicle = require('popsicle')
 const Delegate = require('../model/delegate')
 const logger = require('./logger')
 
-class ForgerManager {
+module.exports = class ForgerManager {
   constructor (config) {
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
@@ -79,5 +79,3 @@ class ForgerManager {
       .then((result) => result.body.round)
   }
 }
-
-module.exports = ForgerManager

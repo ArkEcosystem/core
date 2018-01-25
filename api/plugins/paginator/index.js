@@ -11,7 +11,7 @@ const config = {
   }
 }
 
-module.exports = class Paginator {
+module.exports = class PaginatorPlugin {
   mount (req, res, next) {
     this.request = req
 

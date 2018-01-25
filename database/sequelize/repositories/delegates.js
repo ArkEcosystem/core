@@ -1,4 +1,4 @@
-class DelegatesRepository {
+module.exports = class DelegatesRepository {
   constructor (db) {
     this.db = db
   }
@@ -18,5 +18,3 @@ class DelegatesRepository {
     return this.findAll().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 }
-
-module.exports = DelegatesRepository

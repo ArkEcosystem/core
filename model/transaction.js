@@ -3,7 +3,7 @@ const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const config = require('../core/config')
 
-class Transaction {
+module.exports = class Transaction {
   constructor (transaction) {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
@@ -251,5 +251,3 @@ class Transaction {
     }
   }
 }
-
-module.exports = Transaction

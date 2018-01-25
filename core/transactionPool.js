@@ -1,7 +1,7 @@
 const async = require('async')
 const arkjs = require('arkjs')
 
-class TransactionPool {
+module.exports = class TransactionPool {
   constructor (config) {
     this.config = config
 
@@ -35,5 +35,3 @@ class TransactionPool {
 
   // }
 }
-
-module.exports = TransactionPool
