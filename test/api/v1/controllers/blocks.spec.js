@@ -68,7 +68,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getNethash').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('nethash').which.is.an('string')
+        res.body.should.have.property('nethash').which.is.a('string')
 
         // TODO adjust when environment setup properly
         // res.body.should.have.property('nethash').which.equals(config.network.nethash)

@@ -1,5 +1,3 @@
-const { expect } = require('chai')
-
 const Transaction = require('model/transaction')
 
 const txdata = {
@@ -29,8 +27,8 @@ const tx = Transaction.fromBytes(hex)
 describe('Model | Transaction', () => {
   describe('static fromBytes', () => {
     it('returns a new transaction', () => {
-      expect(tx).which.is.an.instanceof(Transaction)
-      expect(tx.data).to.deep.equal(txdata)
+      tx.should.be.an.instanceof(Transaction)
+      tx.data.should.deep.equal(txdata)
     })
   })
 

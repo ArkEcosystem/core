@@ -1,7 +1,3 @@
-const {
-  expect
-} = require('chai')
-
 const Account = require('model/account')
 
 const testAccount = new Account('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
@@ -85,13 +81,11 @@ describe('Model | Account', () =>
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
       account.balance = balance * 10 ** 8
 
-      expect(account.toString()).to.eql(`${address}=${balance}`)
+      account.toString().should.equal(`${address}=${balance}`)
     })
   ),
 
   describe('apply transaction', () =>
-    it('should be ok for a multitx', () => {
-      expect(testAccount.canApply(multitx)).which.is.true
-    })
+    it('should be ok for a multitx', () => testAccount.canApply(multitx).should.be.true)
   )
 )

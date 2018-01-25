@@ -1,5 +1,3 @@
-const { expect } = require('chai')
-
 const Delegate = require('model/delegate')
 const Account = require('model/account')
 
@@ -12,7 +10,7 @@ describe('Model | Delegate', () => {
       ]
       const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]]
 
-      expect(Delegate.sortTransactions(unordered)).to.eql(ordered)
+      Delegate.sortTransactions(unordered).should.deep.equal(ordered)
     })
   })
 
@@ -23,12 +21,11 @@ describe('Model | Delegate', () => {
         const account = new Account(address)
         account.balance = 10 ** 8
 
-        expect(account.toString()).to.eql(`${address}=1`)
+        account.toString().should.equal(`${address}=1`)
       })
 
       // TODO probably useful for debugging
-      it.skip('throws an Error', () => {
-      })
+      it.skip('throws an Error', () => {})
     })
   })
 })

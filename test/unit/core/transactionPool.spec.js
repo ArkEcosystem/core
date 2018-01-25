@@ -4,7 +4,7 @@
 //   describe('new', ()=> {
 //     it('establish an empty pool', function() {
 //       const pool = new TransactionPool()
-//       expect(pool.pool).to.be({})
+//       pool.pool.should.be.an({})
 //     })
 //   })
 // })
