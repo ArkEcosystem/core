@@ -11,6 +11,8 @@ class LoaderController {
       now: lastBlock ? lastBlock.data.height : 0,
       blocksCount: blockchain.networkInterface.getNetworkHeight() - lastBlock.data.height
     })
+
+    next()
   }
 
   syncing (req, res, next) {
@@ -22,6 +24,8 @@ class LoaderController {
       height: lastBlock.data.height,
       id: lastBlock.data.id
     })
+
+    next()
   }
 
   configuration (req, res, next) {
@@ -32,6 +36,8 @@ class LoaderController {
       explorer: config.network.client.explorer,
       version: config.network.pubKeyHash
     })
+
+    next()
   }
 }
 

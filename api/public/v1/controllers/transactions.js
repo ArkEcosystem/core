@@ -12,6 +12,7 @@ class TransactionsController {
           transactions: utils.toCollection(result.rows, 'transaction')
         })
       })
+      .then(() => next())
   }
 
   show (req, res, next) {
@@ -24,16 +25,21 @@ class TransactionsController {
           transaction: utils.toResource(result, 'transaction')
         })
       })
+      .then(() => next())
   }
 
   unconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    utils.respondWith('error', 'Method has not yet been implemented.')
+    utils
+      .respondWith('error', 'Method has not yet been implemented.')
+      .then(() => next())
   }
 
   showUnconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    utils.respondWith('error', 'Method has not yet been implemented.')
+    utils
+      .respondWith('error', 'Method has not yet been implemented.')
+      .then(() => next())
   }
 }
 

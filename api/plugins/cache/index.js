@@ -12,19 +12,24 @@ class CachePlugin {
       }
 
       response.header('X-Cache', 'HIT')
+      response.header('Content-Type', 'application/json')
       response.writeHead(200)
       response.end(data)
     })
   }
 
   after (request, response, route, error) {
-    this._getInstance().set(this._generateKey(request), response._data);
+    if (response.statusCode === 200) {
+      this._getInstance().set(this._generateKey(request), response._data)
+    }
   }
 
   _generateKey (request) {
     return this._getInstance().generateKey({
       url: request.url,
-      params: request.params
+      params: request.params,
+      body: request.body,
+      version: request.version()
     })
   }
 

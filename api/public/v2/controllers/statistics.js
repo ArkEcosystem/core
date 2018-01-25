@@ -46,6 +46,8 @@ class StatisticsController {
             worst: walletsByProductivity.reverse()[0]
           }
         })
+
+        next()
       })
     })
   }
@@ -58,6 +60,7 @@ class StatisticsController {
         amount: _.sumBy(blocks.rows, 'amount'),
         fees: _.sumBy(blocks.rows, 'fee')
       }))
+      .then(() => next())
   }
 
   blocks (req, res, next) {
@@ -68,6 +71,7 @@ class StatisticsController {
         rewards: _.sumBy(blocks.rows, 'reward'),
         fees: _.sumBy(blocks.rows, 'totalFee')
       }))
+      .then(() => next())
   }
 
   votes (req, res, next) {
@@ -79,6 +83,7 @@ class StatisticsController {
         amount: _.sumBy(transactions.rows, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }))
+      .then(() => next())
   }
 
   unvotes (req, res, next) {
@@ -90,6 +95,7 @@ class StatisticsController {
         amount: _.sumBy(transactions.rows, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }))
+      .then(() => next())
   }
 }
 

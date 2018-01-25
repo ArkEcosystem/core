@@ -14,8 +14,6 @@ module.exports = class Helpers {
 
   static respondWith (method, data) {
     data ? responder[method](data) : responder.internalServerError('Record could not be found.')
-
-    State.getNext()
   }
 
   static respondWithPagination (data, transformerClass) {
@@ -29,7 +27,7 @@ module.exports = class Helpers {
       responder.ok({ data: [] })
     }
 
-    State.getNext()
+    return Promise.resolve()
   }
 
   static respondWithResource (data, transformerClass) {
@@ -37,7 +35,7 @@ module.exports = class Helpers {
       ? responder.ok({ data: this.toResource(data, transformerClass) })
       : responder.resourceNotFound('Record could not be found.')
 
-    State.getNext()
+    return Promise.resolve()
   }
 
   static respondWithCollection (data, transformerClass) {
@@ -45,7 +43,7 @@ module.exports = class Helpers {
       ? responder.ok({ data: this.toCollection(data, transformerClass) })
       : responder.ok({ data: [] })
 
-    State.getNext()
+    return Promise.resolve()
   }
 
   static toResource (data, transformerClass) {
