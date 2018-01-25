@@ -11,9 +11,9 @@ class TransactionsController {
 
   store (req, res, next) {
     // think about if this will be implemented here or in a "transport" controller
-    utils.respondWith('notImplemented', 'Method has not yet been implemented.')
-
-    next()
+    utils
+      .respondWith('notImplemented', 'Method has not yet been implemented.')
+      .then(() => next())
   }
 
   show (req, res, next) {
@@ -25,16 +25,16 @@ class TransactionsController {
 
   unconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    utils.respondWith('notImplemented', 'Method has not yet been implemented.')
-
-    next()
+    utils
+      .respondWith('notImplemented', 'Method has not yet been implemented.')
+      .then(() => next())
   }
 
   showUnconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    utils.respondWith('notImplemented', 'Method has not yet been implemented.')
-
-    next()
+    utils
+      .respondWith('notImplemented', 'Method has not yet been implemented.')
+      .then(() => next())
   }
 
   search (req, res, next) {

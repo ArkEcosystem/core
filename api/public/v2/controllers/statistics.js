@@ -28,26 +28,26 @@ class StatisticsController {
       })).then((accounts) => {
         const walletsByProductivity = _.sortBy(accounts, 'productivity')
 
-        utils.respondWith('ok', {
-          supply: {
-            initial: initialSupply * 10 ** 8,
-            current: (initialSupply + ((height - config.getConstants(height).height) * rewardPerBlock)) * 10 ** 8
-          },
-          blocks: {
-            forged: height,
-            rewards: height * rewardPerBlock
-          },
-          rewards: {
-            start: constants.height,
-            total: height * rewardPerBlock
-          },
-          productivity: {
-            best: walletsByProductivity[0],
-            worst: walletsByProductivity.reverse()[0]
-          }
-        })
-
-        next()
+        utils
+          .respondWith('ok', {
+            supply: {
+              initial: initialSupply * 10 ** 8,
+              current: (initialSupply + ((height - config.getConstants(height).height) * rewardPerBlock)) * 10 ** 8
+            },
+            blocks: {
+              forged: height,
+              rewards: height * rewardPerBlock
+            },
+            rewards: {
+              start: constants.height,
+              total: height * rewardPerBlock
+            },
+            productivity: {
+              best: walletsByProductivity[0],
+              worst: walletsByProductivity.reverse()[0]
+            }
+          })
+          .then(() => next())
       })
     })
   }
