@@ -9,6 +9,7 @@ class BlocksController {
       .findAll({...req.query, ...utils.paginator()})
       .then(result => utils.toCollection(result.rows, 'block'))
       .then(blocks => utils.respondWith('ok', {blocks}))
+      .then(() => next())
   }
 
   show (req, res, next) {
@@ -16,70 +17,89 @@ class BlocksController {
       .then(block => {
         if (!block) return utils.respondWith('error', `Block with id ${req.query.id} not found`)
 
-        utils.respondWith('ok', { block: utils.toResource(block, 'block') })
+        return utils.respondWith('ok', { block: utils.toResource(block, 'block') })
       })
+      .then(() => next())
   }
 
   epoch (req, res, next) {
-    utils.respondWith('ok', {
-      epoch: config.getConstants(blockchain.status.lastBlock.data.height).epoch
-    })
+    utils
+      .respondWith('ok', {
+        epoch: config.getConstants(blockchain.status.lastBlock.data.height).epoch
+      })
+      .then(() => next())
   }
 
   height (req, res, next) {
     const block = blockchain.status.lastBlock.data
 
-    utils.respondWith('ok', { height: block.height, id: block.id })
+    utils
+      .respondWith('ok', { height: block.height, id: block.id })
+      .then(() => next())
   }
 
   nethash (req, res, next) {
-    utils.respondWith('ok', { nethash: config.network.nethash })
+    utils
+      .respondWith('ok', { nethash: config.network.nethash })
+      .then(() => next())
   }
 
   fee (req, res, next) {
-    utils.respondWith('ok', {
-      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.send
-    })
+    utils
+      .respondWith('ok', {
+        fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.send
+      })
+      .then(() => next())
   }
 
   fees (req, res, next) {
-    utils.respondWith('ok', {
-      fees: config.getConstants(blockchain.status.lastBlock.data.height).fees
-    })
+    utils
+      .respondWith('ok', {
+        fees: config.getConstants(blockchain.status.lastBlock.data.height).fees
+      })
+      .then(() => next())
   }
 
   milestone (req, res, next) {
-    utils.respondWith('ok', {
-      milestone: ~~(blockchain.status.lastBlock.data.height / 3000000)
-    })
+    utils
+      .respondWith('ok', {
+        milestone: ~~(blockchain.status.lastBlock.data.height / 3000000)
+      })
+      .then(() => next())
   }
 
   reward (req, res, next) {
-    utils.respondWith('ok', {
-      reward: config.getConstants(blockchain.status.lastBlock.data.height).reward
-    })
+    utils
+      .respondWith('ok', {
+        reward: config.getConstants(blockchain.status.lastBlock.data.height).reward
+      })
+      .then(() => next())
   }
 
   supply (req, res, next) {
     const lastblock = blockchain.status.lastBlock.data
 
-    utils.respondWith('ok', {
-      supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
-    })
+    utils
+      .respondWith('ok', {
+        supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+      })
+      .then(() => next())
   }
 
   status (req, res, next) {
     const lastblock = blockchain.status.lastBlock.data
 
-    utils.respondWith('ok', {
-       epoch: config.getConstants(lastblock.height).epoch,
-       height: lastblock.height,
-       fee: config.getConstants(lastblock.height).fees.send,
-       milestone: ~~(lastblock.height / 3000000),
-       nethash: config.network.nethash,
-       reward: config.getConstants(lastblock.height).reward,
-       supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
-     })
+    utils
+      .respondWith('ok', {
+        epoch: config.getConstants(lastblock.height).epoch,
+        height: lastblock.height,
+        fee: config.getConstants(lastblock.height).fees.send,
+        milestone: ~~(lastblock.height / 3000000),
+        nethash: config.network.nethash,
+        reward: config.getConstants(lastblock.height).reward,
+        supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
+      })
+      .then(() => next())
   }
 }
 

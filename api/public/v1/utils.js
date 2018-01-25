@@ -12,7 +12,7 @@ module.exports = class Helpers {
       ? responder[method](data)
       : responder.error('Record could not be found.')
 
-    State.getNext()
+    return Promise.resolve()
   }
 
   static toResource (data, transformerClass) {

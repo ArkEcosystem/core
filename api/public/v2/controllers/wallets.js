@@ -6,18 +6,21 @@ class WalletsController {
     db.accounts
       .paginate(utils.paginator())
       .then(wallets => utils.respondWithPagination(wallets, 'wallet'))
+      .then(() => next())
   }
 
   top (req, res, next) {
     db.accounts
       .top()
       .then(wallet => utils.respondWithCollection(wallet, 'wallet'))
+      .then(() => next())
   }
 
   show (req, res, next) {
     db.accounts
       .findById(req.params.id)
       .then(wallet => utils.respondWithResource(wallet, 'wallet'))
+      .then(() => next())
   }
 
   transactions (req, res, next) {
@@ -25,6 +28,7 @@ class WalletsController {
       .findById(req.params.id)
       .then(wallet => db.transactions.findAllByWallet(wallet, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
+      .then(() => next())
   }
 
   transactionsSend (req, res, next) {
@@ -32,6 +36,7 @@ class WalletsController {
       .findById(req.params.id)
       .then(wallet => db.transactions.findAllBySender(wallet.publicKey, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
+      .then(() => next())
   }
 
   transactionsReceived (req, res, next) {
@@ -39,6 +44,7 @@ class WalletsController {
       .findById(req.params.id)
       .then(wallet => db.transactions.findAllByRecipient(wallet.address, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
+      .then(() => next())
   }
 
   votes (req, res, next) {
@@ -46,12 +52,14 @@ class WalletsController {
       .findById(req.params.id)
       .then(wallet => db.transactions.allVotesBySender(wallet.publicKey, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
+      .then(() => next())
   }
 
   search (req, res, next) {
     db.accounts
       .search(req.body)
       .then(wallets => utils.respondWithPagination(wallets, 'wallet'))
+      .then(() => next())
   }
 }
 

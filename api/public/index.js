@@ -48,8 +48,8 @@ class PublicAPI {
 
     if (this.config.server.api.cache) {
       this.server
-        .use((req, res, next) => CachePlugin.before(req, res, next))
-        .on('after', CachePlugin.after)
+        .use((request, response, next) => CachePlugin.before(request, response, next))
+        .on('after', (request, response, route, error) => CachePlugin.after(request, response, route, error))
     }
   }
 

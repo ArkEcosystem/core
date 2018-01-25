@@ -4,9 +4,11 @@ const utils = require('../utils')
 
 class SignaturesController {
   fee (req, res, next) {
-    utils.respondWith('ok', {
-      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.secondsignature
-    })
+    utils
+      .respondWith('ok', {
+        fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.secondsignature
+      })
+      .then(() => next())
   }
 }
 

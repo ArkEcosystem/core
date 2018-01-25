@@ -1,5 +1,6 @@
 const Promise = require('bluebird')
 const redis = require('redis')
+const util = require('util')
 const logger = require('./logger')
 
 let instance
@@ -37,6 +38,10 @@ module.exports = class Cache {
 
   set (key, value) {
     return Promise.resolve(this.client.set(`${this.connection}_${key}`, JSON.stringify(value)))
+  }
+
+  has (key) {
+    return this.client.getAsync(`${this.connection}_${key}`).then((data) => data ? true : false)
   }
 
   del (key) {

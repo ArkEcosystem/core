@@ -12,7 +12,6 @@ module.exports = class StatePlugin {
 
     instance.request = request
     instance.response = response
-    instance.next = next
 
     next()
   }
@@ -23,9 +22,5 @@ module.exports = class StatePlugin {
 
   static getResponse () {
     return instance.response
-  }
-
-  static getNext () {
-    return instance.next
   }
 }
