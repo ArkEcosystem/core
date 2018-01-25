@@ -15,7 +15,7 @@ module.exports = class Paginator {
   mount (req, res, next) {
     this.request = req
 
-    this.config = config[this.version()]
+    this.config = config[this._version()]
 
     this.page = parseInt(this.request.query[this.config.parameters.page]) || this.config.defaults.page
     this.perPage = parseInt(this.request.query[this.config.parameters.perPage]) || this.config.defaults.perPage
@@ -35,7 +35,7 @@ module.exports = class Paginator {
   }
 
   pointer () {
-    return (this.version() === '1.0.0')
+    return (this._version() === '1.0.0')
       ? { offset: +this.page, limit: +this.perPage }
       : { page: +this.page, perPage: +this.perPage }
   }
@@ -43,7 +43,7 @@ module.exports = class Paginator {
   links (count) {
     let links = {}
 
-    if (this.version() === '1.0.0') return links
+    if (this._version() === '1.0.0') return links
 
     if (this.page !== this.config.defaults.page) {
       this.params.page = this.config.defaults.page
@@ -67,7 +67,7 @@ module.exports = class Paginator {
   }
 
   _buildFullUrl () {
-    const pointer = (this.version() === '1.0.0')
+    const pointer = (this._version() === '1.0.0')
       ? { offset: +this.params.page, limit: +this.params.limit }
       : { page: +this.params.page, perPage: +this.params.perPage }
 
@@ -79,7 +79,7 @@ module.exports = class Paginator {
     })
   }
 
-  version () {
+  _version () {
     return this.request.version()
   }
 }

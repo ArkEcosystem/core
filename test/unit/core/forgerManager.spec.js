@@ -1,5 +1,3 @@
-const { expect } = require('chai')
-
 const ForgerManager = require('core/forgerManager')
 const Delegate = require('model/delegate')
 
@@ -8,6 +6,7 @@ describe('Core | ForgerManager', () => {
     server: { version: '0.0.1', port: 9999 },
     network: { nethash: 'lol-hash' }
   }
+
   const delegateConfig = Object.assign({
     delegates: { secrets: ['do-not-tell-anyone'] }
   }, config)
@@ -18,17 +17,16 @@ describe('Core | ForgerManager', () => {
       const promise = forger.loadDelegates()
       // Avoids the UnhandledPromiseRejectionWarning
       promise.catch(() => {})
-      expect(promise).which.is.a('promise')
+      promise.should.be.a('promise')
     })
 
     context('without configured delegates', () => {
       it('rejects with an Error', () => {
         const forger = new ForgerManager(config)
-        return forger.loadDelegates()
-          .catch(error => {
-            expect(error).which.is.an('error')
-            expect(error.message).to.match(/no delegate/i)
-          })
+        return forger.loadDelegates().catch(error => {
+          error.should.be.an('error')
+          error.message.should.match(/no delegate/i)
+        })
       })
     })
     context('with configured delegates', () => {
@@ -37,30 +35,25 @@ describe('Core | ForgerManager', () => {
         return forger.loadDelegates()
           .catch(error => console.error(error))
           .then(delegates => {
-            expect(delegates).which.is.an('array')
-            delegates.forEach(delegate => {
-              expect(delegate).which.is.an.instanceof(Delegate)
-            })
+            delegates.should.be.an('array')
+            delegates.forEach(delegate => delegate.should.be.an.instanceof(Delegate))
           })
       })
     })
   })
 
-  describe('startForging', () => {
-  })
+  describe('startForging', () => {})
 
-  describe('broadcast', () => {
-  })
+  describe('broadcast', () => {})
 
   describe('pickForgingDelegate', () => {
     it('returns a promise', () => {
       const forger = new ForgerManager(delegateConfig)
       forger.loadDelegates()
       const promise = forger.pickForgingDelegate({ delegate: {} })
-      expect(promise).which.is.a('promise')
+      promise.should.be.a('promise')
     })
   })
 
-  describe('getRound', () => {
-  })
+  describe('getRound', () => {})
 })

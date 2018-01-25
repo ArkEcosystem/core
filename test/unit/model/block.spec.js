@@ -1,4 +1,3 @@
-const { expect } = require('chai')
 const sinon = require('sinon')
 
 const Block = require('model/block')
@@ -25,12 +24,12 @@ describe('Model | Block', () => {
 
       const block = new Block(data)
 
-      expect(block.getHeader().height).to.eql(data.height)
-      expect(block.getHeader().totalAmount).to.eql(data.totalAmount)
-      expect(block.getHeader().totalFee).to.eql(data.totalFee)
-      expect(block.getHeader().reward).to.eql(data.reward)
+      block.getHeader().height.should.equal(data.height)
+      block.getHeader().totalAmount.should.equal(data.totalAmount)
+      block.getHeader().totalFee.should.equal(data.totalFee)
+      block.getHeader().reward.should.equal(data.reward)
 
-      expect(block.getHeader()).to.not.have.property('transactions')
+      block.getHeader().should.not.have.property('transactions')
     })
   })
 })
