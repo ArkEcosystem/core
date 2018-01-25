@@ -4,7 +4,7 @@ const utils = require('../utils')
 class TransactionsController {
   index (req, res, next) {
     db.transactions
-      .all(utils.paginator())
+      .findAll(utils.paginator())
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 

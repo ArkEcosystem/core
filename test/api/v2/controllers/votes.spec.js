@@ -29,7 +29,7 @@ describe('API 2.0 - Votes', () => {
   })
 
   describe('GET /api/votes/:id', () => {
-    it('should GET a vote by the given id', (done) => {
+    it('should GET a vote by the given identifier', (done) => {
       Helpers.request('GET', `votes/${voteId}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)

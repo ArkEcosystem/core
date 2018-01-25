@@ -4,7 +4,7 @@ const utils = require('../utils')
 class BlocksController {
   index (req, res, next) {
     db.blocks
-      .all(utils.paginator())
+      .findAll(utils.paginator())
       .then(blocks => utils.respondWithPagination(blocks, 'block'))
   }
 
@@ -17,7 +17,7 @@ class BlocksController {
   transactions (req, res, next) {
     db.blocks
       .findById(req.params.id)
-      .then(block => db.transactions.allByBlock(block.id, utils.paginator()))
+      .then(block => db.transactions.findAllByBlock(block.id, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 

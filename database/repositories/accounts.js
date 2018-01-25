@@ -6,41 +6,35 @@ class AccountsRepository {
     this.db = db
   }
 
-  all () {
+  findAll () {
     return Promise.resolve(this.db.accountManager.getLocalAccounts())
   }
 
-  paginate (pager, queryParams = {}) {
-    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
-
-    return this.all().then((accounts) => ({
+  paginate (queryParams = {}) {
+    return this.findAll().then((accounts) => ({
       count: accounts.length,
-      rows: accounts.slice(offset, offset + pager.limit)
+      rows: accounts.slice(queryParams.offset, queryParams.offset + queryParams.limit)
     }))
   }
 
-  paginateByVote (publicKey, pager) {
-    return this.all().then((accounts) => accounts.filter(a => a.vote === publicKey))
+  findAllByVote (publicKey, pager) {
+    return this.findAll().then((accounts) => accounts.filter(a => a.vote === publicKey))
   }
 
   findById (id) {
-    return this.all().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
-  }
-
-  findAllByVote (publicKey) {
-    return this.all().then((accounts) => accounts.filter(a => a.vote === publicKey))
+    return this.findAll().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 
   count () {
-    return this.all().then((accounts) => accounts.length)
+    return this.findAll().then((accounts) => accounts.length)
   }
 
   top (queryParams) {
-    return this.all().then((accounts) => _.sortBy(accounts, 'balance').reverse())
+    return this.findAll().then((accounts) => _.sortBy(accounts, 'balance').reverse())
   }
 
   search (queryParams) {
-    return this.all().then((accounts) => filterObject(accounts, queryParams, {
+    return this.findAll().then((accounts) => filterObject(accounts, queryParams, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
       between: ['balance', 'votebalance']
     }).then(results => ({

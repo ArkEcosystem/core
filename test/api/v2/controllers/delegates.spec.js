@@ -63,7 +63,7 @@ describe('API 2.0 - Delegates', () => {
   })
 
   describe('GET /api/delegates/:id/blocks', () => {
-    it('should GET all blocks for a delegate by the given id', (done) => {
+    it('should GET all blocks for a delegate by the given identifier', (done) => {
       Helpers.request('GET', `delegates/${delegatePublicKey}/blocks`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
@@ -94,7 +94,7 @@ describe('API 2.0 - Delegates', () => {
   })
 
   describe('GET /api/delegates/:id/voters', () => {
-    it('should GET all voters for a delegate by the given id', (done) => {
+    it('should GET all voters for a delegate by the given identifier', (done) => {
       Helpers.request('GET', `delegates/${delegatePublicKey}/voters`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)

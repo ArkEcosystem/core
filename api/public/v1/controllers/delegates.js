@@ -6,7 +6,7 @@ const utils = require('../utils')
 class DelegatesController {
   index (req, res, next) {
     db.delegates
-      .all()
+      .findAll()
       .then(delegates => utils.respondWith('ok', {delegates}))
   }
 

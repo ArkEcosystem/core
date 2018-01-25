@@ -38,8 +38,8 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:address', () => {
-    it('should GET a wallet by the given id', (done) => {
+  describe('GET /api/wallets/:id', () => {
+    it('should GET a wallet by the given identifier', (done) => {
       Helpers.request('GET', `wallets/${addressActive}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
@@ -149,7 +149,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/search', () => {
+  describe('POST /api/wallets/search', () => {
     it('should POST a search for wallets with the specified criteria', (done) => {
       Helpers.request('POST', 'wallets/search', { address: addressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)

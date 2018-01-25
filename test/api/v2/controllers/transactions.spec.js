@@ -26,7 +26,7 @@ describe('API 2.0 - Transactions', () => {
   })
 
   describe('GET /api/transactions/:id', () => {
-    it('should GET a transaction by the given id', (done) => {
+    it('should GET a transaction by the given identifier', (done) => {
       Helpers.request('GET', `transactions/${transactionId}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
@@ -58,7 +58,7 @@ describe('API 2.0 - Transactions', () => {
   })
 
   describe.skip('GET /api/transactions/unconfirmed/:id', () => {
-    it('should GET an unconfirmed transaction by the given id', (done) => {
+    it('should GET an unconfirmed transaction by the given identifier', (done) => {
       Helpers.request('GET', 'transactions/unconfirmed/:id').end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)

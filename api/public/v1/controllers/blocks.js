@@ -6,7 +6,7 @@ const utils = require('../utils')
 class BlocksController {
   index (req, res, next) {
     db.blocks
-      .all(Object.assign(req.query, utils.paginator()))
+      .findAll(Object.assign(req.query, utils.paginator()))
       .then(result => utils.toCollection(result.rows, 'block'))
       .then(blocks => utils.respondWith('ok', {blocks}))
   }

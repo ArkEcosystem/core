@@ -4,7 +4,7 @@ const utils = require('../utils')
 class VotesController {
   index (req, res, next) {
     db.transactions
-      .allByType(3, utils.paginator())
+      .findAllByType(3, utils.paginator())
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 
