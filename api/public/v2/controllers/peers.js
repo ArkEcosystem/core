@@ -22,9 +22,9 @@ class PeersController {
         }
       }
 
-      utils.respondWithCollection(result, 'peer')
-
-      next()
+      utils
+        .respondWithCollection(result, 'peer')
+        .then(() => next())
     })
   }
 

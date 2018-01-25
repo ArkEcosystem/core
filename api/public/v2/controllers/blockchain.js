@@ -4,9 +4,9 @@ const utils = require('../utils')
 
 class BlockchainController {
   index (req, res, next) {
-    utils.respondWith('ok', config.getConstants(blockchain.status.lastBlock.data.height))
-
-    next()
+    utils
+      .respondWith('ok', config.getConstants(blockchain.status.lastBlock.data.height))
+      .then(() => next())
   }
 }
 
