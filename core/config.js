@@ -19,14 +19,16 @@ class Config {
     return instance
   }
 
-  // TODO should return a Promise
   init (config) {
-    logger = require('./logger') // need to do here to be sure logger is initialised
-    this.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.server = config.server
     this.network = config.network
     this.genesisBlock = config.genesisBlock
     this.delegates = config.delegates
+
+    logger = require('./logger') // need to do here to be sure logger is initialised
+    logger.init(this.server.fileLogLevel, this.network.name)
+
+    this.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.buildConstants()
 
     return Promise.resolve(this)
@@ -49,7 +51,6 @@ class Config {
 
   ntp () {
     return Sntp.time().catch(e => {
-      const logger = requireFrom('core/logger') // need to do here to be sure logger is initialised
       logger.warn('can\'t ping ntp')
       return Promise.resolve({t: 0})
     })

@@ -7,33 +7,27 @@ class BlocksRepository {
     this.db = db
   }
 
-  all (queryParams) {
-      let whereStatement = {}
-      let orderBy = []
+all (queryParams) {
+    let whereStatement = {}
+    let orderBy = []
 
-      const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
-      for (const elem of filter) {
-        if (queryParams[elem]) whereStatement[elem] = queryParams[elem]
-      }
+    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+    for (const elem of filter) {
+      if (queryParams[elem]) whereStatement[elem] = queryParams[elem]
+    }
 
-      if (queryParams.orderBy) orderBy.push(queryParams.orderBy.split(':'))
-console.log(queryParams)
-      return this.db.blocksTable.findAndCountAll({
-        where: whereStatement,
-        order: orderBy,
-        offset: queryParams.offset,
-        limit: queryParams.limit
-      })
+    if (queryParams.orderBy) orderBy.push(queryParams.orderBy.split(':'))
+
+    return this.db.blocksTable.findAndCountAll({
+      where: whereStatement,
+      order: orderBy,
+      offset: queryParams.offset,
+      limit: queryParams.limit
+    })
   }
 
-  paginate (pager, queryParams = {}) {
-    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
-
-    return this.all(Object.assign(queryParams, { offset, limit: pager.perPage }))
-  }
-
-  paginateByGenerator (generatorPublicKey, pager) {
-    return this.paginate(pager, { where: { generatorPublicKey } })
+  allByGenerator (generatorPublicKey, paginator) {
+    return this.all(Object.assign({where: {generatorPublicKey}}, paginator))
   }
 
   findById (id) {
