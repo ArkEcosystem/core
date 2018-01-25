@@ -23,28 +23,28 @@ class WalletsController {
   transactions (req, res, next) {
     db.accounts
       .findById(req.params.id)
-      .then(wallet => db.transactions.paginateAllByWallet(wallet, utils.paginator()))
+      .then(wallet => db.transactions.allByWallet(wallet, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 
   transactionsSend (req, res, next) {
     db.accounts
       .findById(req.params.id)
-      .then(wallet => db.transactions.paginateAllBySender(wallet.publicKey, utils.paginator()))
+      .then(wallet => db.transactions.allBySender(wallet.publicKey, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 
   transactionsReceived (req, res, next) {
     db.accounts
       .findById(req.params.id)
-      .then(wallet => db.transactions.paginateAllByRecipient(wallet.address, utils.paginator()))
+      .then(wallet => db.transactions.allByRecipient(wallet.address, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 
   votes (req, res, next) {
     db.accounts
       .findById(req.params.id)
-      .then(wallet => db.transactions.paginateVotesBySender(wallet.publicKey, utils.paginator()))
+      .then(wallet => db.transactions.allVotesBySender(wallet.publicKey, utils.paginator()))
       .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
   }
 

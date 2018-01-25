@@ -42,41 +42,34 @@ class TransactionsRepository {
     })
   }
 
-  paginate (pager, queryParams = {}) {
-    return this.all(Object.assign(queryParams, {
-      offset: pager.offset,
-      limit: pager.offset * pager.limit
-    }))
-  }
-
-  paginateAllByWallet (wallet, pager) {
-    return this.paginate(pager, {
+  allByWallet (wallet, paginator) {
+    return this.all(Object.assign({
       [Op.or]: [{
         senderPublicKey: wallet.publicKey
       }, {
         recipientId: wallet.address
       }]
-    })
+    }, paginator))
   }
 
-  paginateAllBySender (senderPublicKey, pager) {
-    return this.paginate(pager, { senderPublicKey })
+  allBySender (senderPublicKey, paginator) {
+    return this.all(Object.assign({senderPublicKey}, paginator))
   }
 
-  paginateAllByRecipient (recipientId, pager) {
-    return this.paginate(pager, { recipientId })
+  allByRecipient (recipientId, paginator) {
+    return this.all(Object.assign({recipientId}, paginator))
   }
 
-  paginateVotesBySender (senderPublicKey, pager) {
-    return this.paginate(pager, { senderPublicKey, type: 3 })
+  allVotesBySender (senderPublicKey, paginator) {
+    return this.all(Object.assign({senderPublicKey, type: 3}, paginator))
   }
 
-  paginateByBlock (blockId, pager) {
-    return this.paginate(pager, { blockId })
+  allByBlock (blockId, paginator) {
+    return this.all(Object.assign({blockId}, paginator))
   }
 
-  paginateByType (type, pager) {
-    return this.paginate(pager, { type })
+  allByType (type, paginator) {
+    return this.all(Object.assign({type}, paginator))
   }
 
   findById (id) {

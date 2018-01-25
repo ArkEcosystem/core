@@ -17,7 +17,7 @@ class DelegatesController {
   blocks (req, res, next) {
     db.delegates
       .findById(req.params.id)
-      .then(delegate => db.blocks.paginateByGenerator(delegate.publicKey, utils.paginator()))
+      .then(delegate => db.blocks.allByGenerator(delegate.publicKey, utils.paginator()))
       .then(blocks => utils.respondWithPagination(blocks, 'block'))
   }
 
