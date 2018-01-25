@@ -14,6 +14,8 @@ module.exports = class Helpers {
 
   static respondWith (method, data) {
     data ? responder[method](data) : responder.internalServerError('Record could not be found.')
+
+    return Promise.resolve()
   }
 
   static respondWithPagination (data, transformerClass) {

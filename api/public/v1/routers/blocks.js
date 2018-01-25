@@ -2,8 +2,8 @@ const controller = require('../controllers/blocks')
 const schema = require('../schemas/blocks')
 
 module.exports = (registrar) => {
-  registrar.get('blocks', controller.index, schema.getBlocks)
-  registrar.get('blocks/get', controller.show, schema.getBlock)
+  registrar.get('blocks', controller.index, {schema: schema.getBlocks})
+  registrar.get('blocks/get', controller.show, {schema: schema.getBlock})
   registrar.get('blocks/getEpoch', controller.epoch)
   registrar.get('blocks/getHeight', controller.height)
   registrar.get('blocks/getNethash', controller.nethash)

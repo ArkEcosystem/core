@@ -41,7 +41,7 @@ module.exports = class Cache {
   }
 
   has (key) {
-    return this.client.getAsync(`${this.connection}_${key}`).then((data) => data ? true : false)
+    return this.client.getAsync(`${this.connection}_${key}`).then((data) => !!data)
   }
 
   del (key) {
