@@ -58,7 +58,7 @@ class Block {
   }
 
   getHeader () {
-    const header = Object.assign({}, this.data)
+    const header = {...{}, ...this.data}
     delete header.transactions
     return header
   }

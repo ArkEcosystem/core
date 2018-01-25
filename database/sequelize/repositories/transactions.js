@@ -43,33 +43,36 @@ class TransactionsRepository {
   }
 
   findAllByWallet (wallet, paginator) {
-    return this.findAll(Object.assign({
-      [Op.or]: [{
-        senderPublicKey: wallet.publicKey
-      }, {
-        recipientId: wallet.address
-      }]
-    }, paginator))
+    return this.findAll({
+      ...{
+        [Op.or]: [{
+          senderPublicKey: wallet.publicKey
+        }, {
+          recipientId: wallet.address
+        }]
+      },
+      ...paginator
+    })
   }
 
   findAllBySender (senderPublicKey, paginator) {
-    return this.findAll(Object.assign({senderPublicKey}, paginator))
+    return this.findAll({...{senderPublicKey}, ...paginator})
   }
 
   findAllByRecipient (recipientId, paginator) {
-    return this.findAll(Object.assign({recipientId}, paginator))
+    return this.findAll({...{recipientId}, ...paginator})
   }
 
   allVotesBySender (senderPublicKey, paginator) {
-    return this.findAll(Object.assign({senderPublicKey, type: 3}, paginator))
+    return this.findAll({...{senderPublicKey, type: 3}, ...paginator})
   }
 
   findAllByBlock (blockId, paginator) {
-    return this.findAll(Object.assign({blockId}, paginator))
+    return this.findAll({...{blockId}, ...paginator})
   }
 
   findAllByType (type, paginator) {
-    return this.findAll(Object.assign({type}, paginator))
+    return this.findAll({...{type}, ...paginator})
   }
 
   findById (id) {

@@ -4,12 +4,16 @@ class Response {
   send (status, data, headers) {
     const request = State.getRequest()
 
-    State.getResponse().send(status, Object.assign(data, {
-      meta: Object.assign(data.meta || {}, {
-        requestedVersion: request.version(),
-        matchedVersion: request.matchedVersion()
-      })
-    }), headers)
+    State.getResponse().send(status, { ...data,
+      ...{
+        meta: { ...data.meta || {},
+          ...{
+            requestedVersion: request.version(),
+            matchedVersion: request.matchedVersion()
+          }
+        }
+      }
+    }, headers)
   }
 }
 

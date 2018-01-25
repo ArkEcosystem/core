@@ -86,7 +86,7 @@ class SequelizeDB extends DBInterface {
         that.activedelegates = data
           .sort((a, b) => b.balance - a.balance)
           .slice(0, 51)
-          .map(a => Object.assign({round: round}, a.dataValues))
+          .map(a => ({...{round: round}, ...a.dataValues}))
         logger.debug(`generated ${that.activedelegates.length} active delegates`)
         return Promise.resolve(that.activedelegates)
       })
