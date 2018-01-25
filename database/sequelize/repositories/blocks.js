@@ -17,12 +17,12 @@ class BlocksRepository {
       }
 
       if (queryParams.orderBy) orderBy.push(queryParams.orderBy.split(':'))
-
+console.log(queryParams)
       return this.db.blocksTable.findAndCountAll({
         where: whereStatement,
         order: orderBy,
-        offset: parseInt(queryParams.offset || 1),
-        limit: parseInt(queryParams.limit || 100)
+        offset: queryParams.offset,
+        limit: queryParams.limit
       })
   }
 

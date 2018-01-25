@@ -8,10 +8,8 @@ class DelegatesRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
-
     return this.all().then((accounts) => ({
-      rows: accounts.slice(offset, offset + pager.limit),
+      rows: accounts.slice(pager.offset, pager.offset + pager.limit),
       count: accounts.length
     }))
   }

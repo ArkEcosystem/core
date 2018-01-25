@@ -33,13 +33,16 @@ class Helpers {
     data.body.should.have.property('data').which.is.an('array')
   }
 
-  assertPaginator (data) {
-    data.body.should.have.property('meta').which.is.an('object')
-    data.body.meta.should.have.property('cursor').which.is.an('object')
-    data.body.meta.cursor.should.have.property('previous').which.is.null
-    data.body.meta.cursor.should.have.property('current').which.is.null
-    data.body.meta.cursor.should.have.property('next').which.is.an('number')
-    data.body.meta.cursor.should.have.property('count').which.is.an('number')
+  assertPaginator (data, firstPage = true) {
+    data.body.should.have.property('links').which.is.an('object')
+
+    if (!firstPage) {
+      data.body.links.should.have.property('first').which.is.a('string')
+      data.body.links.should.have.property('prev').which.is.a('string')
+    }
+
+    data.body.links.should.have.property('last').which.is.a('string')
+    data.body.links.should.have.property('next').which.is.a('string')
   }
 
   assertSuccessful (err, res, statusCode = 200) {

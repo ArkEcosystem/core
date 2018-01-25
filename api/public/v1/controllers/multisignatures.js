@@ -1,20 +1,20 @@
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class MultiSignaturesController {
   index (req, res, next) {
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 
   store (req, res, next) {
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 
   pending (req, res, next) {
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 
   accounts (req, res, next) {
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 }
 

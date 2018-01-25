@@ -33,8 +33,8 @@ class TransactionsRepository {
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
-      offset: parseInt(queryParams.offset || 0),
-      limit: parseInt(queryParams.limit || 100),
+      offset: queryParams.offset,
+      limit: queryParams.limit,
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
@@ -43,11 +43,9 @@ class TransactionsRepository {
   }
 
   paginate (pager, queryParams = {}) {
-    let offset = (pager.page > 1) ? pager.page * pager.perPage : 0
-
     return this.all(Object.assign(queryParams, {
-      offset,
-      limit: pager.perPage
+      offset: pager.offset,
+      limit: pager.offset * pager.limit
     }))
   }
 
@@ -123,22 +121,21 @@ class TransactionsRepository {
   }
 
   search (params) {
-    return this.db.transactionsTable
-      .findAndCountAll({
-        attributes: ['blockId', 'serialized'],
-        where: buildFilterQuery(
-          params,
-          {
-            exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
-            between: ['timestamp', 'amount', 'fee'],
-            wildcard: ['vendorFieldHex']
-          }
-        ),
-        include: {
-          model: this.db.blocksTable,
-          attributes: ['height']
+    return this.db.transactionsTable.findAndCountAll({
+      attributes: ['blockId', 'serialized'],
+      where: buildFilterQuery(
+        params,
+        {
+          exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+          between: ['timestamp', 'amount', 'fee'],
+          wildcard: ['vendorFieldHex']
         }
-      })
+      ),
+      include: {
+        model: this.db.blocksTable,
+        attributes: ['height']
+      }
+    })
   }
 }
 

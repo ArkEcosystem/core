@@ -1,8 +1,8 @@
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class SignaturesController {
   index (req, res, next) {
-    helpers.respondWith('notImplemented', 'Method has not yet been implemented.')
+    utils.respondWith('notImplemented', 'Method has not yet been implemented.')
   }
 }
 
