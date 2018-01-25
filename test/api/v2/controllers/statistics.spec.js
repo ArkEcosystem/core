@@ -1,6 +1,6 @@
 const Helpers = require('../helpers')
 
-describe.skip('API 2.0 - Statistics', () => {
+describe('API 2.0 - Statistics', () => {
   describe('GET /api/stats/blockchain', () => {
     it('should GET the blockchain statistics', (done) => {
       Helpers.request('GET', 'stats/blockchain').end((err, res) => {

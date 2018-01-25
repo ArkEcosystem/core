@@ -69,6 +69,7 @@
     "eslint-plugin-standard": "^3.0.1",
     "mocha": "^4.1.0",
     "nyc": "^11.4.1",
+    "request-promise": "^4.2.2",
     "sinon": "^4.1.5",
     "sinon-chai": "^2.14.0"
   }
