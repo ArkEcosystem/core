@@ -10,7 +10,7 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertCollection(res)
         Helpers.assertPaginator(res)
 
-        const block = res.body.data[0]
+        const block = res.body.data[1]
         block.should.have.property('id').which.is.a('string')
         block.should.have.property('version').which.is.a('number')
         block.should.have.property('height').which.is.a('number')

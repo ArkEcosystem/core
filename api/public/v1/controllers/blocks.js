@@ -1,27 +1,27 @@
 const blockchain = requireFrom('core/blockchainManager').getInstance()
 const db = requireFrom('core/dbinterface').getInstance()
 const config = requireFrom('core/config')
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class BlocksController {
   index (req, res, next) {
     db.blocks
-      .all(req.query)
-      .then(result => helpers.toCollection(result.rows, 'block'))
-      .then(blocks => helpers.respondWith('ok', {blocks}))
+      .all(Object.assign(req.query, utils.paginator()))
+      .then(result => utils.toCollection(result.rows, 'block'))
+      .then(blocks => utils.respondWith('ok', {blocks}))
   }
 
   show (req, res, next) {
     db.blocks.findById(req.query.id)
       .then(block => {
-        if (!block) return helpers.respondWith('error', `Block with id ${req.query.id} not found`)
+        if (!block) return utils.respondWith('error', `Block with id ${req.query.id} not found`)
 
-        helpers.respondWith('ok', { block: helpers.toResource(block, 'block') })
+        utils.respondWith('ok', { block: utils.toResource(block, 'block') })
       })
   }
 
   epoch (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       epoch: config.getConstants(blockchain.status.lastBlock.data.height).epoch
     })
   }
@@ -29,33 +29,33 @@ class BlocksController {
   height (req, res, next) {
     const block = blockchain.status.lastBlock.data
 
-    helpers.respondWith('ok', { height: block.height, id: block.id })
+    utils.respondWith('ok', { height: block.height, id: block.id })
   }
 
   nethash (req, res, next) {
-    helpers.respondWith('ok', { nethash: config.network.nethash })
+    utils.respondWith('ok', { nethash: config.network.nethash })
   }
 
   fee (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.send
     })
   }
 
   fees (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       fees: config.getConstants(blockchain.status.lastBlock.data.height).fees
     })
   }
 
   milestone (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       milestone: ~~(blockchain.status.lastBlock.data.height / 3000000)
     })
   }
 
   reward (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       reward: config.getConstants(blockchain.status.lastBlock.data.height).reward
     })
   }
@@ -63,7 +63,7 @@ class BlocksController {
   supply (req, res, next) {
     const lastblock = blockchain.status.lastBlock.data
 
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       supply: config.genesisBlock.totalAmount + (lastblock.height - config.getConstants(lastblock.height).height) * config.getConstants(lastblock.height).reward
     })
   }
@@ -71,7 +71,7 @@ class BlocksController {
   status (req, res, next) {
     const lastblock = blockchain.status.lastBlock.data
 
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
        epoch: config.getConstants(lastblock.height).epoch,
        height: lastblock.height,
        fee: config.getConstants(lastblock.height).fees.send,

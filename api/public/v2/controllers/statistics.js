@@ -1,7 +1,7 @@
 const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
 const db = requireFrom('core/dbinterface').getInstance()
-const helpers = require('../helpers')
+const utils = require('../utils')
 const _ = require('lodash')
 
 class StatisticsController {
@@ -28,7 +28,7 @@ class StatisticsController {
       })).then((accounts) => {
         const walletsByProductivity = _.sortBy(accounts, 'productivity')
 
-        helpers.respondWith('ok', {
+        utils.respondWith('ok', {
           supply: {
             initial: initialSupply * 10 ** 8,
             current: (initialSupply + ((height - config.getConstants(height).height) * rewardPerBlock)) * 10 ** 8
@@ -53,7 +53,7 @@ class StatisticsController {
   transactions (req, res, next) {
     db.transactions
       .allByDateAndType(0, req.query.from, req.query.to)
-      .then(blocks => helpers.respondWith('ok', {
+      .then(blocks => utils.respondWith('ok', {
         count: blocks.count,
         amount: _.sumBy(blocks.rows, 'amount'),
         fees: _.sumBy(blocks.rows, 'fee')
@@ -63,7 +63,7 @@ class StatisticsController {
   blocks (req, res, next) {
     db.blocks
       .allByDateTimeRange(req.query.from, req.query.to)
-      .then(blocks => helpers.respondWith('ok', {
+      .then(blocks => utils.respondWith('ok', {
         count: blocks.count,
         rewards: _.sumBy(blocks.rows, 'reward'),
         fees: _.sumBy(blocks.rows, 'totalFee')
@@ -74,7 +74,7 @@ class StatisticsController {
     db.transactions
       .allByDateAndType(3, req.query.from, req.query.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('+')))
-      .then(transactions => helpers.respondWith('ok', {
+      .then(transactions => utils.respondWith('ok', {
         count: transactions.length,
         amount: _.sumBy(transactions.rows, 'amount'),
         fees: _.sumBy(transactions, 'fee')
@@ -85,7 +85,7 @@ class StatisticsController {
     db.transactions
       .allByDateAndType(3, req.query.from, req.query.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('-')))
-      .then(transactions => helpers.respondWith('ok', {
+      .then(transactions => utils.respondWith('ok', {
         count: transactions.length,
         amount: _.sumBy(transactions.rows, 'amount'),
         fees: _.sumBy(transactions, 'fee')

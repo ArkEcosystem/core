@@ -1,10 +1,10 @@
 const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class SignaturesController {
   fee (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.secondsignature
     })
   }

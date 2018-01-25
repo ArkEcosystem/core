@@ -1,12 +1,12 @@
 const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class PeersController {
   index (req, res, next) {
     blockchain.networkInterface.getPeers()
       .then(peers => {
-        if (!peers) return helpers.respondWith('error', 'No peers found')
+        if (!peers) return utils.respondWith('error', 'No peers found')
 
         let retPeers = peers.sort(() => 0.5 - Math.random())
         retPeers = req.query.os ? peers.filter(peer => peer.os === req.query.os) : retPeers
@@ -26,24 +26,24 @@ class PeersController {
           }
         }
 
-        helpers.respondWith('ok', { peers: helpers.toCollection(retPeers, 'peer') })
+        utils.respondWith('ok', { peers: utils.toCollection(retPeers, 'peer') })
     })
   }
   show (req, res, next) {
     blockchain.networkInterface.getPeers()
       .then(peers => {
-        if (!peers) return helpers.respondWith('error', 'No peers found')
+        if (!peers) return utils.respondWith('error', 'No peers found')
 
         const peer = peers.find(elem => { return elem.ip === req.query.ip && elem.port === req.query.port })
 
-        if (!peer) return helpers.respondWith('error', `Peer ${req.query.ip}:${req.query.port} not found`)
+        if (!peer) return utils.respondWith('error', `Peer ${req.query.ip}:${req.query.port} not found`)
 
-        helpers.respondWith('ok', { peer: helpers.toResource(peer, 'peer') })
+        utils.respondWith('ok', { peer: utils.toResource(peer, 'peer') })
     })
   }
 
   version (req, res, next) {
-    helpers.respondWith('ok', { version: config.server.version })
+    utils.respondWith('ok', { version: config.server.version })
   }
 }
 

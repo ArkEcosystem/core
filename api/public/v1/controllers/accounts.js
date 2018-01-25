@@ -2,24 +2,24 @@ const blockchain = requireFrom('core/blockchainManager').getInstance()
 const config = requireFrom('core/config')
 const db = requireFrom('core/dbinterface').getInstance()
 const arkjs = require('arkjs')
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class WalletsController {
   index (req, res, next) {
     db.accounts
-      .all(req.query)
-      .then(result => helpers.toCollection(result.rows, 'account'))
-      .then(accounts => helpers.respondWith('ok', {accounts}))
+      .all(Object.assign(req.query, utils.paginator()))
+      .then(result => utils.toCollection(result.rows, 'account'))
+      .then(accounts => utils.respondWith('ok', {accounts}))
   }
 
   show (req, res, next) {
     db.accounts
       .findById(req.query.address)
       .then(accounts => {
-        if (!accounts) return helpers.respondWith('error', 'Not found')
+        if (!accounts) return utils.respondWith('error', 'Not found')
 
-        helpers.respondWith('ok', {
-          account: helpers.toResource(accounts, 'account')
+        utils.respondWith('ok', {
+          account: utils.toResource(accounts, 'account')
         })
       })
   }
@@ -28,9 +28,9 @@ class WalletsController {
     db.accounts
       .findById(req.query.address)
       .then(account => {
-        if (!account) return helpers.respondWith('error', 'Not found')
+        if (!account) return utils.respondWith('error', 'Not found')
 
-        helpers.respondWith('ok', {
+        utils.respondWith('ok', {
           balance: account ? account.balance : '0',
           unconfirmedBalance: account ? account.balance : '0'
         })
@@ -41,22 +41,22 @@ class WalletsController {
     db.accounts
       .findById(req.query.address)
       .then(account => {
-        if (!account) return helpers.respondWith('error', 'Not found')
+        if (!account) return utils.respondWith('error', 'Not found')
 
-        helpers.respondWith('ok', { publicKey: account.publicKey })
+        utils.respondWith('ok', { publicKey: account.publicKey })
       })
   }
 
   fee (req, res, next) {
-    helpers.respondWith('ok', {
+    utils.respondWith('ok', {
       fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.delegate
     })
   }
 
   delegates (req, res, next) {
     db.accounts.findById(req.query.address).then(account => {
-      if (!account) return helpers.respondWith('error', 'Address not found.')
-      if (!account.vote) return helpers.respondWith('error', `Address ${req.query.address} hasn't voted yet.`)
+      if (!account) return utils.respondWith('error', 'Address not found.')
+      if (!account.vote) return utils.respondWith('error', `Address ${req.query.address} hasn't voted yet.`)
 
       const lastBlock = blockchain.status.lastBlock.data
       const constants = config.getConstants(lastBlock.height)
@@ -67,7 +67,7 @@ class WalletsController {
           const delegate = delegates[delegateRank]
 
           db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash)).then(account => {
-            helpers.respondWith('ok', {
+            utils.respondWith('ok', {
               delegates: [{
                 username: account.username,
                 address: account.address,
@@ -88,13 +88,13 @@ class WalletsController {
   top (req, res, next) {
     db.accounts
       .top(req.query)
-      .then(result => helpers.respondWith('ok', { accounts: result.rows }))
+      .then(result => utils.respondWith('ok', { accounts: result.rows }))
   }
 
   count (req, res, next) {
     db.accounts
       .all()
-      .then(result => helpers.respondWith('ok', { count: result.count }))
+      .then(result => utils.respondWith('ok', { count: result.count }))
   }
 }
 

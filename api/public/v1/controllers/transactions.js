@@ -1,15 +1,15 @@
 const db = requireFrom('core/dbinterface').getInstance()
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class TransactionsController {
   index (req, res, next) {
     db.transactions
-      .all(req.query)
+      .all(Object.assign(req.query, utils.paginator()))
       .then(result => {
-        if (!result) return helpers.respondWith('error', 'No transactions found')
+        if (!result) return utils.respondWith('error', 'No transactions found')
 
-        return helpers.respondWith('ok', {
-          transactions: helpers.toCollection(result.rows, 'transaction')
+        return utils.respondWith('ok', {
+          transactions: utils.toCollection(result.rows, 'transaction')
         })
       })
   }
@@ -18,22 +18,22 @@ class TransactionsController {
     db.transactions
       .findById(req.query.id)
       .then(result => {
-        if (!result) return helpers.respondWith('error', 'No transactions found')
+        if (!result) return utils.respondWith('error', 'No transactions found')
 
-        return helpers.respondWith('ok', {
-          transaction: helpers.toResource(result, 'transaction')
+        return utils.respondWith('ok', {
+          transaction: utils.toResource(result, 'transaction')
         })
       })
   }
 
   unconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 
   showUnconfirmed (req, res, next) {
     // needs to be picked up from transaction pool
-    helpers.respondWith('error', 'Method has not yet been implemented.')
+    utils.respondWith('error', 'Method has not yet been implemented.')
   }
 }
 

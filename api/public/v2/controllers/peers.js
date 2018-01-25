@@ -1,6 +1,6 @@
 const blockchain = requireFrom('core/blockchainManager').getInstance()
 const publicIp = require('public-ip')
-const helpers = require('../helpers')
+const utils = require('../utils')
 
 class PeersController {
   index (req, res, next) {
@@ -23,21 +23,21 @@ class PeersController {
           }
         }
 
-        helpers.respondWithCollection(result, 'peer')
+        utils.respondWithCollection(result, 'peer')
     })
   }
 
   show (req, res, next) {
     blockchain.networkInterface
       .getPeers()
-      .then(peers => helpers.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer'))
+      .then(peers => utils.respondWithResource(peers.find(p => p.ip === req.params.ip), 'peer'))
   }
 
   me (req, res, next) {
     publicIp.v4().then(ip => {
       blockchain.networkInterface
         .getPeers()
-        .then(peers => helpers.respondWithResource(peers.find(p => p.ip === ip), 'peer'))
+        .then(peers => utils.respondWithResource(peers.find(p => p.ip === ip), 'peer'))
     })
   }
 }
