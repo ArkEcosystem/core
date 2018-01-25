@@ -5,7 +5,7 @@ const requestIp = require('request-ip')
 
 let instance
 
-module.exports = class Throttle {
+module.exports = class ThrottlePlugin {
   constructor (config) {
     if (!instance) {
       instance = this

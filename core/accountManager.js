@@ -4,7 +4,7 @@ const logger = requireFrom('core/logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
 
-class AccountManager {
+module.exports = class AccountManager {
   constructor () {
     this.accountsByAddress = {}
     this.accountsByPublicKey = {}
@@ -136,5 +136,3 @@ class AccountManager {
     return Object.values(this.accountsByAddress)
   }
 }
-
-module.exports = AccountManager

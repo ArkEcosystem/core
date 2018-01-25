@@ -2,7 +2,7 @@ const Op = require('sequelize').Op
 const moment = require('moment')
 const buildFilterQuery = require('../utils/filter-query')
 
-class BlocksRepository {
+module.exports = class BlocksRepository {
   constructor (db) {
     this.db = db
   }
@@ -16,6 +16,7 @@ findAll (params) {
       if (params[elem]) whereStatement[elem] = params[elem]
     }
 
+    // @TODO - orderBy is v1, sort is for v2
     if (params.orderBy) orderBy.push(params.orderBy.split(':'))
 
     return this.db.blocksTable.findAndCountAll({
@@ -63,5 +64,3 @@ findAll (params) {
     })
   }
 }
-
-module.exports = BlocksRepository

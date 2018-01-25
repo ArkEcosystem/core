@@ -3,38 +3,38 @@ const moment = require('moment')
 const Transaction = requireFrom('model/transaction')
 const buildFilterQuery = require('../utils/filter-query')
 
-class TransactionsRepository {
+module.exports = class TransactionsRepository {
   constructor (db) {
     this.db = db
   }
 
-  findAll (queryParams) {
+  findAll (params) {
     let whereStatement = {}
     let orderBy = []
 
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
-      if (queryParams[elem]) { whereStatement[elem] = queryParams[elem] }
+      if (params[elem]) { whereStatement[elem] = params[elem] }
     }
 
-    if (queryParams['senderId']) {
-      let account = this.db.accountManager.getAccountByAddress([queryParams['senderId']])
+    if (params['senderId']) {
+      let account = this.db.accountManager.getAccountByAddress([params['senderId']])
 
       if (account) whereStatement['senderPublicKey'] = account.publicKey
     }
 
-    if (queryParams.orderBy) {
-      const order = queryParams.orderBy.split(':')
+    if (params.orderBy) {
+      const order = params.orderBy.split(':')
 
-      if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(queryParams.orderBy.split(':'))
+      if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(params.orderBy.split(':'))
     }
 
     return this.db.transactionsTable.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
-      offset: queryParams.offset,
-      limit: queryParams.limit,
+      offset: params.offset,
+      limit: params.limit,
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
@@ -134,5 +134,3 @@ class TransactionsRepository {
     })
   }
 }
-
-module.exports = TransactionsRepository

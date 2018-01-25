@@ -6,7 +6,7 @@ const logger = requireFrom('core/logger')
 const schema = require('./schema')
 const DBInterface = requireFrom('core/dbinterface')
 
-class SequelizeDB extends DBInterface {
+module.exports = class SequelizeDB extends DBInterface {
   init (params) {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
@@ -337,5 +337,3 @@ class SequelizeDB extends DBInterface {
       .then(blocks => blocks.map(block => Block.serialize(block)))
   }
 }
-
-module.exports = SequelizeDB

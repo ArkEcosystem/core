@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const filterObject = requireFrom('helpers/filter-object')
 
-class AccountsRepository {
+module.exports = class AccountsRepository {
   constructor (db) {
     this.db = db
   }
@@ -10,10 +10,10 @@ class AccountsRepository {
     return Promise.resolve(this.db.accountManager.getLocalAccounts())
   }
 
-  paginate (queryParams = {}) {
+  paginate (params = {}) {
     return this.findAll().then((accounts) => ({
       count: accounts.length,
-      rows: accounts.slice(queryParams.offset, queryParams.offset + queryParams.limit)
+      rows: accounts.slice(params.offset, params.offset + params.limit)
     }))
   }
 
@@ -29,12 +29,12 @@ class AccountsRepository {
     return this.findAll().then((accounts) => accounts.length)
   }
 
-  top (queryParams) {
+  top (params) {
     return this.findAll().then((accounts) => _.sortBy(accounts, 'balance').reverse())
   }
 
-  search (queryParams) {
-    return this.findAll().then((accounts) => filterObject(accounts, queryParams, {
+  search (params) {
+    return this.findAll().then((accounts) => filterObject(accounts, params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
       between: ['balance', 'votebalance']
     }).then(results => ({
@@ -43,5 +43,3 @@ class AccountsRepository {
     })))
   }
 }
-
-module.exports = AccountsRepository

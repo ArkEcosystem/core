@@ -5,7 +5,7 @@ const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const config = require('../core/config')
 
-class Block {
+module.exports = class Block {
   constructor (data) {
     this.data = data
 
@@ -238,5 +238,3 @@ class Block {
     return b
   }
 }
-
-module.exports = Block

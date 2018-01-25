@@ -1,6 +1,6 @@
 let instance = null
 
-module.exports = class State {
+module.exports = class StatePlugin {
   static getInstance () {
     return instance
   }

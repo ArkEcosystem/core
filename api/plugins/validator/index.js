@@ -3,7 +3,7 @@ const path = require('path')
 const AJV = require('ajv')
 const responder = requireFrom('api/responder')
 
-module.exports = class Validator {
+module.exports = class ValidatorPlugin {
   constructor () {
     this.ajv = new AJV({
       extendRefs: 'fail',
