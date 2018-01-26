@@ -94,9 +94,9 @@ class BlockchainManager {
         if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next', noblock: false})
         return qcallback()
       case 'processQueue/stop':
+        this.status.syncing = false
         if (!this.isSynced(this.status.lastBlock)) this.eventQueue.push({type: 'sync/start'})
         else {
-          this.status.syncing = false
           logger.info('Node Synced, congratulations! 🦄')
         }
         return qcallback()
