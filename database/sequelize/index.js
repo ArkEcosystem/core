@@ -164,6 +164,7 @@ class SequelizeDB extends DBInterface {
         data.forEach(row => {
           const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
           account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
+          this.accountManager.updateAccount(account)
         })
         Object.values(this.accountManager.accountsByAddress)
           .filter(a => a.balance < 0)
@@ -203,9 +204,7 @@ class SequelizeDB extends DBInterface {
           account.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
         })
         logger.info('SPV rebuild finished, accounts in memory:', Object.keys(this.accountManager.accountsByAddress).length)
-        Object.values(this.accountManager.accountsByAddress)
-          .filter(a => a.balance < 0)
-          .forEach(a => logger.info(a))
+        logger.info(`Number of registered delegates: ${Object.keys(this.accountManager.delegatesByUsername).length}`)
         return Promise.resolve(this.accountManager.accountsByAddress || [])
       })
       .catch(error => logger.error(error))
