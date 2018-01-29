@@ -93,6 +93,7 @@ class SequelizeDB extends DBInterface {
   }
 
   buildAccounts () {
+    this.accountManager.reset()
     logger.printTracker('SPV Building', 0, 7)
     return this.transactionsTable
       .findAll({

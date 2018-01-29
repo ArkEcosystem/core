@@ -52,6 +52,49 @@ class BlockchainManager {
     if (!instance) instance = this
   }
 
+  init () {
+    const that = this
+    return db.getLastBlock()
+      .then(block => {
+        if (!block) {
+          return Promise.reject(new Error('No block found in database'))
+        }
+        that.status.lastBlock = block
+        const constants = that.config.getConstants(block.data.height)
+        // no fast rebuild if in last round
+        that.status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
+        logger.info('Fast Sync:', that.status.fastSync)
+        logger.info('Last block in database:', block.data.height)
+        if (block.data.height === 1) {
+          return db
+            .buildAccounts()
+            .then(() => db.saveAccounts(true))
+            .then(() => db.applyRound(block, false, false))
+            .then(() => block)
+        } else {
+          return db
+            .buildAccounts()
+            .then(() => db.saveAccounts(true))
+            .then(() => block)
+        }
+      })
+      .catch((error) => {
+        logger.debug(error)
+        let genesis = new Block(that.config.genesisBlock)
+        if (genesis.data.payloadHash === that.config.network.nethash) {
+          that.status.lastBlock = genesis
+          that.status.fastSync = true
+          logger.info('Fast Rebuild:', that.status.fastSync)
+          return db.saveBlock(genesis)
+            .then(() => db.buildAccounts())
+            .then(() => db.saveAccounts(true))
+            .then(() => db.applyRound(genesis))
+            .then(() => genesis)
+        }
+        return Promise.reject(new Error('Can\'t use genesis block'), genesis)
+      })
+  }
+
   static getInstance () {
     return instance
   }
@@ -71,6 +114,23 @@ class BlockchainManager {
 
   rebuild (nblocks) {
     this.eventQueue.push({type: 'rebuild/start', nblocks: nblocks || 1})
+  }
+
+  resetState () {
+    return this.pauseQueues()
+      .then(() => this.clearQueues())
+      .then(() => (this.status = {
+        lastBlock: null,
+        lastDownloadedBlock: null,
+        downloadpaused: false,
+        rebuild: false,
+        syncing: false,
+        fastSync: true,
+        noblock: 0,
+        forked: false
+      }))
+      .then(() => this.init())
+      .then(() => this.resumeQueues())
   }
 
   processEvent (event, qcallback) {
@@ -94,9 +154,9 @@ class BlockchainManager {
         if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next', noblock: false})
         return qcallback()
       case 'processQueue/stop':
-        this.status.syncing = false
         if (!this.isSynced(this.status.lastBlock)) this.eventQueue.push({type: 'sync/start'})
         else {
+          this.status.syncing = false
           logger.info('Node Synced, congratulations! 🦄')
         }
         return qcallback()
@@ -113,6 +173,7 @@ class BlockchainManager {
         this.eventQueue.push({type: 'sync/start'})
         return qcallback()
       case 'sync/start':
+        logger.debug(JSON.stringify(this.status))
         if (this.config.server.test) return qcallback()
         if (!this.status.rebuild && !this.status.syncing) {
           logger.info('Syncing started')
@@ -206,49 +267,6 @@ class BlockchainManager {
   monitorNetwork () {
     this.eventQueue.push({type: 'check'})
     return sleep(60000).then(() => this.monitorNetwork())
-  }
-
-  init () {
-    const that = this
-    return db.getLastBlock()
-      .then(block => {
-        if (!block) {
-          return Promise.reject(new Error('No block found in database'))
-        }
-        that.status.lastBlock = block
-        const constants = that.config.getConstants(block.data.height)
-        // no fast rebuild if in last round
-        that.status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
-        logger.info('Fast Sync:', that.status.fastSync)
-        logger.info('Last block in database:', block.data.height)
-        if (block.data.height === 1) {
-          return db
-            .buildAccounts()
-            .then(() => db.saveAccounts(true))
-            .then(() => db.applyRound(block, false, false))
-            .then(() => block)
-        } else {
-          return db
-            .buildAccounts()
-            .then(() => db.saveAccounts(true))
-            .then(() => block)
-        }
-      })
-      .catch((error) => {
-        logger.debug(error)
-        let genesis = new Block(that.config.genesisBlock)
-        if (genesis.data.payloadHash === that.config.network.nethash) {
-          that.status.lastBlock = genesis
-          that.status.fastSync = true
-          logger.info('Fast Rebuild:', that.status.fastSync)
-          return db.saveBlock(genesis)
-            .then(() => db.buildAccounts())
-            .then(() => db.saveAccounts(true))
-            .then(() => db.applyRound(genesis))
-            .then(() => genesis)
-        }
-        return Promise.reject(new Error('Can\'t use genesis block'), genesis)
-      })
   }
 
   processBlock (block, status, qcallback) {
