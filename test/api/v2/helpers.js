@@ -59,6 +59,19 @@ class Helpers {
     res.body.should.have.property('code')
     res.body.should.have.property('message')
   }
+
+  assertTransaction (transaction) {
+    transaction.should.be.an('object')
+    transaction.should.have.property('id').which.is.a('string')
+    transaction.should.have.property('block_id').which.is.a('string')
+    transaction.should.have.property('type').which.is.a('number')
+    transaction.should.have.property('amount').which.is.a('number')
+    transaction.should.have.property('fee').which.is.a('number')
+    transaction.should.have.property('sender').which.is.a('string')
+    transaction.should.have.property('recipient').which.is.a('string')
+    transaction.should.have.property('signature').which.is.a('string')
+    transaction.should.have.property('confirmations').which.is.a('number')
+  }
 }
 
 module.exports = new Helpers()
