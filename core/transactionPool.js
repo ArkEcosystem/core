@@ -1,17 +1,45 @@
 const async = require('async')
 const arkjs = require('arkjs')
+const registerPromiseWorker = require('promise-worker/register')
+const config = require(`${__dirname}/core/config`)
+const logger = require(`${__dirname}/core/logger`)
+
+let instance = null
+let AccountManager = null
+let Account = null
+
+registerPromiseWorker(message => {
+  if (message.event === 'init') {
+    return config.init(message.data)
+      .then((conf) => logger.init(conf.server.fileLogLevel, conf.network.name+'_transactionPool'))
+      .then(() => (AccountManager = requireFrom('core/accountManager')))
+      .then(() => (Account = requireFrom('model/account.js')))
+      .then(() => (instance = new TransactionPool()))
+  }
+  if (instance && instance[message.event]) {
+    return instance[message.event](message.data)
+  } else return Promise.reject(new Error(`message '${message}' not recognised`))
+})
 
 class TransactionPool {
-  constructor (config) {
-    this.config = config
-
+  constructor () {
     const that = this
+    this.accountManager = new AccountManager()
 
     this.pool = {}
     this.queue = async.queue((transaction, qcallback) => {
       that.verify(transaction)
       qcallback()
-    }, this.config.server.multicore.transactionpool || 1)
+    }, 1)
+  }
+
+  start (accounts) {
+    accounts.forEach(account => {
+      let acc = new Account(account.address)
+      acc = {...acc, ...account}
+      instance.accountManager.updateAccount(acc)
+    })
+    return Promise.resolve()
   }
 
   addTransaction (transaction) {
@@ -36,4 +64,4 @@ class TransactionPool {
   // }
 }
 
-module.exports = TransactionPool
+// module.exports = instance
