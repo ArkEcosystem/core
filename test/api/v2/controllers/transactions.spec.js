@@ -1,6 +1,36 @@
 const Helpers = require('../helpers')
 
 const transactionId = '1d151056a431f14909c9e9c7b11d6f40eb5fe01f07afa206e45c1cb4080a1e09'
+const blockId = '15160252859890579479'
+const type = 0
+const wrongType = 3
+const version = 1
+const senderPublicKey = '030cf398655cc01d0425a615aceb6b6d2acad40eb7b42039826dbce98b20fd578f'
+const senderAddress = 'DTywx2qNfefZZ2Z2bjbugQgUML7yhYEatX'
+const recipientAddress = 'DKf1RUGCM3G3DxdE7V7DW7SFJ4Afmvb4YU'
+const timestamp = 4517477
+const timestampFrom = 4517476
+const timestampTo = 4517478
+const amount = 100000000
+const amountFrom = 0
+const amountTo = 200000000
+const fee = 10000000
+const feeFrom = 0
+const feeTo = 20000000
+const vendorFieldHex = '796f'
+
+validateTransaction = (transaction) => {
+  transaction.should.be.an('object')
+  transaction.should.have.property('id').which.is.a('string')
+  transaction.should.have.property('block_id').which.is.a('string')
+  transaction.should.have.property('type').which.is.a('number')
+  transaction.should.have.property('amount').which.is.a('number')
+  transaction.should.have.property('fee').which.is.a('number')
+  transaction.should.have.property('sender').which.is.a('string')
+  transaction.should.have.property('recipient').which.is.a('string')
+  transaction.should.have.property('signature').which.is.a('string')
+  transaction.should.have.property('confirmations').which.is.a('number')
+}
 
 describe('API 2.0 - Transactions', () => {
   describe('GET /api/transactions', () => {
@@ -9,16 +39,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        const transaction = res.body.data[0]
-        transaction.should.be.an('object')
-        transaction.should.have.property('id').which.is.a('string')
-        transaction.should.have.property('block_id').which.is.a('string')
-        transaction.should.have.property('type').which.is.a('number')
-        transaction.should.have.property('amount').which.is.a('number')
-        transaction.should.have.property('fee').which.is.a('number')
-        transaction.should.have.property('sender').which.is.a('string')
-        transaction.should.have.property('signature').which.is.a('string')
-        transaction.should.have.property('confirmations').which.is.a('number')
+        validateTransaction(res.body.data[0])
 
         done()
       })
@@ -31,15 +52,9 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('id').which.is.a('string').and.equals(transactionId)
-        res.body.data.should.have.property('block_id').which.is.a('string')
-        res.body.data.should.have.property('type').which.is.a('number')
-        res.body.data.should.have.property('amount').which.is.a('number')
-        res.body.data.should.have.property('fee').which.is.a('number')
-        res.body.data.should.have.property('sender').which.is.a('string')
-        res.body.data.should.have.property('recipient').which.is.a('string')
-        res.body.data.should.have.property('signature').which.is.a('string')
-        res.body.data.should.have.property('confirmations').which.is.a('number')
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
 
         done()
       })
@@ -68,8 +83,8 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe('GET /api/transactions/search', () => {
-    it('should POST a search for transactions with the specified criteria', (done) => {
+  describe('POST /api/transactions/search', () => {
+    it('should POST a search for transactions with the exact specified transactionId', (done) => {
       Helpers.request('POST', 'transactions/search', { id: transactionId }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
@@ -77,15 +92,225 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        transaction.should.have.property('id').which.is.a('string').and.equals(transactionId)
-        transaction.should.have.property('block_id').which.is.a('string')
-        transaction.should.have.property('type').which.is.a('number')
-        transaction.should.have.property('amount').which.is.a('number')
-        transaction.should.have.property('fee').which.is.a('number')
-        transaction.should.have.property('sender').which.is.a('string')
-        transaction.should.have.property('recipient').which.is.a('string')
-        transaction.should.have.property('signature').which.is.a('string')
-        transaction.should.have.property('confirmations').which.is.a('number')
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified blockId', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, blockId }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+        transaction.block_id.should.equal(blockId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified type', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, type }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+        transaction.type.should.equal(type)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified version', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, version }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified senderPublicKey', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, senderPublicKey }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+        transaction.sender.should.equal(senderAddress)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified recipientId (Address)', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, recipientId: recipientAddress }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+        transaction.recipient.should.equal(recipientAddress)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified timestamp', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, timestamp }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the specified timestamp range', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, timestamp: { from: timestampFrom, to: timestampTo } }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified amount', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, amount }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the specified amount range', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, amount: { from: amountFrom, to: amountTo } }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the exact specified fee', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, fee }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the specified fee range', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, fee: { from: feeFrom, to: feeTo } }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it.skip('should POST a search for transactions with the exact specified vendorFieldHex', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, vendorFieldHex }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the wrong specified type', (done) => {
+      Helpers.request('POST', 'transactions/search', { id: transactionId, type: wrongType }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').that.is.empty
+
+        done()
+      })
+    })
+
+    it('should POST a search for transactions with the specific criteria', (done) => {
+      Helpers.request('POST', 'transactions/search', {
+        senderPublicKey: senderPublicKey,
+        type: type,
+        timestamp: {
+          from: timestampFrom,
+          to: timestampTo,
+        }
+      }).end((err, res) => {
+        Helpers.assertSuccessful(err, res)
+        Helpers.assertCollection(res)
+
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+
+        const transaction = res.body.data[0]
+        validateTransaction(transaction)
+        transaction.id.should.equal(transactionId)
 
         done()
       })
