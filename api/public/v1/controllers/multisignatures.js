@@ -19,7 +19,7 @@ class MultiSignaturesController {
       .then(() => next())
   }
 
-  accounts (req, res, next) {
+  wallets (req, res, next) {
     utils
       .respondWith('error', 'Method has not yet been implemented.')
       .then(() => next())

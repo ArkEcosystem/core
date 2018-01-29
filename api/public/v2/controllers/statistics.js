@@ -18,15 +18,15 @@ class StatisticsController {
 
     db.getActiveDelegates(height).then(delegates => {
       Promise.all(delegates.map(d => {
-        return db.accounts.findById(d.publicKey).then(account => {
+        return db.wallets.findById(d.publicKey).then(wallet => {
           return {
-            username: account.username,
+            username: wallet.username,
             approval: ((d.balance / totalSupply) * 100).toFixed(2),
-            productivity: (100 - (account.missedBlocks / ((account.producedBlocks + account.missedBlocks) / 100))).toFixed(2)
+            productivity: (100 - (wallet.missedBlocks / ((wallet.producedBlocks + wallet.missedBlocks) / 100))).toFixed(2)
           }
         })
-      })).then((accounts) => {
-        const walletsByProductivity = _.sortBy(accounts, 'productivity')
+      })).then((wallets) => {
+        const walletsByProductivity = _.sortBy(wallets, 'productivity')
 
         utils
           .respondWith('ok', {

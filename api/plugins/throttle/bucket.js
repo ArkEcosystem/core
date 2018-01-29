@@ -22,7 +22,7 @@ module.exports = class Bucket {
   fill () {
     let now = Date.now()
 
-    // reset account for clock drift (like DST)
+    // reset wallet for clock drift (like DST)
     if (now < this.time) {
       this.time = now - 1000
     }

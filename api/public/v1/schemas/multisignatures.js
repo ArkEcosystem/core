@@ -1,5 +1,5 @@
 module.exports = {
-  getAccounts: {
+  getWallets: {
     type: 'object',
     properties: {
       publicKey: {

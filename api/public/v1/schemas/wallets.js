@@ -70,7 +70,7 @@ module.exports = {
       }
     }
   },
-  getAccount: {
+  getWallet: {
     type: 'object',
     properties: {
       address: {

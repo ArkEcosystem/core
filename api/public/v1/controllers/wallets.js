@@ -6,47 +6,47 @@ const utils = require('../utils')
 
 class WalletsController {
   index (req, res, next) {
-    db.accounts
+    db.wallets
       .findAll({...req.query, ...utils.paginator()})
-      .then(result => utils.toCollection(result.rows, 'account'))
-      .then(accounts => utils.respondWith('ok', {accounts}))
+      .then(result => utils.toCollection(result.rows, 'wallet'))
+      .then(wallets => utils.respondWith('ok', {wallets}))
       .then(() => next())
   }
 
   show (req, res, next) {
-    db.accounts
+    db.wallets
       .findById(req.query.address)
-      .then(accounts => {
-        if (!accounts) return utils.respondWith('error', 'Not found')
+      .then(wallets => {
+        if (!wallets) return utils.respondWith('error', 'Not found')
 
         return utils.respondWith('ok', {
-          account: utils.toResource(accounts, 'account')
+          wallet: utils.toResource(wallets, 'wallet')
         })
       })
       .then(() => next())
   }
 
   balance (req, res, next) {
-    db.accounts
+    db.wallets
       .findById(req.query.address)
-      .then(account => {
-        if (!account) return utils.respondWith('error', 'Not found')
+      .then(wallet => {
+        if (!wallet) return utils.respondWith('error', 'Not found')
 
         return utils.respondWith('ok', {
-          balance: account ? account.balance : '0',
-          unconfirmedBalance: account ? account.balance : '0'
+          balance: wallet ? wallet.balance : '0',
+          unconfirmedBalance: wallet ? wallet.balance : '0'
         })
       })
       .then(() => next())
   }
 
   publicKey (req, res, next) {
-    db.accounts
+    db.wallets
       .findById(req.query.address)
-      .then(account => {
-        if (!account) return utils.respondWith('error', 'Not found')
+      .then(wallet => {
+        if (!wallet) return utils.respondWith('error', 'Not found')
 
-        utils.respondWith('ok', { publicKey: account.publicKey })
+        utils.respondWith('ok', { publicKey: wallet.publicKey })
       })
       .then(() => next())
   }
@@ -60,31 +60,31 @@ class WalletsController {
   }
 
   delegates (req, res, next) {
-    db.accounts.findById(req.query.address).then(account => {
-      if (!account) return utils.respondWith('error', 'Address not found.')
-      if (!account.vote) return utils.respondWith('error', `Address ${req.query.address} hasn't voted yet.`)
+    db.wallets.findById(req.query.address).then(wallet => {
+      if (!wallet) return utils.respondWith('error', 'Address not found.')
+      if (!wallet.vote) return utils.respondWith('error', `Address ${req.query.address} hasn't voted yet.`)
 
       const lastBlock = blockchain.status.lastBlock.data
       const constants = config.getConstants(lastBlock.height)
       const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
 
       db.getActiveDelegates(lastBlock.height).then(delegates => {
-          const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
+          const delegateRank = delegates.findIndex(d => d.publicKey === wallet.vote)
           const delegate = delegates[delegateRank]
 
-          db.accounts.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash)).then(account => {
+          db.wallets.findById(arkjs.crypto.getAddress(wallet.vote, config.network.pubKeyHash)).then(wallet => {
             utils
               .respondWith('ok', {
                 delegates: [{
-                  username: account.username,
-                  address: account.address,
-                  publicKey: account.publicKey,
+                  username: wallet.username,
+                  address: wallet.address,
+                  publicKey: wallet.publicKey,
                   vote: delegate.balance + '',
-                  producedblocks: account.producedBlocks,
+                  producedblocks: wallet.producedBlocks,
                   missedblocks: 0, // TODO how?
                   rate: delegateRank + 1,
                   approval: ((delegate.balance / totalSupply) * 100).toFixed(2),
-                  productivity: (100 - (account.missedBlocks / ((account.producedBlocks + account.missedBlocks) / 100))).toFixed(2)
+                  productivity: (100 - (wallet.missedBlocks / ((wallet.producedBlocks + wallet.missedBlocks) / 100))).toFixed(2)
                 }]
               })
               .then(() => next())
@@ -94,14 +94,14 @@ class WalletsController {
   }
 
   top (req, res, next) {
-    db.accounts
+    db.wallets
       .top(req.query)
-      .then(result => utils.respondWith('ok', { accounts: result.rows }))
+      .then(result => utils.respondWith('ok', { wallets: result.rows }))
       .then(() => next())
   }
 
   count (req, res, next) {
-    db.accounts
+    db.wallets
       .findAll()
       .then(result => utils.respondWith('ok', { count: result.count }))
       .then(() => next())
