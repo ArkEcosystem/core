@@ -120,7 +120,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -136,7 +136,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -151,7 +151,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -167,7 +167,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -183,7 +183,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -198,7 +198,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -213,7 +213,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -228,7 +228,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -243,7 +243,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -258,7 +258,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -273,7 +273,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
@@ -306,7 +306,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.not.empty
+        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
         validateTransaction(transaction)
