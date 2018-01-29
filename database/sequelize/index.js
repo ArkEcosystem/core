@@ -13,7 +13,8 @@ module.exports = class SequelizeDB extends DBInterface {
     }
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
-      logging: !!params.logging
+      logging: !!params.logging,
+      operatorsAliases: Sequelize.Op
     })
     return this.db
       .authenticate()
