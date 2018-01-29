@@ -6,6 +6,10 @@ const Promise = require('bluebird')
 
 class AccountManager {
   constructor () {
+    this.reset()
+  }
+
+  reset () {
     this.accountsByAddress = {}
     this.accountsByPublicKey = {}
     this.delegatesByUsername = {}
@@ -37,7 +41,7 @@ class AccountManager {
   }
 
   undoBlock (block) {
-    let delegate = this.accountsByAddress[block.data.generatorPublicKey]
+    let delegate = this.accountsByPublicKey[block.data.generatorPublicKey]
     const undoedTransactions = []
     const that = this
     return Promise
