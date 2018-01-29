@@ -6,6 +6,10 @@ const Promise = require('bluebird')
 
 module.exports = class AccountManager {
   constructor () {
+    this.reset()
+  }
+
+  reset () {
     this.accountsByAddress = {}
     this.accountsByPublicKey = {}
     this.delegatesByUsername = {}
@@ -37,7 +41,7 @@ module.exports = class AccountManager {
   }
 
   undoBlock (block) {
-    let delegate = this.accountsByAddress[block.data.generatorPublicKey]
+    let delegate = this.accountsByPublicKey[block.data.generatorPublicKey]
     const undoedTransactions = []
     const that = this
     return Promise
@@ -56,38 +60,39 @@ module.exports = class AccountManager {
 
   applyTransaction (transaction) {
     return new Promise((resolve, reject) => {
-      let sender = this.accountsByPublicKey[transaction.senderPublicKey]
+      const datatx = transaction.data
+      let sender = this.accountsByPublicKey[datatx.senderPublicKey]
       if (!sender) {
-        const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+        const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
         sender = this.accountsByAddress[senderId] // should exist
-        if (!sender.publicKey) sender.publicKey = transaction.data.senderPublicKey
-        this.accountsByPublicKey[transaction.senderPublicKey] = sender
+        if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
+        this.accountsByPublicKey[datatx.senderPublicKey] = sender
       }
-      const recipientId = transaction.data.recipientId // may not exist
+      const recipientId = datatx.recipientId // may not exist
       let recipient = this.accountsByAddress[recipientId]
       if (!recipient && recipientId) { // cold wallet
         recipient = new Account(recipientId)
         this.accountsByAddress[recipientId] = recipient
       }
-      if (transaction.type === 2 && this.delegatesByUsername[transaction.asset.delegate.username.toLowerCase()]) {
+      if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
         logger.error(sender)
-        logger.error(JSON.stringify(transaction.data))
-        return reject(new Error(`Can't apply transaction ${transaction.data.id}: delegate name already taken`))
-      } else if (transaction.type === 3 && !this.accountsByPublicKey[transaction.asset.votes[0].slice(1)].username) {
+        logger.error(JSON.stringify(datatx))
+        return reject(new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`))
+      } else if (datatx.type === 3 && !this.accountsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
         logger.error(sender)
-        logger.error(JSON.stringify(transaction.data))
-        return reject(new Error(`Can't apply transaction ${transaction.data.id}: voted delegate does not exist`))
+        logger.error(JSON.stringify(datatx))
+        return reject(new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`))
       }
-      if (config.network.exceptions[transaction.data.id]) {
+      if (config.network.exceptions[datatx.id]) {
         logger.warn('Transaction is forced to be applied because it has been added as an exception:')
-        logger.warn(JSON.stringify(transaction.data))
-      } else if (!sender.canApply(transaction.data)) {
+        logger.warn(JSON.stringify(datatx))
+      } else if (!sender.canApply(datatx)) {
         logger.error(sender)
-        logger.error(JSON.stringify(transaction.data))
-        return reject(new Error(`Can't apply transaction ${transaction.data.id}`))
+        logger.error(JSON.stringify(datatx))
+        return reject(new Error(`Can't apply transaction ${datatx.id}`))
       }
-      sender.applyTransactionToSender(transaction.data)
-      if (transaction.type === 0) recipient.applyTransactionToRecipient(transaction.data)
+      sender.applyTransactionToSender(datatx)
+      if (datatx.type === 0) recipient.applyTransactionToRecipient(datatx)
       // TODO: faster way to maintain active delegate list (ie instead of db queries)
       // if (sender.vote) {
       //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
