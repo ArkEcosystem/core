@@ -2,6 +2,9 @@ const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
 const logger = require('./logger')
+const PromiseWorker = require('promise-worker')
+const Worker = require('tiny-worker')
+const worker = new Worker(`${__dirname}/transactionPool.js`)
 
 let instance = null
 let db = null
@@ -14,6 +17,8 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
+    this.transactionPool = new PromiseWorker(worker)
+    this.transactionPool.postMessage({event: 'init', data: config})
     this.status = {
       lastBlock: null,
       lastDownloadedBlock: null,
@@ -68,12 +73,14 @@ module.exports = class BlockchainManager {
         if (block.data.height === 1) {
           return db
             .buildAccounts()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
             .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(block, false, false))
             .then(() => block)
         } else {
           return db
             .buildAccounts()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
             .then(() => db.saveAccounts(true))
             .then(() => block)
         }
@@ -278,6 +285,7 @@ module.exports = class BlockchainManager {
         db.applyBlock(block, status.syncing, status.fastSync)
           .then(() => db.saveBlock(block))
           .then(() => (status.lastBlock = block))
+          .then(() => this.transactionPool.postMessage({event: 'addBlock', data: status.lastBlock}))
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
