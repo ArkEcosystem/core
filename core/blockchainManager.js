@@ -72,16 +72,16 @@ module.exports = class BlockchainManager {
         logger.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
-            .buildAccounts()
-            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
-            .then(() => db.saveAccounts(true))
+            .buildWallets()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
+            .then(() => db.saveWallets(true))
             .then(() => db.applyRound(block, false, false))
             .then(() => block)
         } else {
           return db
-            .buildAccounts()
-            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
-            .then(() => db.saveAccounts(true))
+            .buildWallets()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
+            .then(() => db.saveWallets(true))
             .then(() => block)
         }
       })
@@ -93,8 +93,8 @@ module.exports = class BlockchainManager {
           that.status.fastSync = true
           logger.info('Fast Rebuild:', that.status.fastSync)
           return db.saveBlock(genesis)
-            .then(() => db.buildAccounts())
-            .then(() => db.saveAccounts(true))
+            .then(() => db.buildWallets())
+            .then(() => db.saveWallets(true))
             .then(() => db.applyRound(genesis))
             .then(() => genesis)
         }
@@ -328,7 +328,7 @@ module.exports = class BlockchainManager {
         logger.info('No new block found on this peer')
         that.eventQueue.push({type: 'download/next', noblock: true})
       } else {
-        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+        logger.info(`Downloaded ${blocks.length} new blocks walleting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         else { // TODO Fork
           this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
