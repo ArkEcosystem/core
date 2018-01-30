@@ -1,6 +1,6 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const registerPromiseWorker = require('promise-worker/register')
+const registerPromiseWorker = require(`${__dirname}/core/promise-worker/register`)
 const config = require(`${__dirname}/core/config`)
 const logger = require(`${__dirname}/core/logger`)
 

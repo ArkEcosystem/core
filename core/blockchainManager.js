@@ -2,7 +2,7 @@ const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
 const logger = require('./logger')
-const PromiseWorker = require('promise-worker')
+const PromiseWorker = require(`${__dirname}/promise-worker`)
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/transactionPool.js`)
 
