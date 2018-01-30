@@ -19,6 +19,8 @@ module.exports = (callback) => {
     try { result = { res: callback(message) } } catch (e) { result = {err: e} }
 
     if (result.err) {
+      logger.error(`Promise  Worker caught an error: ${result.err}`)
+      
       postOutgoingMessage(e, messageId, result.err)
     } else if (!isPromise(result.res)) {
       postOutgoingMessage(e, messageId, null, result.res)
