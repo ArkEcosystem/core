@@ -68,7 +68,9 @@ class Helpers {
     transaction.should.have.property('amount').which.is.a('number')
     transaction.should.have.property('fee').which.is.a('number')
     transaction.should.have.property('sender').which.is.a('string')
-    transaction.should.have.property('recipient').which.is.a('string')
+    if ([1, 2].indexOf(transaction.type) === -1) {
+      transaction.should.have.property('recipient').which.is.a('string')
+    }
     transaction.should.have.property('signature').which.is.a('string')
     transaction.should.have.property('confirmations').which.is.a('number')
   }

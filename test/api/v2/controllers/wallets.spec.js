@@ -61,15 +61,7 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        const transaction = res.body.data[0]
-        transaction.should.have.property('id').which.is.a('string')
-        transaction.should.have.property('block_id').which.is.a('string')
-        transaction.should.have.property('type').which.is.a('number')
-        transaction.should.have.property('amount').which.is.a('number')
-        transaction.should.have.property('fee').which.is.a('number')
-        transaction.should.have.property('sender').which.is.a('string')
-        transaction.should.have.property('signature').which.is.a('string')
-        transaction.should.have.property('confirmations').which.is.a('number')
+        Helpers.assertTransaction(res.body.data[0])
 
         done()
       })
@@ -83,14 +75,8 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertCollection(res)
 
         const transaction = res.body.data[0]
-        transaction.should.have.property('id').which.is.a('string')
-        transaction.should.have.property('block_id').which.is.a('string')
-        transaction.should.have.property('type').which.is.a('number')
-        transaction.should.have.property('amount').which.is.a('number')
-        transaction.should.have.property('fee').which.is.a('number')
-        transaction.should.have.property('sender').which.is.a('string').and.equals(addressActive)
-        transaction.should.have.property('signature').which.is.a('string')
-        transaction.should.have.property('confirmations').which.is.a('number')
+        Helpers.assertTransaction(transaction)
+        transaction.sender.should.equal(addressActive)
 
         done()
       })
@@ -103,15 +89,7 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        const transaction = res.body.data[0]
-        transaction.should.have.property('id').which.is.a('string')
-        transaction.should.have.property('block_id').which.is.a('string')
-        transaction.should.have.property('type').which.is.a('number')
-        transaction.should.have.property('amount').which.is.a('number')
-        transaction.should.have.property('fee').which.is.a('number')
-        transaction.should.have.property('sender').which.is.a('string')
-        transaction.should.have.property('signature').which.is.a('string')
-        transaction.should.have.property('confirmations').which.is.a('number')
+        Helpers.assertTransaction(res.body.data[0])
 
         done()
       })
