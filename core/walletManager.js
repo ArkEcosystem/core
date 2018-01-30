@@ -1,34 +1,34 @@
-const Account = requireFrom('model/account')
+const Wallet = requireFrom('model/wallet')
 const config = requireFrom('core/config')
 const logger = requireFrom('core/logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
 
-module.exports = class AccountManager {
+module.exports = class WalletManager {
   constructor () {
     this.reset()
   }
 
   reset () {
-    this.accountsByAddress = {}
-    this.accountsByPublicKey = {}
+    this.walletsByAddress = {}
+    this.walletsByPublicKey = {}
     this.delegatesByUsername = {}
   }
 
-  updateAccount (account) {
-    if (account.address) this.accountsByAddress[account.address] = account
-    if (account.publicKey) this.accountsByPublicKey[account.publicKey] = account
-    if (account.username) this.delegatesByUsername[account.username] = account
+  updateWallet (wallet) {
+    if (wallet.address) this.walletsByAddress[wallet.address] = wallet
+    if (wallet.publicKey) this.walletsByPublicKey[wallet.publicKey] = wallet
+    if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
   }
 
   applyBlock (block) {
-    let delegate = this.accountsByPublicKey[block.data.generatorPublicKey]
+    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
     if (!delegate && block.data.height === 1) {
       const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
-      delegate = new Account(generator)
+      delegate = new Wallet(generator)
       delegate.publicKey = block.data.generatorPublicKey
-      this.accountsByAddress[generator] = delegate
-      this.accountsByPublicKey[block.generatorPublicKey] = delegate
+      this.walletsByAddress[generator] = delegate
+      this.walletsByPublicKey[block.generatorPublicKey] = delegate
     }
     const appliedTransactions = []
     return Promise
@@ -41,7 +41,7 @@ module.exports = class AccountManager {
   }
 
   undoBlock (block) {
-    let delegate = this.accountsByPublicKey[block.data.generatorPublicKey]
+    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
     const undoedTransactions = []
     const that = this
     return Promise
@@ -61,24 +61,24 @@ module.exports = class AccountManager {
   applyTransaction (transaction) {
     return new Promise((resolve, reject) => {
       const datatx = transaction.data
-      let sender = this.accountsByPublicKey[datatx.senderPublicKey]
+      let sender = this.walletsByPublicKey[datatx.senderPublicKey]
       if (!sender) {
         const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
-        sender = this.accountsByAddress[senderId] // should exist
+        sender = this.walletsByAddress[senderId] // should exist
         if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
-        this.accountsByPublicKey[datatx.senderPublicKey] = sender
+        this.walletsByPublicKey[datatx.senderPublicKey] = sender
       }
       const recipientId = datatx.recipientId // may not exist
-      let recipient = this.accountsByAddress[recipientId]
+      let recipient = this.walletsByAddress[recipientId]
       if (!recipient && recipientId) { // cold wallet
-        recipient = new Account(recipientId)
-        this.accountsByAddress[recipientId] = recipient
+        recipient = new Wallet(recipientId)
+        this.walletsByAddress[recipientId] = recipient
       }
       if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
         logger.error(sender)
         logger.error(JSON.stringify(datatx))
         return reject(new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`))
-      } else if (datatx.type === 3 && !this.accountsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
+      } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
         logger.error(sender)
         logger.error(JSON.stringify(datatx))
         return reject(new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`))
@@ -96,7 +96,7 @@ module.exports = class AccountManager {
       // TODO: faster way to maintain active delegate list (ie instead of db queries)
       // if (sender.vote) {
       //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-      //   const delegate = this.localaccounts[delegateAdress]
+      //   const delegate = this.localwallets[delegateAdress]
       //   delegate.applyVote(sender, transaction.data.asset.votes[0])
       // }
       return resolve(transaction)
@@ -104,32 +104,32 @@ module.exports = class AccountManager {
   }
 
   undoTransaction (transaction) {
-    let sender = this.accountsByPublicKey[transaction.data.senderPublicKey] // should exist
-    let recipient = this.accountsByAddress[transaction.data.recipientId]
+    let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
+    let recipient = this.walletsByAddress[transaction.data.recipientId]
     sender.undoTransactionToSender(transaction.data)
     if (recipient && transaction.type === 0) recipient.undoTransactionToRecipient(transaction.data)
     return Promise.resolve(transaction.data)
   }
 
-  getAccountByAddress (address) {
-    let account = this.accountsByAddress[address]
-    if (account) return account
+  getWalletByAddress (address) {
+    let wallet = this.walletsByAddress[address]
+    if (wallet) return wallet
     else {
-      account = new Account(address)
-      this.accountsByAddress[address] = account
-      return account
+      wallet = new Wallet(address)
+      this.walletsByAddress[address] = wallet
+      return wallet
     }
   }
 
-  getAccountByPublicKey (publicKey) {
-    let account = this.accountsByPublicKey[publicKey]
-    if (account) return account
+  getWalletByPublicKey (publicKey) {
+    let wallet = this.walletsByPublicKey[publicKey]
+    if (wallet) return wallet
     else {
       const address = arkjs.crypto.getAddress(publicKey, config.network.pubKeyHash)
-      account = this.getAccountByAddress(address)
-      account.publicKey = publicKey
-      this.accountsByPublicKey[publicKey] = account
-      return account
+      wallet = this.getWalletByAddress(address)
+      wallet.publicKey = publicKey
+      this.walletsByPublicKey[publicKey] = wallet
+      return wallet
     }
   }
 
@@ -137,7 +137,7 @@ module.exports = class AccountManager {
     return this.delegatesByUsername[username]
   }
 
-  getLocalAccounts () { // for compatibility with API
-    return Object.values(this.accountsByAddress)
+  getLocalWallets () { // for compatibility with API
+    return Object.values(this.walletsByAddress)
   }
 }

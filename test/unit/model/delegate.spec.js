@@ -1,5 +1,5 @@
 const Delegate = require('model/delegate')
-const Account = require('model/account')
+const Wallet = require('model/wallet')
 
 describe('Model | Delegate', () => {
   describe('static sortTransactions', () => {
@@ -18,10 +18,10 @@ describe('Model | Delegate', () => {
     context('without version option', () => {
       it.skip('doesn\'t sort the transactions', () => {
         const address = 'Abcde'
-        const account = new Account(address)
-        account.balance = 10 ** 8
+        const wallet = new Wallet(address)
+        wallet.balance = 10 ** 8
 
-        account.toString().should.equal(`${address}=1`)
+        wallet.toString().should.equal(`${address}=1`)
       })
 
       // TODO probably useful for debugging

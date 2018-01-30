@@ -27,8 +27,8 @@ class DelegatesController {
   voters (req, res, next) {
     db.delegates
       .findById(req.params.id)
-      .then(delegate => db.accounts.findAllByVote(delegate.publicKey))
-      .then(accounts => utils.respondWithCollection(accounts, 'wallet'))
+      .then(delegate => db.wallets.findAllByVote(delegate.publicKey))
+      .then(wallets => utils.respondWithCollection(wallets, 'wallet'))
       .then(() => next())
   }
 }

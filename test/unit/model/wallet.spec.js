@@ -1,6 +1,6 @@
-const Account = require('model/account')
+const Wallet = require('model/wallet')
 
-const testAccount = new Account('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
+const testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
 const data = {
   'publicKey': '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
   'secondPublicKey': '020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03',
@@ -13,7 +13,7 @@ const data = {
   'producedBlocks': 0,
   'missedBlocks': 0
 }
-Object.keys(data).forEach((k) => (testAccount[k] = data[k]))
+Object.keys(data).forEach((k) => (testWallet[k] = data[k]))
 
 const multitx = {
   'version': 1,
@@ -72,20 +72,20 @@ const multitx = {
   'id': '95199581d640eda97ea810fc3248e34f6e5ab1d8c9802e64a50b930f4ff044ab'
 }
 
-describe('Model | Account', () =>
+describe('Model | Wallet', () =>
   describe('toString', () =>
     // TODO implementation is right?
     it('returns the address and the balance', () => {
       const address = 'Abcde'
-      const account = new Account(address)
+      const wallet = new Wallet(address)
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
-      account.balance = balance * 10 ** 8
+      wallet.balance = balance * 10 ** 8
 
-      account.toString().should.equal(`${address}=${balance}`)
+      wallet.toString().should.equal(`${address}=${balance}`)
     })
   ),
 
   describe('apply transaction', () =>
-    it('should be ok for a multitx', () => testAccount.canApply(multitx).should.be.true)
+    it('should be ok for a multitx', () => testWallet.canApply(multitx).should.be.true)
   )
 )

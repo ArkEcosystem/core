@@ -1,6 +1,6 @@
 const arkjs = require('arkjs')
-const Account = requireFrom('model/account')
-const AccountManager = require('./accountManager')
+const Wallet = requireFrom('model/wallet')
+const WalletManager = require('./walletManager')
 const config = require('./config')
 const logger = require('./logger')
 const Promise = require('bluebird')
@@ -13,7 +13,7 @@ let synctracker
 let instance
 
 const tickSyncTracker = (block, rebuild, fastRebuild) => {
-  if (rebuild) { // basically don't make useless database interaction like saving account state
+  if (rebuild) { // basically don't make useless database interaction like saving wallet state
     if (!synctracker) {
       synctracker = {
         starttimestamp: block.data.timestamp,
@@ -33,7 +33,7 @@ class DBInterface {
 
   static create (config) {
     const db = new (require(path.resolve(config.driver)))()
-    db.accountManager = new AccountManager()
+    db.walletManager = new WalletManager()
 
     return db
       .init(config)
@@ -51,7 +51,7 @@ class DBInterface {
     })
 
     // this is a special case repository and will be forced to be read from memory...
-    instance['accounts'] = new (requireFrom('database/repositories/accounts'))(instance)
+    instance['wallets'] = new (requireFrom('database/repositories/wallets'))(instance)
 
     return Promise.resolve(instance)
   }
@@ -62,10 +62,10 @@ class DBInterface {
   // buildDelegates (block) {
   // }
 
-  // buildAccounts () {
+  // buildWallets () {
   // }
 
-  // saveAccounts (force) {
+  // saveWallets (force) {
   // }
 
   // saveBlock (block) {
@@ -86,14 +86,14 @@ class DBInterface {
   applyRound (block, syncing, fastSync) {
     tickSyncTracker(block, syncing, fastSync)
     if ((!fastSync && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      if (syncing) { // basically don't make useless database interaction like saving account state
+      if (syncing) { // basically don't make useless database interaction like saving wallet state
         return this.buildDelegates(block)
           .then(() => this.rounds.bulkCreate(this.activedelegates))
           .then(() => block)
       } else {
         logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
         return this
-          .saveAccounts(true) // save only modified accounts during the last round
+          .saveWallets(true) // save only modified wallets during the last round
           .then(() => this.buildDelegates(block)) // active build delegate list from database state
           .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
           .then(() => block)
@@ -118,33 +118,33 @@ class DBInterface {
   }
 
   applyBlock (block, rebuild, fastRebuild) {
-    return this.accountManager
+    return this.walletManager
       .applyBlock(block)
       .then(() => this.applyRound(block, rebuild, fastRebuild))
   }
 
   undoBlock (block) {
-    return this.accountManager
+    return this.walletManager
       .undoBlock(block)
       .then(() => this.undoRound(block))
   }
 
   verifyTransaction (transaction) {
     const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
-    let sender = this.accountManager.getAccountByAddress[senderId] // should exist
+    let sender = this.walletManager.getWalletByAddress[senderId] // should exist
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
-      this.accountManager.updateAccount(sender)
+      this.walletManager.updateWallet(sender)
     }
     return sender.canApply(transaction.data)
   }
 
   applyTransaction (transaction) {
-    return this.accountManager.applyTransaction(transaction)
+    return this.walletManager.applyTransaction(transaction)
   }
 
   undoTransaction (transaction) {
-    return this.accountManager.undoTransaction(transaction)
+    return this.walletManager.undoTransaction(transaction)
   }
 
   snapshot (path) {

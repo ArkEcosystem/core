@@ -122,7 +122,7 @@ module.exports = {
         minLength: 1,
         maxLength: 100
       },
-      multisigAccountPublicKey: {
+      multisigWalletPublicKey: {
         type: 'string',
         format: 'publicKey'
       }
