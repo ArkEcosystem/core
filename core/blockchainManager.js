@@ -328,7 +328,7 @@ module.exports = class BlockchainManager {
         logger.info('No new block found on this peer')
         that.eventQueue.push({type: 'download/next', noblock: true})
       } else {
-        logger.info(`Downloaded ${blocks.length} new blocks walleting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         else { // TODO Fork
           this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
