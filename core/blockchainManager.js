@@ -2,6 +2,9 @@ const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
 const logger = require('./logger')
+const PromiseWorker = require('promise-worker')
+const Worker = require('tiny-worker')
+const worker = new Worker(`${__dirname}/transactionPool.js`)
 
 let instance = null
 let db = null
@@ -14,6 +17,8 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
+    this.transactionPool = new PromiseWorker(worker)
+    this.transactionPool.postMessage({event: 'init', data: config})
     this.status = {
       lastBlock: null,
       lastDownloadedBlock: null,
@@ -67,14 +72,16 @@ module.exports = class BlockchainManager {
         logger.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
-            .buildWallets()
-            .then(() => db.saveWallets(true))
+            .buildAccounts()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
+            .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(block, false, false))
             .then(() => block)
         } else {
           return db
-            .buildWallets()
-            .then(() => db.saveWallets(true))
+            .buildAccounts()
+            .then(() => that.transactionPool.postMessage({event: 'start', data: db.accountManager.getLocalAccounts()}))
+            .then(() => db.saveAccounts(true))
             .then(() => block)
         }
       })
@@ -86,8 +93,8 @@ module.exports = class BlockchainManager {
           that.status.fastSync = true
           logger.info('Fast Rebuild:', that.status.fastSync)
           return db.saveBlock(genesis)
-            .then(() => db.buildWallets())
-            .then(() => db.saveWallets(true))
+            .then(() => db.buildAccounts())
+            .then(() => db.saveAccounts(true))
             .then(() => db.applyRound(genesis))
             .then(() => genesis)
         }
@@ -278,6 +285,7 @@ module.exports = class BlockchainManager {
         db.applyBlock(block, status.syncing, status.fastSync)
           .then(() => db.saveBlock(block))
           .then(() => (status.lastBlock = block))
+          .then(() => this.transactionPool.postMessage({event: 'addBlock', data: status.lastBlock}))
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
@@ -320,7 +328,7 @@ module.exports = class BlockchainManager {
         logger.info('No new block found on this peer')
         that.eventQueue.push({type: 'download/next', noblock: true})
       } else {
-        logger.info(`Downloaded ${blocks.length} new blocks walleting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         else { // TODO Fork
           this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
