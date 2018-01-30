@@ -1,5 +1,5 @@
 const popsicle = require('popsicle')
-const registerPromiseWorker = require('promise-worker/register')
+const registerPromiseWorker = require('../../../core/promise-worker/register')
 
 registerPromiseWorker(message => {
   if (message.height) {

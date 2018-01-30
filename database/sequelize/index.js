@@ -19,7 +19,7 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then(tables => ([this.blocksTable, this.transactionsTable, this.accountsTable, this.roundsTable] = tables))
+      .then(tables => ([this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable] = tables))
   }
 
   getActiveDelegates (height) {
@@ -50,7 +50,7 @@ module.exports = class SequelizeDB extends DBInterface {
   buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
-    return this.accountsTable
+    return this.walletsTable
       .findAll({
         attributes: [
           ['vote', 'publicKey'],
@@ -65,7 +65,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
       .then(data => {
         if (data.length < activeDelegates) {
-          return this.accountsTable
+          return this.walletsTable
             .findAll({
               attributes: [
                 'publicKey'
@@ -93,8 +93,8 @@ module.exports = class SequelizeDB extends DBInterface {
       })
   }
 
-  buildAccounts () {
-    this.accountManager.reset()
+  buildWallets () {
+    this.walletManager.reset()
     logger.printTracker('SPV Building', 0, 7)
     return this.transactionsTable
       .findAll({
@@ -108,17 +108,17 @@ module.exports = class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 1, 7, 'received transactions')
         data.forEach(row => {
-          const account = this.accountManager.getAccountByAddress(row.recipientId)
-          account.balance = parseInt(row.amount)
+          const wallet = this.walletManager.getWalletByAddress(row.recipientId)
+          wallet.balance = parseInt(row.amount)
         })
         return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
       })
       .then(data => {
         logger.printTracker('SPV Building', 2, 7, 'block rewards')
         data.forEach(row => {
-          const account = this.accountManager.getAccountByPublicKey(row.generatorPublicKey)
-          account.balance += parseInt(row.reward)
-          account.producedBlocks += parseInt(row.produced)
+          const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+          wallet.balance += parseInt(row.reward)
+          wallet.producedBlocks += parseInt(row.produced)
         })
         return this.transactionsTable.findAll({
           attributes: [
@@ -132,11 +132,11 @@ module.exports = class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 3, 7, 'sent transactions')
         data.forEach(row => {
-          let account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
-          account.balance -= parseInt(row.amount) + parseInt(row.fee)
-          if (account.balance < 0) {
+          let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+          wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
+          if (wallet.balance < 0) {
             logger.warn('Negative balance should never happen except from premining address:')
-            logger.warn(account)
+            logger.warn(wallet)
           }
         })
         return this.transactionsTable.findAll({
@@ -150,8 +150,8 @@ module.exports = class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 4, 7, 'second signatures')
         data.forEach(row => {
-          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
-          account.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
+          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+          wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
         })
         return this.transactionsTable.findAll({
           attributes: [
@@ -164,11 +164,11 @@ module.exports = class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 5, 7, 'delegates')
         data.forEach(row => {
-          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
-          account.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
-          this.accountManager.updateAccount(account)
+          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+          wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
+          this.walletManager.updateWallet(wallet)
         })
-        Object.values(this.accountManager.accountsByAddress)
+        Object.values(this.walletManager.walletsByAddress)
           .filter(a => a.balance < 0)
           .forEach(a => logger.debug(a))
         return this.transactionsTable.findAll({
@@ -183,11 +183,11 @@ module.exports = class SequelizeDB extends DBInterface {
       .then(data => {
         logger.printTracker('SPV Building', 6, 7, 'votes')
         data.forEach(row => {
-          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
-          if (!account.voted) {
+          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+          if (!wallet.voted) {
             let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
-            if (vote.startsWith('+')) account.vote = vote.slice(1)
-            account.voted = true
+            if (vote.startsWith('+')) wallet.vote = vote.slice(1)
+            wallet.voted = true
           }
         })
         logger.printTracker('SPV Building', 7, 7, 'multisignatures')
@@ -202,28 +202,28 @@ module.exports = class SequelizeDB extends DBInterface {
       })
       .then(data => {
         data.forEach(row => {
-          const account = this.accountManager.getAccountByPublicKey(row.senderPublicKey)
-          account.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
+          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+          wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
         })
-        logger.info('SPV rebuild finished, accounts in memory:', Object.keys(this.accountManager.accountsByAddress).length)
-        logger.info(`Number of registered delegates: ${Object.keys(this.accountManager.delegatesByUsername).length}`)
-        return Promise.resolve(this.accountManager.accountsByAddress || [])
+        logger.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
+        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+        return Promise.resolve(this.walletManager.walletsByAddress || [])
       })
       .catch(error => logger.error(error))
   }
 
-  saveAccounts (force) {
+  saveWallets (force) {
     return this.db
       .transaction(t =>
         Promise.all(
-          Object.values(this.accountManager.accountsByPublicKey || {})
+          Object.values(this.walletManager.walletsByPublicKey || {})
             // cold addresses are not saved on database
             .filter(acc => acc.publicKey && (force || acc.dirty))
-            .map(acc => this.accountsTable.upsert(acc, {transaction: t}))
+            .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
         )
       )
-      .then(() => logger.info('Rebuilt accounts saved'))
-      .then(() => Object.values(this.accountManager.accountsByAddress).forEach(acc => (acc.dirty = false)))
+      .then(() => logger.info('Rebuilt wallets saved'))
+      .then(() => Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false)))
   }
 
   saveBlock (block) {

@@ -75,7 +75,7 @@ function syncTables (db) {
   })
   transactions.belongsTo(blocks)
   blocks.hasMany(transactions)
-  const accounts = db.define('accounts', {
+  const wallets = db.define('wallets', {
     address: {
       type: Sequelize.STRING(36),
       primaryKey: true
@@ -130,7 +130,7 @@ function syncTables (db) {
     }
   )
 
-  return Promise.all([blocks, transactions, accounts, rounds].map(table => table.sync()))
+  return Promise.all([blocks, transactions, wallets, rounds].map(table => table.sync()))
 }
 
 module.exports = {

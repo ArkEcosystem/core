@@ -14,7 +14,7 @@ module.exports = {
         type: 'string',
         format: 'publicKey'
       },
-      multisigAccountPublicKey: {
+      multisigWalletPublicKey: {
         type: 'string',
         format: 'publicKey'
       }

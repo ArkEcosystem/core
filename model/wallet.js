@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
 const config = requireFrom('core/config')
 
-module.exports = class Account {
+module.exports = class Wallet {
   constructor (address) {
     this.address = address
     this.publicKey = null

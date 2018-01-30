@@ -3,18 +3,18 @@ const Helpers = require('../helpers')
 const AddressActive = 'DRac35wghMcmUSe5jDMLBDLWkVVjyKZFxK'
 const AddressCold = 'DCs3EeTAME7W61fx5YiJKe9nhWn61YpRMJ'
 
-describe('API 1.0 - Accounts', () => {
+describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/?address', () => {
-    it('should return account/wallet information', (done) => {
+    it('should return wallet/wallet information', (done) => {
       Helpers.request('GET', 'accounts', { address: AddressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('account').which.has.all.keys(['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance'])
-        res.body.account.should.have.property('vote').which.is.a('string')
-        res.body.account.should.have.property('balance').which.is.a('number')
-        res.body.account.should.have.property('votebalance').which.is.a('number')
-        res.body.account.should.have.property('address').which.is.a('string')
-        res.body.account.should.have.property('publicKey').which.is.a('string')
+        res.body.should.have.property('wallet').which.has.all.keys(['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance'])
+        res.body.wallet.should.have.property('vote').which.is.a('string')
+        res.body.wallet.should.have.property('balance').which.is.a('number')
+        res.body.wallet.should.have.property('votebalance').which.is.a('number')
+        res.body.wallet.should.have.property('address').which.is.a('string')
+        res.body.wallet.should.have.property('publicKey').which.is.a('string')
 
         done()
       })

@@ -1,20 +1,20 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const registerPromiseWorker = require('promise-worker/register')
+const registerPromiseWorker = require(`${__dirname}/core/promise-worker/register`)
 const config = require(`${__dirname}/core/config`)
 const logger = require(`${__dirname}/core/logger`)
 const Transaction = require(`${__dirname}/model/Transaction`)
 
 let instance = null
-let AccountManager = null
-let Account = null
+let WalletManager = null
+let Wallet = null
 
 registerPromiseWorker(message => {
   if (message.event === 'init') {
     return config.init(message.data)
       .then((conf) => logger.init(conf.server.fileLogLevel, conf.network.name+'_transactionPool'))
-      .then(() => (AccountManager = requireFrom('core/accountManager')))
-      .then(() => (Account = requireFrom('model/account.js')))
+      .then(() => (WalletManager = requireFrom('core/walletManager')))
+      .then(() => (Wallet = requireFrom('model/wallet.js')))
       .then(() => (instance = new TransactionPool()))
   }
   if (instance && instance[message.event]) {
@@ -25,7 +25,7 @@ registerPromiseWorker(message => {
 class TransactionPool {
   constructor () {
     const that = this
-    this.accountManager = new AccountManager()
+    this.walletManager = new WalletManager()
 
     this.pool = {}
     this.queue = async.queue((transaction, qcallback) => {
@@ -34,11 +34,11 @@ class TransactionPool {
     }, 1)
   }
 
-  start (accounts) {
-    accounts.forEach(account => {
-      let acc = new Account(account.address)
-      acc = {...acc, ...account}
-      instance.accountManager.updateAccount(acc)
+  start (wallets) {
+    wallets.forEach(wallet => {
+      let acc = new Wallet(wallet.address)
+      acc = {...acc, ...wallet}
+      instance.walletManager.updateWallet(acc)
     })
     logger.debug(`transactions pool started with ${instance.accountManager.getLocalAccounts().length} wallets`)
     return Promise.resolve()

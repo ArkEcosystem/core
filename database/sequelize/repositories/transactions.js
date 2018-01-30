@@ -18,9 +18,9 @@ module.exports = class TransactionsRepository {
     }
 
     if (params['senderId']) {
-      let account = this.db.accountManager.getAccountByAddress([params['senderId']])
+      let wallet = this.db.walletManager.getWalletByAddress([params['senderId']])
 
-      if (account) whereStatement['senderPublicKey'] = account.publicKey
+      if (wallet) whereStatement['senderPublicKey'] = wallet.publicKey
     }
 
     if (params.orderBy) {

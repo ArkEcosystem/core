@@ -29,7 +29,7 @@ Still alpha
   - [x] Start independant testnet
   - [x] Fast rebuild (with automatic switch to full rebuild when rebuild is close to network height)
   - [x] Rotating and compressing log
-  - [x] Constants in config file, with progressive fork rules (to be improved to take into account rounds instead of height)
+  - [x] Constants in config file, with progressive fork rules (to be improved to take into wallet rounds instead of height)
   - [x] Support for MySQL (not tested)
   - [x] Support for PostgreSQL
   - [x] Support for SQLite3

@@ -4,17 +4,17 @@ module.exports = class DelegatesRepository {
   }
 
   findAll (params = {}) {
-    return Promise.resolve(this.db.accountManager.getLocalAccounts().filter(a => !!a.username))
+    return Promise.resolve(this.db.walletManager.getLocalWallets().filter(a => !!a.username))
   }
 
   paginate (params) {
-    return this.findAll().then((accounts) => ({
-      rows: accounts.slice(params.offset, params.offset + params.limit),
-      count: accounts.length
+    return this.findAll().then((wallets) => ({
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
     }))
   }
 
   findById (id) {
-    return this.findAll().then((accounts) => accounts.find(a => (a.address === id || a.publicKey === id || a.username === id)))
+    return this.findAll().then((wallets) => wallets.find(a => (a.address === id || a.publicKey === id || a.username === id)))
   }
 }
