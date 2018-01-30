@@ -19,19 +19,6 @@ const feeFrom = 0
 const feeTo = 20000000
 const vendorFieldHex = '796f'
 
-validateTransaction = (transaction) => {
-  transaction.should.be.an('object')
-  transaction.should.have.property('id').which.is.a('string')
-  transaction.should.have.property('block_id').which.is.a('string')
-  transaction.should.have.property('type').which.is.a('number')
-  transaction.should.have.property('amount').which.is.a('number')
-  transaction.should.have.property('fee').which.is.a('number')
-  transaction.should.have.property('sender').which.is.a('string')
-  transaction.should.have.property('recipient').which.is.a('string')
-  transaction.should.have.property('signature').which.is.a('string')
-  transaction.should.have.property('confirmations').which.is.a('number')
-}
-
 describe('API 2.0 - Transactions', () => {
   describe('GET /api/transactions', () => {
     it('should GET all the transactions', (done) => {
@@ -39,7 +26,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        validateTransaction(res.body.data[0])
+        Helpers.assertTransaction(res.body.data[0])
 
         done()
       })
@@ -53,7 +40,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertResource(res)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -92,7 +79,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -107,7 +94,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
         transaction.block_id.should.equal(blockId)
 
@@ -123,7 +110,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
         transaction.type.should.equal(type)
 
@@ -139,7 +126,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -154,7 +141,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
         transaction.sender.should.equal(senderAddress)
 
@@ -170,7 +157,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
         transaction.recipient.should.equal(recipientAddress)
 
@@ -186,7 +173,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -201,7 +188,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -216,7 +203,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -231,7 +218,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -246,7 +233,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -261,7 +248,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -276,7 +263,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
@@ -309,7 +296,7 @@ describe('API 2.0 - Transactions', () => {
         res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
 
         const transaction = res.body.data[0]
-        validateTransaction(transaction)
+        Helpers.assertTransaction(transaction)
         transaction.id.should.equal(transactionId)
 
         done()
