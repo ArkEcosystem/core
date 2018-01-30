@@ -1,5 +1,5 @@
 const logger = requireFrom('core/logger')
-const MethodMissing = requireFrom('helpers/method-missing')
+const MethodMissing = requireFrom('utils/method-missing')
 const State = requireFrom('api/plugins/state')
 const errors = require('restify-errors')
 const path = require('path')
