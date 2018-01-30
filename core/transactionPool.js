@@ -40,7 +40,7 @@ class TransactionPool {
       acc = {...acc, ...wallet}
       instance.walletManager.updateWallet(acc)
     })
-    logger.debug(`transactions pool started with ${instance.accountManager.getLocalAccounts().length} wallets`)
+    logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
     return Promise.resolve()
   }
 
@@ -55,8 +55,8 @@ class TransactionPool {
   }
 
   verify (transaction) {
-    if (arkjs.crypto.verify(transaction) && this.accountManager.canApply(transaction)) {
-      this.accountManager.applyTransaction(transaction)
+    if (arkjs.crypto.verify(transaction) && this.walletManager.canApply(transaction)) {
+      this.walletManager.applyTransaction(transaction)
       return true
     }
   }
@@ -64,7 +64,7 @@ class TransactionPool {
   addBlock (block) {
     return Promise.all(block.transactions.map(tx => {
       if (this.pool[tx.id]) {
-        this.accountManager.undoTransaction(this.pool[tx.id])
+        this.walletManager.undoTransaction(this.pool[tx.id])
         delete this.pool[tx.id]
       }
     }))

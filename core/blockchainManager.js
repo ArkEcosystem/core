@@ -189,7 +189,7 @@ module.exports = class BlockchainManager {
           this.status.downloadpaused = false
           return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
         } else {
-          if (this.downloadQueue.length === 0) this.status.syncing = false
+          if (this.downloadQueue.length() === 0) this.status.syncing = false
           return qcallback()
         }
       case 'download/pause':

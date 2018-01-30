@@ -63,6 +63,7 @@ class Down {
   acceptNewPeer (peer) {
     if (this.peers[peer.ip]) return Promise.resolve()
     if (peer.nethash !== this.config.network.nethash) return Promise.reject(new Error('Request is made on the wrong network'))
+    if (peer.ip === '::ffff:127.0.0.1') return Promise.reject(new Error('Localhost peer not accepted'))
     const npeer = new Peer(peer.ip, peer.port, this.config)
     return npeer.ping()
       .then(() => (this.peers[peer.ip] = npeer))
