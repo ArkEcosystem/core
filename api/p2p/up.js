@@ -227,6 +227,16 @@ class Up {
     next()
   }
 
+  postTrasactions (req, res, next) {
+    const transactions = req.body.transactions
+      .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
+    blockchain.getInstance().postTransactions(transactions)
+    res.send(200, {
+      success: true
+    })
+    next()
+  }
+
   getActiveDelegates (height) {
     const round = parseInt(height / this.config.getConstants(height).activeDelegates)
     const seedSource = round.toString()

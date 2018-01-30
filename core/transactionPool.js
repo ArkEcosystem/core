@@ -3,6 +3,7 @@ const arkjs = require('arkjs')
 const registerPromiseWorker = require('promise-worker/register')
 const config = require(`${__dirname}/core/config`)
 const logger = require(`${__dirname}/core/logger`)
+const Transaction = require(`${__dirname}/model/Transaction`)
 
 let instance = null
 let AccountManager = null
@@ -39,20 +40,34 @@ class TransactionPool {
       acc = {...acc, ...account}
       instance.accountManager.updateAccount(acc)
     })
+    logger.debug(`transactions pool started with ${instance.accountManager.getLocalAccounts().length} wallets`)
     return Promise.resolve()
   }
 
   addTransaction (transaction) {
-    this.queue.push(transaction)
+    this.queue.push(new Transaction(transaction))
+    return Promise.resolve()
+  }
+
+  addTransactions (transactions) {
+    this.queue.push(transactions.map(tx => new Transaction(tx)))
     return Promise.resolve()
   }
 
   verify (transaction) {
-    return arkjs.crypto.verify(transaction)
+    if (arkjs.crypto.verify(transaction) && this.accountManager.canApply(transaction)) {
+      this.accountManager.applyTransaction(transaction)
+      return true
+    }
   }
 
   addBlock (block) {
-    return Promise.all(block.transactions.map(tx => delete this.pool[tx.id]))
+    return Promise.all(block.transactions.map(tx => {
+      if (this.pool[tx.id]) {
+        this.accountManager.undoTransaction(this.pool[tx.id])
+        delete this.pool[tx.id]
+      }
+    }))
   }
 
   undoBlock (block) {

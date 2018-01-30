@@ -188,7 +188,10 @@ module.exports = class BlockchainManager {
           this.status.lastDownloadedBlock = this.status.lastBlock.data
           this.status.downloadpaused = false
           return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
-        } else return qcallback()
+        } else {
+          if (this.downloadQueue.length === 0) this.status.syncing = false
+          return qcallback()
+        }
       case 'download/pause':
         this.status.downloadpaused = true
         return qcallback()
@@ -218,6 +221,11 @@ module.exports = class BlockchainManager {
         logger.error('Event unknown', event)
         qcallback()
     }
+  }
+
+  postTransactions (transactions) {
+    logger.info('Received new transactions', transactions.map(transaction => transaction.id))
+    return this.transactionPool.postMessage({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
