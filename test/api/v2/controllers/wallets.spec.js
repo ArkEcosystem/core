@@ -10,11 +10,7 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        const wallet = res.body.data[1] // for some reason 0 is an empty wallet ...
-        wallet.should.have.property('address').which.is.a('string')
-        wallet.should.have.property('public_key').which.is.a('string')
-        wallet.should.have.property('balance').which.is.a('number')
-        wallet.should.have.property('is_delegate').which.is.a('boolean')
+        Helpers.assertWallet(res.body.data[1])
 
         done()
       })
@@ -27,11 +23,7 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        const wallet = res.body.data[0]
-        wallet.should.have.property('address').which.is.a('string')
-        wallet.should.have.property('public_key').which.is.a('string')
-        wallet.should.have.property('balance').which.is.a('number')
-        wallet.should.have.property('is_delegate').which.is.a('boolean')
+        Helpers.assertWallet(res.body.data[0])
 
         done()
       })
@@ -44,10 +36,9 @@ describe('API 2.0 - Wallets', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('address').which.is.a('string')
-        res.body.data.should.have.property('public_key').which.is.a('string')
-        res.body.data.should.have.property('balance').which.is.a('number')
-        res.body.data.should.have.property('is_delegate').which.is.a('boolean')
+        const wallet = res.body.data
+        Helpers.assertWallet(wallet)
+        wallet.address.should.equal(addressActive)
 
         done()
       })

@@ -94,6 +94,13 @@ class Helpers {
     block.should.have.property('signature').which.is.an('string')
     block.should.have.property('transactions').which.is.an('number')
   }
+
+  assertWallet(wallet) {
+    wallet.should.have.property('address').which.is.a('string')
+    wallet.should.have.property('public_key').which.is.a('string')
+    wallet.should.have.property('balance').which.is.a('number')
+    wallet.should.have.property('is_delegate').which.is.a('boolean')
+  }
 }
 
 module.exports = new Helpers()
