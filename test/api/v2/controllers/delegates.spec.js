@@ -12,9 +12,9 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertCollection(res)
 
         const delegate = res.body.data[0]
-        delegate.should.have.property('username').which.is.a('string')
-        delegate.should.have.property('address').which.is.a('string')
-        delegate.should.have.property('public_key').which.is.a('string')
+        expect(delegate.username).toBeType('string')
+        expect(delegate.address).toBeType('string')
+        expect(delegate.public_key).toBeType('string')
 
         done()
       })
@@ -27,9 +27,9 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('username').which.is.a('string').and.equals(delegateUsername)
-        res.body.data.should.have.property('address').which.is.a('string').and.equals(delegateAddress)
-        res.body.data.should.have.property('public_key').which.is.a('string').and.equals(delegatePublicKey)
+        expect(res.body.data).toHaveProperty('username', delegateUsername)
+        expect(res.body.data).toHaveProperty('address', delegateAddress)
+        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
 
         done()
       })
@@ -40,9 +40,9 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('username').which.is.a('string').and.equals(delegateUsername)
-        res.body.data.should.have.property('address').which.is.a('string').and.equals(delegateAddress)
-        res.body.data.should.have.property('public_key').which.is.a('string').and.equals(delegatePublicKey)
+        expect(res.body.data).toHaveProperty('username', delegateUsername)
+        expect(res.body.data).toHaveProperty('address', delegateAddress)
+        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
 
         done()
       })
@@ -53,9 +53,9 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('username').which.is.a('string').and.equals(delegateUsername)
-        res.body.data.should.have.property('address').which.is.a('string').and.equals(delegateAddress)
-        res.body.data.should.have.property('public_key').which.is.a('string').and.equals(delegatePublicKey)
+        expect(res.body.data).toHaveProperty('username', delegateUsername)
+        expect(res.body.data).toHaveProperty('address', delegateAddress)
+        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
 
         done()
       })
@@ -69,24 +69,24 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertCollection(res)
 
         const block = res.body.data[1]
-        block.should.have.property('id').which.is.a('string')
-        block.should.have.property('version').which.is.a('number')
-        block.should.have.property('height').which.is.a('number')
-        block.should.have.property('previous').which.is.a('string')
+        expect(block.id).toBeType('string')
+        expect(block.version).toBeType('number')
+        expect(block.height).toBeType('number')
+        // expect(block.previous).toBeType('string')
 
-        block.should.have.property('forged').which.is.an('object')
-        block.forged.should.have.property('reward').which.is.an('number')
-        block.forged.should.have.property('fee').which.is.an('number')
+        expect(block.forged).toBeType('object')
+        expect(block.forged.reward).toBeType('number')
+        expect(block.forged.fee).toBeType('number')
 
-        block.should.have.property('payload').which.is.an('object')
-        block.payload.should.have.property('length').which.is.an('number')
-        block.payload.should.have.property('hash').which.is.an('string')
+        expect(block.payload).toBeType('object')
+        expect(block.payload.length).toBeType('number')
+        expect(block.payload.hash).toBeType('string')
 
-        block.should.have.property('generator').which.is.an('object')
-        block.generator.should.have.property('public_key').which.is.an('string')
+        expect(block.generator).toBeType('object')
+        expect(block.generator.public_key).toBeType('string')
 
-        block.should.have.property('signature').which.is.an('string')
-        block.should.have.property('transactions').which.is.an('number')
+        expect(block.signature).toBeType('string')
+        expect(block.transactions).toBeType('number')
 
         done()
       })
@@ -100,10 +100,10 @@ describe('API 2.0 - Delegates', () => {
         Helpers.assertCollection(res)
 
         const voter = res.body.data[0]
-        voter.should.have.property('address').which.is.a('string')
-        voter.should.have.property('public_key').which.is.a('string')
-        voter.should.have.property('balance').which.is.a('number')
-        voter.should.have.property('is_delegate').which.is.a('boolean')
+        expect(voter.address).toBeType('string')
+        expect(voter.public_key).toBeType('string')
+        expect(voter.balance).toBeType('number')
+        expect(voter.is_delegate).toBeType('boolean')
 
         done()
       })

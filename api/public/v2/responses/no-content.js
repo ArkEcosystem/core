@@ -1,3 +1,3 @@
-module.exports = (data, headers = {}) => {
-  require('./response').send(204, {data}, headers)
+module.exports = (req, res, data, headers = {}) => {
+  return require('./response').send(req, res, 204, {data}, headers)
 }

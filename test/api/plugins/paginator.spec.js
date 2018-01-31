@@ -50,12 +50,12 @@ describe('API 1.0 - Paginator', () => {
     server.listen(3333, done)
   })
 
+  afterEach(() => server.close())
+
   it('should set the correct last, next, prev and first links on the first page', (done) => {
     sendRequest('http://localhost:3333/test?page=1', '2.0.0').then((res) => {
-      res.body.links.should.have.property('last').which.is.a('string').and.equals('http://localhost:3333/test?page=10&perPage=100')
-      res.body.links.should.have.property('next').which.is.a('string').and.equals('http://localhost:3333/test?page=2&perPage=100')
-
-      server.close()
+      expect(res.body.links).toHaveProperty('last', 'http://localhost:3333/test?page=10&perPage=100')
+      expect(res.body.links).toHaveProperty('next', 'http://localhost:3333/test?page=2&perPage=100')
 
       done()
     })
@@ -63,12 +63,10 @@ describe('API 1.0 - Paginator', () => {
 
   it('should set the correct last, next, prev and first links on the second page', (done) => {
     sendRequest('http://localhost:3333/test?page=2', '2.0.0').then((res) => {
-      res.body.links.should.have.property('prev').which.is.a('string').and.equals('http://localhost:3333/test?page=1&perPage=100')
-      res.body.links.should.have.property('first').which.is.a('string').and.equals('http://localhost:3333/test?page=1&perPage=100')
-      res.body.links.should.have.property('last').which.is.a('string').and.equals('http://localhost:3333/test?page=10&perPage=100')
-      res.body.links.should.have.property('next').which.is.a('string').and.equals('http://localhost:3333/test?page=3&perPage=100')
-
-      server.close()
+      expect(res.body.links).toHaveProperty('prev', 'http://localhost:3333/test?page=1&perPage=100')
+      expect(res.body.links).toHaveProperty('first', 'http://localhost:3333/test?page=1&perPage=100')
+      expect(res.body.links).toHaveProperty('last', 'http://localhost:3333/test?page=10&perPage=100')
+      expect(res.body.links).toHaveProperty('next', 'http://localhost:3333/test?page=3&perPage=100')
 
       done()
     })

@@ -9,7 +9,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers/version').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('version').which.is.a('string')
+        expect(res.body.version).toBeType('string')
 
         done()
       })
@@ -29,7 +29,7 @@ describe('API 1.0 - Peers', () => {
       }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('should be integer')
+        expect(res.body.error).toContain('should be integer')
 
         done()
       })
@@ -39,7 +39,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers', { limit: 101 }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string')
+        expect(res.body.error)
 
         done()
       })
@@ -57,7 +57,7 @@ describe('API 1.0 - Peers', () => {
       }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string')
+        expect(res.body.error).not.toBeNull()
 
         done()
       })
@@ -69,7 +69,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers/get?ip=127.0.0.1').end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.equals('should have required property \'port\'')
+        expect(res.body.error).toBe('should have required property \'port\'')
 
         done()
       })
@@ -79,7 +79,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers/get', { port: 4002 }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.equals('should have required property \'ip\'')
+        expect(res.body.error).toBe('should have required property \'ip\'')
 
         done()
       })
@@ -89,7 +89,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers/get', { ip: peerIp, port: peerPort }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('peer').which.is.an('object')
+        expect(res.body.peer).toBeType('object')
 
         done()
       })
@@ -99,7 +99,7 @@ describe('API 1.0 - Peers', () => {
       Helpers.request('GET', 'peers/get', { ip: '99.99.99.99', port: peerPort }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.equals(`Peer 99.99.99.99:${peerPort} not found`)
+        expect(res.body.error).toBe(`Peer 99.99.99.99:${peerPort} not found`)
 
         done()
       })

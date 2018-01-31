@@ -7,25 +7,25 @@ describe('API 2.0 - Statistics', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('supply').which.is.a('object')
-        res.body.data.supply.should.have.property('initial').which.is.a('number')
-        res.body.data.supply.should.have.property('current').which.is.a('number')
+        expect(res.body.data.supply).toBeType('object')
+        expect(res.body.data.supply.initial).toBeType('number')
+        expect(res.body.data.supply.current).toBeType('number')
 
-        res.body.data.should.have.property('blocks').which.is.a('object')
-        res.body.data.blocks.should.have.property('forged').which.is.a('number')
-        res.body.data.blocks.should.have.property('rewards').which.is.a('number')
+        expect(res.body.data.blocks).toBeType('object')
+        expect(res.body.data.blocks.forged).toBeType('number')
+        expect(res.body.data.blocks.rewards).toBeType('number')
 
-        res.body.data.should.have.property('rewards').which.is.a('object')
-        res.body.data.rewards.should.have.property('start').which.is.a('number')
-        res.body.data.rewards.should.have.property('total').which.is.a('number')
+        expect(res.body.data.rewards).toBeType('object')
+        expect(res.body.data.rewards.start).toBeType('number')
+        expect(res.body.data.rewards.total).toBeType('number')
 
-        res.body.data.should.have.property('productivity').which.is.a('object')
-        res.body.data.productivity.best.should.have.property('username').which.is.a('string')
-        res.body.data.productivity.best.should.have.property('productivity').which.is.a('string')
+        expect(res.body.data.productivity).toBeType('object')
+        expect(res.body.data.productivity.best.username).toBeType('string')
+        expect(res.body.data.productivity.best.productivity).toBeType('string')
 
-        res.body.data.productivity.should.have.property('worst').which.is.a('object')
-        res.body.data.productivity.worst.should.have.property('username').which.is.a('string')
-        res.body.data.productivity.worst.should.have.property('productivity').which.is.a('string')
+        expect(res.body.data.productivity.worst).toBeType('object')
+        expect(res.body.data.productivity.worst.username).toBeType('string')
+        expect(res.body.data.productivity.worst.productivity).toBeType('string')
 
         done()
       })
@@ -38,9 +38,9 @@ describe('API 2.0 - Statistics', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('count').which.is.a('number')
-        res.body.data.should.have.property('amount').which.is.a('number')
-        res.body.data.should.have.property('fees').which.is.a('number')
+        expect(res.body.data.count).toBeType('number')
+        expect(res.body.data.amount).toBeType('number')
+        expect(res.body.data.fees).toBeType('number')
 
         done()
       })
@@ -53,9 +53,9 @@ describe('API 2.0 - Statistics', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('count').which.is.a('number')
-        res.body.data.should.have.property('rewards').which.is.a('number')
-        res.body.data.should.have.property('fees').which.is.a('number')
+        expect(res.body.data.count).toBeType('number')
+        expect(res.body.data.rewards).toBeType('number')
+        expect(res.body.data.fees).toBeType('number')
 
         done()
       })
@@ -68,9 +68,9 @@ describe('API 2.0 - Statistics', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('count').which.is.a('number')
-        res.body.data.should.have.property('amount').which.is.a('number')
-        res.body.data.should.have.property('fees').which.is.a('number')
+        expect(res.body.data.count).toBeType('number')
+        expect(res.body.data.amount).toBeType('number')
+        expect(res.body.data.fees).toBeType('number')
 
         done()
       })
@@ -83,9 +83,9 @@ describe('API 2.0 - Statistics', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('count').which.is.a('number')
-        res.body.data.should.have.property('amount').which.is.a('number')
-        res.body.data.should.have.property('fees').which.is.a('number')
+        expect(res.body.data.count).toBeType('number')
+        expect(res.body.data.amount).toBeType('number')
+        expect(res.body.data.fees).toBeType('number')
 
         done()
       })

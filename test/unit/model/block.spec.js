@@ -1,6 +1,6 @@
 const sinon = require('sinon')
 
-const Block = require('model/block')
+const Block = require('../../../model/block')
 
 describe('Model | Block', () => {
   const data = {
@@ -24,12 +24,12 @@ describe('Model | Block', () => {
 
       const block = new Block(data)
 
-      block.getHeader().height.should.equal(data.height)
-      block.getHeader().totalAmount.should.equal(data.totalAmount)
-      block.getHeader().totalFee.should.equal(data.totalFee)
-      block.getHeader().reward.should.equal(data.reward)
+      expect(block.getHeader().height).toBe(data.height)
+      expect(block.getHeader().totalAmount).toBe(data.totalAmount)
+      expect(block.getHeader().totalFee).toBe(data.totalFee)
+      expect(block.getHeader().reward).toBe(data.reward)
 
-      block.getHeader().should.not.have.property('transactions')
+      expect(block.getHeader()).not.toHaveProperty('transactions')
     })
   })
 })

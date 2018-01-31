@@ -40,11 +40,11 @@ describe('API 1.0 - Version', () => {
     server.listen(3333, done)
   })
 
+  afterEach(() => server.close())
+
   it('should return 1.0.0 as version', (done) => {
     sendRequest('http://localhost:3333/test', '1.0.0').then((res) => {
-      res.body.should.have.property('version').which.is.a('string').and.equals('1.0.0')
-
-      server.close()
+      expect(res.body).toHaveProperty('version', '1.0.0')
 
       done()
     })
@@ -52,9 +52,7 @@ describe('API 1.0 - Version', () => {
 
   it('should return 2.0.0 as version', (done) => {
     sendRequest('http://localhost:3333/test', '2.0.0').then((res) => {
-      res.body.should.have.property('version').which.is.a('string').and.equals('2.0.0')
-
-      server.close()
+      expect(res.body).toHaveProperty('version', '2.0.0')
 
       done()
     })

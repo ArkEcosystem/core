@@ -1,4 +1,4 @@
-const Transaction = require('model/transaction')
+const Transaction = require('../../../model/transaction')
 
 const txdata = {
   version: 1,
@@ -27,8 +27,8 @@ const tx = Transaction.fromBytes(hex)
 describe('Model | Transaction', () => {
   describe('static fromBytes', () => {
     it('returns a new transaction', () => {
-      tx.should.be.an.instanceof(Transaction)
-      tx.data.should.deep.equal(txdata)
+      expect(tx).toBeInstanceOf(Transaction)
+      expect(tx.data).toEqual(txdata)
     })
   })
 

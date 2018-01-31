@@ -6,9 +6,9 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/get', { id: '1877716674628308671' }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('block').which.is.an('object')
-        res.body.block.should.have.property('id').which.is.a('string')
-        res.body.block.should.have.property('height').which.is.a('number')
+        expect(res.body.block).toBeType('object')
+        expect(res.body.block.id).toBeType('string')
+        expect(res.body.block.height).toBeType('number')
 
         done()
       })
@@ -18,7 +18,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/get', { id: '18777we16674628308671' }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('not found')
+        expect(res.body.error).toContain('not found')
 
         done()
       })
@@ -30,7 +30,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks', { limit: 5 }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('blocks').which.is.an('array').with.lengthOf(5)
+        expect(res.body.blocks).toHaveLength(5)
 
         done()
       })
@@ -40,8 +40,8 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks', { limit: 500 }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('success').which.equals(false)
-        res.body.should.have.property('error').which.is.a('string').and.contains('should be <= 100')
+        expect(res.body.success).toBeFalsy()
+        expect(res.body.error).toContain('should be <= 100')
 
         done()
       })
@@ -53,10 +53,10 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getFees').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('fees').which.is.an('object')
+        expect(res.body.fees).toBeType('object')
 
         // TODO adjust when environment setup properly
-        // res.body.should.have.property('fees').which.equals(config.getConstants(blockchain.getInstance().status.lastBlock.data.height).fees)
+        // expect(res.body.fees).toBe(config.getConstants(blockchain.getInstance().status.lastBlock.data.toBe.height).fees)
 
         done()
       })
@@ -68,10 +68,10 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getNethash').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('nethash').which.is.a('string')
+        expect(res.body.nethash).toBeType('string')
 
         // TODO adjust when environment setup properly
-        // res.body.should.have.property('nethash').which.equals(config.network.nethash)
+        // expect(res.body.nethash).toBe(config.toBe.network.nethash)
 
         done()
       })
@@ -83,7 +83,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getMilestone').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('milestone').which.is.a('number')
+        expect(res.body.milestone).toBeType('number')
 
         done()
       })
@@ -95,7 +95,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getReward').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('reward').which.is.a('number')
+        expect(res.body.reward).toBeType('number')
 
         done()
       })
@@ -107,7 +107,7 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getSupply').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('supply').which.is.a('number')
+        expect(res.body.supply).toBeType('number')
 
         done()
       })
@@ -119,13 +119,13 @@ describe('API 1.0 - Blocks', () => {
       Helpers.request('GET', 'blocks/getStatus').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('epoch').which.is.a('string')
-        res.body.should.have.property('height').which.is.a('number')
-        res.body.should.have.property('fee').which.is.a('number')
-        res.body.should.have.property('milestone').which.is.a('number')
-        res.body.should.have.property('nethash').which.is.a('string')
-        res.body.should.have.property('reward').which.is.a('number')
-        res.body.should.have.property('supply').which.is.a('number')
+        expect(res.body.epoch).toBeType('string')
+        expect(res.body.height).toBeType('number')
+        expect(res.body.fee).toBeType('number')
+        expect(res.body.milestone).toBeType('number')
+        expect(res.body.nethash).toBeType('string')
+        expect(res.body.reward).toBeType('number')
+        expect(res.body.supply).toBeType('number')
 
         done()
       })

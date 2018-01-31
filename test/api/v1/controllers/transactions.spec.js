@@ -32,7 +32,7 @@ describe('API 1.0 - Transactions', () => {
       }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transactions').which.is.an('array')
+        expect(Array.isArray(res.body.transactions)).toBe(true)
 
         done()
       })
@@ -44,11 +44,11 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions', {type}).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transactions').which.is.an('array')
+        expect(Array.isArray(res.body.transactions)).toBe(true)
 
         for (let i = 0; i < res.body.transactions.length; i++) {
           if (res.body.transactions[i]) {
-            res.body.transactions[i].should.have.property('type').which.equals(type)
+            expect(res.body.transactions[i]).toHaveProperty('type', type)
           }
         }
 
@@ -60,10 +60,10 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transactions').which.is.an('array')
+        expect(Array.isArray(res.body.transactions)).toBe(true)
 
         for (let i = 0; i < res.body.transactions.length - 1; i++) {
-          res.body.transactions[i].should.have.property('amount').which.is.a('number')
+          expect(res.body.transactions[i].amount).toBeType('number')
         }
 
         done()
@@ -80,8 +80,7 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions?' + params).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error')
-
+        expect(res.body.error).toBeType('string')
         done()
       })
     })
@@ -90,12 +89,13 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions', { orderBy: 'timestamp:asc' }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transactions').which.is.an('array')
+        expect(Array.isArray(res.body.transactions)).toBe(true)
 
         let flag = 0;
         for (let i = 0; i < res.body.transactions.length; i++) {
           if (res.body.transactions[i + 1]) {
-            res.body.transactions[i].should.have.property('timestamp').which.is.at.most(res.body.transactions[i + 1].timestamp)
+            // res.body.transactions[i].toHaveProperty('timestamp').which.is.at.most(res.body.transactions[i + 1].timestamp)
+            expect(res.body.transactions[i]).toHaveProperty('timestamp')
 
             if (flag === 0) {
               // offsetTimestamp = res.body.transactions[i + 1].timestamp
@@ -112,7 +112,7 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions', { offset: 1 }).end((err, res) => {
           Helpers.assertSuccessful(err, res)
 
-          res.body.should.have.property('transactions').which.is.an('array')
+          expect(Array.isArray(res.body.transactions)).toBe(true)
 
           done()
         })
@@ -122,8 +122,7 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions', { offset: 'one' }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error')
-
+        expect(res.body.error).toBeType('string')
         done()
       })
     })
@@ -139,8 +138,7 @@ describe('API 1.0 - Transactions', () => {
       }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error')
-
+        expect(res.body.error).toBeType('string')
         done()
       })
     })
@@ -156,8 +154,7 @@ describe('API 1.0 - Transactions', () => {
       }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error')
-
+        expect(res.body.error).toBeType('string')
         done()
       })
     })
@@ -170,13 +167,13 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', `transactions/get?id=${transactionInCheck.id}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transaction').which.is.an('object')
-        res.body.transaction.should.have.property('id').which.equals(transactionInCheck.id)
-        // res.body.transaction.should.have.property('amount').which.equals(transactionInCheck.netSent)
-        // res.body.transaction.should.have.property('fee').which.equals(transactionInCheck.fee)
-        res.body.transaction.should.have.property('recipientId').which.equals(transactionInCheck.recipientId)
-        res.body.transaction.should.have.property('senderId').which.equals(transactionInCheck.senderId)
-        res.body.transaction.should.have.property('type').which.equals(transactionInCheck.type)
+        expect(res.body.transaction).toBeType('object')
+        expect(res.body.transaction).toHaveProperty('id', transactionInCheck.id)
+        // expect(res.body.transaction).toHaveProperty('amount', transactionInCheck.netSent)
+        // expect(res.body.transaction).toHaveProperty('fee', transactionInCheck.fee)
+        expect(res.body.transaction).toHaveProperty('recipientId', transactionInCheck.recipientId)
+        expect(res.body.transaction).toHaveProperty('senderId', transactionInCheck.senderId)
+        expect(res.body.transaction).toHaveProperty('type', transactionInCheck.type)
 
         done()
       })
@@ -188,8 +185,7 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions/get?' + params).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error')
-
+        expect(res.body.error).toBeType('string')
         done()
       })
     })
@@ -203,10 +199,10 @@ describe('API 1.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
 
         if (res.body.success && res.body.transaction != null) {
-          res.body.should.have.property('transaction').which.is.an('object')
-          res.body.transaction.should.have.property('id').which.equals(transactionList[transactionList.length - 1].id)
+          expect(res.body.transaction).toBeType('object')
+          expect(res.body.transaction).toHaveProperty('id', transactionList[transactionList.length - 1].id)
         } else {
-          res.body.should.have.property('error')
+          expect(res.body.error).toBeType('string')
         }
 
         done()
@@ -219,7 +215,7 @@ describe('API 1.0 - Transactions', () => {
       Helpers.request('GET', 'transactions/unconfirmed').end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('transactions').which.is.an('array')
+        expect(Array.isArray(res.body.transactions)).toBe(true)
 
         done()
       })

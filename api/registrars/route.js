@@ -4,25 +4,30 @@ module.exports = class RouteRegistrar {
     this.version = version
     this.prefix = prefix
   }
-
+  postBlock (req, res, next) {
+    res.send(200, {
+      success: true
+    })
+    next()
+  }
   get (path, action, options) {
-    this.server.get(this.buildConfig(path, options), action)
+    this.server.get(this.buildConfig(path, options), (req, res, next) => action(req, res, next))
   }
 
   post (path, action, options) {
-    this.server.post(this.buildConfig(path, options), action)
+    this.server.post(this.buildConfig(path, options), (req, res, next) => action(req, res, next))
   }
 
   put (path, action, options) {
-    this.server.put(this.buildConfig(path, options), action)
+    this.server.put(this.buildConfig(path, options), (req, res, next) => action(req, res, next))
   }
 
   patch (path, action, options) {
-    this.server.patch(this.buildConfig(path, options), action)
+    this.server.patch(this.buildConfig(path, options), (req, res, next) => action(req, res, next))
   }
 
   delete (path, action, options) {
-    this.server.delete(this.buildConfig(path, options), action)
+    this.server.delete(this.buildConfig(path, options), (req, res, next) => action(req, res, next))
   }
 
   buildConfig (path, options) {

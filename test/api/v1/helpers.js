@@ -1,5 +1,4 @@
 const chai = require('chai')
-const should = chai.should()
 
 class Helpers {
   request (method, path, params = {}) {
@@ -13,24 +12,24 @@ class Helpers {
   }
 
   assertJson (data) {
-    data.body.should.be.a('object')
+    expect(data.body).toBeType('object')
   }
 
   assertStatus (data, code) {
-    data.should.have.status(code)
+    expect(data.statusCode).toBe(code)
   }
 
   assertVersion (data, version) {
-    data.body.should.have.property('meta').which.is.an('object')
-    data.body.meta.should.have.property('matchedVersion').eql(version)
+    expect(data.body.meta).toBeType('object')
+    expect(data.body.meta).toHaveProperty('matchedVersion', version)
   }
 
   assertState (data, state) {
-    data.body.should.have.property('success').eql(state)
+    expect(data.body).toHaveProperty('success', state)
   }
 
   assertSuccessful (err, res) {
-    should.not.exist(err)
+    expect(err).toBeNull()
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, true)
@@ -38,7 +37,7 @@ class Helpers {
   }
 
   assertError (err, res) {
-    should.not.exist(err)
+    expect(err).toBeNull()
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, false)
