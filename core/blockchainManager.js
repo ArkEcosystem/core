@@ -22,8 +22,8 @@ module.exports = class BlockchainManager {
     this.status = {
       lastBlock: null,
       lastDownloadedBlock: null,
-      downloadpaused: false,
-      rebuild: false,
+      downloading: false,
+      rebuilding: false,
       syncing: false,
       fastSync: true,
       noblock: 0,
@@ -129,8 +129,9 @@ module.exports = class BlockchainManager {
       .then(() => (this.status = {
         lastBlock: null,
         lastDownloadedBlock: null,
-        downloadpaused: false,
-        rebuild: false,
+        // TODO: revise all these switches
+        downloading: false,
+        rebuilding: false,
         syncing: false,
         fastSync: true,
         noblock: 0,
@@ -144,10 +145,7 @@ module.exports = class BlockchainManager {
     logger.debug(`event ${event.type}`)
     switch (event.type) {
       case 'check':
-        if (this.isSynced(this.status.lastBlock)) {
-          this.status.syncing = false
-          logger.info('Node Synced, congratulations! 🦄')
-        } else {
+        if (!this.isSynced(this.status.lastBlock)) {
           this.status.noblock = 0
           this.eventQueue.push({type: 'sync/start'})
         }
@@ -161,46 +159,45 @@ module.exports = class BlockchainManager {
         if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next', noblock: false})
         return qcallback()
       case 'processQueue/stop':
-        if (!this.isSynced(this.status.lastBlock)) this.eventQueue.push({type: 'sync/start'})
-        else {
-          this.status.syncing = false
-          logger.info('Node Synced, congratulations! 🦄')
+        if (!this.isSynced(this.status.lastBlock)) {
+          if (!this.status.downloading) this.status.syncing = false
+          this.eventQueue.push({type: 'sync/start'})
         }
         return qcallback()
       case 'rebuild/start':
-        if (!this.status.rebuild) {
-          this.status.rebuild = true
+        if (!this.status.rebuilding) {
+          this.status.rebuilding = true
           this.status.syncing = false
-          this.status.downloadpaused = true
+          this.status.downloading = false
           this.removeBlocks(event.nblocks).then((status) => qcallback())
         } else return qcallback()
         break
       case 'rebuild/stop':
-        this.status.rebuild = false
+        this.status.rebuilding = false
         this.eventQueue.push({type: 'sync/start'})
         return qcallback()
       case 'sync/start':
         logger.debug(JSON.stringify(this.status))
         if (this.config.server.test) return qcallback()
-        if (!this.status.rebuild && !this.status.syncing) {
+        if (!this.status.rebuilding && !this.status.syncing) {
           logger.info('Syncing started')
           this.status.syncing = true
           this.status.lastDownloadedBlock = this.status.lastBlock.data
-          this.status.downloadpaused = false
+          this.status.downloading = true
           return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
         } else {
-          if (this.downloadQueue.length() === 0) this.status.syncing = false
+          // if (this.downloadQueue.length() === 0) this.status.syncing = false
           return qcallback()
         }
       case 'download/pause':
-        this.status.downloadpaused = true
+        this.status.downloading = false
         return qcallback()
       case 'download/next':
         if (this.processQueue.length() > 10000) {
-          this.status.downloadpaused = true
+          this.status.downloading = false
           return qcallback()
         }
-        if (this.status.downloadpaused) {
+        if (!this.status.downloading) {
           logger.info('Download paused')
           return qcallback()
         } else {
@@ -297,7 +294,8 @@ module.exports = class BlockchainManager {
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
-            logger.debug('Refused new block', block.data);
+            logger.debug('Refused new block', block.data)
+            status.lastDownloadedBlock = status.lastBlock.data;
             ['updateNetworkStatus', 'rebuild', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
             qcallback()
           })
@@ -309,7 +307,7 @@ module.exports = class BlockchainManager {
         ['updateNetworkStatus', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
         qcallback()
       } else if (block.data.height < status.lastBlock.data.height) {
-        logger.info('Block disregarded because already in blockchain')
+        logger.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
@@ -325,7 +323,14 @@ module.exports = class BlockchainManager {
 
   isSynced (block) {
     // TODO: move to config how many blocktime from current slot is considered 'in synced'
-    return arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
+    const isSynced = arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
+    if (isSynced) {
+      this.status.downloading = false
+      this.status.syncing = false
+      logger.info('Node Synced, congratulations! 🦄')
+      this.status.lastDownloadedBlock = this.status.lastBlock.data
+    }
+    return isSynced
   }
 
   syncWithNetwork (block) {
