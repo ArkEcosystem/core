@@ -115,6 +115,9 @@ module.exports = class WalletManager {
     let wallet = this.walletsByAddress[address]
     if (wallet) return wallet
     else {
+      // if (!arkjs.crypto.validateAddress(address, config.network.pubKeyHash)) {
+      //   return null
+      // }
       wallet = new Wallet(address)
       this.walletsByAddress[address] = wallet
       return wallet

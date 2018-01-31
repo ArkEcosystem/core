@@ -24,7 +24,7 @@ require('./core/config').init({
   network: require(path.resolve(commander.config, 'network.json'))
 }).then(config => {
   const logger = require('./core/logger')
-  logger.init(config.server.fileLogLevel, config.network.name)
+  logger.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name)
 
   process.on('unhandledRejection', (reason, p) => {
     logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

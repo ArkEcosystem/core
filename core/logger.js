@@ -12,11 +12,11 @@ class Logger {
     return logger
   }
 
-  init (level, network) {
+  init (loglevel, filelevel, network) {
     const rotatetransport = new winston.transports.DailyRotateFile({
       filename: `${__dirname}/../logs/ark-node-${network}`,
       datePattern: '.yyyy-MM-dd.log',
-      level: level,
+      level: filelevel,
       zippedArchive: true
     })
 
@@ -24,7 +24,7 @@ class Logger {
       transports: [
         new winston.transports.Console({
           colorize: true,
-          level: level,
+          level: loglevel,
           timestamp: true
         }),
         rotatetransport

@@ -26,7 +26,7 @@ class Config {
     this.delegates = config.delegates
 
     logger = require('./logger') // need to do here to be sure logger is initialised
-    logger.init(this.server.fileLogLevel, this.network.name)
+    logger.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
 
     this.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.buildConstants()

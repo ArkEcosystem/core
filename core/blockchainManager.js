@@ -297,8 +297,8 @@ module.exports = class BlockchainManager {
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
-            logger.debug('Refused new block', block.data)
-            status.lastDownloadedBlock = status.lastBlock.data
+            logger.debug('Refused new block', block.data);
+            ['updateNetworkStatus', 'rebuild', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
             qcallback()
           })
       } else if (block.data.height > status.lastBlock.data.height + 1) {

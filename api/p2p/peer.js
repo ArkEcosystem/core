@@ -90,9 +90,9 @@ class Peer {
       })
   }
 
-  ping () {
+  ping (delay) {
     return this
-      .get('/peer/status', 5000)
+      .get('/peer/status', delay || 5000)
       .then(body => {
         if (body) return Promise.resolve(this.height = body.height)
         else throw new Error('Peer unreachable')
@@ -101,7 +101,8 @@ class Peer {
 
   getPeers () {
     return this
-      .get('/peer/list')
+      .ping(2000)
+      .then(() => this.get('/peer/list'))
       .then(body => body.peers)
   }
 }

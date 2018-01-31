@@ -24,7 +24,7 @@ require('./core/config').init({
   network: require(path.resolve(commander.config, 'network.json')),
   delegates: require(path.resolve(commander.config, 'delegate.json'))
 }).then(config => {
-  logger.init(config.server.fileLogLevel, config.network.name + '-forger')
+  logger.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-forger')
 
   let forgerManager = new ForgerManager(config)
 
