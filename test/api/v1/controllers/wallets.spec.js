@@ -5,16 +5,18 @@ const AddressCold = 'DCs3EeTAME7W61fx5YiJKe9nhWn61YpRMJ'
 
 describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/?address', () => {
-    it('should return wallet/wallet information', (done) => {
+    it('should return account information', (done) => {
       Helpers.request('GET', 'accounts', { address: AddressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('wallet').which.has.all.keys(['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance'])
-        res.body.wallet.should.have.property('vote').which.is.a('string')
-        res.body.wallet.should.have.property('balance').which.is.a('number')
-        res.body.wallet.should.have.property('votebalance').which.is.a('number')
-        res.body.wallet.should.have.property('address').which.is.a('string')
-        res.body.wallet.should.have.property('publicKey').which.is.a('string')
+        const expected = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance']
+        expect(Object.keys(res.body.account)).toEqual(expect.arrayContaining(expected))
+
+        expect(res.body.account.vote).toBeType('string')
+        expect(res.body.account.balance).toBeType('number')
+        expect(res.body.account.votebalance).toBeType('number')
+        expect(res.body.account.address).toBeType('string')
+        expect(res.body.account.publicKey).toBeType('string')
 
         done()
       })
@@ -24,7 +26,7 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts', { address: AddressCold }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('Not found')
+        expect(res.body.error).toContain('Not found')
 
         done()
       })
@@ -36,8 +38,8 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/getBalance', { address: AddressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('balance').which.is.a('number')
-        res.body.should.have.property('unconfirmedBalance').which.is.a('number')
+        expect(res.body.balance).toBeType('number')
+        expect(res.body.unconfirmedBalance).toBeType('number')
 
         done()
       })
@@ -47,7 +49,7 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/getBalance', { address: AddressCold }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('Not found')
+        expect(res.body.error).toContain('Not found')
 
         done()
       })
@@ -59,7 +61,7 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/getPublicKey', { address: AddressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('publicKey').which.is.a('string')
+        expect(res.body.publicKey).toBeType('string')
 
         done()
       })
@@ -69,7 +71,7 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/getPublicKey', { address: AddressCold }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('Not found')
+        expect(res.body.error).toContain('Not found')
 
         done()
       })
@@ -81,8 +83,8 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/delegates', { address: AddressActive }).end((err, res) => {
         Helpers.assertSuccessful(err, res)
 
-        res.body.should.have.property('delegates').which.is.an('array')
-        res.body.delegates[0].should.have.property('producedblocks').which.is.a('number')
+        expect(Array.isArray(res.body.delegates)).toBe(true)
+        expect(res.body.delegates[0].producedblocks).toBeType('number')
 
         done()
       })
@@ -92,7 +94,7 @@ describe('API 1.0 - Wallets', () => {
       Helpers.request('GET', 'accounts/delegates', { address: AddressCold }).end((err, res) => {
         Helpers.assertError(err, res)
 
-        res.body.should.have.property('error').which.is.a('string').and.contains('Address not found.')
+        expect(res.body.error).toContain('Address not found.')
 
         done()
       })

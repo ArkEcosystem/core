@@ -1,18 +1,22 @@
 const sinon = require('sinon')
-const BlockchainManager = require('core/blockchainManager')
+const BlockchainManager = require('../../../core/blockchainManager')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {
-    BlockchainManager.should.be.a('function')
+    expect(BlockchainManager).toBeType('function')
   })
 
   it('works with sinons', () => {
-      const spy = sinon.spy();
+      // const spy = sinon.spy();
 
-      spy('Hello World')
+      // spy('Hello World')
 
-      spy.should.be.a('function')
+      const f = jest.fn()
 
-      spy.should.have.been.calledWith('Hello World')
+      expect(f).toBeType('function')
+
+      f('Hello World')
+
+      expect(f).toHaveBeenCalledWith('Hello World')
   })
 })

@@ -1,7 +1,12 @@
 const path = require('path')
 const State = require('./plugins/state')
+const logger = requireFrom('core/logger')
 
 module.exports = class Transformer {
+  constructor(req) {
+    this.req = req
+  }
+
   resource (model, transformer) {
     return this.transform(model, transformer)
   }
@@ -11,7 +16,7 @@ module.exports = class Transformer {
   }
 
   transform (model, transformer) {
-    const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[State.getRequest().version()]
+    const version = { '1.0.0': 'v1', '2.0.0': 'v2' }[this.req.version()]
 
     return require(path.resolve(__dirname, `public/${version}/transformers/${transformer}`))(model)
   }

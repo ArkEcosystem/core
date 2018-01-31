@@ -1,66 +1,73 @@
 const db = requireFrom('core/dbinterface').getInstance()
 const utils = require('../utils')
 
-class WalletsController {
-  index (req, res, next) {
-    db.wallets
-      .paginate(utils.paginator())
-      .then(wallets => utils.respondWithPagination(wallets, 'wallet'))
-      .then(() => next())
-  }
-
-  top (req, res, next) {
-    db.wallets
-      .top()
-      .then(wallet => utils.respondWithCollection(wallet, 'wallet'))
-      .then(() => next())
-  }
-
-  show (req, res, next) {
-    db.wallets
-      .findById(req.params.id)
-      .then(wallet => utils.respondWithResource(wallet, 'wallet'))
-      .then(() => next())
-  }
-
-  transactions (req, res, next) {
-    db.wallets
-      .findById(req.params.id)
-      .then(wallet => db.transactions.findAllByWallet(wallet, utils.paginator()))
-      .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
-      .then(() => next())
-  }
-
-  transactionsSend (req, res, next) {
-    db.wallets
-      .findById(req.params.id)
-      .then(wallet => db.transactions.findAllBySender(wallet.publicKey, utils.paginator()))
-      .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
-      .then(() => next())
-  }
-
-  transactionsReceived (req, res, next) {
-    db.wallets
-      .findById(req.params.id)
-      .then(wallet => db.transactions.findAllByRecipient(wallet.address, utils.paginator()))
-      .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
-      .then(() => next())
-  }
-
-  votes (req, res, next) {
-    db.wallets
-      .findById(req.params.id)
-      .then(wallet => db.transactions.allVotesBySender(wallet.publicKey, utils.paginator()))
-      .then(transactions => utils.respondWithPagination(transactions, 'transaction'))
-      .then(() => next())
-  }
-
-  search (req, res, next) {
-    db.wallets
-      .search(req.body)
-      .then(wallets => utils.respondWithPagination(wallets, 'wallet'))
-      .then(() => next())
-  }
+const index = (req, res, next) => {
+  db.wallets
+    .paginate(utils.paginator(req))
+    .then(wallets => utils.respondWithPagination(req, res, wallets, 'wallet'))
+    .then(() => next())
 }
 
-module.exports = new WalletsController()
+const top = (req, res, next) => {
+  db.wallets
+    .top()
+    .then(wallet => utils.respondWithCollection(req, res, wallet, 'wallet'))
+    .then(() => next())
+}
+
+const show = (req, res, next) => {
+  db.wallets
+    .findById(req.params.id)
+    .then(wallet => utils.respondWithResource(req, res, wallet, 'wallet'))
+    .then(() => next())
+}
+
+const transactions = (req, res, next) => {
+  db.wallets
+    .findById(req.params.id)
+    .then(wallet => db.transactions.findAllByWallet(wallet, utils.paginator(req)))
+    .then(transactions => utils.respondWithPagination(req, res, transactions, 'transaction'))
+    .then(() => next())
+}
+
+const transactionsSend = (req, res, next) => {
+  db.wallets
+    .findById(req.params.id)
+    .then(wallet => db.transactions.findAllBySender(wallet.publicKey, utils.paginator(req)))
+    .then(transactions => utils.respondWithPagination(req, res, transactions, 'transaction'))
+    .then(() => next())
+}
+
+const transactionsReceived = (req, res, next) => {
+  db.wallets
+    .findById(req.params.id)
+    .then(wallet => db.transactions.findAllByRecipient(wallet.address, utils.paginator(req)))
+    .then(transactions => utils.respondWithPagination(req, res, transactions, 'transaction'))
+    .then(() => next())
+}
+
+const votes = (req, res, next) => {
+  db.wallets
+    .findById(req.params.id)
+    .then(wallet => db.transactions.allVotesBySender(wallet.publicKey, utils.paginator(req)))
+    .then(transactions => utils.respondWithPagination(req, res, transactions, 'transaction'))
+    .then(() => next())
+}
+
+const search = (req, res, next) => {
+  db.wallets
+    .search(req.body)
+    .then(wallets => utils.respondWithPagination(req, res, wallets, 'wallet'))
+    .then(() => next())
+}
+
+module.exports = {
+  index,
+  top,
+  show,
+  transactions,
+  transactionsSend,
+  transactionsReceived,
+  votes,
+  search,
+}

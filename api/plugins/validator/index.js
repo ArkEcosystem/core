@@ -27,8 +27,8 @@ module.exports = class ValidatorPlugin {
 
     if (!validate(requestData)) {
       return (req.version() === '1.0.0')
-        ? responder.error(validate.errors[0].message)
-        : responder.unprocessableEntity(validate.errors[0].message)
+        ? responder.error(req, res, validate.errors[0].message)
+        : responder.unprocessableEntity(req, res, validate.errors[0].message)
     }
 
     return next()

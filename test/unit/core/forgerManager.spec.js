@@ -1,5 +1,5 @@
-const ForgerManager = require('core/forgerManager')
-const Delegate = require('model/delegate')
+const ForgerManager = require('../../../core/forgerManager')
+const Delegate = require('../../../model/delegate')
 
 describe('Core | ForgerManager', () => {
   const config = {
@@ -18,26 +18,26 @@ describe('Core | ForgerManager', () => {
       const promise = forger.loadDelegates()
       // Avoids the UnhandledPromiseRejectionWarning
       promise.catch(() => {})
-      promise.should.be.a('promise')
+      expect(promise).toBeInstanceOf(Promise)
     })
 
-    context('without configured delegates', () => {
+    describe('without configured delegates', () => {
       it('rejects with an Error', () => {
         const forger = new ForgerManager(config)
         return forger.loadDelegates().catch(error => {
-          error.should.be.an('error')
-          error.message.should.match(/no delegate/i)
+          expect(error).toBeInstanceOf(Error)
+          expect(error.message).toMatch(/no delegate/i)
         })
       })
     })
-    context('with configured delegates', () => {
+    describe('with configured delegates', () => {
       it('resolves with them', () => {
         const forger = new ForgerManager(delegateConfig)
         return forger.loadDelegates()
           .catch(error => console.error(error))
           .then(delegates => {
-            delegates.should.be.an('array')
-            delegates.forEach(delegate => delegate.should.be.an.instanceof(Delegate))
+            expect(delegates).toBeType('array')
+            delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
           })
       })
     })
@@ -52,7 +52,7 @@ describe('Core | ForgerManager', () => {
       const forger = new ForgerManager(delegateConfig)
       forger.loadDelegates()
       const promise = forger.pickForgingDelegate({ delegate: {} })
-      promise.should.be.a('promise')
+      expect(promise).toBeInstanceOf(Promise)
     })
   })
 

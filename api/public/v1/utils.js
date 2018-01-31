@@ -1,25 +1,30 @@
 const responder = requireFrom('api/responder')
 const Transformer = requireFrom('api/transformer')
-const State = requireFrom('api/plugins/state')
 
-module.exports = class Helpers {
-  static paginator () {
-    return State.getRequest().paginator.pointer()
-  }
-
-  static respondWith (method, data) {
-    data
-      ? responder[method](data)
-      : responder.error('Record could not be found.')
-
-    return Promise.resolve()
-  }
-
-  static toResource (data, transformerClass) {
-    return new Transformer(State.getRequest()).resource(data, transformerClass)
-  }
-
-  static toCollection (data, transformerClass) {
-    return new Transformer(State.getRequest()).collection(data, transformerClass)
-  }
+const paginator = (req) => {
+  return req.paginator.pointer()
 }
+
+const respondWith = (req, res, method, data) => {
+  (method === 'error')
+    ? responder.error(req, res, data)
+    : responder[method](req, res, data)
+
+  return Promise.resolve()
+}
+
+const toResource = (req, data, transformerClass) => {
+  return new Transformer(req).resource(data, transformerClass)
+}
+
+const toCollection = (req, data, transformerClass) => {
+  return new Transformer(req).collection(data, transformerClass)
+}
+
+module.exports = {
+  paginator,
+  respondWith,
+  toResource,
+  toCollection,
+}
+

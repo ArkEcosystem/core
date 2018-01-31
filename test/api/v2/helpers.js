@@ -1,10 +1,8 @@
 const chai = require('chai')
-const should = chai.should()
 
 class Helpers {
   request (method, path, params = {}) {
-    let request = chai
-      .request('http://localhost:4003/api/')
+    let request = chai.request('http://localhost:4003/api/')
 
     request = request[method.toLowerCase()](path)
     request = (method === 'GET') ? request.query(params) : request.send(params)
@@ -13,96 +11,107 @@ class Helpers {
   }
 
   assertJson (data) {
-    data.body.should.be.a('object')
+    expect(data.body).toBeType('object')
   }
 
   assertStatus (data, code) {
-    data.should.have.status(code)
+    expect(data.statusCode).toBe(code)
   }
 
   assertVersion (data, version) {
-    data.body.should.have.property('meta').which.is.an('object')
-    data.body.meta.should.have.property('matchedVersion').eql(version)
+    expect(data.body.meta).toBeType('object')
+    expect(data.body.meta).toHaveProperty('matchedVersion', version)
   }
 
   assertResource (data) {
-    data.body.should.have.property('data').which.is.an('object')
+    expect(data.body.data).toBeType('object')
   }
 
   assertCollection (data) {
-    data.body.should.have.property('data').which.is.an('array')
+    expect(Array.isArray(data.body.data)).toBe(true)
   }
 
   assertPaginator (data, firstPage = true) {
-    data.body.should.have.property('links').which.is.an('object')
+    expect(data.body.links).toBeType('object')
 
     if (!firstPage) {
-      data.body.links.should.have.property('first').which.is.a('string')
-      data.body.links.should.have.property('prev').which.is.a('string')
+      expect(data.body.links.first).toBeType('string')
+      expect(data.body.links.prev).toBeType('string')
     }
 
-    data.body.links.should.have.property('last').which.is.a('string')
-    data.body.links.should.have.property('next').which.is.a('string')
+    expect(data.body.links.last).toBeType('string')
+    expect(data.body.links.next).toBeType('string')
   }
 
   assertSuccessful (err, res, statusCode = 200) {
-    should.not.exist(err)
+    expect(err).toBeFalsy()
     this.assertStatus(res, statusCode)
     this.assertJson(res)
     this.assertVersion(res, '2.0.0')
   }
 
   assertError (err, res, statusCode = 404) {
-    err.should.be.an('Error')
+    expect(err).toBeType('object')
     this.assertStatus(res, statusCode)
     this.assertJson(res)
-    res.body.should.have.property('code')
-    res.body.should.have.property('message')
+    expect(res.body.code).toBeType('string')
+    expect(res.body.message).toBeType('string')
   }
 
   assertTransaction (transaction) {
-    transaction.should.be.an('object')
-    transaction.should.have.property('id').which.is.a('string')
-    transaction.should.have.property('block_id').which.is.a('string')
-    transaction.should.have.property('type').which.is.a('number')
-    transaction.should.have.property('amount').which.is.a('number')
-    transaction.should.have.property('fee').which.is.a('number')
-    transaction.should.have.property('sender').which.is.a('string')
+    expect(transaction).toBeType('object')
+    expect(transaction.id).toBeType('string')
+    expect(transaction.block_id).toBeType('string')
+    expect(transaction.type).toBeType('number')
+    expect(transaction.amount).toBeType('number')
+    expect(transaction.fee).toBeType('number')
+    expect(transaction.sender).toBeType('string')
+
     if ([1, 2].indexOf(transaction.type) === -1) {
-      transaction.should.have.property('recipient').which.is.a('string')
+      expect(transaction.recipient).toBeType('string')
     }
-    transaction.should.have.property('signature').which.is.a('string')
-    transaction.should.have.property('confirmations').which.is.a('number')
+
+    expect(transaction.signature).toBeType('string')
+    expect(transaction.confirmations).toBeType('number')
   }
 
   assertBlock (block) {
-    block.should.be.an('object')
-    block.should.have.property('id').which.is.a('string')
-    block.should.have.property('version').which.is.a('number')
-    block.should.have.property('height').which.is.a('number')
-    block.should.have.property('previous').which.is.a('string')
+    expect(block).toBeType('object')
+    expect(block.id).toBeType('string')
+    expect(block.version).toBeType('number')
+    expect(block.height).toBeType('number')
+    // expect(block.previous).toBeType('string')
 
-    block.should.have.property('forged').which.is.an('object')
-    block.forged.should.have.property('reward').which.is.an('number')
-    block.forged.should.have.property('fee').which.is.an('number')
+    expect(block.forged).toBeType('object')
+    expect(block.forged.reward).toBeType('number')
+    expect(block.forged.fee).toBeType('number')
 
-    block.should.have.property('payload').which.is.an('object')
-    block.payload.should.have.property('length').which.is.an('number')
-    block.payload.should.have.property('hash').which.is.an('string')
+    expect(block.payload).toBeType('object')
+    expect(block.payload.length).toBeType('number')
+    expect(block.payload.hash).toBeType('string')
 
-    block.should.have.property('generator').which.is.an('object')
-    block.generator.should.have.property('public_key').which.is.an('string')
+    expect(block.generator).toBeType('object')
+    expect(block.generator.public_key).toBeType('string')
 
-    block.should.have.property('signature').which.is.an('string')
-    block.should.have.property('transactions').which.is.an('number')
+    expect(block.signature).toBeType('string')
+    expect(block.transactions).toBeType('number')
   }
 
   assertWallet(wallet) {
-    wallet.should.have.property('address').which.is.a('string')
-    wallet.should.have.property('public_key').which.is.a('string')
-    wallet.should.have.property('balance').which.is.a('number')
-    wallet.should.have.property('is_delegate').which.is.a('boolean')
+    expect(wallet.address).toBeType('string')
+    expect(wallet.public_key).toBeType('string')
+    expect(wallet.balance).toBeType('number')
+    expect(wallet.is_delegate).toBeType('boolean')
   }
 }
+
+expect.extend({
+  toBeAnArray(received) {
+    return {
+      message: () => `expected ${received} to be an array`,
+      pass: Array.isArray(received),
+    }
+  }
+})
 
 module.exports = new Helpers()

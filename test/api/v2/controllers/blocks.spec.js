@@ -1,4 +1,4 @@
-const Helpers = require('../helpers')
+  const Helpers = require('../helpers')
 
 const blockId = '6995950265304491676'
 const version = 0
@@ -53,7 +53,7 @@ describe('API 2.0 - Blocks', () => {
 
         const block = res.body.data;
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })
@@ -61,6 +61,8 @@ describe('API 2.0 - Blocks', () => {
   })
 
   describe('GET /api/blocks/:id/transactions', () => {
+    // jest.setTimeout(10000)
+
     it('should GET all the transactions for the given block by id', (done) => {
       Helpers.request('GET', `blocks/${blockId}/transactions`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
@@ -68,7 +70,7 @@ describe('API 2.0 - Blocks', () => {
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.block_id.should.equal(blockId)
+        expect(transaction.block_id).toBe(blockId)
 
         done()
       })
@@ -81,11 +83,11 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })
@@ -96,12 +98,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.version.should.equal(version)
+        expect(block.id).toBe(blockId)
+        expect(block.version).toBe(version)
 
         done()
       })
@@ -112,12 +114,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.previous.should.equal(previousBlock)
+        expect(block.id).toBe(blockId)
+        expect(block.previous).toBe(previousBlock)
 
         done()
       })
@@ -128,13 +130,13 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.payload.length.should.equal(payloadLength)
-        block.payload.hash.should.equal(payloadHash)
+        expect(block.id).toBe(blockId)
+        expect(block.payload.length).toBe(payloadLength)
+        expect(block.payload.hash).toBe(payloadHash)
 
         done()
       })
@@ -145,12 +147,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.generator.public_key.should.equal(generatorPublicKey)
+        expect(block.id).toBe(blockId)
+        expect(block.generator.public_key).toBe(generatorPublicKey)
 
         done()
       })
@@ -161,12 +163,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.signature.should.equal(blockSignature)
+        expect(block.id).toBe(blockId)
+        expect(block.signature).toBe(blockSignature)
 
         done()
       })
@@ -177,11 +179,11 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })
@@ -192,12 +194,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.height.should.equal(height)
+        expect(block.id).toBe(blockId)
+        expect(block.height).toBe(height)
 
         done()
       })
@@ -214,12 +216,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.height.should.equal(height)
+        expect(block.id).toBe(blockId)
+        expect(block.height).toBe(height)
 
         done()
       })
@@ -230,12 +232,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.transactions.should.equal(numberOfTransactions)
+        expect(block.id).toBe(blockId)
+        expect(block.transactions).toBe(numberOfTransactions)
 
         done()
       })
@@ -252,12 +254,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.transactions.should.equal(numberOfTransactions)
+        expect(block.id).toBe(blockId)
+        expect(block.transactions).toBe(numberOfTransactions)
 
         done()
       })
@@ -268,11 +270,11 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })
@@ -289,11 +291,11 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })
@@ -304,12 +306,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.forged.fee.should.equal(totalFee)
+        expect(block.id).toBe(blockId)
+        expect(block.forged.fee).toBe(totalFee)
 
         done()
       })
@@ -326,12 +328,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.forged.fee.should.equal(totalFee)
+        expect(block.id).toBe(blockId)
+        expect(block.forged.fee).toBe(totalFee)
 
         done()
       })
@@ -342,12 +344,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.forged.reward.should.equal(reward)
+        expect(block.id).toBe(blockId)
+        expect(block.forged.reward).toBe(reward)
 
         done()
       })
@@ -364,12 +366,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.forged.reward.should.equal(reward)
+        expect(block.id).toBe(blockId)
+        expect(block.forged.reward).toBe(reward)
 
         done()
       })
@@ -380,12 +382,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.payload.length.should.equal(payloadLength)
+        expect(block.id).toBe(blockId)
+        expect(block.payload.length).toBe(payloadLength)
 
         done()
       })
@@ -402,12 +404,12 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
-        block.payload.length.should.equal(payloadLength)
+        expect(block.id).toBe(blockId)
+        expect(block.payload.length).toBe(payloadLength)
 
         done()
       })
@@ -418,7 +420,7 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.empty
+        expect(res.body.data).toHaveLength(0)
 
         done()
       })
@@ -436,11 +438,11 @@ describe('API 2.0 - Blocks', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const block = res.body.data[0]
         Helpers.assertBlock(block)
-        block.id.should.equal(blockId)
+        expect(block.id).toBe(blockId)
 
         done()
       })

@@ -28,7 +28,7 @@ findAll (params) {
   }
 
   findAllByGenerator (generatorPublicKey, paginator) {
-    return this.findAll({...{where: {generatorPublicKey}}, ...paginator})
+    return this.findAll({...{generatorPublicKey}, ...paginator})
   }
 
   findById (id) {

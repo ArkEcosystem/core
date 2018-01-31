@@ -12,6 +12,7 @@ module.exports = (model) => {
     block_id: model.blockId,
     type: data.type,
     amount: data.amount,
+    timestamp: data.timestamp,
     fee: data.fee,
     sender: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     recipient: data.recipientId,

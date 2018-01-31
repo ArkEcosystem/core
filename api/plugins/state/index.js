@@ -1,26 +1,27 @@
 let instance = null
 
-module.exports = class StatePlugin {
-  static getInstance () {
+class StatePlugin {
+  constructor () {
+    if (!instance) instance = this
+
     return instance
   }
 
-  mount (request, response, next) {
-    if (!instance) {
-      instance = this
-    }
-
-    instance.request = request
-    instance.response = response
-
-    next()
-  }
-
-  static getRequest () {
+  getRequest () {
     return instance.request
   }
 
-  static getResponse () {
+  setRequest (value) {
+    instance.request = value
+  }
+
+  getResponse () {
     return instance.response
   }
+
+  setResponse (value) {
+    instance.response = value
+  }
 }
+
+module.exports = new StatePlugin()
