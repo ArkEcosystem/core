@@ -1,5 +1,4 @@
 const path = require('path')
-const State = require('./plugins/state')
 const logger = requireFrom('core/logger')
 
 module.exports = class Transformer {
