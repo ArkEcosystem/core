@@ -47,7 +47,7 @@ module.exports = class ThrottlePlugin {
     res.header('X-RateLimit-Rate', rate)
 
     if (!bucket.consume(1)) {
-      responder.tooManyRequests(res, 'Too Many Attempts.')
+      responder.tooManyRequests(req, res, 'Too Many Attempts.')
 
       return next(false)
     }

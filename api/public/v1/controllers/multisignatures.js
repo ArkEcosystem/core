@@ -1,29 +1,32 @@
 const utils = require('../utils')
 
-class MultiSignaturesController {
-  index (req, res, next) {
-    utils
-      .respondWith('error', 'Method has not yet been implemented.')
-      .then(() => next())
-  }
-
-  store (req, res, next) {
-    utils
-      .respondWith('error', 'Method has not yet been implemented.')
-      .then(() => next())
-  }
-
-  pending (req, res, next) {
-    utils
-      .respondWith('error', 'Method has not yet been implemented.')
-      .then(() => next())
-  }
-
-  wallets (req, res, next) {
-    utils
-      .respondWith('error', 'Method has not yet been implemented.')
-      .then(() => next())
-  }
+const index = (req, res, next) => {
+  utils
+    .respondWith(req, res, 'error', 'Method has not yet been implemented.')
+    .then(() => next())
 }
 
-module.exports = new MultiSignaturesController()
+const store = (req, res, next) => {
+  utils
+    .respondWith(req, res, 'error', 'Method has not yet been implemented.')
+    .then(() => next())
+}
+
+const pending = (req, res, next) => {
+  utils
+    .respondWith(req, res, 'error', 'Method has not yet been implemented.')
+    .then(() => next())
+}
+
+const wallets = (req, res, next) => {
+  utils
+    .respondWith(req, res, 'error', 'Method has not yet been implemented.')
+    .then(() => next())
+}
+
+module.exports = {
+  index,
+  store,
+  pending,
+  wallets,
+}

@@ -1,4 +1,4 @@
-const Wallet = require('model/wallet')
+const Wallet = require('../../../model/wallet')
 
 const testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
 const data = {
@@ -81,11 +81,11 @@ describe('Model | Wallet', () =>
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
       wallet.balance = balance * 10 ** 8
 
-      wallet.toString().should.equal(`${address}=${balance}`)
+      expect(wallet.toString()).toBe(`${address}=${balance}`)
     })
   ),
 
   describe('apply transaction', () =>
-    it('should be ok for a multitx', () => testWallet.canApply(multitx).should.be.true)
+    it('should be ok for a multitx', () => expect(testWallet.canApply(multitx)).toBeTruthy())
   )
 )

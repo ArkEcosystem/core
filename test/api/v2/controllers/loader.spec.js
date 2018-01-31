@@ -7,9 +7,9 @@ describe('API 2.0 - Loader', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('loaded').which.is.a('boolean')
-        res.body.data.should.have.property('now').which.is.a('number')
-        res.body.data.should.have.property('blocksCount').which.is.null // mount p2p for .a('number')
+        expect(res.body.data.loaded).toBeType('boolean')
+        expect(res.body.data.now).toBeType('number')
+        // expect(res.body.data.blocksCount).toBeType('number')
 
         done()
       })
@@ -22,10 +22,10 @@ describe('API 2.0 - Loader', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('syncing').which.is.a('boolean')
-        res.body.data.should.have.property('blocks').which.is.null // mount p2p for .a('number')
-        res.body.data.should.have.property('height').which.is.a('number')
-        res.body.data.should.have.property('id').which.is.a('string')
+        expect(res.body.data.syncing).toBeType('boolean')
+        expect(res.body.data.blocks).toBeType('number')
+        expect(res.body.data.height).toBeType('number')
+        expect(res.body.data.id).toBeType('string')
 
         done()
       })
@@ -38,11 +38,11 @@ describe('API 2.0 - Loader', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        res.body.data.should.have.property('nethash').which.is.a('string')
-        res.body.data.should.have.property('token').which.is.a('string')
-        res.body.data.should.have.property('symbol').which.is.a('string')
-        res.body.data.should.have.property('explorer').which.is.a('string')
-        res.body.data.should.have.property('version').which.is.a('number')
+        expect(res.body.data.nethash).toBeType('string')
+        expect(res.body.data.token).toBeType('string')
+        expect(res.body.data.symbol).toBeType('string')
+        expect(res.body.data.explorer).toBeType('string')
+        expect(res.body.data.version).toBeType('number')
 
         done()
       })

@@ -8,7 +8,6 @@ const RouteRegistrar = require('../registrars/route')
 const ThrottlePlugin = require('../plugins/throttle')
 const ValidatorPlugin = require('../plugins/validator')
 const CachePlugin = require('../plugins/cache')
-const StatePlugin = require('../plugins/state')
 const VersionPlugin = require('../plugins/version')
 const PaginatorPlugin = require('../plugins/paginator')
 
@@ -26,6 +25,7 @@ class PublicAPI {
       .then(() => this.registerPlugins())
       .then(() => this.registerRouters())
       .then(() => this.startServer())
+      .catch(e => console.log(e))
   }
 
   createServer () {
@@ -41,7 +41,6 @@ class PublicAPI {
       .use(restify.plugins.bodyParser({ mapParams: true }))
       .use(restify.plugins.queryParser())
       .use(restify.plugins.gzipResponse())
-      .use((req, res, next) => new StatePlugin().mount(req, res, next))
       .use((req, res, next) => new ThrottlePlugin(this.config.server.api.throttle).mount(req, res, next))
       .use((req, res, next) => new ValidatorPlugin().mount(req, res, next))
       .use((req, res, next) => new PaginatorPlugin().mount(req, res, next))
@@ -77,8 +76,8 @@ class PublicAPI {
         const utils = require(`./${version}/utils`)
 
         version === 'v1'
-          ? utils.respondWith('error', error.message)
-          : utils.respondWith('InternalServer', error.message)
+          ? utils.respondWith(req, res, 'error', error.message)
+          : utils.respondWith(req, res, 'InternalServer', error.message)
 
         return true
       })

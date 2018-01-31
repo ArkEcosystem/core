@@ -33,15 +33,15 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/:id', () => {
+  describe('GET /api/transactions/:id', () => {
     it('should GET a transaction by the given identifier', (done) => {
       Helpers.request('GET', `transactions/${transactionId}`).end((err, res) => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertResource(res)
 
-        const transaction = res.body.data[0]
+        const transaction = res.body.data
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -76,11 +76,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -91,12 +91,12 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
-        transaction.block_id.should.equal(blockId)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.block_id).toBe(blockId)
 
         done()
       })
@@ -107,12 +107,12 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
-        transaction.type.should.equal(type)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.type).toBe(type)
 
         done()
       })
@@ -123,11 +123,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -138,12 +138,12 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
-        transaction.sender.should.equal(senderAddress)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.sender).toBe(senderAddress)
 
         done()
       })
@@ -154,12 +154,12 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
-        transaction.recipient.should.equal(recipientAddress)
+        expect(transaction.id).toBe(transactionId)
+        expect(transaction.recipient).toBe(recipientAddress)
 
         done()
       })
@@ -170,11 +170,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -185,11 +185,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -200,11 +200,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -215,11 +215,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -230,11 +230,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -245,11 +245,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -260,11 +260,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })
@@ -275,7 +275,7 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').that.is.empty
+        expect(res.body.data).toHaveLength(0)
 
         done()
       })
@@ -293,11 +293,11 @@ describe('API 2.0 - Transactions', () => {
         Helpers.assertSuccessful(err, res)
         Helpers.assertCollection(res)
 
-        res.body.should.have.property('data').which.is.an('array').with.lengthOf(1)
+        expect(res.body.data).toHaveLength(1)
 
         const transaction = res.body.data[0]
         Helpers.assertTransaction(transaction)
-        transaction.id.should.equal(transactionId)
+        expect(transaction.id).toBe(transactionId)
 
         done()
       })

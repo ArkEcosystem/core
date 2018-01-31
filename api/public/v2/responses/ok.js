@@ -1,9 +1,7 @@
 const response = require('./response')
 
-module.exports = (data, headers = {}) => {
-  if (data.hasOwnProperty('data')) {
-    return response.send(200, data, headers)
-  }
-
-  response.send(200, {data}, headers)
+module.exports = (req, res, data, headers = {}) => {
+  return data.hasOwnProperty('data')
+    ? response.send(req, res, 200, data, headers)
+    : response.send(req, res, 200, {data}, headers)
 }

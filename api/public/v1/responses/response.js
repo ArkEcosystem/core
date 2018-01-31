@@ -1,15 +1,11 @@
-const State = requireFrom('api/plugins/state')
-
 class Response {
-  send (status, data, headers) {
-    const request = State.getRequest()
-
-    State.getResponse().send(status, { ...data,
+  send (req, res, status, data, headers) {
+    res.send(status, { ...data,
       ...{
         meta: { ...data.meta || {},
           ...{
-            requestedVersion: request.version(),
-            matchedVersion: request.matchedVersion()
+            requestedVersion: req.version(),
+            matchedVersion: req.matchedVersion()
           }
         }
       }
