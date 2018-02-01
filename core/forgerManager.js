@@ -1,6 +1,6 @@
 const popsicle = require('popsicle')
 const Delegate = require('../model/delegate')
-const logger = require('./logger')
+const goofy = require('./goofy')
 
 module.exports = class ForgerManager {
   constructor (config) {
@@ -38,8 +38,8 @@ module.exports = class ForgerManager {
         .then(delegate => delegate.forge([], data))
         .then(block => that.broadcast(block))
         .catch(error => {
-          logger.info('Not able to forge:', error.message)
-          logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+          goofy.info('Not able to forge:', error.message)
+          goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
           return Promise.resolve()
         })
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))

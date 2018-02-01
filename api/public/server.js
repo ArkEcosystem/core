@@ -1,31 +1,20 @@
-const logger = requireFrom('core/logger')
-const Hapi = require('hapi')
+'use strict'
 
-module.exports = class PublicAPI {
-  constructor (config) {
-    if (!config.server.api.mount) {
-      return logger.info('Public API not mounted!')
-    }
+const goofy = require('../../core/goofy')
+const Glue = require('glue')
 
-    const serverConfig = {
-      host: 'localhost',
+module.exports = (config) => {
+  if (!config.server.api.mount) {
+    return goofy.info('Oh snap! Public API not mounted...')
+  }
+
+  const manifest = {
+    server: {
       port: config.server.api.port
-    }
-
-    if (config.server.api.cache) {
-      serverConfig.cache = [{
-        name: 'redisCache',
-        engine: require('catbox-redis'),
-        host: '127.0.0.1',
-        partition: 'cache'
-      }]
-    }
-
-    const server = Hapi.server(serverConfig)
-
-    async function start () {
-      try {
-        await server.register({
+    },
+    register: {
+      plugins: [
+        {
           plugin: require('hapi-api-version'),
           options: {
             validVersions: [1, 2],
@@ -33,20 +22,20 @@ module.exports = class PublicAPI {
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
-        })
-
-        await server.register({
+        },
+        {
           plugin: require('hapi-rate-limit'),
           options: {
             pathLimit: false
           }
-        })
-
-        await server.register(require('./plugins/caster'))
-
-        await server.register(require('./plugins/validation'))
-
-        await server.register({
+        },
+        {
+          plugin: './plugins/caster'
+        },
+        {
+          plugin: './plugins/validation'
+        },
+        {
           plugin: require('hapi-pagination'),
           options: {
             results: {
@@ -76,27 +65,49 @@ module.exports = class PublicAPI {
               exclude: ['*']
             }
           }
-        })
-
-        await server.register([
-          require('./versions/1/routes'),
-          require('./versions/2/routes')
-        ], {
+        },
+        {
+          plugin: require('./versions/1/routes'),
           routes: {
-            prefix: '/api'
+            prefix: '/api/v1'
           }
-        })
-
-        await server.start()
-      } catch (err) {
-        logger.error(err)
-
-        process.exit(1)
-      }
-
-      logger.info(`✅  Public API is listening on ${server.info.uri}`)
+        },
+        {
+          plugin: require('./versions/2/routes'),
+          routes: {
+            prefix: '/api/v2'
+          }
+        }
+      ]
     }
-
-    start()
   }
+
+  if (config.server.api.cache) {
+    manifest.server.cache = [{
+      name: 'redisCache',
+      engine: require('catbox-redis'),
+      host: '127.0.0.1',
+      partition: 'cache'
+    }]
+  }
+
+  const options = {
+    relativeTo: __dirname
+  }
+
+  const startServer = async function () {
+    try {
+      const server = await Glue.compose(manifest, options)
+
+      await server.start()
+
+      goofy.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
+    } catch (err) {
+      goofy.error(err)
+
+      process.exit(1)
+    }
+  }
+
+  startServer()
 }

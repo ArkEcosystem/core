@@ -1,4 +1,4 @@
-const logger = require('../logger')
+const goofy = require('../goofy')
 const safeJsonParse = require('../../utils/safe-json-parse')
 
 let messageIds = 0
@@ -32,7 +32,7 @@ module.exports = class PromiseWorker {
     return new Promise((resolve, reject) => {
       self._callbacks[messageId] = (error, result) => {
         if (error) {
-          logger.error(`Promise Worker caught an error: ${error}`)
+          goofy.error(`Promise Worker caught an error: ${error}`)
 
           return reject(new Error(error.message))
         }

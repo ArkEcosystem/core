@@ -1,7 +1,7 @@
 const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
-const logger = require('./logger')
+const goofy = require('./goofy')
 const PromiseWorker = require(`${__dirname}/promise-worker`)
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/transactionPool.js`)
@@ -68,8 +68,8 @@ module.exports = class BlockchainManager {
         const constants = that.config.getConstants(block.data.height)
         // no fast rebuild if in last round
         that.status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
-        logger.info('Fast Sync:', that.status.fastSync)
-        logger.info('Last block in database:', block.data.height)
+        goofy.info('Fast Sync:', that.status.fastSync)
+        goofy.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
             .buildWallets()
@@ -86,12 +86,12 @@ module.exports = class BlockchainManager {
         }
       })
       .catch((error) => {
-        logger.debug(error)
+        goofy.debug(error)
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
           that.status.lastBlock = genesis
           that.status.fastSync = true
-          logger.info('Fast Rebuild:', that.status.fastSync)
+          goofy.info('Fast Rebuild:', that.status.fastSync)
           return db.saveBlock(genesis)
             .then(() => db.buildWallets())
             .then(() => db.saveWallets(true))
@@ -141,12 +141,12 @@ module.exports = class BlockchainManager {
   }
 
   processEvent (event, qcallback) {
-    logger.debug(`event ${event.type}`)
+    goofy.debug(`event ${event.type}`)
     switch (event.type) {
       case 'check':
         if (this.isSynced(this.status.lastBlock)) {
           this.status.syncing = false
-          logger.info('Node Synced, congratulations! 🦄')
+          goofy.info('Node Synced, congratulations! 🦄')
         } else {
           this.status.noblock = 0
           this.eventQueue.push({type: 'sync/start'})
@@ -164,7 +164,7 @@ module.exports = class BlockchainManager {
         if (!this.isSynced(this.status.lastBlock)) this.eventQueue.push({type: 'sync/start'})
         else {
           this.status.syncing = false
-          logger.info('Node Synced, congratulations! 🦄')
+          goofy.info('Node Synced, congratulations! 🦄')
         }
         return qcallback()
       case 'rebuild/start':
@@ -180,10 +180,10 @@ module.exports = class BlockchainManager {
         this.eventQueue.push({type: 'sync/start'})
         return qcallback()
       case 'sync/start':
-        logger.debug(JSON.stringify(this.status))
+        goofy.debug(JSON.stringify(this.status))
         if (this.config.server.test) return qcallback()
         if (!this.status.rebuild && !this.status.syncing) {
-          logger.info('Syncing started')
+          goofy.info('Syncing started')
           this.status.syncing = true
           this.status.lastDownloadedBlock = this.status.lastBlock.data
           this.status.downloadpaused = false
@@ -201,7 +201,7 @@ module.exports = class BlockchainManager {
           return qcallback()
         }
         if (this.status.downloadpaused) {
-          logger.info('Download paused')
+          goofy.info('Download paused')
           return qcallback()
         } else {
           if (event.noblock) this.status.noblock++
@@ -209,8 +209,8 @@ module.exports = class BlockchainManager {
           if (this.status.noblock < 5) return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
           else {
             this.status.syncing = false
-            logger.warn('Node looks synced with network, but either local time is drifted or the network is missing blocks 🤔')
-            this.config.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
+            goofy.warn('Node looks synced with network, but either local time is drifted or the network is missing blocks 🤔')
+            this.config.ntp().then(time => goofy.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
             return qcallback()
           }
         }
@@ -218,23 +218,23 @@ module.exports = class BlockchainManager {
         qcallback()
         break
       default:
-        logger.error('Event unknown', event)
+        goofy.error('Event unknown', event)
         qcallback()
     }
   }
 
   postTransactions (transactions) {
-    logger.info('Received new transactions', transactions.map(transaction => transaction.id))
+    goofy.info('Received new transactions', transactions.map(transaction => transaction.id))
     return this.transactionPool.postMessage({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
-    logger.info('Received new block at height', block.height)
+    goofy.info('Received new block at height', block.height)
     this.downloadQueue.push(block)
   }
 
   removeBlocks (nblocks) {
-    logger.info(`Starting ${nblocks} blocks undo from height`, this.status.lastBlock.data.height)
+    goofy.info(`Starting ${nblocks} blocks undo from height`, this.status.lastBlock.data.height)
     return this.pauseQueues()
       .then(() => this.__removeBlocks(nblocks))
       .then(() => this.clearQueues())
@@ -245,7 +245,7 @@ module.exports = class BlockchainManager {
   __removeBlocks (nblocks) {
     if (!nblocks) return Promise.resolve()
     else {
-      logger.info('Undoing block', this.status.lastBlock.data.height)
+      goofy.info('Undoing block', this.status.lastBlock.data.height)
       return this
         .undoLastBlock()
         .then(() => this.__removeBlocks(nblocks - 1))
@@ -296,29 +296,29 @@ module.exports = class BlockchainManager {
           .then(() => this.transactionPool.postMessage({event: 'addBlock', data: status.lastBlock}))
           .then(() => qcallback())
           .catch(error => {
-            logger.error(error)
-            logger.debug('Refused new block', block.data)
+            goofy.error(error)
+            goofy.debug('Refused new block', block.data)
             status.lastDownloadedBlock = status.lastBlock.data
             qcallback()
           })
       } else if (block.data.height > status.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
-        logger.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
+        goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
         status.lastDownloadedBlock = status.lastBlock.data;
         ['updateNetworkStatus', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
         qcallback()
       } else if (block.data.height < status.lastBlock.data.height) {
-        logger.info('Block disregarded because already in blockchain')
+        goofy.info('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
         status.forked = true
-        logger.info('Block disregarded because on a fork')
+        goofy.info('Block disregarded because on a fork')
         qcallback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      goofy.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
@@ -333,14 +333,14 @@ module.exports = class BlockchainManager {
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
       if (!blocks || blocks.length === 0) {
-        logger.info('No new block found on this peer')
+        goofy.info('No new block found on this peer')
         that.eventQueue.push({type: 'download/next', noblock: true})
       } else {
-        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+        goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
         if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
         else { // TODO Fork
           this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
-          logger.error('bang')
+          goofy.error('bang')
         }
       }
       return Promise.resolve()

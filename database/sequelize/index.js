@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const Block = requireFrom('model/block')
 const Transaction = requireFrom('model/transaction')
 const config = requireFrom('core/config')
-const logger = requireFrom('core/logger')
+const goofy = requireFrom('core/goofy')
 const schema = require('./schema')
 const DBInterface = requireFrom('core/dbinterface')
 
@@ -82,20 +82,20 @@ module.exports = class SequelizeDB extends DBInterface {
         } else return Promise.resolve(data)
       })
       .then(data => {
-        // logger.info(`got ${data.length} voted delegates`)
+        // goofy.info(`got ${data.length} voted delegates`)
         const round = parseInt(block.data.height / 51)
         that.activedelegates = data
           .sort((a, b) => b.balance - a.balance)
           .slice(0, 51)
           .map(a => ({...{round: round}, ...a.dataValues}))
-        logger.debug(`generated ${that.activedelegates.length} active delegates`)
+        goofy.debug(`generated ${that.activedelegates.length} active delegates`)
         return Promise.resolve(that.activedelegates)
       })
   }
 
   buildWallets () {
     this.walletManager.reset()
-    logger.printTracker('SPV Building', 0, 7)
+    goofy.printTracker('SPV Building', 0, 7)
     return this.transactionsTable
       .findAll({
         attributes: [
@@ -106,7 +106,7 @@ module.exports = class SequelizeDB extends DBInterface {
         group: 'recipientId'
       })
       .then(data => {
-        logger.printTracker('SPV Building', 1, 7, 'received transactions')
+        goofy.printTracker('SPV Building', 1, 7, 'received transactions')
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByAddress(row.recipientId)
           wallet.balance = parseInt(row.amount)
@@ -114,7 +114,7 @@ module.exports = class SequelizeDB extends DBInterface {
         return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
       })
       .then(data => {
-        logger.printTracker('SPV Building', 2, 7, 'block rewards')
+        goofy.printTracker('SPV Building', 2, 7, 'block rewards')
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
           wallet.balance += parseInt(row.reward)
@@ -130,13 +130,13 @@ module.exports = class SequelizeDB extends DBInterface {
         })
       })
       .then(data => {
-        logger.printTracker('SPV Building', 3, 7, 'sent transactions')
+        goofy.printTracker('SPV Building', 3, 7, 'sent transactions')
         data.forEach(row => {
           let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
           if (wallet.balance < 0) {
-            logger.warn('Negative balance should never happen except from premining address:')
-            logger.warn(wallet)
+            goofy.warn('Negative balance should never happen except from premining address:')
+            goofy.warn(wallet)
           }
         })
         return this.transactionsTable.findAll({
@@ -148,7 +148,7 @@ module.exports = class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
-        logger.printTracker('SPV Building', 4, 7, 'second signatures')
+        goofy.printTracker('SPV Building', 4, 7, 'second signatures')
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -162,7 +162,7 @@ module.exports = class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
-        logger.printTracker('SPV Building', 5, 7, 'delegates')
+        goofy.printTracker('SPV Building', 5, 7, 'delegates')
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -170,7 +170,7 @@ module.exports = class SequelizeDB extends DBInterface {
         })
         Object.values(this.walletManager.walletsByAddress)
           .filter(a => a.balance < 0)
-          .forEach(a => logger.debug(a))
+          .forEach(a => goofy.debug(a))
         return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
@@ -181,7 +181,7 @@ module.exports = class SequelizeDB extends DBInterface {
         )
       })
       .then(data => {
-        logger.printTracker('SPV Building', 6, 7, 'votes')
+        goofy.printTracker('SPV Building', 6, 7, 'votes')
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           if (!wallet.voted) {
@@ -190,7 +190,7 @@ module.exports = class SequelizeDB extends DBInterface {
             wallet.voted = true
           }
         })
-        logger.printTracker('SPV Building', 7, 7, 'multisignatures')
+        goofy.printTracker('SPV Building', 7, 7, 'multisignatures')
         return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',
@@ -205,11 +205,11 @@ module.exports = class SequelizeDB extends DBInterface {
           const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
         })
-        logger.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
-        logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+        goofy.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
+        goofy.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
         return Promise.resolve(this.walletManager.walletsByAddress || [])
       })
-      .catch(error => logger.error(error))
+      .catch(error => goofy.error(error))
   }
 
   saveWallets (force) {
@@ -222,7 +222,7 @@ module.exports = class SequelizeDB extends DBInterface {
             .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
         )
       )
-      .then(() => logger.info('Rebuilt wallets saved'))
+      .then(() => goofy.info('Rebuilt wallets saved'))
       .then(() => Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false)))
   }
 

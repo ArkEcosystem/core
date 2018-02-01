@@ -1,11 +1,11 @@
-const logger = require('../logger')
+const goofy = require('../goofy')
 const isPromise = require('is-promise')
 const safeJsonParse = require('../../utils/safe-json-parse')
 
 module.exports = (callback) => {
   function postOutgoingMessage (e, messageId, error, result) {
     if (error) {
-      logger.error(`Promise  Worker caught an error: ${error}`)
+      goofy.error(`Promise  Worker caught an error: ${error}`)
 
       self.postMessage(JSON.stringify([messageId, { message: error.message }]))
     } else {
@@ -19,7 +19,7 @@ module.exports = (callback) => {
     try { result = { res: callback(message) } } catch (e) { result = {err: e} }
 
     if (result.err) {
-      logger.error(`Promise  Worker caught an error: ${result.err}`)
+      goofy.error(`Promise  Worker caught an error: ${result.err}`)
 
       postOutgoingMessage(e, messageId, result.err)
     } else if (!isPromise(result.res)) {

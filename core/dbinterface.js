@@ -2,7 +2,7 @@ const arkjs = require('arkjs')
 const Wallet = requireFrom('model/wallet')
 const WalletManager = require('./walletManager')
 const config = require('./config')
-const logger = require('./logger')
+const goofy = require('./goofy')
 const Promise = require('bluebird')
 const async = require('async')
 const fs = require('fs')
@@ -22,7 +22,7 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
     }
     const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
     const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+    goofy.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
   }
 }
 
@@ -91,7 +91,7 @@ class DBInterface {
           .then(() => this.rounds.bulkCreate(this.activedelegates))
           .then(() => block)
       } else {
-        logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
+        goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
         return this
           .saveWallets(true) // save only modified wallets during the last round
           .then(() => this.buildDelegates(block)) // active build delegate list from database state
@@ -108,7 +108,7 @@ class DBInterface {
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
     if (previousRound + 1 === round && block.data.height > 51) {
-      logger.info('Back to previous round', previousRound)
+      goofy.info('Back to previous round', previousRound)
       return this.getActiveDelegates(previousHeight) // active delegate list from database round
         .then(() => this.deleteRound(round)) // remove round delegate list
         .then(() => block)
