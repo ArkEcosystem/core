@@ -1,6 +1,5 @@
 const Promise = require('bluebird')
 const redis = require('redis')
-const util = require('util')
 const logger = require('./logger')
 
 let instance
