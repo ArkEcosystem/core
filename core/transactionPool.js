@@ -2,7 +2,7 @@ const async = require('async')
 const arkjs = require('arkjs')
 const registerPromiseWorker = require(`${__dirname}/core/promise-worker/register`)
 const config = require(`${__dirname}/core/config`)
-const logger = require(`${__dirname}/core/logger`)
+const goofy = require(`${__dirname}/core/goofy`)
 const Transaction = require(`${__dirname}/model/Transaction`)
 
 let instance = null
@@ -12,7 +12,7 @@ let Wallet = null
 registerPromiseWorker(message => {
   if (message.event === 'init') {
     return config.init(message.data)
-      .then((conf) => logger.init(conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
+      .then((conf) => goofy.init(conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
       .then(() => (WalletManager = requireFrom('core/walletManager')))
       .then(() => (Wallet = requireFrom('model/wallet.js')))
       .then(() => (instance = new TransactionPool()))
@@ -40,7 +40,7 @@ class TransactionPool {
       acc = {...acc, ...wallet}
       instance.walletManager.updateWallet(acc)
     })
-    logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
+    goofy.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
     return Promise.resolve()
   }
 

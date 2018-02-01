@@ -1,5 +1,5 @@
 const restify = require('restify')
-const logger = requireFrom('core/logger')
+const goofy = requireFrom('core/goofy')
 const blockchain = requireFrom('core/blockchainManager')
 const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
@@ -36,7 +36,7 @@ class Up {
     if (this.config.server.api.remoteinterface) this.mountRemoteInterface(server)
     this.mountV1(server)
 
-    server.listen(this.port, () => logger.info('%s interface listening at %s', server.name, server.url))
+    server.listen(this.port, () => goofy.info('%s interface listening at %s', server.name, server.url))
   }
 
   mountV1 (server) {
@@ -263,7 +263,7 @@ class Up {
         next()
       })
       .catch(error => {
-        logger.error(error)
+        goofy.error(error)
         res.send(500, {success: false, error: error})
         next()
       })

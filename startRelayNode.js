@@ -3,7 +3,7 @@ const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
-const logger = require('./core/logger')
+const goofy = require('./core/goofy')
 const BlockchainManager = require('./core/blockchainManager')
 const P2PInterface = require('./api/p2p/p2pinterface')
 const DB = require('./core/dbinterface')
@@ -29,7 +29,7 @@ let blockchainManager = null
 let p2p = null
 
 process.on('unhandledRejection', (reason, p) => {
-  logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
 config.init({
@@ -37,7 +37,7 @@ config.init({
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network.json'))
 })
-.then(() => logger.init(config.server.fileLogLevel, config.network.name))
+.then(() => goofy.init(config.server.fileLogLevel, config.network.name))
 .then(() => (blockchainManager = new BlockchainManager(config)))
 .then(() => (p2p = new P2PInterface(config)))
 .then(() => DependencyHandler.checkDatabaseLibraries(config))
@@ -45,12 +45,12 @@ config.init({
 // .then(() => new Cache(config.server.redis))
 .then(() => DB.create(config.server.db))
 .then(db => blockchainManager.attachDBInterface(db))
-.then(() => logger.info('Database started'))
+.then(() => goofy.info('Database started'))
 .then(() => p2p.warmup())
-.then(() => logger.info('Network interface started'))
+.then(() => goofy.info('Network interface started'))
 .then(() => blockchainManager.attachNetworkInterface(p2p).init())
-.then(lastBlock => logger.info('Blockchain connnected, local lastBlock', (lastBlock.data || { height: 0 }).height))
+.then(lastBlock => goofy.info('Blockchain connnected, local lastBlock', (lastBlock.data || { height: 0 }).height))
 .then(() => blockchainManager.start())
-.then(() => logger.info('Mounting Public API'))
-.then(() => new PublicAPI(config))
-.catch(fatal => logger.error('fatal error', fatal))
+.then(() => goofy.info('Mounting Public API'))
+.then(() => PublicAPI(config))
+.catch(fatal => goofy.error('fatal error', fatal))

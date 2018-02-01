@@ -1,5 +1,5 @@
 const Peer = require('./peer.js')
-const logger = requireFrom('core/logger')
+const goofy = requireFrom('core/goofy')
 const dns = require('dns')
 
 class Down {
@@ -30,7 +30,7 @@ class Down {
         return Promise.resolve()
       })
       .catch(error => {
-        logger.error(error)
+        goofy.error(error)
         this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
         return this.updateNetworkStatus()
       })
@@ -46,7 +46,7 @@ class Down {
     let count = 0
     const max = keys.length
     let wrongpeers = 0
-    logger.info('Looking for network peers')
+    goofy.info('Looking for network peers')
     return Promise.all(keys.map(ip =>
       that.peers[ip]
         .ping()
@@ -55,9 +55,9 @@ class Down {
           delete that.peers[ip]
           return Promise.resolve(null)
         })
-        .then(() => logger.printTracker('Peers Discovery', ++count, max, null, null))
+        .then(() => goofy.printTracker('Peers Discovery', ++count, max, null, null))
     ))
-    .then(() => logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
+    .then(() => goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
   }
 
   acceptNewPeer (peer) {
@@ -67,7 +67,7 @@ class Down {
     const npeer = new Peer(peer.ip, peer.port, this.config)
     return npeer.ping()
       .then(() => (this.peers[peer.ip] = npeer))
-      .catch(e => logger.debug('Peer not connectable', npeer, e))
+      .catch(e => goofy.debug('Peer not connectable', npeer, e))
   }
 
   getPeers () {
@@ -81,10 +81,10 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      // logger.error(this.peers)
+      // goofy.error(this.peers)
       delete this.peers[random]
       this.isOnline(online => {
-        if (!online) logger.error('Seems the noe cannott access to internet (tested google DNS)')
+        if (!online) goofy.error('Seems the noe cannott access to internet (tested google DNS)')
       })
       return this.getRandomPeer()
     }
@@ -98,7 +98,7 @@ class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      // logger.error(this.peers)
+      // goofy.error(this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -133,7 +133,7 @@ class Down {
 
   downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
-    logger.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
+    goofy.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
     return randomPeer
       .ping()
       .then(() => randomPeer.downloadBlocks(fromBlockHeight))
