@@ -253,6 +253,7 @@ module.exports = class BlockchainManager {
     const lastBlock = this.status.lastBlock
     return db.undoBlock(lastBlock)
       .then(() => db.deleteBlock(lastBlock))
+      .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
       .then(() => db.getBlock(lastBlock.data.previousBlock))
       .then(newLastBlock => (this.status.lastBlock = newLastBlock))
   }
@@ -290,7 +291,7 @@ module.exports = class BlockchainManager {
         db.applyBlock(block, status.syncing, status.fastSync)
           .then(() => db.saveBlock(block))
           .then(() => (status.lastBlock = block))
-          .then(() => this.transactionPool.postMessage({event: 'addBlock', data: status.lastBlock}))
+          .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
           .then(() => qcallback())
           .catch(error => {
             logger.error(error)
