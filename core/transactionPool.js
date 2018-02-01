@@ -12,7 +12,7 @@ let Wallet = null
 registerPromiseWorker(message => {
   if (message.event === 'init') {
     return config.init(message.data)
-      .then((conf) => logger.init(conf.server.fileLogLevel, conf.network.name+'_transactionPool'))
+      .then((conf) => logger.init(conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
       .then(() => (WalletManager = requireFrom('core/walletManager')))
       .then(() => (Wallet = requireFrom('model/wallet.js')))
       .then(() => (instance = new TransactionPool()))
