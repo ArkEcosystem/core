@@ -1,4 +1,4 @@
-  const utils = require('../utils')
+const utils = require('../utils')
 
 const blockId = '6995950265304491676'
 const version = 0
