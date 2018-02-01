@@ -29,7 +29,7 @@ module.exports = class PublicAPI {
           plugin: require('hapi-api-version'),
           options: {
             validVersions: [1, 2],
-            defaultVersion: 2,
+            defaultVersion: config.server.api.version,
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
