@@ -35,6 +35,13 @@ module.exports = class PublicAPI {
           }
         })
 
+        await server.register({
+          plugin: require('hapi-rate-limit'),
+          options: {
+            pathLimit: false
+          }
+        })
+
         await server.register(require('./plugins/caster'))
 
         await server.register(require('./plugins/validation'))
