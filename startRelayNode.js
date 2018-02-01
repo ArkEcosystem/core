@@ -10,7 +10,7 @@ const DB = require('./core/dbinterface')
 const Cache = require('./core/cache')
 const Queue = require('./core/queue')
 const DependencyHandler = require('./core/dependency-handler')
-const PublicAPI = require('./api/public/server')
+const PublicAPI = require('./api/public')
 
 commander
   .version(packageJson.version)
