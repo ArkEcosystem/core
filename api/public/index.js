@@ -85,11 +85,15 @@ module.exports = (config) => {
     }]
   }
 
-  if (config.server.api.ratelimit) {
+  if (config.server.api.ratelimit.enabled) {
     manifest.register.plugins.push({
       plugin: require('hapi-rate-limit'),
       options: {
-        pathLimit: false
+        pathLimit: false,
+        userLimit: config.server.api.ratelimit.limit,
+        userCache: {
+          expiresIn: config.server.api.ratelimit.expires
+        }
       }
     })
   }
