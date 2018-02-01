@@ -17,7 +17,11 @@
   "api": {
     "mount": true,
     "cache": false,
-    "ratelimit": false,
+    "ratelimit": {
+      "enabled": false,
+      "limit": 300,
+      "expires": 600000
+    },
     "remoteinterface": true,
     "port": 4003,
     "version": 1

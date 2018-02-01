@@ -30,6 +30,17 @@ module.exports = (config) => {
           plugin: './plugins/validation'
         },
         {
+          plugin: require('hapi-rate-limit'),
+          options: {
+            enabled: config.server.api.ratelimit.enabled,
+            pathLimit: false,
+            userLimit: config.server.api.ratelimit.limit,
+            userCache: {
+              expiresIn: config.server.api.ratelimit.expires
+            }
+          }
+        },
+        {
           plugin: require('hapi-pagination'),
           options: {
             results: {
@@ -83,15 +94,6 @@ module.exports = (config) => {
       host: '127.0.0.1',
       partition: 'cache'
     }]
-  }
-
-  if (config.server.api.ratelimit) {
-    manifest.register.plugins.push({
-      plugin: require('hapi-rate-limit'),
-      options: {
-        pathLimit: false
-      }
-    })
   }
 
   const options = {
