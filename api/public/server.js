@@ -3,6 +3,10 @@ const Hapi = require('hapi')
 
 module.exports = class PublicAPI {
   constructor (config) {
+    if (!config.server.api.mount) {
+      return logger.info('Public API not mounted!')
+    }
+
     const server = Hapi.server({
       host: 'localhost',
       port: config.server.api.port
@@ -14,11 +18,13 @@ module.exports = class PublicAPI {
           plugin: require('hapi-api-version'),
           options: {
             validVersions: [1, 2],
-            defaultVersion: 2,
+            defaultVersion: 1,
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
         })
+
+        await server.register(require('./plugins/caster'))
 
         await server.register(require('./plugins/validation'))
 
@@ -62,11 +68,11 @@ module.exports = class PublicAPI {
             prefix: '/api'
           }
         })
-      } catch (err) {
-        logger.error(err)
-      }
 
-      try {
+        if (config.server.api.cache) {
+          //
+        }
+
         await server.start()
       } catch (err) {
         logger.error(err)

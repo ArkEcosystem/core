@@ -13,7 +13,7 @@ function validate (schema, data) {
 
 function createErrorResponse (request, h, errors) {
   return request.pre.apiVersion === 1
-    ? h.response({ error: errors[0].message, success: false }).takeover()
+    ? h.response({ path: errors[0].dataPath, error: errors[0].message, success: false }).takeover()
     : Boom.badData(errors)
 }
 
@@ -39,7 +39,6 @@ const register = async (server, options) => {
 
       if (config.payloadSchema) {
         errors = validate(config.payloadSchema, request.payload)
-
         if (errors) return createErrorResponse(request, h, errors)
       }
 
