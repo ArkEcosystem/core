@@ -67,13 +67,13 @@ module.exports = (config) => {
           }
         },
         {
-          plugin: require('./versions/1/routes'),
+          plugin: require('./versions/1'),
           routes: {
             prefix: '/api/v1'
           }
         },
         {
-          plugin: require('./versions/2/routes'),
+          plugin: require('./versions/2'),
           routes: {
             prefix: '/api/v2'
           }
