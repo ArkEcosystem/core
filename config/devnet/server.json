@@ -18,19 +18,10 @@
   "api": {
     "mount": true,
     "cache": false,
+    "ratelimit": false,
     "remoteinterface": true,
     "port": 4003,
-    "version": 2,
-    "throttle": {
-      "burst": 60,
-      "rate": 1,
-      "whitelist": {
-        "::1": {
-          "rate": 0,
-          "burst": 0
-        }
-      }
-    }
+    "version": 2
   },
   "peers": {
     "minimumNetworkReach": 10,

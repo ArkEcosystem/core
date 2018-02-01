@@ -24,12 +24,6 @@ module.exports = (config) => {
           }
         },
         {
-          plugin: require('hapi-rate-limit'),
-          options: {
-            pathLimit: false
-          }
-        },
-        {
           plugin: './plugins/caster'
         },
         {
@@ -89,6 +83,15 @@ module.exports = (config) => {
       host: '127.0.0.1',
       partition: 'cache'
     }]
+  }
+
+  if (config.server.api.ratelimit) {
+    manifest.register.plugins.push({
+      plugin: require('hapi-rate-limit'),
+      options: {
+        pathLimit: false
+      }
+    })
   }
 
   const options = {
