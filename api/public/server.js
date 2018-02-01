@@ -7,10 +7,21 @@ module.exports = class PublicAPI {
       return logger.info('Public API not mounted!')
     }
 
-    const server = Hapi.server({
+    const serverConfig = {
       host: 'localhost',
       port: config.server.api.port
-    })
+    }
+
+    if (config.server.api.cache) {
+      serverConfig.cache = [{
+        name: 'redisCache',
+        engine: require('catbox-redis'),
+        host: '127.0.0.1',
+        partition: 'cache'
+      }]
+    }
+
+    const server = Hapi.server(serverConfig)
 
     async function start () {
       try {
@@ -18,7 +29,7 @@ module.exports = class PublicAPI {
           plugin: require('hapi-api-version'),
           options: {
             validVersions: [1, 2],
-            defaultVersion: 1,
+            defaultVersion: 2,
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
@@ -68,10 +79,6 @@ module.exports = class PublicAPI {
             prefix: '/api'
           }
         })
-
-        if (config.server.api.cache) {
-          //
-        }
 
         await server.start()
       } catch (err) {
