@@ -110,7 +110,7 @@ module.exports = class SequelizeDB extends DBInterface {
         data.forEach(row => {
           const wallet = this.walletManager.getWalletByAddress(row.recipientId)
           if (wallet) wallet.balance = parseInt(row.amount)
-          else logger.warn('lost cold wallet:', row.recipientId, row.amount)
+          else goofy.warn('lost cold wallet:', row.recipientId, row.amount)
         })
         return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
       })

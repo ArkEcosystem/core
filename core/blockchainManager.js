@@ -325,7 +325,7 @@ module.exports = class BlockchainManager {
   isSynced (block) {
     // TODO: move to config how many blocktime from current slot is considered 'in synced'
     const isSynced = arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
-    if (isSynced) {
+    if (isSynced && block.data.id === this.status.lastBlock.data.id) {
       this.status.downloading = false
       this.status.syncing = false
       goofy.info('Node Synced, congratulations! 🦄')

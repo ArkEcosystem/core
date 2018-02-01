@@ -72,11 +72,11 @@ class TransactionPool {
 
   addBlock (block) { // we remove the block txs from the pool
     if (block.transactions.length === 0) return Promise.resolve()
-    logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
+    goofy.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)
-    return Promise
+    Promise // no return the main thread is liberated
       .all(pooltxs.map((index, tx) => {
         if (tx.id in blocktxsid) delete pooltxs[index]
         return this.walletManager.undoTransaction(tx)
@@ -87,7 +87,8 @@ class TransactionPool {
 
   undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return Promise.resolve()
-    return this.addTransactions(block.transactions.map(tx => tx.data))
+    // no return the main thread is liberated
+    this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
   // rebuildBlockHeader (block) {
