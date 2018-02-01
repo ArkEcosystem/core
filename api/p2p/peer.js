@@ -1,5 +1,5 @@
 const popsicle = require('popsicle')
-const logger = requireFrom('core/logger')
+const goofy = requireFrom('core/goofy')
 const PromiseWorker = require('../../core/promise-worker')
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/downloadWorker.js`)
@@ -85,7 +85,7 @@ class Peer {
         if (size === 100 || size === 400) that.downloadSize = size
         return Promise.resolve(response.body.blocks)
       }).catch(error => {
-        logger.debug('Cannot Download blocks from peer', error)
+        goofy.debug('Cannot Download blocks from peer', error)
         that.ban = new Date().getTime() + 60 * 60000
       })
   }

@@ -1,4 +1,4 @@
-const logger = require('./logger')
+const goofy = require('./goofy')
 const Bull = require('bull')
 
 let instance
@@ -6,11 +6,11 @@ let instance
 module.exports = class Queue {
   constructor (config) {
     if (!instance) {
-      logger.debug('Queue has been instantiated.');
+      goofy.debug('Queue has been instantiated.');
 
       instance = this
     } else {
-      logger.debug('Queue already instantiated.');
+      goofy.debug('Queue already instantiated.');
     }
 
     this.config = Object.keys(config).forEach((key) => (config[key] == null) && delete config[key])

@@ -2,14 +2,14 @@ const winston = require('winston')
 require('winston-daily-rotate-file')
 require('colors')
 
-let logger = null
+let goofy = null
 
-class Logger {
+class Goofy {
   constructor () {
-    if (!logger) {
-      logger = this
+    if (!goofy) {
+      goofy = this
     }
-    return logger
+    return goofy
   }
 
   init (loglevel, filelevel, network) {
@@ -57,4 +57,4 @@ class Logger {
   }
 }
 
-module.exports = new Logger()
+module.exports = new Goofy()

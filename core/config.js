@@ -7,7 +7,7 @@ const Sntp = require('sntp')
 
 const deepmerge = require('deepmerge')
 
-let logger
+let goofy
 let instance = null
 
 class Config {
@@ -25,10 +25,10 @@ class Config {
     this.genesisBlock = config.genesisBlock
     this.delegates = config.delegates
 
-    logger = require('./logger') // need to do here to be sure logger is initialised
-    logger.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
+    goofy = require('./goofy') // need to do here to be sure logger is initialised
+    goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
 
-    this.ntp().then(time => logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
+    this.ntp().then(time => goofy.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.buildConstants()
 
     return Promise.resolve(this)
@@ -51,7 +51,7 @@ class Config {
 
   ntp () {
     return Sntp.time().catch(e => {
-      logger.warn('can\'t ping ntp')
+      goofy.warn('can\'t ping ntp')
       return Promise.resolve({t: 0})
     })
   }

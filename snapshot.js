@@ -23,17 +23,22 @@ require('./core/config').init({
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network.json'))
 }).then(config => {
+<<<<<<< HEAD
   const logger = require('./core/logger')
   logger.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name)
+=======
+  const goofy = require('./core/goofy')
+  goofy.init(config.server.fileLogLevel, config.network.name)
+>>>>>>> master
 
   process.on('unhandledRejection', (reason, p) => {
-    logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+    goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
   })
 
   DependencyHandler
     .checkDatabaseLibraries(config)
     .then(() => DB.create(config.server.db))
     .then((db) => db.snapshot(`${__dirname}/snapshot`))
-    .then(() => logger.info('Snapshot saved'))
-    .catch(fatal => logger.error('fatal error', fatal))
+    .then(() => goofy.info('Snapshot saved'))
+    .catch(fatal => goofy.error('fatal error', fatal))
 })

@@ -3,7 +3,7 @@ const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('./package.json')
 const path = require('path')
-const logger = require('./core/logger')
+const goofy = require('./core/goofy')
 const ForgerManager = require('./core/forgerManager')
 
 commander
@@ -24,17 +24,17 @@ require('./core/config').init({
   network: require(path.resolve(commander.config, 'network.json')),
   delegates: require(path.resolve(commander.config, 'delegate.json'))
 }).then(config => {
-  logger.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-forger')
+  goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-forger')
 
   let forgerManager = new ForgerManager(config)
 
   process.on('unhandledRejection', (reason, p) => {
-    logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+    goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
   })
 
   forgerManager
     .loadDelegates()
-    .then((forgers) => logger.info('ForgerManager started with', forgers.length, 'forgers'))
+    .then((forgers) => goofy.info('ForgerManager started with', forgers.length, 'forgers'))
     .then(() => forgerManager.startForging('http://127.0.0.1:4000'))
-    .catch((fatal) => logger.error('fatal error', fatal))
+    .catch((fatal) => goofy.error('fatal error', fatal))
 })
