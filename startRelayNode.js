@@ -37,7 +37,7 @@ config.init({
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network.json'))
 })
-.then(() => goofy.init(config.server.fileLogLevel, config.network.name))
+.then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name))
 .then(() => (blockchainManager = new BlockchainManager(config)))
 .then(() => (p2p = new P2PInterface(config)))
 .then(() => DependencyHandler.checkDatabaseLibraries(config))

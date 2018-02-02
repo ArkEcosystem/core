@@ -32,7 +32,7 @@ config.init({
   network: require(path.resolve(commander.config, 'network.json')),
   delegates: require(path.resolve(commander.config, 'delegate.json'))
 })
-  .then(() => goofy.init(config.server.fileLogLevel, config.network.name + '-forger'))
+  .then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-forger'))
   .then(() => (forgerManager = new ForgerManager(config)))
   .then(() => (forgers = forgerManager.loadDelegates()))
   .then(() => goofy.info('ForgerManager started with', forgers.length, 'forgers'))
