@@ -8,7 +8,7 @@ module.exports = {
   verbose: false,
 
   // go from root
-  rootDir: '../../',
+  rootDir: '../',
   testMatch: ['**/test/api/**/*.spec.js?(x)', '**/test/unit/**/*.spec.js?(x)'],
 
   // setup
