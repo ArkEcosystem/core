@@ -17,6 +17,7 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
+    this.isPublicAPIMounted = false // is set from publicAPI startserver; used to wait in tests
     this.transactionPool = new PromiseWorker(worker)
     this.transactionPool.postMessage({event: 'init', data: config})
     this.status = {
