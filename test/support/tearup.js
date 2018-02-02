@@ -1,6 +1,3 @@
-const chai = require('chai')
-const sinonChai = require('sinon-chai')
-const chaiHttp = require('chai-http')
 const path = require('path')
 const config = require('../../core/config')
 const goofy = require('../../core/goofy')
@@ -10,13 +7,6 @@ const P2PInterface = require('../../api/p2p/p2pinterface')
 const DB = require('../../core/dbinterface')
 const DependencyHandler = require('../../core/dependency-handler')
 const PublicAPI = require('../../api/public')
-
-// Chai config
-chai.should()
-
-// Chai plugins
-chai.use(sinonChai)
-chai.use(chaiHttp)
 
 const conf = 'config/devnet/'
 
@@ -34,7 +24,7 @@ module.exports = async function () {
     network: require(path.resolve(conf, 'network.json')),
     delegates: require(path.resolve(conf, 'delegate.json'))
   })
-  .then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-testRun'))
+  .then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-testRun', false))
   .then(() => (blockchainManager = new BlockchainManager(config)))
   .then(() => (p2p = new P2PInterface(config)))
   .then(() => DependencyHandler.checkDatabaseLibraries(config))
