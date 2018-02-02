@@ -2,15 +2,14 @@ const chai = require('chai')
 const sinonChai = require('sinon-chai')
 const chaiHttp = require('chai-http')
 const path = require('path')
-const config = require('../../core/config')
-const goofy = require('../../core/goofy')
+const config = require('core/config')
+const goofy = require('core/goofy')
 
-const BlockchainManager = require('../../core/blockchainManager')
-const P2PInterface = require('../../api/p2p/p2pinterface')
-const ForgerManager = require('../../core/forgerManager')
-const DB = require('../../core/dbinterface')
-const DependencyHandler = require('../../core/dependency-handler')
-const PublicAPI = require('../../api/public')
+const BlockchainManager = require('core/blockchainManager')
+const P2PInterface = require('api/p2p/p2pinterface')
+const DB = require('core/dbinterface')
+const DependencyHandler = require('core/dependency-handler')
+const PublicAPI = require('api/public')
 
 // Chai config
 chai.should()
@@ -23,14 +22,12 @@ const conf = 'config/devnet/'
 
 let blockchainManager = null
 let p2p = null
-let forgerManager = null
-let forgers = null
 
 process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-// Init TestNet Relay node
+// Init  Relay node
 config.init({
   server: require(path.resolve(conf, 'server.json')),
   genesisBlock: require(path.resolve(conf, 'genesisBlock.json')),
@@ -52,9 +49,5 @@ config.init({
 .then(lastBlock => goofy.info('Blockchain connnected, local lastBlock', (lastBlock.data || { height: 0 }).height))
 .then(() => blockchainManager.start())
 .then(() => goofy.info('Mounting Public API'))
-.then(() => new PublicAPI(config).mount())
-//.then(() => (forgerManager = new ForgerManager(config)))
-//.then(() => (forgers = forgerManager.loadDelegates()))
-//.then(() => goofy.info('ForgerManager started with', forgers.length, 'forgers'))
-//.then(() => forgerManager.startForging('http://127.0.0.1:4000'))
+.then(() => (publicAPI = new PublicAPI(config).mount()))
 .catch((fatal) => goofy.error('fatal error', fatal))
