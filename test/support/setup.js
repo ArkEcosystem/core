@@ -49,5 +49,5 @@ config.init({
 .then(lastBlock => goofy.info('Blockchain connnected, local lastBlock', (lastBlock.data || { height: 0 }).height))
 .then(() => blockchainManager.start())
 .then(() => goofy.info('Mounting Public API'))
-.then(() => new PublicAPI(config).mount())
+.then(() => PublicAPI(config))
 .catch((fatal) => goofy.error('fatal error', fatal))
