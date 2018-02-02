@@ -23,13 +23,8 @@ require('./core/config').init({
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network.json'))
 }).then(config => {
-<<<<<<< HEAD
-  const logger = require('./core/logger')
-  logger.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name)
-=======
   const goofy = require('./core/goofy')
-  goofy.init(config.server.fileLogLevel, config.network.name)
->>>>>>> master
+  goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name)
 
   process.on('unhandledRejection', (reason, p) => {
     goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

@@ -4,8 +4,8 @@
   "description": "Revamped ark-node",
   "main": "app.js",
   "scripts": {
-    "start:mainnet": "node startRelayNode.js -c config/mainnet",
-    "start:devnet": "node startRelayNode.js -c config/devnet",
+    "start:mainnet": "NODE_PATH=. node startRelayNode.js -c config/mainnet",
+    "start:devnet": "NODE_PATH=. node startRelayNode.js -c config/devnet",
     "start:testnet": "nodemon startRelayNode.js -c config/testnet",
     "forge:mainnet": "nodemon startForger.js -c config/mainnet",
     "forge:devnet": "nodemon startForger.js -c config/devnet",
