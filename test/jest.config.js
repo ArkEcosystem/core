@@ -1,4 +1,7 @@
 module.exports = {
+  globalSetup: './test/support/setup.js',
+  // globalTeardown: './test/support/teardown.js',
+
   // env
   testEnvironment: 'node',
   bail: false,
