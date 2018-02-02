@@ -20,26 +20,31 @@ class Goofy {
       zippedArchive: true
     })
 
-    Object.assign(this, new winston.Logger({
-      transports: [
-        new winston.transports.Console({
-          colorize: true,
-          level: loglevel,
-          timestamp: true
-        }),
-        rotatetransport
-      ]
-    }))
-    this.filters.push((level, msg, meta) => {
-      if (this.tracker) {
-        process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
-        this.tracker = false
-      }
-      return msg
-    })
+    if (process.env.NODE_ENV !== 'test') {
+      Object.assign(this, new winston.Logger({
+        transports: [
+          new winston.transports.Console({
+            colorize: true,
+            level: loglevel,
+            timestamp: true
+          }),
+          rotatetransport
+        ]
+      }))
+      this.filters.push((level, msg, meta) => {
+        if (this.tracker) {
+          process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
+          this.tracker = false
+        }
+        return msg
+      })
+    }
   }
 
   printTracker (title, current, max, posttitle, figures = 0) {
+    if (process.env.NODE_ENV === 'test') {
+      return
+    }
     const progress = 100 * current / max
     let line = '\u{1b}[0G  '
     line += title.blue
