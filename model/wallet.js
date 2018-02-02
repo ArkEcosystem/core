@@ -1,5 +1,5 @@
 const arkjs = require('arkjs')
-const config = requireFrom('core/config')
+const config = require('core/config')
 
 module.exports = class Wallet {
   constructor (address) {

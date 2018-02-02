@@ -1,4 +1,4 @@
-const TransactionPool = require('../../../core/transactionPool')
+const TransactionPool = require('core/transactionPool')
 
 describe('Core | TransactionPool', () => {
   describe('new', () => {

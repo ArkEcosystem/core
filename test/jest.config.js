@@ -6,7 +6,7 @@ module.exports = {
 
   // go from root
   rootDir: '../../',
-  testMatch: ['**/test/api/**/*.js?(x)', '**/test/unit/**/*.js?(x)'],
+  testMatch: ['**/test/api/**/*.spec.js?(x)', '**/test/unit/**/*.spec.js?(x)'],
 
   // setup
   setupFiles: ['<rootDir>/test/support/setup'],

@@ -1,6 +1,6 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
-const Transaction = requireFrom('model/transaction')
+const Transaction = require('model/transaction')
 const buildFilterQuery = require('../utils/filter-query')
 
 module.exports = class TransactionsRepository {

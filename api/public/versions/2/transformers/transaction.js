@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
-const blockchain = requireFrom('core/blockchainManager').getInstance()
-const config = requireFrom('core/config')
-const Transaction = requireFrom('model/transaction')
+const blockchain = require('core/blockchainManager').getInstance()
+const config = require('core/config')
+const Transaction = require('model/transaction')
 
 module.exports = (model) => {
   const lastBlock = blockchain.status.lastBlock

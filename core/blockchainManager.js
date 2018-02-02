@@ -1,10 +1,10 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const Block = require('../model/block')
-const goofy = require('./goofy')
-const PromiseWorker = require(`${__dirname}/promise-worker`)
+const Block = require('model/block')
+const goofy = require('core/goofy')
+const PromiseWorker = require('core/promise-worker')
 const Worker = require('tiny-worker')
-const worker = new Worker(`${__dirname}/transactionPool.js`)
+const worker = new Worker('core/transactionPool.js')
 
 let instance = null
 let db = null

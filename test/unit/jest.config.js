@@ -6,14 +6,14 @@ module.exports = {
 
   // go from root
   rootDir: '../../',
-  testMatch: ['**/test/unit/**/*.js?(x)'],
+  testMatch: ['**/test/unit/**/*.spec.js?(x)'],
 
   // setup
   setupFiles: ['<rootDir>/test/support/setup'],
   setupTestFrameworkScriptFile: '<rootDir>/test/support/setup-framework',
 
   // coverage
-  collectCoverage: true,
+  collectCoverage: false,
   coverageDirectory: 'test/coverage/unit',
   collectCoverageFrom: [
     'config/**/*.js',

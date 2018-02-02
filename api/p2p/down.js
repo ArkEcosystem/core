@@ -1,5 +1,5 @@
-const Peer = require('./peer.js')
-const goofy = requireFrom('core/goofy')
+const Peer = require('./peer')
+const goofy = require('core/goofy')
 const dns = require('dns')
 
 class Down {
