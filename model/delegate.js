@@ -6,9 +6,13 @@ const Block = require('./block')
 
 class Delegate {
   constructor (passphrase, network, password) {
-    this.keys = bip38.verify(passphrase) ? this.decrypt(passphrase, network, password) : arkjs.crypto.getKeys(passphrase)
-    this.publicKey = this.keys.publicKey
-    this.address = this.keys.getAddress(network.pubKeyHash)
+    this.network = network
+    if (bip38.verify(passphrase)) {
+      this.keys = this.decrypt(passphrase, network, password)
+      this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")//this.keys.publicKey
+      this.address = this.keys.getAddress(network.pubKeyHash)
+      this.encryptKeysWithOtp()
+    }
   }
 
   static encrypt (passphrase, network, password) {
@@ -21,15 +25,33 @@ class Delegate {
     return encryptedKey
   }
 
+  encryptKeysWithOtp () {
+    this.otp = '123456'
+    const wifKey = this.keys.toWIF()
+    const decoded = wif.decode(wifKey)
+
+    this.encryptedKeys = bip38.encrypt(decoded.privateKey, decoded.compressed, this.otp)
+    this.keys = null
+  }
+
+  decryptKeysWithOtp () {
+    this.keys = this.decrypt(this.encryptedKeys, this.network, this.otp)
+    this.otp = null
+    this.encryptedKeys = null
+  }
+
   decrypt (passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
-    return arkjs.ECPair.fromWIF(wifKey, network)
+    let keys = arkjs.ECPair.fromWIF(wifKey, network)
+    keys.publicKey = keys.getPublicKeyBuffer().toString("hex")
+
+    return keys
   }
 
   // we consider transactions are signed, verified and unique
   forge (transactions, options) {
-    if (!options.version) {
+    if (!options.version && this.encryptedKeys) {
       const txstats = {
         amount: 0,
         fee: 0,
@@ -58,7 +80,11 @@ class Delegate {
         transactions: txs
       }
 
-      return Block.create(data, this.keys)
+      this.decryptKeysWithOtp()
+      let block = Block.create(data, this.keys)
+      this.encryptKeysWithOtp()
+
+      return block
     }
   }
 
