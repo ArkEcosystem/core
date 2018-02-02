@@ -1,4 +1,7 @@
 module.exports = {
+  globalSetup: './test/support/setup.js',
+  globalTeardown: './test/support/teardown.js',
+
   // env
   testEnvironment: 'node',
   bail: false,
@@ -6,7 +9,7 @@ module.exports = {
 
   // go from root
   rootDir: '../../',
-  testMatch: ['**/test/api/**/signatures.spec.js?(x)'],
+  testMatch: ['**/test/api/**/*.spec.js?(x)'],
 
   // setup
   setupFiles: ['<rootDir>/test/support/setup'],

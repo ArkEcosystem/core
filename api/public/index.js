@@ -2,11 +2,9 @@
 
 const goofy = require('../../core/goofy')
 const Glue = require('glue')
-const BlockchainManager = require('../../core/blockchainManager')
 
 module.exports = (config) => {
   if (!config.server.api.mount) {
-    BlockchainManager.getInstance().isPublicAPIMounted = false
     return goofy.info('Oh snap! Public API not mounted...')
   }
 
@@ -105,11 +103,8 @@ module.exports = (config) => {
   const startServer = async function () {
     try {
       const server = await Glue.compose(manifest, options)
-
       await server.start()
-
       goofy.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
-      BlockchainManager.getInstance().isPublicAPIMounted = true
     } catch (err) {
       goofy.error(err)
 
