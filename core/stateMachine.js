@@ -1,55 +1,140 @@
-import { Machine } from 'xstate'
+const Machine = require('xstate').Machine
 
-const blockchain = Machine({
-  // start in the 'start' state
-  initial: 'start',
+// const init = Machine({
+//   initial: 'unitisalised',
+//   states: {
+//     unitisalised: {
+//       on: {
+//         START: 'mountDatabase'
+//       }
+//     },
+//     mountDatabase: {
+//       onEntry: ['mountDatabase'],
+//       on: {
+//         SUCCESS: 'mountNetwork',
+//         FAILURE: 'failed'
+//       }
+//     },
+//     mountNetwork: {
+//       onEntry: ['mountNetwork'],
+//       on: {
+//         SUCCESS: 'initialised',
+//         FAILURE: 'failed'
+//       }
+//     },
+//     initialised: {
+//     },
+//     failed: {
+//     }
+//   }
+// })
+
+const syncWithNetwork = Machine({
+  initial: 'syncing',
   states: {
-    start: {
+    syncing: {
+      onEntry: ['checkSynced'],
       on: {
-        REQUEST: 'init'
-      }
-    },
-    init: {
-      on: {
-        SUCCESS: 'checkNetwork',
-        FAILURE: 'exit'
-      }
-    },
-    checkNetwork: {
-      on: {
-        SUCCESS: 'checkSync',
-        FAILURE: 'checkNetwork'
-      }
-    },
-    checkSync: {
-      on: {
-        SYNCED: 'idle',
-        UNSYNCED: 'download'
-      }
-    },
-    download: {
-      on: {
-        DOWNLOADED: 'process',
-        NOBLOCK: 'checkSync',
-        FAILURE: 'networkMissingBlock'
+        SYNCED: 'finished',
+        NOTSYNCED: 'downloadBlocks'
       }
     },
     idle: {
       on: {
-        START: 'checkSync'
+        DOWNLOADFINISHED: 'downloadBlocks',
+        PROCESSFINISHED: 'syncing',
+        PROCESSFFAILED: 'forked'
       }
     },
-    exit: {
+    downloadBlocks: {
+      onEntry: ['triggerDownloadBlocks'],
       on: {
-        REQUEST: 'clean'
+        DOWNLOADED: 'downloadBlocks',
+        NOBLOCK: 'syncing'
       }
     },
-    clean: {
+    processBlocks: {
+      onEntry: ['startProcessBlock'],
       on: {
-        REQUEST: 'start'
+        STARTED: 'idle'
       }
+    },
+    finished: {
+      onEntry: ['syncingFinished']
+    },
+    forked: {
+      onEntry: ['startRebuild']
     }
   }
 })
 
-module.exports = blockchain
+const fork = Machine({
+  initial: 'rebuilding',
+  states: {
+    rebuilding: {
+      onEntry: ['rebuild'],
+      on: {
+        SUCCESS: 'rebuilt',
+        FAILURE: 'exit'
+      }
+    },
+    exit: {
+      onEntry: ['resetNode']
+    },
+    rebuilt: {
+
+    }
+  }
+})
+
+const blockchainMachine = Machine({
+  // start in the 'start' state
+  initial: 'uninitialised',
+  states: {
+    uninitialised: {
+      on: {
+        START: 'init'
+      }
+    },
+    init: {
+      onEntry: ['init'],
+      on: {
+        SUCCESS: 'syncWithNetwork',
+        FAILURE: 'exit'
+      }
+    },
+    syncWithNetwork: {
+      onEntry: 'startNetworkSync',
+      on: {
+        SYNCFINISHED: 'idle',
+        FORK: 'fork'
+      },
+      ...syncWithNetwork
+    },
+    idle: {
+      onEntry: ['checkLater'],
+      on: {
+        WAKEUP: 'syncWithNetwork',
+        NEWBLOCK: 'processingBlock'
+      }
+    },
+    processingBlock: {
+      onEntry: ['processBlock'],
+      on: {
+        SUCCESS: 'idle',
+        FAILURE: 'fork'
+      }
+    },
+    fork: {
+      on: {
+        SUCCESS: 'syncWithNetwork',
+        FAILURE: 'exit'
+      },
+      ...fork
+    },
+    exit: {
+    }
+  }
+})
+
+module.exports = blockchainMachine

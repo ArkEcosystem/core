@@ -2,7 +2,8 @@ const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('../model/block')
 const goofy = require('./goofy')
-const PromiseWorker = require(`${__dirname}/promise-worker`)
+const stateMachine = require('core/stateMachine')
+const PromiseWorker = require('core/promise-worker')
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/transactionPool.js`)
 
@@ -19,42 +20,49 @@ module.exports = class BlockchainManager {
     this.config = config
     this.transactionPool = new PromiseWorker(worker)
     this.transactionPool.postMessage({event: 'init', data: config})
-    this.status = {
+    this.state = {
+      blockchain: stateMachine.initialState,
       lastBlock: null,
-      lastDownloadedBlock: null,
-      downloading: false,
-      rebuilding: false,
-      syncing: false,
-      fastSync: true,
-      noblock: 0,
-      forked: false
+      lastDownloadedBlock: null
     }
 
-    this.eventQueue = async.queue(
-      (event, qcallback) => this.processEvent(event, qcallback),
-      1
-    )
-
     this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), this.status, qcallback),
+      (block, qcallback) => this.processBlock(new Block(block), this.state, qcallback),
       1
     )
 
     this.downloadQueue = async.queue(
       (block, qcallback) => {
         if (that.downloadQueue.paused) return qcallback()
-        that.status.lastDownloadedBlock = block
+        that.state.lastDownloadedBlock = {data: block}
         that.processQueue.push(block)
         return qcallback()
       },
       1
     )
 
-    this.processQueue.drain = () => this.eventQueue.push({type: 'processQueue/stop'})
+    this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
 
-    this.downloadQueue.drain = () => this.eventQueue.push({type: 'downloadQueue/stop'})
+    this.downloadQueue.drain = () => this.dispatch('DOWNLOADED')
 
     if (!instance) instance = this
+  }
+
+  dispatch (event) {
+    goofy.debug(event)
+    const nextState = stateMachine.transition(this.state.blockchain, event)
+    // goofy.debug(nextState.value)
+    // goofy.debug(nextState.actions)
+    this.state.blockchain = nextState.value
+    Promise.all(nextState.actions.map(actionKey => {
+      const action = this[actionKey]
+      if (action) return setTimeout(() => action.call(this, event), 0)
+      else goofy.error(`No action ${actionKey} found`)
+    }))
+  }
+
+  start () {
+    this.dispatch('START')
   }
 
   init () {
@@ -64,11 +72,11 @@ module.exports = class BlockchainManager {
         if (!block) {
           return Promise.reject(new Error('No block found in database'))
         }
-        that.status.lastBlock = block
+        that.state.lastBlock = block
         const constants = that.config.getConstants(block.data.height)
         // no fast rebuild if in last round
-        that.status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
-        goofy.info('Fast Sync:', that.status.fastSync)
+        that.state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
+        goofy.info('Fast Sync:', that.state.fastSync)
         goofy.info('Last block in database:', block.data.height)
         if (block.data.height === 1) {
           return db
@@ -76,29 +84,29 @@ module.exports = class BlockchainManager {
             .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
             .then(() => db.saveWallets(true))
             .then(() => db.applyRound(block, false, false))
-            .then(() => block)
+            .then(() => this.dispatch('SUCCESS'))
         } else {
           return db
             .buildWallets()
             .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
             .then(() => db.saveWallets(true))
-            .then(() => block)
+            .then(() => this.dispatch('SUCCESS'))
         }
       })
       .catch((error) => {
-        goofy.debug(error)
+        goofy.info(error.message)
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
-          that.status.lastBlock = genesis
-          that.status.fastSync = true
-          goofy.info('Fast Rebuild:', that.status.fastSync)
+          that.state.lastBlock = genesis
+          that.state.fastSync = true
+          goofy.info('Fast Rebuild:', that.state.fastSync)
           return db.saveBlock(genesis)
             .then(() => db.buildWallets())
             .then(() => db.saveWallets(true))
             .then(() => db.applyRound(genesis))
-            .then(() => genesis)
+            .then(() => this.dispatch('SUCCESS'))
         }
-        return Promise.reject(new Error('Can\'t use genesis block'), genesis)
+        return this.dispatch('FAILURE')
       })
   }
 
@@ -106,27 +114,19 @@ module.exports = class BlockchainManager {
     return instance
   }
 
-  start () {
-    this.monitorNetwork()
-    return Promise.resolve()
-  }
-
   checkNetwork () {
-    this.eventQueue.push({type: 'check'})
   }
 
   updateNetworkStatus () {
-    this.eventQueue.push({type: 'updateNetworkStatus'})
   }
 
   rebuild (nblocks) {
-    this.eventQueue.push({type: 'rebuild/start', nblocks: nblocks || 1})
   }
 
   resetState () {
     return this.pauseQueues()
       .then(() => this.clearQueues())
-      .then(() => (this.status = {
+      .then(() => (this.state = {
         lastBlock: null,
         lastDownloadedBlock: null,
         // TODO: revise all these switches
@@ -141,85 +141,6 @@ module.exports = class BlockchainManager {
       .then(() => this.resumeQueues())
   }
 
-  processEvent (event, qcallback) {
-    goofy.debug(`event ${event.type}`)
-    switch (event.type) {
-      case 'check':
-        if (!this.isSynced(this.status.lastBlock)) {
-          this.status.noblock = 0
-          this.eventQueue.push({type: 'sync/start'})
-        }
-        return qcallback()
-      case 'broadcast':
-        this.networkInterface.broadcastBlock(event.block)
-        return qcallback()
-      case 'updateNetworkStatus':
-        return this.networkInterface.updateNetworkStatus().then(() => qcallback())
-      case 'downloadQueue/stop':
-        if (!this.isSynced({data: this.status.lastDownloadedBlock})) this.eventQueue.push({type: 'download/next', noblock: false})
-        return qcallback()
-      case 'processQueue/stop':
-        if (!this.isSynced(this.status.lastBlock)) {
-          if (!this.status.downloading) this.status.syncing = false
-          this.eventQueue.push({type: 'sync/start'})
-        }
-        return qcallback()
-      case 'rebuild/start':
-        if (!this.status.rebuilding) {
-          this.status.rebuilding = true
-          this.status.syncing = false
-          this.status.downloading = false
-          this.removeBlocks(event.nblocks).then((status) => qcallback())
-        } else return qcallback()
-        break
-      case 'rebuild/stop':
-        this.status.rebuilding = false
-        this.eventQueue.push({type: 'sync/start'})
-        return qcallback()
-      case 'sync/start':
-        goofy.debug(JSON.stringify(this.status))
-        if (this.config.server.test) return qcallback()
-        if (!this.status.rebuilding && !this.status.syncing) {
-          goofy.info('Syncing started')
-          this.status.syncing = true
-          this.status.lastDownloadedBlock = this.status.lastBlock.data
-          this.status.downloading = true
-          return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
-        } else {
-          // if (this.downloadQueue.length() === 0) this.status.syncing = false
-          return qcallback()
-        }
-      case 'download/pause':
-        this.status.downloading = false
-        return qcallback()
-      case 'download/next':
-        if (this.processQueue.length() > 10000) {
-          this.status.downloading = false
-          return qcallback()
-        }
-        if (!this.status.downloading) {
-          goofy.info('Download paused')
-          return qcallback()
-        } else {
-          if (event.noblock) this.status.noblock++
-          else this.status.noblock = 0
-          if (this.status.noblock < 5) return this.syncWithNetwork({data: this.status.lastDownloadedBlock}).then((status) => qcallback())
-          else {
-            this.status.syncing = false
-            goofy.warn('Node looks synced with network, but either local time is drifted or the network is missing blocks 🤔')
-            this.config.ntp().then(time => goofy.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
-            return qcallback()
-          }
-        }
-      case 'sync/stop':
-        qcallback()
-        break
-      default:
-        goofy.error('Event unknown', event)
-        qcallback()
-    }
-  }
-
   postTransactions (transactions) {
     goofy.info('Received new transactions', transactions.map(transaction => transaction.id))
     return this.transactionPool.postMessage({event: 'addTransactions', data: transactions})
@@ -231,18 +152,17 @@ module.exports = class BlockchainManager {
   }
 
   removeBlocks (nblocks) {
-    goofy.info(`Starting ${nblocks} blocks undo from height`, this.status.lastBlock.data.height)
+    goofy.info(`Starting ${nblocks} blocks undo from height`, this.state.lastBlock.data.height)
     return this.pauseQueues()
       .then(() => this.__removeBlocks(nblocks))
       .then(() => this.clearQueues())
       .then(() => this.resumeQueues())
-      .then(() => this.eventQueue.push({type: 'rebuild/stop'}))
   }
 
   __removeBlocks (nblocks) {
     if (!nblocks) return Promise.resolve()
     else {
-      goofy.info('Undoing block', this.status.lastBlock.data.height)
+      goofy.info('Undoing block', this.state.lastBlock.data.height)
       return this
         .undoLastBlock()
         .then(() => this.__removeBlocks(nblocks - 1))
@@ -250,12 +170,12 @@ module.exports = class BlockchainManager {
   }
 
   undoLastBlock () {
-    const lastBlock = this.status.lastBlock
+    const lastBlock = this.state.lastBlock
     return db.undoBlock(lastBlock)
       .then(() => db.deleteBlock(lastBlock))
       .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
       .then(() => db.getBlock(lastBlock.data.previousBlock))
-      .then(newLastBlock => (this.status.lastBlock = newLastBlock))
+      .then(newLastBlock => (this.state.lastBlock = newLastBlock))
   }
 
   pauseQueues () {
@@ -266,7 +186,7 @@ module.exports = class BlockchainManager {
 
   clearQueues () {
     this.downloadQueue.remove(() => true)
-    this.status.lastDownloadedBlock = this.status.lastBlock.data
+    this.state.lastDownloadedBlock = this.state.lastBlock.data
     this.processQueue.remove(() => true)
     return Promise.resolve()
   }
@@ -278,41 +198,39 @@ module.exports = class BlockchainManager {
   }
 
   monitorNetwork () {
-    this.eventQueue.push({type: 'check'})
-    return sleep(60000).then(() => this.monitorNetwork())
+    return sleep(60000).then(() => this.dispatch('WAKEUP'))
   }
 
-  processBlock (block, status, qcallback) {
+  processBlock (block, state, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
-      status.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
-      if (block.data.previousBlock === this.status.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.status.lastBlock.data.timestamp / constants.blocktime)) {
-        db.applyBlock(block, status.syncing, status.fastSync)
+      state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
+      if (block.data.previousBlock === this.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.state.lastBlock.data.timestamp / constants.blocktime)) {
+        db.applyBlock(block, !state.fastSync, state.fastSync)
           .then(() => db.saveBlock(block))
-          .then(() => (status.lastBlock = block))
-          .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
+          .then(() => (state.lastBlock = block))
+          // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
           .then(() => qcallback())
           .catch(error => {
             goofy.error(error)
             goofy.debug('Refused new block', block.data)
-            status.lastDownloadedBlock = status.lastBlock.data;
-            ['updateNetworkStatus', 'rebuild', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
+            state.lastDownloadedBlock = state.lastBlock.data
+            this.dispatch('FORK')
             qcallback()
           })
-      } else if (block.data.height > status.lastBlock.data.height + 1) {
+      } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
-        goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', status.lastBlock.data.height)
-        status.lastDownloadedBlock = status.lastBlock.data;
-        ['updateNetworkStatus', 'sync/start'].forEach(type => this.eventQueue.push({type: type}))
+        goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', state.lastBlock.data.height)
+        state.lastDownloadedBlock = state.lastBlock
         qcallback()
-      } else if (block.data.height < status.lastBlock.data.height) {
+      } else if (block.data.height < state.lastBlock.data.height) {
         goofy.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
-        status.forked = true
+        this.dispatch('FORK')
         goofy.info('Block disregarded because on a fork')
         qcallback()
       }
@@ -322,34 +240,31 @@ module.exports = class BlockchainManager {
     }
   }
 
-  isSynced (block) {
+  checkSynced () {
     // TODO: move to config how many blocktime from current slot is considered 'in synced'
-    const isSynced = arkjs.slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.data.height).blocktime
-    if (isSynced && block.data.id === this.status.lastBlock.data.id) {
-      this.status.downloading = false
-      this.status.syncing = false
-      goofy.info('Node Synced, congratulations! 🦄')
-      this.status.lastDownloadedBlock = this.status.lastBlock.data
-    }
-    return isSynced
+    const isSynced = arkjs.slots.getTime() - this.state.lastBlock.data.timestamp < 3 * this.config.getConstants(this.state.lastBlock.data.height).blocktime
+    this.dispatch(isSynced ? 'SYNCED' : 'NOTSYNCED')
   }
 
-  syncWithNetwork (block) {
-    block = block || this.status.lastBlock
+  syncingFinished () {
+    goofy.info('Node Synced, congratulations! 🦄')
+    this.dispatch('SYNCFINISHED')
+  }
+
+  triggerDownloadBlocks () {
+    const block = this.state.lastDownloadedBlock || this.state.lastBlock
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
       if (!blocks || blocks.length === 0) {
-        goofy.info('No new block found on this peer')
-        that.eventQueue.push({type: 'download/next', noblock: true})
+        this.dispatch('NOBLOCK')
       } else {
         goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-        if (blocks.length && blocks[0].previousBlock === block.data.id) that.downloadQueue.push(blocks)
-        else { // TODO Fork
-          this.eventQueue.push({type: 'rebuild/start', nblocks: 5})
-          goofy.error('bang')
+        if (blocks.length && blocks[0].previousBlock === block.data.id) {
+          that.downloadQueue.push(blocks)
+        } else {
+          this.dispatch('FORK')
         }
       }
-      return Promise.resolve()
     })
   }
 

@@ -64,7 +64,7 @@ class TransactionPool {
   }
 
   verify (transaction) {
-    if (arkjs.crypto.verify(transaction) && this.walletManager.canApply(transaction)) {
+    if (arkjs.crypto.verify(transaction) && instance.walletManager.canApply(transaction)) {
       this.walletManager.applyTransaction(transaction)
       return true
     }
