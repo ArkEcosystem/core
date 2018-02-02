@@ -1,7 +1,7 @@
 const Boom = require('boom')
-const blockchain = requireFrom('core/blockchainManager').getInstance()
-const config = requireFrom('core/config')
-const db = requireFrom('core/dbinterface').getInstance()
+const blockchain = require('core/blockchainManager').getInstance()
+const config = require('core/config')
+const db = require('core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {

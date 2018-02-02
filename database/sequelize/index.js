@@ -1,10 +1,10 @@
 const Sequelize = require('sequelize')
-const Block = requireFrom('model/block')
-const Transaction = requireFrom('model/transaction')
-const config = requireFrom('core/config')
-const goofy = requireFrom('core/goofy')
-const schema = require('./schema')
-const DBInterface = requireFrom('core/dbinterface')
+const Block = require('model/block')
+const Transaction = require('model/transaction')
+const config = require('core/config')
+const goofy = require('core/goofy')
+const schema = require('database/sequelize/schema')
+const DBInterface = require('core/dbinterface')
 
 module.exports = class SequelizeDB extends DBInterface {
   init (params) {

@@ -1,9 +1,9 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const registerPromiseWorker = require(`${__dirname}/core/promise-worker/register`)
-const config = require(`${__dirname}/core/config`)
-const goofy = require(`${__dirname}/core/goofy`)
-const Transaction = require(`${__dirname}/model/Transaction`)
+const registerPromiseWorker = require('core/promise-worker/register')
+const config = require('core/config')
+const goofy = require('core/goofy')
+const Transaction = require('model/Transaction')
 
 let instance = null
 let WalletManager = null
@@ -13,8 +13,8 @@ registerPromiseWorker(message => {
   if (message.event === 'init') {
     return config.init(message.data)
       .then((conf) => goofy.init(conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
-      .then(() => (WalletManager = requireFrom('core/walletManager')))
-      .then(() => (Wallet = requireFrom('model/wallet.js')))
+      .then(() => (WalletManager = require('core/walletManager')))
+      .then(() => (Wallet = require('model/wallet.js')))
       .then(() => (instance = new TransactionPool()))
   }
   if (instance && instance[message.event]) {

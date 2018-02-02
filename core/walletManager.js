@@ -1,6 +1,6 @@
-const Wallet = requireFrom('model/wallet')
-const config = requireFrom('core/config')
-const goofy = requireFrom('core/goofy')
+const Wallet = require('model/wallet')
+const config = require('core/config')
+const goofy = require('core/goofy')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
 

@@ -1,5 +1,5 @@
 const bs58check = require('bs58check')
-const config = requireFrom('core/config')
+const config = require('core/config')
 
 module.exports = (ajv) => {
   ajv.addFormat('address', {

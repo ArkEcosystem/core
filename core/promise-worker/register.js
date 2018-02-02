@@ -1,6 +1,6 @@
-const goofy = require('../goofy')
+const goofy = require('core/goofy')
 const isPromise = require('is-promise')
-const safeJsonParse = require('../../utils/safe-json-parse')
+const safeJsonParse = require('utils/safe-json-parse')
 
 module.exports = (callback) => {
   function postOutgoingMessage (e, messageId, error, result) {

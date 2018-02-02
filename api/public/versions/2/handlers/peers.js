@@ -1,4 +1,4 @@
-const blockchain = requireFrom('core/blockchainManager').getInstance()
+const blockchain = require('core/blockchainManager').getInstance()
 const publicIp = require('public-ip')
 const utils = require('../utils')
 

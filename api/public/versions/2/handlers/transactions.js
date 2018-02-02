@@ -1,16 +1,8 @@
 const Boom = require('boom')
-const db = requireFrom('core/dbinterface').getInstance()
+const db = require('core/dbinterface').getInstance()
 const utils = require('../utils')
-const Joi = require('Joi')
 
 exports.index = {
-  config: {
-    validate: {
-      query: {
-        limit: Joi.number()
-      }
-    }
-  },
   handler: (request, h) => {
     return db.transactions
       .findAll(utils.paginate(request))

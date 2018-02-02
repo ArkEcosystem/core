@@ -1,4 +1,4 @@
-const constants = requireFrom('core/config').constants;
+const constants = require('core/config').constants
 
 module.exports = {
   enableForging: {
@@ -128,4 +128,4 @@ module.exports = {
     },
     required: ['secret']
   }
-};
+}
