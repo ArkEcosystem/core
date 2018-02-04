@@ -5,8 +5,8 @@
   "fileLogLevel": "info",
   "consoleLogLevel": "info",
   "db": {
-    "driver": "database/sequelize",
-    "uri": "sqlite:storage/test.sqlite",
+    "driver": "app/database/sequelize",
+    "uri": "sqlite:storage/app/test.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
