@@ -1,4 +1,4 @@
-const baseConfig = require('../jest.base.js')
+const baseConfig = require('./jest.base.conf.js')
 
 module.exports = Object.assign(baseConfig, {
   testMatch: ['**/test/api/**/*.spec.js?(x)'],
