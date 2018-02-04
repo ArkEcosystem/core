@@ -7,7 +7,9 @@ node_modules/
 npm-debug.log
 package-lock.json
 storage/app/*
+!storage/app/.gitkeep
 storage/logs/*
+!storage/logs/.gitkeep
 storage/snapshot/*.data
 tests/coverage/*
 yarn.lock
