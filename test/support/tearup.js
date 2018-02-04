@@ -1,12 +1,12 @@
 const path = require('path')
-const config = require('../../core/config')
-const goofy = require('../../core/goofy')
+const config = require('core/config')
+const goofy = require('core/goofy')
 
-const BlockchainManager = require('../../core/blockchainManager')
-const P2PInterface = require('../../api/p2p/p2pinterface')
-const DB = require('../../core/dbinterface')
-const DependencyHandler = require('../../core/dependency-handler')
-const PublicAPI = require('../../api/public')
+const BlockchainManager = require('core/blockchainManager')
+const P2PInterface = require('api/p2p/p2pinterface')
+const DB = require('core/dbinterface')
+const DependencyHandler = require('core/dependency-handler')
+const PublicAPI = require('api/public')
 
 const conf = 'config/devnet/'
 

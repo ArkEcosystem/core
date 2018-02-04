@@ -1,6 +1,6 @@
 'use strict'
 
-const goofy = require('../../core/goofy')
+const goofy = require('core/goofy')
 const Glue = require('glue')
 
 module.exports = (config) => {
