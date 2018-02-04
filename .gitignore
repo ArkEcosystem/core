@@ -6,8 +6,8 @@
 node_modules/
 npm-debug.log
 package-lock.json
-storage/app/*
-!storage/app/.gitkeep
+storage/database/*
+!storage/database/.gitkeep
 storage/logs/*
 !storage/logs/.gitkeep
 storage/snapshot/*.data

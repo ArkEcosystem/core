@@ -6,7 +6,7 @@
   "fastRebuild": false,
   "db": {
     "driver": "app/database/sequelize",
-    "uri": "sqlite:storage/app/devnet.sqlite",
+    "uri": "sqlite:storage/database/devnet.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
