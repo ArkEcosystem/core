@@ -6,19 +6,13 @@ exports.index = {
   }
 }
 
-exports.store = {
-  handler: (request, h) => {
-    return Boom.notImplemented()
-  }
-}
-
 exports.pending = {
   handler: (request, h) => {
     return Boom.notImplemented()
   }
 }
 
-exports.wallets = {
+exports.accounts = {
   handler: (request, h) => {
     return Boom.notImplemented()
   }

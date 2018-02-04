@@ -49,21 +49,3 @@ exports.forged = {
     return Boom.notImplemented()
   }
 }
-
-exports.next = {
-  handler: (request, h) => {
-    return Boom.notImplemented()
-  }
-}
-
-exports.enable = {
-  handler: (request, h) => {
-    return Boom.notImplemented()
-  }
-}
-
-exports.disable = {
-  handler: (request, h) => {
-    return Boom.notImplemented()
-  }
-}

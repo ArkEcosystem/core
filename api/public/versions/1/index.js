@@ -28,18 +28,14 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/voters', ...delegates.voters },
     { method: 'GET', path: '/delegates/fee', ...delegates.fee },
     { method: 'GET', path: '/delegates/forging/getForgedByWallet', ...delegates.forged },
-    { method: 'GET', path: '/delegates/getNextForgers', ...delegates.next },
-    { method: 'POST', path: '/delegates/forging/enable', ...delegates.enable },
-    { method: 'POST', path: '/delegates/forging/disable', ...delegates.disable },
 
     { method: 'GET', path: '/loader/status', ...loader.status },
     { method: 'GET', path: '/loader/status/sync', ...loader.syncing },
     { method: 'GET', path: '/loader/autoconfigure', ...loader.autoconfigure },
 
     { method: 'GET', path: '/multisignatures', ...multisignatures.index },
-    { method: 'POST', path: '/multisignatures', ...multisignatures.store },
     { method: 'GET', path: '/multisignatures/pending', ...multisignatures.pending },
-    { method: 'GET', path: '/multisignatures/accounts', ...multisignatures.wallets },
+    { method: 'GET', path: '/multisignatures/accounts', ...multisignatures.accounts },
 
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/get', ...peers.show },
