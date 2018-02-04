@@ -1,19 +1,7 @@
-module.exports = {
-  // env
-  testEnvironment: 'node',
-  bail: false,
-  verbose: false,
+const baseConfig = require('../jest.base.js')
 
-  // go from root
-  rootDir: '../../',
+module.exports = Object.assign(baseConfig, {
   testMatch: ['**/test/unit/**/*.spec.js?(x)'],
-
-  // setup
-  setupFiles: ['<rootDir>/test/support/setup'],
-  setupTestFrameworkScriptFile: '<rootDir>/test/support/setup-framework',
-
-  // coverage
-  collectCoverage: false,
   coverageDirectory: 'test/coverage/unit',
   collectCoverageFrom: [
     'config/**/*.js',
@@ -24,4 +12,4 @@ module.exports = {
     'storage/**/*.js',
     'utils/**/*.js'
   ]
-}
+})
