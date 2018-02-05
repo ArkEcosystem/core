@@ -98,11 +98,7 @@ exports.delegates = {
       if (!account) return utils.respondWith('Address not found.', true)
       if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
 
-      const lastBlock = blockchain.status.lastBlock.data
-      const constants = config.getConstants(lastBlock.height)
-      const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
-
-      return db.getActiveDelegates(lastBlock.height).then(delegates => {
+      return db.getActiveDelegates(blockchain.status.lastBlock.data.height).then(delegates => {
         const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
         const delegate = delegates[delegateRank]
 
