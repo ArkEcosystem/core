@@ -5,10 +5,7 @@ exports.index = {
   handler: (request, h) => {
     return db.wallets
       .paginate(utils.paginate(request))
-      .then(wallets => h.response({
-        results: utils.toCollection(request, wallets.rows, 'wallet'),
-        totalCount: wallets.count
-      }))
+      .then(wallets => utils.toPagination(request, wallets, 'wallet'))
   }
 }
 
@@ -33,10 +30,7 @@ exports.transactions = {
     return db.wallets
       .findById(request.params.id)
       .then(wallet => db.transactions.findAllByWallet(wallet, utils.paginate(request)))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
@@ -45,10 +39,7 @@ exports.transactionsSend = {
     return db.wallets
       .findById(request.params.id)
       .then(wallet => db.transactions.findAllBySender(wallet.publicKey, utils.paginate(request)))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
@@ -57,10 +48,7 @@ exports.transactionsReceived = {
     return db.wallets
       .findById(request.params.id)
       .then(wallet => db.transactions.findAllByRecipient(wallet.address, utils.paginate(request)))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
@@ -69,10 +57,7 @@ exports.votes = {
     return db.wallets
       .findById(request.params.id)
       .then(wallet => db.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request)))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
@@ -80,9 +65,6 @@ exports.search = {
   handler: (request, h) => {
     return db.wallets
       .search(request.query)
-      .then(wallets => h.response({
-        results: utils.toCollection(request, wallets.rows, 'wallet'),
-        totalCount: wallets.count
-      }))
+      .then(wallets => utils.toPagination(request, wallets, 'wallet'))
   }
 }

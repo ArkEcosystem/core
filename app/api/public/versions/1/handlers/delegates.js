@@ -8,6 +8,7 @@ exports.index = {
   handler: (request, h) => {
     return db.delegates
       .findAll()
+      .then(delegates => utils.toCollection(request, delegates, 'delegate'))
       .then(delegates => utils.respondWith({delegates}))
   }
 }

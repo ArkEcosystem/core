@@ -5,10 +5,7 @@ exports.index = {
   handler: (request, h) => {
     return db.blocks
       .findAll(utils.paginate(request))
-      .then(blocks => h.response({
-        results: utils.toCollection(request, blocks.rows, 'block'),
-        totalCount: blocks.count
-      }))
+      .then(blocks => utils.toPagination(request, blocks, 'block'))
   }
 }
 
@@ -25,10 +22,7 @@ exports.transactions = {
     return db.blocks
       .findById(request.params.id)
       .then(block => db.transactions.findAllByBlock(block.id, utils.paginate(request)))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
@@ -36,9 +30,6 @@ exports.search = {
   handler: (request, h) => {
     return db.blocks
       .search(request.query)
-      .then(blocks => h.response({
-        results: utils.toCollection(request, blocks.rows, 'block'),
-        totalCount: blocks.count
-      }))
+      .then(blocks => utils.toPagination(request, blocks, 'block'))
   }
 }

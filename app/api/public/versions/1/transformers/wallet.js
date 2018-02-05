@@ -1,4 +1,4 @@
-module.exports = (model) => {
+module.exports = async (model) => {
   return {
     address: model.address,
     publicKey: model.publicKey,

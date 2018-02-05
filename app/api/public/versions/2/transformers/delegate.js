@@ -1,23 +1,37 @@
+const db = require('app/core/dbinterface').getInstance()
 const { calculateApproval, calculateProductivity } = require('app/utils/delegate-calculator')
 
-module.exports = (model) => {
-  return {
-    username: model.username,
-    address: model.address,
-    public_key: model.publicKey,
-    votes: model.votes,
-    rank: model.rank,
+// function getLastBlock(delegate) {
+//   return db.blocks
+//     .findLastByPublicKey(delegate.publicKey)
+//     .then(block => block)
+// }
+
+module.exports = async (delegate) => {
+  const data = {
+    username: delegate.username,
+    address: delegate.address,
+    public_key: delegate.publicKey,
+    votes: delegate.votebalance,
+    rank: delegate.rank,
     blocks: {
-      produced: model.producedBlocks,
-      missed: model.missedBlocks
-      // last: {
-      //   id: model.lastBlock.id,
-      //   created_at: model.lastBlock.createdAt,
-      // },
+      produced: delegate.producedBlocks,
+      missed: delegate.missedBlocks
     },
     production: {
-      approval: calculateApproval(model),
-      productivity: calculateProductivity(model)
+      approval: calculateApproval(delegate),
+      productivity: calculateProductivity(delegate)
     }
   }
+
+  // const lastBlock = await getLastBlock(delegate)
+
+  // if (lastBlock) {
+  //   data.blocks.last = {
+  //     id: lastBlock.id,
+  //     timestamp: lastBlock.timestamp,
+  //   }
+  // }
+
+  return data
 }

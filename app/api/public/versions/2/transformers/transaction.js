@@ -3,7 +3,7 @@ const blockchain = require('app/core/blockchainManager').getInstance()
 const config = require('app/core/config')
 const Transaction = require('app/models/transaction')
 
-module.exports = (model) => {
+module.exports = async (model) => {
   const lastBlock = blockchain.status.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 

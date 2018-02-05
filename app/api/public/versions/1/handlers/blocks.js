@@ -15,7 +15,7 @@ exports.index = {
   handler: (request, h) => {
     return db.blocks
       .findAll({...request.query, ...utils.paginator(request)})
-      .then(result => utils.toCollection(request, result.rows, 'block'))
+      .then(blocks => utils.toCollection(request, blocks.rows, 'block'))
       .then(blocks => utils.respondWith({blocks}))
   }
 }
@@ -32,7 +32,9 @@ exports.show = {
     return db.blocks.findById(request.query.id).then(block => {
       if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
 
-      return utils.respondWith({ block: utils.toResource(request, block, 'block') })
+      return utils
+        .toResource(request, block, 'block')
+        .then(block => utils.respondWith({block}))
     })
   }
 }

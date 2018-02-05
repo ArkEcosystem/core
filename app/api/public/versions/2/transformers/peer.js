@@ -1,4 +1,4 @@
-module.exports = (model) => {
+module.exports = async (model) => {
   return {
     ip: model.ip,
     port: model.port,

@@ -1,6 +1,6 @@
 const blockchain = require('app/core/blockchainManager').getInstance()
 
-module.exports = (model) => {
+module.exports = async (model) => {
   const lastBlock = blockchain.status.lastBlock
 
   return {

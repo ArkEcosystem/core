@@ -1,4 +1,4 @@
-module.exports = (model) => {
+module.exports = async (model) => {
   return {
     id: model.id,
     version: model.version,

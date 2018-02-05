@@ -5,10 +5,7 @@ exports.index = {
   handler: (request, h) => {
     return db.delegates
       .paginate(utils.paginate(request))
-      .then(delegates => h.response({
-        results: utils.toCollection(request, delegates.rows, 'delegate'),
-        totalCount: delegates.count
-      }))
+      .then(delegates => utils.toPagination(request, delegates, 'delegate'))
   }
 }
 
@@ -25,10 +22,7 @@ exports.blocks = {
     return db.delegates
       .findById(request.params.id)
       .then(delegate => db.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request)))
-      .then(blocks => h.response({
-        results: utils.toCollection(request, blocks.rows, 'block'),
-        totalCount: blocks.count
-      }))
+      .then(blocks => utils.toPagination(request, blocks, 'block'))
   }
 }
 
@@ -37,9 +31,6 @@ exports.voters = {
     return db.delegates
       .findById(request.params.id)
       .then(delegate => db.wallets.findAllByVote(delegate.publicKey))
-      .then(wallets => h.response({
-        results: utils.toCollection(request, wallets, 'wallet'),
-        totalCount: wallets.length
-      }))
+      .then(wallets => utils.toPagination(request, wallets, 'wallet'))
   }
 }

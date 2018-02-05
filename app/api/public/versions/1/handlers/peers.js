@@ -33,7 +33,9 @@ exports.index = {
         }
       }
 
-      return utils.respondWith({ peers: utils.toCollection(request, retPeers, 'peer') })
+      return utils
+        .toCollection(request, retPeers, 'peer')
+        .then(peers => utils.respondWith({peers}))
     })
   }
 }
@@ -54,7 +56,9 @@ exports.show = {
 
       if (!peer) return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
 
-      return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
+      return utils
+        .toResource(request, peer, 'peer')
+        .then(peer => utils.respondWith({peer}))
     })
   }
 }

@@ -15,11 +15,11 @@ const respondWith = (data, error = false) => {
 }
 
 const toResource = (request, data, transformerClass) => {
-  return transformResource(request, data, transformerClass)
+  return transformResource(request, data, transformerClass).then(resource => resource)
 }
 
 const toCollection = (request, data, transformerClass) => {
-  return transformCollection(request, data, transformerClass)
+  return transformCollection(request, data, transformerClass).then(collection => collection)
 }
 
 module.exports = {

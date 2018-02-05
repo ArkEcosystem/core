@@ -22,10 +22,7 @@ exports.index = {
         }
       }
 
-      return h.response({
-        results: utils.toCollection(request, result, 'peer'),
-        totalCount: result.length
-      })
+      return utils.toPagination(request, { rows: result, count: result.length }, 'peer')
     })
   }
 }

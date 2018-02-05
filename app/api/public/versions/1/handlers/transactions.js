@@ -17,9 +17,9 @@ exports.index = {
       .then(result => {
         if (!result) return utils.respondWith('No transactions found', true)
 
-        return utils.respondWith({
-          transactions: utils.toCollection(request, result.rows, 'transaction')
-        })
+        return utils
+          .toCollection(request, result.rows, 'transaction')
+          .then(transactions => utils.respondWith({transactions}))
       })
   }
 }
@@ -38,9 +38,9 @@ exports.show = {
       .then(result => {
         if (!result) return utils.respondWith('No transactions found', true)
 
-        return utils.respondWith({
-          transaction: utils.toResource(request, result, 'transaction')
-        })
+        return utils
+          .toResource(request, result, 'transaction')
+          .then(transaction => utils.respondWith({transaction}))
       })
   }
 }

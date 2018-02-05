@@ -5,10 +5,7 @@ exports.index = {
   handler: (request, h) => {
     return db.transactions
       .findAllByType(3, utils.paginate(request))
-      .then(transactions => h.response({
-        results: utils.toCollection(request, transactions.rows, 'transaction'),
-        totalCount: transactions.count
-      }))
+      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
   }
 }
 
