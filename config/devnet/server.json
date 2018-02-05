@@ -25,7 +25,7 @@
     },
     "remoteinterface": true,
     "port": 4003,
-    "version": 1
+    "version": 2
   },
   "peers": {
     "minimumNetworkReach": 10,

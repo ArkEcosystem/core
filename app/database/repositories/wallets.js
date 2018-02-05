@@ -17,8 +17,14 @@ module.exports = class WalletsRepository {
     }))
   }
 
-  findAllByVote (publicKey, pager) {
-    return this.findAll().then((wallets) => wallets.filter(a => a.vote === publicKey))
+  findAllByVote (publicKey, params) {
+    return this
+      .findAll()
+      .then((wallets) => wallets.filter(a => a.vote === publicKey))
+      .then((wallets) => ({
+        rows: wallets.slice(params.offset, params.offset + params.limit),
+        count: wallets.length
+      }))
   }
 
   findById (id) {
