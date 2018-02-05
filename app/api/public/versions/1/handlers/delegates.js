@@ -15,7 +15,10 @@ exports.index = {
 
 exports.show = {
   handler: (request, h) => {
-    return Boom.notImplemented()
+    return db.delegates
+      .findById(request.query.id)
+      .then(delegate => utils.toResource(request, delegate, 'delegate'))
+      .then(delegate => utils.respondWith({delegate}))
   }
 }
 
