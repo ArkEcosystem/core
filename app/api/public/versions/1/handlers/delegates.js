@@ -3,8 +3,16 @@ const blockchain = require('app/core/blockchainManager').getInstance()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
+const schema = require('../schemas/delegates')
 
 exports.index = {
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getDelegates
+      }
+    }
+  },
   handler: (request, h) => {
     return db.delegates
       .findAll()
@@ -14,6 +22,13 @@ exports.index = {
 }
 
 exports.show = {
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getDelegate
+      }
+    }
+  },
   handler: (request, h) => {
     return db.delegates
       .findById(request.query.id)
@@ -29,6 +44,13 @@ exports.count = {
 }
 
 exports.search = {
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.search
+      }
+    }
+  },
   handler: (request, h) => {
     return Boom.notImplemented()
   }
@@ -49,6 +71,13 @@ exports.fee = {
 }
 
 exports.forged = {
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getForgedByWallet
+      }
+    }
+  },
   handler: (request, h) => {
     return Boom.notImplemented()
   }

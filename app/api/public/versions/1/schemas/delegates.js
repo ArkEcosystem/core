@@ -1,36 +1,6 @@
 const constants = require('app/core/config').constants
 
 module.exports = {
-  enableForging: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      }
-    },
-    required: ['secret']
-  },
-  disableForging: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      }
-    },
-    required: ['secret']
-  },
   forgingStatus: {
     type: 'object',
     properties: {
@@ -104,28 +74,5 @@ module.exports = {
       }
     },
     required: ['generatorPublicKey']
-  },
-  addDelegate: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      },
-      secondSecret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      username: {
-        type: 'string'
-      }
-    },
-    required: ['secret']
   }
 }
