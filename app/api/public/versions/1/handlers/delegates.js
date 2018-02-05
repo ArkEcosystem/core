@@ -80,11 +80,12 @@ exports.forged = {
   config: {
     plugins: {
       'hapi-ajv': {
-        querySchema: schema.getForgedByWallet
+        querySchema: schema.getForgedByAccount
       }
     }
   },
   handler: (request, h) => {
+    // {fees: account.fees, rewards: account.rewards, forged: forged}
     return Boom.notImplemented()
   }
 }
