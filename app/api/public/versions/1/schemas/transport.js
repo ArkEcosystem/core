@@ -81,7 +81,6 @@ module.exports = {
     },
     required: ['signature']
   },
-
   transactions: {
     id: 'nodeManager.transactions',
     type: 'array',

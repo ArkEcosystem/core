@@ -1,15 +1,4 @@
 module.exports = {
-  open: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      }
-    },
-    required: ['secret']
-  },
   getBalance: {
     type: 'object',
     properties: {
@@ -52,23 +41,6 @@ module.exports = {
       }
     },
     required: ['address']
-  },
-  addDelegates: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      },
-      secondSecret: {
-        type: 'string',
-        minLength: 1
-      }
-    }
   },
   getAccount: {
     type: 'object',

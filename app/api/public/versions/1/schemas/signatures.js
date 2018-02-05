@@ -1,26 +1,4 @@
 module.exports = {
-  addSignature: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1
-      },
-      secondSecret: {
-        type: 'string',
-        minLength: 1
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      },
-      multisigWalletPublicKey: {
-        type: 'string',
-        format: 'publicKey'
-      }
-    },
-    required: ['secret', 'secondSecret']
-  },
   getFee: {
     type: 'object',
     properties: {

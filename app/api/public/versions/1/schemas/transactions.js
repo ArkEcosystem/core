@@ -90,43 +90,5 @@ module.exports = {
         type: 'string'
       }
     }
-  },
-  addTransactions: {
-    type: 'object',
-    properties: {
-      secret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      amount: {
-        type: 'integer',
-        minimum: 1,
-        maximum: constants.totalAmount
-      },
-      recipientId: {
-        type: 'string',
-        minLength: 1,
-        format: 'address'
-      },
-      vendorField: {
-        type: 'string',
-        format: 'vendorField'
-      },
-      publicKey: {
-        type: 'string',
-        format: 'publicKey'
-      },
-      secondSecret: {
-        type: 'string',
-        minLength: 1,
-        maxLength: 100
-      },
-      multisigWalletPublicKey: {
-        type: 'string',
-        format: 'publicKey'
-      }
-    },
-    required: ['secret', 'amount', 'recipientId']
   }
 }
