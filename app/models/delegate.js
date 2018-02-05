@@ -1,6 +1,7 @@
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 const Block = require('./block')
+const sortTransactions = require('app/utils/sort-transactions')
 
 module.exports = class Delegate {
   constructor (passphrase, network) {
@@ -42,19 +43,5 @@ module.exports = class Delegate {
 
       return Block.create(data, this.keys)
     }
-  }
-
-  // TODO move as a re-usable utility?
-  static sortTransactions (transactions) {
-    // Map to create a new array (sort is done in place)
-    // TODO does it matter modifying the order of the original array
-    return transactions.map(t => t)
-      .sort((a, b) => {
-        if (a.type < b.type) return -1
-        if (a.type > b.type) return 1
-        if (a.id < b.id) return -1
-        if (a.id > b.id) return 1
-        return 0
-      })
   }
 }
