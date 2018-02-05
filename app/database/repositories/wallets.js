@@ -17,14 +17,19 @@ module.exports = class WalletsRepository {
     }))
   }
 
-  findAllByVote (publicKey, params) {
-    return this
+  findAllByVote (publicKey, params = {}) {
+    let query = this
       .findAll()
       .then((wallets) => wallets.filter(a => a.vote === publicKey))
-      .then((wallets) => ({
+
+    if (params.offset && params.limit) {
+      query = query.then((wallets) => ({
         rows: wallets.slice(params.offset, params.offset + params.limit),
         count: wallets.length
       }))
+    }
+
+    return query
   }
 
   findById (id) {

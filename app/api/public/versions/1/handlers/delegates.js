@@ -60,7 +60,11 @@ exports.search = {
 
 exports.voters = {
   handler: (request, h) => {
-    return Boom.notImplemented()
+    return db.delegates
+      .findById(request.query.publicKey)
+      .then(delegate => db.wallets.findAllByVote(delegate.publicKey))
+      .then(accounts => utils.toCollection(request, accounts, 'voter'))
+      .then(accounts => utils.respondWith({accounts}))
   }
 }
 
