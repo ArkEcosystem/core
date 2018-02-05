@@ -85,7 +85,8 @@ exports.forged = {
     }
   },
   handler: (request, h) => {
-    // {fees: account.fees, rewards: account.rewards, forged: forged}
-    return Boom.notImplemented()
+    return db.blocks
+      .totalsByGenerator(request.query.generatorPublicKey)
+      .then(totals => utils.respondWith(totals[0]))
   }
 }

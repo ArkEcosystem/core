@@ -1,13 +1,14 @@
 const Op = require('sequelize').Op
 const moment = require('moment')
 const buildFilterQuery = require('../utils/filter-query')
+const Sequelize = require('sequelize')
 
 module.exports = class BlocksRepository {
   constructor (db) {
     this.db = db
   }
 
-findAll (params) {
+  findAll (params) {
     let whereStatement = {}
     let orderBy = []
 
@@ -61,6 +62,12 @@ findAll (params) {
         exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
         between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
       })
+    })
+  }
+
+  totalsByGenerator (generatorPublicKey) {
+    return this.db.db.query(`SELECT SUM(totalFee) AS fees, SUM(reward) as rewards, SUM(reward+totalFee) as forged FROM blocks WHERE generatorPublicKey = "${generatorPublicKey}"`, {
+      type: Sequelize.QueryTypes.SELECT
     })
   }
 }
