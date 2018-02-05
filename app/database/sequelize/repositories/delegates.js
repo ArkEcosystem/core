@@ -1,3 +1,5 @@
+const { calculateApproval, calculateProductivity } = require('app/utils/delegate-calculator')
+
 module.exports = class DelegatesRepository {
   constructor (db) {
     this.db = db
@@ -20,12 +22,12 @@ module.exports = class DelegatesRepository {
 
   active (height, totalSupply) {
     return this.db.getActiveDelegates(height).then(delegates => {
-      return Promise.all(delegates.map(d => {
-        return this.db.wallets.findById(d.publicKey).then(wallet => {
+      return Promise.all(delegates.map(delegate => {
+        return this.db.wallets.findById(delegate.publicKey).then(wallet => {
           return {
             username: wallet.username,
-            approval: ((d.balance / totalSupply) * 100).toFixed(2),
-            productivity: (100 - (wallet.missedBlocks / ((wallet.producedBlocks + wallet.missedBlocks) / 100))).toFixed(2)
+            approval: calculateApproval(delegate),
+            productivity: calculateProductivity(wallet)
           }
         })
       }))

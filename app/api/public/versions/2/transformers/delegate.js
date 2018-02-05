@@ -1,3 +1,5 @@
+const { calculateApproval, calculateProductivity } = require('app/utils/delegate-calculator')
+
 module.exports = (model) => {
   return {
     username: model.username,
@@ -6,16 +8,16 @@ module.exports = (model) => {
     votes: model.votes,
     rank: model.rank,
     blocks: {
-      produced: model.producedblocks,
-      missed: model.missedblocks
+      produced: model.producedBlocks,
+      missed: model.missedBlocks
       // last: {
       //   id: model.lastBlock.id,
       //   created_at: model.lastBlock.createdAt,
       // },
     },
     production: {
-      approval: model.approval,
-      productivity: model.productivity
+      approval: calculateApproval(model),
+      productivity: calculateProductivity(model)
     }
   }
 }
