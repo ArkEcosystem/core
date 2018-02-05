@@ -39,7 +39,9 @@ exports.show = {
 
 exports.count = {
   handler: (request, h) => {
-    return Boom.notImplemented()
+    return db.delegates
+      .findAll()
+      .then(delegates => utils.respondWith({ count: delegates.length }))
   }
 }
 
