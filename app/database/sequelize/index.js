@@ -206,6 +206,7 @@ module.exports = class SequelizeDB extends DBInterface {
           const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
           wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
         })
+        goofy.stopTracker('SPV Building', 7, 7)
         goofy.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
         goofy.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
         return Promise.resolve(this.walletManager.walletsByAddress || [])

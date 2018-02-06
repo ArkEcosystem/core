@@ -57,6 +57,7 @@ class Down {
         })
         .then(() => goofy.printTracker('Peers Discovery', ++count, max, null, null))
     ))
+    .then(() => goofy.stopTracker('Peers Discovery', max, max))
     .then(() => goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
   }
 

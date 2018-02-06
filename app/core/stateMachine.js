@@ -29,11 +29,11 @@ const Machine = require('xstate').Machine
 //   }
 // })
 
-const syncWithNetwork = Machine({
+const syncWithNetwork = {
   initial: 'syncing',
   states: {
     syncing: {
-      onEntry: ['checkSynced'],
+      onEntry: ['checkLastDownloadedBlockSynced'],
       on: {
         SYNCED: 'finished',
         NOTSYNCED: 'downloadBlocks'
@@ -47,7 +47,7 @@ const syncWithNetwork = Machine({
       }
     },
     downloadBlocks: {
-      onEntry: ['triggerDownloadBlocks'],
+      onEntry: ['downloadBlocks'],
       on: {
         DOWNLOADED: 'downloadBlocks',
         NOBLOCK: 'syncing'
@@ -66,9 +66,9 @@ const syncWithNetwork = Machine({
       onEntry: ['startRebuild']
     }
   }
-})
+}
 
-const fork = Machine({
+const fork = {
   initial: 'rebuilding',
   states: {
     rebuilding: {
@@ -85,10 +85,10 @@ const fork = Machine({
 
     }
   }
-})
+}
 
 const blockchainMachine = Machine({
-  // start in the 'start' state
+  key: 'blockchain',
   initial: 'uninitialised',
   states: {
     uninitialised: {
@@ -104,7 +104,6 @@ const blockchainMachine = Machine({
       }
     },
     syncWithNetwork: {
-      onEntry: 'startNetworkSync',
       on: {
         SYNCFINISHED: 'idle',
         FORK: 'fork'

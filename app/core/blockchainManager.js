@@ -49,11 +49,10 @@ module.exports = class BlockchainManager {
   }
 
   dispatch (event) {
-    goofy.debug(event)
     const nextState = stateMachine.transition(this.state.blockchain, event)
-    // goofy.debug(nextState.value)
-    // goofy.debug(nextState.actions)
-    this.state.blockchain = nextState.value
+    goofy.debug(`event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
+    goofy.debug('| actions:', JSON.stringify(nextState.actions))
+    this.state.blockchain = nextState
     Promise.all(nextState.actions.map(actionKey => {
       const action = this[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
@@ -73,6 +72,7 @@ module.exports = class BlockchainManager {
           return Promise.reject(new Error('No block found in database'))
         }
         that.state.lastBlock = block
+        that.state.lastDownloadedBlock = block
         const constants = that.config.getConstants(block.data.height)
         // no fast rebuild if in last round
         that.state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
@@ -98,6 +98,7 @@ module.exports = class BlockchainManager {
         let genesis = new Block(that.config.genesisBlock)
         if (genesis.data.payloadHash === that.config.network.nethash) {
           that.state.lastBlock = genesis
+          that.state.lastDownloadedBlock = genesis
           that.state.fastSync = true
           goofy.info('Fast Rebuild:', that.state.fastSync)
           return db.saveBlock(genesis)
@@ -176,6 +177,7 @@ module.exports = class BlockchainManager {
       .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
       .then(() => db.getBlock(lastBlock.data.previousBlock))
       .then(newLastBlock => (this.state.lastBlock = newLastBlock))
+      .then(() => (this.state.lastDownloadedBlock = this.state.lastBlock))
   }
 
   pauseQueues () {
@@ -186,7 +188,7 @@ module.exports = class BlockchainManager {
 
   clearQueues () {
     this.downloadQueue.remove(() => true)
-    this.state.lastDownloadedBlock = this.state.lastBlock.data
+    this.state.lastDownloadedBlock = this.state.lastBlock
     this.processQueue.remove(() => true)
     return Promise.resolve()
   }
@@ -197,7 +199,8 @@ module.exports = class BlockchainManager {
     return Promise.resolve()
   }
 
-  monitorNetwork () {
+  checkLater () {
+    goofy.info('Wake up in 1min')
     return sleep(60000).then(() => this.dispatch('WAKEUP'))
   }
 
@@ -208,14 +211,14 @@ module.exports = class BlockchainManager {
       state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
       if (block.data.previousBlock === this.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.state.lastBlock.data.timestamp / constants.blocktime)) {
         db.applyBlock(block, !state.fastSync, state.fastSync)
-          .then(() => db.saveBlock(block))
+          .then(() => db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           .then(() => (state.lastBlock = block))
           // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
           .then(() => qcallback())
           .catch(error => {
             goofy.error(error)
             goofy.debug('Refused new block', block.data)
-            state.lastDownloadedBlock = state.lastBlock.data
+            state.lastDownloadedBlock = state.lastBlock
             this.dispatch('FORK')
             qcallback()
           })
@@ -242,7 +245,15 @@ module.exports = class BlockchainManager {
 
   checkSynced () {
     // TODO: move to config how many blocktime from current slot is considered 'in synced'
-    const isSynced = arkjs.slots.getTime() - this.state.lastBlock.data.timestamp < 3 * this.config.getConstants(this.state.lastBlock.data.height).blocktime
+    const block = this.state.lastBlock.data
+    const isSynced = arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
+    this.dispatch(isSynced ? 'SYNCED' : 'NOTSYNCED')
+  }
+
+  checkLastDownloadedBlockSynced () {
+    // TODO: move to config how many blocktime from current slot is considered 'in synced'
+    const block = this.state.lastDownloadedBlock.data
+    const isSynced = arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
     this.dispatch(isSynced ? 'SYNCED' : 'NOTSYNCED')
   }
 
@@ -251,7 +262,7 @@ module.exports = class BlockchainManager {
     this.dispatch('SYNCFINISHED')
   }
 
-  triggerDownloadBlocks () {
+  downloadBlocks () {
     const block = this.state.lastDownloadedBlock || this.state.lastBlock
     const that = this
     return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
