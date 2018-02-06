@@ -54,7 +54,10 @@ exports.search = {
     }
   },
   handler: (request, h) => {
-    return Boom.notImplemented()
+    return db.delegates
+      .search({...request.query, ...utils.paginator(request)})
+      .then(delegates => utils.toCollection(request, delegates.rows, 'delegate'))
+      .then(delegates => utils.respondWith({delegates}))
   }
 }
 
