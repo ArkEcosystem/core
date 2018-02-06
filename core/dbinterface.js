@@ -1,8 +1,8 @@
 const arkjs = require('arkjs')
-const Wallet = requireFrom('model/wallet')
-const WalletManager = require('./walletManager')
-const config = require('./config')
-const goofy = require('./goofy')
+const Wallet = require('model/wallet')
+const WalletManager = require('core/walletManager')
+const config = require('core/config')
+const goofy = require('core/goofy')
 const Promise = require('bluebird')
 const async = require('async')
 const fs = require('fs')
@@ -51,7 +51,7 @@ class DBInterface {
     })
 
     // this is a special case repository and will be forced to be read from memory...
-    instance['wallets'] = new (requireFrom('database/repositories/wallets'))(instance)
+    instance['wallets'] = new (require('database/repositories/wallets'))(instance)
 
     return Promise.resolve(instance)
   }

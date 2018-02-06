@@ -1,10 +1,10 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const registerPromiseWorker = require(`${__dirname}/core/promise-worker/register`)
-const config = require(`${__dirname}/core/config`)
-const goofy = require(`${__dirname}/core/goofy`)
-const Transaction = require(`${__dirname}/model/Transaction`)
-const WalletManager = require(`${__dirname}/core/walletManager`)
+const registerPromiseWorker = require('core/promise-worker/register')
+const config = require('core/config')
+const goofy = require('core/goofy')
+const Transaction = require('model/Transaction')
+const WalletManager = require('core/walletManager')
 
 let instance = null
 

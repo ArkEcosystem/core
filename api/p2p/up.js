@@ -1,10 +1,10 @@
 const restify = require('restify')
-const goofy = requireFrom('core/goofy')
-const blockchain = requireFrom('core/blockchainManager')
-const Transaction = requireFrom('model/transaction')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 const requestIp = require('request-ip')
+const goofy = require('core/goofy')
+const blockchain = require('core/blockchainManager')
+const Transaction = require('model/transaction')
 
 const _headers = {
   os: require('os').platform()

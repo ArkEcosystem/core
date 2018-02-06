@@ -1,4 +1,4 @@
-const constants = requireFrom('core/config').constants;
+const constants = require('core/config').constants
 
 module.exports = {
   getTransactions: {
@@ -129,4 +129,4 @@ module.exports = {
     },
     required: ['secret', 'amount', 'recipientId']
   }
-};
+}

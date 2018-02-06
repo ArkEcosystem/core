@@ -1,10 +1,4 @@
-// @ts-check
-global.requireFrom = function (name) {
-  return require(require('path').resolve(`${__dirname}/../`, name))
-}
-
 const Sntp = require('sntp')
-
 const deepmerge = require('deepmerge')
 
 let goofy
@@ -25,7 +19,7 @@ class Config {
     this.genesisBlock = config.genesisBlock
     this.delegates = config.delegates
 
-    goofy = require('./goofy') // need to do here to be sure logger is initialised
+    goofy = require('core/goofy') // need to do here to be sure logger is initialised
     goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
 
     this.ntp().then(time => goofy.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))

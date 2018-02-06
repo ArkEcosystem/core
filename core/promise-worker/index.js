@@ -1,5 +1,5 @@
-const goofy = require('../goofy')
-const safeJsonParse = require('../../utils/safe-json-parse')
+const goofy = require('core/goofy')
+const safeJsonParse = require('utils/safe-json-parse')
 
 let messageIds = 0
 

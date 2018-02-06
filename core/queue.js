@@ -1,4 +1,4 @@
-const goofy = require('./goofy')
+const goofy = require('core/goofy')
 const Bull = require('bull')
 
 let instance
@@ -28,7 +28,7 @@ module.exports = class Queue {
 }
 
 // USAGE INSTRUCTIONS
-// const queue = requireFrom('core/queue')
+// const queue = require('core/queue')
 // const blockQueue = queue.getInstance().connection('blocks')
 
 // blockQueue.empty()

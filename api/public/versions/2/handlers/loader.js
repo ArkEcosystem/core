@@ -1,5 +1,5 @@
-const blockchain = requireFrom('core/blockchainManager').getInstance()
-const config = requireFrom('core/config')
+const blockchain = require('core/blockchainManager').getInstance()
+const config = require('core/config')
 
 exports.status = {
   handler: (request, h) => {

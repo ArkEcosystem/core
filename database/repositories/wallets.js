@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const filterObject = requireFrom('utils/filter-object')
+const filterObject = require('utils/filter-object')
 
 module.exports = class WalletsRepository {
   constructor (db) {

@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const db = requireFrom('core/dbinterface').getInstance()
+const db = require('core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 

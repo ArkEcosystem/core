@@ -1,6 +1,6 @@
-const chainInstance = requireFrom('core/blockchainManager').getInstance()
-const config = requireFrom('core/config')
-const db = requireFrom('core/dbinterface').getInstance()
+const chainInstance = require('core/blockchainManager').getInstance()
+const config = require('core/config')
+const db = require('core/dbinterface').getInstance()
 const _ = require('lodash')
 
 exports.blockchain = {

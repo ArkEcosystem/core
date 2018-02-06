@@ -1,6 +1,6 @@
 const popsicle = require('popsicle')
-const Delegate = require('../model/delegate')
-const goofy = require('./goofy')
+const Delegate = require('model/delegate')
+const goofy = require('core/goofy')
 
 module.exports = class ForgerManager {
   constructor (config) {

@@ -6,18 +6,18 @@
   "scripts": {
     "start:mainnet": "NODE_PATH=. node startRelayNode.js -c config/mainnet",
     "start:devnet": "NODE_PATH=. node startRelayNode.js -c config/devnet",
-    "start:testnet": "nodemon startRelayNode.js -c config/testnet",
-    "forge:mainnet": "nodemon startForger.js -c config/mainnet",
-    "forge:devnet": "nodemon startForger.js -c config/devnet",
-    "forge:testnet": "nodemon startForger.js -c config/testnet",
-    "snapshot:devnet": "nodemon snapshot.js -c config/devnet",
-    "test": "jest --silent --no-cache --config test/jest.config.js",
-    "test:watch": "jest --silent --no-cache --watch --config test/jest.config.js",
-    "test:api": "jest --silent --no-cache --config test/api/jest.config.js",
-    "test:api:watch": "jest --silent --no-cache --watch --config test/api/jest.config.js",
-    "test:unit": "jest --silent --no-cache --config test/unit/jest.config.js",
-    "test:unit:watch": "jest --silent --no-cache --watch --config test/unit/jest.config.js",
-    "coverage": "NODE_PATH=. NODE_ENV=test nyc mocha",
+    "start:testnet": "NODE_PATH=. nodemon startRelayNode.js -c config/testnet",
+    "forge:mainnet": "NODE_PATH=. nodemon startForger.js -c config/mainnet",
+    "forge:devnet": "NODE_PATH=. nodemon startForger.js -c config/devnet",
+    "forge:testnet": "NODE_PATH=. nodemon startForger.js -c config/testnet",
+    "snapshot:devnet": "NODE_PATH=. nodemon snapshot.js -c config/devnet",
+    "test": "NODE_PATH=. jest --no-cache --forceExit --config test/jest.config.js",
+    "test:watch": "NODE_PATH=. jest --no-cache --watch --config test/jest.config.js",
+    "test:api": "NODE_PATH=. jest --no-cache --forceExit --config test/api/jest.config.js",
+    "test:api:watch": "NODE_PATH=. jest --no-cache --watch --config test/api/jest.config.js",
+    "test:unit": "NODE_PATH=. jest --no-cache --forceExit --config test/unit/jest.config.js",
+    "test:unit:watch": "NODE_PATH=. jest --no-cache --watch --config test/unit/jest.config.js",
+    "coverage": "NODE_PATH=. nyc mocha",
     "lint": "eslint ./ --fix"
   },
   "keywords": [
@@ -71,6 +71,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
+    "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
@@ -81,5 +82,8 @@
     "request-promise": "^4.2.2",
     "sinon": "^4.1.5",
     "sinon-chai": "^2.14.0"
+  },
+  "peerDependencies": {
+    "request": "^2.83.0"
   }
 }

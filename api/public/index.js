@@ -103,9 +103,7 @@ module.exports = (config) => {
   const startServer = async function () {
     try {
       const server = await Glue.compose(manifest, options)
-
       await server.start()
-
       goofy.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
     } catch (err) {
       goofy.error(err)

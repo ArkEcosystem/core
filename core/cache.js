@@ -1,6 +1,6 @@
 const Promise = require('bluebird')
 const redis = require('redis')
-const goofy = require('./goofy')
+const goofy = require('core/goofy')
 
 let instance
 

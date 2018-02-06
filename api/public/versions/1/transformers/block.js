@@ -1,4 +1,4 @@
-const blockchain = requireFrom('core/blockchainManager').getInstance()
+const blockchain = require('core/blockchainManager').getInstance()
 
 module.exports = (model) => {
   const lastBlock = blockchain.status.lastBlock
