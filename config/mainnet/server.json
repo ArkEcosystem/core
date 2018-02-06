@@ -4,8 +4,8 @@
   "fileLogLevel": "info",
   "fastRebuild": false,
   "db": {
-    "driver": "database/sequelize",
-    "uri": "sqlite:storage/mainnet3.sqlite",
+    "driver": "app/database/sequelize",
+    "uri": "sqlite:storage/database/mainnet.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
