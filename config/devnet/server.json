@@ -5,8 +5,8 @@
   "consoleLogLevel": "debug",
   "fastRebuild": false,
   "db": {
-    "driver": "database/sequelize",
-    "uri": "sqlite:storage/devnet.sqlite",
+    "driver": "app/database/sequelize",
+    "uri": "sqlite:storage/database/devnet.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
