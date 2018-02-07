@@ -22,7 +22,7 @@ module.exports = class WalletsRepository {
       .findAll()
       .then((wallets) => wallets.filter(a => a.vote === publicKey))
 
-    if (params.offset && params.limit) {
+    if (params) {
       query = query.then((wallets) => ({
         rows: wallets.slice(params.offset, params.offset + params.limit),
         count: wallets.length
