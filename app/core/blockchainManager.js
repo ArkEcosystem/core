@@ -8,7 +8,6 @@ const Worker = require('tiny-worker')
 const worker = new Worker('app/core/transactionPool.js')
 
 let instance = null
-let db = null
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -22,9 +21,12 @@ module.exports = class BlockchainManager {
     this.transactionPool.postMessage({event: 'init', data: config})
     this.state = {
       blockchain: stateMachine.initialState,
+      started: false,
       lastBlock: null,
       lastDownloadedBlock: null
     }
+
+    this.actions = stateMachine.actionMap(this)
 
     this.processQueue = async.queue(
       (block, qcallback) => this.processBlock(new Block(block), this.state, qcallback),
@@ -53,62 +55,20 @@ module.exports = class BlockchainManager {
     goofy.debug(`event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
     goofy.debug('| actions:', JSON.stringify(nextState.actions))
     this.state.blockchain = nextState
-    Promise.all(nextState.actions.map(actionKey => {
-      const action = this[actionKey]
+    nextState.actions.forEach(actionKey => {
+      const action = this.actions[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
       else goofy.error(`No action ${actionKey} found`)
-    }))
+    })
   }
 
   start () {
     this.dispatch('START')
   }
 
-  init () {
-    const that = this
-    return db.getLastBlock()
-      .then(block => {
-        if (!block) {
-          return Promise.reject(new Error('No block found in database'))
-        }
-        that.state.lastBlock = block
-        that.state.lastDownloadedBlock = block
-        const constants = that.config.getConstants(block.data.height)
-        // no fast rebuild if in last round
-        that.state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!that.config.server.fastSync
-        goofy.info('Fast Sync:', that.state.fastSync)
-        goofy.info('Last block in database:', block.data.height)
-        if (block.data.height === 1) {
-          return db
-            .buildWallets()
-            .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
-            .then(() => db.saveWallets(true))
-            .then(() => db.applyRound(block, false, false))
-            .then(() => this.dispatch('SUCCESS'))
-        } else {
-          return db
-            .buildWallets()
-            .then(() => that.transactionPool.postMessage({event: 'start', data: db.walletManager.getLocalWallets()}))
-            .then(() => db.saveWallets(true))
-            .then(() => this.dispatch('SUCCESS'))
-        }
-      })
-      .catch((error) => {
-        goofy.info(error.message)
-        let genesis = new Block(that.config.genesisBlock)
-        if (genesis.data.payloadHash === that.config.network.nethash) {
-          that.state.lastBlock = genesis
-          that.state.lastDownloadedBlock = genesis
-          that.state.fastSync = true
-          goofy.info('Fast Rebuild:', that.state.fastSync)
-          return db.saveBlock(genesis)
-            .then(() => db.buildWallets())
-            .then(() => db.saveWallets(true))
-            .then(() => db.applyRound(genesis))
-            .then(() => this.dispatch('SUCCESS'))
-        }
-        return this.dispatch('FAILURE')
-      })
+  isReady () {
+    if (this.state.started) return Promise.resolve(true)
+    else return sleep(10000).then(() => this.isReady())
   }
 
   static getInstance () {
@@ -128,18 +88,13 @@ module.exports = class BlockchainManager {
     return this.pauseQueues()
       .then(() => this.clearQueues())
       .then(() => (this.state = {
+        blockchain: stateMachine.initialState,
+        started: false,
         lastBlock: null,
-        lastDownloadedBlock: null,
-        // TODO: revise all these switches
-        downloading: false,
-        rebuilding: false,
-        syncing: false,
-        fastSync: true,
-        noblock: 0,
-        forked: false
+        lastDownloadedBlock: null
       }))
-      .then(() => this.init())
       .then(() => this.resumeQueues())
+      .then(() => this.start())
   }
 
   postTransactions (transactions) {
@@ -172,10 +127,10 @@ module.exports = class BlockchainManager {
 
   undoLastBlock () {
     const lastBlock = this.state.lastBlock
-    return db.undoBlock(lastBlock)
-      .then(() => db.deleteBlock(lastBlock))
+    return this.db.undoBlock(lastBlock)
+      .then(() => this.db.deleteBlock(lastBlock))
       .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
-      .then(() => db.getBlock(lastBlock.data.previousBlock))
+      .then(() => this.db.getBlock(lastBlock.data.previousBlock))
       .then(newLastBlock => (this.state.lastBlock = newLastBlock))
       .then(() => (this.state.lastDownloadedBlock = this.state.lastBlock))
   }
@@ -199,19 +154,14 @@ module.exports = class BlockchainManager {
     return Promise.resolve()
   }
 
-  checkLater () {
-    goofy.info('Wake up in 1min')
-    return sleep(60000).then(() => this.dispatch('WAKEUP'))
-  }
-
   processBlock (block, state, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
       state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
       if (block.data.previousBlock === this.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.state.lastBlock.data.timestamp / constants.blocktime)) {
-        db.applyBlock(block, !state.fastSync, state.fastSync)
-          .then(() => db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+        this.db.applyBlock(block, !state.fastSync, state.fastSync)
+          .then(() => this.db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           .then(() => (state.lastBlock = block))
           // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
           .then(() => qcallback())
@@ -243,40 +193,9 @@ module.exports = class BlockchainManager {
     }
   }
 
-  checkSynced () {
-    // TODO: move to config how many blocktime from current slot is considered 'in synced'
-    const block = this.state.lastBlock.data
-    const isSynced = arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
-    this.dispatch(isSynced ? 'SYNCED' : 'NOTSYNCED')
-  }
-
-  checkLastDownloadedBlockSynced () {
-    // TODO: move to config how many blocktime from current slot is considered 'in synced'
-    const block = this.state.lastDownloadedBlock.data
-    const isSynced = arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
-    this.dispatch(isSynced ? 'SYNCED' : 'NOTSYNCED')
-  }
-
-  syncingFinished () {
-    goofy.info('Node Synced, congratulations! 🦄')
-    this.dispatch('SYNCFINISHED')
-  }
-
-  downloadBlocks () {
-    const block = this.state.lastDownloadedBlock || this.state.lastBlock
-    const that = this
-    return this.networkInterface.downloadBlocks(block.data.height).then(blocks => {
-      if (!blocks || blocks.length === 0) {
-        this.dispatch('NOBLOCK')
-      } else {
-        goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-        if (blocks.length && blocks[0].previousBlock === block.data.id) {
-          that.downloadQueue.push(blocks)
-        } else {
-          this.dispatch('FORK')
-        }
-      }
-    })
+  isSynced (block) {
+    block = block || this.state.lastBlock.data
+    return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
   attachNetworkInterface (networkInterface) {
@@ -285,11 +204,11 @@ module.exports = class BlockchainManager {
   }
 
   attachDBInterface (dbinterface) {
-    db = dbinterface
+    this.db = dbinterface
     return this
   }
 
   getDb () {
-    return db
+    return this.db
   }
 }

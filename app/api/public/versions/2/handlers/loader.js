@@ -3,12 +3,12 @@ const config = require('app/core/config')
 
 exports.status = {
   handler: (request, h) => {
-    const lastBlock = blockchain.status.lastBlock
+    const lastBlock = blockchain.state.lastBlock
 
     return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
       return {
         data: {
-          loaded: blockchain.isSynced(lastBlock),
+          loaded: blockchain.isSynced(),
           now: lastBlock ? lastBlock.data.height : 0,
           blocksCount: networkHeight - lastBlock.data.height
         }
@@ -19,12 +19,12 @@ exports.status = {
 
 exports.syncing = {
   handler: (request, h) => {
-    const lastBlock = blockchain.status.lastBlock
+    const lastBlock = blockchain.state.lastBlock
 
     return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
       return {
         data: {
-          syncing: !blockchain.isSynced(lastBlock),
+          syncing: !blockchain.isSynced(),
           blocks: networkHeight - lastBlock.data.height,
           height: lastBlock.data.height,
           id: lastBlock.data.id

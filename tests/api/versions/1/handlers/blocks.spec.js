@@ -56,7 +56,7 @@ describe('API 1.0 - Blocks', () => {
         expect(res.body.fees).toBeType('object')
 
         // TODO adjust when environment setup properly
-        // expect(res.body.fees).toBe(config.getConstants(blockchain.getInstance().status.lastBlock.data.toBe.height).fees)
+        // expect(res.body.fees).toBe(config.getConstants(blockchain.getInstance().state.lastBlock.data.toBe.height).fees)
 
         done()
       })

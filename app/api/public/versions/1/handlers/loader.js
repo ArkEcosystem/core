@@ -5,9 +5,9 @@ const utils = require('../utils')
 exports.status = {
   handler: (request, h) => {
     return utils.respondWith({
-      loaded: blockchain.isSynced(blockchain.lastBlock),
-      now: blockchain.lastBlock ? blockchain.lastBlock.data.height : 0,
-      blocksCount: blockchain.networkInterface.getNetworkHeight() - blockchain.lastBlock.data.height
+      loaded: blockchain.isSynced(),
+      now: blockchain.state.lastBlock ? blockchain.state.lastBlock.data.height : 0,
+      blocksCount: blockchain.networkInterface.getNetworkHeight() - blockchain.state.lastBlock.data.height
     })
   }
 }
@@ -15,10 +15,10 @@ exports.status = {
 exports.syncing = {
   handler: (request, h) => {
     return utils.respondWith({
-      syncing: !blockchain.isSynced(blockchain.lastBlock),
-      blocks: blockchain.networkInterface.getNetworkHeight() - blockchain.lastBlock.data.height,
-      height: blockchain.lastBlock.data.height,
-      id: blockchain.lastBlock.data.id
+      syncing: !blockchain.isSynced(),
+      blocks: blockchain.networkInterface.getNetworkHeight() - blockchain.state.lastBlock.data.height,
+      height: blockchain.state.lastBlock.data.height,
+      id: blockchain.state.lastBlock.data.id
     })
   }
 }

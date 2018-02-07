@@ -5,7 +5,7 @@ const _ = require('lodash')
 
 exports.blockchain = {
   handler: (request, h) => {
-    const lastBlock = chainInstance.status.lastBlock
+    const lastBlock = chainInstance.state.lastBlock
 
     const height = lastBlock.data.height
     const initialSupply = config.genesisBlock.totalAmount / 10 ** 8

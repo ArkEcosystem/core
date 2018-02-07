@@ -42,14 +42,14 @@ exports.show = {
 exports.epoch = {
   handler: (request, h) => {
     return utils.respondWith({
-      epoch: config.getConstants(blockchain.status.lastBlock.data.height).epoch
+      epoch: config.getConstants(blockchain.state.lastBlock.data.height).epoch
     })
   }
 }
 
 exports.height = {
   handler: (request, h) => {
-    const block = blockchain.status.lastBlock.data
+    const block = blockchain.state.lastBlock.data
 
     return utils.respondWith({ height: block.height, id: block.id })
   }
@@ -64,7 +64,7 @@ exports.nethash = {
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.send
+      fee: config.getConstants(blockchain.state.lastBlock.data.height).fees.send
     })
   }
 }
@@ -72,7 +72,7 @@ exports.fee = {
 exports.fees = {
   handler: (request, h) => {
     return utils.respondWith({
-      fees: config.getConstants(blockchain.status.lastBlock.data.height).fees
+      fees: config.getConstants(blockchain.state.lastBlock.data.height).fees
     })
   }
 }
@@ -80,7 +80,7 @@ exports.fees = {
 exports.milestone = {
   handler: (request, h) => {
     return utils.respondWith({
-      milestone: ~~(blockchain.status.lastBlock.data.height / 3000000)
+      milestone: ~~(blockchain.state.lastBlock.data.height / 3000000)
     })
   }
 }
@@ -88,14 +88,14 @@ exports.milestone = {
 exports.reward = {
   handler: (request, h) => {
     return utils.respondWith({
-      reward: config.getConstants(blockchain.status.lastBlock.data.height).reward
+      reward: config.getConstants(blockchain.state.lastBlock.data.height).reward
     })
   }
 }
 
 exports.supply = {
   handler: (request, h) => {
-    const lastBlock = blockchain.status.lastBlock.data
+    const lastBlock = blockchain.state.lastBlock.data
 
     return utils.respondWith({
       supply: config.genesisBlock.totalAmount + (lastBlock.height - config.getConstants(lastBlock.height).height) * config.getConstants(lastBlock.height).reward
@@ -105,7 +105,7 @@ exports.supply = {
 
 exports.status = {
   handler: (request, h) => {
-    const lastBlock = blockchain.status.lastBlock.data
+    const lastBlock = blockchain.state.lastBlock.data
 
     return utils.respondWith({
       epoch: config.getConstants(lastBlock.height).epoch,

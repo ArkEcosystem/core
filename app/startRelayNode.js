@@ -50,6 +50,7 @@ config.init({
 .then(() => goofy.info('Network interface started'))
 .then(() => blockchainManager.attachNetworkInterface(p2p))
 .then(() => blockchainManager.start())
+.then(() => blockchainManager.isReady())
 .then(() => goofy.info('Mounting Public API'))
 .then(() => PublicAPI(config))
 .catch(fatal => goofy.error('fatal error', fatal))

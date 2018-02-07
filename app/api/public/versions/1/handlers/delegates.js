@@ -74,7 +74,7 @@ exports.voters = {
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      data: config.getConstants(blockchain.status.lastBlock.data.height).fees.delegate
+      data: config.getConstants(blockchain.state.lastBlock.data.height).fees.delegate
     })
   }
 }

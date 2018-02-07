@@ -80,7 +80,7 @@ exports.publicKey = {
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.delegate
+      fee: config.getConstants(blockchain.state.lastBlock.data.height).fees.delegate
     })
   }
 }
@@ -98,7 +98,7 @@ exports.delegates = {
       if (!account) return utils.respondWith('Address not found.', true)
       if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
 
-      return db.getActiveDelegates(blockchain.status.lastBlock.data.height).then(delegates => {
+      return db.getActiveDelegates(blockchain.state.lastBlock.data.height).then(delegates => {
         const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
         const delegate = delegates[delegateRank]
 

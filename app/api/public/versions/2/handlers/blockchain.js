@@ -4,7 +4,7 @@ const config = require('app/core/config')
 exports.index = {
   handler: (request, h) => {
     return {
-      data: config.getConstants(blockchain.status.lastBlock.data.height)
+      data: config.getConstants(blockchain.state.lastBlock.data.height)
     }
   }
 }

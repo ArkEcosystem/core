@@ -2,7 +2,7 @@ const blockchain = require('app/core/blockchainManager').getInstance()
 const config = require('app/core/config')
 
 exports.calculateApproval = (delegate) => {
-  const lastBlock = blockchain.status.lastBlock.data
+  const lastBlock = blockchain.state.lastBlock.data
   const constants = config.getConstants(lastBlock.height)
   const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
 

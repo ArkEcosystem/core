@@ -5,7 +5,7 @@ const utils = require('../utils')
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.status.lastBlock.data.height).fees.secondsignature
+      fee: config.getConstants(blockchain.state.lastBlock.data.height).fees.secondsignature
     })
   }
 }
