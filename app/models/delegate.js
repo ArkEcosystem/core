@@ -19,7 +19,7 @@ module.exports = class Delegate {
         sha256: crypto.createHash('sha256')
       }
 
-      const txs = Delegate.sortTransactions(transactions)
+      const txs = sortTransactions(transactions)
       txs.forEach(tx => {
         txstats.amount += tx.amount
         txstats.fee += tx.fee
