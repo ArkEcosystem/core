@@ -36,7 +36,6 @@ module.exports = class BlockchainManager {
     this.downloadQueue = async.queue(
       (block, qcallback) => {
         if (that.downloadQueue.paused) return qcallback()
-        that.state.lastDownloadedBlock = {data: block}
         that.processQueue.push(block)
         return qcallback()
       },
@@ -178,7 +177,7 @@ module.exports = class BlockchainManager {
         goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', state.lastBlock.data.height)
         state.lastDownloadedBlock = state.lastBlock
         qcallback()
-      } else if (block.data.height < state.lastBlock.data.height) {
+      } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
         goofy.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {

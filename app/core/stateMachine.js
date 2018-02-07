@@ -229,6 +229,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         } else {
           goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
           if (blocks.length && blocks[0].previousBlock === block.data.id) {
+            blockchainManager.state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
             blockchainManager.downloadQueue.push(blocks)
           } else {
             blockchainManager.dispatch('FORK')
