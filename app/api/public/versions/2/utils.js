@@ -10,19 +10,13 @@ const paginate = (request) => {
 }
 
 const respondWithResource = (request, data, transformerClass) => {
-  if (!data) return Boom.notFound()
-
-  return transformResource(request, data, transformerClass)
-    .then(resource => ({
-      data: resource
-    }))
+  return data
+    ? transformResource(request, data, transformerClass).then(data => ({data}))
+    : Boom.notFound()
 }
 
 const respondWithCollection = (request, data, transformerClass) => {
-  return transformCollection(request, data, transformerClass)
-    .then(collection => ({
-      data: collection
-    }))
+  return transformCollection(request, data, transformerClass).then(data => ({data}))
 }
 
 const toResource = (request, data, transformerClass) => {
@@ -35,10 +29,7 @@ const toCollection = (request, data, transformerClass) => {
 
 const toPagination = (request, data, transformerClass) => {
   return transformCollection(request, data.rows, transformerClass)
-    .then(collection => ({
-      results: collection,
-      totalCount: data.count
-    }))
+    .then(results => ({ results, totalCount: data.count }))
 }
 
 module.exports = {
