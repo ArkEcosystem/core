@@ -29,7 +29,7 @@ exports.blocks = {
 exports.voters = {
   handler: (request, h) => {
     return db.delegates
-      .findById(request.params.id)
+      .findById(request.params.id, utils.paginate(request))
       .then(delegate => db.wallets.findAllByVote(delegate.publicKey, utils.paginate(request)))
       .then(wallets => utils.toPagination(request, wallets, 'wallet'))
   }

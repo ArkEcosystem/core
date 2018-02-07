@@ -1,5 +1,6 @@
 const Delegate = require('app/models/delegate')
 const Wallet = require('app/models/wallet')
+const sortTransactions = require('app/utils/sort-transactions')
 
 describe('Model | Delegate', () => {
   describe('static sortTransactions', () => {
@@ -10,7 +11,7 @@ describe('Model | Delegate', () => {
       ]
       const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]]
 
-      expect(Delegate.sortTransactions(unordered)).toEqual(ordered)
+      expect(sortTransactions(unordered)).toEqual(ordered)
     })
   })
 

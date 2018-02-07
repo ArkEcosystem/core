@@ -40,7 +40,8 @@ module.exports = class BlocksRepository {
     return this.db.blocksTable.findOne({
       limit: 1,
       where: { generatorPublicKey },
-      order: [[ 'createdAt', 'DESC' ]]
+      order: [[ 'createdAt', 'DESC' ]],
+      attributes: ['id', 'timestamp']
     })
   }
 
