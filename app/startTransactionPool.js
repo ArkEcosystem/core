@@ -17,7 +17,7 @@ if (!fs.existsSync(path.resolve(commander.config))) {
 }
 
 require('app/core/config').init({
-  server: require(path.resolve(commander.config, 'server.json')),
+  server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-  network: require(path.resolve(commander.config, 'network.json'))
+  network: require(path.resolve(commander.config, 'network'))
 }).then(config => {})

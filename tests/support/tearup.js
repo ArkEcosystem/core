@@ -19,12 +19,13 @@ process.on('unhandledRejection', (reason, p) => {
 
 module.exports = async function () {
   await config.init({
-    server: require(path.resolve(conf, 'server.json')),
+    api: require(path.resolve(conf, 'api')),
+    server: require(path.resolve(conf, 'server')),
     genesisBlock: require(path.resolve(conf, 'genesisBlock.json')),
-    network: require(path.resolve(conf, 'network.json')),
-    delegates: require(path.resolve(conf, 'delegate.json'))
+    network: require(path.resolve(conf, 'network')),
+    delegates: require(path.resolve(conf, 'delegate'))
   })
-//   .then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name))
+//   .then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
 //   .then(() => (blockchainManager = new BlockchainManager(config)))
 //   .then(() => (p2p = new P2PInterface(config)))
 //   .then(() => DependencyHandler.checkDatabaseLibraries(config))

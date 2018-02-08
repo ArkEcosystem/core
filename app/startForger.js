@@ -27,12 +27,12 @@ process.on('unhandledRejection', (reason, p) => {
 })
 
 config.init({
-  server: require(path.resolve(commander.config, 'server.json')),
+  server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-  network: require(path.resolve(commander.config, 'network.json')),
-  delegates: require(path.resolve(commander.config, 'delegate.json'))
+  network: require(path.resolve(commander.config, 'network')),
+  delegates: require(path.resolve(commander.config, 'delegate'))
 })
-.then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name + '-forger'))
+.then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger'))
 .then(() => (forgerManager = new ForgerManager(config)))
 .then(() => (forgers = forgerManager.loadDelegates()))
 .then(() => goofy.info('ForgerManager started with', forgers.length, 'forgers'))

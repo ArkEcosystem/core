@@ -19,12 +19,12 @@ if (!fs.existsSync(path.resolve(commander.config))) {
 }
 
 require('app/core/config').init({
-  server: require(path.resolve(commander.config, 'server.json')),
+  server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-  network: require(path.resolve(commander.config, 'network.json'))
+  network: require(path.resolve(commander.config, 'network'))
 }).then(config => {
   const goofy = require('app/core/goofy')
-  goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name)
+  goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 
   process.on('unhandledRejection', (reason, p) => {
     goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

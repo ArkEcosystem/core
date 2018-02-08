@@ -33,11 +33,12 @@ process.on('unhandledRejection', (reason, p) => {
 })
 
 config.init({
-  server: require(path.resolve(commander.config, 'server.json')),
+  api: require(path.resolve(commander.config, 'api')),
+  server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
-  network: require(path.resolve(commander.config, 'network.json'))
+  network: require(path.resolve(commander.config, 'network'))
 })
-.then(() => goofy.init(config.server.consoleLogLevel, config.server.fileLogLevel, config.network.name))
+.then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
 .then(() => (blockchainManager = new BlockchainManager(config)))
 .then(() => (p2p = new P2PInterface(config)))
 .then(() => DependencyHandler.checkDatabaseLibraries(config))

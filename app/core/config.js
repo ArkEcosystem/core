@@ -14,6 +14,7 @@ class Config {
   }
 
   init (config) {
+    this.api = config.api
     this.server = config.server
     this.network = config.network
     this.genesisBlock = config.genesisBlock
