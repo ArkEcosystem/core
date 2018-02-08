@@ -19,7 +19,10 @@ process.on('unhandledRejection', (reason, p) => {
 
 module.exports = async function () {
   await config.init({
-    api: require(path.resolve(conf, 'api')),
+    api: {
+      p2p: require(path.resolve(conf, 'api/p2p')),
+      public: require(path.resolve(conf, 'api/public'))
+    },
     server: require(path.resolve(conf, 'server')),
     genesisBlock: require(path.resolve(conf, 'genesisBlock.json')),
     network: require(path.resolve(conf, 'network')),

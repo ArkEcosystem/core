@@ -33,7 +33,10 @@ process.on('unhandledRejection', (reason, p) => {
 })
 
 config.init({
-  api: require(path.resolve(commander.config, 'api')),
+  api: {
+    p2p: require(path.resolve(commander.config, 'api/p2p')),
+    public: require(path.resolve(commander.config, 'api/public'))
+  },
   server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network'))

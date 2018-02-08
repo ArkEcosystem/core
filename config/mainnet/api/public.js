@@ -14,7 +14,7 @@ module.exports = {
       partition: "cache"
     }
   },
-  ratelimit: {
+  rateLimit: {
     enabled: false,
     limit: 300,
     expires: 600000
@@ -41,6 +41,5 @@ module.exports = {
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search'
     ]
-  },
-  remoteinterface: true
+  }
 }
