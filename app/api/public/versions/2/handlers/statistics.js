@@ -1,11 +1,12 @@
 const chainInstance = require('app/core/blockchainManager').getInstance()
+const state = chainInstance.getState()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()
 const _ = require('lodash')
 
 exports.blockchain = {
   handler: (request, h) => {
-    const lastBlock = chainInstance.state.lastBlock
+    const lastBlock = state.lastBlock
 
     const height = lastBlock.data.height
     const initialSupply = config.genesisBlock.totalAmount / 10 ** 8

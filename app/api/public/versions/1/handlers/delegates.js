@@ -1,5 +1,6 @@
 const Boom = require('boom')
 const blockchain = require('app/core/blockchainManager').getInstance()
+const state = blockchain.getState()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
@@ -74,7 +75,7 @@ exports.voters = {
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      data: config.getConstants(blockchain.state.lastBlock.data.height).fees.delegate
+      data: config.getConstants(state.lastBlock.data.height).fees.delegate
     })
   }
 }

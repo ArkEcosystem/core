@@ -19,17 +19,11 @@ module.exports = class BlockchainManager {
     this.config = config
     this.transactionPool = new PromiseWorker(worker)
     this.transactionPool.postMessage({event: 'init', data: config})
-    this.state = {
-      blockchain: stateMachine.initialState,
-      started: false,
-      lastBlock: null,
-      lastDownloadedBlock: null
-    }
 
     this.actions = stateMachine.actionMap(this)
 
     this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), this.state, qcallback),
+      (block, qcallback) => this.processBlock(new Block(block), stateMachine.state, qcallback),
       1
     )
 
@@ -50,10 +44,10 @@ module.exports = class BlockchainManager {
   }
 
   dispatch (event) {
-    const nextState = stateMachine.transition(this.state.blockchain, event)
-    goofy.debug(`event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
+    const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
+    goofy.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
     goofy.debug('| actions:', JSON.stringify(nextState.actions))
-    this.state.blockchain = nextState
+    stateMachine.state.blockchain = nextState
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
@@ -66,7 +60,7 @@ module.exports = class BlockchainManager {
   }
 
   isReady () {
-    if (this.state.started) return Promise.resolve(true)
+    if (stateMachine.state.started) return Promise.resolve(true)
     else return sleep(10000).then(() => this.isReady())
   }
 
@@ -86,7 +80,7 @@ module.exports = class BlockchainManager {
   resetState () {
     return this.pauseQueues()
       .then(() => this.clearQueues())
-      .then(() => (this.state = {
+      .then(() => (stateMachine.state = {
         blockchain: stateMachine.initialState,
         started: false,
         lastBlock: null,
@@ -107,7 +101,7 @@ module.exports = class BlockchainManager {
   }
 
   removeBlocks (nblocks) {
-    goofy.info(`Starting ${nblocks} blocks undo from height`, this.state.lastBlock.data.height)
+    goofy.info(`Starting ${nblocks} blocks undo from height`, stateMachine.state.lastBlock.data.height)
     return this.pauseQueues()
       .then(() => this.__removeBlocks(nblocks))
       .then(() => this.clearQueues())
@@ -117,7 +111,7 @@ module.exports = class BlockchainManager {
   __removeBlocks (nblocks) {
     if (!nblocks) return Promise.resolve()
     else {
-      goofy.info('Undoing block', this.state.lastBlock.data.height)
+      goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
       return this
         .undoLastBlock()
         .then(() => this.__removeBlocks(nblocks - 1))
@@ -125,13 +119,13 @@ module.exports = class BlockchainManager {
   }
 
   undoLastBlock () {
-    const lastBlock = this.state.lastBlock
+    const lastBlock = stateMachine.state.lastBlock
     return this.db.undoBlock(lastBlock)
       .then(() => this.db.deleteBlock(lastBlock))
       .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
       .then(() => this.db.getBlock(lastBlock.data.previousBlock))
-      .then(newLastBlock => (this.state.lastBlock = newLastBlock))
-      .then(() => (this.state.lastDownloadedBlock = this.state.lastBlock))
+      .then(newLastBlock => (stateMachine.state.lastBlock = newLastBlock))
+      .then(() => (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock))
   }
 
   pauseQueues () {
@@ -142,7 +136,7 @@ module.exports = class BlockchainManager {
 
   clearQueues () {
     this.downloadQueue.remove(() => true)
-    this.state.lastDownloadedBlock = this.state.lastBlock
+    stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
     return Promise.resolve()
   }
@@ -157,9 +151,9 @@ module.exports = class BlockchainManager {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
-      state.fastSync = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastSync
-      if (block.data.previousBlock === this.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(this.state.lastBlock.data.timestamp / constants.blocktime)) {
-        this.db.applyBlock(block, !state.fastSync, state.fastSync)
+      state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
+      if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
+        this.db.applyBlock(block, state.rebuild, state.fastRebuild)
           .then(() => this.db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           .then(() => (state.lastBlock = block))
           // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
@@ -193,7 +187,7 @@ module.exports = class BlockchainManager {
   }
 
   isSynced (block) {
-    block = block || this.state.lastBlock.data
+    block = block || stateMachine.state.lastBlock.data
     return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
@@ -205,6 +199,10 @@ module.exports = class BlockchainManager {
   attachDBInterface (dbinterface) {
     this.db = dbinterface
     return this
+  }
+
+  getState () {
+    return stateMachine.state
   }
 
   getDb () {

@@ -1,9 +1,10 @@
 const blockchain = require('app/core/blockchainManager').getInstance()
+const state = blockchain.getState()
 const config = require('app/core/config')
 
 exports.status = {
   handler: (request, h) => {
-    const lastBlock = blockchain.state.lastBlock
+    const lastBlock = state.lastBlock
 
     return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
       return {
@@ -19,7 +20,7 @@ exports.status = {
 
 exports.syncing = {
   handler: (request, h) => {
-    const lastBlock = blockchain.state.lastBlock
+    const lastBlock = state.lastBlock
 
     return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
       return {

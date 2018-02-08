@@ -84,10 +84,10 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  applyRound (block, syncing, fastSync) {
-    tickSyncTracker(block, syncing, fastSync)
-    if ((!fastSync && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      if (syncing) { // basically don't make useless database interaction like saving wallet state
+  applyRound (block, rebuild, fastRebuild) {
+    tickSyncTracker(block, rebuild, fastRebuild)
+    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
+      if (rebuild) { // basically don't make useless database interaction like saving wallet state
         return this.buildDelegates(block)
           .then(() => this.rounds.bulkCreate(this.activedelegates))
           .then(() => block)

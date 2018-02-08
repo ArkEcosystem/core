@@ -1,7 +1,8 @@
 const blockchain = require('app/core/blockchainManager').getInstance()
+const state = blockchain.getState()
 
 module.exports = async (model) => {
-  const lastBlock = blockchain.state.lastBlock
+  const lastBlock = state.lastBlock
 
   return {
     id: model.id,

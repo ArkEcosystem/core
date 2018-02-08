@@ -1,5 +1,6 @@
 const arkjs = require('arkjs')
 const blockchain = require('app/core/blockchainManager').getInstance()
+const state = blockchain.getState()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
@@ -80,7 +81,7 @@ exports.publicKey = {
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.state.lastBlock.data.height).fees.delegate
+      fee: config.getConstants(state.lastBlock.data.height).fees.delegate
     })
   }
 }
@@ -98,9 +99,9 @@ exports.delegates = {
       if (!account) return utils.respondWith('Address not found.', true)
       if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
 
-      return db.getActiveDelegates(blockchain.state.lastBlock.data.height).then(delegates => {
+      return db.getActiveDelegates(state.lastBlock.data.height).then(delegates => {
         const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
-        const delegate = delegates[delegateRank]
+        const delegate = delegates[delegateRank] || {}
 
         return db.wallets.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash)).then(account => {
           return utils.respondWith({
