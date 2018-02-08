@@ -212,7 +212,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
             state.lastBlock = genesis
             state.lastDownloadedBlock = genesis
             state.fastRebuild = state.rebuild = true
-            goofy.info('Fast rebuild:', state.state.fastRebuild)
+            goofy.info('Fast rebuild:', state.fastRebuild)
             return blockchainManager.db.saveBlock(genesis)
               .then(() => blockchainManager.db.buildWallets())
               .then(() => blockchainManager.db.saveWallets(true))
