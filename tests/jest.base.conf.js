@@ -1,13 +1,12 @@
 const path = require('path')
 
 module.exports = {
-  globalSetup: './tests/support/tearup.js',
-  // globalTeardown: './tests/support/teardown.js',
+  globalSetup: './tests/support/tearup-full.js',
 
   // env
   testEnvironment: 'node',
-  bail: false,
-  verbose: false,
+  bail: true,
+  verbose: true,
 
   // go from root
   rootDir: path.resolve(__dirname, '../'),

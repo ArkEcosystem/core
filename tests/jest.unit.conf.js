@@ -1,6 +1,7 @@
 const baseConfig = require('./jest.base.conf.js')
 
 module.exports = Object.assign(baseConfig, {
+  globalSetup: './tests/support/tearup-basic.js',
   testMatch: ['**/tests/unit/**/*.spec.js?(x)'],
   coverageDirectory: 'tests/coverage/unit',
   collectCoverageFrom: [
