@@ -9,6 +9,7 @@ module.exports = class Wallet {
     this.balance = 0
     this.vote = null
     this.username = null
+    this.lastBlock = null
     this.votebalance = 0
     this.multisignature = null
     this.dirty = true
@@ -94,6 +95,7 @@ module.exports = class Wallet {
     if (block.generatorPublicKey === this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance += block.reward + block.totalFee
       this.producedBlocks++
+      this.lastBlock = block
     }
     this.dirty = true
   }
@@ -102,6 +104,8 @@ module.exports = class Wallet {
     if (block.generatorPublicKey === this.publicKey || arkjs.crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance -= block.reward + block.totalFee
       this.producedBlocks--
+      // TODO get it back from database?
+      this.lastBlock = null
     }
     this.dirty = true
   }

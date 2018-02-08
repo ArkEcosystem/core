@@ -121,6 +121,13 @@ module.exports = class SequelizeDB extends DBInterface {
           wallet.balance += parseInt(row.reward)
           wallet.producedBlocks += parseInt(row.produced)
         })
+        return this.db.query('select *, max(`timestamp`) from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      })
+      .then(data => {
+        data.forEach(row => {
+          const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+          wallet.lastBlock = row
+        })
         return this.transactionsTable.findAll({
           attributes: [
             'senderPublicKey',

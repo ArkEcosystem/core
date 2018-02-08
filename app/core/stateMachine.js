@@ -158,7 +158,7 @@ const state = {
   blockchain: blockchainMachine.initialState,
   lastDownloadedBlock: null,
   lastBlock: null,
-  started: true,
+  started: false,
   rebuild: true,
   fastRebuild: true
 }
