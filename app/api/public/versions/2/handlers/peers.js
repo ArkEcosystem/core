@@ -38,7 +38,7 @@ exports.show = {
 exports.me = {
   handler: (request, h) => {
     return publicIp.v4().then(ip => {
-      blockchain.networkInterface
+      return blockchain.networkInterface
         .getPeers()
         .then(peers => utils.respondWithResource(request, peers.find(p => p.ip === ip), 'peer'))
     })
