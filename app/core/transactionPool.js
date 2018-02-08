@@ -3,7 +3,7 @@ const arkjs = require('arkjs')
 const registerPromiseWorker = require('app/core/promise-worker/register')
 const config = require('app/core/config')
 const goofy = require('app/core/goofy')
-const Transaction = require('app/models/Transaction')
+const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/walletManager')
 
 let instance = null

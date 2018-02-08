@@ -73,7 +73,7 @@ module.exports = (config) => {
     }
   }
 
-  if (config.api.public.cache) {
+  if (config.api.public.cache.enabled) {
     manifest.server.cache = [config.api.public.cache.options]
   }
 
