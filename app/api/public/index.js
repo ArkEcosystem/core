@@ -4,21 +4,21 @@ const goofy = require('app/core/goofy')
 const Glue = require('glue')
 
 module.exports = (config) => {
-  if (!config.server.api.mount) {
+  if (!config.api.mount) {
     return goofy.info('Oh snap! Public API not mounted...')
   }
 
   const manifest = {
     server: {
-      port: config.server.api.port
+      port: config.api.port
     },
     register: {
       plugins: [
         {
           plugin: require('hapi-api-version'),
           options: {
-            validVersions: [1, 2],
-            defaultVersion: config.server.api.version,
+            validVersions: config.api.versions.valid,
+            defaultVersion: config.api.versions.default,
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
@@ -32,41 +32,27 @@ module.exports = (config) => {
         {
           plugin: require('hapi-rate-limit'),
           options: {
-            enabled: config.server.api.ratelimit.enabled,
+            enabled: config.api.rateLimit.enabled,
             pathLimit: false,
-            userLimit: config.server.api.ratelimit.limit,
+            userLimit: config.api.rateLimit.limit,
             userCache: {
-              expiresIn: config.server.api.ratelimit.expires
+              expiresIn: config.api.rateLimit.expires
             }
           }
         },
         {
           plugin: require('hapi-pagination'),
           options: {
+            query: {
+              limit: {
+                default: config.api.pagination.limit
+              },
+            },
             results: {
               name: 'data'
             },
             routes: {
-              include: [
-                '/api/v2/blocks',
-                '/api/v2/blocks/{id}/transactions',
-                '/api/v2/blocks/search',
-                '/api/v2/delegates',
-                '/api/v2/delegates/{id}/blocks',
-                '/api/v2/delegates/{id}/voters',
-                '/api/v2/multisignatures',
-                '/api/v2/peers',
-                '/api/v2/signatures',
-                '/api/v2/transactions',
-                '/api/v2/transactions/search',
-                '/api/v2/votes',
-                '/api/v2/wallets',
-                '/api/v2/wallets/{id}/transactions',
-                '/api/v2/wallets/{id}/transactions/received',
-                '/api/v2/wallets/{id}/transactions/send',
-                '/api/v2/wallets/{id}/votes',
-                '/api/v2/wallets/search'
-              ],
+              include: config.api.pagination.include,
               exclude: ['*']
             }
           }
@@ -87,13 +73,8 @@ module.exports = (config) => {
     }
   }
 
-  if (config.server.api.cache) {
-    manifest.server.cache = [{
-      name: 'redisCache',
-      engine: require('catbox-redis'),
-      host: '127.0.0.1',
-      partition: 'cache'
-    }]
+  if (config.api.cache) {
+    manifest.server.cache = [config.api.cache.options]
   }
 
   const options = {

@@ -1,5 +1,5 @@
-{
-  "secrets": [
+module.exports = {
+  secrets: [
     "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
     "venue below waste gather spin cruise title still boost mother flash tuna",
     "craft imitate step mixture patch forest volcano business charge around girl confirm",
@@ -52,4 +52,4 @@
     "agree grain record shift fossil summer hunt mutual net vast behind pilot",
     "decide rhythm oyster lady they merry betray jelly coyote solve episode then"
   ]
-} 
+}
