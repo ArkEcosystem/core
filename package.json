@@ -5,8 +5,11 @@
   "main": "app.js",
   "scripts": {
     "start:mainnet": "NODE_PATH=. node app/startRelayNode.js -c config/mainnet",
+    "start:mainnet:watch": "NODE_PATH=. nodemon app/startRelayNode.js -c config/mainnet",
     "start:devnet": "NODE_PATH=. node app/startRelayNode.js -c config/devnet",
-    "start:testnet": "NODE_PATH=. nodemon app/startRelayNode.js -c config/testnet",
+    "start:devnet:watch": "NODE_PATH=. nodemon app/startRelayNode.js -c config/devnet",
+    "start:testnet": "NODE_PATH=. node app/startRelayNode.js -c config/testnet",
+    "start:testnet:watch": "NODE_PATH=. nodemon app/startRelayNode.js -c config/testnet",
     "forge:mainnet": "NODE_PATH=. nodemon app/startForger.js -c config/mainnet",
     "forge:devnet": "NODE_PATH=. nodemon app/startForger.js -c config/devnet",
     "forge:testnet": "NODE_PATH=. nodemon app/startForger.js -c config/testnet",
