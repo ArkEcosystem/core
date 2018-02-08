@@ -5,21 +5,19 @@ const packageJson = require('./package.json')
 const path = require('path')
 const logger = require('./core/logger')
 const ForgerManager = require('./core/forgerManager')
-const prompt = require('prompt')
-const Delegate = require('./model/delegate')
+const inquirer = require('inquirer');
 
-const schema = {
-  properties: {
-    secret: {
-      hidden: true,
-      required: true
-    },
-    password: {
-      hidden: true,
-      required: true
-    }
-  }
-}
+const schema = [{
+  type: 'password',
+  message: 'Secret:',
+  name: 'secret',
+  mask: '*'
+}, {
+  type: 'password',
+  message: 'Password:',
+  name: 'password',
+  mask: '*'
+}]
 
 commander
   .version(packageJson.version)
@@ -37,13 +35,6 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-
-
-
-
-
-
-
 require('./core/config').init({
   server: require(path.resolve(commander.config, 'server.json')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
@@ -51,28 +42,20 @@ require('./core/config').init({
   delegates: require(delegateFilePath)
 }).then(config => {
   if (!config.delegates.bip38) {
-    prompt.start()
-    prompt.get(schema, (err, result) => {
-      if (err) throw Error(err)
-
-      config.delegates['bip38'] = Delegate.encrypt(result.secret, commander.config.network, result.password)
+    inquirer.prompt(schema).then((answers) => {
+      config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
       fs.writeFile(delegateFilePath, JSON.stringify(config.delegates), (err) => {
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
-          init(result.password)
+          init(answers.password)
         }
       })
     })
   } else {
-    prompt.start()
-    const properties = { password: schema.properties.password }
-
-    prompt.get({properties}, (err, result) => {
-      if (err) throw Error(err)
-
-      init(result.password)
+    inquirer.prompt([ schema[1] ]).then((answers) => {
+      init(answers.password)
     })
   }
 })
