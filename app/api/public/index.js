@@ -4,21 +4,21 @@ const goofy = require('app/core/goofy')
 const Glue = require('glue')
 
 module.exports = (config) => {
-  if (!config.api.mount) {
+  if (!config.api.public.mount) {
     return goofy.info('Oh snap! Public API not mounted...')
   }
 
   const manifest = {
     server: {
-      port: config.api.port
+      port: config.api.public.port
     },
     register: {
       plugins: [
         {
           plugin: require('hapi-api-version'),
           options: {
-            validVersions: config.api.versions.valid,
-            defaultVersion: config.api.versions.default,
+            validVersions: config.api.public.versions.valid,
+            defaultVersion: config.api.public.versions.default,
             vendorName: 'arkpublic',
             basePath: '/api/'
           }
@@ -32,11 +32,11 @@ module.exports = (config) => {
         {
           plugin: require('hapi-rate-limit'),
           options: {
-            enabled: config.api.rateLimit.enabled,
+            enabled: config.api.public.rateLimit.enabled,
             pathLimit: false,
-            userLimit: config.api.rateLimit.limit,
+            userLimit: config.api.public.rateLimit.limit,
             userCache: {
-              expiresIn: config.api.rateLimit.expires
+              expiresIn: config.api.public.rateLimit.expires
             }
           }
         },
@@ -45,14 +45,14 @@ module.exports = (config) => {
           options: {
             query: {
               limit: {
-                default: config.api.pagination.limit
+                default: config.api.public.pagination.limit
               },
             },
             results: {
               name: 'data'
             },
             routes: {
-              include: config.api.pagination.include,
+              include: config.api.public.pagination.include,
               exclude: ['*']
             }
           }
@@ -73,8 +73,8 @@ module.exports = (config) => {
     }
   }
 
-  if (config.api.cache) {
-    manifest.server.cache = [config.api.cache.options]
+  if (config.api.public.cache) {
+    manifest.server.cache = [config.api.public.cache.options]
   }
 
   const options = {

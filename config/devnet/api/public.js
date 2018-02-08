@@ -41,6 +41,5 @@ module.exports = {
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search'
     ]
-  },
-  remoteInterface: true
+  }
 }

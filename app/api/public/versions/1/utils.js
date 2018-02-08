@@ -5,7 +5,7 @@ const config = require('app/core/config')
 const paginator = (request) => {
   return {
     offset: request.query.offset || 0,
-    limit: request.query.limit || config.api.pagination.limit
+    limit: request.query.limit || config.api.public.pagination.limit
   }
 }
 

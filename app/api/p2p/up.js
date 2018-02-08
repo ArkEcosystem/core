@@ -33,7 +33,7 @@ class Up {
     server.use(restify.plugins.gzipResponse())
 
     this.mountInternal(server)
-    if (this.config.api.remoteinterface) this.mountRemoteInterface(server)
+    if (this.config.api.p2p.remoteinterface) this.mountRemoteInterface(server)
     this.mountV1(server)
 
     server.listen(this.port, () => goofy.info('%s interface listening at %s', server.name, server.url))
