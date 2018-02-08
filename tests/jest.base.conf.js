@@ -2,6 +2,7 @@ const path = require('path')
 
 module.exports = {
   globalSetup: './tests/support/tearup-full.js',
+  // globalTeardown: './tests/support/teardown.js',
 
   // env
   testEnvironment: 'node',
