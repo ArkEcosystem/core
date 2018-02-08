@@ -47,6 +47,7 @@
     "interval-to-human": "^0.1.1",
     "ip": "^1.1.5",
     "lru-cache": "^4.1.1",
+    "otplib": "^7.0.0",
     "popsicle": "^9.2.0",
     "progress": "^2.0.0",
     "promise-worker": "^1.1.1",

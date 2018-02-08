@@ -2,6 +2,7 @@ const arkjs = require('arkjs')
 const bip38 = require('bip38')
 const wif = require('wif')
 const crypto = require('crypto')
+const otplib = require('otplib')
 const Block = require('./block')
 
 class Delegate {
@@ -11,6 +12,7 @@ class Delegate {
       this.keys = this.decrypt(passphrase, network, password)
       this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")//this.keys.publicKey
       this.address = this.keys.getAddress(network.pubKeyHash)
+      this.otpSecret = otplib.authenticator.generateSecret()
       this.encryptKeysWithOtp()
     }
   }
@@ -26,7 +28,7 @@ class Delegate {
   }
 
   encryptKeysWithOtp () {
-    this.otp = '123456'
+    this.otp = otplib.authenticator.generate(this.otpSecret)
     const wifKey = this.keys.toWIF()
     const decoded = wif.decode(wifKey)
 
