@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-function syncTables (db) {
+function syncTables(db) {
   const blocks = db.define('blocks', {
     id: {
       type: Sequelize.STRING(64),
@@ -29,9 +29,9 @@ function syncTables (db) {
     },
     {
       fields: ['generatorPublicKey']
-    }
-    ]
+    }]
   })
+
   const transactions = db.define('transactions', {
     id: {
       type: Sequelize.STRING(64),
@@ -69,12 +69,11 @@ function syncTables (db) {
     },
     {
       fields: ['timestamp']
-    }
-
-    ]
+    }]
   })
   transactions.belongsTo(blocks)
   blocks.hasMany(transactions)
+
   const wallets = db.define('wallets', {
     address: {
       type: Sequelize.STRING(36),
@@ -100,37 +99,37 @@ function syncTables (db) {
     },
     {
       fields: ['username']
-    }
+    }]
+  })
 
+  const rounds = db.define('rounds', {
+    publicKey: {
+      type: Sequelize.STRING(66)
+    },
+    balance: Sequelize.BIGINT,
+    round: Sequelize.BIGINT
+  }, {
+    uniqueKeys: {
+      rounds_unique: {
+        fields: ['publicKey', 'round']
+      }
+    },
+    indexes: [{
+        fields: ['publicKey']
+      },
+      {
+        fields: ['round']
+      }
     ]
   })
 
-  const rounds = db.define('rounds',
-    {
-      publicKey: {
-        type: Sequelize.STRING(66)
-      },
-      balance: Sequelize.BIGINT,
-      round: Sequelize.BIGINT
-    },
-    {
-      uniqueKeys: {
-        rounds_unique: {
-          fields: ['publicKey', 'round']
-        }
-      },
-      indexes: [
-        {
-          fields: ['publicKey']
-        },
-        {
-          fields: ['round']
-        }
-      ]
-    }
-  )
+  const webhooks = db.define('webhooks', {
+    event: Sequelize.STRING,
+    enabled: Sequelize.BOOLEAN,
+    options: Sequelize.JSON
+  })
 
-  return Promise.all([blocks, transactions, wallets, rounds].map(table => table.sync()))
+  return Promise.all([blocks, transactions, wallets, rounds, webhooks].map(table => table.sync()))
 }
 
 module.exports = {
