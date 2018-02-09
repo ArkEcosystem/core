@@ -20,6 +20,8 @@
     "test:api:watch": "NODE_PATH=. jest --no-cache --watch --config tests/jest.api.conf.js",
     "test:unit": "NODE_PATH=. jest --no-cache --forceExit --config tests/jest.unit.conf.js",
     "test:unit:watch": "NODE_PATH=. jest --no-cache --watch --config tests/jest.unit.conf.js",
+    "test:webhook": "NODE_PATH=. jest --no-cache --forceExit --config tests/jest.webhook.conf.js",
+    "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --config tests/jest.webhook.conf.js",
     "coverage": "NODE_PATH=. nyc mocha",
     "lint": "eslint ./ --fix"
   },
@@ -73,6 +75,7 @@
     "xstate": "^3.0.4"
   },
   "devDependencies": {
+    "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "eslint": "^4.16.0",
@@ -81,6 +84,7 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
+    "express": "^4.16.2",
     "jest": "^22.1.4",
     "nyc": "^11.4.1",
     "request-promise": "^4.2.2",
