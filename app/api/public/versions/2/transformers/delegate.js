@@ -4,7 +4,7 @@ module.exports = (delegate) => {
   const data = {
     username: delegate.username,
     address: delegate.address,
-    public_key: delegate.publicKey,
+    publicKey: delegate.publicKey,
     votes: delegate.votebalance,
     rank: delegate.rank,
     blocks: {

@@ -10,7 +10,7 @@ module.exports = (model) => {
 
   return {
     id: data.id,
-    block_id: model.blockId,
+    blockId: model.blockId,
     type: data.type,
     amount: data.amount,
     timestamp: data.timestamp,
