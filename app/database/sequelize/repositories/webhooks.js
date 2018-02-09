@@ -1,3 +1,5 @@
+const Op = require('sequelize').Op
+
 module.exports = class WebhooksRepository {
   constructor (db) {
     this.db = db
@@ -12,6 +14,10 @@ module.exports = class WebhooksRepository {
 
   findById (id) {
     return this.db.webhooksTable.findById(id)
+  }
+
+  findByEvent (event) {
+    return this.db.webhooksTable.findAll({ where: {event} })
   }
 
   create (data) {
