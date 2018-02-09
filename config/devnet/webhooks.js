@@ -1,15 +1,7 @@
-module.exports = [{
-  event: 'block:forged',
+module.exports = {
   enabled: true,
-  options: {
-    hook: {
-      url: 'https://httpbin.org/post',
-      authToken: 'Hello World'
-    },
-    expiration: {
-      enabled: true,
-      period: 3600
-    },
-    retry: 5
-  }
-}]
+  events: [{
+    name: 'block:forged',
+    description: 'Fired when a new block is forged.'
+  }]
+}

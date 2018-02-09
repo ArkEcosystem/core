@@ -96,7 +96,7 @@ describe('API 2.0 - Transactions', () => {
         const transaction = res.body.data[0]
         utils.assertTransaction(transaction)
         expect(transaction.id).toBe(transactionId)
-        expect(transaction.block_id).toBe(blockId)
+        expect(transaction.blockId).toBe(blockId)
 
         done()
       })

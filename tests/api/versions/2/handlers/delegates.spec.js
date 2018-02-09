@@ -14,7 +14,7 @@ describe('API 2.0 - Delegates', () => {
         const delegate = res.body.data[0]
         expect(delegate.username).toBeType('string')
         expect(delegate.address).toBeType('string')
-        expect(delegate.public_key).toBeType('string')
+        expect(delegate.publicKey).toBeType('string')
 
         done()
       })
@@ -29,7 +29,7 @@ describe('API 2.0 - Delegates', () => {
 
         expect(res.body.data).toHaveProperty('username', delegateUsername)
         expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
+        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
 
         done()
       })
@@ -42,7 +42,7 @@ describe('API 2.0 - Delegates', () => {
 
         expect(res.body.data).toHaveProperty('username', delegateUsername)
         expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
+        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
 
         done()
       })
@@ -55,7 +55,7 @@ describe('API 2.0 - Delegates', () => {
 
         expect(res.body.data).toHaveProperty('username', delegateUsername)
         expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('public_key', delegatePublicKey)
+        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
 
         done()
       })
@@ -83,7 +83,7 @@ describe('API 2.0 - Delegates', () => {
         expect(block.payload.hash).toBeType('string')
 
         expect(block.generator).toBeType('object')
-        expect(block.generator.public_key).toBeType('string')
+        expect(block.generator.publicKey).toBeType('string')
 
         expect(block.signature).toBeType('string')
         expect(block.transactions).toBeType('number')
@@ -101,9 +101,9 @@ describe('API 2.0 - Delegates', () => {
 
         const voter = res.body.data[0]
         expect(voter.address).toBeType('string')
-        expect(voter.public_key).toBeType('string')
+        expect(voter.publicKey).toBeType('string')
         expect(voter.balance).toBeType('number')
-        expect(voter.is_delegate).toBeType('boolean')
+        expect(voter.isDelegate).toBeType('boolean')
 
         done()
       })

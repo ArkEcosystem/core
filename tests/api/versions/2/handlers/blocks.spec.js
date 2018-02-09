@@ -70,7 +70,7 @@ describe('API 2.0 - Blocks', () => {
 
         const transaction = res.body.data[0]
         utils.assertTransaction(transaction)
-        expect(transaction.block_id).toBe(blockId)
+        expect(transaction.blockId).toBe(blockId)
 
         done()
       })
@@ -152,7 +152,7 @@ describe('API 2.0 - Blocks', () => {
         const block = res.body.data[0]
         utils.assertBlock(block)
         expect(block.id).toBe(blockId)
-        expect(block.generator.public_key).toBe(generatorPublicKey)
+        expect(block.generator.publicKey).toBe(generatorPublicKey)
 
         done()
       })

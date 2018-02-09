@@ -33,9 +33,7 @@ exports.show = {
     return db.blocks.findById(request.query.id).then(block => {
       if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
 
-      return utils
-        .toResource(request, block, 'block')
-        .then(block => utils.respondWith({block}))
+      return utils.respondWith({ block: utils.toResource(request, block, 'block') })
     })
   }
 }

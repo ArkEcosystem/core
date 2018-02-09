@@ -56,9 +56,7 @@ exports.show = {
 
       if (!peer) return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
 
-      return utils
-        .toResource(request, peer, 'peer')
-        .then(peer => utils.respondWith({peer}))
+      return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
     })
   }
 }
