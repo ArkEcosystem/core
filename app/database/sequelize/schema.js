@@ -125,6 +125,7 @@ function syncTables(db) {
 
   const webhooks = db.define('webhooks', {
     event: Sequelize.STRING,
+    target: Sequelize.STRING,
     enabled: Sequelize.BOOLEAN,
     options: Sequelize.JSON
   })
