@@ -20,6 +20,6 @@ module.exports = (model) => {
     signature: model.blockSignature,
     confirmations: model.confirmations,
     transactions: model.numberOfTransactions,
-    created_at: model.timestamp
+    timestamp: model.timestamp
   };
 }

@@ -10,6 +10,7 @@ const DB = require('app/core/dbinterface')
 const Cache = require('app/core/cache')
 const Queue = require('app/core/queue')
 const DependencyHandler = require('app/core/dependency-handler')
+const WebhookListener = require('app/core/webhooks/listener')
 const PublicAPI = require('app/api/public')
 
 commander
@@ -37,6 +38,7 @@ config.init({
     p2p: require(path.resolve(commander.config, 'api/p2p')),
     public: require(path.resolve(commander.config, 'api/public'))
   },
+  webhooks: require(path.resolve(commander.config, 'webhooks')),
   server: require(path.resolve(commander.config, 'server')),
   genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
   network: require(path.resolve(commander.config, 'network'))
@@ -45,8 +47,6 @@ config.init({
 .then(() => (blockchainManager = new BlockchainManager(config)))
 .then(() => (p2p = new P2PInterface(config)))
 .then(() => DependencyHandler.checkDatabaseLibraries(config))
-// .then(() => new Queue(config.server.redis))
-// .then(() => new Cache(config.server.redis))
 .then(() => DB.create(config.server.db))
 .then(db => blockchainManager.attachDBInterface(db))
 .then(() => goofy.info('Database started'))
@@ -55,6 +55,8 @@ config.init({
 .then(() => blockchainManager.attachNetworkInterface(p2p))
 .then(() => blockchainManager.start())
 .then(() => blockchainManager.isReady())
+.then(() => goofy.info('Mounting Webhook Listener'))
+.then(() => new WebhookListener(config.webhooks).subscribe())
 .then(() => goofy.info('Mounting Public API'))
 .then(() => PublicAPI(config))
 .catch(fatal => goofy.error('fatal error', fatal))

@@ -46,7 +46,7 @@ module.exports = (config) => {
             query: {
               limit: {
                 default: config.api.public.pagination.limit
-              },
+              }
             },
             results: {
               name: 'data'

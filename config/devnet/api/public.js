@@ -8,10 +8,10 @@ module.exports = {
   cache: {
     enabled: false,
     options: {
-      name: "public-api-cache",
-      engine: require("catbox-redis"),
-      host: "127.0.0.1",
-      partition: "cache"
+      name: 'public-api-cache',
+      engine: require('catbox-redis'),
+      host: '127.0.0.1',
+      partition: 'cache'
     }
   },
   rateLimit: {
