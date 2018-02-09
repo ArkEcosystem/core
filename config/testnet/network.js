@@ -1,20 +1,20 @@
 module.exports = {
-  name: "testnet",
-  messagePrefix: "TEST message:\n",
+  name: 'testnet',
+  messagePrefix: 'TEST message:\n',
   bip32: {
     public: 70617039,
     private: 70615956
   },
   pubKeyHash: 82,
-  nethash: "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
+  nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
   wif: 186,
   client: {
-    token: "TARK",
-    symbol: "TѦ",
-    explorer: "http://texplorer.ark.io"
+    token: 'TARK',
+    symbol: 'TѦ',
+    explorer: 'http://texplorer.ark.io'
   },
   peers: [{
-    ip: "127.0.0.1",
+    ip: '127.0.0.1',
     port: 4000
   }],
   constants: [{
@@ -27,7 +27,7 @@ module.exports = {
       maxTransactions: 50,
       maxPayload: 2097152
     },
-    epoch: "2017-03-21T13:00:00UTC",
+    epoch: '2017-03-21T13:00:00UTC',
     fees: {
       send: 10000000,
       vote: 100000000,

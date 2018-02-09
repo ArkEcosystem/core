@@ -1,32 +1,32 @@
 module.exports = {
-  name: "devnet",
-  messagePrefix: "ARK message:\n",
+  name: 'devnet',
+  messagePrefix: 'ARK message:\n',
   bip32: {
     public: 46090600,
     private: 46089520
   },
   pubKeyHash: 30,
-  nethash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
+  nethash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23',
   wif: 170,
   client: {
-    token: "ARK",
-    symbol: "Ѧ",
-    explorer: "https://explorer.ark.io"
+    token: 'ARK',
+    symbol: 'Ѧ',
+    explorer: 'https://explorer.ark.io'
   },
   peers: [{
-    ip: "167.114.29.32",
+    ip: '167.114.29.32',
     port: 4002
   }, {
-    ip: "167.114.29.33",
+    ip: '167.114.29.33',
     port: 4002
   }, {
-    ip: "167.114.29.34",
+    ip: '167.114.29.34',
     port: 4002
   }, {
-    ip: "167.114.29.35",
+    ip: '167.114.29.35',
     port: 4002
   }, {
-    ip: "167.114.29.36",
+    ip: '167.114.29.36',
     port: 4002
   }],
   constants: [{
@@ -39,7 +39,7 @@ module.exports = {
       maxTransactions: 50,
       maxPayload: 2097152
     },
-    epoch: "2017-03-21T13:00:00.000Z",
+    epoch: '2017-03-21T13:00:00.000Z',
     fees: {
       send: 10000000,
       vote: 100000000,
