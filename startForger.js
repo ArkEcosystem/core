@@ -46,7 +46,7 @@ require('./core/config').init({
     inquirer.prompt(schema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
-      fs.writeFile(delegateFilePath, JSON.stringify(config.delegates), (err) => {
+      fs.writeFile(delegateFilePath, JSON.stringify(config.delegates, null, 2), (err) => {
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
