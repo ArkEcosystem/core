@@ -6,6 +6,7 @@ const path = require('path')
 const logger = require('./core/logger')
 const ForgerManager = require('./core/forgerManager')
 const inquirer = require('inquirer');
+const Delegate = require('./model/delegate')
 
 const schema = [{
   type: 'password',
