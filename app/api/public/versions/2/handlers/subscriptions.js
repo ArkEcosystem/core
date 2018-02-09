@@ -4,6 +4,9 @@ const utils = require('../utils')
 const schema = require('../schema/subscriptions')
 
 exports.index = {
+  config: {
+    auth: 'subscription'
+  },
   handler: (request, h) => {
     return db.webhooks
       .paginate(utils.paginate(request))
@@ -13,6 +16,7 @@ exports.index = {
 
 exports.store = {
   config: {
+    auth: 'subscription',
     validate: {
       payload: schema
     }
@@ -26,6 +30,9 @@ exports.store = {
 }
 
 exports.show = {
+  config: {
+    auth: 'subscription'
+  },
   handler: (request, h) => {
     return db.webhooks
       .findById(request.params.id)
@@ -35,6 +42,7 @@ exports.show = {
 
 exports.update = {
   config: {
+    auth: 'subscription',
     validate: {
       payload: schema
     }
@@ -47,6 +55,9 @@ exports.update = {
 }
 
 exports.destroy = {
+  config: {
+    auth: 'subscription'
+  },
   handler: (request, h) => {
     return db.webhooks
       .destroy(request.params.id, request.payload)
@@ -55,6 +66,9 @@ exports.destroy = {
 }
 
 exports.events = {
+  config: {
+    auth: 'subscription'
+  },
   handler: (request, h) => {
     return { data: config.webhooks.events }
   }
