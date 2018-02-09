@@ -42,5 +42,8 @@ module.exports = {
       '/api/v2/wallets/search',
       '/api/v2/subscriptions'
     ]
+  },
+  subscriptions: {
+    secret: 'my-secret-auth-token'
   }
 }
