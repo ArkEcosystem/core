@@ -30,10 +30,10 @@ exports.store = {
 }
 
 exports.show = {
-handler: (request, h) => {
-  return db.webhooks
-    .findById(request.params.id)
-    .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
+  handler: (request, h) => {
+    return db.webhooks
+      .findById(request.params.id)
+      .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
   }
 }
 
