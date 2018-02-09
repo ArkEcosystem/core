@@ -1,7 +1,7 @@
-const Joi = require('joi')
 const db = require('app/core/dbinterface').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
+const schema = require('../schema/subscriptions')
 
 exports.index = {
   handler: (request, h) => {
@@ -14,11 +14,7 @@ exports.index = {
 exports.store = {
   config: {
     validate: {
-      payload: {
-        event: Joi.string(),
-        enabled: Joi.boolean(),
-        options: Joi.object()
-      }
+      payload: schema
     }
   },
   handler: (request, h) => {
@@ -40,11 +36,7 @@ exports.show = {
 exports.update = {
   config: {
     validate: {
-      payload: {
-        event: Joi.string(),
-        enabled: Joi.boolean(),
-        options: Joi.object()
-      }
+      payload: schema
     }
   },
   handler: (request, h) => {
