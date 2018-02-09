@@ -6,6 +6,7 @@ const multisignatures = require('./handlers/multisignatures')
 const peers = require('./handlers/peers')
 const signatures = require('./handlers/signatures')
 const statistics = require('./handlers/statistics')
+const subscriptions = require('./handlers/subscriptions')
 const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
@@ -60,7 +61,15 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/transactions/send', ...wallets.transactionsSend },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
-    { method: 'GET', path: '/wallets/search', ...wallets.search }
+    { method: 'GET', path: '/wallets/search', ...wallets.search },
+
+    { method: 'GET', path: '/subscriptions', ...subscriptions.index },
+    { method: 'POST', path: '/subscriptions', ...subscriptions.store },
+    { method: 'GET', path: '/subscriptions/{id}', ...subscriptions.show },
+    { method: 'PUT', path: '/subscriptions/{id}', ...subscriptions.update },
+    { method: 'DELETE', path: '/subscriptions/{id}', ...subscriptions.destroy },
+
+    { method: 'GET', path: '/subscriptions/events', ...subscriptions.events }
   ])
 }
 

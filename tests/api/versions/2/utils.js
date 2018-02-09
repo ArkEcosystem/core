@@ -65,7 +65,7 @@ class Helpers {
   assertTransaction (transaction) {
     expect(transaction).toBeType('object')
     expect(transaction.id).toBeType('string')
-    expect(transaction.block_id).toBeType('string')
+    expect(transaction.blockId).toBeType('string')
     expect(transaction.type).toBeType('number')
     expect(transaction.amount).toBeType('number')
     expect(transaction.fee).toBeType('number')
@@ -95,7 +95,7 @@ class Helpers {
     expect(block.payload.hash).toBeType('string')
 
     expect(block.generator).toBeType('object')
-    expect(block.generator.public_key).toBeType('string')
+    expect(block.generator.publicKey).toBeType('string')
 
     expect(block.signature).toBeType('string')
     expect(block.transactions).toBeType('number')
@@ -103,9 +103,9 @@ class Helpers {
 
   assertWallet (wallet) {
     expect(wallet.address).toBeType('string')
-    expect(wallet.public_key).toBeType('string')
+    expect(wallet.publicKey).toBeType('string')
     expect(wallet.balance).toBeType('number')
-    expect(wallet.is_delegate).toBeType('boolean')
+    expect(wallet.isDelegate).toBeType('boolean')
   }
 }
 

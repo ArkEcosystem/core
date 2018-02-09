@@ -156,7 +156,7 @@ describe('API 2.0 - Wallets', () => {
         const wallet = res.body.data[0]
         utils.assertWallet(wallet)
         expect(wallet.address).toBe(addressActive)
-        expect(wallet.public_key).toBe(publicKey)
+        expect(wallet.publicKey).toBe(publicKey)
 
         done()
       })

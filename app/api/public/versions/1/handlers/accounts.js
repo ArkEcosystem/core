@@ -30,9 +30,7 @@ exports.show = {
       .then(account => {
         if (!account) return utils.respondWith('Not found', true)
 
-        return utils
-          .toResource(request, account, 'wallet')
-          .then(account => utils.respondWith({account}))
+        return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
       })
   }
 }

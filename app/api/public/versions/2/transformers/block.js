@@ -15,7 +15,7 @@ module.exports = (model) => {
     },
     generator: {
       id: model.generatorId,
-      public_key: model.generatorPublicKey
+      publicKey: model.generatorPublicKey
     },
     signature: model.blockSignature,
     confirmations: model.confirmations,

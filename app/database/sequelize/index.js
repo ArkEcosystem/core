@@ -19,7 +19,9 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then(tables => ([this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable] = tables))
+      .then(tables => ([
+        this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
+      ] = tables))
   }
 
   getActiveDelegates (height) {

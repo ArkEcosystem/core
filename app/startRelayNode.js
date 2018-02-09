@@ -56,7 +56,7 @@ config.init({
 .then(() => blockchainManager.start())
 .then(() => blockchainManager.isReady())
 .then(() => goofy.info('Mounting Webhook Listener'))
-.then(() => new WebhookListener(config.webhooks).subscribe())
+.then(() => new WebhookListener().subscribe())
 .then(() => goofy.info('Mounting Public API'))
 .then(() => PublicAPI(config))
 .catch(fatal => goofy.error('fatal error', fatal))
