@@ -4,7 +4,7 @@ const state = blockchain.getState()
 const config = require('app/core/config')
 const Transaction = require('app/models/transaction')
 
-module.exports = async (model) => {
+module.exports = (model) => {
   const lastBlock = state.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
