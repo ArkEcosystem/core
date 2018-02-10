@@ -40,10 +40,10 @@ module.exports = {
       '/api/v2/wallets/{id}/transactions/send',
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search',
-      '/api/v2/subscriptions'
+      '/api/v2/webhooks'
     ]
   },
-  subscriptions: {
+  webhooks: {
     secret: 'my-secret-auth-token'
   }
 }

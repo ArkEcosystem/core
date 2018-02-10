@@ -1,11 +1,11 @@
 const db = require('app/core/dbinterface').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
-const schema = require('../schema/subscriptions')
+const schema = require('../schema/webhookss')
 
 exports.index = {
   config: {
-    auth: 'subscription'
+    auth: 'webhooks'
   },
   handler: (request, h) => {
     return db.webhooks
@@ -16,12 +16,14 @@ exports.index = {
 
 exports.store = {
   config: {
-    auth: 'subscription',
+    auth: 'webhooks',
     validate: {
       payload: schema
     }
   },
   handler: (request, h) => {
+    request.payload.token = require('crypto').randomBytes(32).toString('hex')
+
     return db.webhooks
       .create(request.payload)
       .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
@@ -31,7 +33,7 @@ exports.store = {
 
 exports.show = {
   config: {
-    auth: 'subscription'
+    auth: 'webhooks'
   },
   handler: (request, h) => {
     return db.webhooks
@@ -42,7 +44,7 @@ exports.show = {
 
 exports.update = {
   config: {
-    auth: 'subscription',
+    auth: 'webhooks',
     validate: {
       payload: schema
     }
@@ -56,7 +58,7 @@ exports.update = {
 
 exports.destroy = {
   config: {
-    auth: 'subscription'
+    auth: 'webhooks'
   },
   handler: (request, h) => {
     return db.webhooks
@@ -67,7 +69,7 @@ exports.destroy = {
 
 exports.events = {
   config: {
-    auth: 'subscription'
+    auth: 'webhooks'
   },
   handler: (request, h) => {
     return { data: config.webhooks.events }

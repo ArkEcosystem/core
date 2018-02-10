@@ -21,11 +21,11 @@ const implementation = (server, options) => {
 }
 
 const register = async (server, options) => {
-  server.auth.scheme('subscription', implementation)
+  server.auth.scheme('webhook', implementation)
 }
 
 exports.plugin = {
-  name: 'hapi-subscription-auth',
+  name: 'hapi-webhook-auth',
   version: '1.0.0',
   register
 }
