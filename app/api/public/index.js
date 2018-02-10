@@ -10,10 +10,10 @@ module.exports = async (config) => {
     port: config.api.public.port
   })
 
-  await server.register(require('./plugins/auth/subscription'))
+  await server.register(require('./plugins/auth/webhook'))
 
-  await server.auth.strategy('subscription', 'subscription', {
-    secret: config.api.public.subscriptions.secret
+  await server.auth.strategy('webhook', 'webhook', {
+    secret: config.api.public.webhooks.secret
   })
 
   await server.register({
