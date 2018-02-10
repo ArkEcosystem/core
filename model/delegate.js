@@ -4,13 +4,16 @@ const wif = require('wif')
 const crypto = require('crypto')
 const otplib = require('otplib')
 const Block = require('./block')
+const forge = require('node-forge')
 
 class Delegate {
   constructor (passphrase, network, password) {
     this.network = network
+    this.keySize = 32 // AES-256
+    this.interations = 5000
     if (bip38.verify(passphrase)) {
       this.keys = this.decrypt(passphrase, network, password)
-      this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")//this.keys.publicKey
+      this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
       this.address = this.keys.getAddress(network.pubKeyHash)
       this.otpSecret = otplib.authenticator.generateSecret()
       this.encryptKeysWithOtp()
@@ -29,15 +32,14 @@ class Delegate {
 
   encryptKeysWithOtp () {
     this.otp = otplib.authenticator.generate(this.otpSecret)
-    const wifKey = this.keys.toWIF()
-    const decoded = wif.decode(wifKey)
-
-    this.encryptedKeys = bip38.encrypt(decoded.privateKey, decoded.compressed, this.otp)
+    this.encryptedKeys = this.encryptData(this.keys.toWIF(), this.otp)
     this.keys = null
   }
 
   decryptKeysWithOtp () {
-    this.keys = this.decrypt(this.encryptedKeys, this.network, this.otp)
+    let wifKey = this.decryptData(this.encryptedKeys, this.otp)
+    this.keys = arkjs.ECPair.fromWIF(wifKey, this.network)
+    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
     this.otp = null
     this.encryptedKeys = null
   }
@@ -49,6 +51,26 @@ class Delegate {
     keys.publicKey = keys.getPublicKeyBuffer().toString("hex")
 
     return keys
+  }
+
+  encryptData (content, password) {
+    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.interations, this.keySize);
+    let cipher = forge.cipher.createCipher('AES-CBC', derivedKey);
+    cipher.start({ iv: forge.util.decode64(this.otp) });
+    cipher.update(forge.util.createBuffer(content));
+    cipher.finish();
+
+    return forge.util.encode64(cipher.output.getBytes());
+  }
+
+  decryptData (cipherText, password) {
+    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.interations, this.keySize);
+    let decipher = forge.cipher.createDecipher('AES-CBC', derivedKey);
+    decipher.start({ iv: forge.util.decode64(this.otp) });
+    decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
+    decipher.finish();
+
+    return decipher.output.toString();
   }
 
   // we consider transactions are signed, verified and unique
