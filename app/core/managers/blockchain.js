@@ -2,10 +2,10 @@ const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('app/models/block')
 const goofy = require('app/core/goofy')
-const stateMachine = require('app/core/stateMachine')
+const stateMachine = require('app/core/state-machine')
 const PromiseWorker = require('app/core/promise-worker')
 const Worker = require('tiny-worker')
-const worker = new Worker('app/core/transactionPool.js')
+const worker = new Worker('app/core/transaction-pool.js')
 
 let instance = null
 
