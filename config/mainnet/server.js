@@ -12,6 +12,10 @@ module.exports = {
     dialect: 'sqlite',
     logging: false
   },
+  queue: {
+    host: 'localhost',
+    port: 6379
+  },
   peers: {
     minimumNetworkReach: 20,
     list: [{

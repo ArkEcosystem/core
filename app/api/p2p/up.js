@@ -3,7 +3,7 @@ const arkjs = require('arkjs')
 const crypto = require('crypto')
 const requestIp = require('request-ip')
 const goofy = require('app/core/goofy')
-const blockchain = require('app/core/blockchainManager')
+const blockchain = require('app/core/managers/blockchain')
 const Transaction = require('app/models/transaction')
 
 const _headers = {

@@ -1,4 +1,4 @@
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const db = require('app/core/dbinterface').getInstance()
 const state = blockchain.getState()
 const config = require('app/core/config')

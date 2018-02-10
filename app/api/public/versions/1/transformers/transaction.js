@@ -1,5 +1,5 @@
 const arkjs = require('arkjs')
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('app/core/config')
 const Transaction = require('app/models/transaction')

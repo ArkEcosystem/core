@@ -1,4 +1,4 @@
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
 const schema = require('../schemas/peers')
