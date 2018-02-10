@@ -2,7 +2,7 @@ const popsicle = require('popsicle')
 const goofy = require('app/core/goofy')
 const PromiseWorker = require('app/core/promise-worker')
 const Worker = require('tiny-worker')
-const worker = new Worker(`${__dirname}/downloadWorker.js`)
+const worker = new Worker(`${__dirname}/download-worker.js`)
 const promiseWorker = new PromiseWorker(worker)
 
 class Peer {

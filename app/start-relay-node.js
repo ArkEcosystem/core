@@ -40,7 +40,7 @@ config.init({
   },
   webhooks: require(path.resolve(commander.config, 'webhooks')),
   server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
   network: require(path.resolve(commander.config, 'network'))
 })
 .then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))

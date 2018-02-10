@@ -1,4 +1,4 @@
-const ForgerManager = require('app/core/forgerManager')
+const ForgerManager = require('app/core/managers/forger')
 const Delegate = require('app/models/delegate')
 
 describe('Core | ForgerManager', () => {

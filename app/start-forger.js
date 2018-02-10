@@ -4,7 +4,7 @@ const commander = require('commander')
 const packageJson = require('../package.json')
 const path = require('path')
 const goofy = require('app/core/goofy')
-const ForgerManager = require('app/core/forgerManager')
+const ForgerManager = require('app/core/managers/forger')
 
 commander
   .version(packageJson.version)
@@ -28,7 +28,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 config.init({
   server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
   network: require(path.resolve(commander.config, 'network')),
   delegates: require(path.resolve(commander.config, 'delegate'))
 })
