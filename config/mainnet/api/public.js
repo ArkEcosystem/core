@@ -39,7 +39,11 @@ module.exports = {
       '/api/v2/wallets/{id}/transactions/received',
       '/api/v2/wallets/{id}/transactions/send',
       '/api/v2/wallets/{id}/votes',
-      '/api/v2/wallets/search'
+      '/api/v2/wallets/search',
+      '/api/v2/subscriptions'
     ]
+  },
+  subscriptions: {
+    secret: 'my-secret-auth-token'
   }
 }
