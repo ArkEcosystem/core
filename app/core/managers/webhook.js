@@ -31,7 +31,9 @@ module.exports = class WebhookManager {
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, (payload) => {
         db.getInstance().webhooks.findByEvent(event).then(webhooks => {
-          webhooks.forEach((webhook) => this.queue.add({ webhook: webhook, payload: payload }))
+          this
+            .getMatchingWebhooks(webhooks, payload)
+            .forEach((webhook) => this.queue.add({ webhook: webhook, payload: payload }))
         })
       })
     })
@@ -56,5 +58,23 @@ module.exports = class WebhookManager {
 
   emit (event, payload) {
     this.emitter.emit(event, payload)
+  }
+
+  getMatchingWebhooks (webhooks, payload) {
+    const matches = []
+
+    webhooks.forEach((webhook) => {
+      if (!webhook.conditions) webhooks.push(webhook)
+
+      webhook.conditions.forEach((condition) => {
+        const satisfies = require(`app/webhooks/conditions/${condition.condition}`)
+
+        if (satisfies(payload[condition.key], condition.value)) {
+          matches.push(webhook)
+        }
+      })
+    })
+
+    return matches
   }
 }
