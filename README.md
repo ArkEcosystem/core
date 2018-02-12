@@ -14,13 +14,13 @@ Still alpha
 
 - `npm install -g nodemon`
 - `npm install`
-- Check `config/___network___/server.json` (above all database connection parameters)
+- Check `config/___network___/server` (above all database connection parameters)
   - Change database engine if required - set `db.dialect` to one of: `sqlite`, `mysql`, `mssql` or `postgres`
   - Install package (E.g. `npm install ...`: `sqlite3`, `mysql2`, `tedious` or `pg pg-hstore`)
     - sqlite also supports in memory. This can be done by setting uri to: `sqlite://:memory:`
   - The `docker-compose up` could be used to create and start the PostgreSQL database.
 - Start relay: `npm run start:devnet` to start devnet (use mainnet or testnet as well)
-- Start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate.json`)
+- Start forger: `npm run forge:devnet` (check for passphrases in `config/devnet/delegate`)
 
 ## TODO:
 
@@ -29,7 +29,7 @@ Still alpha
   - [x] Start independant testnet
   - [x] Fast rebuild (with automatic switch to full rebuild when rebuild is close to network height)
   - [x] Rotating and compressing log
-  - [x] Constants in config file, with progressive fork rules (to be improved to take into account rounds instead of height)
+  - [x] Constants in config file, with progressive fork rules (to be improved to take into wallet rounds instead of height)
   - [x] Support for MySQL (not tested)
   - [x] Support for PostgreSQL
   - [x] Support for SQLite3

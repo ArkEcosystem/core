@@ -1,10 +1,9 @@
 const popsicle = require('popsicle')
-const Delegate = require('../model/delegate')
-const logger = require('./logger')
-
+const Delegate = require('app/models/delegate')
+const goofy = require('app/core/goofy')
 const arkjs = require('arkjs')
 
-class ForgerManager {
+module.exports = class ForgerManager {
   constructor (config, password) {
     this.password = password
     this.bip38 = config.delegates ? config.delegates.bip38 : null
@@ -48,8 +47,8 @@ class ForgerManager {
         .then(delegate => delegate.forge([], data))
         .then(block => that.broadcast(block))
         .catch(error => {
-          logger.info('Not able to forge:', error.message)
-          logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+          goofy.info('Not able to forge:', error.message)
+          goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
           return Promise.resolve()
         })
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
@@ -89,5 +88,3 @@ class ForgerManager {
       .then((result) => result.body.round)
   }
 }
-
-module.exports = ForgerManager
