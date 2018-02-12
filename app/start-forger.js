@@ -57,7 +57,7 @@ config.init({
 
       fs.writeFile(delegateFilePath, JSON.stringify(config.delegates, null, 2), (err) => {
         if (err) {
-          throw new Error('Failed to save the encrypted key in file')
+          goofy.error('Failed to save the encrypted key in file')
         } else {
           init(answers.password)
         }
