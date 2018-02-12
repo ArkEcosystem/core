@@ -1,7 +1,6 @@
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const loader = require('./handlers/loader')
-const multisignatures = require('./handlers/multisignatures')
 const peers = require('./handlers/peers')
 const signatures = require('./handlers/signatures')
 const transactions = require('./handlers/transactions')

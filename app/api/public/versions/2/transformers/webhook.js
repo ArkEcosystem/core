@@ -3,6 +3,6 @@ module.exports = (model) => {
     id: model.id,
     event: model.event,
     enabled: model.enabled,
-    options: model.options
+    conditions: model.conditions
   }
 }
