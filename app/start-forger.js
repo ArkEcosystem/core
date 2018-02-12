@@ -7,6 +7,7 @@ const goofy = require('app/core/goofy')
 const ForgerManager = require('app/core/managers/forger')
 const inquirer = require('inquirer');
 const Delegate = require('app/models/delegate')
+const arkjs = require('arkjs')
 
 const bip38EncryptSchema = [{
   type: 'password',
@@ -21,8 +22,8 @@ const bip38EncryptSchema = [{
 }]
 const bip38DecryptSchema = [
   {
-    message: 'Public Key:',
-    name: 'publicKey'
+    message: 'Address:',
+    name: 'address'
   },
   bip38EncryptSchema[1]
 ]
@@ -57,7 +58,7 @@ config.init({
 
       fs.writeFile(delegateFilePath, JSON.stringify(config.delegates, null, 2), (err) => {
         if (err) {
-          goofy.error('Failed to save the encrypted key in file')
+          throw new Error('Failed to save the encrypted key in file')
         } else {
           init(answers.password)
         }
@@ -65,12 +66,16 @@ config.init({
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
-      init(answers.password, answers.publicKey)
+      if (arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
+        init(answers.password, answers.address)
+      } else {
+        throw new Error('Invalid Address Provided')
+      }
     })
   }
 })
 
-function init (password, publicKey) {
+function init (password, address) {
   process.on('unhandledRejection', (reason, p) => {
     goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
   })
@@ -83,7 +88,7 @@ function init (password, publicKey) {
   })
     .then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger'))
     .then(() => (forgerManager = new ForgerManager(config, password)))
-    .then(() => (forgers = forgerManager.loadDelegates(publicKey)))
+    .then(() => (forgers = forgerManager.loadDelegates(address)))
     .then(() => goofy.info('ForgerManager started with', forgers.length, 'forgers'))
     .then(() => forgerManager.startForging('http://127.0.0.1:4000'))
     .catch((fatal) => goofy.error('fatal error', fatal))
