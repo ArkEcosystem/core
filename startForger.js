@@ -5,20 +5,27 @@ const packageJson = require('./package.json')
 const path = require('path')
 const logger = require('./core/logger')
 const ForgerManager = require('./core/forgerManager')
-const prompt = require('prompt')
+const inquirer = require('inquirer');
 const Delegate = require('./model/delegate')
 
-const schema = {
-  properties: {
-    secret: {
-      required: true
-    },
-    password: {
-      hidden: true,
-      required: true
-    }
-  }
-}
+const bip38EncryptSchema = [{
+  type: 'password',
+  message: 'Secret:',
+  name: 'secret',
+  mask: '*'
+}, {
+  type: 'password',
+  message: 'Password:',
+  name: 'password',
+  mask: '*'
+}]
+const bip38DecryptSchema = [
+  {
+    message: 'Public Key:',
+    name: 'publicKey'
+  },
+  bip38EncryptSchema[1]
+]
 
 commander
   .version(packageJson.version)
@@ -28,43 +35,40 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
+const delegateFilePath = path.resolve(commander.config, 'delegate.json')
+
 assert.string(commander.config, 'commander.config')
 
 if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-if (commander.encrypt) {
-  prompt.start()
-  prompt.get(schema, (err, result) => {
-    if (err) throw Error(err)
+require('./core/config').init({
+  server: require(path.resolve(commander.config, 'server.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  network: require(path.resolve(commander.config, 'network.json')),
+  delegates: require(delegateFilePath)
+}).then(config => {
+  if (!config.delegates.bip38) {
+    inquirer.prompt(bip38EncryptSchema).then((answers) => {
+      config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
-    const encryptedKey = Delegate.encrypt(result.secret, commander.config.network, result.password)
-    const delegateFilePath = path.resolve(commander.config, 'delegate.json')
-    const delegates = JSON.parse(fs.readFileSync(delegateFilePath || {}))
-
-    delegates['secrets'] = [...delegates['secrets'], encryptedKey]
-
-    fs.writeFile(delegateFilePath, JSON.stringify(delegates), (err) => {
-      if (err) throw new Error('Failed to save the encrypted key in file')
+      fs.writeFile(delegateFilePath, JSON.stringify(config.delegates, null, 2), (err) => {
+        if (err) {
+          throw new Error('Failed to save the encrypted key in file')
+        } else {
+          init(answers.password)
+        }
+      })
     })
-  })
-}
+  } else {
+    inquirer.prompt(bip38DecryptSchema).then((answers) => {
+      init(answers.password, answers.publicKey)
+    })
+  }
+})
 
-if (commander.decrypt) {
-  prompt.start()
-  const properties = { password: schema.properties.password }
-
-  prompt.get({properties}, (err, result) => {
-    if (err) throw Error(err)
-
-    init(result.password)
-  })
-} else {
-  init()
-}
-
-function init (password) {
+function init (password, publicKey) {
   require('./core/config').init({
     server: require(path.resolve(commander.config, 'server.json')),
     genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
@@ -80,7 +84,7 @@ function init (password) {
     })
 
     forgerManager
-      .loadDelegates()
+      .loadDelegates(publicKey)
       .then((forgers) => logger.info('ForgerManager started with', forgers.length, 'forgers'))
       .then(() => forgerManager.startForging('http://127.0.0.1:4000'))
       .catch((fatal) => logger.error('fatal error', fatal))

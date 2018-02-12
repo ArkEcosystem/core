@@ -2,9 +2,12 @@ const popsicle = require('popsicle')
 const Delegate = require('../model/delegate')
 const logger = require('./logger')
 
+const arkjs = require('arkjs')
+
 class ForgerManager {
   constructor (config, password) {
     this.password = password
+    this.bip38 = config.delegates ? config.delegates.bip38 : null
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
     this.headers = {
@@ -14,10 +17,16 @@ class ForgerManager {
     }
   }
 
-  loadDelegates () {
-    if (!this.secrets) { return Promise.reject(new Error('No delegates found')) }
-
+  loadDelegates (publicKey) {
+    if (!this.bip38 && !this.secrets) {
+      return Promise.reject(new Error('No delegate found'))
+    }
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
+    const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+    if (bip38Delegate.publicKey !== publicKey) {
+      this.delegates.push(bip38Delegate)
+    }
+
     return Promise.resolve(this.delegates)
   }
 
