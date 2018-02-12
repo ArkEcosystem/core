@@ -40,7 +40,11 @@ module.exports = class WebhookManager {
 
     this.queue.process((job) => {
       return axios.post(job.data.webhook.target, {
-        formParams: job.data.payload,
+        formParams: {
+          created: +new Date(),
+          data: job.data.payload,
+          type: job.data.webhook.event
+        },
         headers: { 'X-Hook-Token': job.data.webhook.token }
       }).then((response) => ({
         status: response.status,
