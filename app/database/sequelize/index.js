@@ -29,8 +29,8 @@ module.exports = class SequelizeDB extends DBInterface {
   registerHooks () {
     if (!config.webhooks.enabled) return Promise.resolve(false)
 
-    this.blocksTable.afterCreate((block) => webhookManager.emit('block:created', block));
-    this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction:created', transaction));
+    this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
+    this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
   }
 
   getActiveDelegates (height) {
