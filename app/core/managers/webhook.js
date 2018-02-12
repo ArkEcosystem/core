@@ -7,7 +7,7 @@ const queue = require('app/core/managers/queue')
 
 let instance
 
-module.exports = class WebhookListener {
+module.exports = class WebhookManager {
   static getInstance () {
     return instance
   }
