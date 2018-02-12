@@ -1,7 +1,7 @@
 const db = require('app/core/dbinterface').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
-const schema = require('../schema/webhookss')
+const schema = require('../schema/webhooks')
 
 exports.index = {
   config: {

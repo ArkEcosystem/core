@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-function syncTables (db) {
+function syncTables(db) {
   const blocks = db.define('blocks', {
     id: {
       type: Sequelize.STRING(64),
@@ -22,12 +22,10 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['id']
-    },
-    {
+    }, {
       unique: true,
       fields: ['height']
-    },
-    {
+    }, {
       fields: ['generatorPublicKey']
     }]
   })
@@ -57,17 +55,13 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['id']
-    },
-    {
+    }, {
       fields: ['senderPublicKey']
-    },
-    {
+    }, {
       fields: ['recipientId']
-    },
-    {
+    }, {
       fields: ['vendorFieldHex']
-    },
-    {
+    }, {
       fields: ['timestamp']
     }]
   })
@@ -89,15 +83,12 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['address']
-    },
-    {
+    }, {
       unique: true,
       fields: ['publicKey']
-    },
-    {
+    }, {
       fields: ['vote']
-    },
-    {
+    }, {
       fields: ['username']
     }]
   })
@@ -115,19 +106,22 @@ function syncTables (db) {
       }
     },
     indexes: [{
-        fields: ['publicKey']
-      },
-      {
-        fields: ['round']
-      }
-    ]
+      fields: ['publicKey']
+    }, {
+      fields: ['round']
+    }]
   })
 
   const webhooks = db.define('webhooks', {
     event: Sequelize.STRING,
     target: Sequelize.STRING,
+    secret: Sequelize.STRING,
     enabled: Sequelize.BOOLEAN,
     options: Sequelize.JSON
+  }, {
+    indexes: [{
+      fields: ['event']
+    }]
   })
 
   return Promise.all([blocks, transactions, wallets, rounds, webhooks].map(table => table.sync()))

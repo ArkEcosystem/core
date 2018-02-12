@@ -26,6 +26,8 @@ module.exports = class WebhookManager {
   }
 
   mount () {
+    if (!this.config.enabled) return Promise.resolve(false)
+
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, (payload) => {
         db.getInstance().webhooks.findByEvent(event).then(webhooks => {

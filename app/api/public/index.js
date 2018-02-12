@@ -10,9 +10,9 @@ module.exports = async (config) => {
     port: config.api.public.port
   })
 
-  await server.register(require('./plugins/auth/webhook'))
+  await server.register(require('./plugins/auth/webhooks'))
 
-  await server.auth.strategy('webhook', 'webhook', {
+  await server.auth.strategy('webhooks', 'webhooks', {
     secret: config.api.public.webhooks.secret
   })
 
