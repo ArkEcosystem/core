@@ -30,8 +30,6 @@ const bip38DecryptSchema = [
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
-  .option('-e, --encrypt', 'encrypt the secret using bip38')
-  .option('-d, --decrypt', 'decrypt the bip38 seed')
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
