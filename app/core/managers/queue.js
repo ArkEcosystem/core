@@ -1,19 +1,12 @@
-const goofy = require('app/core/goofy')
 const Bull = require('bull')
 
 let instance
 
 module.exports = class QueueManager {
   constructor (config) {
-    if (!instance) {
-      goofy.debug('Queue has been instantiated.');
-
-      instance = this
-    } else {
-      goofy.debug('Queue already instantiated.');
-    }
-
     this.config = config
+
+    if (!instance) instance = this
 
     return instance
   }
