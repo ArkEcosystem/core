@@ -8,7 +8,7 @@ const ForgerManager = require('./core/forgerManager')
 const inquirer = require('inquirer');
 const Delegate = require('./model/delegate')
 
-const schema = [{
+const bip38EncryptSchema = [{
   type: 'password',
   message: 'Secret:',
   name: 'secret',
@@ -19,6 +19,13 @@ const schema = [{
   name: 'password',
   mask: '*'
 }]
+const bip38DecryptSchema = [
+  {
+    message: 'Public Key:',
+    name: 'publicKey'
+  },
+  bip38EncryptSchema[1]
+]
 
 commander
   .version(packageJson.version)
@@ -43,7 +50,7 @@ require('./core/config').init({
   delegates: require(delegateFilePath)
 }).then(config => {
   if (!config.delegates.bip38) {
-    inquirer.prompt(schema).then((answers) => {
+    inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
       fs.writeFile(delegateFilePath, JSON.stringify(config.delegates, null, 2), (err) => {
@@ -55,13 +62,13 @@ require('./core/config').init({
       })
     })
   } else {
-    inquirer.prompt([ schema[1] ]).then((answers) => {
-      init(answers.password)
+    inquirer.prompt(bip38DecryptSchema).then((answers) => {
+      init(answers.password, answers.publicKey)
     })
   }
 })
 
-function init (password) {
+function init (password, publicKey) {
   require('./core/config').init({
     server: require(path.resolve(commander.config, 'server.json')),
     genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
@@ -77,7 +84,7 @@ function init (password) {
     })
 
     forgerManager
-      .loadDelegates()
+      .loadDelegates(publicKey)
       .then((forgers) => logger.info('ForgerManager started with', forgers.length, 'forgers'))
       .then(() => forgerManager.startForging('http://127.0.0.1:4000'))
       .catch((fatal) => logger.error('fatal error', fatal))

@@ -12,11 +12,17 @@ class Delegate {
     this.keySize = 32 // AES-256
     this.interations = 5000
     if (bip38.verify(passphrase)) {
-      this.keys = this.decrypt(passphrase, network, password)
-      this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
-      this.address = this.keys.getAddress(network.pubKeyHash)
-      this.otpSecret = otplib.authenticator.generateSecret()
-      this.encryptKeysWithOtp()
+      try {
+        this.keys = this.decrypt(passphrase, network, password)
+        this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
+        this.address = this.keys.getAddress(network.pubKeyHash)
+        this.otpSecret = otplib.authenticator.generateSecret()
+        this.encryptKeysWithOtp()
+      } catch (error) {
+        this.publicKey = null
+        this.keys = null
+        this.address = null
+      }
     }
   }
 
