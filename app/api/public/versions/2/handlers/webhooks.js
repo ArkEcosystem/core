@@ -22,7 +22,7 @@ exports.store = {
     }
   },
   handler: (request, h) => {
-    request.payload.token = require('crypto').randomBytes(32).toString('hex')
+    request.payload.secret = require('crypto').randomBytes(32).toString('hex')
 
     return db.webhooks
       .create(request.payload)
