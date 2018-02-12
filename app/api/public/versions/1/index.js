@@ -33,10 +33,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/loader/status/sync', ...loader.syncing },
     { method: 'GET', path: '/loader/autoconfigure', ...loader.autoconfigure },
 
-    { method: 'GET', path: '/multisignatures', ...multisignatures.index },
-    { method: 'GET', path: '/multisignatures/pending', ...multisignatures.pending },
-    { method: 'GET', path: '/multisignatures/accounts', ...multisignatures.accounts },
-
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/get', ...peers.show },
     { method: 'GET', path: '/peers/version', ...peers.version },
