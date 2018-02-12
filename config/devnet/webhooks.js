@@ -7,10 +7,10 @@ module.exports = {
     name: 'block.forged',
     description: 'Fired when a new block is forged.'
   }, {
-    name: 'blocks.missing',
+    name: 'block.missing',
     description: 'Fired when blocks are missing.'
   }, {
-    name: 'blocks.stopped',
+    name: 'block.stopped',
     description: 'Fired when blocks are not produced.'
   }, {
     name: 'transaction.created',
