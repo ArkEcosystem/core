@@ -6,7 +6,7 @@ const path = require('path')
 const goofy = require('app/core/goofy')
 const ForgerManager = require('app/core/managers/forger')
 const inquirer = require('inquirer');
-const Delegate = require('./model/delegate')
+const Delegate = require('app/models/delegate')
 
 const bip38EncryptSchema = [{
   type: 'password',
