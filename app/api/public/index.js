@@ -7,7 +7,12 @@ module.exports = async (config) => {
   }
 
   const server = new Hapi.Server({
-    port: config.api.public.port
+    port: config.api.public.port,
+    routes: {
+      validate: {
+        failAction: async (request, h, err) => { throw err }
+      }
+    }
   })
 
   await server.register(require('./plugins/auth/webhooks'))
