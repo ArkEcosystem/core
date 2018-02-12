@@ -70,13 +70,13 @@ module.exports = class WebhookManager {
     webhooks.forEach((webhook) => {
       if (!webhook.conditions) webhooks.push(webhook)
 
-      webhook.conditions.forEach((condition) => {
+      for (let condition of webhook.conditions) {
         const satisfies = require(`app/webhooks/conditions/${condition.condition}`)
 
-        if (satisfies(payload[condition.key], condition.value)) {
-          matches.push(webhook)
-        }
-      })
+        if (!satisfies(payload[condition.key], condition.value)) break
+
+        matches.push(webhook)
+      }
     })
 
     return matches
