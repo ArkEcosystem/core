@@ -8,6 +8,10 @@ const queue = require('app/core/managers/queue')
 let instance
 
 module.exports = class WebhookListener {
+  static getInstance () {
+    return instance
+  }
+
   constructor (config) {
     this.config = config
 
@@ -22,6 +26,8 @@ module.exports = class WebhookListener {
   }
 
   mount () {
+    if (!this.config.enabled) return Promise.resolve(false)
+
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, (payload) => {
         db.getInstance().webhooks.findByEvent(event).then(webhooks => {

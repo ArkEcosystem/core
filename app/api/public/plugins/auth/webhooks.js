@@ -21,7 +21,7 @@ const implementation = (server, options) => {
 }
 
 const register = async (server, options) => {
-  server.auth.scheme('webhook', implementation)
+  server.auth.scheme('webhooks', implementation)
 }
 
 exports.plugin = {
