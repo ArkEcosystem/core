@@ -17,12 +17,17 @@ class Delegate {
         this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
         this.address = this.keys.getAddress(network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
+        this.bip38 = true
         this.encryptKeysWithOtp()
       } catch (error) {
         this.publicKey = null
         this.keys = null
         this.address = null
       }
+    } else {
+      this.keys = arkjs.crypto.getKeys(passphrase)
+      this.publicKey = this.keys.publicKey
+      this.address = this.keys.getAddress(network.pubKeyHash)
     }
   }
 
@@ -81,7 +86,7 @@ class Delegate {
 
   // we consider transactions are signed, verified and unique
   forge (transactions, options) {
-    if (!options.version && this.encryptedKeys) {
+    if (!options.version && (this.encryptedKeys || !this.bip38)) {
       const txstats = {
         amount: 0,
         fee: 0,
@@ -110,9 +115,13 @@ class Delegate {
         transactions: txs
       }
 
-      this.decryptKeysWithOtp()
+      if (this.bip38) {
+        this.decryptKeysWithOtp()
+      }
       let block = Block.create(data, this.keys)
-      this.encryptKeysWithOtp()
+      if (this.bip38) {
+        this.encryptKeysWithOtp()
+      }
 
       return block
     }

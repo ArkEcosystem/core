@@ -18,14 +18,14 @@ class ForgerManager {
   }
 
   loadDelegates (publicKey) {
-    if (!this.bip38) {
+    if (!this.bip38 && !this.secrets) {
       return Promise.reject(new Error('No delegate found'))
     }
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
     const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
     if (bip38Delegate.publicKey !== publicKey) {
-      return Promise.reject(new Error('Public Key Validation failed'))
+      this.delegates.push(bip38Delegate)
     }
-    this.delegates = [bip38Delegate]
 
     return Promise.resolve(this.delegates)
   }
