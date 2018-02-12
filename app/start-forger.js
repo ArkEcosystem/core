@@ -47,7 +47,7 @@ let forgers = null
 
 config.init({
   server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesisBlock.json')),
+  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
   network: require(path.resolve(commander.config, 'network')),
   delegates: require(delegateFilePath)
 }).then(config => {
