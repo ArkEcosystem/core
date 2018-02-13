@@ -84,19 +84,25 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
+  // saveRounds (rounds) {
+  // }
+
+  // deleteRound (round) {
+  // }
+
   applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
         return this.buildDelegates(block)
-          .then(() => this.rounds.bulkCreate(this.activedelegates))
+          .then(() => this.saveRounds(this.activedelegates))
           .then(() => block)
       } else {
         goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
         return this
           .saveWallets(false) // save only modified wallets during the last round
           .then(() => this.buildDelegates(block)) // active build delegate list from database state
-          .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
+          .then(() => this.saveRounds(this.activedelegates)) // save next round delegate list
           .then(() => block)
       }
     } else {

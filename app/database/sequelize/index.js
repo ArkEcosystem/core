@@ -49,6 +49,10 @@ module.exports = class SequelizeDB extends DBInterface {
     }
   }
 
+  saveRounds (rounds) {
+    return this.roundsTable.bulkCreate(rounds)
+  }
+
   deleteRound (round) {
     return this.roundsTable
       .destroy({
