@@ -5,7 +5,7 @@ const db = require('app/core/dbinterface').getInstance()
 const _ = require('lodash')
 
 exports.blockchain = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const lastBlock = state.lastBlock
 
     const height = lastBlock.data.height
@@ -44,7 +44,7 @@ exports.blockchain = {
 }
 
 exports.transactions = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     return db.transactions
       .findAllByDateAndType(0, request.query.from, request.query.to)
       .then(blocks => ({
@@ -58,7 +58,7 @@ exports.transactions = {
 }
 
 exports.blocks = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     return db.blocks
       .findAllByDateTimeRange(request.query.from, request.query.to)
       .then(blocks => ({
@@ -72,7 +72,7 @@ exports.blocks = {
 }
 
 exports.votes = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     return db.transactions
       .findAllByDateAndType(3, request.query.from, request.query.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('+')))
@@ -87,7 +87,7 @@ exports.votes = {
 }
 
 exports.unvotes = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     return db.transactions
       .findAllByDateAndType(3, request.query.from, request.query.to)
       .then(transactions => transactions.rows.filter(v => v.asset.votes[0].startsWith('-')))

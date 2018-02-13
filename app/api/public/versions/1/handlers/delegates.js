@@ -14,11 +14,12 @@ exports.index = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.delegates
-      .findAll()
-      .then(delegates => utils.toCollection(request, delegates, 'delegate'))
-      .then(delegates => utils.respondWith({delegates}))
+  handler: async (request, h) => {
+    const delegates = await db.delegates.findAll()
+
+    return utils.respondWith({
+      delegates: utils.toCollection(request, delegates, 'delegate')
+    })
   }
 }
 
@@ -30,19 +31,20 @@ exports.show = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.delegates
-      .findById(request.query.id)
-      .then(delegate => utils.toResource(request, delegate, 'delegate'))
-      .then(delegate => utils.respondWith({delegate}))
+  handler: async (request, h) => {
+    const delegate = await db.delegates.findById(request.query.id)
+
+    return utils.respondWith({
+      delegate: utils.toResource(request, delegate, 'delegate')
+    })
   }
 }
 
 exports.count = {
-  handler: (request, h) => {
-    return db.delegates
-      .findAll()
-      .then(delegates => utils.respondWith({ count: delegates.length }))
+  handler: async (request, h) => {
+    const delegates = await db.delegates.findAll()
+
+    return utils.respondWith({ count: delegates.length })
   }
 }
 
@@ -54,21 +56,23 @@ exports.search = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.delegates
-      .search({...request.query, ...utils.paginator(request)})
-      .then(delegates => utils.toCollection(request, delegates.rows, 'delegate'))
-      .then(delegates => utils.respondWith({delegates}))
+  handler: async (request, h) => {
+    const delegates = await db.delegates.search({...request.query, ...utils.paginator(request)})
+
+    return utils.respondWith({
+      delegates: utils.toCollection(request, delegates.rows, 'delegate')
+    })
   }
 }
 
 exports.voters = {
-  handler: (request, h) => {
-    return db.delegates
-      .findById(request.query.publicKey)
-      .then(delegate => db.wallets.findAllByVote(delegate.publicKey))
-      .then(accounts => utils.toCollection(request, accounts, 'voter'))
-      .then(accounts => utils.respondWith({accounts}))
+  handler: async (request, h) => {
+    const delegate = await db.delegates.findById(request.query.publicKey)
+    const accounts = await db.wallets.findAllByVote(delegate.publicKey)
+
+    return utils.respondWith({
+      accounts: utils.toCollection(request, accounts, 'voter')
+    })
   }
 }
 
@@ -88,9 +92,9 @@ exports.forged = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.blocks
-      .totalsByGenerator(request.query.generatorPublicKey)
-      .then(totals => utils.respondWith(totals[0]))
+  handler: async (request, h) => {
+    const totals = await db.blocks.totalsByGenerator(request.query.generatorPublicKey)
+
+    return utils.respondWith(totals[0])
   }
 }

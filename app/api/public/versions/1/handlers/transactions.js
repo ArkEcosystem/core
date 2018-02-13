@@ -11,16 +11,14 @@ exports.index = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.transactions
-      .findAll({...request.query, ...utils.paginator(request)})
-      .then(result => {
-        if (!result) return utils.respondWith('No transactions found', true)
+  handler: async (request, h) => {
+    const transactions = await db.transactions.findAll({...request.query, ...utils.paginator(request)})
 
-        return utils.respondWith({
-          transactions: utils.toCollection(request, result.rows, 'transaction')
-        })
-      })
+    if (!transactions) return utils.respondWith('No transactions found', true)
+
+    return utils.respondWith({
+      transactions: utils.toCollection(request, transactions.rows, 'transaction')
+    })
   }
 }
 
@@ -32,14 +30,12 @@ exports.show = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.transactions
-      .findById(request.query.id)
-      .then(result => {
-        if (!result) return utils.respondWith('No transactions found', true)
+  handler: async (request, h) => {
+    const result = await db.transactions.findById(request.query.id)
 
-        return utils.respondWith({ transaction: utils.toResource(request, result, 'transaction') })
-      })
+    if (!result) return utils.respondWith('No transactions found', true)
+
+    return utils.respondWith({ transaction: utils.toResource(request, result, 'transaction') })
   }
 }
 
