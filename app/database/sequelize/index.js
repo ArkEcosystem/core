@@ -312,7 +312,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async getLastBlock () {
     const block = await this.blocksTable.findOne({order: [['height', 'DESC']]})
 
-    // .then(data => { // TODO to remove as it would fail anyway next in the pipeline?
+    // .thn(data => { // TODO to remove as it would fail anyway next in the pipeline?
     //   if (data) {
     //     return Promise.resolve(data)
     //   } else {

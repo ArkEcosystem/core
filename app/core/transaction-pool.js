@@ -8,18 +8,18 @@ const WalletManager = require('app/core/managers/wallet')
 
 let instance = null
 
-registerPromiseWorker(message => {
+registerPromiseWorker(async message => {
   if (message.event === 'init') {
-    return config.init(message.data)
-      .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
-      .then(() => (instance = new TransactionPool()))
+    const conf = await config.init(message.data)
+    await goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool')
+    instance = new TransactionPool()
   }
 
   if (instance && instance[message.event]) { // redirect to public methods
     return instance[message.event](message.data)
   }
 
-  return Promise.reject(new Error(`message '${message}' not recognised`))
+  throw new Error(`message '${message}' not recognised`)
 })
 
 class TransactionPool {
@@ -73,19 +73,25 @@ class TransactionPool {
     }
   }
 
-  addBlock (block) { // we remove the block txs from the pool
+  async addBlock (block) { // we remove the block txs from the pool
     if (block.transactions.length === 0) return Promise.resolve()
     goofy.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)
-    Promise // no return the main thread is liberated
-      .all(pooltxs.map((index, tx) => {
-        if (tx.id in blocktxsid) delete pooltxs[index]
-        return this.walletManager.undoTransaction(tx)
-      }))
-      .then(() => Promise.all(block.transactions.map(tx => this.walletManager.applyTransaction(tx))))
-      .then(() => this.addTransactions(pooltxs))
+
+    // no return the main thread is liberated
+    await Promise.all(pooltxs.map((index, tx) => {
+      if (tx.id in blocktxsid) {
+        delete pooltxs[index]
+      }
+
+      return this.walletManager.undoTransaction(tx)
+    }))
+
+    await Promise.all(block.transactions.map(tx => this.walletManager.applyTransaction(tx)))
+
+    return this.addTransactions(pooltxs)
   }
 
   undoBlock (block) { // we add back the block txs to the pool

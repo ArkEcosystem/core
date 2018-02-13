@@ -43,7 +43,7 @@ class Down {
     // Noop
   }
 
-  cleanPeers () {
+  async cleanPeers () {
     let keys = Object.keys(this.peers)
     const that = this
     let count = 0
@@ -52,18 +52,22 @@ class Down {
 
     goofy.info('Looking for network peers')
 
-    return Promise.all(keys.map(ip =>
-      that.peers[ip]
-        .ping()
-        .catch(() => {
-          wrongpeers++
-          delete that.peers[ip]
-          return Promise.resolve(null)
-        })
-        .then(() => goofy.printTracker('Peers Discovery', ++count, max, null, null))
-    ))
-    .then(() => goofy.stopTracker('Peers Discovery', max, max))
-    .then(() => goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
+    await Promise.all(keys.map(async ip => {
+      try {
+        that.peers[ip].ping()
+
+        goofy.printTracker('Peers Discovery', ++count, max, null, null)
+      } catch (error) {
+        wrongpeers++
+
+        delete that.peers[ip]
+
+        return null
+      }
+    }))
+
+    goofy.stopTracker('Peers Discovery', max, max)
+    goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
   }
 
   async acceptNewPeer (peer) {

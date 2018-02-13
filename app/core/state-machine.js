@@ -168,7 +168,11 @@ blockchainMachine.state = state
 blockchainMachine.actionMap = (blockchainManager) => {
   return {
     blockchainReady: () => (state.started = true),
-    checkLater: () => sleep(60000).then(() => blockchainManager.dispatch('WAKEUP')),
+    checkLater: async () => {
+      await sleep(60000)
+
+      blockchainManager.dispatch('WAKEUP')
+    },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastDownloadedBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     downloadFinished: () => goofy.info('Blockchain download completed!'),

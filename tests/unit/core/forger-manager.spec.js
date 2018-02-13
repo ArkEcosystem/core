@@ -31,14 +31,18 @@ describe('Core | ForgerManager', () => {
       })
     })
     describe('with configured delegates', () => {
-      it('resolves with them', () => {
+      it('resolves with them', async () => {
         const forger = new ForgerManager(delegateConfig)
-        return forger.loadDelegates()
-          .catch(error => console.error(error))
-          .then(delegates => {
-            expect(delegates).toBeType('array')
-            delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
-          })
+
+        try {
+          const delegates = await forger.loadDelegates()
+
+          await expect(delegates).toBeType('array')
+
+          delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
+        } catch (error) {
+          console.error(error)
+        }
       })
     })
   })
