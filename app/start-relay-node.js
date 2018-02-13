@@ -45,8 +45,8 @@ async function boot () {
       network: require(path.resolve(commander.config, 'network'))
     })
 
-    await goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
-    await (blockchainManager = new BlockchainManager(config)))
+    await goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+    const blockchainManager = await new BlockchainManager(config)
 
     goofy.info('Mounting Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)

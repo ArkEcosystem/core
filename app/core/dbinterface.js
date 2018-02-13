@@ -44,7 +44,9 @@ class DBInterface {
     await db.init(config)
     instance = db
 
-    this.registerRepositories(config.driver)
+    await this.registerRepositories(config.driver)
+
+    return instance
   }
 
   static async registerRepositories (driver) {
@@ -58,8 +60,6 @@ class DBInterface {
 
     // this is a special case repository and will be forced to be read from memory...
     instance['wallets'] = new (require('app/database/repositories/wallets'))(instance)
-
-    return instance
   }
 
   // getActiveDelegates (height) {

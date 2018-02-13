@@ -10,7 +10,7 @@ const webhookManager = require('app/core/managers/webhook').getInstance()
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
     if (this.db) {
-      return Promise.reject(new Error('Already initialised'))
+      goofy.debug('Already initialised')
     }
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
@@ -18,21 +18,36 @@ module.exports = class SequelizeDB extends DBInterface {
       operatorsAliases: Sequelize.Op
     })
 
-    await this.db.authenticate()
-    let tables = await schema.syncTables(this.db)
-    [this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable] = tables
+    return this.db
+      .authenticate()
+      .then(() => schema.syncTables(this.db))
+      .then(tables => ([
+        this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
+      ] = tables))
+      .then(() => this.registerHooks())
 
-    this.registerHooks()
+    // await this.db.authenticate()
+    // let tables = await schema.syncTables(this.db)
+
+    // [
+    //   this.blocksTable,
+    //   this.transactionsTable,
+    //   this.walletsTable,
+    //   this.roundsTable,
+    //   this.webhooksTabl
+    // ] = tables
+
+    // this.registerHooks()
   }
 
   registerHooks () {
-    if (!config.webhooks.enabled) return Promise.resolve(false)
-
-    this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
-    this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
+    if (config.webhooks.enabled) {
+      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
+      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
+    }
   }
 
-  getActiveDelegates (height) {
+  async getActiveDelegates (height) {
     const activeDelegates = config.getConstants(height).activeDelegates
     const round = ~~(height / activeDelegates)
 
@@ -180,7 +195,7 @@ module.exports = class SequelizeDB extends DBInterface {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
       })
-      dat = await this.transactionsTable.findAll({
+      data = await this.transactionsTable.findAll({
         attributes: [
           'senderPublicKey',
           'serialized'

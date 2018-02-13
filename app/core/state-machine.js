@@ -168,11 +168,7 @@ blockchainMachine.state = state
 blockchainMachine.actionMap = (blockchainManager) => {
   return {
     blockchainReady: () => (state.started = true),
-    checkLater: async () => {
-      await sleep(60000)
-
-      blockchainManager.dispatch('WAKEUP')
-    },
+    checkLater: () => sleep(60000).then(() => blockchainManager.dispatch('WAKEUP')),
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastDownloadedBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     downloadFinished: () => goofy.info('Blockchain download completed!'),
@@ -185,7 +181,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         const block = await blockchainManager.db.getLastBlock()
 
         if (!block) {
-          return Promise.reject(new Error('No block found in database'))
+          throw new Error('No block found in database')
         }
 
         state.lastBlock = block
@@ -205,11 +201,13 @@ blockchainMachine.actionMap = (blockchainManager) => {
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(block, false, false)
           await blockchainManager.dispatch('SUCCESS')
+          return
         } else {
           await blockchainManager.db.buildWallets()
           await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.dispatch('SUCCESS')
+          return
         }
       } catch (error) {
         goofy.info(error.message)
@@ -227,6 +225,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(genesis)
           await blockchainManager.dispatch('SUCCESS')
+          return
         }
 
         return blockchainManager.dispatch('FAILURE')

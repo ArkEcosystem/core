@@ -8,18 +8,18 @@ const WalletManager = require('app/core/managers/wallet')
 
 let instance = null
 
-registerPromiseWorker(async message => {
+registerPromiseWorker(message => {
   if (message.event === 'init') {
-    const conf = await config.init(message.data)
-    await goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool')
-    instance = new TransactionPool()
+    return config.init(message.data)
+      .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
+      .then(() => (instance = new TransactionPool()))
   }
 
   if (instance && instance[message.event]) { // redirect to public methods
     return instance[message.event](message.data)
   }
 
-  throw new Error(`message '${message}' not recognised`)
+  return Promise.reject(new Error(`message '${message}' not recognised`))
 })
 
 class TransactionPool {
