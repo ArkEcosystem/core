@@ -185,7 +185,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
           state.lastBlock = block
           state.lastDownloadedBlock = block
           const constants = blockchainManager.config.getConstants(block.data.height)
-          state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > 2 * (constants.activeDelegates + 1) * constants.blocktime)
+          state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
           // no fast rebuild if in last round
           state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
           goofy.info('Fast rebuild:', state.fastRebuild)

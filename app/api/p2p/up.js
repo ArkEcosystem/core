@@ -12,7 +12,6 @@ const _headers = {
 
 function setHeaders (res) {
   ['nethash', 'os', 'version', 'port'].forEach((key) => res.header(key, _headers[key]))
-  return Promise.resolve()
 }
 
 class Up {

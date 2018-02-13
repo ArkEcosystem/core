@@ -2,6 +2,8 @@ const Peer = require('./peer')
 const goofy = require('app/core/goofy')
 const dns = require('dns')
 
+const isLocalhost = ip => ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
+
 class Down {
   constructor (config) {
     this.config = config
@@ -111,7 +113,7 @@ class Down {
     return this.getRandomPeer().getPeers()
       .then(list => {
         list.forEach(peer => {
-          if (peer.status === 'OK' && !that.peers[peer.ip]) {
+          if (peer.status === 'OK' && !that.peers[peer.ip] && !isLocalhost(peer.ip)) {
             that.peers[peer.ip] = new Peer(peer.ip, peer.port, that.config)
           }
         })

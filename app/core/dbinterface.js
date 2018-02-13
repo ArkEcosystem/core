@@ -94,7 +94,7 @@ class DBInterface {
       } else {
         goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
         return this
-          .saveWallets(true) // save only modified wallets during the last round
+          .saveWallets(false) // save only modified wallets during the last round
           .then(() => this.buildDelegates(block)) // active build delegate list from database state
           .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
           .then(() => block)
@@ -137,7 +137,7 @@ class DBInterface {
       sender.publicKey = transaction.data.senderPublicKey
       this.walletManager.updateWallet(sender)
     }
-    return sender.canApply(transaction.data)
+    return sender.canApply(transaction.data) && !this.getTransaction(transaction.data.id)
   }
 
   applyTransaction (transaction) {

@@ -275,6 +275,10 @@ module.exports = class SequelizeDB extends DBInterface {
       )
   }
 
+  getTransaction (id) {
+    return this.db.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
+  }
+
   getCommonBlock (ids) {
     return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
