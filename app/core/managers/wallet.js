@@ -33,7 +33,11 @@ module.exports = class WalletManager {
     const appliedTransactions = []
 
     try {
-      await Promise.each(block.transactions, tx => this.applyTransaction(tx).then(() => appliedTransactions.push(tx)))
+      await Promise.each(block.transactions, async (tx) => {
+        await this.applyTransaction(tx)
+
+        appliedTransactions.push(tx)
+      })
 
       return delegate.applyBlock(block.data)
     } catch (error) {

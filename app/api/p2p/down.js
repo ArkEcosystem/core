@@ -164,13 +164,17 @@ class Down {
     return median[parseInt(median.length / 2)]
   }
 
-  downloadBlocks (fromBlockHeight) {
+  async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
+
     goofy.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
-    return randomPeer
-      .ping()
-      .then(() => randomPeer.downloadBlocks(fromBlockHeight))
-      .catch(() => this.downloadBlocks(fromBlockHeight))
+
+    try {
+      await randomPeer.ping()
+      randomPeer.downloadBlocks(fromBlockHeight)
+    } catch (error) {
+      this.downloadBlocks(fromBlockHeight)
+    }
   }
 
   broadcastBlock (block) {

@@ -65,10 +65,14 @@ module.exports = class BlockchainManager {
     this.dispatch('START')
   }
 
-  isReady () {
-    if (stateMachine.state.started) return Promise.resolve(true)
+  async isReady () {
+    if (stateMachine.state.started) {
+      return true
+    }
 
-    return sleep(10000).then(() => this.isReady())
+    await sleep(10000)
+
+    return this.isReady()
   }
 
   static getInstance () {
