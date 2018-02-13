@@ -14,9 +14,12 @@ registerPromiseWorker(message => {
       .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
       .then(() => (instance = new TransactionPool()))
   }
+
   if (instance && instance[message.event]) { // redirect to public methods
     return instance[message.event](message.data)
-  } else return Promise.reject(new Error(`message '${message}' not recognised`))
+  }
+
+  return Promise.reject(new Error(`message '${message}' not recognised`))
 })
 
 class TransactionPool {

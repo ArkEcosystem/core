@@ -58,57 +58,60 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.roundsTable.destroy({where: {round}})
   }
 
-  buildDelegates (block) {
+  async buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
     const that = this
-    return this.walletsTable
-      .findAll({
+
+    const data = await this.walletsTable.findAll({
+      attributes: [
+        ['vote', 'publicKey'],
+        [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
+      ],
+      group: 'vote',
+      where: {
+        vote: {
+          [Sequelize.Op.ne]: null
+        }
+      }
+    })
+
+    if (data.length < activeDelegates) {
+      const data2 = await this.walletsTable.findAll({
         attributes: [
-          ['vote', 'publicKey'],
-          [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
+          'publicKey'
         ],
-        group: 'vote',
         where: {
-          vote: {
+          username: {
             [Sequelize.Op.ne]: null
           }
-        }
+        },
+        order: [[ 'publicKey', 'ASC' ]],
+        limit: activeDelegates - data.length
       })
-      .then(data => {
-        if (data.length < activeDelegates) {
-          return this.walletsTable
-            .findAll({
-              attributes: [
-                'publicKey'
-              ],
-              where: {
-                username: {
-                  [Sequelize.Op.ne]: null
-                }
-              },
-              order: [[ 'publicKey', 'ASC' ]],
-              limit: activeDelegates - data.length
-            })
-            .then((data2) => data.concat(data2))
-        } else return Promise.resolve(data)
-      })
-      .then(data => {
-        // goofy.info(`got ${data.length} voted delegates`)
-        const round = parseInt(block.data.height / 51)
-        that.activedelegates = data
-          .sort((a, b) => b.balance - a.balance)
-          .slice(0, 51)
-          .map(a => ({...{round: round}, ...a.dataValues}))
-        goofy.debug(`generated ${that.activedelegates.length} active delegates`)
-        return Promise.resolve(that.activedelegates)
-      })
+
+      await data.concat(data2)
+    }
+
+    // goofy.info(`got ${data.length} voted delegates`)
+    const round = parseInt(block.data.height / 51)
+    that.activedelegates = data
+      .sort((a, b) => b.balance - a.balance)
+      .slice(0, 51)
+      .map(a => ({...{round: round}, ...a.dataValues}))
+
+    goofy.debug(`generated ${that.activedelegates.length} active delegates`)
+
+    return that.activedelegates
+
   }
 
-  buildWallets () {
+  async buildWallets () {
     this.walletManager.reset()
-    goofy.printTracker('SPV Building', 0, 7)
-    return this.transactionsTable
-      .findAll({
+
+    try {
+      // Start
+      goofy.printTracker('SPV Building', 0, 7)
+      let data = await this.transactionsTable.findAll({
         attributes: [
           'recipientId',
           [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
@@ -116,133 +119,145 @@ module.exports = class SequelizeDB extends DBInterface {
         where: {type: 0},
         group: 'recipientId'
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 1, 7, 'received transactions')
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByAddress(row.recipientId)
-          if (wallet) wallet.balance = parseInt(row.amount)
-          else goofy.warn('lost cold wallet:', row.recipientId, row.amount)
-        })
-        return this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+
+      // Received TX
+      goofy.printTracker('SPV Building', 1, 7, 'received transactions')
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByAddress(row.recipientId)
+        if (wallet) {
+          wallet.balance = parseInt(row.amount)
+        } else {
+          goofy.warn('lost cold wallet:', row.recipientId, row.amount)
+        }
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 2, 7, 'block rewards')
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
-          wallet.balance += parseInt(row.reward)
-          wallet.producedBlocks += parseInt(row.produced)
-        })
-        return this.db.query('select *, max(`timestamp`) from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+
+      // Block Rewards
+      goofy.printTracker('SPV Building', 2, 7, 'block rewards')
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+        wallet.balance += parseInt(row.reward)
+        wallet.producedBlocks += parseInt(row.produced)
       })
-      .then(data => {
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
-          wallet.lastBlock = row
-        })
-        return this.transactionsTable.findAll({
-          attributes: [
-            'senderPublicKey',
-            [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
-            [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
-          ],
-          group: 'senderPublicKey'
-        })
+      data = await this.db.query('select *, max(`timestamp`) from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+
+      // ???
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+        wallet.lastBlock = row
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 3, 7, 'sent transactions')
-        data.forEach(row => {
-          let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-          wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
-          if (wallet.balance < 0) {
-            goofy.warn('Negative balance should never happen except from premining address:')
-            goofy.warn(wallet)
-          }
-        })
-        return this.transactionsTable.findAll({
-          attributes: [
-            'senderPublicKey',
-            'serialized'
-          ],
-          where: {type: 1}}
-        )
+
+      data = await this.transactionsTable.findAll({
+        attributes: [
+          'senderPublicKey',
+          [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
+          [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
+        ],
+        group: 'senderPublicKey'
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 4, 7, 'second signatures')
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-          wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
-        })
-        return this.transactionsTable.findAll({
-          attributes: [
-            'senderPublicKey',
-            'serialized'
-          ],
-          where: {type: 2}}
-        )
+
+      // Sent Transactions
+      goofy.printTracker('SPV Building', 3, 7, 'sent transactions')
+      data.forEach(row => {
+        let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+        wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
+        if (wallet.balance < 0) {
+          goofy.warn('Negative balance should never happen except from premining address:')
+          goofy.warn(wallet)
+        }
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 5, 7, 'delegates')
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-          wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
-          this.walletManager.updateWallet(wallet)
-        })
-        Object.values(this.walletManager.walletsByAddress)
-          .filter(a => a.balance < 0)
-          .forEach(a => goofy.debug(a))
-        return this.transactionsTable.findAll({
-          attributes: [
-            'senderPublicKey',
-            'serialized'
-          ],
-          order: [[ 'createdAt', 'DESC' ]],
-          where: {type: 3}}
-        )
+      data = await this.transactionsTable.findAll({
+        attributes: [
+          'senderPublicKey',
+          'serialized'
+        ],
+        where: {type: 1}}
+      )
+
+      // Second Signature
+      goofy.printTracker('SPV Building', 4, 7, 'second signatures')
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+        wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
       })
-      .then(data => {
-        goofy.printTracker('SPV Building', 6, 7, 'votes')
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-          if (!wallet.voted) {
-            let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
-            if (vote.startsWith('+')) wallet.vote = vote.slice(1)
-            wallet.voted = true
-          }
-        })
-        goofy.printTracker('SPV Building', 7, 7, 'multisignatures')
-        return this.transactionsTable.findAll({
-          attributes: [
-            'senderPublicKey',
-            'serialized'
-          ],
-          order: [[ 'createdAt', 'DESC' ]],
-          where: {type: 4}}
-        )
+      dat = await this.transactionsTable.findAll({
+        attributes: [
+          'senderPublicKey',
+          'serialized'
+        ],
+        where: {type: 2}}
+      )
+
+      // Delegates
+      goofy.printTracker('SPV Building', 5, 7, 'delegates')
+
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+        wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
+        this.walletManager.updateWallet(wallet)
       })
-      .then(data => {
-        data.forEach(row => {
-          const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-          wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
-        })
-        goofy.stopTracker('SPV Building', 7, 7)
-        goofy.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
-        goofy.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
-        return Promise.resolve(this.walletManager.walletsByAddress || [])
+
+      Object.values(this.walletManager.walletsByAddress)
+        .filter(a => a.balance < 0)
+        .forEach(a => goofy.debug(a))
+
+      data = await this.transactionsTable.findAll({
+        attributes: [
+          'senderPublicKey',
+          'serialized'
+        ],
+        order: [[ 'createdAt', 'DESC' ]],
+        where: {type: 3}}
+      )
+
+      // Votes
+      goofy.printTracker('SPV Building', 6, 7, 'votes')
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+        if (!wallet.voted) {
+          let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
+          if (vote.startsWith('+')) wallet.vote = vote.slice(1)
+          wallet.voted = true
+        }
       })
-      .catch(error => goofy.error(error))
+      goofy.printTracker('SPV Building', 7, 7, 'multisignatures')
+      data = await this.transactionsTable.findAll({
+        attributes: [
+          'senderPublicKey',
+          'serialized'
+        ],
+        order: [[ 'createdAt', 'DESC' ]],
+        where: {type: 4}}
+      )
+
+      data.forEach(row => {
+        const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+        wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
+      })
+
+      goofy.stopTracker('SPV Building', 7, 7)
+      goofy.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
+      goofy.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+
+      return this.walletManager.walletsByAddress || []
+    } catch (error) {
+      goofy.error(error)
+    }
   }
 
-  saveWallets (force) {
-    return this.db.transaction(t =>
-        Promise.all(
-          Object.values(this.walletManager.walletsByPublicKey || {})
-            // cold addresses are not saved on database
-            .filter(acc => acc.publicKey && (force || acc.dirty))
-            .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
-        )
+  async saveWallets (force) {
+    await this.db.transaction(t =>
+      Promise.all(
+        Object.values(this.walletManager.walletsByPublicKey || {})
+          // cold addresses are not saved on database
+          .filter(acc => acc.publicKey && (force || acc.dirty))
+          .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
       )
-      .then(() => goofy.info('Rebuilt wallets saved'))
-      .then(() => Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false)))
+    )
+
+    goofy.info('Rebuilt wallets saved')
+
+    await Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
   saveBlock (block) {
