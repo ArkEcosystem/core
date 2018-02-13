@@ -55,12 +55,6 @@ module.exports = class WalletManager {
     })
 
     delegate.undoBlock(block.data)
-      .catch(error => Promise
-        .each(undoedTransactions, tx =>
-          that.applyTransaction(tx))
-         .then(() => Promise.reject(error)
-        )
-      )
     } catch (error) {
       await Promise.each(undoedTransactions, tx => that.applyTransaction(tx))
 
