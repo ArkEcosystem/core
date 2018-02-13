@@ -14,6 +14,7 @@ module.exports = async function () {
       p2p: require(path.resolve(conf, 'api/p2p')),
       public: require(path.resolve(conf, 'api/public'))
     },
+    webhooks: require(path.resolve(conf, 'webhooks')),
     server: require(path.resolve(conf, 'server')),
     genesisBlock: require(path.resolve(conf, 'genesis-block.json')),
     network: require(path.resolve(conf, 'network')),

@@ -3,35 +3,33 @@ const state = blockchain.getState()
 const config = require('app/core/config')
 
 exports.status = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const lastBlock = state.lastBlock
+    const networkHeight = await blockchain.networkInterface.getNetworkHeight()
 
-    return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
-      return {
-        data: {
-          loaded: blockchain.isSynced(),
-          now: lastBlock ? lastBlock.data.height : 0,
-          blocksCount: networkHeight - lastBlock.data.height
-        }
+    return {
+      data: {
+        loaded: blockchain.isSynced(),
+        now: lastBlock ? lastBlock.data.height : 0,
+        blocksCount: networkHeight - lastBlock.data.height
       }
-    })
+    }
   }
 }
 
 exports.syncing = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const lastBlock = state.lastBlock
+    const networkHeight = await blockchain.networkInterface.getNetworkHeight()
 
-    return blockchain.networkInterface.getNetworkHeight().then((networkHeight) => {
-      return {
-        data: {
-          syncing: !blockchain.isSynced(),
-          blocks: networkHeight - lastBlock.data.height,
-          height: lastBlock.data.height,
-          id: lastBlock.data.id
-        }
+    return {
+      data: {
+        syncing: !blockchain.isSynced(),
+        blocks: networkHeight - lastBlock.data.height,
+        height: lastBlock.data.height,
+        id: lastBlock.data.id
       }
-    })
+    }
   }
 }
 

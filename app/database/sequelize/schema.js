@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-function syncTables(db) {
+function syncTables (db) {
   const blocks = db.define('blocks', {
     id: {
       type: Sequelize.STRING(64),

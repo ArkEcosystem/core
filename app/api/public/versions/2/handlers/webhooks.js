@@ -7,10 +7,10 @@ exports.index = {
   config: {
     auth: 'webhooks'
   },
-  handler: (request, h) => {
-    return db.webhooks
-      .paginate(utils.paginate(request))
-      .then(webhooks => utils.toPagination(request, webhooks, 'webhook'))
+  handler: async (request, h) => {
+    const webhooks = await db.webhooks.paginate(utils.paginate(request))
+
+    return utils.toPagination(request, webhooks, 'webhook')
   }
 }
 
@@ -21,13 +21,12 @@ exports.store = {
       payload: schema
     }
   },
-  handler: (request, h) => {
+  handler: async (request, h) => {
     request.payload.secret = require('crypto').randomBytes(32).toString('hex')
 
-    return db.webhooks
-      .create(request.payload)
-      .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
-      .then(response => h.response(response).code(201))
+    const webhook = db.webhooks.create(request.payload)
+
+    h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
   }
 }
 
@@ -35,10 +34,10 @@ exports.show = {
   config: {
     auth: 'webhooks'
   },
-  handler: (request, h) => {
-    return db.webhooks
-      .findById(request.params.id)
-      .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
+  handler: async (request, h) => {
+    const webhook = await db.webhooks.findById(request.params.id)
+
+    return utils.respondWithResource(request, webhook, 'webhook')
   }
 }
 
@@ -49,10 +48,10 @@ exports.update = {
       payload: schema
     }
   },
-  handler: (request, h) => {
-    return db.webhooks
-      .update(request.params.id, request.payload)
-      .then(webhook => utils.respondWithResource(request, webhook, 'webhook'))
+  handler: async (request, h) => {
+    const webhook = await db.webhooks.update(request.params.id, request.payload)
+
+    return utils.respondWithResource(request, webhook, 'webhook')
   }
 }
 
@@ -60,10 +59,10 @@ exports.destroy = {
   config: {
     auth: 'webhooks'
   },
-  handler: (request, h) => {
-    return db.webhooks
-      .destroy(request.params.id, request.payload)
-      .then(() => h.response(null).code(204))
+  handler: async (request, h) => {
+    await db.webhooks.destroy(request.params.id, request.payload)
+
+    h.response(null).code(204)
   }
 }
 
