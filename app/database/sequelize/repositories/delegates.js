@@ -5,15 +5,17 @@ module.exports = class DelegatesRepository {
     this.db = db
   }
 
-  findAll (params = {}) {
-    return Promise.resolve(this.db.walletManager.getLocalWallets().filter(a => !!a.username))
+  async findAll (params = {}) {
+    return this.db.walletManager.getLocalWallets().filter(a => !!a.username)
   }
 
-  paginate (params) {
-    return this.findAll().then((delegates) => ({
+  async paginate (params) {
+    const delegates = await this.findAll()
+
+    return {
       rows: delegates.slice(params.offset, params.offset + params.limit),
       count: delegates.length
-    }))
+    }
   }
 
   search (params) {
@@ -38,21 +40,23 @@ module.exports = class DelegatesRepository {
     }))
   }
 
-  findById (id) {
-    return this.findAll().then((delegates) => delegates.find(a => (a.address === id || a.publicKey === id || a.username === id)))
+  async findById (id) {
+    const delegates = await this.findAll()
+
+    return delegates.find(a => (a.address === id || a.publicKey === id || a.username === id))
   }
 
-  active (height, totalSupply) {
-    return this.db.getActiveDelegates(height).then(delegates => {
-      return Promise.all(delegates.map(delegate => {
-        return this.db.wallets.findById(delegate.publicKey).then(wallet => {
-          return {
-            username: wallet.username,
-            approval: calculateApproval(delegate),
-            productivity: calculateProductivity(wallet)
-          }
-        })
-      }))
-    })
+  async active (height, totalSupply) {
+    const delegates = await this.db.getActiveDelegates(height)
+
+    return Promise.all(delegates.map(delegate => {
+      return this.db.wallets.findById(delegate.publicKey).then(wallet => {
+        return {
+          username: wallet.username,
+          approval: calculateApproval(delegate),
+          productivity: calculateProductivity(wallet)
+        }
+      })
+    }))
   }
 }
