@@ -8,7 +8,7 @@ const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class SequelizeDB extends DBInterface {
-  init (params) {
+  async init (params) {
     if (this.db) {
       return Promise.reject(new Error('Already initialised'))
     }
@@ -17,13 +17,12 @@ module.exports = class SequelizeDB extends DBInterface {
       logging: !!params.logging,
       operatorsAliases: Sequelize.Op
     })
-    return this.db
-      .authenticate()
-      .then(() => schema.syncTables(this.db))
-      .then(tables => ([
-        this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
-      ] = tables))
-      .then(() => this.registerHooks())
+
+    await this.db.authenticate()
+    let tables = await schema.syncTables(this.db)
+    [this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable] = tables
+
+    this.registerHooks()
   }
 
   registerHooks () {
@@ -36,17 +35,19 @@ module.exports = class SequelizeDB extends DBInterface {
   getActiveDelegates (height) {
     const activeDelegates = config.getConstants(height).activeDelegates
     const round = ~~(height / activeDelegates)
-    if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) return Promise.resolve(this.activedelegates)
-    else {
-      return this.roundsTable
-        .findAll({
-          where: {
-            round: round
-          },
-          order: [[ 'publicKey', 'ASC' ]]
-        })
-        .then(data => data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance))
+
+    if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) {
+      return this.activedelegates
     }
+
+    const data = await this.roundsTable.findAll({
+      where: {
+        round: round
+      },
+      order: [[ 'publicKey', 'ASC' ]]
+    })
+
+    return data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance)
   }
 
   saveRounds (rounds) {
@@ -54,12 +55,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   deleteRound (round) {
-    return this.roundsTable
-      .destroy({
-        where: {
-          round: round
-        }
-      })
+    return this.roundsTable.destroy({where: {round}})
   }
 
   buildDelegates (block) {
@@ -237,8 +233,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   saveWallets (force) {
-    return this.db
-      .transaction(t =>
+    return this.db.transaction(t =>
         Promise.all(
           Object.values(this.walletManager.walletsByPublicKey || {})
             // cold addresses are not saved on database
@@ -251,43 +246,37 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   saveBlock (block) {
-    return this.db.transaction(t =>
-      this.blocksTable
-        .create(block.data, {transaction: t})
-        .then(() => this.transactionsTable.bulkCreate(block.transactions || [], {transaction: t}))
-    )
+    return this.db.transaction(async t => {
+      await this.blocksTable.create(block.data, {transaction: t})
+      this.transactionsTable.bulkCreate(block.transactions || [], {transaction: t})
+    })
   }
 
   deleteBlock (block) {
-    return this.db.transaction(t =>
-      this.transactionsTable
-        .destroy({where: {blockId: block.data.id}}, {transaction: t})
-        .then(() => this.blocksTable.destroy({where: {id: block.data.id}}, {transaction: t}))
-    )
+    return this.db.transaction(async t => {
+      await this.transactionsTable.destroy({where: {blockId: block.data.id}}, {transaction: t})
+      this.blocksTable.destroy({where: {id: block.data.id}}, {transaction: t})
+    })
   }
 
-  getBlock (id) {
-    return this.blocksTable
-      .findOne({
-        include: [{
-          model: this.transactionsTable,
-          attributes: ['serialized']
-        }],
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        },
-        where: {
-          id: id
-        }
-      })
-      .then((block) =>
-        this.transactionsTable
-          .findAll({where: {blockId: block.id}})
-          .then(data => {
-            block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
-            return Promise.resolve(new Block(block))
-          })
-      )
+  async getBlock (id) {
+    const block = await this.blocksTable.findOne({
+      include: [{
+        model: this.transactionsTable,
+        attributes: ['serialized']
+      }],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
+      where: {
+        id: id
+      }
+    })
+
+    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
+    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+
+    return new Block(block)
   }
 
   getTransaction (id) {
@@ -298,71 +287,71 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
 
-  getTransactionsFromIds (txids) {
-    return this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
-      .then(rows => rows.map(row => Transaction.deserialize(row.serialized.toString('hex'))))
-      .then(transactions => txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i]))))
+  async getTransactionsFromIds (txids) {
+    const rows = await this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+    const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+
+    return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
   }
 
-  getLastBlock () {
-    return this.blocksTable
-      .findOne({order: [['height', 'DESC']]})
-      .then(data => { // TODO to remove as it would fail anyway next in the pipeline?
-        if (data) {
-          return Promise.resolve(data)
-        } else {
-          return Promise.reject(new Error('No block found in database'))
-        }
-      })
-      .then((block) =>
-        this.transactionsTable
-          .findAll({where: {blockId: block.id}})
-          .then(data => {
-            block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
-            return Promise.resolve(new Block(block))
-          })
-      )
+  async getLastBlock () {
+    const block = await this.blocksTable.findOne({order: [['height', 'DESC']]})
+
+    // .then(data => { // TODO to remove as it would fail anyway next in the pipeline?
+    //   if (data) {
+    //     return Promise.resolve(data)
+    //   } else {
+    //     return Promise.reject(new Error('No block found in database'))
+    //   }
+    // })
+
+    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
+    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+
+    return new Block(block)
   }
 
-  getBlocks (offset, limit) {
+  async getBlocks (offset, limit) {
     const last = offset + limit
-    return this.blocksTable
-      .findAll({
-        include: [{
-          model: this.transactionsTable,
-          attributes: ['serialized']
-        }],
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        },
-        where: {
-          height: {
-            [Sequelize.Op.between]: [offset, last]
-          }
+
+    const blocks = await this.blocksTable.findAll({
+      include: [{
+        model: this.transactionsTable,
+        attributes: ['serialized']
+      }],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
+      where: {
+        height: {
+          [Sequelize.Op.between]: [offset, last]
         }
-      })
-      .then(blocks => {
-        const nblocks = blocks.map(block => {
-          block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
-          return block.dataValues
-        })
-        return Promise.resolve(nblocks)
-      })
+      }
+    })
+
+    const nblocks = blocks.map(block => {
+      block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
+
+      return block.dataValues
+    })
+
+    return nblocks
   }
 
-  getBlockHeaders (offset, limit) {
+  async getBlockHeaders (offset, limit) {
     const last = offset + limit
-    return this.blocksTable
-      .findAll({
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        },
-        where: {
-          height: {
-            [Sequelize.Op.between]: [offset, last]
-          }
+
+    const blocks = await this.blocksTable.findAll({
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
+      where: {
+        height: {
+          [Sequelize.Op.between]: [offset, last]
         }
-      })
-      .then(blocks => blocks.map(block => Block.serialize(block)))
+      }
+    })
+
+    return blocks.map(block => Block.serialize(block))
   }
 }
