@@ -1,4 +1,4 @@
-module.exports = async (model) => {
+module.exports = (model) => {
   return {
     username: model.username,
     address: model.address,

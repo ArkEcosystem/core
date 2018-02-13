@@ -1,19 +1,12 @@
-const goofy = require('app/core/goofy')
 const Bull = require('bull')
 
 let instance
 
-module.exports = class Queue {
+module.exports = class QueueManager {
   constructor (config) {
-    if (!instance) {
-      goofy.debug('Queue has been instantiated.');
+    this.config = config
 
-      instance = this
-    } else {
-      goofy.debug('Queue already instantiated.');
-    }
-
-    this.config = Object.keys(config).forEach((key) => (config[key] == null) && delete config[key])
+    if (!instance) instance = this
 
     return instance
   }
@@ -28,7 +21,7 @@ module.exports = class Queue {
 }
 
 // USAGE INSTRUCTIONS
-// const queue = require('app/core/queue')
+// const queue = require('app/core/managers/queue')
 // const blockQueue = queue.getInstance().connection('blocks')
 
 // blockQueue.empty()

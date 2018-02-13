@@ -1,6 +1,6 @@
 const arkjs = require('arkjs')
 const Wallet = require('app/models/wallet')
-const WalletManager = require('app/core/walletManager')
+const WalletManager = require('app/core/managers/wallet')
 const config = require('app/core/config')
 const goofy = require('app/core/goofy')
 const Promise = require('bluebird')

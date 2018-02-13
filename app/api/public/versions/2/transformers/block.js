@@ -1,4 +1,4 @@
-module.exports = async (model) => {
+module.exports = (model) => {
   return {
     id: model.id,
     version: model.version,
@@ -15,11 +15,11 @@ module.exports = async (model) => {
     },
     generator: {
       id: model.generatorId,
-      public_key: model.generatorPublicKey
+      publicKey: model.generatorPublicKey
     },
     signature: model.blockSignature,
     confirmations: model.confirmations,
     transactions: model.numberOfTransactions,
-    created_at: model.timestamp
+    timestamp: model.timestamp
   };
 }

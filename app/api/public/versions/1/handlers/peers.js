@@ -1,4 +1,4 @@
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -56,9 +56,7 @@ exports.show = {
 
       if (!peer) return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
 
-      return utils
-        .toResource(request, peer, 'peer')
-        .then(peer => utils.respondWith({peer}))
+      return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
     })
   }
 }

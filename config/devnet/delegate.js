@@ -1,5 +1,5 @@
 module.exports = {
   secrets: [
-    "this is a test"
+    'this is a test'
   ]
 }

@@ -2,7 +2,7 @@ const path = require('path')
 const config = require('app/core/config')
 const goofy = require('app/core/goofy')
 
-const BlockchainManager = require('app/core/blockchainManager')
+const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
 const DB = require('app/core/dbinterface')
 const DependencyHandler = require('app/core/dependency-handler')
@@ -24,7 +24,7 @@ module.exports = async function () {
       public: require(path.resolve(conf, 'api/public'))
     },
     server: require(path.resolve(conf, 'server')),
-    genesisBlock: require(path.resolve(conf, 'genesisBlock.json')),
+    genesisBlock: require(path.resolve(conf, 'genesis-block.json')),
     network: require(path.resolve(conf, 'network')),
     delegates: require(path.resolve(conf, 'delegate'))
   })

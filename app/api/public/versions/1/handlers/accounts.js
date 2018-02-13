@@ -1,5 +1,5 @@
 const arkjs = require('arkjs')
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()
@@ -30,9 +30,7 @@ exports.show = {
       .then(account => {
         if (!account) return utils.respondWith('Not found', true)
 
-        return utils
-          .toResource(request, account, 'wallet')
-          .then(account => utils.respondWith({account}))
+        return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
       })
   }
 }

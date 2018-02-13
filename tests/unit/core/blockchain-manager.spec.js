@@ -1,5 +1,5 @@
 const sinon = require('sinon')
-const BlockchainManager = require('app/core/blockchainManager')
+const BlockchainManager = require('app/core/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {

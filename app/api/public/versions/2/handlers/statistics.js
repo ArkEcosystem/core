@@ -1,4 +1,4 @@
-const chainInstance = require('app/core/blockchainManager').getInstance()
+const chainInstance = require('app/core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
 const config = require('app/core/config')
 const db = require('app/core/dbinterface').getInstance()

@@ -11,12 +11,12 @@ const paginate = (request) => {
 
 const respondWithResource = (request, data, transformerClass) => {
   return data
-    ? transformResource(request, data, transformerClass).then(data => ({data}))
+    ? { data: transformResource(request, data, transformerClass) }
     : Boom.notFound()
 }
 
 const respondWithCollection = (request, data, transformerClass) => {
-  return transformCollection(request, data, transformerClass).then(data => ({data}))
+  return { data: transformCollection(request, data, transformerClass) }
 }
 
 const toResource = (request, data, transformerClass) => {
@@ -28,8 +28,10 @@ const toCollection = (request, data, transformerClass) => {
 }
 
 const toPagination = (request, data, transformerClass) => {
-  return transformCollection(request, data.rows, transformerClass)
-    .then(results => ({ results, totalCount: data.count }))
+  return {
+    results: transformCollection(request, data.rows, transformerClass),
+    totalCount: data.count
+  }
 }
 
 module.exports = {

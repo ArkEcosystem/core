@@ -5,6 +5,7 @@ const config = require('app/core/config')
 const goofy = require('app/core/goofy')
 const schema = require('app/database/sequelize/schema')
 const DBInterface = require('app/core/dbinterface')
+const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class SequelizeDB extends DBInterface {
   init (params) {
@@ -19,7 +20,17 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.db
       .authenticate()
       .then(() => schema.syncTables(this.db))
-      .then(tables => ([this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable] = tables))
+      .then(tables => ([
+        this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
+      ] = tables))
+      .then(() => this.registerHooks())
+  }
+
+  registerHooks () {
+    if (!config.webhooks.enabled) return Promise.resolve(false)
+
+    this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
+    this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
   }
 
   getActiveDelegates (height) {

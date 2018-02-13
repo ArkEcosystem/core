@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-function syncTables (db) {
+function syncTables(db) {
   const blocks = db.define('blocks', {
     id: {
       type: Sequelize.STRING(64),
@@ -22,16 +22,14 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['id']
-    },
-    {
+    }, {
       unique: true,
       fields: ['height']
-    },
-    {
+    }, {
       fields: ['generatorPublicKey']
-    }
-    ]
+    }]
   })
+
   const transactions = db.define('transactions', {
     id: {
       type: Sequelize.STRING(64),
@@ -57,24 +55,19 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['id']
-    },
-    {
+    }, {
       fields: ['senderPublicKey']
-    },
-    {
+    }, {
       fields: ['recipientId']
-    },
-    {
+    }, {
       fields: ['vendorFieldHex']
-    },
-    {
+    }, {
       fields: ['timestamp']
-    }
-
-    ]
+    }]
   })
   transactions.belongsTo(blocks)
   blocks.hasMany(transactions)
+
   const wallets = db.define('wallets', {
     address: {
       type: Sequelize.STRING(36),
@@ -90,47 +83,48 @@ function syncTables (db) {
     indexes: [{
       unique: true,
       fields: ['address']
-    },
-    {
+    }, {
       unique: true,
       fields: ['publicKey']
-    },
-    {
+    }, {
       fields: ['vote']
-    },
-    {
+    }, {
       fields: ['username']
-    }
-
-    ]
+    }]
   })
 
-  const rounds = db.define('rounds',
-    {
-      publicKey: {
-        type: Sequelize.STRING(66)
-      },
-      balance: Sequelize.BIGINT,
-      round: Sequelize.BIGINT
+  const rounds = db.define('rounds', {
+    publicKey: {
+      type: Sequelize.STRING(66)
     },
-    {
-      uniqueKeys: {
-        rounds_unique: {
-          fields: ['publicKey', 'round']
-        }
-      },
-      indexes: [
-        {
-          fields: ['publicKey']
-        },
-        {
-          fields: ['round']
-        }
-      ]
-    }
-  )
+    balance: Sequelize.BIGINT,
+    round: Sequelize.BIGINT
+  }, {
+    uniqueKeys: {
+      rounds_unique: {
+        fields: ['publicKey', 'round']
+      }
+    },
+    indexes: [{
+      fields: ['publicKey']
+    }, {
+      fields: ['round']
+    }]
+  })
 
-  return Promise.all([blocks, transactions, wallets, rounds].map(table => table.sync()))
+  const webhooks = db.define('webhooks', {
+    event: Sequelize.STRING,
+    target: Sequelize.STRING,
+    conditions: Sequelize.JSON,
+    secret: Sequelize.STRING,
+    enabled: Sequelize.BOOLEAN
+  }, {
+    indexes: [{
+      fields: ['event']
+    }]
+  })
+
+  return Promise.all([blocks, transactions, wallets, rounds, webhooks].map(table => table.sync()))
 }
 
 module.exports = {

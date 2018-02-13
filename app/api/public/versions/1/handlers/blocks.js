@@ -1,4 +1,4 @@
-const blockchain = require('app/core/blockchainManager').getInstance()
+const blockchain = require('app/core/managers/blockchain').getInstance()
 const db = require('app/core/dbinterface').getInstance()
 const state = blockchain.getState()
 const config = require('app/core/config')
@@ -33,9 +33,7 @@ exports.show = {
     return db.blocks.findById(request.query.id).then(block => {
       if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
 
-      return utils
-        .toResource(request, block, 'block')
-        .then(block => utils.respondWith({block}))
+      return utils.respondWith({ block: utils.toResource(request, block, 'block') })
     })
   }
 }

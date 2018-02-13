@@ -15,6 +15,7 @@ class Config {
 
   init (config) {
     this.api = config.api
+    this.webhooks = config.webhooks
     this.server = config.server
     this.network = config.network
     this.genesisBlock = config.genesisBlock
@@ -23,7 +24,7 @@ class Config {
     goofy = require('app/core/goofy') // need to do here to be sure goofy is initialised
     goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
 
-    this.ntp().then(time => goofy.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
+    this.ntp().then(time => goofy.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰'))
     this.buildConstants()
 
     return Promise.resolve(this)
