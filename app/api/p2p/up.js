@@ -69,36 +69,44 @@ class Up {
     return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
   }
 
-  acceptRequest (req, res, next) {
+  async acceptRequest (req, res, next) {
     if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/remote/')) && !this.isLocalhost(req)) {
-      res.send(500, {
+      return res.send(500, {
         code: 'ResourceNotFound',
         message: `${req.route.path} does not exist`
       })
     }
+
     if (req.route.path.startsWith('/peer/')) {
       const peer = {}
       peer.ip = requestIp.getClientIp(req);
       ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
-      return this.p2p
-        .acceptNewPeer(peer)
-        .then(() => setHeaders(res))
-        .then(() => next())
-        .catch(error => res.send(500, {success: false, message: error}))
-    } else return next()
+
+      try {
+        await this.p2p.acceptNewPeer(peer)
+        await setHeaders(res)
+      } catch (error) {
+        return res.send(500, {success: false, message: error})
+      }
+    }
+
+    return next()
   }
 
-  getPeers (req, res, next) {
-    this.p2p
-      .getPeers()
-      .then(peers => {
-        const rpeers = peers
-          .map(peer => peer.toBroadcastInfo())
-          .sort(() => Math.random() - 0.5)
-        res.send(200, {success: true, peers: rpeers})
-        next()
-      })
-      .catch(error => res.send(500, {success: false, message: error}))
+  async getPeers (req, res, next) {
+    try {
+      const peers = await this.p2p.getPeers()
+
+      const rpeers = peers
+        .map(peer => peer.toBroadcastInfo())
+        .sort(() => Math.random() - 0.5)
+
+      res.send(200, {success: true, peers: rpeers})
+
+      next()
+    } catch (error) {
+      res.send(500, {success: false, message: error})
+    }
   }
 
   getHeight (req, res, next) {
@@ -107,32 +115,43 @@ class Up {
       height: blockchain.getInstance().state.lastBlock.data.height,
       id: blockchain.getInstance().state.lastBlock.data.id
     })
+
     next()
   }
 
-  getCommonBlock (req, res, next) {
+  async getCommonBlock (req, res, next) {
     const ids = req.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
-    blockchain.getInstance().getDb().getCommonBlock(ids).then(commonBlock => {
+
+    try {
+      const commonBlock = await blockchain.getInstance().getDb().getCommonBlock(ids)
+
       res.send(200, {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
         lastBlockHeight: blockchain.getInstance().state.lastBlock.data.height
       })
+
       next()
-    })
-    .catch(error => res.send(500, {success: false, message: error}))
+    } catch (error) {
+      res.send(500, {success: false, message: error})
+    }
   }
 
-  getTransactionsFromIds (req, res, next) {
+  async getTransactionsFromIds (req, res, next) {
     const txids = req.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-    blockchain.getInstance().getDb().getTransactionsFromIds(txids).then(transactions => {
+
+    try {
+      const transactions = await blockchain.getInstance().getDb().getTransactionsFromIds(txids)
+
       res.send(200, {
         success: true,
         transactions: transactions
       })
+
       next()
-    })
-    .catch(error => res.send(500, {success: false, message: error}))
+    } catch (error) {
+      res.send(500, {success: false, message: error})
+    }
   }
 
   getTransactions (req, res, next) {
@@ -140,31 +159,38 @@ class Up {
       success: true,
       transactions: []
     })
+
     next()
   }
 
-  sendBlockchainEvent (req, res, next) {
+  async sendBlockchainEvent (req, res, next) {
     const bm = blockchain.getInstance()
+
     if (!bm[req.params.event]) {
       res.send(500, {
         success: false,
         event: req.params.event,
         message: 'No such event'
       })
-      next()
-    } else {
-      if (req.query.param) blockchain.getInstance()[req.params.event](req.params.param)
-      else blockchain.getInstance()[req.params.event]()
-      res.send(200, {
-        success: true,
-        event: req.params.event
-      })
-      next()
+
+      return next()
     }
+
+    await req.query.param
+      ? bm[req.params.event](req.params.param)
+      : bm[req.params.event]()
+
+    res.send(200, {
+      success: true,
+      event: req.params.event
+    })
+
+    next()
   }
 
   getStatus (req, res, next) {
     const lastBlock = blockchain.getInstance().state.lastBlock.getHeader()
+
     res.send(200, {
       success: true,
       height: lastBlock.height,
@@ -172,15 +198,19 @@ class Up {
       currentSlot: arkjs.slots.getSlotNumber(),
       header: lastBlock
     })
+
     next()
   }
 
-  getRound (req, res, next) {
+  async getRound (req, res, next) {
     const lastBlock = blockchain.getInstance().state.lastBlock
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward
-    this.getActiveDelegates(lastBlock.data.height).then(delegates => {
+
+    try {
+      const delegates = await this.getActiveDelegates(lastBlock.data.height)
+
       res.send(200, {
         success: true,
         round: {
@@ -193,79 +223,95 @@ class Up {
           canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
         }
       })
+
       next()
-    }).catch(error => res.send(500, {success: false, message: error}))
+    } catch (error) {
+      res.send(500, {success: false, message: error})
+    }
   }
 
   postInternalBlock (req, res, next) {
     // console.log(req.body)
     blockchain.getInstance().postBlock(req.body)
+
     res.send(200, {
       success: true
     })
+
     next()
   }
 
-  postVerifyTransaction (req, res, next) {
+  async postVerifyTransaction (req, res, next) {
     // console.log(req.body)
     const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
-    blockchain.getInstance().getDb().verifyTransaction(transaction)
-      .then(result => {
-        res.send(200, {
-          success: result
-        })
-        next()
-      })
+    const result = await blockchain.getInstance().getDb().verifyTransaction(transaction)
+
+    res.send(200, {
+      success: result
+    })
+
+    next()
   }
 
   postBlock (req, res, next) {
     blockchain.getInstance().postBlock(req.body)
+
     res.send(200, {
       success: true
     })
+
     next()
   }
 
   postTrasactions (req, res, next) {
     const transactions = req.body.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
-    blockchain.getInstance().postTransactions(transactions)
+
+      blockchain.getInstance().postTransactions(transactions)
+
     res.send(200, {
       success: true
     })
+
     next()
   }
 
-  getActiveDelegates (height) {
+  async getActiveDelegates (height) {
     const round = parseInt(height / this.config.getConstants(height).activeDelegates)
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-    return blockchain.getInstance().getDb().getActiveDelegates(height)
-      .then(activedelegates => {
-        for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
-          for (let x = 0; x < 4 && i < delCount; i++, x++) {
-            const newIndex = currentSeed[x] % delCount
-            const b = activedelegates[newIndex]
-            activedelegates[newIndex] = activedelegates[i]
-            activedelegates[i] = b
-          }
-          currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
-        }
-        return Promise.resolve(activedelegates)
-      })
+
+    const activedelegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
+
+    for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
+      for (let x = 0; x < 4 && i < delCount; i++, x++) {
+        const newIndex = currentSeed[x] % delCount
+        const b = activedelegates[newIndex]
+
+        activedelegates[newIndex] = activedelegates[i]
+        activedelegates[i] = b
+      }
+
+      currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
+    }
+
+    return activedelegates
   }
 
-  getBlocks (req, res, next) {
-    blockchain.getInstance().getDb().getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
-      .then(blocks => {
-        res.send(200, {success: true, blocks: blocks})
-        next()
-      })
-      .catch(error => {
-        goofy.error(error)
-        res.send(500, {success: false, error: error})
-        next()
-      })
+  async getBlocks (req, res, next) {
+    try {
+      const blocks = await blockchain.getInstance().getDb().getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
+
+      res.send(200, {success: true, blocks: blocks})
+
+      next()
+    } catch (error) {
+      goofy.error(error)
+
+      res.send(500, {success: false, error: error})
+
+      next()
+    }
   }
 }
 

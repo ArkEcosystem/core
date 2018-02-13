@@ -30,6 +30,7 @@ class Goofy {
         rotatetransport
       ]
     }))
+
     this.filters.push((level, msg, meta) => {
       if (this.tracker) {
         process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')

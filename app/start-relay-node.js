@@ -32,34 +32,49 @@ process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-config.init({
-  api: {
-    p2p: require(path.resolve(commander.config, 'api/p2p')),
-    public: require(path.resolve(commander.config, 'api/public'))
-  },
-  webhooks: require(path.resolve(commander.config, 'webhooks')),
-  server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-  network: require(path.resolve(commander.config, 'network'))
-})
-.then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
-.then(() => (blockchainManager = new BlockchainManager(config)))
-.then(() => goofy.info('Mounting Dependencies...'))
-.then(() => DependencyHandler.checkDatabaseLibraries(config))
-.then(() => goofy.info('Mounting Queue Manager...'))
-.then(() => new QueueManager(config.server.queue))
-.then(() => goofy.info('Mounting Webhook Manager...'))
-.then(() => new WebhookManager(config.webhooks).mount())
-.then(() => goofy.info('Mounting Database Interface...'))
-.then(() => DB.create(config.server.db))
-.then(db => blockchainManager.attachDBInterface(db))
-.then(() => goofy.info('Mounting P2P Interface...'))
-.then(() => (p2p = new P2PInterface(config)))
-.then(() => p2p.warmup())
-.then(() => blockchainManager.attachNetworkInterface(p2p))
-.then(() => goofy.info('Mounting Blockchain Manager...'))
-.then(() => blockchainManager.start())
-.then(() => blockchainManager.isReady())
-.then(() => goofy.info('Mounting Public API...'))
-.then(() => PublicAPI(config))
-.catch(fatal => goofy.error('fatal error', fatal))
+async function boot () {
+  try {
+    await config.init({
+      api: {
+        p2p: require(path.resolve(commander.config, 'api/p2p')),
+        public: require(path.resolve(commander.config, 'api/public'))
+      },
+      webhooks: require(path.resolve(commander.config, 'webhooks')),
+      server: require(path.resolve(commander.config, 'server')),
+      genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
+      network: require(path.resolve(commander.config, 'network'))
+    })
+
+    await goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
+    await (blockchainManager = new BlockchainManager(config)))
+
+    goofy.info('Mounting Dependencies...')
+    await DependencyHandler.checkDatabaseLibraries(config)
+
+    goofy.info('Mounting Queue Manager...')
+    await new QueueManager(config.server.queue)
+
+    goofy.info('Mounting Webhook Manager...')
+    await new WebhookManager(config.webhooks).mount()
+
+    goofy.info('Mounting Database Interface...')
+    const db = await DB.create(config.server.db)
+    await blockchainManager.attachDBInterface(db)
+
+    goofy.info('Mounting P2P Interface...')
+    const p2p = await new P2PInterface(config)
+    await p2p.warmup()
+    await blockchainManager.attachNetworkInterface(p2p)
+
+    goofy.info('Mounting Blockchain Manager...')
+    await blockchainManager.start()
+    await blockchainManager.isReady()
+
+    goofy.info('Mounting Public API...')
+    await PublicAPI(config)
+  } catch (error) {
+    goofy.error('fatal error', error)
+  }
+}
+
+boot()

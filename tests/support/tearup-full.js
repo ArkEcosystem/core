@@ -18,32 +18,40 @@ process.on('unhandledRejection', (reason, p) => {
 })
 
 module.exports = async function () {
-  await config.init({
-    api: {
-      p2p: require(path.resolve(conf, 'api/p2p')),
-      public: require(path.resolve(conf, 'api/public'))
-    },
-    webhooks: require(path.resolve(conf, 'webhooks')),
-    server: require(path.resolve(conf, 'server')),
-    genesisBlock: require(path.resolve(conf, 'genesis-block.json')),
-    network: require(path.resolve(conf, 'network')),
-    delegates: require(path.resolve(conf, 'delegate'))
-  })
-  .then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name))
-  .then(() => (blockchainManager = new BlockchainManager(config)))
-  .then(() => (p2p = new P2PInterface(config)))
-  .then(() => DependencyHandler.checkDatabaseLibraries(config))
-  // .then(() => new Queue(config.server.redis))
-  // .then(() => new Cache(config.server.redis))
-  .then(() => DB.create(config.server.db))
-  .then(db => blockchainManager.attachDBInterface(db))
-  .then(() => goofy.info('Database started'))
-  .then(() => p2p.warmup())
-  .then(() => goofy.info('Network interface started'))
-  .then(() => blockchainManager.attachNetworkInterface(p2p))
-  .then(() => blockchainManager.start())
-  .then(() => blockchainManager.isReady())
-  .then(() => goofy.info('Mounting Public API'))
-  .then(() => PublicAPI(config))
-  .catch(fatal => goofy.error('fatal error', fatal))
+  try {
+    await config.init({
+      api: {
+        p2p: require(path.resolve(conf, 'api/p2p')),
+        public: require(path.resolve(conf, 'api/public'))
+      },
+      webhooks: require(path.resolve(conf, 'webhooks')),
+      server: require(path.resolve(conf, 'server')),
+      genesisBlock: require(path.resolve(conf, 'genesis-block.json')),
+      network: require(path.resolve(conf, 'network')),
+      delegates: require(path.resolve(conf, 'delegate'))
+    })
+
+    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+
+    const blockchainManager = await new BlockchainManager(config)
+    const p2p = await new P2PInterface(config)
+
+    await DependencyHandler.checkDatabaseLibraries(config)
+
+    const db = await DB.create(config.server.db)
+    await blockchainManager.attachDBInterface(db)
+    goofy.info('Database started')
+
+    await p2p.warmup()
+    goofy.info('Network interface started')
+
+    await blockchainManager.attachNetworkInterface(p2p)
+    await blockchainManager.start()
+    await blockchainManager.isReady()
+
+    goofy.info('Mounting Public API')
+    await PublicAPI(config)
+  } catch (error) {
+    goofy.error('fatal error', error)
+  }
 }

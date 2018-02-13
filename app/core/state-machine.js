@@ -176,68 +176,76 @@ blockchainMachine.actionMap = (blockchainManager) => {
       goofy.info('Blockchain completed, congratulations! 🦄')
       blockchainManager.dispatch('SYNCFINISHED')
     },
-    init: () => {
-      blockchainManager.db.getLastBlock()
-        .then(block => {
-          if (!block) {
-            return Promise.reject(new Error('No block found in database'))
-          }
-          state.lastBlock = block
-          state.lastDownloadedBlock = block
-          const constants = blockchainManager.config.getConstants(block.data.height)
-          state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
-          // no fast rebuild if in last round
-          state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
-          goofy.info('Fast rebuild:', state.fastRebuild)
-          goofy.info('Last block in database:', block.data.height)
-          if (block.data.height === 1) {
-            return blockchainManager.db
-              .buildWallets()
-              .then(() => blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()}))
-              .then(() => blockchainManager.db.saveWallets(true))
-              .then(() => blockchainManager.db.applyRound(block, false, false))
-              .then(() => blockchainManager.dispatch('SUCCESS'))
-          } else {
-            return blockchainManager.db
-              .buildWallets()
-              .then(() => blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()}))
-              .then(() => blockchainManager.db.saveWallets(true))
-              .then(() => blockchainManager.dispatch('SUCCESS'))
-          }
-        })
-        .catch((error) => {
-          goofy.info(error.message)
-          let genesis = new Block(blockchainManager.config.genesisBlock)
-          if (genesis.data.payloadHash === blockchainManager.config.network.nethash) {
-            state.lastBlock = genesis
-            state.lastDownloadedBlock = genesis
-            state.fastRebuild = state.rebuild = true
-            goofy.info('Fast rebuild:', state.fastRebuild)
-            return blockchainManager.db.saveBlock(genesis)
-              .then(() => blockchainManager.db.buildWallets())
-              .then(() => blockchainManager.db.saveWallets(true))
-              .then(() => blockchainManager.db.applyRound(genesis))
-              .then(() => blockchainManager.dispatch('SUCCESS'))
-          }
-          return blockchainManager.dispatch('FAILURE')
-        })
-    },
-    downloadBlocks: () => {
-      const block = state.lastDownloadedBlock || state.lastBlock
-      return blockchainManager.networkInterface.downloadBlocks(block.data.height).then(blocks => {
-        if (!blocks || blocks.length === 0) {
-          goofy.info('No new block found on this peer')
-          blockchainManager.dispatch('NOBLOCK')
-        } else {
-          goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-          if (blocks.length && blocks[0].previousBlock === block.data.id) {
-            state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
-            blockchainManager.downloadQueue.push(blocks)
-          } else {
-            blockchainManager.dispatch('FORK')
-          }
+    init: async () => {
+      try {
+        const block = await blockchainManager.db.getLastBlock()
+
+        if (!block) {
+          return Promise.reject(new Error('No block found in database'))
         }
-      })
+
+        state.lastBlock = block
+        state.lastDownloadedBlock = block
+
+        const constants = blockchainManager.config.getConstants(block.data.height)
+        state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
+        // no fast rebuild if in last round
+        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
+
+        goofy.info('Fast rebuild:', state.fastRebuild)
+        goofy.info('Last block in database:', block.data.height)
+
+        if (block.data.height === 1) {
+          await blockchainManager.db.buildWallets()
+          await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+          await blockchainManager.db.saveWallets(true)
+          await blockchainManager.db.applyRound(block, false, false)
+          await blockchainManager.dispatch('SUCCESS')
+        } else {
+          await blockchainManager.db.buildWallets()
+          await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+          await blockchainManager.db.saveWallets(true)
+          await blockchainManager.dispatch('SUCCESS')
+        }
+      } catch (error) {
+        goofy.info(error.message)
+
+        let genesis = new Block(blockchainManager.config.genesisBlock)
+        if (genesis.data.payloadHash === blockchainManager.config.network.nethash) {
+          state.lastBlock = genesis
+          state.lastDownloadedBlock = genesis
+          state.fastRebuild = state.rebuild = true
+
+          goofy.info('Fast rebuild:', state.fastRebuild)
+
+          await blockchainManager.db.saveBlock(genesis)
+          await blockchainManager.db.buildWallets()
+          await blockchainManager.db.saveWallets(true)
+          await blockchainManager.db.applyRound(genesis)
+          await blockchainManager.dispatch('SUCCESS')
+        }
+
+        return blockchainManager.dispatch('FAILURE')
+      }
+    },
+    downloadBlocks: async () => {
+      const block = state.lastDownloadedBlock || state.lastBlock
+      const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
+
+      if (!blocks || blocks.length === 0) {
+        goofy.info('No new block found on this peer')
+
+        blockchainManager.dispatch('NOBLOCK')
+      } else {
+        goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+
+        if (blocks.length && blocks[0].previousBlock === block.data.id) {
+          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          blockchainManager.downloadQueue.push(blocks)
+        } else {
+          blockchainManager.dispatch('FORK')
+        }
+      }
     }
   }
 }

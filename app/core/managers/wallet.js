@@ -62,33 +62,41 @@ module.exports = class WalletManager {
     return new Promise((resolve, reject) => {
       const datatx = transaction.data
       let sender = this.walletsByPublicKey[datatx.senderPublicKey]
+
       if (!sender) {
         const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
         sender = this.walletsByAddress[senderId] // should exist
         if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
         this.walletsByPublicKey[datatx.senderPublicKey] = sender
       }
+
       const recipientId = datatx.recipientId // may not exist
       let recipient = this.walletsByAddress[recipientId]
+
       if (!recipient && recipientId) { // cold wallet
         recipient = new Wallet(recipientId)
         this.walletsByAddress[recipientId] = recipient
       }
+
       if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
         goofy.error(sender)
         goofy.error(JSON.stringify(datatx))
+
         return reject(new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`))
       } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
         goofy.error(sender)
         goofy.error(JSON.stringify(datatx))
+
         return reject(new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`))
       }
+
       if (config.network.exceptions[datatx.id]) {
         goofy.warn('Transaction is forced to be applied because it has been added as an exception:')
         goofy.warn(JSON.stringify(datatx))
       } else if (!sender.canApply(datatx)) {
         goofy.error(sender)
         goofy.error(JSON.stringify(datatx))
+
         return reject(new Error(`Can't apply transaction ${datatx.id}`))
       }
       sender.applyTransactionToSender(datatx)
@@ -103,37 +111,45 @@ module.exports = class WalletManager {
     })
   }
 
-  undoTransaction (transaction) {
+  async undoTransaction (transaction) {
     let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
     let recipient = this.walletsByAddress[transaction.data.recipientId]
+
     sender.undoTransactionToSender(transaction.data)
+
     if (recipient && transaction.type === 0) recipient.undoTransactionToRecipient(transaction.data)
-    return Promise.resolve(transaction.data)
+
+    return transaction.data
   }
 
   getWalletByAddress (address) {
     let wallet = this.walletsByAddress[address]
+
     if (wallet) return wallet
-    else {
-      if (!arkjs.crypto.validateAddress(address, config.network.pubKeyHash)) {
-        return null
-      }
-      wallet = new Wallet(address)
-      this.walletsByAddress[address] = wallet
-      return wallet
+
+    if (!arkjs.crypto.validateAddress(address, config.network.pubKeyHash)) {
+      return null
     }
+
+    wallet = new Wallet(address)
+
+    this.walletsByAddress[address] = wallet
+
+    return wallet
   }
 
   getWalletByPublicKey (publicKey) {
     let wallet = this.walletsByPublicKey[publicKey]
+
     if (wallet) return wallet
-    else {
-      const address = arkjs.crypto.getAddress(publicKey, config.network.pubKeyHash)
-      wallet = this.getWalletByAddress(address)
-      wallet.publicKey = publicKey
-      this.walletsByPublicKey[publicKey] = wallet
-      return wallet
-    }
+
+    const address = arkjs.crypto.getAddress(publicKey, config.network.pubKeyHash)
+    wallet = this.getWalletByAddress(address)
+    wallet.publicKey = publicKey
+
+    this.walletsByPublicKey[publicKey] = wallet
+
+    return wallet
   }
 
   getDelegate (username) {

@@ -14,12 +14,10 @@ class DependencyHandler {
     return this._install(dependencies)
   }
 
-  _install (dependencies) {
+  async _install (dependencies) {
     dependencies = dependencies.filter(value => !this._exists(value))
 
-    if (!dependencies.length) {
-      return Promise.resolve(true);
-    }
+    if (!dependencies.length) return
 
     return Promise
       .promisifyAll(require('child_process'))
