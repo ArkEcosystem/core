@@ -4,8 +4,9 @@ const utils = require('../utils')
 
 exports.index = {
   handler: async (request, h) => {
-    return db.transactions.findAll(utils.paginate(request))
-      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
+    const transactions = await db.transactions.findAll(utils.paginate(request))
+
+    return utils.toPagination(request, transactions, 'transaction')
   }
 }
 
@@ -18,9 +19,9 @@ exports.store = {
 
 exports.show = {
   handler: async (request, h) => {
-    return db.transactions
-      .findById(request.params.id)
-      .then(transaction => utils.respondWithResource(request, transaction, 'transaction'))
+    const transaction = await db.transactions.findById(request.params.id)
+
+    return utils.respondWithResource(request, transaction, 'transaction')
   }
 }
 
@@ -40,8 +41,8 @@ exports.showUnconfirmed = {
 
 exports.search = {
   handler: async (request, h) => {
-    return db.transactions
-      .search(request.query)
-      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
+    const transactions = await db.transactions.search(request.query)
+
+    return utils.toPagination(request, transactions, 'transaction')
   }
 }
