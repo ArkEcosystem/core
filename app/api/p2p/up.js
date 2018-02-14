@@ -10,10 +10,6 @@ const _headers = {
   os: require('os').platform()
 }
 
-function setHeaders (h) {
-  ['nethash', 'os', 'version', 'port'].forEach((key) => h.header(key, _headers[key]))
-}
-
 function isLocalhost (request) {
   const addr = request.info.remoteAddress
 
@@ -78,13 +74,24 @@ class Up {
 
           try {
             await p2p.acceptNewPeer(peer)
-            await setHeaders(h)
           } catch (error) {
             return h.response({success: false, message: error}).code(500).takeover()
           }
         }
 
         return h.continue
+      }
+    })
+
+    await server.ext({
+      type: 'onPreResponse',
+      method: (request, h) => {
+        const response = request.response
+
+        const headers = ['nethash', 'os', 'version', 'port']
+        headers.forEach((key) => response.header(key, _headers[key]))
+
+        return response
       }
     })
 
@@ -249,30 +256,30 @@ class Up {
   }
 
   postInternalBlock (request, h) {
-    // console.log(request.body)
+    goofy.debug(request.payload)
 
-    blockchain.getInstance().postBlock(request.body)
+    blockchain.getInstance().postBlock(request.payload)
 
     return {success: true}
   }
 
   async postVerifyTransaction (request, h) {
-    // console.log(request.body)
+    goofy.debug(request.payload)
 
-    const transaction = new Transaction(Transaction.deserialize(request.body.transaction))
+    const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
     const result = await blockchain.getInstance().getDb().verifyTransaction(transaction)
 
     return {success: result}
   }
 
   postBlock (request, h) {
-    blockchain.getInstance().postBlock(request.body)
+    blockchain.getInstance().postBlock(request.payload)
 
     return {success: true}
   }
 
   postTransactions (request, h) {
-    const transactions = request.body.transactions
+    const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
 
     blockchain.getInstance().postTransactions(transactions)

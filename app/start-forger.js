@@ -38,7 +38,7 @@ async function boot () {
     const forgers = await forgerManager.loadDelegates()
 
     goofy.info('ForgerManager started with', forgers.length, 'forgers')
-    forgerManager.startForging('http://127.0.0.1:4002')
+    forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
     goofy.error('fatal error', error)
   }

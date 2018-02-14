@@ -90,8 +90,8 @@ class Down {
     }
   }
 
-  getPeers () {
-    return Promise.resolve(Object.values(this.peers))
+  async getPeers () {
+    return Object.values(this.peers)
   }
 
   getRandomPeer (delay) {
@@ -103,8 +103,10 @@ class Down {
 
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
+
     if (!randomPeer) {
-      // goofy.error(this.peers)
+      goofy.error(this.peers)
+
       delete this.peers[random]
 
       this.isOnline(online => {
@@ -113,6 +115,7 @@ class Down {
 
       return this.getRandomPeer()
     }
+
     return randomPeer
   }
 
