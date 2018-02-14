@@ -86,7 +86,7 @@ class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
     } catch (error) {
-      goofy.debug('Peer not connectable', npeer, e)
+      goofy.debug('Peer not connectable', npeer, error)
     }
   }
 

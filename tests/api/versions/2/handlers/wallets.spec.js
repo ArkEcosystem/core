@@ -49,7 +49,7 @@ describe('API 2.0 - Wallets', () => {
 
     it('should return ResourceNotFound error', async () => {
       try {
-        const res = await utils.request('GET', `wallets/${addressCold}`)
+        await utils.request('GET', `wallets/${addressCold}`)
       } catch (error) {
         await expect(error.message).toEqual('Not Found')
       }

@@ -4,6 +4,7 @@ const commander = require('commander')
 const packageJson = require('../package.json')
 const path = require('path')
 const goofy = require('app/core/goofy')
+const config = require('app/core/config')
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
 const DB = require('app/core/dbinterface')
@@ -23,10 +24,6 @@ assert.string(commander.config, 'commander.config')
 if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
-
-const config = require('app/core/config')
-let blockchainManager = null
-let p2p = null
 
 process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)

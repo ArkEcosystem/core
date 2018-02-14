@@ -17,7 +17,7 @@ const transactionList = [{
   'confirmations': 0
 }]
 
-let offsetTimestamp = 0
+// let offsetTimestamp = 0
 
 describe('API 1.0 - Transactions', () => {
   describe('GET /api/transactions', () => {

@@ -19,9 +19,6 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-let forgerManager = null
-let forgers = null
-
 process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
@@ -35,7 +32,7 @@ async function boot () {
       delegates: require(path.resolve(commander.config, 'delegate'))
     })
 
-    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger'))
+    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger')
 
     const forgerManager = await new ForgerManager(config)
     const forgers = await forgerManager.loadDelegates()

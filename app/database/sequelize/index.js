@@ -117,7 +117,6 @@ module.exports = class SequelizeDB extends DBInterface {
     goofy.debug(`generated ${that.activedelegates.length} active delegates`)
 
     return that.activedelegates
-
   }
 
   async buildWallets () {

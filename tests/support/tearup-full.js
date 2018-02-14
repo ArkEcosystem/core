@@ -10,9 +10,6 @@ const PublicAPI = require('app/api/public')
 
 const conf = 'config/devnet/'
 
-let blockchainManager = null
-let p2p = null
-
 process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
