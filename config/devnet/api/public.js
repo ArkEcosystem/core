@@ -2,7 +2,7 @@ module.exports = {
   mount: true,
   port: 4003,
   versions: {
-    default: 1,
+    default: 2,
     valid: [1, 2]
   },
   cache: {

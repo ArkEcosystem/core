@@ -1,4 +1,4 @@
-const restify = require('restify')
+const Hapi = require('hapi')
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 const requestIp = require('request-ip')
@@ -10,9 +10,15 @@ const _headers = {
   os: require('os').platform()
 }
 
-function setHeaders (res) {
-  ['nethash', 'os', 'version', 'port'].forEach((key) => res.header(key, _headers[key]))
+function setHeaders (h) {
+  ['nethash', 'os', 'version', 'port'].forEach((key) => h.header(key, _headers[key]))
 }
+
+function isLocalhost (request) {
+  return request.connection.remoteAddress === '::1' || request.connection.remoteAddress === '127.0.0.1' || request.connection.remoteAddress === '::ffff:127.0.0.1'
+}
+
+let p2p
 
 class Up {
   constructor (config) {
@@ -23,187 +29,176 @@ class Up {
     _headers.nethash = config.network.nethash
   }
 
-  start (p2p) {
-    this.p2p = p2p
-    let server = restify.createServer({name: 'arkp2p'})
-    server.use((req, res, next) => this.acceptRequest(req, res, next))
-    server.use(restify.plugins.bodyParser({mapParams: true}))
-    server.use(restify.plugins.queryParser())
-    server.use(restify.plugins.gzipResponse())
+  async start (p2pInstance) {
+    p2p = p2pInstance
 
-    this.mountInternal(server)
-    if (this.config.api.p2p.remoteinterface) this.mountRemoteInterface(server)
-    this.mountV1(server)
+    const server = new Hapi.Server({
+      port: this.port
+    })
 
-    server.listen(this.port, () => goofy.info('%s interface listening at %s', server.name, server.url))
+    await server.ext({
+      type: 'onRequest',
+      method: async (request, h) => {
+        if ((request.path.startsWith('/internal/') || request.path.startsWith('/remote/')) && !isLocalhost(request)) {
+          return h.response({
+            code: 'ResourceNotFound',
+            message: `${request.path} does not exist`
+          }).code(500)
+        }
+
+        if (request.path.startsWith('/peer/')) {
+          const peer = {}
+          peer.ip = requestIp.getClientIp(request);
+          ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = request.headers[key]))
+
+          try {
+            await p2p.acceptNewPeer(peer)
+            await setHeaders(h)
+          } catch (error) {
+            return h.response({success: false, message: error}).code(500)
+          }
+        }
+
+        return h.continue
+      }
+    })
+
+    await this.mountInternal(server)
+
+    if (this.config.api.p2p.remoteinterface) {
+      await this.mountRemoteInterface(server)
+    }
+
+    await this.mountV1(server)
+
+    try {
+      await server.start()
+
+      goofy.info(`Oh hapi day! P2P API is listening on ${server.info.uri}`)
+    } catch (err) {
+      goofy.error(err)
+
+      process.exit(1)
+    }
   }
 
   mountV1 (server) {
-    const mapping = {
-      '/peer/list': this.getPeers,
-      '/peer/blocks': this.getBlocks,
-      '/peer/transactionsFromIds': this.getTransactionsFromIds,
-      '/peer/height': this.getHeight,
-      '/peer/transactions': this.getTransactions,
-      '/peer/blocks/common': this.getCommonBlock,
-      '/peer/status': this.getStatus
-    }
-
-    Promise.all(Object.keys(mapping).map(k => server.get(k, (req, res, next) => mapping[k].call(this, req, res, next))))
-
-    server.post('/blocks', (req, res, next) => this.postBlock(req, res, next))
-    server.post('/transactions', (req, res, next) => this.postTransactions(req, res, next))
+    server.route({ method: 'GET', path: '/peer/list', handler: this.getPeers })
+    server.route({ method: 'GET', path: '/peer/blocks', handler: this.getBlocks })
+    server.route({ method: 'GET', path: '/peer/transactionsFromIds', handler: this.getTransactionsFromIds })
+    server.route({ method: 'GET', path: '/peer/height', handler: this.getHeight })
+    server.route({ method: 'GET', path: '/peer/transactions', handler: this.getTransactions })
+    server.route({ method: 'GET', path: '/peer/blocks/common', handler: this.getCommonBlock })
+    server.route({ method: 'GET', path: '/peer/status', handler: this.getStatus })
+    server.route({ method: 'POST', path: '/blocks', handler: this.postBlock })
+    server.route({ method: 'POST', path: '/transactions', handler: this.postTransactions })
   }
 
   mountInternal (server) {
-    server.get('/internal/round', (req, res, next) => this.getRound(req, res, next))
-    server.post('/internal/block', (req, res, next) => this.postInternalBlock(req, res, next))
-    server.post('/internal/verifyTransaction', (req, res, next) => this.postVerifyTransaction(req, res, next))
+    server.route({ method: 'GET', path: '/internal/round', handler: this.getRound })
+    server.route({ method: 'POST', path: '/internal/block', handler: this.postInternalBlock })
+    server.route({ method: 'POST', path: '/internal/verifyTransaction', handler: this.postVerifyTransaction })
   }
 
   mountRemoteInterface (server) {
-    server.get('/remote/blockchain/:event', (req, res, next) => this.sendBlockchainEvent(req, res, next))
+    server.route({ method: 'GET', path: '/remote/blockchain/:event', handler: this.sendBlockchainEvent })
   }
 
-  isLocalhost (req) {
-    return req.connection.remoteAddress === '::1' || req.connection.remoteAddress === '127.0.0.1' || req.connection.remoteAddress === '::ffff:127.0.0.1'
-  }
-
-  async acceptRequest (req, res, next) {
-    if ((req.route.path.startsWith('/internal/') || req.route.path.startsWith('/remote/')) && !this.isLocalhost(req)) {
-      return res.send(500, {
-        code: 'ResourceNotFound',
-        message: `${req.route.path} does not exist`
-      })
-    }
-
-    if (req.route.path.startsWith('/peer/')) {
-      const peer = {}
-      peer.ip = requestIp.getClientIp(req);
-      ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = req.headers[key]))
-
-      try {
-        await this.p2p.acceptNewPeer(peer)
-        await setHeaders(res)
-      } catch (error) {
-        return res.send(500, {success: false, message: error})
-      }
-    }
-
-    return next()
-  }
-
-  async getPeers (req, res, next) {
+  async getPeers (request, h) {
     try {
-      const peers = await this.p2p.getPeers()
+      const peers = await p2p.getPeers()
 
       const rpeers = peers
         .map(peer => peer.toBroadcastInfo())
         .sort(() => Math.random() - 0.5)
 
-      res.send(200, {success: true, peers: rpeers})
-
-      next()
+      return {success: true, peers: rpeers}
     } catch (error) {
-      res.send(500, {success: false, message: error})
+      return h.response({success: false, message: error}).code(500)
     }
   }
 
-  getHeight (req, res, next) {
-    res.send(200, {
+  getHeight (request, h) {
+    return {
       success: true,
-      height: blockchain.getInstance().state.lastBlock.data.height,
-      id: blockchain.getInstance().state.lastBlock.data.id
-    })
-
-    next()
+      height: blockchain.getInstance().getState().lastBlock.data.height,
+      id: blockchain.getInstance().getState().lastBlock.data.id
+    }
   }
 
-  async getCommonBlock (req, res, next) {
-    const ids = req.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
+  async getCommonBlock (request, h) {
+    const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
       const commonBlock = await blockchain.getInstance().getDb().getCommonBlock(ids)
 
-      res.send(200, {
+      return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getInstance().state.lastBlock.data.height
-      })
-
-      next()
+        lastBlockHeight: blockchain.getInstance().getState().lastBlock.data.height
+      }
     } catch (error) {
-      res.send(500, {success: false, message: error})
+      return h.response({success: false, message: error}).code(500)
     }
   }
 
-  async getTransactionsFromIds (req, res, next) {
-    const txids = req.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+  async getTransactionsFromIds (request, h) {
+    const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
       const transactions = await blockchain.getInstance().getDb().getTransactionsFromIds(txids)
 
-      res.send(200, {
+      return {
         success: true,
         transactions: transactions
-      })
-
-      next()
+      }
     } catch (error) {
-      res.send(500, {success: false, message: error})
+      return h.response({success: false, message: error}).code(500)
     }
   }
 
-  getTransactions (req, res, next) {
-    res.send(200, {
+  getTransactions (request, h) {
+    return {
       success: true,
       transactions: []
-    })
-
-    next()
+    }
   }
 
-  async sendBlockchainEvent (req, res, next) {
+  async sendBlockchainEvent (request, h) {
     const bm = blockchain.getInstance()
 
-    if (!bm[req.params.event]) {
-      res.send(500, {
+    if (!bm[request.params.event]) {
+      return h.response({
         success: false,
-        event: req.params.event,
+        event: request.params.event,
         message: 'No such event'
-      })
-
-      return next()
+      }).code(500)
     }
 
-    await req.query.param
-      ? bm[req.params.event](req.params.param)
-      : bm[req.params.event]()
+    await request.query.param
+      ? bm[request.params.event](request.params.param)
+      : bm[request.params.event]()
 
-    res.send(200, {
+    return {
       success: true,
-      event: req.params.event
-    })
-
-    next()
+      event: request.params.event
+    }
   }
 
-  getStatus (req, res, next) {
-    const lastBlock = blockchain.getInstance().state.lastBlock.getHeader()
+  getStatus (request, h) {
+    const lastBlock = blockchain.getInstance().getState().lastBlock.getHeader()
 
-    res.send(200, {
+    return {
       success: true,
       height: lastBlock.height,
       forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
       currentSlot: arkjs.slots.getSlotNumber(),
       header: lastBlock
-    })
-
-    next()
+    }
   }
 
-  async getRound (req, res, next) {
-    const lastBlock = blockchain.getInstance().state.lastBlock
+  async getRound (request, h) {
+    const lastBlock = blockchain.getInstance().getState().lastBlock
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward
@@ -211,7 +206,7 @@ class Up {
     try {
       const delegates = await this.getActiveDelegates(lastBlock.data.height)
 
-      res.send(200, {
+      return {
         success: true,
         round: {
           current: parseInt(lastBlock.data.height / maxActive),
@@ -222,58 +217,42 @@ class Up {
           lastBlock: lastBlock.data,
           canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
         }
-      })
-
-      next()
+      }
     } catch (error) {
-      res.send(500, {success: false, message: error})
+      return h.response({success: false, message: error}).code(500)
     }
   }
 
-  postInternalBlock (req, res, next) {
-    // console.log(req.body)
-    blockchain.getInstance().postBlock(req.body)
+  postInternalBlock (request, h) {
+    // console.log(request.body)
 
-    res.send(200, {
-      success: true
-    })
+    blockchain.getInstance().postBlock(request.body)
 
-    next()
+    return {success: true}
   }
 
-  async postVerifyTransaction (req, res, next) {
-    // console.log(req.body)
-    const transaction = new Transaction(Transaction.deserialize(req.body.transaction))
+  async postVerifyTransaction (request, h) {
+    // console.log(request.body)
+
+    const transaction = new Transaction(Transaction.deserialize(request.body.transaction))
     const result = await blockchain.getInstance().getDb().verifyTransaction(transaction)
 
-    res.send(200, {
-      success: result
-    })
-
-    next()
+    return {success: result}
   }
 
-  postBlock (req, res, next) {
-    blockchain.getInstance().postBlock(req.body)
+  postBlock (request, h) {
+    blockchain.getInstance().postBlock(request.body)
 
-    res.send(200, {
-      success: true
-    })
-
-    next()
+    return {success: true}
   }
 
-  postTrasactions (req, res, next) {
-    const transactions = req.body.transactions
+  postTransactions (request, h) {
+    const transactions = request.body.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
 
-      blockchain.getInstance().postTransactions(transactions)
+    blockchain.getInstance().postTransactions(transactions)
 
-    res.send(200, {
-      success: true
-    })
-
-    next()
+    return {success: true}
   }
 
   async getActiveDelegates (height) {
@@ -298,19 +277,15 @@ class Up {
     return activedelegates
   }
 
-  async getBlocks (req, res, next) {
+  async getBlocks (request, h) {
     try {
-      const blocks = await blockchain.getInstance().getDb().getBlocks(parseInt(req.query.lastBlockHeight) + 1, 400)
+      const blocks = await blockchain.getInstance().getDb().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
-      res.send(200, {success: true, blocks: blocks})
-
-      next()
+      return {success: true, blocks: blocks}
     } catch (error) {
       goofy.error(error)
 
-      res.send(500, {success: false, error: error})
-
-      next()
+      h.response({success: false, error: error}).code(500)
     }
   }
 }
