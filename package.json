@@ -48,7 +48,6 @@
     "colors": "^1.1.2",
     "commander": "^2.14.0",
     "deepmerge": "^2.0.1",
-    "glue": "^5.0.0",
     "hapi": "^17.2.0",
     "hapi-api-version": "^2.0.0",
     "hapi-pagination": "^2.0.0",
@@ -63,7 +62,6 @@
     "ratelimiter": "^3.0.3",
     "redis": "^2.8.0",
     "request-ip": "^2.0.2",
-    "restify": "^6.3.4",
     "sequelize": "^4.32.7",
     "sntp": "^3.0.1",
     "sqlite3": "^3.1.13",
@@ -90,8 +88,5 @@
     "request-promise": "^4.2.2",
     "sinon": "^4.2.2",
     "sinon-chai": "^2.14.0"
-  },
-  "peerDependencies": {
-    "request": "^2.83.0"
   }
 }
