@@ -170,7 +170,7 @@ class Down {
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
 
-    goofy.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
+    goofy.info(`Downloading blocks from ${randomPeer.url} from block ${fromBlockHeight}`)
 
     try {
       await randomPeer.ping()

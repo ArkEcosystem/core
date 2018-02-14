@@ -106,7 +106,9 @@ class Peer {
   async ping (delay) {
     const body = await this.get('/peer/status', delay || 5000)
 
-    if (body) return (this.height = body.height)
+    if (body) {
+      return (this.height = body.height)
+    }
 
     throw new Error('Peer unreachable')
   }
