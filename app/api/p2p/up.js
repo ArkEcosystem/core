@@ -14,6 +14,12 @@ function setHeaders (h) {
   ['nethash', 'os', 'version', 'port'].forEach((key) => h.header(key, _headers[key]))
 }
 
+function isLocalhost (request) {
+  return request.connection.remoteAddress === '::1' || request.connection.remoteAddress === '127.0.0.1' || request.connection.remoteAddress === '::ffff:127.0.0.1'
+}
+
+let p2p
+
 class Up {
   constructor (config) {
     this.port = config.server.port
@@ -23,13 +29,38 @@ class Up {
     _headers.nethash = config.network.nethash
   }
 
-  async start (p2p) {
-    this.p2p = p2p
-
-    // server.use((request, h) => this.acceptRequest(request, h))
+  async start (p2pInstance) {
+    p2p = p2pInstance
 
     const server = new Hapi.Server({
       port: this.port
+    })
+
+    await server.ext({
+      type: 'onRequest',
+      method: async (request, h) => {
+        if ((request.path.startsWith('/internal/') || request.path.startsWith('/remote/')) && !isLocalhost(request)) {
+          return h.response({
+            code: 'ResourceNotFound',
+            message: `${request.path} does not exist`
+          }).code(500)
+        }
+
+        if (request.path.startsWith('/peer/')) {
+          const peer = {}
+          peer.ip = requestIp.getClientIp(request);
+          ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = request.headers[key]))
+
+          try {
+            await p2p.acceptNewPeer(peer)
+            await setHeaders(h)
+          } catch (error) {
+            return h.response({success: false, message: error}).code(500)
+          }
+        }
+
+        return h.continue
+      }
     })
 
     await this.mountInternal(server)
@@ -39,21 +70,6 @@ class Up {
     }
 
     await this.mountV1(server)
-
-    // await server.register({
-    //   plugin: require('./versions/1'),
-    //   routes: { prefix: '/api/v1' }
-    // })
-
-    // await server.register({
-    //   plugin: require('./versions/1'),
-    //   routes: { prefix: '/api/v1' }
-    // })
-
-    // await server.register({
-    //   plugin: require('./versions/1'),
-    //   routes: { prefix: '/api/v1' }
-    // })
 
     try {
       await server.start()
@@ -88,37 +104,9 @@ class Up {
     server.route({ method: 'GET', path: '/remote/blockchain/:event', handler: this.sendBlockchainEvent })
   }
 
-  isLocalhost (request) {
-    return request.connection.remoteAddress === '::1' || request.connection.remoteAddress === '127.0.0.1' || request.connection.remoteAddress === '::ffff:127.0.0.1'
-  }
-
-  async acceptRequest (request, h) {
-    if ((request.route.path.startsWith('/internal/') || request.route.path.startsWith('/remote/')) && !this.isLocalhost(request)) {
-      return h.response({
-        code: 'ResourceNotFound',
-        message: `${request.route.path} does not exist`
-      }).code(500)
-    }
-
-    if (request.route.path.startsWith('/peer/')) {
-      const peer = {}
-      peer.ip = requestIp.getClientIp(request);
-      ['port', 'nethash', 'os', 'version'].forEach(key => (peer[key] = request.headers[key]))
-
-      try {
-        await this.p2p.acceptNewPeer(peer)
-        await setHeaders(h)
-      } catch (error) {
-        return h.response({success: false, message: error}).code(500)
-      }
-    }
-
-    return h.continue
-  }
-
   async getPeers (request, h) {
     try {
-      const peers = await this.p2p.getPeers()
+      const peers = await p2p.getPeers()
 
       const rpeers = peers
         .map(peer => peer.toBroadcastInfo())
@@ -133,8 +121,8 @@ class Up {
   getHeight (request, h) {
     return {
       success: true,
-      height: blockchain.getInstance().state.lastBlock.data.height,
-      id: blockchain.getInstance().state.lastBlock.data.id
+      height: blockchain.getInstance().getState().lastBlock.data.height,
+      id: blockchain.getInstance().getState().lastBlock.data.id
     }
   }
 
@@ -147,7 +135,7 @@ class Up {
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getInstance().state.lastBlock.data.height
+        lastBlockHeight: blockchain.getInstance().getState().lastBlock.data.height
       }
     } catch (error) {
       return h.response({success: false, message: error}).code(500)
@@ -198,7 +186,7 @@ class Up {
   }
 
   getStatus (request, h) {
-    const lastBlock = blockchain.getInstance().state.lastBlock.getHeader()
+    const lastBlock = blockchain.getInstance().getState().lastBlock.getHeader()
 
     return {
       success: true,
@@ -210,7 +198,7 @@ class Up {
   }
 
   async getRound (request, h) {
-    const lastBlock = blockchain.getInstance().state.lastBlock
+    const lastBlock = blockchain.getInstance().getState().lastBlock
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward
