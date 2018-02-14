@@ -13,8 +13,12 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = class BlockchainManager {
   constructor (config) {
-    if (!instance) instance = this
-    else throw new Error('Can\'t initialise 2 blockchains!')
+    if (!instance) {
+      instance = this
+    } else {
+      throw new Error('Can\'t initialise 2 blockchains!')
+    }
+
     const that = this
     this.config = config
     this.transactionPool = new PromiseWorker(worker)
@@ -29,8 +33,12 @@ module.exports = class BlockchainManager {
 
     this.downloadQueue = async.queue(
       (block, qcallback) => {
-        if (that.downloadQueue.paused) return qcallback()
+        if (that.downloadQueue.paused) {
+          return qcallback()
+        }
+
         that.processQueue.push(block)
+
         return qcallback()
       },
       1
@@ -47,7 +55,9 @@ module.exports = class BlockchainManager {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
     goofy.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
     goofy.debug('| actions:', JSON.stringify(nextState.actions))
+
     stateMachine.state.blockchain = nextState
+
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
@@ -59,9 +69,14 @@ module.exports = class BlockchainManager {
     this.dispatch('START')
   }
 
-  isReady () {
-    if (stateMachine.state.started) return Promise.resolve(true)
-    else return sleep(10000).then(() => this.isReady())
+  async isReady () {
+    if (stateMachine.state.started) {
+      return true
+    }
+
+    await sleep(10000)
+
+    return this.isReady()
   }
 
   static getInstance () {
@@ -77,60 +92,70 @@ module.exports = class BlockchainManager {
   rebuild (nblocks) {
   }
 
-  resetState () {
-    return this.pauseQueues()
-      .then(() => this.clearQueues())
-      .then(() => (stateMachine.state = {
-        blockchain: stateMachine.initialState,
-        started: false,
-        lastBlock: null,
-        lastDownloadedBlock: null
-      }))
-      .then(() => this.resumeQueues())
-      .then(() => this.start())
+  async resetState () {
+    await this.pauseQueues()
+    await this.clearQueues()
+
+    stateMachine.state = {
+      blockchain: stateMachine.initialState,
+      started: false,
+      lastBlock: null,
+      lastDownloadedBlock: null
+    }
+
+    await this.resumeQueues()
+
+    return this.start()
   }
 
   postTransactions (transactions) {
     goofy.info('Received new transactions', transactions.map(transaction => transaction.id))
+
     return this.transactionPool.postMessage({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
     goofy.info('Received new block at height', block.height)
+
     this.downloadQueue.push(block)
   }
 
-  removeBlocks (nblocks) {
+  async removeBlocks (nblocks) {
     goofy.info(`Starting ${nblocks} blocks undo from height`, stateMachine.state.lastBlock.data.height)
-    return this.pauseQueues()
-      .then(() => this.__removeBlocks(nblocks))
-      .then(() => this.clearQueues())
-      .then(() => this.resumeQueues())
+
+    await this.pauseQueues()
+    await this.__removeBlocks(nblocks)
+    await this.clearQueues()
+
+    return this.resumeQueues()
   }
 
-  __removeBlocks (nblocks) {
+  async __removeBlocks (nblocks) {
     if (!nblocks) return Promise.resolve()
-    else {
-      goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
-      return this
-        .undoLastBlock()
-        .then(() => this.__removeBlocks(nblocks - 1))
-    }
+
+    goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
+
+    await this.undoLastBlock()
+
+    this.__removeBlocks(nblocks - 1)
   }
 
-  undoLastBlock () {
+  async undoLastBlock () {
     const lastBlock = stateMachine.state.lastBlock
-    return this.db.undoBlock(lastBlock)
-      .then(() => this.db.deleteBlock(lastBlock))
-      .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
-      .then(() => this.db.getBlock(lastBlock.data.previousBlock))
-      .then(newLastBlock => (stateMachine.state.lastBlock = newLastBlock))
-      .then(() => (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock))
+
+    await this.db.undoBlock(lastBlock)
+    await this.db.deleteBlock(lastBlock)
+    await this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock})
+
+    const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+    stateMachine.state.lastBlock = newLastBlock
+    stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
   }
 
   pauseQueues () {
     this.downloadQueue.pause()
     this.processQueue.pause()
+
     return Promise.resolve()
   }
 
@@ -138,66 +163,85 @@ module.exports = class BlockchainManager {
     this.downloadQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
+
     return Promise.resolve()
   }
 
   resumeQueues () {
     this.downloadQueue.resume()
     this.processQueue.resume()
+
     return Promise.resolve()
   }
 
-  processBlock (block, state, qcallback) {
+  async processBlock (block, state, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
       state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
+
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
-        this.db.applyBlock(block, state.rebuild, state.fastRebuild)
-          .then(() => this.db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-          .then(() => (state.lastBlock = block))
-          // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
-          .then(() => qcallback())
-          .catch(error => {
-            goofy.error(error)
-            goofy.debug('Refused new block', block.data)
-            state.lastDownloadedBlock = state.lastBlock
-            this.dispatch('FORK')
-            qcallback()
-          })
+        try {
+          await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
+
+          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          state.lastBlock = block
+
+          // await this.transactionPool.postMessage({event: 'addBlock', data: block})
+
+          return qcallback()
+        } catch (error) {
+          goofy.error(error)
+          goofy.debug('Refused new block', block.data)
+
+          state.lastDownloadedBlock = state.lastBlock
+
+          this.dispatch('FORK')
+
+          return qcallback()
+        }
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
         goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', state.lastBlock.data.height)
+
         state.lastDownloadedBlock = state.lastBlock
-        qcallback()
+
+        return qcallback()
       } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
         goofy.debug('Block disregarded because already in blockchain')
-        qcallback()
+
+        return qcallback()
       } else {
         // TODO: manage fork here
         this.dispatch('FORK')
+
         goofy.info('Block disregarded because on a fork')
-        qcallback()
+
+        return qcallback()
       }
     } else {
       goofy.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
-      qcallback()
+
+      return qcallback()
     }
   }
 
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
+
     return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
   attachNetworkInterface (networkInterface) {
     this.networkInterface = networkInterface
+
     return this
   }
 
   attachDBInterface (dbinterface) {
     this.db = dbinterface
+
     return this
   }
 

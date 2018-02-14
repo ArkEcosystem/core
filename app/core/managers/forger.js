@@ -13,11 +13,14 @@ module.exports = class ForgerManager {
     }
   }
 
-  loadDelegates () {
-    if (!this.secrets) { return Promise.reject(new Error('No delegates found')) }
+  async loadDelegates () {
+    if (!this.secrets) {
+      throw new Error('No delegates found')
+    }
 
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
-    return Promise.resolve(this.delegates)
+
+    return this.delegates
   }
 
   startForging (proxy) {
@@ -25,57 +28,61 @@ module.exports = class ForgerManager {
     const that = this
     let round = null
     const data = {}
-    const monitor = () => {
-      that.getRound()
-        .then(r => {
-          round = r
-          if (!round.canForge) throw new Error('Block already forged in current slot')
-          data.previousBlock = round.lastBlock
-          data.timestamp = round.timestamp
-          data.reward = round.reward
-          return that.pickForgingDelegate(round)
-        })
-        .then(delegate => delegate.forge([], data))
-        .then(block => that.broadcast(block))
-        .catch(error => {
-          goofy.info('Not able to forge:', error.message)
-          goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
-          return Promise.resolve()
-        })
-        .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-        .then(() => monitor())
+
+    const monitor = async () => {
+      try {
+        const r = await that.getRound()
+        round = r
+        if (!round.canForge) {
+          throw new Error('Block already forged in current slot')
+        }
+
+        data.previousBlock = round.lastBlock
+        data.timestamp = round.timestamp
+        data.reward = round.reward
+
+        const delegate = await that.pickForgingDelegate(round)
+        const block = await delegate.forge([], data)
+        that.broadcast(block)
+
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        return monitor()
+      } catch (error) {
+        goofy.debug(error)
+        goofy.info('Not able to forge:', error.message)
+        goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+      }
     }
 
     return monitor()
   }
 
-  broadcast (block) {
+  async broadcast (block) {
     console.log(block.data)
-    return popsicle
-      .request({
-        method: 'POST',
-        url: this.proxy + '/internal/block',
-        body: block.data,
-        headers: this.headers,
-        timeout: 2000
-      })
-      .use(popsicle.plugins.parse('json'))
-      .then((result) => result.success)
+    const result = await popsicle.request({
+      method: 'POST',
+      url: this.proxy + '/internal/block',
+      body: block.data,
+      headers: this.headers,
+      timeout: 2000
+    }).use(popsicle.plugins.parse('json'))
+
+    return result.success
   }
 
-  pickForgingDelegate (round) {
-    return Promise.resolve(this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey))
+  async pickForgingDelegate (round) {
+    return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
   }
 
-  getRound () {
-    return popsicle
-      .request({
-        method: 'GET',
-        url: this.proxy + '/internal/round',
-        headers: this.headers,
-        timeout: 2000
-      })
-      .use(popsicle.plugins.parse('json'))
-      .then((result) => result.body.round)
+  async getRound () {
+    const result = await popsicle.request({
+      method: 'GET',
+      url: this.proxy + '/internal/round',
+      headers: this.headers,
+      timeout: 2000
+    }).use(popsicle.plugins.parse('json'))
+
+    return result.body.round
   }
 }

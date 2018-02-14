@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const goofy = require('app/core/goofy')
 const isPromise = require('is-promise')
 const safeJsonParse = require('app/utils/safe-json-parse')
