@@ -46,15 +46,13 @@ class Helpers {
     expect(data.body.meta).toHaveProperty('last')
   }
 
-  assertSuccessful (err, res, statusCode = 200) {
-    expect(err).toBeFalsy()
+  assertSuccessful (res, statusCode = 200) {
     this.assertStatus(res, statusCode)
     this.assertJson(res)
     this.assertVersion(res, '2')
   }
 
-  assertError (err, res, statusCode = 404) {
-    expect(err).toBeType('object')
+  assertError (res, statusCode = 404) {
     this.assertStatus(res, statusCode)
     this.assertJson(res)
     expect(res.body.statusCode).toBeType('number')
@@ -108,14 +106,5 @@ class Helpers {
     expect(wallet.isDelegate).toBeType('boolean')
   }
 }
-
-expect.extend({
-  toBeAnArray (received) {
-    return {
-      message: () => `expected ${received} to be an array`,
-      pass: Array.isArray(received)
-    }
-  }
-})
 
 module.exports = new Helpers()

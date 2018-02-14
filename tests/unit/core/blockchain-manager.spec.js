@@ -1,4 +1,3 @@
-const sinon = require('sinon')
 const BlockchainManager = require('app/core/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {
@@ -7,10 +6,6 @@ describe('Core | BlockchainManager', () => {
   })
 
   it('works with sinons', () => {
-      // const spy = sinon.spy();
-
-      // spy('Hello World')
-
       const f = jest.fn()
 
       expect(f).toBeType('function')
