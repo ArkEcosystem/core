@@ -105,12 +105,12 @@ class Down {
     const randomPeer = this.peers[random]
 
     if (!randomPeer) {
-      goofy.error(this.peers)
-
       delete this.peers[random]
 
       this.isOnline(online => {
-        if (!online) goofy.error('Seems the noe cannott access to internet (tested google DNS)')
+        if (!online) {
+          goofy.error('Seems the node cannot access the internet according to Google DNS.')
+        }
       })
 
       return this.getRandomPeer()

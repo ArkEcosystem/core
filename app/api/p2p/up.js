@@ -87,11 +87,16 @@ class Up {
       type: 'onPreResponse',
       method: (request, h) => {
         const response = request.response
-
         const headers = ['nethash', 'os', 'version', 'port']
-        headers.forEach((key) => response.header(key, _headers[key]))
 
-        return response
+        if (request.response.isBoom) {
+          response.output.headers['x'] = 'value'
+          headers.forEach((key) => (response.output.headers[key] = _headers[key]))
+        } else {
+          headers.forEach((key) => response.header(key, _headers[key]))
+        }
+
+        return h.continue
       }
     })
 
