@@ -6,8 +6,13 @@ module.exports = class WalletsRepository {
     this.db = db
   }
 
-  async findAll () {
-    return this.db.walletManager.getLocalWallets()
+  async findAll (params = {}) {
+    const wallets = this.db.walletManager.getLocalWallets()
+
+    return Object.keys(params).length ? {
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
+    } : wallets
   }
 
   async paginate (params = {}) {
@@ -20,13 +25,13 @@ module.exports = class WalletsRepository {
   }
 
   async findAllByVote (publicKey, params = {}) {
-    let query = await this.findAll()
-    query = query.filter(a => a.vote === publicKey)
+    let wallets = await this.findAll()
+    wallets = await wallets.filter(a => a.vote === publicKey)
 
-    return params ? {
-      rows: query.slice(params.offset, params.offset + params.limit),
-      count: query.length
-    } : query
+    return Object.keys(params).length ? {
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
+    } : wallets
   }
 
   async findById (id) {

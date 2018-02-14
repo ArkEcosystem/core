@@ -30,16 +30,14 @@ class Helpers {
     expect(data.body).toHaveProperty('success', state)
   }
 
-  assertSuccessful (err, res) {
-    expect(err).toBeNull()
+  assertSuccessful (res) {
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, true)
     this.assertVersion(res, '1')
   }
 
-  assertError (err, res) {
-    expect(err).toBeNull()
+  assertError (res) {
     this.assertStatus(res, 200)
     this.assertJson(res)
     this.assertState(res, false)

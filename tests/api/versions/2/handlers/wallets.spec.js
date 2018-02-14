@@ -17,287 +17,231 @@ const votebalanceTo = 1
 
 describe('API 2.0 - Wallets', () => {
   describe('GET /api/wallets', () => {
-    it('should GET all the wallets', (done) => {
-      utils.request('GET', 'wallets').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the wallets', async () => {
+      const res = await utils.request('GET', 'wallets')
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        utils.assertWallet(res.body.data[1])
-
-        done()
-      })
+      await utils.assertWallet(res.body.data[1])
     })
   })
 
   describe('GET /api/wallets/top', () => {
-    it('should GET all the top wallets', (done) => {
-      utils.request('GET', 'wallets/top').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the top wallets', async () => {
+      const res = await utils.request('GET', 'wallets/top')
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        utils.assertWallet(res.body.data[0])
-
-        done()
-      })
+      await utils.assertWallet(res.body.data[0])
     })
   })
 
   describe('GET /api/wallets/:id', () => {
-    it('should GET a wallet by the given identifier', (done) => {
-      utils.request('GET', `wallets/${addressActive}`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET a wallet by the given identifier', async () => {
+      const res = await utils.request('GET', `wallets/${addressActive}`)
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        const wallet = res.body.data
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it('should return ResourceNotFound error', (done) => {
-      utils.request('GET', `wallets/${addressCold}`).end((err, res) => {
-        utils.assertError(err, res)
-
-        expect(res.body).toHaveProperty('error', 'Not Found')
-
-        done()
-      })
+    it('should return ResourceNotFound error', async () => {
+      try {
+        const res = await utils.request('GET', `wallets/${addressCold}`)
+      } catch (error) {
+        await expect(error.message).toEqual('Not Found')
+      }
     })
   })
 
   describe('GET /api/wallets/:id/transactions', () => {
-    it('should GET all the transactions for the given wallet by id', (done) => {
-      utils.request('GET', `wallets/${addressActive}/transactions`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the transactions for the given wallet by id', async () => {
+      const res = await utils.request('GET', `wallets/${addressActive}/transactions`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        utils.assertTransaction(res.body.data[0])
-
-        done()
-      })
+      await utils.assertTransaction(res.body.data[0])
     })
   })
 
   describe('GET /api/wallets/:id/transactions/send', () => {
-    it('should GET all the send transactions for the given wallet by id', (done) => {
-      utils.request('GET', `wallets/${addressActive}/transactions/send`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the send transactions for the given wallet by id', async () => {
+      const res = await utils.request('GET', `wallets/${addressActive}/transactions/send`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        const transaction = res.body.data[0]
-        utils.assertTransaction(transaction)
-        expect(transaction.sender).toBe(addressActive)
-
-        done()
-      })
+      const transaction = res.body.data[0]
+      await utils.assertTransaction(transaction)
+      await expect(transaction.sender).toBe(addressActive)
     })
   })
 
   describe('GET /api/wallets/:id/transactions/received', () => {
-    it('should GET all the received transactions for the given wallet by id', (done) => {
-      utils.request('GET', `wallets/${addressActive}/transactions/received`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the received transactions for the given wallet by id', async () => {
+      const res = await utils.request('GET', `wallets/${addressActive}/transactions/received`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        utils.assertTransaction(res.body.data[0])
-
-        done()
-      })
+      await utils.assertTransaction(res.body.data[0])
     })
   })
 
   describe('GET /api/wallets/:id/votes', () => {
-    it('should GET all the votes for the given wallet by id', (done) => {
-      utils.request('GET', `wallets/${addressActive}/votes`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the votes for the given wallet by id', async () => {
+      const res = await utils.request('GET', `wallets/${addressActive}/votes`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        const vote = res.body.data[0]
-        expect(vote.id).toBeType('string')
-        expect(vote.type).toBeType('number')
-        expect(vote.amount).toBeType('number')
-        expect(vote.fee).toBeType('number')
-        expect(vote.sender).toBe(addressActive)
-        expect(vote.recipient).toBeType('string')
-        expect(vote.signature).toBeType('string')
-        expect(vote.asset).toBeType('object')
-        expect(vote.asset.votes).toBeType('array')
-
-        done()
-      })
+      const vote = res.body.data[0]
+      await expect(vote.id).toBeType('string')
+      await expect(vote.type).toBeType('number')
+      await expect(vote.amount).toBeType('number')
+      await expect(vote.fee).toBeType('number')
+      await expect(vote.sender).toBe(addressActive)
+      await expect(vote.recipient).toBeType('string')
+      await expect(vote.signature).toBeType('string')
+      await expect(vote.asset).toBeType('object')
+      await expect(vote.asset.votes).toBeType('array')
     })
   })
 
   describe('GET /api/wallets/search', () => {
-    it('should GET a search for wallets with the exact specified address', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the exact specified address', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it('should GET a search for wallets with the exact specified publicKey', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, publicKey }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the exact specified publicKey', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, publicKey })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-        expect(wallet.publicKey).toBe(publicKey)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.publicKey).toBe(publicKey)
     })
 
-    it('should GET a search for wallets with the exact specified secondPublicKey', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the exact specified secondPublicKey', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressSecondPassphrase)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressSecondPassphrase)
     })
 
-    it('should GET a search for wallets with the exact specified vote', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, vote }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the exact specified vote', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, vote })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it('should GET a search for wallets with the exact specified username', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, username }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the exact specified username', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, username })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it.skip('should GET a search for wallets with the exact specified balance', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, balance }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it.skip('should GET a search for wallets with the exact specified balance', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, balance })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-        expect(wallet.balance).toBe(balance)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.balance).toBe(balance)
     })
 
-    it.skip('should GET a search for wallets with the specified balance range', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, balanceFrom, balanceTo }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it.skip('should GET a search for wallets with the specified balance range', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, balanceFrom, balanceTo })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-        expect(wallet.balance).toBe(balance)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.balance).toBe(balance)
     })
 
-    it.skip('should GET a search for wallets with the exact specified votebalance', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, votebalance }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it.skip('should GET a search for wallets with the exact specified votebalance', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, votebalance })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it('should GET a search for wallets with the specified votebalance range', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, votebalanceFrom, votebalanceTo }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the specified votebalance range', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, votebalanceFrom, votebalanceTo })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(1)
+      await expect(res.body.data).toHaveLength(1)
 
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
-      })
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
 
-    it('should GET a search for wallets with the wrong specified username', (done) => {
-      utils.request('GET', 'wallets/search', { address: addressActive, username: wrongUsername }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET a search for wallets with the wrong specified username', async () => {
+      const res = await utils.request('GET', 'wallets/search', { address: addressActive, username: wrongUsername })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        expect(res.body.data).toHaveLength(0)
-
-        done()
-      })
+      await expect(res.body.data).toHaveLength(0)
     })
 
-    it('should GET a search for wallets with the specific criteria', (done) => {
-      utils.request('GET', 'wallets/search', {
+    it('should GET a search for wallets with the specific criteria', async () => {
+      const res = await utils.request('GET', 'wallets/search', {
         publicKey,
         username,
         balanceFrom,
         balanceTo
-      }).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
-
-        expect(res.body.data).toHaveLength(1)
-
-        const wallet = res.body.data[0]
-        utils.assertWallet(wallet)
-        expect(wallet.address).toBe(addressActive)
-
-        done()
       })
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
+
+      await expect(res.body.data).toHaveLength(1)
+
+      const wallet = res.body.data[0]
+      await utils.assertWallet(wallet)
+      await expect(wallet.address).toBe(addressActive)
     })
   })
 })

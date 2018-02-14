@@ -6,107 +6,89 @@ const delegatePublicKey = '02a9a0ac34a94f9d27fd9b4b56eb3c565a9a3f61e660f269775fb
 
 describe('API 2.0 - Delegates', () => {
   describe('GET /api/delegates', () => {
-    it('should GET all the delegates', (done) => {
-      utils.request('GET', 'delegates').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all the delegates', async () => {
+      const res = await utils.request('GET', 'delegates')
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        const delegate = res.body.data[0]
-        expect(delegate.username).toBeType('string')
-        expect(delegate.address).toBeType('string')
-        expect(delegate.publicKey).toBeType('string')
-
-        done()
-      })
+      const delegate = res.body.data[0]
+      await expect(delegate.username).toBeType('string')
+      await expect(delegate.address).toBeType('string')
+      await expect(delegate.publicKey).toBeType('string')
     })
   })
 
   describe('GET /api/delegates/:id', () => {
-    it('should GET a delegate by the given username', (done) => {
-      utils.request('GET', `delegates/${delegateUsername}`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET a delegate by the given username', async () => {
+      const res = await utils.request('GET', `delegates/${delegateUsername}`)
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data).toHaveProperty('username', delegateUsername)
-        expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
-
-        done()
-      })
+      await expect(res.body.data).toHaveProperty('username', delegateUsername)
+      await expect(res.body.data).toHaveProperty('address', delegateAddress)
+      await expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
     })
 
-    it('should GET a delegate by the given address', (done) => {
-      utils.request('GET', `delegates/${delegateAddress}`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET a delegate by the given address', async () => {
+      const res = await utils.request('GET', `delegates/${delegateAddress}`)
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data).toHaveProperty('username', delegateUsername)
-        expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
-
-        done()
-      })
+      await expect(res.body.data).toHaveProperty('username', delegateUsername)
+      await expect(res.body.data).toHaveProperty('address', delegateAddress)
+      await expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
     })
 
-    it('should GET a delegate by the given public key', (done) => {
-      utils.request('GET', `delegates/${delegatePublicKey}`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET a delegate by the given public key', async () => {
+      const res = await utils.request('GET', `delegates/${delegatePublicKey}`)
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data).toHaveProperty('username', delegateUsername)
-        expect(res.body.data).toHaveProperty('address', delegateAddress)
-        expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
-
-        done()
-      })
+      await expect(res.body.data).toHaveProperty('username', delegateUsername)
+      await expect(res.body.data).toHaveProperty('address', delegateAddress)
+      await expect(res.body.data).toHaveProperty('publicKey', delegatePublicKey)
     })
   })
 
   describe('GET /api/delegates/:id/blocks', () => {
-    it('should GET all blocks for a delegate by the given identifier', (done) => {
-      utils.request('GET', `delegates/${delegatePublicKey}/blocks`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all blocks for a delegate by the given identifier', async () => {
+      const res = await utils.request('GET', `delegates/${delegatePublicKey}/blocks`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        const block = res.body.data[1]
-        expect(block.id).toBeType('string')
-        expect(block.version).toBeType('number')
-        expect(block.height).toBeType('number')
-        // expect(block.previous).toBeType('string')
+      const block = res.body.data[1]
+      await expect(block.id).toBeType('string')
+      await expect(block.version).toBeType('number')
+      await expect(block.height).toBeType('number')
+      // await expect(block.previous).toBeType('string')
 
-        expect(block.forged).toBeType('object')
-        expect(block.forged.reward).toBeType('number')
-        expect(block.forged.fee).toBeType('number')
+      await expect(block.forged).toBeType('object')
+      await expect(block.forged.reward).toBeType('number')
+      await expect(block.forged.fee).toBeType('number')
 
-        expect(block.payload).toBeType('object')
-        expect(block.payload.length).toBeType('number')
-        expect(block.payload.hash).toBeType('string')
+      await expect(block.payload).toBeType('object')
+      await expect(block.payload.length).toBeType('number')
+      await expect(block.payload.hash).toBeType('string')
 
-        expect(block.generator).toBeType('object')
-        expect(block.generator.publicKey).toBeType('string')
+      await expect(block.generator).toBeType('object')
+      await expect(block.generator.publicKey).toBeType('string')
 
-        expect(block.signature).toBeType('string')
-        expect(block.transactions).toBeType('number')
-
-        done()
-      })
+      await expect(block.signature).toBeType('string')
+      await expect(block.transactions).toBeType('number')
     })
   })
 
   describe('GET /api/delegates/:id/voters', () => {
-    it('should GET all voters for a delegate by the given identifier', (done) => {
-      utils.request('GET', `delegates/${delegatePublicKey}/voters`).end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertCollection(res)
+    it('should GET all voters for a delegate by the given identifier', async () => {
+      const res = await utils.request('GET', `delegates/${delegatePublicKey}/voters`)
+      await utils.assertSuccessful(res)
+      await utils.assertCollection(res)
 
-        const voter = res.body.data[0]
-        expect(voter.address).toBeType('string')
-        expect(voter.publicKey).toBeType('string')
-        expect(voter.balance).toBeType('number')
-        expect(voter.isDelegate).toBeType('boolean')
-
-        done()
-      })
+      const voter = res.body.data[0]
+      await expect(voter.address).toBeType('string')
+      await expect(voter.publicKey).toBeType('string')
+      await expect(voter.balance).toBeType('number')
+      await expect(voter.isDelegate).toBeType('boolean')
     })
   })
 })
