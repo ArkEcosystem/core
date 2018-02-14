@@ -18,26 +18,26 @@ module.exports = class DelegatesRepository {
     }
   }
 
-  search (params) {
-    let query = this.findAll()
-      .then((delegates) => delegates.filter((delegate) => delegate.username.indexOf(params.q) > -1))
+  async search (params) {
+    let delegates = await this.findAll()
+    delegates = delegates.filter((delegate) => delegate.username.indexOf(params.q) > -1)
 
     if (params.orderBy) {
       const orderByField = params.orderBy.split(':')[0]
       const orderByDirection = params.orderBy.split(':')[1] || 'desc'
 
-      query = query.then((delegates) => delegates.sort((a, b) => {
+      delegates = delegates.sort((a, b) => {
         if (orderByDirection === 'desc' && (a[orderByField] < b[orderByField])) return -1
         if (orderByDirection === 'asc' && (a[orderByField] > b[orderByField])) return 1
 
         return 0
-      }))
+      })
     }
 
-    return query.then((delegates) => ({
+    return {
       rows: delegates.slice(params.offset, params.offset + params.limit),
       count: delegates.length
-    }))
+    }
   }
 
   async findById (id) {
@@ -49,14 +49,14 @@ module.exports = class DelegatesRepository {
   async active (height, totalSupply) {
     const delegates = await this.db.getActiveDelegates(height)
 
-    return Promise.all(delegates.map(delegate => {
-      return this.db.wallets.findById(delegate.publicKey).then(wallet => {
-        return {
-          username: wallet.username,
-          approval: calculateApproval(delegate),
-          productivity: calculateProductivity(wallet)
-        }
-      })
+    return Promise.all(delegates.map(async delegate => {
+      const wallet = await this.db.wallets.findById(delegate.publicKey)
+
+      return {
+        username: wallet.username,
+        approval: calculateApproval(delegate),
+        productivity: calculateProductivity(wallet)
+      }
     }))
   }
 }
