@@ -1,4 +1,3 @@
-const Delegate = require('app/models/delegate')
 const Wallet = require('app/models/wallet')
 const sortTransactions = require('app/utils/sort-transactions')
 
