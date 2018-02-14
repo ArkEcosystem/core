@@ -28,7 +28,7 @@ exports.blocks = {
 
 exports.voters = {
   handler: async (request, h) => {
-    const delegate = await db.delegates.findById(request.params.id, utils.paginate(request))
+    const delegate = await db.delegates.findById(request.params.id)
     const wallets = await db.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
