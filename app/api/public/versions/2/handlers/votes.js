@@ -3,16 +3,16 @@ const utils = require('../utils')
 
 exports.index = {
   handler: async (request, h) => {
-    return db.transactions
-      .findAllByType(3, utils.paginate(request))
-      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
+    const transactions = await db.transactions.findAllByType(3, utils.paginate(request))
+
+    return utils.toPagination(request, transactions, 'transaction')
   }
 }
 
 exports.show = {
   handler: async (request, h) => {
-    return db.transactions
-      .findByIdAndType(request.params.id, 3)
-      .then(transaction => utils.respondWithResource(request, transaction, 'transaction'))
+    const transaction = await db.transactions.findByIdAndType(request.params.id, 3)
+
+    return utils.respondWithResource(request, transaction, 'transaction')
   }
 }
