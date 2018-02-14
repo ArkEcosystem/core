@@ -14,11 +14,11 @@ module.exports = class ForgerManager {
   }
 
   async loadDelegates () {
-    if (!this.secrets) { return Promise.reject(new Error('No delegates found')) }
+    if (!this.secrets) {
+      throw new Error('No delegates found')
+    }
 
-    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
-
-    return this.delegates
+    return this.secrets.map(passphrase => new Delegate(passphrase, this.network))
   }
 
   startForging (proxy) {

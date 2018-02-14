@@ -50,7 +50,7 @@ module.exports = class DelegatesRepository {
     const delegates = await this.db.getActiveDelegates(height)
 
     return Promise.all(delegates.map(async delegate => {
-      const wallet = this.db.wallets.findById(delegate.publicKey)
+      const wallet = await this.db.wallets.findById(delegate.publicKey)
 
       return {
         username: wallet.username,

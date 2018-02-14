@@ -13,21 +13,26 @@ describe('Core | ForgerManager', () => {
   }
 
   describe('loadDelegates', () => {
-    it('returns a promise', () => {
+    it('returns a promise', async () => {
       const forger = new ForgerManager(config)
-      const promise = forger.loadDelegates()
-      // Avoids the UnhandledPromiseRejectionWarning
-      promise.catch(() => {})
-      expect(promise).toBeInstanceOf(Promise)
+      try {
+        const promise = await forger.loadDelegates()
+        expect(promise).toBeInstanceOf(Promise)
+      } catch (error) {
+        //
+      }
     })
 
     describe('without configured delegates', () => {
       it('rejects with an Error', () => {
         const forger = new ForgerManager(config)
-        return forger.loadDelegates().catch(error => {
+
+        try {
+          forger.loadDelegates()
+        } catch (error) {
           expect(error).toBeInstanceOf(Error)
           expect(error.message).toMatch(/no delegate/i)
-        })
+        }
       })
     })
     describe('with configured delegates', () => {
@@ -52,11 +57,15 @@ describe('Core | ForgerManager', () => {
   describe('broadcast', () => {})
 
   describe('pickForgingDelegate', () => {
-    it('returns a promise', () => {
+    it('returns a promise', async () => {
       const forger = new ForgerManager(delegateConfig)
-      forger.loadDelegates()
-      const promise = forger.pickForgingDelegate({ delegate: {} })
-      expect(promise).toBeInstanceOf(Promise)
+      await forger.loadDelegates()
+
+      try {
+        const promise = await forger.pickForgingDelegate({ delegate: {} })
+        expect(promise).toBeInstanceOf(Promise)
+      } catch (error) {
+      }
     })
   })
 
