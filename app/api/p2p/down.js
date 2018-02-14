@@ -171,9 +171,10 @@ class Down {
 
     try {
       await randomPeer.ping()
-      randomPeer.downloadBlocks(fromBlockHeight)
+
+      return randomPeer.downloadBlocks(fromBlockHeight)
     } catch (error) {
-      this.downloadBlocks(fromBlockHeight)
+      return this.downloadBlocks(fromBlockHeight)
     }
   }
 

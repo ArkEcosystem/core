@@ -33,8 +33,12 @@ module.exports = class BlockchainManager {
 
     this.downloadQueue = async.queue(
       (block, qcallback) => {
-        if (that.downloadQueue.paused) return qcallback()
+        if (that.downloadQueue.paused) {
+          return qcallback()
+        }
+
         that.processQueue.push(block)
+
         return qcallback()
       },
       1
@@ -177,22 +181,25 @@ module.exports = class BlockchainManager {
       state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
 
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
-        await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
+        try {
+          await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
 
-        await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-        state.lastBlock = block
+          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          state.lastBlock = block
 
-        // await this.transactionPool.postMessage({event: 'addBlock', data: block})
+          // await this.transactionPool.postMessage({event: 'addBlock', data: block})
 
-        qcallback()
+          return qcallback()
+        } catch (error) {
+          goofy.error(error)
+          goofy.debug('Refused new block', block.data)
 
-        // .catch(error => {
-        //   goofy.error(error)
-        //   goofy.debug('Refused new block', block.data)
-        //   state.lastDownloadedBlock = state.lastBlock
-        //   this.dispatch('FORK')
-        //   qcallback()
-        // })
+          state.lastDownloadedBlock = state.lastBlock
+
+          this.dispatch('FORK')
+
+          return qcallback()
+        }
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
@@ -200,23 +207,23 @@ module.exports = class BlockchainManager {
 
         state.lastDownloadedBlock = state.lastBlock
 
-        qcallback()
+        return qcallback()
       } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
         goofy.debug('Block disregarded because already in blockchain')
 
-        qcallback()
+        return qcallback()
       } else {
         // TODO: manage fork here
         this.dispatch('FORK')
 
         goofy.info('Block disregarded because on a fork')
 
-        qcallback()
+        return qcallback()
       }
     } else {
       goofy.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
 
-      qcallback()
+      return qcallback()
     }
   }
 

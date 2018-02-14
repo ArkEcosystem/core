@@ -200,14 +200,14 @@ blockchainMachine.actionMap = (blockchainManager) => {
           await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(block, false, false)
-          await blockchainManager.dispatch('SUCCESS')
-          return
+
+          return blockchainManager.dispatch('SUCCESS')
         } else {
           await blockchainManager.db.buildWallets()
           await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)
-          await blockchainManager.dispatch('SUCCESS')
-          return
+
+          return blockchainManager.dispatch('SUCCESS')
         }
       } catch (error) {
         goofy.info(error.message)
@@ -224,8 +224,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
           await blockchainManager.db.buildWallets()
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(genesis)
-          await blockchainManager.dispatch('SUCCESS')
-          return
+
+          return blockchainManager.dispatch('SUCCESS')
         }
 
         return blockchainManager.dispatch('FAILURE')

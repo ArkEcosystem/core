@@ -275,18 +275,30 @@ module.exports = class SequelizeDB extends DBInterface {
     await Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
-  saveBlock (block) {
-    return this.db.transaction(async t => {
-      await this.blocksTable.create(block.data, {transaction: t})
-      this.transactionsTable.bulkCreate(block.transactions || [], {transaction: t})
-    })
+  async saveBlock (block) {
+    let transaction
+
+    try {
+      transaction = await this.db.transaction()
+      await this.blocksTable.create(block.data, {transaction})
+      await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
+      await transaction.commit()
+    } catch (error) {
+      await transaction.rollback()
+    }
   }
 
-  deleteBlock (block) {
-    return this.db.transaction(async t => {
-      await this.transactionsTable.destroy({where: {blockId: block.data.id}}, {transaction: t})
-      this.blocksTable.destroy({where: {id: block.data.id}}, {transaction: t})
-    })
+  async deleteBlock (block) {
+    let transaction
+
+    try {
+      transaction = await this.db.transaction()
+      await this.transactionsTable.destroy({where: {blockId: block.data.id}}, {transaction})
+      await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
+      await transaction.commit()
+    } catch (error) {
+      await transaction.rollback()
+    }
   }
 
   async getBlock (id) {
