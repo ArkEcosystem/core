@@ -15,18 +15,43 @@ function setHeaders (h) {
 }
 
 function isLocalhost (request) {
-  return request.connection.remoteAddress === '::1' || request.connection.remoteAddress === '127.0.0.1' || request.connection.remoteAddress === '::ffff:127.0.0.1'
+  const addr = request.info.remoteAddress
+
+  return addr === '::1' || addr === '127.0.0.1' || addr === '::ffff:127.0.0.1'
+}
+
+async function getActiveDelegates (height) {
+  const round = parseInt(height / config.getConstants(height).activeDelegates)
+  const seedSource = round.toString()
+  let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
+
+  const activedelegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
+
+  for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
+    for (let x = 0; x < 4 && i < delCount; i++, x++) {
+      const newIndex = currentSeed[x] % delCount
+      const b = activedelegates[newIndex]
+
+      activedelegates[newIndex] = activedelegates[i]
+      activedelegates[i] = b
+    }
+
+    currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
+  }
+
+  return activedelegates
 }
 
 let p2p
+let config
 
 class Up {
-  constructor (config) {
-    this.port = config.server.port
-    this.config = config
-    _headers.version = config.server.version
-    _headers.port = config.server.port
-    _headers.nethash = config.network.nethash
+  constructor (_config) {
+    this.port = _config.server.port
+    config = _config
+    _headers.version = _config.server.version
+    _headers.port = _config.server.port
+    _headers.nethash = _config.network.nethash
   }
 
   async start (p2pInstance) {
@@ -43,7 +68,7 @@ class Up {
           return h.response({
             code: 'ResourceNotFound',
             message: `${request.path} does not exist`
-          }).code(500)
+          }).code(500).takeover()
         }
 
         if (request.path.startsWith('/peer/')) {
@@ -55,7 +80,7 @@ class Up {
             await p2p.acceptNewPeer(peer)
             await setHeaders(h)
           } catch (error) {
-            return h.response({success: false, message: error}).code(500)
+            return h.response({success: false, message: error}).code(500).takeover()
           }
         }
 
@@ -65,7 +90,7 @@ class Up {
 
     await this.mountInternal(server)
 
-    if (this.config.api.p2p.remoteinterface) {
+    if (config.api.p2p.remoteinterface) {
       await this.mountRemoteInterface(server)
     }
 
@@ -199,12 +224,12 @@ class Up {
 
   async getRound (request, h) {
     const lastBlock = blockchain.getInstance().getState().lastBlock
-    const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
-    const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
-    const reward = this.config.getConstants(lastBlock.data.height).reward
+    const maxActive = config.getConstants(lastBlock.data.height).activeDelegates
+    const blockTime = config.getConstants(lastBlock.data.height).blocktime
+    const reward = config.getConstants(lastBlock.data.height).reward
 
     try {
-      const delegates = await this.getActiveDelegates(lastBlock.data.height)
+      const delegates = await getActiveDelegates(lastBlock.data.height)
 
       return {
         success: true,
@@ -253,28 +278,6 @@ class Up {
     blockchain.getInstance().postTransactions(transactions)
 
     return {success: true}
-  }
-
-  async getActiveDelegates (height) {
-    const round = parseInt(height / this.config.getConstants(height).activeDelegates)
-    const seedSource = round.toString()
-    let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-
-    const activedelegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
-
-    for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
-      for (let x = 0; x < 4 && i < delCount; i++, x++) {
-        const newIndex = currentSeed[x] % delCount
-        const b = activedelegates[newIndex]
-
-        activedelegates[newIndex] = activedelegates[i]
-        activedelegates[i] = b
-      }
-
-      currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
-    }
-
-    return activedelegates
   }
 
   async getBlocks (request, h) {

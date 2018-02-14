@@ -18,7 +18,9 @@ module.exports = class ForgerManager {
       throw new Error('No delegates found')
     }
 
-    return this.secrets.map(passphrase => new Delegate(passphrase, this.network))
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
+
+    return this.delegates
   }
 
   startForging (proxy) {
@@ -34,6 +36,7 @@ module.exports = class ForgerManager {
         if (!round.canForge) {
           throw new Error('Block already forged in current slot')
         }
+
         data.previousBlock = round.lastBlock
         data.timestamp = round.timestamp
         data.reward = round.reward
@@ -44,8 +47,9 @@ module.exports = class ForgerManager {
 
         await new Promise(resolve => setTimeout(resolve, 1000))
 
-        monitor()
+        return monitor()
       } catch (error) {
+        goofy.debug(error)
         goofy.info('Not able to forge:', error.message)
         goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }

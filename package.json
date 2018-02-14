@@ -11,7 +11,7 @@
     "start:testnet": "NODE_PATH=. node app/start-relay-node.js -c config/testnet",
     "start:testnet:watch": "NODE_PATH=. nodemon app/start-relay-node.js -c config/testnet",
     "forge:mainnet": "NODE_PATH=. nodemon app/start-forger.js -c config/mainnet",
-    "forge:devnet": "NODE_PATH=. nodemon app/start-forger.js -c config/devnet",
+    "forge:devnet": "NODE_PATH=. node app/start-forger.js -c config/devnet",
     "forge:testnet": "NODE_PATH=. nodemon app/start-forger.js -c config/testnet",
     "snapshot:devnet": "NODE_PATH=. nodemon app/snapshot.js -c config/devnet",
     "test": "NODE_PATH=. jest --no-cache --forceExit --config tests/jest.base.conf.js",
