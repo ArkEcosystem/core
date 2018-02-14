@@ -284,6 +284,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
       await transaction.commit()
     } catch (error) {
+      goofy.error(error)
       await transaction.rollback()
     }
   }
@@ -297,6 +298,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
     } catch (error) {
+      goofy.error(error)
       await transaction.rollback()
     }
   }
