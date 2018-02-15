@@ -129,7 +129,7 @@ module.exports = class BlockchainManager {
     const lastBlock = stateMachine.state.lastBlock
 
     await this.db.undoBlock(lastBlock)
-    await this.db.deleteBlock(lastBlock))
+    await this.db.deleteBlock(lastBlock)
     await this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock})
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)

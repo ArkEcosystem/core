@@ -8,7 +8,7 @@ const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class SequelizeDB extends DBInterface {
-  init (params) {
+  async init (params) {
     if (this.db) {
       throw new Error('Already initialised')
     }
@@ -19,13 +19,12 @@ module.exports = class SequelizeDB extends DBInterface {
       operatorsAliases: Sequelize.Op
     })
 
-    return this.db
-      .authenticate()
-      .then(() => schema.syncTables(this.db))
-      .then(tables => ([
-        this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
-      ] = tables))
-      .then(() => this.registerHooks())
+    await this.db.authenticate()
+
+    const models = await schema.syncTables(this.db)
+    models.forEach(model => (this[`${model.tableName}Table`] = model))
+
+    this.registerHooks()
   }
 
   registerHooks () {
