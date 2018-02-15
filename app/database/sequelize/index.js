@@ -8,10 +8,11 @@ const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class SequelizeDB extends DBInterface {
-  async init (params) {
+  init (params) {
     if (this.db) {
       throw new Error('Already initialised')
     }
+
     this.db = new Sequelize(params.uri, {
       dialect: params.dialect,
       logging: !!params.logging,
@@ -25,19 +26,6 @@ module.exports = class SequelizeDB extends DBInterface {
         this.blocksTable, this.transactionsTable, this.walletsTable, this.roundsTable, this.webhooksTable
       ] = tables))
       .then(() => this.registerHooks())
-
-    // await this.db.authenticate()
-    // let tables = await schema.syncTables(this.db)
-
-    // [
-    //   this.blocksTable,
-    //   this.transactionsTable,
-    //   this.walletsTable,
-    //   this.roundsTable,
-    //   this.webhooksTabl
-    // ] = tables
-
-    // this.registerHooks()
   }
 
   registerHooks () {
