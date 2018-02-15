@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-function syncTables(db) {
+module.exports = function syncTables (db) {
   const blocks = db.define('blocks', {
     id: {
       type: Sequelize.STRING(64),
@@ -125,8 +125,4 @@ function syncTables(db) {
   })
 
   return Promise.all([blocks, transactions, wallets, rounds, webhooks].map(table => table.sync()))
-}
-
-module.exports = {
-  syncTables
 }

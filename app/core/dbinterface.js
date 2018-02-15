@@ -32,14 +32,15 @@ class DBInterface {
     return instance
   }
 
-  static create (config) {
+  static async create (config) {
     const db = new (require(path.resolve(config.driver)))()
     db.walletManager = new WalletManager()
 
-    return db
-      .init(config)
-      .then(() => (instance = db))
-      .then(() => this.registerRepositories(config.driver))
+    await db.init(config)
+    instance = db
+    this.registerRepositories(config.driver)
+
+    return instance
   }
 
   static registerRepositories (driver) {
@@ -53,8 +54,6 @@ class DBInterface {
 
     // this is a special case repository and will be forced to be read from memory...
     instance['wallets'] = new (require('app/database/repositories/wallets'))(instance)
-
-    return Promise.resolve(instance)
   }
 
   // getActiveDelegates (height) {
@@ -84,50 +83,55 @@ class DBInterface {
   // getBlocks (offset, limit) {
   // }
 
-  applyRound (block, rebuild, fastRebuild) {
+  // saveRounds (rounds) {
+  // }
+
+  // deleteRound (round) {
+  // }
+
+  async applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
-        return this.buildDelegates(block)
-          .then(() => this.rounds.bulkCreate(this.activedelegates))
-          .then(() => block)
+        await this.buildDelegates(block)
+        await this.saveRounds(this.activedelegates)
       } else {
         goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
-        return this
-          .saveWallets(true) // save only modified wallets during the last round
-          .then(() => this.buildDelegates(block)) // active build delegate list from database state
-          .then(() => this.rounds.bulkCreate(this.activedelegates)) // save next round delegate list
-          .then(() => block)
+
+        await this.saveWallets(false) // save only modified wallets during the last round
+        await this.buildDelegates(block) // active build delegate list from database state
+        await this.saveRounds(this.activedelegates) // save next round delegate list
       }
-    } else {
-      return Promise.resolve(block)
     }
+
+    return block
   }
 
-  undoRound (block) {
+  async undoRound (block) {
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
+
     if (previousRound + 1 === round && block.data.height > 51) {
       goofy.info('Back to previous round', previousRound)
-      return this.getActiveDelegates(previousHeight) // active delegate list from database round
-        .then(() => this.deleteRound(round)) // remove round delegate list
-        .then(() => block)
-    } else {
-      return Promise.resolve(block)
+
+      await this.getActiveDelegates(previousHeight) // active delegate list from database round
+      await this.deleteRound(round) // remove round delegate list
     }
+
+    return block
   }
 
-  applyBlock (block, rebuild, fastRebuild) {
-    return this.walletManager
-      .applyBlock(block)
-      .then(() => this.applyRound(block, rebuild, fastRebuild))
+  async applyBlock (block, rebuild, fastRebuild) {
+    await this.walletManager.applyBlock(block)
+
+    return this.applyRound(block, rebuild, fastRebuild)
   }
 
-  undoBlock (block) {
-    return this.walletManager
-      .undoBlock(block)
-      .then(() => this.undoRound(block))
+  async undoBlock (block) {
+    await this.walletManager.undoBlock(block)
+
+    return this.undoRound(block)
   }
 
   verifyTransaction (transaction) {
@@ -137,7 +141,7 @@ class DBInterface {
       sender.publicKey = transaction.data.senderPublicKey
       this.walletManager.updateWallet(sender)
     }
-    return sender.canApply(transaction.data)
+    return sender.canApply(transaction.data) && !this.getTransaction(transaction.data.id)
   }
 
   applyTransaction (transaction) {
@@ -148,7 +152,7 @@ class DBInterface {
     return this.walletManager.undoTransaction(transaction)
   }
 
-  snapshot (path) {
+  async snapshot (path) {
     const fs = require('fs')
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
     let max = 100000 // eslint-disable-line no-unused-vars
@@ -157,20 +161,20 @@ class DBInterface {
       wstream.write(block)
       qcallback()
     }, 1)
-    this.getBlockHeaders(offset, offset + 100000).then(blocks => {
+
+    let blocks = await this.getBlockHeaders(offset, offset + 100000)
+    writeQueue.push(blocks)
+    max = blocks.length
+    offset += 100000
+    console.log(offset)
+
+    writeQueue.drain = async () => {
+      console.log('drain')
+      blocks = await this.getBlockHeaders(offset, offset + 100000)
       writeQueue.push(blocks)
       max = blocks.length
       offset += 100000
       console.log(offset)
-    })
-    writeQueue.drain = () => {
-      console.log('drain')
-      this.getBlockHeaders(offset, offset + 100000).then(blocks => {
-        writeQueue.push(blocks)
-        max = blocks.length
-        offset += 100000
-        console.log(offset)
-      })
     }
   }
 }

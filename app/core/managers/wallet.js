@@ -21,7 +21,7 @@ module.exports = class WalletManager {
     if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
   }
 
-  applyBlock (block) {
+  async applyBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
     if (!delegate && block.data.height === 1) {
       const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
@@ -31,31 +31,45 @@ module.exports = class WalletManager {
       this.walletsByPublicKey[block.generatorPublicKey] = delegate
     }
     const appliedTransactions = []
-    return Promise
-      .each(block.transactions, tx => this.applyTransaction(tx).then(() => appliedTransactions.push(tx)))
-      .catch(error => Promise
-        .each(appliedTransactions, tx => this.undoTransaction(tx))
-        .then(() => Promise.reject(error))
-      )
-      .then(() => delegate.applyBlock(block.data))
+
+    try {
+      await Promise.each(block.transactions, async (tx) => {
+        await this.applyTransaction(tx)
+
+        appliedTransactions.push(tx)
+      })
+
+      return delegate.applyBlock(block.data)
+    } catch (error) {
+      try {
+        await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
+      } catch (error) {
+        throw error
+      }
+    }
   }
 
-  undoBlock (block) {
+  async undoBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+
     const undoedTransactions = []
     const that = this
-    return Promise
-      .each(block.transactions, tx =>
-        that.undoTransaction(tx)
-        .then(() => undoedTransactions.push(tx))
-      )
-      .then(() => delegate.undoBlock(block.data))
-      .catch(error => Promise
-        .each(undoedTransactions, tx =>
-          that.applyTransaction(tx))
-         .then(() => Promise.reject(error)
-        )
-      )
+
+    try {
+      await Promise.each(block.transactions, async (tx) => {
+        await that.undoTransaction(tx)
+
+        undoedTransactions.push(tx)
+      })
+
+      return delegate.undoBlock(block.data)
+    } catch (error) {
+      Promise.each(undoedTransactions, async (tx) => {
+        await that.applyTransaction(tx)
+
+        throw error
+      })
+    }
   }
 
   applyTransaction (transaction) {
@@ -103,12 +117,16 @@ module.exports = class WalletManager {
     })
   }
 
-  undoTransaction (transaction) {
+  async undoTransaction (transaction) {
     let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
     let recipient = this.walletsByAddress[transaction.data.recipientId]
     sender.undoTransactionToSender(transaction.data)
-    if (recipient && transaction.type === 0) recipient.undoTransactionToRecipient(transaction.data)
-    return Promise.resolve(transaction.data)
+
+    if (recipient && transaction.type === 0) {
+      recipient.undoTransactionToRecipient(transaction.data)
+    }
+
+    return transaction.data
   }
 
   getWalletByAddress (address) {

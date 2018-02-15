@@ -1,5 +1,3 @@
-const Op = require('sequelize').Op
-
 module.exports = class WebhooksRepository {
   constructor (db) {
     this.db = db
@@ -24,15 +22,15 @@ module.exports = class WebhooksRepository {
     return this.db.webhooksTable.create(data)
   }
 
-  update (id, data) {
-    return this.db.webhooksTable
-      .findById(id)
-      .then((webhook) => webhook.update(data))
+  async update (id, data) {
+    const webhook = await this.db.webhooksTable.findById(id)
+
+    webhook.update(data)
   }
 
-  destroy (id) {
-    return this.db.webhooksTable
-      .findById(id)
-      .then((webhook) => webhook.destroy())
+  async destroy (id) {
+    const webhook = await this.db.webhooksTable.findById(id)
+
+    webhook.destroy()
   }
 }

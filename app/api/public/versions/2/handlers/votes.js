@@ -2,17 +2,17 @@ const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {
-  handler: (request, h) => {
-    return db.transactions
-      .findAllByType(3, utils.paginate(request))
-      .then(transactions => utils.toPagination(request, transactions, 'transaction'))
+  handler: async (request, h) => {
+    const transactions = await db.transactions.findAllByType(3, utils.paginate(request))
+
+    return utils.toPagination(request, transactions, 'transaction')
   }
 }
 
 exports.show = {
-  handler: (request, h) => {
-    return db.transactions
-      .findByIdAndType(request.params.id, 3)
-      .then(transaction => utils.respondWithResource(request, transaction, 'transaction'))
+  handler: async (request, h) => {
+    const transaction = await db.transactions.findByIdAndType(request.params.id, 3)
+
+    return utils.respondWithResource(request, transaction, 'transaction')
   }
 }

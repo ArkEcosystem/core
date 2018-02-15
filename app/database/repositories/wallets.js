@@ -6,51 +6,63 @@ module.exports = class WalletsRepository {
     this.db = db
   }
 
-  findAll () {
-    return Promise.resolve(this.db.walletManager.getLocalWallets())
+  async findAll (params = {}) {
+    const wallets = this.db.walletManager.getLocalWallets()
+
+    return Object.keys(params).length ? {
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
+    } : wallets
   }
 
-  paginate (params = {}) {
-    return this.findAll().then((wallets) => ({
+  async paginate (params = {}) {
+    const wallets = await this.findAll()
+
+    return {
       count: wallets.length,
       rows: wallets.slice(params.offset, params.offset + params.limit)
-    }))
-  }
-
-  findAllByVote (publicKey, params = {}) {
-    let query = this
-      .findAll()
-      .then((wallets) => wallets.filter(a => a.vote === publicKey))
-
-    if (params) {
-      query = query.then((wallets) => ({
-        rows: wallets.slice(params.offset, params.offset + params.limit),
-        count: wallets.length
-      }))
     }
-
-    return query
   }
 
-  findById (id) {
-    return this.findAll().then((wallets) => wallets.find(a => (a.address === id || a.publicKey === id || a.username === id)))
+  async findAllByVote (publicKey, params = {}) {
+    let wallets = await this.findAll()
+    wallets = await wallets.filter(a => a.vote === publicKey)
+
+    return Object.keys(params).length ? {
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
+    } : wallets
   }
 
-  count () {
-    return this.findAll().then((wallets) => wallets.length)
+  async findById (id) {
+    const wallets = await this.findAll()
+
+    return wallets.find(a => (a.address === id || a.publicKey === id || a.username === id))
   }
 
-  top (params) {
-    return this.findAll().then((wallets) => _.sortBy(wallets, 'balance').reverse())
+  async count () {
+    const wallets = await this.findAll()
+
+    return wallets.length
   }
 
-  search (params) {
-    return this.findAll().then((wallets) => filterObject(wallets, params, {
+  async top (params) {
+    const wallets = await this.findAll()
+
+    return _.sortBy(wallets, 'balance').reverse()
+  }
+
+  async search (params) {
+    let wallets = await this.findAll()
+
+    wallets = await filterObject(wallets, params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
       between: ['balance', 'votebalance']
-    }).then(results => ({
-      count: results.length,
-      rows: results
-    })))
+    })
+
+    return {
+      count: wallets.length,
+      rows: wallets
+    }
   }
 }

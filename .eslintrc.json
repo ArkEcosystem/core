@@ -4,9 +4,6 @@
     "node": true,
     "mocha": true
   },
-  "globals": {
-    "requireFrom": true
-  },
   "extends": "standard",
   "parserOptions": {
     "sourceType": "module"

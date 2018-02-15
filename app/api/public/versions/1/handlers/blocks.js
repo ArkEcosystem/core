@@ -13,11 +13,12 @@ exports.index = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.blocks
-      .findAll({...request.query, ...utils.paginator(request)})
-      .then(blocks => utils.toCollection(request, blocks.rows, 'block'))
-      .then(blocks => utils.respondWith({blocks}))
+  handler: async (request, h) => {
+    const blocks = await db.blocks.findAll({...request.query, ...utils.paginator(request)})
+
+    return utils.respondWith({
+      blocks: utils.toCollection(request, blocks.rows, 'block')
+    })
   }
 }
 
@@ -29,12 +30,12 @@ exports.show = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.blocks.findById(request.query.id).then(block => {
-      if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
+  handler: async (request, h) => {
+    const block = await db.blocks.findById(request.query.id)
 
-      return utils.respondWith({ block: utils.toResource(request, block, 'block') })
-    })
+    if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
+
+    return utils.respondWith({ block: utils.toResource(request, block, 'block') })
   }
 }
 

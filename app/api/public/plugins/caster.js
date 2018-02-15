@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const BigNumber = require('bignumber.js')
 
 function isBoolean (value) {

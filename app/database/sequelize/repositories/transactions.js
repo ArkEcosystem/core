@@ -94,8 +94,8 @@ module.exports = class TransactionsRepository {
     })
   }
 
-  findAllByDateAndType (type, from, to) {
-    return this.db.transactionsTable.findAndCountAll({
+  async findAllByDateAndType (type, from, to) {
+    const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
       where: {
         type: type,
@@ -108,12 +108,12 @@ module.exports = class TransactionsRepository {
         model: this.db.blocksTable,
         attributes: ['height']
       }
-    }).then(results => {
-      return {
-        count: results.count,
-        rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-      }
     })
+
+    return {
+      count: results.count,
+      rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+    }
   }
 
   search (params) {

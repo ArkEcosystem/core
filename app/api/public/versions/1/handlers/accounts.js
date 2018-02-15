@@ -8,11 +8,12 @@ const schema = require('../schemas/accounts')
 const { calculateApproval, calculateProductivity } = require('app/utils/delegate-calculator')
 
 exports.index = {
-  handler: (request, h) => {
-    return db.wallets
-      .findAll({...request.query, ...utils.paginator(request)})
-      .then(result => utils.toCollection(request, result.rows, 'wallet'))
-      .then(wallets => utils.respondWith({wallets}))
+  handler: async (request, h) => {
+    const wallets = await db.wallets.findAll({...request.query, ...utils.paginator(request)})
+
+    return utils.respondWith({
+      wallets: utils.toCollection(request, wallets.rows, 'wallet')
+    })
   }
 }
 
@@ -24,14 +25,12 @@ exports.show = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.wallets
-      .findById(request.query.address)
-      .then(account => {
-        if (!account) return utils.respondWith('Not found', true)
+  handler: async (request, h) => {
+    const account = await db.wallets.findById(request.query.address)
 
-        return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
-      })
+    if (!account) return utils.respondWith('Not found', true)
+
+    return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
   }
 }
 
@@ -43,17 +42,15 @@ exports.balance = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.wallets
-      .findById(request.query.address)
-      .then(account => {
-        if (!account) return utils.respondWith('Not found', true)
+  handler: async (request, h) => {
+    const account = await db.wallets.findById(request.query.address)
 
-        return utils.respondWith({
-          balance: account ? account.balance : '0',
-          unconfirmedBalance: account ? account.balance : '0'
-        })
-      })
+    if (!account) return utils.respondWith('Not found', true)
+
+    return utils.respondWith({
+      balance: account ? account.balance : '0',
+      unconfirmedBalance: account ? account.balance : '0'
+    })
   }
 }
 
@@ -65,14 +62,12 @@ exports.publicKey = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.wallets
-      .findById(request.query.address)
-      .then(account => {
-        if (!account) return utils.respondWith('Not found', true)
+  handler: async (request, h) => {
+    const account = await db.wallets.findById(request.query.address)
 
-        return utils.respondWith({ publicKey: account.publicKey })
-      })
+    if (!account) return utils.respondWith('Not found', true)
+
+    return utils.respondWith({ publicKey: account.publicKey })
   }
 }
 
@@ -92,31 +87,30 @@ exports.delegates = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.wallets.findById(request.query.address).then(account => {
-      if (!account) return utils.respondWith('Address not found.', true)
-      if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
+  handler: async (request, h) => {
+    let account = await db.wallets.findById(request.query.address)
 
-      return db.getActiveDelegates(state.lastBlock.data.height).then(delegates => {
-        const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
-        const delegate = delegates[delegateRank] || {}
+    if (!account) return utils.respondWith('Address not found.', true)
+    if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
 
-        return db.wallets.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash)).then(account => {
-          return utils.respondWith({
-            delegates: [{
-              username: account.username,
-              address: account.address,
-              publicKey: account.publicKey,
-              vote: delegate.balance + '',
-              producedblocks: account.producedBlocks,
-              missedblocks: account.missedBlocks, // TODO how?
-              rate: delegateRank + 1,
-              approval: calculateApproval(delegate),
-              productivity: calculateProductivity(account)
-            }]
-          })
-        })
-      })
+    const delegates = await db.getActiveDelegates(state.lastBlock.data.height)
+    const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
+    const delegate = delegates[delegateRank] || {}
+
+    account = await db.wallets.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+
+    return utils.respondWith({
+      delegates: [{
+        username: account.username,
+        address: account.address,
+        publicKey: account.publicKey,
+        vote: delegate.balance + '',
+        producedblocks: account.producedBlocks,
+        missedblocks: account.missedBlocks, // TODO how?
+        rate: delegateRank + 1,
+        approval: calculateApproval(delegate),
+        productivity: calculateProductivity(account)
+      }]
     })
   }
 }
@@ -129,17 +123,17 @@ exports.top = {
       }
     }
   },
-  handler: (request, h) => {
-    return db.wallets
-      .top(request.query)
-      .then(result => utils.respondWith({ wallets: result.rows }))
+  handler: async (request, h) => {
+    const accounts = await db.wallets.top(request.query)
+
+    return utils.respondWith({ wallets: accounts.rows })
   }
 }
 
 exports.count = {
-  handler: (request, h) => {
-    return db.wallets
-      .findAll()
-      .then(result => utils.respondWith({ count: result.count }))
+  handler: async (request, h) => {
+    const accounts = await db.wallets.findAll()
+
+    return utils.respondWith({ count: accounts.count })
   }
 }

@@ -2,6 +2,8 @@ const Peer = require('./peer')
 const goofy = require('app/core/goofy')
 const dns = require('dns')
 
+const isLocalhost = ip => ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
+
 class Down {
   constructor (config) {
     this.config = config
@@ -18,61 +20,72 @@ class Down {
     return this.updateNetworkStatus()
   }
 
-  updateNetworkStatus () {
-    return this
-      .discoverPeers()
-      .then(() => this.cleanPeers())
-      .then(() => {
-        if (Object.keys(this.peers).length < this.config.network.peers.length) {
-          this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
-          return this.updateNetworkStatus()
-        }
-        return Promise.resolve()
-      })
-      .catch(error => {
-        goofy.error(error)
+  async updateNetworkStatus () {
+    try {
+      await this.discoverPeers()
+      await this.cleanPeers()
+
+      if (Object.keys(this.peers).length < this.config.network.peers.length) {
         this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+
         return this.updateNetworkStatus()
-      })
+      }
+    } catch (error) {
+      goofy.error(error)
+
+      this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+
+      return this.updateNetworkStatus()
+    }
   }
 
   stop () {
     // Noop
   }
 
-  cleanPeers () {
+  async cleanPeers () {
     let keys = Object.keys(this.peers)
     const that = this
     let count = 0
     const max = keys.length
     let wrongpeers = 0
+
     goofy.info('Looking for network peers')
-    return Promise.all(keys.map(ip =>
-      that.peers[ip]
-        .ping()
-        .catch(() => {
-          wrongpeers++
-          delete that.peers[ip]
-          return Promise.resolve(null)
-        })
-        .then(() => goofy.printTracker('Peers Discovery', ++count, max, null, null))
-    ))
-    .then(() => goofy.stopTracker('Peers Discovery', max, max))
-    .then(() => goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`))
+
+    await Promise.all(keys.map(async (ip) => {
+      try {
+        await that.peers[ip].ping()
+
+        goofy.printTracker('Peers Discovery', ++count, max, null, null)
+      } catch (error) {
+        wrongpeers++
+
+        delete that.peers[ip]
+
+        return null
+      }
+    }))
+
+    goofy.stopTracker('Peers Discovery', max, max)
+    goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
   }
 
-  acceptNewPeer (peer) {
-    if (this.peers[peer.ip]) return Promise.resolve()
-    if (peer.nethash !== this.config.network.nethash) return Promise.reject(new Error('Request is made on the wrong network'))
-    if (peer.ip === '::ffff:127.0.0.1') return Promise.reject(new Error('Localhost peer not accepted'))
+  async acceptNewPeer (peer) {
+    if (this.peers[peer.ip]) return
+    if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
+    if (peer.ip === '::ffff:127.0.0.1') throw new Error('Localhost peer not accepted')
     const npeer = new Peer(peer.ip, peer.port, this.config)
-    return npeer.ping()
-      .then(() => (this.peers[peer.ip] = npeer))
-      .catch(e => goofy.debug('Peer not connectable', npeer, e))
+
+    try {
+      await npeer.ping()
+      this.peers[peer.ip] = npeer
+    } catch (error) {
+      goofy.debug('Peer not connectable', npeer, error)
+    }
   }
 
-  getPeers () {
-    return Promise.resolve(Object.values(this.peers))
+  async getPeers () {
+    return Object.values(this.peers)
   }
 
   getRandomPeer (delay) {
@@ -106,39 +119,46 @@ class Down {
     return randomPeer
   }
 
-  discoverPeers () {
-    const that = this
-    return this.getRandomPeer().getPeers()
-      .then(list => {
-        list.forEach(peer => {
-          if (peer.status === 'OK' && !that.peers[peer.ip]) {
-            that.peers[peer.ip] = new Peer(peer.ip, peer.port, that.config)
-          }
-        })
-        return Promise.resolve(that.peers)
+  async discoverPeers () {
+    try {
+      const list = await this.getRandomPeer().getPeers()
+
+      list.forEach(peer => {
+        if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)
+        }
       })
-      .catch(() => that.discoverPeers())
+
+      return this.peers
+    } catch (error) {
+      that.discoverPeers()
+    }
   }
 
   later (delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value))
   }
 
-  getNetworkHeight () {
+  async getNetworkHeight () {
     const median = Object.values(this.peers)
       .filter(peer => peer.height)
       .map(peer => peer.height)
       .sort()
-    return Promise.resolve(median[parseInt(median.length / 2)])
+
+    return median[parseInt(median.length / 2)]
   }
 
-  downloadBlocks (fromBlockHeight) {
+  async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
     goofy.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
-    return randomPeer
-      .ping()
-      .then(() => randomPeer.downloadBlocks(fromBlockHeight))
-      .catch(() => this.downloadBlocks(fromBlockHeight))
+
+    try {
+      await randomPeer.ping()
+
+      return randomPeer.downloadBlocks(fromBlockHeight)
+    } catch (error) {
+      return this.downloadBlocks(fromBlockHeight)
+    }
   }
 
   broadcastBlock (block) {
