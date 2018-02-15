@@ -117,12 +117,16 @@ module.exports = class WalletManager {
     })
   }
 
-  undoTransaction (transaction) {
+  async undoTransaction (transaction) {
     let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
     let recipient = this.walletsByAddress[transaction.data.recipientId]
     sender.undoTransactionToSender(transaction.data)
-    if (recipient && transaction.type === 0) recipient.undoTransactionToRecipient(transaction.data)
-    return Promise.resolve(transaction.data)
+
+    if (recipient && transaction.type === 0) {
+      recipient.undoTransactionToRecipient(transaction.data)
+    }
+
+    return transaction.data
   }
 
   getWalletByAddress (address) {

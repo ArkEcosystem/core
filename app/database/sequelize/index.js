@@ -329,9 +329,9 @@ module.exports = class SequelizeDB extends DBInterface {
 
     // .thn(data => { // TODO to remove as it would fail anyway next in the pipeline?
     //   if (data) {
-    //     return Promise.resolve(data)
+    //     return data
     //   } else {
-    //     return Promise.reject(new Error('No block found in database'))
+    //     throw new Error('No block found in database')
     //   }
     // })
 
