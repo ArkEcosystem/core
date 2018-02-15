@@ -1,5 +1,5 @@
-module.exports = (object, params, filters) => {
-  return Promise.resolve(object.filter(item => {
+module.exports = async (object, params, filters) => {
+  return object.filter(item => {
     if (filters.hasOwnProperty('exact')) {
       for (const elem of filters['exact']) {
         if (params[elem] && item[elem] !== params[elem]) return false
@@ -25,5 +25,5 @@ module.exports = (object, params, filters) => {
     }
 
     return true
-  }))
+  })
 }

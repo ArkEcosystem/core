@@ -25,8 +25,8 @@ module.exports = class WebhookManager {
     return instance
   }
 
-  mount () {
-    if (!this.config.enabled) return Promise.resolve(false)
+  async mount () {
+    if (!this.config.enabled) return false
 
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, async (payload) => {
