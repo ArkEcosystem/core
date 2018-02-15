@@ -8,6 +8,7 @@ const ForgerManager = require('app/core/managers/forger')
 const inquirer = require('inquirer');
 const Delegate = require('app/models/delegate')
 const arkjs = require('arkjs')
+const config = require('app/core/config')
 
 const bip38EncryptSchema = [{
   type: 'password',
@@ -42,16 +43,32 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-const config = require('app/core/config')
-let forgerManager = null
-let forgers = null
+process.on('unhandledRejection', (reason, p) => {
+  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+})
 
-config.init({
-  server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-  network: require(path.resolve(commander.config, 'network')),
-  delegates: require(delegateFilePath)
-}).then(config => {
+async function boot (password, address) {
+  try {
+    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger')
+
+    const forgerManager = await new ForgerManager(config, password)
+    const forgers = await forgerManager.loadDelegates()
+
+    goofy.info('ForgerManager started with', forgers.length, 'forgers')
+    forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
+  } catch (error) {
+    goofy.error('fatal error', error)
+  }
+}
+
+async function configure (password, address) {
+  await config.init({
+    server: require(path.resolve(commander.config, 'server')),
+    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
+    network: require(path.resolve(commander.config, 'network')),
+    delegates: require(delegateFilePath)
+  })
+
   if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
@@ -60,36 +77,19 @@ config.init({
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
-          init(answers.password)
+          boot(answers.password)
         }
       })
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
       if (arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
-        init(answers.password, answers.address)
+        boot(answers.password, answers.address)
       } else {
         throw new Error('Invalid Address Provided')
       }
     })
   }
-})
-
-function init (password, address) {
-  process.on('unhandledRejection', (reason, p) => {
-    goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-  })
-
-  config.init({
-    server: require(path.resolve(commander.config, 'server')),
-    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-    network: require(path.resolve(commander.config, 'network')),
-    delegates: require(delegateFilePath)
-  })
-    .then(() => goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger'))
-    .then(() => (forgerManager = new ForgerManager(config, password)))
-    .then(() => (forgers = forgerManager.loadDelegates(address)))
-    .then(() => goofy.info('ForgerManager started with', forgers.length, 'forgers'))
-    .then(() => forgerManager.startForging('http://127.0.0.1:4000'))
-    .catch((fatal) => goofy.error('fatal error', fatal))
 }
+
+configure()
