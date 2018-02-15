@@ -1,10 +1,13 @@
 const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
 const goofy = require('app/core/goofy')
+const arkjs = require('arkjs')
 const sleep = require('app/utils/sleep')
 
 module.exports = class ForgerManager {
-  constructor (config) {
+  constructor (config, password) {
+    this.password = password
+    this.bip38 = config.delegates ? config.delegates.bip38 : null
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
     this.headers = {
@@ -14,10 +17,16 @@ module.exports = class ForgerManager {
     }
   }
 
-  async loadDelegates () {
-    if (!this.secrets) { throw new Error('No delegates found') }
-
-    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
+  async loadDelegates (address) {
+    if (!this.bip38 && !this.secrets) {
+      throw new Error('No delegate found')
+    }
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
+    const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+    if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
+      goofy.info('BIP38 Delegate loaded')
+      this.delegates.push(bip38Delegate)
+    }
 
     return this.delegates
   }
