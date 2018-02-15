@@ -29,28 +29,34 @@ module.exports = class WebhookManager {
     if (!this.config.enabled) return Promise.resolve(false)
 
     map(this.config.events, 'name').forEach((event) => {
-      this.emitter.on(event, (payload) => {
-        db.getInstance().webhooks.findByEvent(event).then(webhooks => {
-          this
-            .getMatchingWebhooks(webhooks, payload)
-            .forEach((webhook) => this.queue.add({ webhook: webhook, payload: payload }))
-        })
+      this.emitter.on(event, async (payload) => {
+        const webhooks = await db.getInstance().webhooks.findByEvent(event)
+
+        this
+          .getMatchingWebhooks(webhooks, payload)
+          .forEach((webhook) => this.queue.add({ webhook: webhook, payload: payload }))
       })
     })
 
-    this.queue.process((job) => {
-      return axios.post(job.data.webhook.target, {
-        formParams: {
-          created: +new Date(),
-          data: job.data.payload,
-          type: job.data.webhook.event
-        },
-        headers: { 'X-Hook-Token': job.data.webhook.token }
-      }).then((response) => ({
-        status: response.status,
-        headers: response.headers,
-        data: response.data
-      })).catch((e) => goofy.error(`Job ${job.id} failed! ${e.message}`))
+    this.queue.process(async (job) => {
+      try {
+        const response = await axios.post(job.data.webhook.target, {
+          formParams: {
+            created: +new Date(),
+            data: job.data.payload,
+            type: job.data.webhook.event
+          },
+          headers: { 'X-Hook-Token': job.data.webhook.token }
+        })
+
+        return {
+          status: response.status,
+          headers: response.headers,
+          data: response.data
+        }
+      } catch (error) {
+        goofy.error(`Job ${job.id} failed! ${error.message}`)
+      }
     })
 
     this.queue.on('completed', (job, result) => {

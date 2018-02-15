@@ -31,16 +31,20 @@ module.exports = class Cache {
     return this.client.ready
   }
 
-  get (key) {
-    return this.client.getAsync(`${this.connection}_${key}`).then((data) => data ? JSON.parse(data) : false)
+  async get (key) {
+    const data = await this.client.getAsync(`${this.connection}_${key}`)
+
+    return data ? JSON.parse(data) : false
   }
 
   set (key, value) {
     return Promise.resolve(this.client.set(`${this.connection}_${key}`, JSON.stringify(value)))
   }
 
-  has (key) {
-    return this.client.getAsync(`${this.connection}_${key}`).then((data) => !!data)
+  async has (key) {
+    const data = await this.client.getAsync(`${this.connection}_${key}`)
+
+    return !!data
   }
 
   del (key) {

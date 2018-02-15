@@ -6,7 +6,9 @@ module.exports = class QueueManager {
   constructor (config) {
     this.config = config
 
-    if (!instance) instance = this
+    if (!instance) {
+      instance = this
+    }
 
     return instance
   }
@@ -34,8 +36,10 @@ module.exports = class QueueManager {
 // blockQueue.add({ block_id: 4 })
 // blockQueue.add({ block_id: 5 })
 
-// blockQueue.getCompleted().then((jobs) => console.log(`We left off at Block #${jobs[0].data.block_id}`))
+// const jobs = await blockQueue.getCompleted()
+// console.log(`We left off at Block #${jobs[0].data.block_id}`)
 
-// blockQueue.on('global:completed', (jobId) => {
-//   blockQueue.getJob(jobId).then((job) => console.log(`Processed Block #${job.data.block_id}`))
+// blockQueue.on('global:completed',async (jobId) => {
+//   const job = await blockQueue.getJob(jobId)
+//   console.log(`Processed Block #${job.data.block_id}`)
 // })

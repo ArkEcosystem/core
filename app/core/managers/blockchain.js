@@ -6,10 +6,9 @@ const stateMachine = require('app/core/state-machine')
 const PromiseWorker = require('app/core/promise-worker')
 const Worker = require('tiny-worker')
 const worker = new Worker('app/core/transaction-pool.js')
+const sleep = require('app/utils/sleep')
 
 let instance = null
-
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = class BlockchainManager {
   constructor (config) {
@@ -59,9 +58,14 @@ module.exports = class BlockchainManager {
     this.dispatch('START')
   }
 
-  isReady () {
-    if (stateMachine.state.started) return Promise.resolve(true)
-    else return sleep(10000).then(() => this.isReady())
+  async isReady () {
+    if (stateMachine.state.started) {
+      return true
+    }
+
+    await sleep(10000)
+
+    return this.isReady()
   }
 
   static getInstance () {
@@ -77,17 +81,20 @@ module.exports = class BlockchainManager {
   rebuild (nblocks) {
   }
 
-  resetState () {
-    return this.pauseQueues()
-      .then(() => this.clearQueues())
-      .then(() => (stateMachine.state = {
-        blockchain: stateMachine.initialState,
-        started: false,
-        lastBlock: null,
-        lastDownloadedBlock: null
-      }))
-      .then(() => this.resumeQueues())
-      .then(() => this.start())
+  async resetState () {
+    await this.pauseQueues()
+    await this.clearQueues()
+
+    stateMachine.state = {
+      blockchain: stateMachine.initialState,
+      started: false,
+      lastBlock: null,
+      lastDownloadedBlock: null
+    }
+
+    await this.resumeQueues()
+
+    return this.start()
   }
 
   postTransactions (transactions) {
@@ -100,71 +107,75 @@ module.exports = class BlockchainManager {
     this.downloadQueue.push(block)
   }
 
-  removeBlocks (nblocks) {
+  async removeBlocks (nblocks) {
     goofy.info(`Starting ${nblocks} blocks undo from height`, stateMachine.state.lastBlock.data.height)
-    return this.pauseQueues()
-      .then(() => this.__removeBlocks(nblocks))
-      .then(() => this.clearQueues())
-      .then(() => this.resumeQueues())
+    await this.pauseQueues()
+    await this.__removeBlocks(nblocks)
+    await this.clearQueues()
+    await this.resumeQueues()
   }
 
-  __removeBlocks (nblocks) {
-    if (!nblocks) return Promise.resolve()
-    else {
-      goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
-      return this
-        .undoLastBlock()
-        .then(() => this.__removeBlocks(nblocks - 1))
-    }
+  async __removeBlocks (nblocks) {
+    if (!nblocks) return
+
+    goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
+
+    await this.undoLastBlock()
+
+    return this.__removeBlocks(nblocks - 1)
   }
 
-  undoLastBlock () {
+  async undoLastBlock () {
     const lastBlock = stateMachine.state.lastBlock
-    return this.db.undoBlock(lastBlock)
-      .then(() => this.db.deleteBlock(lastBlock))
-      .then(() => this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock}))
-      .then(() => this.db.getBlock(lastBlock.data.previousBlock))
-      .then(newLastBlock => (stateMachine.state.lastBlock = newLastBlock))
-      .then(() => (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock))
+
+    await this.db.undoBlock(lastBlock)
+    await this.db.deleteBlock(lastBlock))
+    await this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock})
+
+    const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+    stateMachine.state.lastBlock = newLastBlock
+
+    return (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock)
   }
 
-  pauseQueues () {
+  async pauseQueues () {
     this.downloadQueue.pause()
     this.processQueue.pause()
-    return Promise.resolve()
+    return
   }
 
-  clearQueues () {
+  async clearQueues () {
     this.downloadQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
-    return Promise.resolve()
+    return
   }
 
-  resumeQueues () {
+  async resumeQueues () {
     this.downloadQueue.resume()
     this.processQueue.resume()
-    return Promise.resolve()
+    return
   }
 
-  processBlock (block, state, qcallback) {
+  async processBlock (block, state, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       // no fast rebuild if in last round
       state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
-        this.db.applyBlock(block, state.rebuild, state.fastRebuild)
-          .then(() => this.db.saveBlock(block)) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-          .then(() => (state.lastBlock = block))
-          // .then(() => this.transactionPool.postMessage({event: 'addBlock', data: block}))
-          .then(() => qcallback())
-          .catch(error => {
-            goofy.error(error)
-            goofy.debug('Refused new block', block.data)
-            state.lastDownloadedBlock = state.lastBlock
-            this.dispatch('FORK')
-            qcallback()
-          })
+        try {
+          await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
+          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          state.lastBlock = block
+          // await this.transactionPool.postMessage({event: 'addBlock', data: block})
+          return qcallback()
+        } catch (error) {
+          goofy.error(error)
+          goofy.debug('Refused new block', block.data)
+          state.lastDownloadedBlock = state.lastBlock
+          this.dispatch('FORK')
+          return qcallback()
+        }
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
