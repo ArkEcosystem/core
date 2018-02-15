@@ -30,80 +30,98 @@ class Peer {
     }
   }
 
-  get (api, timeout) {
+  async get (api, timeout) {
     const temp = new Date().getTime()
     const that = this
-    return popsicle
-      .request({
+
+    try {
+      const res = await popsicle.request({
         method: 'GET',
         url: this.url + api,
         headers: this.headers,
         timeout: timeout || 10000
-      })
-      .use(popsicle.plugins.parse('json'))
-      .then(res => {
-        that.delay = new Date().getTime() - temp
-        return Promise.resolve(res)
-      })
-      .then(res => this.parseHeaders(res))
-      .catch(error => (this.status = error.code))
-      .then(res => Promise.resolve(res.body))
+      }).use(popsicle.plugins.parse('json'))
+
+      that.delay = new Date().getTime() - temp
+
+      await this.parseHeaders(res)
+
+      return res.body
+    } catch (error) {
+      goofy.error(error)
+
+      this.status = error.code
+    }
   }
 
-  postBlock (block) {
-    return popsicle
-      .request({
+  async postBlock (block) {
+    try {
+      const res = await popsicle.request({
         method: 'POST',
         url: this.url + '/peer/block/',
         data: block,
         headers: this.headers,
         timeout: 2000
-      })
-      .use(popsicle.plugins.parse('json'))
-      .then(res => this.parseHeaders(res))
-      .catch(error => (this.status = error.code))
-      .then(res => Promise.resolve(res.body))
+      }).use(popsicle.plugins.parse('json'))
+
+      await this.parseHeaders(res)
+
+      return res.body
+    } catch (error) {
+      goofy.error(error)
+
+      this.status = error.code
+    }
   }
 
-  parseHeaders (res) {
+  async parseHeaders (res) {
     ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
+
     this.status = 'OK'
-    return Promise.resolve(res)
+
+    return res
   }
 
-  downloadBlocks (fromBlockHeight) {
+  async downloadBlocks (fromBlockHeight) {
     const message = {
       height: fromBlockHeight,
       headers: this.headers,
       url: this.url
     }
     const that = this
-    return promiseWorker
-      .postMessage(message)
-      .then(response => {
-        const size = response.body.blocks.length
-        if (size === 100 || size === 400) that.downloadSize = size
-        return Promise.resolve(response.body.blocks)
-      }).catch(error => {
-        goofy.debug('Cannot Download blocks from peer', error)
-        that.ban = new Date().getTime() + 60 * 60000
-      })
+
+    try {
+      const response = await promiseWorker.postMessage(message)
+
+      const size = response.body.blocks.length
+
+      if (size === 100 || size === 400) {
+        that.downloadSize = size
+      }
+
+      return response.body.blocks
+    } catch (error) {
+      goofy.debug('Cannot Download blocks from peer', error)
+
+      that.ban = new Date().getTime() + 60 * 60000
+    }
   }
 
-  ping (delay) {
-    return this
-      .get('/peer/status', delay || 5000)
-      .then(body => {
-        if (body) return Promise.resolve(this.height = body.height)
-        else throw new Error('Peer unreachable')
-      })
+  async ping (delay) {
+    const body = await this.get('/peer/status', delay || 5000)
+
+    if (body) {
+      return (this.height = body.height)
+    }
+
+    throw new Error('Peer unreachable')
   }
 
-  getPeers () {
-    return this
-      .ping(2000)
-      .then(() => this.get('/peer/list'))
-      .then(body => body.peers)
+  async getPeers () {
+    await this.ping(2000)
+    const body = await this.get('/peer/list')
+
+    return body.peers
   }
 }
 

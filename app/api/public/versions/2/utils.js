@@ -1,6 +1,5 @@
 const Boom = require('boom')
-const transformResource = require('../../utils/transform-resource')
-const transformCollection = require('../../utils/transform-collection')
+const { transformResource, transformCollection } = require('../../utils/transformer')
 
 const paginate = (request) => {
   return {

@@ -1,5 +1,3 @@
-const constants = require('app/core/config').constants
-
 module.exports = {
   getTransactions: {
     type: 'object',

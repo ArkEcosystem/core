@@ -2,50 +2,41 @@ const utils = require('../utils')
 
 describe('API 2.0 - Loader', () => {
   describe('GET /api/loader/status', () => {
-    it('should GET the loader status', (done) => {
-      utils.request('GET', 'loader/status').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET the loader status', async () => {
+      const res = await utils.request('GET', 'loader/status')
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data.loaded).toBeType('boolean')
-        expect(res.body.data.now).toBeType('number')
-        // expect(res.body.data.blocksCount).toBeType('number')
-
-        done()
-      })
+      await expect(res.body.data.loaded).toBeType('boolean')
+      await expect(res.body.data.now).toBeType('number')
+      // await expect(res.body.data.blocksCount).toBeType('number')
     })
   })
 
   describe('GET /api/loader/syncing', () => {
-    it('should GET the loader syncing status', (done) => {
-      utils.request('GET', 'loader/syncing').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET the loader syncing status', async () => {
+      const res = await utils.request('GET', 'loader/syncing')
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data.syncing).toBeType('boolean')
-        expect(res.body.data.blocks).toBeType('number')
-        expect(res.body.data.height).toBeType('number')
-        expect(res.body.data.id).toBeType('string')
-
-        done()
-      })
+      await expect(res.body.data.syncing).toBeType('boolean')
+      await expect(res.body.data.blocks).toBeType('number')
+      await expect(res.body.data.height).toBeType('number')
+      await expect(res.body.data.id).toBeType('string')
     })
   })
 
   describe('GET /api/loader/configuration', () => {
-    it('should GET the loader configuration', (done) => {
-      utils.request('GET', 'loader/configuration').end((err, res) => {
-        utils.assertSuccessful(err, res)
-        utils.assertResource(res)
+    it('should GET the loader configuration', async () => {
+      const res = await utils.request('GET', 'loader/configuration')
+      await utils.assertSuccessful(res)
+      await utils.assertResource(res)
 
-        expect(res.body.data.nethash).toBeType('string')
-        expect(res.body.data.token).toBeType('string')
-        expect(res.body.data.symbol).toBeType('string')
-        expect(res.body.data.explorer).toBeType('string')
-        expect(res.body.data.version).toBeType('number')
-
-        done()
-      })
+      await expect(res.body.data.nethash).toBeType('string')
+      await expect(res.body.data.token).toBeType('string')
+      await expect(res.body.data.symbol).toBeType('string')
+      await expect(res.body.data.explorer).toBeType('string')
+      await expect(res.body.data.version).toBeType('number')
     })
   })
 })

@@ -5,6 +5,8 @@ const packageJson = require('../package.json')
 const path = require('path')
 const DB = require('app/core/dbinterface')
 const DependencyHandler = require('app/core/dependency-handler')
+const config = require('app/core/config')
+const goofy = require('app/core/goofy')
 
 commander
   .version(packageJson.version)
@@ -18,22 +20,28 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-require('app/core/config').init({
-  server: require(path.resolve(commander.config, 'server')),
-  genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-  network: require(path.resolve(commander.config, 'network'))
-}).then(config => {
-  const goofy = require('app/core/goofy')
-  goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
-
-  process.on('unhandledRejection', (reason, p) => {
-    goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-  })
-
-  DependencyHandler
-    .checkDatabaseLibraries(config)
-    .then(() => DB.create(config.server.db))
-    .then((db) => db.snapshot(`${__dirname}/storage/snapshot`))
-    .then(() => goofy.info('Snapshot saved'))
-    .catch(fatal => goofy.error('fatal error', fatal))
+process.on('unhandledRejection', (reason, p) => {
+  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
+
+async function boot () {
+  try {
+    await config.init({
+      server: require(path.resolve(commander.config, 'server')),
+      genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
+      network: require(path.resolve(commander.config, 'network'))
+    })
+
+    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+
+    await DependencyHandler.checkDatabaseLibraries(config)
+    const db = await DB.create(config.server.db)
+    db.snapshot(`${__dirname}/storage/snapshot`)
+
+    goofy.info('Snapshot saved')
+  } catch (error) {
+      goofy.error('fatal error', error)
+  }
+}
+
+boot()

@@ -1,5 +1,4 @@
-const transformResource = require('../../utils/transform-resource')
-const transformCollection = require('../../utils/transform-collection')
+const { transformResource, transformCollection } = require('../../utils/transformer')
 const config = require('app/core/config')
 
 const paginator = (request) => {

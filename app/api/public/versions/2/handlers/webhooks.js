@@ -24,9 +24,9 @@ exports.store = {
   handler: async (request, h) => {
     request.payload.secret = require('crypto').randomBytes(32).toString('hex')
 
-    const webhook = db.webhooks.create(request.payload)
+    const webhook = await db.webhooks.create(request.payload)
 
-    h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
+    return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
   }
 }
 
