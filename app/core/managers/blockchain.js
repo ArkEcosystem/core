@@ -141,20 +141,17 @@ module.exports = class BlockchainManager {
   async pauseQueues () {
     this.downloadQueue.pause()
     this.processQueue.pause()
-    return
   }
 
   async clearQueues () {
     this.downloadQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
-    return
   }
 
   async resumeQueues () {
     this.downloadQueue.resume()
     this.processQueue.resume()
-    return
   }
 
   async processBlock (block, state, qcallback) {
