@@ -76,7 +76,7 @@ module.exports = class SequelizeDB extends DBInterface {
         }
       }
     })
-
+    // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < activeDelegates) {
       const data2 = await this.walletsTable.findAll({
         attributes: [
