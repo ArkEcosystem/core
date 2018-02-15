@@ -1,6 +1,5 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const registerPromiseWorker = require('app/core/promise-worker/register')
 const config = require('app/core/config')
 const goofy = require('app/core/goofy')
 const Transaction = require('app/models/transaction')
@@ -8,7 +7,7 @@ const WalletManager = require('app/core/managers/wallet')
 
 let instance = null
 
-registerPromiseWorker(message => {
+module.exports = (message, done) => {
   if (message.event === 'init') {
     return config.init(message.data)
       .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
@@ -20,7 +19,7 @@ registerPromiseWorker(message => {
   }
 
   throw new Error(`message '${message}' not recognised`)
-})
+}
 
 class TransactionPool {
   constructor () {

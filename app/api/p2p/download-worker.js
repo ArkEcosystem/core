@@ -1,7 +1,6 @@
 const popsicle = require('popsicle')
-const registerPromiseWorker = require('app/core/promise-worker/register')
 
-registerPromiseWorker(message => {
+module.exports = (message, done) => {
   if (message.height) {
     return popsicle
       .request({
@@ -13,4 +12,4 @@ registerPromiseWorker(message => {
       .use(popsicle.plugins.parse('json'))
       .catch(error => console.warn(error.message))
   }
-})
+}
