@@ -10,6 +10,7 @@ module.exports = (message, done) => {
         timeout: 60000
       })
       .use(popsicle.plugins.parse('json'))
+      .then(() => done())
       .catch(error => console.warn(error.message))
   }
 }
