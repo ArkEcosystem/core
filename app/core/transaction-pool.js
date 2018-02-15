@@ -12,10 +12,11 @@ module.exports = (message, done) => {
     return config.init(message.data)
       .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
       .then(() => (instance = new TransactionPool()))
+      .then(() => done())
   }
 
   if (instance && instance[message.event]) { // redirect to public methods
-    return instance[message.event](message.data)
+    return done(instance[message.event](message.data))
   }
 
   throw new Error(`message '${message}' not recognised`)
