@@ -61,7 +61,7 @@ async function boot (password, address) {
   }
 }
 
-async function configure (password, address) {
+async function configure () {
   await config.init({
     server: require(path.resolve(commander.config, 'server')),
     genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
