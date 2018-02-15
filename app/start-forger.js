@@ -51,7 +51,7 @@ async function boot (password, address) {
   try {
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger')
 
-    const forgerManager = await new ForgerManager(config)
+    const forgerManager = await new ForgerManager(config, password)
     const forgers = await forgerManager.loadDelegates()
 
     goofy.info('ForgerManager started with', forgers.length, 'forgers')
