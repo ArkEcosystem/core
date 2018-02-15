@@ -14,11 +14,12 @@ module.exports = class ForgerManager {
     }
   }
 
-  loadDelegates () {
-    if (!this.secrets) { return Promise.reject(new Error('No delegates found')) }
+  async loadDelegates () {
+    if (!this.secrets) { throw new Error('No delegates found') }
 
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network))
-    return Promise.resolve(this.delegates)
+
+    return this.delegates
   }
 
   startForging (proxy) {
@@ -70,8 +71,8 @@ module.exports = class ForgerManager {
     return result.success
   }
 
-  pickForgingDelegate (round) {
-    return Promise.resolve(this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey))
+  async pickForgingDelegate (round) {
+    return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
   }
 
   async getRound () {
