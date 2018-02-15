@@ -2,9 +2,10 @@ module.exports = {
   test: true,
   port: 4000,
   version: '2.0.0',
+  fastRebuild: false,
   logging: {
-    file: 'info',
-    console: 'info'
+    file: 'debug',
+    console: 'debug'
   },
   db: {
     driver: 'app/database/sequelize',
