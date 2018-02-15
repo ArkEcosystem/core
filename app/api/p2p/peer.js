@@ -44,11 +44,11 @@ class Peer {
 
       that.delay = new Date().getTime() - temp
 
-      await this.parseHeaders(res)
+      this.parseHeaders(res)
 
       return res.body
     } catch (error) {
-      goofy.error(error)
+      // goofy.error(error)
 
       this.status = error.code
     }
@@ -64,7 +64,7 @@ class Peer {
         timeout: 2000
       }).use(popsicle.plugins.parse('json'))
 
-      await this.parseHeaders(res)
+      this.parseHeaders(res)
 
       return res.body
     } catch (error) {
@@ -74,9 +74,8 @@ class Peer {
     }
   }
 
-  async parseHeaders (res) {
+  parseHeaders (res) {
     ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
-
     this.status = 'OK'
 
     return res
