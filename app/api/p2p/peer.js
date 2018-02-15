@@ -85,7 +85,6 @@ class Peer {
       headers: this.headers,
       url: this.url
     }
-    const that = this
 
     try {
       const response = await thread.send(message).promise()
@@ -93,14 +92,14 @@ class Peer {
       const size = response.body.blocks.length
 
       if (size === 100 || size === 400) {
-        that.downloadSize = size
+        this.downloadSize = size
       }
 
       return response.body.blocks
     } catch (error) {
       goofy.debug('Cannot Download blocks from peer', error)
 
-      that.ban = new Date().getTime() + 60 * 60000
+      this.ban = new Date().getTime() + 60 * 60000
     }
   }
 
