@@ -2,6 +2,8 @@ const arkjs = require('arkjs')
 const { matcherHint, printExpected, printReceived } = require('jest-matcher-utils')
 const getType = require('jest-get-type')
 
+jest.setTimeout(10000)
+
 expect.extend({
   toBeType (received, expected) {
     const type = getType(received)

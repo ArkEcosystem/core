@@ -6,7 +6,7 @@ describe('API 2.0 - Multi Signatures', () => {
       try {
         await utils.request('GET', 'multisignatures')
       } catch (error) {
-        expect(error).toMatch('error')
+        expect(error.message).toEqual('Not Implemented')
       }
     })
   })
@@ -16,7 +16,7 @@ describe('API 2.0 - Multi Signatures', () => {
       try {
         await utils.request('GET', 'multisignatures/pending')
       } catch (error) {
-        expect(error).toMatch('error')
+        expect(error.message).toEqual('Not Implemented')
       }
     })
   })
@@ -26,7 +26,7 @@ describe('API 2.0 - Multi Signatures', () => {
       try {
         await utils.request('GET', 'multisignatures/wallets')
       } catch (error) {
-        expect(error).toMatch('error')
+        expect(error.message).toEqual('Not Implemented')
       }
     })
   })

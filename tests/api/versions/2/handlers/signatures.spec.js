@@ -6,7 +6,7 @@ describe('API 2.0 - Signatures', () => {
       try {
         await utils.request('GET', 'signatures')
       } catch (error) {
-        expect(error).toMatch('error')
+        expect(error.message).toEqual('Not Implemented')
       }
     })
   })
