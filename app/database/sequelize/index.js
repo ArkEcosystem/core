@@ -110,10 +110,8 @@ module.exports = class SequelizeDB extends DBInterface {
     this.walletManager.reset()
 
     try {
-      // Start
-      goofy.printTracker('SPV Building', 0, 7)
-
       // Received TX
+      goofy.printTracker('SPV Building', 1, 7, 'received transactions')
       let data = await this.transactionsTable.findAll({
         attributes: [
           'recipientId',
@@ -122,7 +120,7 @@ module.exports = class SequelizeDB extends DBInterface {
         where: {type: 0},
         group: 'recipientId'
       })
-      goofy.printTracker('SPV Building', 1, 7, 'received transactions')
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByAddress(row.recipientId)
         if (wallet) {
