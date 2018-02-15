@@ -29,7 +29,7 @@ class Config {
 
     this.buildConstants()
 
-    return Promise.resolve(this)
+    return this
   }
 
   buildConstants () {
@@ -47,11 +47,13 @@ class Config {
     }
   }
 
-  ntp () {
-    return Sntp.time().catch(e => {
+  async ntp () {
+    try {
+      return Sntp.time()
+    } catch (error) {
       goofy.warn('can\'t ping ntp')
-      return Promise.resolve({t: 0})
-    })
+      return {t: 0}
+    }
   }
 
   getConstants (height) {

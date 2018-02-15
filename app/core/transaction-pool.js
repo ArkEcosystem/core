@@ -42,7 +42,7 @@ class TransactionPool {
   }
 
   // duplication of the walletManager from blockchainManager to apply/validate transactions before storing them into pool
-  start (wallets) {
+  async start (wallets) {
     instance.walletManager.reset()
     wallets.forEach(wallet => {
       const acc = instance.walletManager.getWalletByAddress(wallet.address)
@@ -52,17 +52,14 @@ class TransactionPool {
       instance.walletManager.updateWallet(acc)
     })
     goofy.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
-    return Promise.resolve()
   }
 
-  addTransaction (transaction) {
+  async addTransaction (transaction) {
     this.queue.push(new Transaction(transaction))
-    return Promise.resolve()
   }
 
-  addTransactions (transactions) {
+  async addTransactions (transactions) {
     this.queue.push(transactions.map(tx => new Transaction(tx)))
-    return Promise.resolve()
   }
 
   verify (transaction) {
@@ -73,7 +70,7 @@ class TransactionPool {
   }
 
   async addBlock (block) { // we remove the block txs from the pool
-    if (block.transactions.length === 0) return Promise.resolve()
+    if (block.transactions.length === 0) return
     goofy.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}

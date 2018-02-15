@@ -71,9 +71,9 @@ class Down {
   }
 
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip]) return Promise.resolve()
-    if (peer.nethash !== this.config.network.nethash) return Promise.reject(new Error('Request is made on the wrong network'))
-    if (peer.ip === '::ffff:127.0.0.1') return Promise.reject(new Error('Localhost peer not accepted'))
+    if (this.peers[peer.ip]) return
+    if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
+    if (peer.ip === '::ffff:127.0.0.1') throw new Error('Localhost peer not accepted')
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
     try {
@@ -84,8 +84,8 @@ class Down {
     }
   }
 
-  getPeers () {
-    return Promise.resolve(Object.values(this.peers))
+  async getPeers () {
+    return Object.values(this.peers)
   }
 
   getRandomPeer (delay) {

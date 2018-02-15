@@ -95,35 +95,31 @@ class DBInterface {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
         await this.buildDelegates(block)
         await this.saveRounds(this.activedelegates)
-
-        return block
       } else {
         goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
 
         await this.saveWallets(false) // save only modified wallets during the last round
         await this.buildDelegates(block) // active build delegate list from database state
         await this.saveRounds(this.activedelegates) // save next round delegate list
-        return block
       }
-    } else {
-      return Promise.resolve(block)
     }
+
+    return block
   }
 
   async undoRound (block) {
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
+
     if (previousRound + 1 === round && block.data.height > 51) {
       goofy.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list
-
-      return block
-    } else {
-      return Promise.resolve(block)
     }
+
+    return block
   }
 
   async applyBlock (block, rebuild, fastRebuild) {
