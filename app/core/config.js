@@ -49,7 +49,7 @@ class Config {
 
   async ntp () {
     try {
-      await Sntp.time()
+      return Sntp.time()
     } catch (error) {
       goofy.warn('can\'t ping ntp')
       return {t: 0}
