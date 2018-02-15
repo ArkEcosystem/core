@@ -52,7 +52,7 @@ async function boot (password, address) {
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger')
 
     const forgerManager = await new ForgerManager(config, password)
-    const forgers = await forgerManager.loadDelegates()
+    const forgers = await forgerManager.loadDelegates(address)
 
     goofy.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
