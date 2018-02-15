@@ -3,6 +3,7 @@ const arkjs = require('arkjs')
 const goofy = require('app/core/goofy')
 const Block = require('app/models/block')
 const sleep = require('app/utils/sleep')
+const config = require('app/core/config')
 
 // const init = Machine({
 //   initial: 'unitisalised',
@@ -257,8 +258,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
 
       if (!blocks || blocks.length === 0) {
         goofy.info('No new block found on this peer')
-
-        blockchainManager.dispatch('NOBLOCK')
+        config.server.test ? blockchainManager.dispatch('SYNCED') : blockchainManager.dispatch('NOBLOCK')
       } else {
         goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
 
