@@ -21,7 +21,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     await this.db.authenticate()
 
-    const models = await schema.syncTables(this.db)
+    const models = await schema(this.db)
     models.forEach(model => (this[`${model.tableName}Table`] = model))
 
     this.registerHooks()
