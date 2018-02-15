@@ -40,7 +40,8 @@ const syncWithNetwork = {
       onEntry: ['checkLastDownloadedBlockSynced'],
       on: {
         SYNCED: 'downloadfinished',
-        NOTSYNCED: 'downloadBlocks'
+        NOTSYNCED: 'downloadBlocks',
+        PAUSED: 'downloadpaused'
       }
     },
     idle: {
@@ -64,6 +65,13 @@ const syncWithNetwork = {
     },
     downloadfinished: {
       onEntry: ['downloadFinished'],
+      on: {
+        PROCESSFINISHED: 'processfinished',
+        FORKED: 'forked'
+      }
+    },
+    downloadpaused: {
+      onEntry: ['downloadPaused'],
       on: {
         PROCESSFINISHED: 'processfinished',
         FORKED: 'forked'
@@ -174,8 +182,15 @@ blockchainMachine.actionMap = (blockchainManager) => {
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    checkLastDownloadedBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastDownloadedBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    downloadFinished: () => goofy.info('Blockchain download completed!'),
+    checkLastDownloadedBlockSynced: () => {
+      let event = 'NOTSYNCED'
+      goofy.debug('Blocks in queue:', blockchainManager.processQueue.length())
+      if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
+      if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
+      blockchainManager.dispatch(event)
+    },
+    downloadFinished: () => goofy.info('Blockchain download completed 🚀'),
+    downloadPaused: () => goofy.info('Blockchain download paused 🕥'),
     syncingFinished: () => {
       goofy.info('Blockchain completed, congratulations! 🦄')
       blockchainManager.dispatch('SYNCFINISHED')

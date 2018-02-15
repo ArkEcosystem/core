@@ -45,7 +45,6 @@ class Down {
 
   async cleanPeers () {
     let keys = Object.keys(this.peers)
-    const that = this
     let count = 0
     const max = keys.length
     let wrongpeers = 0
@@ -54,13 +53,11 @@ class Down {
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await that.peers[ip].ping()
-
+        await this.peers[ip].ping()
         goofy.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
-
-        delete that.peers[ip]
+        delete this.peers[ip]
 
         return null
       }
@@ -131,7 +128,7 @@ class Down {
 
       return this.peers
     } catch (error) {
-      that.discoverPeers()
+      this.discoverPeers()
     }
   }
 
