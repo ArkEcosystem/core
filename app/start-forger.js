@@ -61,7 +61,7 @@ async function boot (password, address) {
   }
 }
 
-async function configureDelegateEncryption () {
+async function enableDelegateEncryption () {
   if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
@@ -94,8 +94,9 @@ async function configure () {
   })
 
   if (config.server.delegateEncryption) {
-    await configureDelegateEncryption()
+    await enableDelegateEncryption()
   } else {
+    goofy.info('BIP38 Delegatate encryption disabled. Check config.server settings.')
     boot()
   }
 }

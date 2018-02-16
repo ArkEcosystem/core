@@ -1,7 +1,6 @@
 const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
 const goofy = require('app/core/goofy')
-const arkjs = require('arkjs')
 const sleep = require('app/utils/sleep')
 
 module.exports = class ForgerManager {
@@ -10,6 +9,7 @@ module.exports = class ForgerManager {
     this.bip38 = config.delegates ? config.delegates.bip38 : null
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
+    this.delegateEncryption = config.server.delegateEncryption
     this.headers = {
       version: config.server.version,
       port: config.server.port,
@@ -21,11 +21,18 @@ module.exports = class ForgerManager {
     if (!this.bip38 && !this.secrets) {
       throw new Error('No delegate found')
     }
-    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
-    const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
-    if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
-      goofy.info('BIP38 Delegate loaded')
-      this.delegates.push(bip38Delegate)
+
+    if (this.secrets && !this.delegateEncryption) {
+      this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
+      goofy.info('Loading clear secrets for delegates. Warning - use only in autoforging mode')
+    }
+
+    if (this.bip38 && this.delegateEncryption) {
+      const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+      if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
+        goofy.info('BIP38 Delegate loaded')
+        this.delegates = bip38Delegate
+      }
     }
 
     return this.delegates
@@ -54,14 +61,12 @@ module.exports = class ForgerManager {
         const block = await delegate.forge([], data)
 
         that.broadcast(block)
-
-        await sleep(1000)
-
-        return monitor()
       } catch (error) {
         goofy.info('Not able to forge:', error.message)
         goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
+      await sleep(1000)
+      return monitor()
     }
 
     return monitor()

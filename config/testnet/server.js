@@ -3,6 +3,7 @@ module.exports = {
   port: 4000,
   version: '2.0.0',
   fastRebuild: false,
+  delegateEncryption: false,
   logging: {
     file: 'debug',
     console: 'debug'
