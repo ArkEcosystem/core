@@ -101,8 +101,9 @@ class Peer {
       return response.body.blocks
     } catch (error) {
       goofy.debug('Cannot Download blocks from peer', error)
-
-      that.ban = new Date().getTime() + 60 * 60000
+      if (!this.config.server) {
+        that.ban = new Date().getTime() + 60 * 60000
+      }
     }
   }
 
