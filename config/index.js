@@ -1,12 +1,11 @@
 const path = require('path')
-const camelCase = require('lodash/camelCase')
 const dirTree = require('directory-tree')
 
 module.exports = async (network) => {
   const basePath = path.resolve(network)
 
   const formatName = (file) => {
-    return camelCase(path.basename(file.name, path.extname(file.name)))
+    return path.basename(file.name, path.extname(file.name))
   }
 
   let configTree = {}

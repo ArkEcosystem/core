@@ -19,7 +19,7 @@ module.exports = class Up {
       routes: { prefix: '/internal' }
     })
 
-    if (this.config.api.peer.remoteinterface) {
+    if (this.config.api.p2p.remoteinterface) {
       await this.server.register({
         plugin: require('./versions/remote'),
         routes: { prefix: '/remote' }
