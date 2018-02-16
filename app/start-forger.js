@@ -92,20 +92,4 @@ async function configure () {
   }
 }
 
-async function configure () {
-  await config.init({
-    server: require(path.resolve(commander.config, 'server')),
-    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-    network: require(path.resolve(commander.config, 'network')),
-    delegates: require(delegateFilePath)
-  })
-
-  if (config.server.delegateEncryption) {
-    await enableDelegateEncryption()
-  } else {
-    goofy.info('BIP38 Delegatate encryption disabled. Check config.server settings.')
-    boot()
-  }
-}
-
 configure()
