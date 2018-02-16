@@ -61,14 +61,7 @@ async function boot (password, address) {
   }
 }
 
-async function configure () {
-  await config.init({
-    server: require(path.resolve(commander.config, 'server')),
-    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-    network: require(path.resolve(commander.config, 'network')),
-    delegates: require(delegateFilePath)
-  })
-
+async function configureDelegateEncryption () {
   if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
@@ -89,6 +82,21 @@ async function configure () {
         throw new Error('Invalid Address Provided')
       }
     })
+  }
+}
+
+async function configure () {
+  await config.init({
+    server: require(path.resolve(commander.config, 'server')),
+    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
+    network: require(path.resolve(commander.config, 'network')),
+    delegates: require(delegateFilePath)
+  })
+
+  if (config.server.delegateEncryption) {
+    await configureDelegateEncryption()
+  } else {
+    boot()
   }
 }
 
