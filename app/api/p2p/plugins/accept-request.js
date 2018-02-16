@@ -15,14 +15,16 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     method: async (request, h) => {
-      if ((request.path.startsWith('/internal/') || request.path.startsWith('/remote/')) && !isLocalhost(request.info.remoteAddress)) {
+      console.log(request.path)
+
+      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isLocalhost(request.info.remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',
           message: `${request.path} does not exist`
         }).code(400).takeover()
       }
 
-      if (request.path.startsWith('/peer/')) {
+      if (request.path.startsWith('/peer')) {
         const peer = {}
         peer.ip = requestIp.getClientIp(request);
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
