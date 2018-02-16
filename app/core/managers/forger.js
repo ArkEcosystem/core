@@ -21,17 +21,12 @@ module.exports = class ForgerManager {
     if (!this.bip38 && !this.secrets) {
       throw new Error('No delegate found')
     }
-
-    if (this.secrets && !this.delegateEncryption) {
-      this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
-      goofy.info('Loading clear secrets for delegates. Warning - use only in autoforging mode')
-    }
-
-    if (this.bip38 && this.delegateEncryption) {
+    this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
+    if (this.bip38) {
       const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
       if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
         goofy.info('BIP38 Delegate loaded')
-        this.delegates = bip38Delegate
+        this.delegates.push(bip38Delegate)
       }
     }
 
