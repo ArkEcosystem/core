@@ -1,3 +1,4 @@
+const path = require('path')
 const fs = require('fs')
 const commander = require('commander')
 const packageJson = require('../package.json')
@@ -36,6 +37,8 @@ commander
 process.on('unhandledRejection', (reason, p) => {
   goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
+
+const delegateFilePath = path.resolve(commander.config, 'delegates.json')
 
 async function boot (password, address) {
   try {
