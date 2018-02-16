@@ -217,14 +217,14 @@ blockchainMachine.actionMap = (blockchainManager) => {
 
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.buildWallets()
-          await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+          await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(block, false, false)
 
           return blockchainManager.dispatch('SUCCESS')
         } else {
           await blockchainManager.db.buildWallets()
-          await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+          await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)
 
           return blockchainManager.dispatch('SUCCESS')

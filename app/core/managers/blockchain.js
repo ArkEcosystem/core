@@ -3,9 +3,8 @@ const arkjs = require('arkjs')
 const Block = require('app/models/block')
 const goofy = require('app/core/goofy')
 const stateMachine = require('app/core/state-machine')
-const PromiseWorker = require('app/core/promise-worker')
-const Worker = require('tiny-worker')
-const worker = new Worker('app/core/transaction-pool.js')
+const threads = require('threads')
+
 const sleep = require('app/utils/sleep')
 
 let instance = null
@@ -16,8 +15,8 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.transactionPool = new PromiseWorker(worker)
-    this.transactionPool.postMessage({event: 'init', data: config})
+    this.transactionPool = threads.spawn('app/core/transaction-pool.js')
+    this.transactionPool.send({event: 'init', data: config})
 
     this.actions = stateMachine.actionMap(this)
 
@@ -99,7 +98,7 @@ module.exports = class BlockchainManager {
 
   postTransactions (transactions) {
     goofy.info('Received new transactions', transactions.map(transaction => transaction.id))
-    return this.transactionPool.postMessage({event: 'addTransactions', data: transactions})
+    return this.transactionPool.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
@@ -130,7 +129,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    await this.transactionPool.postMessage({event: 'undoBlock', data: lastBlock})
+    await this.transactionPool.send({event: 'undoBlock', data: lastBlock})
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -164,7 +163,7 @@ module.exports = class BlockchainManager {
           await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
-          // await this.transactionPool.postMessage({event: 'addBlock', data: block})
+          this.transactionPool.send({event: 'addBlock', data: block})
           return qcallback()
         } catch (error) {
           goofy.error(error)

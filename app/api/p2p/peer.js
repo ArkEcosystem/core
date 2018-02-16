@@ -1,9 +1,7 @@
 const popsicle = require('popsicle')
 const goofy = require('app/core/goofy')
-const PromiseWorker = require('app/core/promise-worker')
-const Worker = require('tiny-worker')
-const worker = new Worker(`${__dirname}/download-worker.js`)
-const promiseWorker = new PromiseWorker(worker)
+const threads = require('threads')
+const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
 module.exports = class Peer {
   constructor (ip, port, config) {
@@ -87,22 +85,21 @@ module.exports = class Peer {
       headers: this.headers,
       url: this.url
     }
-    const that = this
 
     try {
-      const response = await promiseWorker.postMessage(message)
+      const response = await thread.send(message).promise()
 
       const size = response.body.blocks.length
 
       if (size === 100 || size === 400) {
-        that.downloadSize = size
+        this.downloadSize = size
       }
 
       return response.body.blocks
     } catch (error) {
       goofy.debug('Cannot Download blocks from peer', error)
 
-      that.ban = new Date().getTime() + 60 * 60000
+      this.ban = new Date().getTime() + 60 * 60000
     }
   }
 
