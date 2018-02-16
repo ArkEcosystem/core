@@ -1,8 +1,9 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('app/core/managers/blockchain')
 
 exports.sendBlockchainEvent = {
   handler: (request, h) => {
     const bm = blockchain.getInstance()
+
     if (!bm[request.params.event]) {
       return h.response({
         success: false,
@@ -11,7 +12,7 @@ exports.sendBlockchainEvent = {
       }).code(500)
     }
 
-    const event = blockchain.getInstance()[request.params.event]()
+    const event = bm[request.params.event]()
 
     request.query.param
       ? event(request.query.paramrequest.params.param)

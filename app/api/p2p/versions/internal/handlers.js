@@ -1,4 +1,5 @@
 const arkjs = require('arkjs')
+const crypto = require('crypto')
 const blockchain = require('app/core/managers/blockchain')
 const Transaction = require('app/models/transaction')
 
@@ -28,7 +29,7 @@ exports.getRound = {
     const reward = this.config.getConstants(lastBlock.data.height).reward
 
     try {
-      const delegates = await this.getActiveDelegates(lastBlock.data.height)
+      const delegates = await __getActiveDelegates(lastBlock.data.height)
 
       return {
         success: true,
@@ -43,7 +44,27 @@ exports.getRound = {
         }
       }
     } catch (error) {
-      return h.response({ success: false, message: error }).code(500)
+      return h.response({ success: false, message: error.message }).code(500).takeover()
     }
   }
+}
+
+async function __getActiveDelegates (height) {
+  const round = parseInt(height / this.config.getConstants(height).activeDelegates)
+  const seedSource = round.toString()
+  let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
+
+  const activedelegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
+
+  for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
+    for (let x = 0; x < 4 && i < delCount; i++, x++) {
+      const newIndex = currentSeed[x] % delCount
+      const b = activedelegates[newIndex]
+      activedelegates[newIndex] = activedelegates[i]
+      activedelegates[i] = b
+    }
+    currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
+  }
+
+  return activedelegates
 }

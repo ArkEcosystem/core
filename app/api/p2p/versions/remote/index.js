@@ -2,7 +2,7 @@ const handlers = require('./handlers')
 
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/remote/blockchain/{event}', ...handlers.sendBlockchainEvent }
+    { method: 'GET', path: '/blockchain/{event}', ...handlers.sendBlockchainEvent }
   ])
 }
 

@@ -1,7 +1,6 @@
 const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
 const goofy = require('app/core/goofy')
-const arkjs = require('arkjs')
 const sleep = require('app/utils/sleep')
 
 module.exports = class ForgerManager {

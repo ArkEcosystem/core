@@ -1,10 +1,12 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
-const config = require('app/core/config')
+const arkjs = require('arkjs')
+const goofy = require('app/core/goofy')
+const blockchain = require('app/core/managers/blockchain')
+const Transaction = require('app/models/transaction')
 
 exports.getPeers = {
   handler: async (request, h) => {
     try {
-      const peers = await this.p2p.getPeers()
+      const peers = await request.server.app.p2p.getPeers()
 
       const rpeers = peers
         .map(peer => peer.toBroadcastInfo())
@@ -12,7 +14,7 @@ exports.getPeers = {
 
       return {success: true, peers: rpeers}
     } catch (error) {
-      return h.response({ success: false, message: error }).code(500)
+      return h.response({ success: false, message: error.message }).code(500).takeover()
     }
   }
 }
@@ -40,7 +42,7 @@ exports.getCommonBlock = {
         lastBlockHeight: blockchain.getInstance().getState().lastBlock.data.height
       }
     } catch (error) {
-      return h.response({ success: false, message: error }).code(500)
+      return h.response({ success: false, message: error.message }).code(500).takeover()
     }
   }
 }
@@ -51,12 +53,10 @@ exports.getTransactionsFromIds = {
 
     try {
       const transactions = await blockchain.getInstance().getDb().getTransactionsFromIds(txids)
-      return {
-        success: true,
-        transactions: transactions
-      })
+
+      return { success: true, transactions: transactions }
     } catch (error) {
-      return h.response({ success: false, message: error }).code(500)
+      return h.response({ success: false, message: error.message }).code(500).takeover()
     }
   }
 }
@@ -89,7 +89,7 @@ exports.postBlock = {
   }
 }
 
-exports.postTrasactions = {
+exports.postTransactions = {
   handler: (request, h) => {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
@@ -101,7 +101,7 @@ exports.postTrasactions = {
 }
 
 exports.getBlocks = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     try {
       const blocks = await blockchain.getInstance().getDb().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
