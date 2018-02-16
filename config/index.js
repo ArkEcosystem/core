@@ -1,7 +1,7 @@
 const path = require('path')
 const dirTree = require('directory-tree')
 
-module.exports = async (network) => {
+module.exports = (network) => {
   const basePath = path.resolve(network)
 
   const formatName = (file) => {
