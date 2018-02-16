@@ -4,6 +4,7 @@ const PromiseWorker = require('app/core/promise-worker')
 const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/download-worker.js`)
 const promiseWorker = new PromiseWorker(worker)
+const config = require('app/core/config')
 
 class Peer {
   constructor (ip, port, config) {
@@ -101,7 +102,7 @@ class Peer {
       return response.body.blocks
     } catch (error) {
       goofy.debug('Cannot Download blocks from peer', error)
-      if (!this.config.server) {
+      if (!config.server.test) {
         that.ban = new Date().getTime() + 60 * 60000
       }
     }
