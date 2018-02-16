@@ -212,7 +212,6 @@ class Up {
     } catch (error) {
       res.send(500, {success: false, message: error})
     }
-
   }
 
   postInternalBlock (req, res, next) {
