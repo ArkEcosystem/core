@@ -4,13 +4,13 @@ const isLocalhost = require('app/utils/is-localhost')
 
 const register = async (server, options) => {
   const _headers = {
-    port: config.server.port,
-    os: require('os').platform(),
+    nethash: config.network.nethash,
     version: config.server.version,
-    nethash: config.network.nethash
+    port: config.server.port,
+    os: require('os').platform()
   }
 
-  const requiredHeaders = ['port', 'nethash', 'os', 'version']
+  const requiredHeaders = ['nethash', 'version', 'port', 'os']
 
   server.ext({
     type: 'onRequest',
@@ -43,7 +43,7 @@ const register = async (server, options) => {
 }
 
 exports.plugin = {
-  name: 'hapi-caster',
+  name: 'hapi-p2p-accept-request',
   version: '1.0.0',
   register
 }
