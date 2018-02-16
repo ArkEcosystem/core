@@ -26,7 +26,6 @@ class TransactionPool {
   constructor () {
     const that = this
     this.walletManager = new WalletManager()
-
     this.pool = {}
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
@@ -71,24 +70,16 @@ class TransactionPool {
   }
 
   async addBlock (block) { // we remove the block txs from the pool
-    if (block.transactions.length === 0) return
+    await this.walletManager.applyBlock(block)
     goofy.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)
 
     // no return the main thread is liberated
-    await Promise.all(pooltxs.map((index, tx) => {
-      if (tx.id in blocktxsid) {
-        delete pooltxs[index]
-      }
+    pooltxs.forEach(tx => tx.id in blocktxsid ? delete this.pool[tx.id] : null)
 
-      return this.walletManager.undoTransaction(tx)
-    }))
-
-    await Promise.all(block.transactions.map(tx => this.walletManager.applyTransaction(tx)))
-
-    return this.addTransactions(pooltxs)
+    this.addTransactions(pooltxs)
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
