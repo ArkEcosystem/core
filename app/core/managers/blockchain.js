@@ -213,6 +213,10 @@ module.exports = class BlockchainManager {
     return stateMachine.state
   }
 
+  getNetworkInterface () {
+    return this.networkInterface
+  }
+
   getDb () {
     return this.db
   }

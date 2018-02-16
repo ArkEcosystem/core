@@ -5,7 +5,7 @@ const Worker = require('tiny-worker')
 const worker = new Worker(`${__dirname}/download-worker.js`)
 const promiseWorker = new PromiseWorker(worker)
 
-class Peer {
+module.exports = class Peer {
   constructor (ip, port, config) {
     this.ip = ip
     this.port = port
@@ -123,5 +123,3 @@ class Peer {
     return body.peers
   }
 }
-
-module.exports = Peer
