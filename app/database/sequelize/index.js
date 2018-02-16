@@ -319,6 +319,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getLastBlock () {
     const block = await this.blocksTable.findOne({order: [['height', 'DESC']]})
+    if (!block) return null
     const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 

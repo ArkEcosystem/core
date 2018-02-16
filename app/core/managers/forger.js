@@ -39,8 +39,7 @@ module.exports = class ForgerManager {
 
     const monitor = async () => {
       try {
-        const r = await this.getRound()
-        round = r
+        round = await this.getRound()
 
         if (!round.canForge) {
           throw new Error('Block already forged in current slot')
@@ -56,6 +55,7 @@ module.exports = class ForgerManager {
         this.broadcast(block)
       } catch (error) {
         goofy.debug('Not able to forge:', error.message)
+        // console.log(round)
         // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
 
@@ -68,7 +68,7 @@ module.exports = class ForgerManager {
 
   async broadcast (block) {
     goofy.info(`Broadcasting forged block at height ${block.data.height}`)
-    goofy.debug(block.data.height)
+    goofy.debug(block.data)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

@@ -25,11 +25,10 @@ exports.postInternalBlock = {
 exports.getRound = {
   handler: async (request, h) => {
     const lastBlock = blockchain.getInstance().getState().lastBlock
-    const maxActive = config.getConstants(lastBlock.data.height).activeDelegates
-    const blockTime = config.getConstants(lastBlock.data.height).blocktime
-    const reward = config.getConstants(lastBlock.data.height).reward
-
     try {
+      const maxActive = config.getConstants(lastBlock.data.height).activeDelegates
+      const blockTime = config.getConstants(lastBlock.data.height).blocktime
+      const reward = config.getConstants(lastBlock.data.height).reward
       const delegates = await __getActiveDelegates(lastBlock.data.height)
 
       return {

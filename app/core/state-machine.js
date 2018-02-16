@@ -159,6 +159,7 @@ const blockchainMachine = Machine({
       ...fork
     },
     exit: {
+      onEntry: ['exitApp']
     }
   }
 })
@@ -197,58 +198,39 @@ blockchainMachine.actionMap = (blockchainManager) => {
       goofy.info('Blockchain completed, congratulations! 🦄')
       blockchainManager.dispatch('SYNCFINISHED')
     },
+    exitApp: () => {
+      goofy.error('Failed to startup blockchain, exiting app...')
+      process.exit(0)
+    },
     init: async () => {
       try {
-        const block = await blockchainManager.db.getLastBlock()
-
+        let block = await blockchainManager.db.getLastBlock()
         if (!block) {
-          throw new Error('No block found in database')
+          goofy.warn('No block found in database')
+          block = new Block(blockchainManager.config.genesisBlock)
+          if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
+            goofy.error('FATAL: The genesis block payload hash is different from configured nethash')
+            return blockchainManager.dispatch('FAILURE')
+          }
+          await blockchainManager.db.saveBlock(block)
         }
-
         state.lastBlock = block
         state.lastDownloadedBlock = block
         const constants = blockchainManager.config.getConstants(block.data.height)
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
         state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
-
         goofy.info('Fast rebuild:', state.fastRebuild)
         goofy.info('Last block in database:', block.data.height)
-
+        await blockchainManager.db.buildWallets()
+        await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+        await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
-          await blockchainManager.db.buildWallets()
-          await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
-          await blockchainManager.db.saveWallets(true)
           await blockchainManager.db.applyRound(block, false, false)
-
-          return blockchainManager.dispatch('SUCCESS')
-        } else {
-          await blockchainManager.db.buildWallets()
-          await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
-          await blockchainManager.db.saveWallets(true)
-
-          return blockchainManager.dispatch('SUCCESS')
         }
+        return blockchainManager.dispatch('SUCCESS')
       } catch (error) {
         goofy.info(error.message)
-
-        let genesis = new Block(blockchainManager.config.genesisBlock)
-
-        if (genesis.data.payloadHash === blockchainManager.config.network.nethash) {
-          state.lastBlock = genesis
-          state.lastDownloadedBlock = genesis
-          state.fastRebuild = state.rebuild = true
-
-          goofy.info('Fast rebuild:', state.fastRebuild)
-
-          await blockchainManager.db.saveBlock(genesis)
-          await blockchainManager.db.buildWallets()
-          await blockchainManager.db.saveWallets(true)
-          await blockchainManager.db.applyRound(genesis)
-
-          return blockchainManager.dispatch('SUCCESS')
-        }
-
         return blockchainManager.dispatch('FAILURE')
       }
     },
