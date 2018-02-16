@@ -84,7 +84,7 @@ class Up {
 
       try {
         await this.p2p.acceptNewPeer(peer)
-        await setHeaders(res)
+        setHeaders(res)
 
         return next()
       } catch (error) {
@@ -187,7 +187,7 @@ class Up {
   }
 
   async getRound (req, res, next) {
-    const lastBlock = blockchain.getInstance().state.lastBlock
+    const lastBlock = blockchain.getInstance().getState().lastBlock
     const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
     const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
     const reward = this.config.getConstants(lastBlock.data.height).reward

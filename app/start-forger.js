@@ -76,7 +76,7 @@ async function enableDelegateEncryption () {
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
-      if (arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
+      if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
         boot(answers.password, answers.address)
       } else {
         throw new Error('Invalid Address Provided')

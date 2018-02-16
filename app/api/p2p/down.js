@@ -22,8 +22,8 @@ class Down {
 
   async updateNetworkStatus () {
     try {
-      await this.discoverPeers()
-      await this.cleanPeers()
+      if (!this.config.server.test) await this.discoverPeers()
+      if (!this.config.server.test) await this.cleanPeers()
 
       if (Object.keys(this.peers).length < this.config.network.peers.length) {
         this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)

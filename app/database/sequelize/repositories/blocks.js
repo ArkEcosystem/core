@@ -17,8 +17,9 @@ module.exports = class BlocksRepository {
       if (params[elem]) whereStatement[elem] = params[elem]
     }
 
-    // @TODO - orderBy is v1, sort is for v2
-    if (params.orderBy) orderBy.push(params.orderBy.split(':'))
+    params.orderBy
+      ? orderBy.push(params.orderBy.split(':'))
+      : orderBy.push([[ 'height', 'DESC' ]])
 
     return this.db.blocksTable.findAndCountAll({
       where: whereStatement,
