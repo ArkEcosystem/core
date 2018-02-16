@@ -75,6 +75,7 @@ class Up {
         code: 'ResourceNotFound',
         message: `${req.route.path} does not exist`
       })
+      return next()
     }
     if (req.route.path.startsWith('/peer/')) {
       const peer = {}
@@ -90,8 +91,6 @@ class Up {
         res.send(500, {success: false, message: error})
       }
     }
-
-    return next()
   }
 
   async getPeers (req, res, next) {
@@ -213,7 +212,6 @@ class Up {
     } catch (error) {
       res.send(500, {success: false, message: error})
     }
-
   }
 
   postInternalBlock (req, res, next) {

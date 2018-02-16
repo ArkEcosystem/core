@@ -86,6 +86,9 @@ class Down {
   }
 
   getRandomPeer (delay) {
+    if (this.config.server.test) {
+      return this.peers['127.0.0.1']
+    }
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
     if (delay) keys = keys.filter((key) => this.peers[key].delay < delay)

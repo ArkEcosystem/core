@@ -9,6 +9,7 @@ module.exports = class ForgerManager {
     this.bip38 = config.delegates ? config.delegates.bip38 : null
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
+    this.delegateEncryption = config.server.delegateEncryption
     this.headers = {
       version: config.server.version,
       port: config.server.port,
