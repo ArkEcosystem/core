@@ -68,8 +68,8 @@ async function configure () {
     network: require(path.resolve(commander.config, 'network')),
     delegates: require(delegateFilePath)
   })
-
-  if (!config.delegates.bip38) {
+  if (config.server.test) boot()
+  else if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 

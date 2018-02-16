@@ -22,10 +22,12 @@ module.exports = class ForgerManager {
       throw new Error('No delegate found')
     }
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
-    const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
-    if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
-      goofy.info('BIP38 Delegate loaded')
-      this.delegates.push(bip38Delegate)
+    if (this.bip38) {
+      const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+      if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
+        goofy.info('BIP38 Delegate loaded')
+        this.delegates.push(bip38Delegate)
+      }
     }
 
     return this.delegates
