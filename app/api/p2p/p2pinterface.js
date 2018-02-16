@@ -1,7 +1,7 @@
 const Down = require('./down')
 const Up = require('./up')
 
-class P2PInterface {
+module.exports = class P2PInterface {
   constructor (config) {
     this.down = new Down(config)
     this.up = new Up(config)
@@ -47,5 +47,3 @@ class P2PInterface {
     return this.down.getNetworkHeight()
   }
 }
-
-module.exports = P2PInterface

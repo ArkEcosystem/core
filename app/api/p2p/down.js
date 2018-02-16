@@ -1,10 +1,9 @@
 const Peer = require('./peer')
 const goofy = require('app/core/goofy')
 const dns = require('dns')
+const isLocalhost = require('app/utils/is-localhost')
 
-const isLocalhost = ip => ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
-
-class Down {
+module.exports = class Down {
   constructor (config) {
     this.config = config
     this.peers = {}
@@ -166,5 +165,3 @@ class Down {
 
   }
 }
-
-module.exports = Down

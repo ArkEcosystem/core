@@ -1,7 +1,6 @@
-'use strict'
 const ajv = new (require('ajv'))()
 
-const schema = {
+module.exports = {
   'GET:/peer/status': ajv.compile({
     id: 'GET:/peer/status',
     type: 'object',
@@ -113,5 +112,3 @@ const schema = {
     required: ['peers']
   })
 }
-
-module.exports = schema
