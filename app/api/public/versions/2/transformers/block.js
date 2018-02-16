@@ -1,4 +1,8 @@
+const db = require('app/core/dbinterface').getInstance()
+
 module.exports = (model) => {
+  const generator = db.walletManager.getWalletByPublicKey(model.generatorPublicKey)
+
   return {
     id: model.id,
     version: model.version,
@@ -7,15 +11,16 @@ module.exports = (model) => {
     forged: {
       reward: model.reward,
       fee: model.totalFee,
-      total: model.totalForged
+      total: model.reward + model.totalFee
     },
     payload: {
-      length: model.payloadLength,
-      hash: model.payloadHash
+      hash: model.payloadHash,
+      length: model.payloadLength
     },
     generator: {
-      id: model.generatorId,
-      publicKey: model.generatorPublicKey
+      username: generator.username,
+      address: generator.address,
+      publicKey: generator.publicKey
     },
     signature: model.blockSignature,
     confirmations: model.confirmations,
