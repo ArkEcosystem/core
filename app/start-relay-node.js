@@ -31,16 +31,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 async function boot () {
   try {
-    await config.init({
-      api: {
-        p2p: require(path.resolve(commander.config, 'api/p2p')),
-        public: require(path.resolve(commander.config, 'api/public'))
-      },
-      webhooks: require(path.resolve(commander.config, 'webhooks')),
-      server: require(path.resolve(commander.config, 'server')),
-      genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-      network: require(path.resolve(commander.config, 'network'))
-    })
+    await config.init(require('config')(commander.config))
 
     await goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
     const blockchainManager = await new BlockchainManager(config)

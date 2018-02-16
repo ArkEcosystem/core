@@ -76,7 +76,9 @@ module.exports = async (config) => {
   })
 
   if (config.api.public.cache.enabled) {
-    server.cache = [config.api.public.cache.options]
+    const cacheOptions = config.api.public.cache.options
+    cacheOptions.engine = require(cacheOptions.engine)
+    server.cache = [cacheOptions]
   }
 
   try {

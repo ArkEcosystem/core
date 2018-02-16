@@ -62,14 +62,13 @@ async function boot (password, address) {
 }
 
 async function configure () {
-  await config.init({
-    server: require(path.resolve(commander.config, 'server')),
-    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-    network: require(path.resolve(commander.config, 'network')),
-    delegates: require(delegateFilePath)
-  })
-  if (config.server.test) boot()
-  else if (!config.delegates.bip38) {
+  await config.init(require('config')(commander.config))
+
+  if (config.server.test) {
+    return boot()
+  }
+
+  if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
@@ -77,19 +76,19 @@ async function configure () {
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
-          boot(answers.password)
+          return boot(answers.password)
         }
       })
     })
-  } else {
-    inquirer.prompt(bip38DecryptSchema).then((answers) => {
-      if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
-        boot(answers.password, answers.address)
-      } else {
-        throw new Error('Invalid Address Provided')
-      }
-    })
   }
+
+  inquirer.prompt(bip38DecryptSchema).then((answers) => {
+    if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
+      return boot(answers.password, answers.address)
+    } else {
+      throw new Error('Invalid Address Provided')
+    }
+  })
 }
 
 configure()

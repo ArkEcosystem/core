@@ -16,12 +16,4 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-async function boot () {
-  await config.init({
-    server: require(path.resolve(commander.config, 'server')),
-    genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-    network: require(path.resolve(commander.config, 'network'))
-  })
-}
-
-boot()
+config.init(require('config')(commander.config))
