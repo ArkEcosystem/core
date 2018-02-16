@@ -26,11 +26,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 async function boot () {
   try {
-    await config.init({
-      server: require(path.resolve(commander.config, 'server')),
-      genesisBlock: require(path.resolve(commander.config, 'genesis-block.json')),
-      network: require(path.resolve(commander.config, 'network'))
-    })
+    await config.init(commander.config)
 
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 
@@ -40,7 +36,7 @@ async function boot () {
 
     goofy.info('Snapshot saved')
   } catch (error) {
-      goofy.error('fatal error', error)
+    goofy.error('fatal error', error)
   }
 }
 
