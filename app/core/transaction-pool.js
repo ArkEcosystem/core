@@ -7,12 +7,12 @@ const WalletManager = require('app/core/managers/wallet')
 
 let instance = null
 
-module.exports = (message, done) => {
+module.exports = async (message, done) => {
   if (message.event === 'init') {
-    return config.init(message.data)
-      .then((conf) => goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool'))
-      .then(() => (instance = new TransactionPool()))
-      .then(() => done())
+    const conf = await config.init(message.data)
+    goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool')
+    instance = new TransactionPool()
+    return done()
   }
 
   if (instance && instance[message.event]) { // redirect to public methods
