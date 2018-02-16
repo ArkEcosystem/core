@@ -6,5 +6,5 @@ process.on('unhandledRejection', (reason, p) => {
 })
 
 module.exports = async function () {
-  config.init(require('config')('config/devnet'))
+  config.init('config/devnet')
 }

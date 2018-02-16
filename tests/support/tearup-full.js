@@ -13,7 +13,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 module.exports = async function () {
   try {
-    config.init(require('config')('config/devnet'))
+    config.init('config/devnet')
 
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 

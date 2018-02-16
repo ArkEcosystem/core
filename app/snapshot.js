@@ -26,7 +26,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 async function boot () {
   try {
-    await config.init(require('config')(commander.config))
+    await config.init(commander.config)
 
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 

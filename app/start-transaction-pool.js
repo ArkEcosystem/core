@@ -8,4 +8,4 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-config.init(require('config')(commander.config))
+config.init(commander.config)

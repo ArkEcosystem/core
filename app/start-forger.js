@@ -52,7 +52,7 @@ async function boot (password, address) {
 }
 
 async function configure () {
-  await config.init(require('config')(commander.config))
+  await config.init(commander.config)
 
   if (config.server.test) {
     return boot()
