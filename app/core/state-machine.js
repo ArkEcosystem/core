@@ -259,6 +259,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       if (!blocks || blocks.length === 0) {
         goofy.info('No new block found on this peer')
         config.server.test ? blockchainManager.dispatch('SYNCED') : blockchainManager.dispatch('NOBLOCK')
+        //blockchainManager.dispatch('NOBLOCK')
       } else {
         goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
 
