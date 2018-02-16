@@ -57,9 +57,10 @@ module.exports = class ForgerManager {
 
         that.broadcast(block)
       } catch (error) {
-          goofy.info('Not able to forge:', error.message)
-          goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        goofy.info('Not able to forge:', error.message)
+        // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
+
       await sleep(1000)
       return monitor()
     }
