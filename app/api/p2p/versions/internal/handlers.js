@@ -1,6 +1,7 @@
 const arkjs = require('arkjs')
 const crypto = require('crypto')
 const blockchain = require('app/core/managers/blockchain')
+const config = require('app/core/config')
 const Transaction = require('app/models/transaction')
 
 exports.postVerifyTransaction = {
@@ -24,9 +25,9 @@ exports.postInternalBlock = {
 exports.getRound = {
   handler: async (request, h) => {
     const lastBlock = blockchain.getInstance().getState().lastBlock
-    const maxActive = this.config.getConstants(lastBlock.data.height).activeDelegates
-    const blockTime = this.config.getConstants(lastBlock.data.height).blocktime
-    const reward = this.config.getConstants(lastBlock.data.height).reward
+    const maxActive = config.getConstants(lastBlock.data.height).activeDelegates
+    const blockTime = config.getConstants(lastBlock.data.height).blocktime
+    const reward = config.getConstants(lastBlock.data.height).reward
 
     try {
       const delegates = await __getActiveDelegates(lastBlock.data.height)
@@ -50,7 +51,7 @@ exports.getRound = {
 }
 
 async function __getActiveDelegates (height) {
-  const round = parseInt(height / this.config.getConstants(height).activeDelegates)
+  const round = parseInt(height / config.getConstants(height).activeDelegates)
   const seedSource = round.toString()
   let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
 
