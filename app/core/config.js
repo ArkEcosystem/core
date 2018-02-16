@@ -22,12 +22,9 @@ class Config {
       config = this._loadFromFile(config)
     }
 
-    this.api = config.api
-    this.webhooks = config.webhooks
-    this.server = config.server
-    this.network = config.network
-    this.genesisBlock = config.genesisBlock
-    this.delegates = config.delegates
+    for (const [key, value] of Object.entries(config)) {
+      this[key] = value
+    }
 
     goofy = require('app/core/goofy') // need to do here to be sure goofy is initialised
     goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
