@@ -131,6 +131,7 @@ const blockchainMachine = Machine({
     },
     syncWithNetwork: {
       on: {
+        TEST: 'idle',
         SYNCFINISHED: 'idle',
         FORK: 'fork'
       },
@@ -187,6 +188,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       goofy.debug('Blocks in queue:', blockchainManager.processQueue.length())
       if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
+      if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => goofy.info('Blockchain download completed 🚀'),

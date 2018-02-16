@@ -3,7 +3,7 @@ const goofy = require('app/core/goofy')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
-class Peer {
+module.exports = class Peer {
   constructor (ip, port, config) {
     this.ip = ip
     this.port = port
@@ -120,5 +120,3 @@ class Peer {
     return body.peers
   }
 }
-
-module.exports = Peer

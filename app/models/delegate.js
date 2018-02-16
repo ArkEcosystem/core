@@ -15,7 +15,7 @@ module.exports = class Delegate {
     if (bip38.verify(passphrase)) {
       try {
         this.keys = this.decrypt(passphrase, network, password)
-        this.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
+        this.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
         this.address = this.keys.getAddress(network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
         this.bip38 = true
@@ -51,7 +51,7 @@ module.exports = class Delegate {
   decryptKeysWithOtp () {
     let wifKey = this.decryptData(this.encryptedKeys, this.otp)
     this.keys = arkjs.ECPair.fromWIF(wifKey, this.network)
-    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString("hex")
+    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
     this.otp = null
     this.encryptedKeys = null
   }
@@ -60,7 +60,7 @@ module.exports = class Delegate {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
     let keys = arkjs.ECPair.fromWIF(wifKey, network)
-    keys.publicKey = keys.getPublicKeyBuffer().toString("hex")
+    keys.publicKey = keys.getPublicKeyBuffer().toString('hex')
 
     return keys
   }
