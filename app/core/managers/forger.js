@@ -59,7 +59,7 @@ module.exports = class ForgerManager {
         // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
 
-      await sleep(1000)
+      await sleep(500)
       return monitor()
     }
 
