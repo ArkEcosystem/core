@@ -22,10 +22,12 @@ module.exports = class ForgerManager {
       throw new Error('No delegate found')
     }
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
-    const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
-    if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
-      goofy.info('BIP38 Delegate loaded')
-      this.delegates.push(bip38Delegate)
+    if (this.bip38) {
+      const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+      if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
+        goofy.info('BIP38 Delegate loaded')
+        this.delegates.push(bip38Delegate)
+      }
     }
 
     return this.delegates
@@ -56,19 +58,18 @@ module.exports = class ForgerManager {
         that.broadcast(block)
 
         await sleep(1000)
-
-        return monitor()
       } catch (error) {
-        goofy.info('Not able to forge:', error.message)
-        goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        // goofy.info('Not able to forge:', error.message)
+        // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
+      return monitor()
     }
 
     return monitor()
   }
 
   async broadcast (block) {
-    console.log(block.data)
+    goofy.info(block.data)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

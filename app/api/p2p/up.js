@@ -56,7 +56,7 @@ class Up {
 
       try {
         await this.p2p.acceptNewPeer(peer)
-        await setHeaders(res)
+        setHeaders(res)
 
         return next()
       } catch (error) {

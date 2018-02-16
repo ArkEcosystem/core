@@ -68,8 +68,8 @@ async function configure () {
     network: require(path.resolve(commander.config, 'network')),
     delegates: require(delegateFilePath)
   })
-
-  if (!config.delegates.bip38) {
+  if (config.server.test) boot()
+  else if (!config.delegates.bip38) {
     inquirer.prompt(bip38EncryptSchema).then((answers) => {
       config.delegates['bip38'] = Delegate.encrypt(answers.secret, commander.config.network, answers.password)
 
@@ -83,7 +83,7 @@ async function configure () {
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
-      if (arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
+      if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
         boot(answers.password, answers.address)
       } else {
         throw new Error('Invalid Address Provided')

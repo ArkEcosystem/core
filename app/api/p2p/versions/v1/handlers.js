@@ -21,8 +21,8 @@ exports.getHeight = {
   handler: (request, h) => {
     return {
       success: true,
-      height: blockchain.getInstance().state.lastBlock.data.height,
-      id: blockchain.getInstance().state.lastBlock.data.id
+      height: blockchain.getInstance().getState().lastBlock.data.height,
+      id: blockchain.getInstance().getState().lastBlock.data.id
     }
   }
 }
@@ -37,7 +37,7 @@ exports.getCommonBlock = {
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getInstance().state.lastBlock.data.height
+        lastBlockHeight: blockchain.getInstance().getState().lastBlock.data.height
       }
     } catch (error) {
       return h.response({ success: false, message: error }).code(500)
@@ -69,7 +69,7 @@ exports.getTransactions = {
 
 exports.getStatus = {
   handler: (request, h) => {
-    const lastBlock = blockchain.getInstance().state.lastBlock.getHeader()
+    const lastBlock = blockchain.getInstance().getState().lastBlock.getHeader()
 
     return {
       success: true,
