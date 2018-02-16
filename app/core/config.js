@@ -84,9 +84,7 @@ class Config {
       throw new Error('The directory does not exist or is not accessible because of security settings.')
     }
 
-    const formatName = (file) => {
-      return path.basename(file.name, path.extname(file.name))
-    }
+    const formatName = (file) => path.basename(file.name, path.extname(file.name))
 
     let configTree = {}
 
