@@ -56,19 +56,18 @@ module.exports = class ForgerManager {
         that.broadcast(block)
 
         await sleep(1000)
-
-        return monitor()
       } catch (error) {
-        goofy.info('Not able to forge:', error.message)
-        goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        // goofy.info('Not able to forge:', error.message)
+        // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
+      return monitor()
     }
 
     return monitor()
   }
 
   async broadcast (block) {
-    console.log(block.data)
+    goofy.info(block.data)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
