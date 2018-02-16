@@ -1,7 +1,6 @@
 const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
 const goofy = require('app/core/goofy')
-const arkjs = require('arkjs')
 const sleep = require('app/utils/sleep')
 
 module.exports = class ForgerManager {
@@ -56,12 +55,12 @@ module.exports = class ForgerManager {
         const block = await delegate.forge([], data)
 
         that.broadcast(block)
-
-        await sleep(1000)
       } catch (error) {
-        // goofy.info('Not able to forge:', error.message)
+        goofy.info('Not able to forge:', error.message)
         // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
+
+      await sleep(1000)
       return monitor()
     }
 
