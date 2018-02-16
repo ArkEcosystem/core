@@ -215,7 +215,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         goofy.info('Fast rebuild:', state.fastRebuild)
         goofy.info('Last block in database:', block.data.height)
 
-        if (block.data.height === 1) {
+        if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.buildWallets()
           await blockchainManager.transactionPool.postMessage({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
           await blockchainManager.db.saveWallets(true)

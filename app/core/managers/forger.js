@@ -34,13 +34,12 @@ module.exports = class ForgerManager {
 
   startForging (proxy) {
     this.proxy = proxy
-    const that = this
     let round = null
     const data = {}
 
     const monitor = async () => {
       try {
-        const r = await that.getRound()
+        const r = await this.getRound()
         round = r
 
         if (!round.canForge) {
@@ -51,12 +50,12 @@ module.exports = class ForgerManager {
         data.timestamp = round.timestamp
         data.reward = round.reward
 
-        const delegate = await that.pickForgingDelegate(round)
+        const delegate = await this.pickForgingDelegate(round)
         const block = await delegate.forge([], data)
 
-        that.broadcast(block)
+        this.broadcast(block)
       } catch (error) {
-        goofy.info('Not able to forge:', error.message)
+        goofy.debug('Not able to forge:', error.message)
         // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
 
@@ -68,7 +67,8 @@ module.exports = class ForgerManager {
   }
 
   async broadcast (block) {
-    goofy.info(block.data)
+    goofy.info(`Broadcasting forged block at height ${block.data.height}`)
+    goofy.debug(block.data.height)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
