@@ -3,13 +3,6 @@ const config = require('app/core/config')
 const isLocalhost = require('app/utils/is-localhost')
 
 const register = async (server, options) => {
-  const _headers = {
-    nethash: config.network.nethash,
-    version: config.server.version,
-    port: config.server.port,
-    os: require('os').platform()
-  }
-
   const requiredHeaders = ['nethash', 'version', 'port', 'os']
 
   server.ext({
@@ -29,9 +22,6 @@ const register = async (server, options) => {
 
         try {
           await server.app.p2p.acceptNewPeer(peer)
-
-          const response = request.response
-          requiredHeaders.forEach((key) => response.header(key, _headers[key]))
         } catch (error) {
           return h.response({ success: false, message: error.message }).code(500).takeover()
         }
