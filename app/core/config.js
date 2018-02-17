@@ -18,23 +18,27 @@ class Config {
   }
 
   async init (config) {
-    if (isString(config)) {
-      config = this._loadFromFile(config)
+    try {
+      if (isString(config)) {
+        config = this._loadFromFile(config)
+      }
+
+      for (const [key, value] of Object.entries(config)) {
+        this[key] = value
+      }
+
+      goofy = require('app/core/goofy') // need to do here to be sure goofy is initialised
+      goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
+
+      const time = await this.ntp()
+      goofy.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
+
+      this.buildConstants()
+
+      return this
+    } catch (error) {
+      console.log(error)
     }
-
-    for (const [key, value] of Object.entries(config)) {
-      this[key] = value
-    }
-
-    goofy = require('app/core/goofy') // need to do here to be sure goofy is initialised
-    goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
-
-    const time = await this.ntp()
-    goofy.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
-
-    this.buildConstants()
-
-    return this
   }
 
   buildConstants () {
