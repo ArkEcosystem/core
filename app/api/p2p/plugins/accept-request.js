@@ -1,5 +1,4 @@
 const requestIp = require('request-ip')
-const config = require('app/core/config')
 const isLocalhost = require('app/utils/is-localhost')
 
 const register = async (server, options) => {
