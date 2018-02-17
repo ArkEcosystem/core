@@ -19,7 +19,7 @@ module.exports = async (message, done) => {
     return done(instance[message.event](message.data))
   }
 
-  throw new Error(`message '${message}' not recognised`)
+  throw new Error(`message '${message.event}' not recognised`)
 }
 
 class TransactionPool {
