@@ -9,7 +9,7 @@ const PublicAPI = require('app/api/public')
 
 module.exports = async function () {
   try {
-    await config.init('tests/config')
+    await config.init('config/devnet')
 
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 
