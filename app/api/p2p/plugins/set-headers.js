@@ -13,13 +13,10 @@ const register = async (server, options) => {
   server.ext({
     type: 'onPreResponse',
     method: async (request, h) => {
-      const response = request.response
-
       if (request.response.isBoom) {
-        response.output.headers['x'] = 'value';
-        requiredHeaders.forEach((key) => (response.output.headers[key] = _headers[key]))
+        requiredHeaders.forEach((key) => (request.response.headers[key] = _headers[key]))
       } else {
-        requiredHeaders.forEach((key) => response.header(key, _headers[key]))
+        requiredHeaders.forEach((key) => request.response.header(key, _headers[key]))
       }
 
       return h.continue
