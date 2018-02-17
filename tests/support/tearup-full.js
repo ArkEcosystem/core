@@ -7,13 +7,9 @@ const DB = require('app/core/dbinterface')
 const DependencyHandler = require('app/core/dependency-handler')
 const PublicAPI = require('app/api/public')
 
-process.on('unhandledRejection', (reason, p) => {
-  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-})
-
 module.exports = async function () {
   try {
-    config.init('config/devnet')
+    await config.init('tests/config')
 
     goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
 
@@ -24,11 +20,7 @@ module.exports = async function () {
 
     const db = await DB.create(config.server.db)
     await blockchainManager.attachDBInterface(db)
-    goofy.info('Database started')
-
     await p2p.warmup()
-    goofy.info('Network interface started')
-
     await blockchainManager.attachNetworkInterface(p2p)
     await blockchainManager.start()
     await blockchainManager.isReady()
@@ -36,6 +28,6 @@ module.exports = async function () {
     goofy.info('Mounting Public API')
     await PublicAPI(config)
   } catch (error) {
-    goofy.error('fatal error', error)
+    goofy.error(error)
   }
 }

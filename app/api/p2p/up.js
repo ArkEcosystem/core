@@ -15,6 +15,10 @@ module.exports = class Up {
     })
 
     await this.server.register({
+      plugin: require('./plugins/set-headers')
+    })
+
+    await this.server.register({
       plugin: require('./versions/internal'),
       routes: { prefix: '/internal' }
     })
