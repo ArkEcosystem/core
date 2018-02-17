@@ -73,15 +73,15 @@ async function configure () {
         }
       })
     })
+  } else {
+    inquirer.prompt(bip38DecryptSchema).then((answers) => {
+      if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
+        return boot(answers.password, answers.address)
+      } else {
+        throw new Error('Invalid Address Provided')
+      }
+    })
   }
-
-  inquirer.prompt(bip38DecryptSchema).then((answers) => {
-    if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
-      return boot(answers.password, answers.address)
-    } else {
-      throw new Error('Invalid Address Provided')
-    }
-  })
 }
 
 configure()

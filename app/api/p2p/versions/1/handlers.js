@@ -90,13 +90,13 @@ exports.postBlock = {
 }
 
 exports.postTransactions = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const transactions = request.payload.transactions
-      .map(transaction => Transaction.deserialize(Transaction.serialize(transaction)))
+      .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
 
     blockchain.getInstance().postTransactions(transactions)
 
-    return { success: true }
+    return { success: true, transactionIds: [] }
   }
 }
 
