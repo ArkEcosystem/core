@@ -8,7 +8,7 @@
   },
   "db": {
     "driver": "app/database/sequelize",
-    "uri": "sqlite:tests/db.sqlite",
+    "uri": "sqlite:storage/database/jest.sqlite",
     "dialect": "sqlite",
     "logging": false
   },
