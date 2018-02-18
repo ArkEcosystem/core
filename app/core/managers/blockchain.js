@@ -44,12 +44,12 @@ module.exports = class BlockchainManager {
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
     logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
-    logger.debug('| actions:', JSON.stringify(nextState.actions))
+    logger.debug('-> actions:', JSON.stringify(nextState.actions))
     stateMachine.state.blockchain = nextState
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
-      else logger.error(`No action ${actionKey} found`)
+      logger.error(`No action ${actionKey} found`)
     })
   }
 
@@ -97,17 +97,17 @@ module.exports = class BlockchainManager {
   }
 
   postTransactions (transactions) {
-    logger.info('Received new transactions', transactions.map(transaction => transaction.id))
+    logger.info(`Received new transactions ${transactions.map(transaction => transaction.id)}`)
     return this.transactionPool.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
-    logger.info('Received new block at height', block.height)
+    logger.info(`Received new block at height ${block.height}`)
     this.downloadQueue.push(block)
   }
 
   async removeBlocks (nblocks) {
-    logger.info(`Starting ${nblocks} blocks undo from height`, stateMachine.state.lastBlock.data.height)
+    logger.info(`Starting ${nblocks} blocks undo from height ${stateMachine.state.lastBlock.data.height}`)
     await this.pauseQueues()
     await this.__removeBlocks(nblocks)
     await this.clearQueues()
@@ -117,7 +117,7 @@ module.exports = class BlockchainManager {
   async __removeBlocks (nblocks) {
     if (!nblocks) return
 
-    logger.info('Undoing block', stateMachine.state.lastBlock.data.height)
+    logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
 
     await this.undoLastBlock()
 
@@ -164,18 +164,18 @@ module.exports = class BlockchainManager {
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           this.transactionPool.send({event: 'addBlock', data: block})
-          return qcallback()
+          qcallback()
         } catch (error) {
           logger.error(error)
-          logger.debug('Refused new block', block.data)
+          logger.debug(`Refused new block ${block.data}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')
-          return qcallback()
+          qcallback()
         }
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
-        logger.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', state.lastBlock.data.height)
+        logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
         state.lastDownloadedBlock = state.lastBlock
         qcallback()
       } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {

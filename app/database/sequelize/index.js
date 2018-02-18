@@ -126,7 +126,7 @@ module.exports = class SequelizeDB extends DBInterface {
         if (wallet) {
           wallet.balance = parseInt(row.amount)
         } else {
-          logger.warn('lost cold wallet:', row.recipientId, row.amount)
+          logger.warn(`lost cold wallet: ${row.recipientId} ${row.amount}`)
         }
       })
 
@@ -160,8 +160,7 @@ module.exports = class SequelizeDB extends DBInterface {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
         if (wallet.balance < 0) {
-          logger.warn('Negative balance should never happen except from premining address:')
-          logger.warn(wallet)
+          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
         }
       })
 
@@ -230,7 +229,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       logger.stopTracker('SPV Building', 7, 7)
-      logger.info('SPV rebuild finished, wallets in memory:', Object.keys(this.walletManager.walletsByAddress).length)
+      logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
       return this.walletManager.walletsByAddress || []

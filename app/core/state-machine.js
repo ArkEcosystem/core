@@ -186,7 +186,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
-      logger.debug('Blocks in queue:', blockchainManager.processQueue.length())
+      logger.debug(`Blocks in queue: ${blockchainManager.processQueue.length()}`)
       if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
@@ -220,8 +220,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
         state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
-        logger.info('Fast rebuild:', state.fastRebuild)
-        logger.info('Last block in database:', block.data.height)
+        logger.info(`Fast rebuild: ${state.fastRebuild}`)
+        logger.info(`Last block in database: ${block.data.height}`)
         await blockchainManager.db.buildWallets()
         await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
         await blockchainManager.db.saveWallets(true)

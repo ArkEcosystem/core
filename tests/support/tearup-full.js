@@ -25,7 +25,7 @@ module.exports = async function () {
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    logger.info('Mounting Public API')
+    logger.info('Initialising Public API')
     await PublicAPI(config)
   } catch (error) {
     logger.error(error)

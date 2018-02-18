@@ -20,8 +20,11 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
     }
     const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
     const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    if (block.data.timestamp - arkjs.slots.getTime() < 8) logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
-    else logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    if (block.data.timestamp - arkjs.slots.getTime() < 8) {
+      logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+    } else {
+      logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    }
   }
 }
 

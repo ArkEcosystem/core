@@ -54,7 +54,7 @@ module.exports = class ForgerManager {
 
         this.broadcast(block)
       } catch (error) {
-        logger.debug('Not able to forge:', error.message)
+        logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }

@@ -25,29 +25,29 @@ async function init () {
     await logger.init(config.server.logging, config.network.name)
     const blockchainManager = await new BlockchainManager(config)
 
-    logger.info('Mounting Dependencies...')
+    logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    logger.info('Mounting Queue Manager...')
+    logger.info('Initialising Queue Manager...')
     await new QueueManager(config.server.queue)
 
-    logger.info('Mounting Webhook Manager...')
+    logger.info('Initialising Webhook Manager...')
     await new WebhookManager(config.webhooks).init()
 
-    logger.info('Mounting Database Interface...')
+    logger.info('Initialising Database Interface...')
     const db = await DB.create(config.server.db)
     await blockchainManager.attachDBInterface(db)
 
-    logger.info('Mounting P2P Interface...')
+    logger.info('Initialising P2P Interface...')
     const p2p = await new P2PInterface(config)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)
 
-    logger.info('Mounting Blockchain Manager...')
+    logger.info('Initialising Blockchain Manager...')
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    logger.info('Mounting Public API...')
+    logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
     logger.error('Fatal Error - Exiting...')
