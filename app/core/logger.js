@@ -9,7 +9,7 @@ const winstonConsoleFormatter = (info) => {
   level = {
     'error': chalk.bold.red(level),
     'warn': chalk.bold.yellow(level),
-    'info': chalk.bold.blue(level),
+    'info': chalk.bold.green(level),
     'verbose': chalk.bold.cyan(level),
     'debug': chalk.bold.magenta(level),
     'silly': chalk.bold.white(level)
