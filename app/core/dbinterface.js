@@ -87,7 +87,7 @@ class DBInterface {
   // deleteRound (round) {
   // }
 
-  // updateDelegateStats (round) {
+  // updateDelegateStats (delegates) {
   // }
 
   async applyRound (block, rebuild, fastRebuild) {
