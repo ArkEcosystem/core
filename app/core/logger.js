@@ -64,10 +64,6 @@ class Logger {
     })
   }
 
-  getWinston () {
-    return this.winston
-  }
-
   error (message) {
     return this.winston.error(message)
   }
@@ -86,10 +82,6 @@ class Logger {
 
   debug (message) {
     return this.winston.debug(message)
-  }
-
-  silly (message) {
-    return this.winston.silly(message)
   }
 
   printTracker (title, current, max, posttitle, figures = 0) {
