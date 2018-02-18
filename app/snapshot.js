@@ -6,7 +6,7 @@ const path = require('path')
 const DB = require('app/core/dbinterface')
 const DependencyHandler = require('app/core/dependency-handler')
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 
 commander
   .version(packageJson.version)
@@ -21,23 +21,23 @@ if (!fs.existsSync(path.resolve(commander.config))) {
 }
 
 process.on('unhandledRejection', (reason, p) => {
-  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
+  logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
 })
 
-async function boot () {
+async function init () {
   try {
     await config.init(commander.config)
 
-    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+    logger.init(config.server.logging, config.network.name)
 
     await DependencyHandler.checkDatabaseLibraries(config)
     const db = await DB.create(config.server.db)
     db.snapshot(`${__dirname}/storage/snapshot`)
 
-    goofy.info('Snapshot saved')
+    logger.info('Snapshot saved')
   } catch (error) {
-    goofy.error('fatal error', error)
+    logger.error('fatal error', error)
   }
 }
 
-boot()
+init()

@@ -1,6 +1,6 @@
 const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const sleep = require('app/utils/sleep')
 
 module.exports = class ForgerManager {
@@ -24,7 +24,7 @@ module.exports = class ForgerManager {
     if (this.bip38) {
       const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
       if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
-        goofy.info('BIP38 Delegate loaded')
+        logger.info('BIP38 Delegate loaded')
         this.delegates.push(bip38Delegate)
       }
     }
@@ -54,9 +54,9 @@ module.exports = class ForgerManager {
 
         this.broadcast(block)
       } catch (error) {
-        goofy.debug('Not able to forge:', error.message)
+        logger.debug('Not able to forge:', error.message)
         // console.log(round)
-        // goofy.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
 
       await sleep(500)
@@ -67,8 +67,8 @@ module.exports = class ForgerManager {
   }
 
   async broadcast (block) {
-    goofy.info(`Broadcasting forged block at height ${block.data.height}`)
-    goofy.debug(block.data)
+    logger.info(`Broadcasting forged block at height ${block.data.height}`)
+    logger.debug(block.data)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

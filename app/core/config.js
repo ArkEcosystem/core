@@ -4,8 +4,8 @@ const dirTree = require('directory-tree')
 const Sntp = require('sntp')
 const deepmerge = require('deepmerge')
 const isString = require('lodash/isString')
+const logger = require('app/core/logger')
 
-let goofy
 let instance = null
 
 class Config {
@@ -27,17 +27,16 @@ class Config {
         this[key] = value
       }
 
-      goofy = require('app/core/goofy') // need to do here to be sure goofy is initialised
-      goofy.init(this.server.consoleLogLevel, this.server.fileLogLevel, this.network.name)
+      logger.init(this.server, this.network.name)
 
       const time = await this.ntp()
-      goofy.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
+      logger.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
 
       this.buildConstants()
 
       return this
     } catch (error) {
-      console.log(error)
+      logger.error(error)
     }
   }
 
@@ -60,7 +59,7 @@ class Config {
     try {
       return Sntp.time()
     } catch (error) {
-      goofy.warn('can\'t ping ntp')
+      logger.warn('can\'t ping ntp')
       return {t: 0}
     }
   }

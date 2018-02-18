@@ -1,9 +1,9 @@
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const Hapi = require('hapi')
 
 module.exports = async (config) => {
-  if (!config.api.public.mount) {
-    return goofy.info('Oh snap! Public API not mounted...')
+  if (!config.api.public.init) {
+    return logger.info('Oh snap! Public API not mounted...')
   }
 
   const server = new Hapi.Server({
@@ -84,9 +84,9 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    goofy.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
+    logger.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
   } catch (err) {
-    goofy.error(err)
+    logger.error(err)
 
     process.exit(1)
   }

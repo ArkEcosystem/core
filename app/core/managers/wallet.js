@@ -1,6 +1,6 @@
 const Wallet = require('app/models/wallet')
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
 
@@ -89,20 +89,20 @@ module.exports = class WalletManager {
         this.walletsByAddress[recipientId] = recipient
       }
       if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-        goofy.error(sender)
-        goofy.error(JSON.stringify(datatx))
+        logger.error(sender)
+        logger.error(JSON.stringify(datatx))
         return reject(new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`))
       } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-        goofy.error(sender)
-        goofy.error(JSON.stringify(datatx))
+        logger.error(sender)
+        logger.error(JSON.stringify(datatx))
         return reject(new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`))
       }
       if (config.network.exceptions[datatx.id]) {
-        goofy.warn('Transaction is forced to be applied because it has been added as an exception:')
-        goofy.warn(JSON.stringify(datatx))
+        logger.warn('Transaction is forced to be applied because it has been added as an exception:')
+        logger.warn(JSON.stringify(datatx))
       } else if (!sender.canApply(datatx)) {
-        goofy.error(sender)
-        goofy.error(JSON.stringify(datatx))
+        logger.error(sender)
+        logger.error(JSON.stringify(datatx))
         return reject(new Error(`Can't apply transaction ${datatx.id}`))
       }
       sender.applyTransactionToSender(datatx)
