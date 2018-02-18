@@ -20,9 +20,7 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-process.on('unhandledRejection', (reason, p) => {
-  logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
 
 async function init () {
   try {

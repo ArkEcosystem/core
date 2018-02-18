@@ -16,9 +16,7 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: Promise ${p} reason: ${reason}`)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
 
 async function init () {
   try {
