@@ -250,7 +250,7 @@ module.exports = class SequelizeDB extends DBInterface {
       let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${round[0].round}`, {type: Sequelize.QueryTypes.SELECT})
 
       round.forEach(delegate => {
-        let idx = lastBlockGenerators.findIndex(roundGenerator => roundGenerator.generatorPublicKey === delegate.publicKey)
+        let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
