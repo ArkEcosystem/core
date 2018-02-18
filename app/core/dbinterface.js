@@ -91,11 +91,12 @@ class DBInterface {
     tickSyncTracker(block, rebuild, fastRebuild)
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
+        await this.updateDelegateStats(this.activedelegates)
         await this.buildDelegates(block)
         await this.saveRounds(this.activedelegates)
       } else {
         goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
-
+        await this.updateDelegateStats(this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
         await this.buildDelegates(block) // active build delegate list from database state
         await this.saveRounds(this.activedelegates) // save next round delegate list

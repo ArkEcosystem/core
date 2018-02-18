@@ -239,6 +239,26 @@ module.exports = class SequelizeDB extends DBInterface {
     }
   }
 
+    // called before calculating new round
+    async updateDelegateStats (round) {
+      if (!round) {
+        return
+      }
+      goofy.debug('Calculating delegate statistics')
+
+      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${round[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+
+      // remove the matching ones
+      round.forEach(delegate => {
+        let idx = lastBlockGenerators.findIndex(roundGenerator => roundGenerator.generatorPublicKey === delegate.publicKey)
+        const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
+        idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
+
+        this.walletManager.updateWallet(wallet)
+      })
+    }
+
   async saveWallets (force) {
     await this.db.transaction(t =>
       Promise.all(
