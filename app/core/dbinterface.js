@@ -87,6 +87,9 @@ class DBInterface {
   // deleteRound (round) {
   // }
 
+  // updateDelegateStats (round) {
+  // }
+
   async applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {

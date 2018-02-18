@@ -78,7 +78,9 @@ module.exports = function syncTables (db) {
     vote: Sequelize.STRING(66),
     username: Sequelize.STRING(64),
     balance: Sequelize.BIGINT,
-    votebalance: Sequelize.BIGINT
+    votebalance: Sequelize.BIGINT,
+    producedBlocks: Sequelize.BIGINT,
+    missedBlocks: Sequelize.BIGINT
   }, {
     indexes: [{
       unique: true,
