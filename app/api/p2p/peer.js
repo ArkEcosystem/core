@@ -1,5 +1,5 @@
 const popsicle = require('popsicle')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
@@ -46,7 +46,7 @@ module.exports = class Peer {
 
       return res.body
     } catch (error) {
-      // goofy.error(error)
+      // logger.error(error)
 
       this.status = error.code
     }
@@ -66,7 +66,7 @@ module.exports = class Peer {
 
       return res.body
     } catch (error) {
-      goofy.error(error)
+      logger.error(error)
 
       this.status = error.code
     }
@@ -97,7 +97,7 @@ module.exports = class Peer {
 
       return response.body.blocks
     } catch (error) {
-      goofy.debug('Cannot Download blocks from peer', error)
+      logger.debug(`Cannot Download blocks from peer - ${error}`)
 
       this.ban = new Date().getTime() + 60 * 60000
     }

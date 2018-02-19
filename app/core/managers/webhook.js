@@ -2,7 +2,7 @@ const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
 const db = require('app/core/dbinterface')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const queue = require('app/core/managers/queue')
 
 let instance
@@ -25,7 +25,7 @@ module.exports = class WebhookManager {
     return instance
   }
 
-  async mount () {
+  async init () {
     if (!this.config.enabled) return false
 
     map(this.config.events, 'name').forEach((event) => {
@@ -55,12 +55,12 @@ module.exports = class WebhookManager {
           data: response.data
         }
       } catch (error) {
-        goofy.error(`Job ${job.id} failed! ${error.message}`)
+        logger.error(`Job ${job.id} failed! ${error.message}`)
       }
     })
 
     this.queue.on('completed', (job, result) => {
-      goofy.debug(`Job ${job.id} completed! Event [${job.data.webhook.event}] has been transmitted to [${job.data.webhook.target}] with a status of [${result.status}].`)
+      logger.debug(`Job ${job.id} completed! Event [${job.data.webhook.event}] has been transmitted to [${job.data.webhook.target}] with a status of [${result.status}].`)
 
       job.remove()
     })

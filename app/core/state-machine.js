@@ -1,6 +1,6 @@
 const Machine = require('xstate').Machine
 const arkjs = require('arkjs')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const Block = require('app/models/block')
 const sleep = require('app/utils/sleep')
 
@@ -186,30 +186,30 @@ blockchainMachine.actionMap = (blockchainManager) => {
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
-      goofy.debug('Blocks in queue:', blockchainManager.processQueue.length())
+      logger.debug(`Blocks in queue: ${blockchainManager.processQueue.length()}`)
       if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
     },
-    downloadFinished: () => goofy.info('Blockchain download completed 🚀'),
-    downloadPaused: () => goofy.info('Blockchain download paused 🕥'),
+    downloadFinished: () => logger.info('Blockchain download completed 🚀'),
+    downloadPaused: () => logger.info('Blockchain download paused 🕥'),
     syncingFinished: () => {
-      goofy.info('Blockchain completed, congratulations! 🦄')
+      logger.info('Blockchain completed, congratulations! 🦄')
       blockchainManager.dispatch('SYNCFINISHED')
     },
     exitApp: () => {
-      goofy.error('Failed to startup blockchain, exiting app...')
+      logger.error('Failed to startup blockchain, exiting app...')
       process.exit(0)
     },
     init: async () => {
       try {
         let block = await blockchainManager.db.getLastBlock()
         if (!block) {
-          goofy.warn('No block found in database')
+          logger.warn('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
           if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
-            goofy.error('FATAL: The genesis block payload hash is different from configured nethash')
+            logger.error('FATAL: The genesis block payload hash is different from configured nethash')
             return blockchainManager.dispatch('FAILURE')
           }
           await blockchainManager.db.saveBlock(block)
@@ -220,8 +220,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
         state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
-        goofy.info('Fast rebuild:', state.fastRebuild)
-        goofy.info('Last block in database:', block.data.height)
+        logger.info(`Fast rebuild: ${state.fastRebuild}`)
+        logger.info(`Last block in database: ${block.data.height}`)
         await blockchainManager.db.buildWallets()
         await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
         await blockchainManager.db.saveWallets(true)
@@ -230,7 +230,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         }
         return blockchainManager.dispatch('SUCCESS')
       } catch (error) {
-        goofy.info(error.message)
+        logger.info(error.message)
         return blockchainManager.dispatch('FAILURE')
       }
     },
@@ -240,11 +240,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
       const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
-        goofy.info('No new block found on this peer')
+        logger.info('No new block found on this peer')
 
         blockchainManager.dispatch('NOBLOCK')
       } else {
-        goofy.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
 
         if (blocks.length && blocks[0].previousBlock === block.data.id) {
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}

@@ -1,7 +1,7 @@
 const async = require('async')
 const arkjs = require('arkjs')
 const Block = require('app/models/block')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
 
@@ -43,13 +43,12 @@ module.exports = class BlockchainManager {
 
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
-    goofy.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)}`)
-    goofy.debug('| actions:', JSON.stringify(nextState.actions))
+    logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
     stateMachine.state.blockchain = nextState
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
       if (action) return setTimeout(() => action.call(this, event), 0)
-      else goofy.error(`No action ${actionKey} found`)
+      logger.error(`No action ${actionKey} found`)
     })
   }
 
@@ -97,17 +96,17 @@ module.exports = class BlockchainManager {
   }
 
   postTransactions (transactions) {
-    goofy.info('Received new transactions', transactions.map(transaction => transaction.id))
+    logger.info(`Received new transactions ${transactions.map(transaction => transaction.id)}`)
     return this.transactionPool.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
-    goofy.info('Received new block at height', block.height)
+    logger.info(`Received new block at height ${block.height}`)
     this.downloadQueue.push(block)
   }
 
   async removeBlocks (nblocks) {
-    goofy.info(`Starting ${nblocks} blocks undo from height`, stateMachine.state.lastBlock.data.height)
+    logger.info(`Starting ${nblocks} blocks undo from height ${stateMachine.state.lastBlock.data.height}`)
     await this.pauseQueues()
     await this.__removeBlocks(nblocks)
     await this.clearQueues()
@@ -117,7 +116,7 @@ module.exports = class BlockchainManager {
   async __removeBlocks (nblocks) {
     if (!nblocks) return
 
-    goofy.info('Undoing block', stateMachine.state.lastBlock.data.height)
+    logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
 
     await this.undoLastBlock()
 
@@ -164,31 +163,31 @@ module.exports = class BlockchainManager {
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           this.transactionPool.send({event: 'addBlock', data: block})
-          return qcallback()
+          qcallback()
         } catch (error) {
-          goofy.error(error)
-          goofy.debug('Refused new block', block.data)
+          logger.error(error)
+          logger.debug(`Refused new block ${block.data}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')
-          return qcallback()
+          qcallback()
         }
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
         // this.processQueue.push(block.data)
-        goofy.info('Block disregarded because blockchain not ready to accept it', block.data.height, 'lastBlock', state.lastBlock.data.height)
+        logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
         state.lastDownloadedBlock = state.lastBlock
         qcallback()
       } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
-        goofy.debug('Block disregarded because already in blockchain')
+        logger.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {
         // TODO: manage fork here
         this.dispatch('FORK')
-        goofy.info('Block disregarded because on a fork')
+        logger.info('Block disregarded because on a fork')
         qcallback()
       }
     } else {
-      goofy.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }

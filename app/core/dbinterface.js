@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
 const WalletManager = require('app/core/managers/wallet')
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
@@ -20,8 +20,11 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
     }
     const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
     const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    if (block.data.timestamp - arkjs.slots.getTime() < 8) goofy.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
-    else goofy.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    if (block.data.timestamp - arkjs.slots.getTime() < 8) {
+      logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+    } else {
+      logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    }
   }
 }
 
@@ -105,7 +108,7 @@ class DBInterface {
         await this.buildDelegates(block)
         await this.saveRounds(this.activedelegates)
       } else {
-        goofy.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
+        logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
 
         await this.saveWallets(false) // save only modified wallets during the last round
         await this.buildDelegates(block) // active build delegate list from database state
@@ -122,7 +125,7 @@ class DBInterface {
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
     if (previousRound + 1 === round && block.data.height > 51) {
-      goofy.info('Back to previous round', previousRound)
+      logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list

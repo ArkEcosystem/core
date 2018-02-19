@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const commander = require('commander')
 const packageJson = require('../package.json')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const ForgerManager = require('app/core/managers/forger')
 const inquirer = require('inquirer');
 const Delegate = require('app/models/delegate')
@@ -34,23 +34,21 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
 
 const delegateFilePath = path.resolve(commander.config, 'delegates.json')
 
-async function boot (password, address) {
+async function init (password, address) {
   try {
-    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name + '-forger')
+    logger.init(config.server.logging, config.network.name + '-forger')
 
     const forgerManager = await new ForgerManager(config, password)
     const forgers = await forgerManager.loadDelegates(address)
 
-    goofy.info('ForgerManager started with', forgers.length, 'forgers')
+    logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    goofy.error('fatal error', error)
+    logger.error('fatal error', error)
   }
 }
 
@@ -58,7 +56,7 @@ async function configure () {
   await config.init(commander.config)
 
   if (config.server.test) {
-    return boot()
+    return init()
   }
 
   if (!config.delegates.bip38) {
@@ -69,14 +67,14 @@ async function configure () {
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
-          return boot(answers.password)
+          return init(answers.password)
         }
       })
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
       if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
-        return boot(answers.password, answers.address)
+        return init(answers.password, answers.address)
       } else {
         throw new Error('Invalid Address Provided')
       }

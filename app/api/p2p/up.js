@@ -1,4 +1,4 @@
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const Hapi = require('hapi')
 
 module.exports = class Up {
@@ -35,9 +35,9 @@ module.exports = class Up {
     try {
       await this.server.start()
 
-      goofy.info(`Oh hapi day! P2P API is listening on ${this.server.info.uri}`)
+      logger.info(`Oh hapi day! P2P API is listening on ${this.server.info.uri}`)
     } catch (err) {
-      goofy.error(err)
+      logger.error(err)
 
       process.exit(1)
     }

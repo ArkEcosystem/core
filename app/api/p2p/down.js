@@ -1,5 +1,5 @@
 const Peer = require('./peer')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const dns = require('dns')
 const isLocalhost = require('app/utils/is-localhost')
 
@@ -30,7 +30,7 @@ module.exports = class Down {
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      goofy.error(error)
+      logger.error(error)
 
       this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
@@ -48,12 +48,12 @@ module.exports = class Down {
     const max = keys.length
     let wrongpeers = 0
 
-    goofy.info('Looking for network peers')
+    logger.info('Looking for network peers')
 
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.peers[ip].ping()
-        goofy.printTracker('Peers Discovery', ++count, max, null, null)
+        logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
         delete this.peers[ip]
@@ -62,8 +62,8 @@ module.exports = class Down {
       }
     }))
 
-    goofy.stopTracker('Peers Discovery', max, max)
-    goofy.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
+    logger.stopTracker('Peers Discovery', max, max)
+    logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
   }
 
   async acceptNewPeer (peer) {
@@ -76,7 +76,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
     } catch (error) {
-      goofy.debug('Peer not connectable', npeer, error)
+      logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }
   }
 
@@ -91,10 +91,10 @@ module.exports = class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      // goofy.error(this.peers)
+      // logger.error(this.peers)
       delete this.peers[random]
       this.isOnline(online => {
-        if (!online) goofy.error('Seems the noe cannott access to internet (tested google DNS)')
+        if (!online) logger.error('Seems the noe cannott access to internet (tested google DNS)')
       })
       return this.getRandomPeer()
     }
@@ -108,7 +108,7 @@ module.exports = class Down {
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
-      // goofy.error(this.peers)
+      // logger.error(this.peers)
       delete this.peers[random]
       return this.getRandomPeer()
     }
@@ -146,7 +146,7 @@ module.exports = class Down {
 
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
-    goofy.info('Downloading blocks from', randomPeer.url, 'from block', fromBlockHeight)
+    logger.info(`Downloading blocks from ${randomPeer.url} from block ${fromBlockHeight}`)
 
     try {
       await randomPeer.ping()
