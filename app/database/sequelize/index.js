@@ -242,7 +242,7 @@ module.exports = class SequelizeDB extends DBInterface {
     if (!activedelegates) {
       return
     }
-    goofy.debug('Calculating delegate statistics')
+    logger.debug('Calculating delegate statistics')
     try {
       let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${activedelegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
 
@@ -253,7 +253,7 @@ module.exports = class SequelizeDB extends DBInterface {
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
       })
     } catch (error) {
-      goofy.error(error)
+      logger.error(error)
     }
   }
 
