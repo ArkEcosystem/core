@@ -1,5 +1,5 @@
 const arkjs = require('arkjs')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const blockchain = require('app/core/managers/blockchain')
 const Transaction = require('app/models/transaction')
 
@@ -107,7 +107,7 @@ exports.getBlocks = {
 
       return { success: true, blocks: blocks }
     } catch (error) {
-      goofy.error(error)
+      logger.error(error)
       return h.response({ success: false, error: error }).code(500)
     }
   }

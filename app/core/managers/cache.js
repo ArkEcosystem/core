@@ -1,6 +1,6 @@
 const Promise = require('bluebird')
 const redis = require('redis')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 
 let instance
 
@@ -9,11 +9,11 @@ module.exports = class Cache {
     Promise.promisifyAll(redis.RedisClient.prototype)
 
     if (!instance) {
-      goofy.debug('Cache has been instantiated.');
+      logger.debug('Cache has been instantiated.');
 
       instance = this
     } else {
-      goofy.debug('Cache already instantiated.');
+      logger.debug('Cache already instantiated.');
     }
 
     this.client = redis.createClient(Object.keys(config).forEach((key) => (config[key] == null) && delete config[key]))

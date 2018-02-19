@@ -1,7 +1,7 @@
 const async = require('async')
 const arkjs = require('arkjs')
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
 
@@ -10,7 +10,7 @@ let instance = null
 module.exports = async (message, done) => {
   if (message.event === 'init') {
     const conf = await config.init(message.data)
-    goofy.init(null, conf.server.fileLogLevel, conf.network.name + '_transactionPool')
+    logger.init(conf.server.logging, conf.network.name + '_transactionPool')
     instance = new TransactionPool()
     return done()
   }
@@ -51,7 +51,7 @@ class TransactionPool {
       }
       instance.walletManager.updateWallet(acc)
     })
-    goofy.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
+    logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
   }
 
   async addTransaction (transaction) {
@@ -72,7 +72,7 @@ class TransactionPool {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    goofy.debug(`removing ${block.transactions.length} transactions from transactionPool`)
+    logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)

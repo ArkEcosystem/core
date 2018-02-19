@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
 const WalletManager = require('app/core/managers/wallet')
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
@@ -20,8 +20,11 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
     }
     const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
     const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    if (block.data.timestamp - arkjs.slots.getTime() < 8) goofy.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
-    else goofy.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    if (block.data.timestamp - arkjs.slots.getTime() < 8) {
+      logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+    } else {
+      logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    }
   }
 }
 
@@ -54,38 +57,49 @@ class DBInterface {
     instance['wallets'] = new (require('app/database/repositories/wallets'))(instance)
   }
 
-  // getActiveDelegates (height) {
-  // }
+  getActiveDelegates (height) {
+    throw new Error('Method [getActiveDelegates] not implemented!')
+  }
 
-  // buildDelegates (block) {
-  // }
+  buildDelegates (block) {
+    throw new Error('Method [buildDelegates] not implemented!')
+  }
 
-  // buildWallets () {
-  // }
+  buildWallets () {
+    throw new Error('Method [buildWallets] not implemented!')
+  }
 
-  // saveWallets (force) {
-  // }
+  saveWallets (force) {
+    throw new Error('Method [saveWallets] not implemented!')
+  }
 
-  // saveBlock (block) {
-  // }
+  saveBlock (block) {
+    throw new Error('Method [saveBlock] not implemented!')
+  }
 
-  // deleteBlock (block) {
-  // }
+  deleteBlock (block) {
+    throw new Error('Method [deleteBlock] not implemented!')
+  }
 
-  // getBlock (id) {
-  // }
+  getBlock (id) {
+    throw new Error('Method [getBlock] not implemented!')
+  }
 
-  // getLastBlock () {
-  // }
+  getLastBlock () {
+    throw new Error('Method [getLastBlock] not implemented!')
+  }
 
-  // getBlocks (offset, limit) {
-  // }
+  getBlocks (offset, limit) {
+    throw new Error('Method [getBlocks] not implemented!')
+  }
 
-  // saveRounds (rounds) {
-  // }
+  saveRounds (rounds) {
+    throw new Error('Method [saveRounds] not implemented!')
+  }
 
-  // deleteRound (round) {
-  // }
+  deleteRound (round) {
+    throw new Error('Method [deleteRound] not implemented!')
+  }
 
   // updateDelegateStats (delegates) {
   // }
@@ -115,7 +129,7 @@ class DBInterface {
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
     if (previousRound + 1 === round && block.data.height > 51) {
-      goofy.info('Back to previous round', previousRound)
+      logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list

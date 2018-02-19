@@ -1,5 +1,5 @@
 const config = require('app/core/config')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
@@ -11,7 +11,7 @@ module.exports = async function () {
   try {
     await config.init('config/devnet')
 
-    goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+    logger.init(config.server.logging, config.network.name)
 
     const blockchainManager = await new BlockchainManager(config)
     const p2p = await new P2PInterface(config)
@@ -25,9 +25,9 @@ module.exports = async function () {
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    goofy.info('Mounting Public API')
+    logger.info('Initialising Public API')
     await PublicAPI(config)
   } catch (error) {
-    goofy.error(error)
+    logger.error(error)
   }
 }

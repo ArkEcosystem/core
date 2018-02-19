@@ -1,6 +1,6 @@
 const commander = require('commander')
 const packageJson = require('../package.json')
-const goofy = require('app/core/goofy')
+const logger = require('app/core/logger')
 const config = require('app/core/config')
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
@@ -16,44 +16,43 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  goofy.error('Unhandled Rejection at: Promise', p, 'reason:', reason)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
 
-async function boot () {
+async function init () {
   try {
     await config.init(commander.config)
 
-    await goofy.init(config.server.logging.console, config.server.logging.file, config.network.name)
+    await logger.init(config.server.logging, config.network.name)
     const blockchainManager = await new BlockchainManager(config)
 
-    goofy.info('Mounting Dependencies...')
+    logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    goofy.info('Mounting Queue Manager...')
+    logger.info('Initialising Queue Manager...')
     await new QueueManager(config.server.queue)
 
-    goofy.info('Mounting Webhook Manager...')
-    await new WebhookManager(config.webhooks).mount()
+    logger.info('Initialising Webhook Manager...')
+    await new WebhookManager(config.webhooks).init()
 
-    goofy.info('Mounting Database Interface...')
+    logger.info('Initialising Database Interface...')
     const db = await DB.create(config.server.db)
     await blockchainManager.attachDBInterface(db)
 
-    goofy.info('Mounting P2P Interface...')
+    logger.info('Initialising P2P Interface...')
     const p2p = await new P2PInterface(config)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)
 
-    goofy.info('Mounting Blockchain Manager...')
+    logger.info('Initialising Blockchain Manager...')
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    goofy.info('Mounting Public API...')
+    logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
-    goofy.error('fatal error', error)
+    logger.error('Fatal Error - Exiting...')
+    process.exit(1)
   }
 }
 
-boot()
+init()
