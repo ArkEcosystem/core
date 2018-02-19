@@ -25,23 +25,22 @@ module.exports = class Wallet {
   applyTransactionToSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || arkjs.crypto.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance -= transaction.amount + transaction.fee
-      switch (transaction.type) {
-        case 1:
-          this.secondPublicKey = transaction.asset.signature.publicKey
-          break
-        case 2:
-          this.username = transaction.asset.delegate.username
-          break
-        case 3:
-          if (transaction.asset.votes[0].startsWith('+')) {
-            this.vote = transaction.asset.votes[0].slice(1)
-          } else if (transaction.asset.votes[0].startsWith('-')) {
-            this.vote = null
-          }
-          break
-        case 4:
-          this.multisignature = transaction.asset.multisignature
+
+      const actions = {
+        1: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
+        2: () => (this.username = transaction.asset.delegate.username),
+        3: () => {
+            if (transaction.asset.votes[0].startsWith('+')) {
+              this.vote = transaction.asset.votes[0].slice(1)
+            } else if (transaction.asset.votes[0].startsWith('-')) {
+              this.vote = null
+            }
+        },
+        4: () => (this.multisignature = transaction.asset.multisignature)
       }
+
+      actions[transaction.type]()
+
       this.dirty = true
     }
   }
@@ -49,30 +48,25 @@ module.exports = class Wallet {
   undoTransactionToSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || arkjs.crypto.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance += transaction.amount + transaction.fee
-      switch (transaction.type) {
-        case 1:
-          this.secondPublicKey = null
-          break
-        case 2:
-          this.username = null
-          break
-        case 3:
+
+      const actions = {
+        1: () => (this.secondPublicKey = null),
+        2: () => (this.username = null),
+        3: () => {
           if (transaction.asset.votes[0].startsWith('+')) {
             this.vote = null
           } else if (transaction.asset.votes[0].startsWith('-')) {
             this.vote = transaction.asset.votes[0].slice(1)
           }
-          break
-        case 4:
-          this.multisignature = null
-          break
-        case 5:
-          break
-        case 6:
-          break
-        case 7:
-          break
+        },
+        4: () => (this.multisignature = null),
+        5: () => {},
+        6: () => {},
+        7: () => {}
       }
+
+      actions[transaction.type]()
+
       this.dirty = true
     }
   }
@@ -120,40 +114,30 @@ module.exports = class Wallet {
     }
     if (!check) return false
 
-    switch (transaction.type) {
-      case 0: // transfer
-        return true
-
-      case 1: // second signature registration
-        return !this.secondPublicKey
-
-      case 2:
+    const actions = {
+      0: () => (true), // transfer
+      1: () => (!this.secondPublicKey), // second signature registration
+      2: () => {
         const username = transaction.asset.delegate.username
         return !this.username && username && username === username.toLowerCase()
-
-      case 3:
+      },
+      3: () => {
         if (transaction.asset.votes[0].startsWith('-') && this.vote) return true
-        else if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
-        else return false
+        if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
 
-      case 4:
-        return !this.multisignature && transaction.asset.multisignature.keysgroup.length >= transaction.asset.multisignature.min - 1 && transaction.asset.multisignature.keysgroup.length === transaction.signatures.length && this.verifySignatures(transaction, transaction.asset.multisignature)
-
-      case 5:
-        return true
-
-      case 6:
-        return true
-
-      case 7: // multipayment
-        return this.balance - transaction.asset.payments.reduce((a, p) => (a += p.amount), 0) - transaction.fee > -1
-
-      case 8: // delegate resignation
-        return !!this.username
-
-      default:
         return false
+      },
+      4: () => (!this.multisignature && transaction.asset.multisignature.keysgroup.length >= transaction.asset.multisignature.min - 1 && transaction.asset.multisignature.keysgroup.length === transaction.signatures.length && this.verifySignatures(transaction, transaction.asset.multisignature)),
+      5: () => (true),
+      6: () => (true),
+      7: () => (this.balance - transaction.asset.payments.reduce((a, p) => (a += p.amount), 0) - transaction.fee > -1), // multipayment
+      8: () => (!!this.username), // delegate resignation
+      'default': () => (false)
     }
+
+    actions[transaction.type]
+      ? actions[transaction.type]()
+      : actions['default']()
   }
 
   verifySignatures (transaction, multisignature) {
