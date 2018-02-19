@@ -14,7 +14,7 @@ const register = async (server, options) => {
     type: 'onPreResponse',
     method: async (request, h) => {
       if (request.response.isBoom) {
-        requiredHeaders.forEach((key) => (request.response.headers[key] = _headers[key]))
+        requiredHeaders.forEach((key) => (request.response.output.headers[key] = _headers[key]))
       } else {
         requiredHeaders.forEach((key) => request.response.header(key, _headers[key]))
       }
