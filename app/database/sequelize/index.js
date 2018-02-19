@@ -136,7 +136,6 @@ module.exports = class SequelizeDB extends DBInterface {
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.balance += parseInt(row.reward)
-        wallet.producedBlocks += parseInt(row.produced)
       })
 
       // Last block forged for each delegate
@@ -235,6 +234,26 @@ module.exports = class SequelizeDB extends DBInterface {
       return this.walletManager.walletsByAddress || []
     } catch (error) {
       logger.error(error)
+    }
+  }
+
+  // must be called before builddelegates for  new round
+  async updateDelegateStats (activedelegates) {
+    if (!activedelegates) {
+      return
+    }
+    goofy.debug('Calculating delegate statistics')
+    try {
+      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${activedelegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+
+        activedelegates.forEach(delegate => {
+        let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
+        idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
+      })
+    } catch (error) {
+      goofy.error(error)
     }
   }
 
