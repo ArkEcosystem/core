@@ -112,7 +112,7 @@ class DBInterface {
         await this.buildDelegates(block)
         await this.saveRounds(this.activedelegates)
       } else {
-        logger.info('New round', block.data.height / config.getConstants(block.data.height).activeDelegates)
+        logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
         await this.updateDelegateStats(this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
         await this.buildDelegates(block) // active build delegate list from database state
