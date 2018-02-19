@@ -44,60 +44,57 @@ module.exports = class Transaction {
     } else {
       bb.writeByte(0x00)
     }
-    switch (transaction.type) {
-      case 0: // Transfer
+
+    const actions = {
+      0: () => { // Transfer
         bb.writeUInt64(transaction.amount)
         bb.writeUInt32(transaction.expiration || 0)
         bb.append(bs58check.decode(transaction.recipientId))
-        break
-
-      case 1: // Signature
+      },
+      1: () => { // Signature
         bb.append(transaction.asset.signature.publicKey, 'hex')
-        break
-
-      case 2: // Delegate
+      },
+      2: () => { // Delegate
         const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
         bb.writeByte(delegateBytes.length)
         bb.append(delegateBytes, 'hex')
-        break
-
-      case 3: // Vote
+      },
+      3: () => { // Vote
         const voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
         bb.writeByte(transaction.asset.votes.length)
         bb.append(voteBytes, 'hex')
-        break
-
-      case 4: // Multi-Signature
+      },
+      4: () => { // Multi-Signature
         const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join(''), 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
         bb.append(keysgroupBuffer, 'hex')
-        break
-
-      case 5: // IPFS
+      },
+      5: () => { // IPFS
         bb.writeByte(transaction.asset.ipfs.dag.length / 2)
         bb.append(transaction.asset.ipfs.dag, 'hex')
-        break
-
-      case 6: // timelock transfer
+      },
+      6: () => { // timelock transfer
         bb.writeUInt64(transaction.amount)
         bb.writeByte(transaction.timelocktype)
         bb.writeUInt32(transaction.timelock)
         bb.append(bs58check.decode(transaction.recipientId))
-        break
-
-      case 7: // multipayment
+      },
+      7: () => { // multipayment
         bb.writeUInt32(transaction.asset.payments.length)
         transaction.asset.payments.forEach(p => {
           bb.writeUInt64(p.amount)
           bb.append(bs58check.decode(p.recipientId))
         })
-        break
-
-      case 8: // delegate resignation - empty payload
-        break
+      },
+      8: () => {
+        // delegate resignation - empty payload
+      }
     }
+
+    actions[transaction.type]()
+
     if (transaction.signature) bb.append(transaction.signature, 'hex')
     if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')
     else if (transaction.signSignature) bb.append(transaction.signSignature, 'hex')

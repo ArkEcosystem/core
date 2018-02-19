@@ -57,38 +57,49 @@ class DBInterface {
     instance['wallets'] = new (require('app/database/repositories/wallets'))(instance)
   }
 
-  // getActiveDelegates (height) {
-  // }
+  getActiveDelegates (height) {
+    throw new Error('Method [getActiveDelegates] not implemented!')
+  }
 
-  // buildDelegates (block) {
-  // }
+  buildDelegates (block) {
+    throw new Error('Method [buildDelegates] not implemented!')
+  }
 
-  // buildWallets () {
-  // }
+  buildWallets () {
+    throw new Error('Method [buildWallets] not implemented!')
+  }
 
-  // saveWallets (force) {
-  // }
+  saveWallets (force) {
+    throw new Error('Method [saveWallets] not implemented!')
+  }
 
-  // saveBlock (block) {
-  // }
+  saveBlock (block) {
+    throw new Error('Method [saveBlock] not implemented!')
+  }
 
-  // deleteBlock (block) {
-  // }
+  deleteBlock (block) {
+    throw new Error('Method [deleteBlock] not implemented!')
+  }
 
-  // getBlock (id) {
-  // }
+  getBlock (id) {
+    throw new Error('Method [getBlock] not implemented!')
+  }
 
-  // getLastBlock () {
-  // }
+  getLastBlock () {
+    throw new Error('Method [getLastBlock] not implemented!')
+  }
 
-  // getBlocks (offset, limit) {
-  // }
+  getBlocks (offset, limit) {
+    throw new Error('Method [getBlocks] not implemented!')
+  }
 
-  // saveRounds (rounds) {
-  // }
+  saveRounds (rounds) {
+    throw new Error('Method [saveRounds] not implemented!')
+  }
 
-  // deleteRound (round) {
-  // }
+  deleteRound (round) {
+    throw new Error('Method [deleteRound] not implemented!')
+  }
 
   async applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)

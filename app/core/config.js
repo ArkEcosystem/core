@@ -5,6 +5,7 @@ const Sntp = require('sntp')
 const deepmerge = require('deepmerge')
 const isString = require('lodash/isString')
 const logger = require('app/core/logger')
+const assert = require('assert-plus')
 
 let instance = null
 
@@ -22,6 +23,8 @@ class Config {
       if (isString(config)) {
         config = this._loadFromFile(config)
       }
+
+      assert.object(config)
 
       for (const [key, value] of Object.entries(config)) {
         this[key] = value
