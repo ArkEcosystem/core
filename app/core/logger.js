@@ -62,26 +62,8 @@ class Logger {
       timestamp: () => Date.now(),
       formatter: (info) => winstonConsoleFormatter(info)
     })
-  }
 
-  error (message) {
-    return this.winston.error(message)
-  }
-
-  warn (message) {
-    return this.winston.warn(message)
-  }
-
-  info (message) {
-    return this.winston.info(message)
-  }
-
-  verbose (message) {
-    return this.winston.verbose(message)
-  }
-
-  debug (message) {
-    return this.winston.debug(message)
+    Object.assign(this, this.winston)
   }
 
   printTracker (title, current, max, posttitle, figures = 0) {
