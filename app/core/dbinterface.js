@@ -101,11 +101,13 @@ class DBInterface {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
-  // updateDelegateStats (delegates) {
-  // }
+  updateDelegateStats (delegates) {
+    throw new Error('Method [updateDelegateStats] not implemented!')
+  }
 
   async applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)
+
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
         await this.updateDelegateStats(this.activedelegates)

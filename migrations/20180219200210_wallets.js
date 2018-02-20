@@ -1,6 +1,7 @@
 exports.up = (knex, Promise) => {
   return knex.schema.createTable('wallets', table => {
-    table.string('address', 36).primary().unique()
+    table.increments()
+    table.string('address', 36).unique().index()
     table.string('publicKey', 66).unique().index()
     table.string('secondPublicKey', 66)
     table.string('vote', 66).index()

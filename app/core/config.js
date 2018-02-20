@@ -39,7 +39,7 @@ class Config {
 
       return this
     } catch (error) {
-      logger.error(error)
+      logger.error(JSON.stringify(error))
     }
   }
 

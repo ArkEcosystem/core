@@ -41,7 +41,7 @@ module.exports = class BlocksRepository {
     return this.db.blocksTable.findOne({
       limit: 1,
       where: { generatorPublicKey },
-      order: [[ 'createdAt', 'DESC' ]],
+      order: [[ 'created_at', 'DESC' ]],
       attributes: ['id', 'timestamp']
     })
   }
@@ -50,7 +50,7 @@ module.exports = class BlocksRepository {
     return this.db.blocksTable.findAndCountAll({
       attributes: ['totalFee', 'reward'],
       where: {
-        createdAt: {
+        created_at: {
           [Op.lte]: moment(to).endOf('day').toDate(),
           [Op.gte]: moment(from).startOf('day').toDate()
         }

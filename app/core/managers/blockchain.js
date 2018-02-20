@@ -165,7 +165,7 @@ module.exports = class BlockchainManager {
           this.transactionPool.send({event: 'addBlock', data: block})
           qcallback()
         } catch (error) {
-          logger.error(error)
+          logger.error(JSON.stringify(error))
           logger.debug(`Refused new block ${block.data}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')

@@ -60,43 +60,29 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   saveRounds (rounds) {
-    return this.roundsTable.bulkCreate(rounds)
+    return this.roundsTable.batchInsert(rounds)
   }
 
   deleteRound (round) {
-    return this.roundsTable.destroy({where: {round}})
+    console.log('delete', round)
+    return this.roundsTable.query().delete().where('id', round)
   }
 
   async buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
 
-    let data = await this.walletsTable.findAll({
-      attributes: [
-        ['vote', 'publicKey'],
-        [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
-      ],
-      group: 'vote',
-      where: {
-        vote: {
-          [Sequelize.Op.ne]: null
-        }
-      }
-    })
+    let data = await this.walletsTable.query()
+      .select('vote', 'publicKey', this.db.raw('SUM(balance) as balance'))
+      .whereNotNull('vote')
+      .groupBy('vote')
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < activeDelegates) {
-      const data2 = await this.walletsTable.findAll({
-        attributes: [
-          'publicKey'
-        ],
-        where: {
-          username: {
-            [Sequelize.Op.ne]: null
-          }
-        },
-        order: [[ 'publicKey', 'ASC' ]],
-        limit: activeDelegates - data.length
-      })
+      const data2 = await this.walletsTable.query()
+        .select('publicKey')
+        .whereNotNull('username')
+        .orderBy('publicKey', 'asc')
+        .limit(activeDelegates - data.length)
 
       data = data.concat(data2)
     }
@@ -118,15 +104,12 @@ module.exports = class SequelizeDB extends DBInterface {
 
     // try {
       // Received TX
-      logger.printTracker('SPV Building', 1, 7, 'received transactions')
-      let data = await this.transactionsTable.findAll({
-        attributes: [
-          'recipientId',
-          [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
-        ],
-        where: {type: 0},
-        group: 'recipientId'
-      })
+      logger.printTracker('SPV Building', 1, 8, 'Received Transactions')
+
+      let data = await this.transactionsTable.query()
+        .select('recipientId', this.db.raw('sum(amount) as amount'))
+        .where('type', 0)
+        .groupBy('recipientId')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByAddress(row.recipientId)
@@ -138,31 +121,37 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Block Rewards
-      logger.printTracker('SPV Building', 2, 7, 'block rewards')
-      data = await this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      logger.printTracker('SPV Building', 2, 8, 'Block Rewards')
+
+      data = await this.blocksTable.query()
+        .select('generatorPublicKey', this.db.raw('SUM(`reward`+`totalFee`) as reward'), this.db.raw('count(*) as produced'))
+        .groupBy('generatorPublicKey')
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.balance += parseInt(row.reward)
       })
 
       // Last block forged for each delegate
-      data = await this.db.query('select *, max(`timestamp`) from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      logger.printTracker('SPV Building', 3, 8, 'Last Forged Blocks')
+
+      data = await this.blocksTable.query()
+        .select('*', this.db.raw('max(`timestamp`)'))
+        .groupBy('generatorPublicKey')
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
       })
 
       // Sent Transactions
-      data = await this.transactionsTable.findAll({
-        attributes: [
-          'senderPublicKey',
-          [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
-          [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
-        ],
-        group: 'senderPublicKey'
-      })
-      logger.printTracker('SPV Building', 3, 7, 'sent transactions')
-      data.forEach(row => {
+      logger.printTracker('SPV Building', 4, 8, 'Sent Transactions')
+
+      data = await this.transactionsTable.query()
+        .select('senderPublicKey', this.db.raw('SUM(amount) as amount'), this.db.raw('SUM(fee) as fee'))
+        .groupBy('senderPublicKey')
+
+        data.forEach(row => {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
         if (wallet.balance < 0) {
@@ -171,28 +160,24 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Second Signature
-      data = await this.transactionsTable.findAll({
-        attributes: [
-          'senderPublicKey',
-          'serialized'
-        ],
-        where: {type: 1}}
-      )
-      logger.printTracker('SPV Building', 4, 7, 'second signatures')
+      logger.printTracker('SPV Building', 5, 8, 'Second Signatures')
+
+      data = await this.transactionsTable.query()
+        .select('senderPublicKey', 'serialized')
+        .where('type', 1)
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
       })
 
       // Delegates
-      data = await this.transactionsTable.findAll({
-        attributes: [
-          'senderPublicKey',
-          'serialized'
-        ],
-        where: {type: 2}}
-      )
-      logger.printTracker('SPV Building', 5, 7, 'delegates')
+      logger.printTracker('SPV Building', 6, 8, 'Delegates')
+
+      data = await this.transactionsTable.query()
+        .select('senderPublicKey', 'serialized')
+        .where('type', 2)
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -200,15 +185,12 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Votes
-      data = await this.transactionsTable.findAll({
-        attributes: [
-          'senderPublicKey',
-          'serialized'
-        ],
-        order: [[ 'createdAt', 'DESC' ]],
-        where: {type: 3}}
-      )
-      logger.printTracker('SPV Building', 6, 7, 'votes')
+      logger.printTracker('SPV Building', 7, 8, 'Votes')
+
+      data = await this.transactionsTable.query()
+        .select('senderPublicKey', 'serialized')
+        .where('type', 3)
+        .orderBy('created_at', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -220,21 +202,19 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Multisignatures
-      data = await this.transactionsTable.findAll({
-        attributes: [
-          'senderPublicKey',
-          'serialized'
-        ],
-        order: [[ 'createdAt', 'DESC' ]],
-        where: {type: 4}}
-      )
-      logger.printTracker('SPV Building', 7, 7, 'multisignatures')
+      logger.printTracker('SPV Building', 8, 8, 'Multi Signatures')
+
+      data = await this.transactionsTable.query()
+        .select('senderPublicKey', 'serialized')
+        .where('type', 4)
+        .orderBy('created_at', 'desc')
+
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
       })
 
-      logger.stopTracker('SPV Building', 7, 7)
+      logger.stopTracker('SPV Building', 8, 8)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
@@ -260,18 +240,16 @@ module.exports = class SequelizeDB extends DBInterface {
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
       })
     } catch (error) {
-      logger.error(error)
+      logger.error(JSON.stringify(error))
     }
   }
 
   async saveWallets (force) {
-    await this.db.transaction(t =>
-      Promise.all(
-        Object.values(this.walletManager.walletsByPublicKey || {})
-          // cold addresses are not saved on database
-          .filter(acc => acc.publicKey && (force || acc.dirty))
-          .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
-      )
+    await Promise.all(
+      Object.values(this.walletManager.walletsByPublicKey || {})
+        // cold addresses are not saved on database
+        .filter(acc => acc.publicKey && (force || acc.dirty))
+        .map(acc => this.walletsTable.findOrInsert(acc))
     )
 
     logger.info('Rebuilt wallets saved')
@@ -280,84 +258,28 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async saveBlock (block) {
-    const { transaction } = require('objection')
-
-    // try {
-    //   await transaction(this.db, async (trx) => {
-    //     await this.blocksTable.query(trx).insert(block.data)
-    //     await this.transactionsTable.query(trx).insert(block.transactions || [])
-    //   })
-    // } catch (err) {
-    //   console.log(err)
-    // }
-const tx = await this
-  .db('transactions')
-  .join('blocks', 'transactions.blockId', 'blocks.id')
-  .first()
-console.log(tx)
-process.exit()
-
-    const row = await this.db('blocks').where('id', block.data.id).first()
-    if (!row) this.db('blocks').insert(block.data)
-
-    block.transactions = block.transactions.map(tx => {
-      delete tx['data']
-      delete tx['secondSignature']
-      delete tx['signature']
-      delete tx['verified']
-
-      return tx
-    })
-    const rows = await this.db.batchInsert('transactions', block.transactions)
-    console.log(rows)
-    process.exit()
-
-    // try {
-    //   transaction = await this.db.transaction()
-    //   await this.blocksTable.create(block.data, {transaction})
-    //   await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
-    //   await transaction.commit()
-    // } catch (error) {
-    //   logger.error(JSON.stringify(error))
-    //   await transaction.rollback()
-    // }
+    try {
+      await this.blocksTable.findOrInsert(block.data)
+      await this.transactionsTable.batchInsert(block.transactions || [])
+    } catch (error) {
+      logger.error(JSON.stringify(error))
+    }
   }
 
   async deleteBlock (block) {
-    let transaction
-
     try {
-      transaction = await this.db.transaction()
-      await this.transactionsTable.destroy({where: {blockId: block.data.id}}, {transaction})
-      await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
-      await transaction.commit()
+      await this.transactionsTable.query().delete().where('blockId', block.data.id)
+      await this.blocksTable.query().delete().where('id', block.data.id)
     } catch (error) {
-      logger.error(error)
-      await transaction.rollback()
+      logger.error(JSON.stringify(error))
     }
   }
 
   async getBlock (id) {
-    // const block = await this.blocksTable.findOne({
-    //   include: [{
-    //     model: this.transactionsTable,
-    //     attributes: ['serialized']
-    //   }],
-    //   attributes: {
-    //     exclude: ['createdAt', 'updatedAt']
-    //   },
-    //   where: {
-    //     id: id
-    //   }
-    // })
+    const block = await this.blocksTable.query().findById(id)
 
-    const block = await this.blocksTable.query().findById(id).eager('transactions').limit(1)[0]
-
-    console.log(block)
-    process.exit()
-
-    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
+    block.transactions = transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -396,7 +318,7 @@ process.exit()
         attributes: ['serialized']
       }],
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['created_at', 'updatedAt']
       },
       where: {
         height: {
@@ -417,7 +339,7 @@ process.exit()
     const last = offset + limit
     const blocks = await this.blocksTable.findAll({
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['created_at', 'updatedAt']
       },
       where: {
         height: {

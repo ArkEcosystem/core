@@ -99,7 +99,7 @@ module.exports = class TransactionsRepository {
       attributes: ['serialized'],
       where: {
         type: type,
-        createdAt: {
+        created_at: {
           [Op.lte]: moment(to).endOf('day').toDate(),
           [Op.gte]: moment(from).startOf('day').toDate()
         }

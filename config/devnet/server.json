@@ -1,5 +1,5 @@
 {
-  "port": 4002,
+  "port": 4005,
   "version": "2.0.0",
   "fastRebuild": false,
   "logging": {
@@ -7,7 +7,7 @@
     "console": "debug"
   },
   "db": {
-    "driver": "app/database/sequelize",
+    "driver": "app/database/knex",
     "uri": "sqlite:storage/database/devnet.sqlite",
     "dialect": "sqlite",
     "logging": false

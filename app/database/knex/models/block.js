@@ -1,4 +1,5 @@
 const { Model } = require('objection')
+const pick = require('lodash/pick')
 
 class Block extends Model {
   static get tableName () {
@@ -16,6 +17,39 @@ class Block extends Model {
         }
       }
     }
+  }
+
+  static async findOrInsert (data) {
+    let row = await this.query().where({ id: data.id, height: data.height }).first()
+
+    if (!row) {
+      const insert = await this.query().insert(this.fillable(data))
+      row = await this.query().where('id', insert.id).first()
+    }
+
+    return row
+  }
+
+  static async batchInsert (data) {
+    return Promise.all(data.map((d) => this.findOrInsert(d)))
+  }
+
+  static fillable (data) {
+    return pick(data, [
+      'id',
+      'version',
+      'timestamp',
+      'previousBlock',
+      'height',
+      'numberOfTransactions',
+      'totalAmount',
+      'totalFee',
+      'reward',
+      'payloadLength',
+      'payloadHash',
+      'generatorPublicKey',
+      'blockSignature'
+    ])
   }
 }
 
