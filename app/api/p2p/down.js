@@ -30,7 +30,7 @@ module.exports = class Down {
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
 
       this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 

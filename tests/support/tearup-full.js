@@ -28,6 +28,6 @@ module.exports = async function () {
     logger.info('Initialising Public API')
     await PublicAPI(config)
   } catch (error) {
-    logger.error(JSON.stringify(error))
+    logger.error(error.stack)
   }
 }

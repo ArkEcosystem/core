@@ -107,7 +107,7 @@ exports.getBlocks = {
 
       return { success: true, blocks: blocks }
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
       return h.response({ success: false, error: error }).code(500)
     }
   }

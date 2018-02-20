@@ -220,27 +220,32 @@ module.exports = class SequelizeDB extends DBInterface {
 
       return this.walletManager.walletsByAddress || []
     // } catch (error) {
-    //   logger.error(JSON.stringify(error))
+    //   logger.error(error.stack)
     // }
   }
 
   // must be called before builddelegates for  new round
   async updateDelegateStats (activedelegates) {
-    if (!activedelegates) {
-      return
-    }
-    logger.debug('Calculating delegate statistics')
+    if (!activedelegates) return
+
+    logger.verbose('Calculating delegate statistics')
+
     try {
-      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${activedelegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+      let lastBlockGenerators = await this.blocksTable.query()
+        .select('id', 'generatorPublicKey')
+        .whereRaw(`height/51 = ${activedelegates[0].round}`)
 
         activedelegates.forEach(delegate => {
-        let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
-        const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+          let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+          console.log(delegate)
+          process.exit()
+          const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
-      })
+          idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
+        })
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
+      process.exit()
     }
   }
 
@@ -262,7 +267,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.blocksTable.findOrInsert(block.data)
       await this.transactionsTable.batchInsert(block.transactions || [])
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
     }
   }
 
@@ -271,7 +276,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.transactionsTable.query().delete().where('blockId', block.data.id)
       await this.blocksTable.query().delete().where('id', block.data.id)
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
     }
   }
 
