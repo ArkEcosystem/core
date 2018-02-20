@@ -15,6 +15,15 @@ class Block extends Model {
           from: 'blocks.id',
           to: 'transactions.blockId'
         }
+      },
+      serializedTransactions: {
+        relation: Model.HasManyRelation,
+        modelClass: `${__dirname}/Transaction`,
+        filter: query => query.select('serialized'),
+        join: {
+          from: 'blocks.id',
+          to: 'transactions.blockId'
+        }
       }
     }
   }

@@ -324,17 +324,15 @@ module.exports = class SequelizeDB extends DBInterface {
   async getBlocks (offset, limit) {
     const last = offset + limit
 
-    const blocks = await this.blocksTable.query()
-      .whereBetween('height', [offset, last])
-      .eager('transactions') // serialized
+    const blocks = await this.blocksTable.query().whereBetween('height', [offset, last])
 
-    const nblocks = blocks.map(block => {
-      block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
+    return Promise.all(blocks.map(async (block) => {
+      const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
 
-      return block.dataValues
-    })
+      block.transactions = transactions.map(tx => tx.serialized.toString('hex'))
 
-    return nblocks
+      return block
+    }))
   }
 
   async getBlockHeaders (offset, limit) {
