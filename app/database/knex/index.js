@@ -62,7 +62,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   deleteRound (round) {
     console.log('delete', round)
-    return this.roundsTable.query().delete().where('id', round)
+    return this.roundsTable.query().delete().where('round', round)
   }
 
   async buildDelegates (block) {
@@ -311,12 +311,12 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.blocksTable.query().orderBy('height', 'desc').limit(1)[0]
+    const block = await this.blocksTable.query().orderBy('height', 'desc').first()
 
     if (!block) return null
 
-    const data = await this.transactionsTable.query().where('blockId', block.id)
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
+    block.transactions = transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
   }

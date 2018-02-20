@@ -72,49 +72,49 @@ module.exports = class WalletManager {
     }
   }
 
-  applyTransaction (transaction) {
-    return new Promise((resolve, reject) => {
-      const datatx = transaction.data
-      let sender = this.walletsByPublicKey[datatx.senderPublicKey]
-      if (!sender) {
-        const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
-        sender = this.walletsByAddress[senderId] // should exist
-        if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
-        this.walletsByPublicKey[datatx.senderPublicKey] = sender
-      }
-      const recipientId = datatx.recipientId // may not exist
-      let recipient = this.walletsByAddress[recipientId]
-      if (!recipient && recipientId) { // cold wallet
-        recipient = new Wallet(recipientId)
-        this.walletsByAddress[recipientId] = recipient
-      }
-      if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-        logger.error(sender)
-        logger.error(JSON.stringify(datatx))
-        return reject(new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`))
-      } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-        logger.error(sender)
-        logger.error(JSON.stringify(datatx))
-        return reject(new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`))
-      }
-      if (config.network.exceptions[datatx.id]) {
-        logger.warn('Transaction is forced to be applied because it has been added as an exception:')
-        logger.warn(JSON.stringify(datatx))
-      } else if (!sender.canApply(datatx)) {
-        logger.error(sender)
-        logger.error(JSON.stringify(datatx))
-        return reject(new Error(`Can't apply transaction ${datatx.id}`))
-      }
-      sender.applyTransactionToSender(datatx)
-      if (datatx.type === 0) recipient.applyTransactionToRecipient(datatx)
-      // TODO: faster way to maintain active delegate list (ie instead of db queries)
-      // if (sender.vote) {
-      //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-      //   const delegate = this.localwallets[delegateAdress]
-      //   delegate.applyVote(sender, transaction.data.asset.votes[0])
-      // }
-      return resolve(transaction)
-    })
+  async applyTransaction (transaction) {
+    const datatx = transaction.data
+    let sender = this.walletsByPublicKey[datatx.senderPublicKey]
+    if (!sender) {
+      const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
+      sender = this.walletsByAddress[senderId] // should exist
+      if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
+      this.walletsByPublicKey[datatx.senderPublicKey] = sender
+    }
+
+    const recipientId = datatx.recipientId // may not exist
+    let recipient = this.walletsByAddress[recipientId]
+    if (!recipient && recipientId) { // cold wallet
+      recipient = new Wallet(recipientId)
+      this.walletsByAddress[recipientId] = recipient
+    }
+
+    if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
+      logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
+      throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
+    } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
+      logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
+      throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
+    }
+
+    if (config.network.exceptions[datatx.id]) {
+      logger.warn('Transaction is forced to be applied because it has been added as an exception:')
+      logger.warn(datatx)
+    } else if (!sender.canApply(datatx)) {
+      // logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
+      throw new Error(`Can't apply transaction ${datatx.id}`)
+    }
+
+    sender.applyTransactionToSender(datatx)
+
+    if (datatx.type === 0) recipient.applyTransactionToRecipient(datatx)
+    // TODO: faster way to maintain active delegate list (ie instead of db queries)
+    // if (sender.vote) {
+    //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
+    //   const delegate = this.localwallets[delegateAdress]
+    //   delegate.applyVote(sender, transaction.data.asset.votes[0])
+    // }
+    return transaction
   }
 
   async undoTransaction (transaction) {
