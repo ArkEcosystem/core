@@ -3,11 +3,10 @@ const Promise = require('bluebird')
 class DependencyHandler {
   checkDatabaseLibraries (config) {
     let dependencies = {
-      'app/database/sequelize': {
-        'mysql': ['sequelize', 'mysql2'],
-        'sqlite': ['sequelize', 'sqlite3'],
-        'postgres': ['sequelize', 'pg', 'pg-hstore'],
-        'mssql': ['sequelize', 'tedious']
+      'app/database/knex': {
+        'mysql': ['knex', 'mysql2'],
+        'sqlite': ['knex', 'sqlite3'],
+        'postgres': ['knex', 'pg']
       }[config.server.db.dialect]
     }[config.server.db.driver]
 
