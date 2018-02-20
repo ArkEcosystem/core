@@ -25,6 +25,9 @@
     "test:unit:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/unit",
     "test:webhook": "NODE_PATH=. jest --no-cache --forceExit --projects tests/webhooks",
     "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/webhooks",
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback",
+    "db:fresh": "knex migrate:rollback && knex migrate:latest",
     "lint": "eslint ./ --fix"
   },
   "keywords": [
@@ -51,6 +54,7 @@
     "commander": "^2.14.0",
     "deepmerge": "^2.0.1",
     "directory-tree": "^2.0.0",
+    "fast-glob": "^2.0.4",
     "hapi": "^17.2.0",
     "hapi-api-version": "^2.0.0",
     "hapi-pagination": "^2.0.0",
@@ -59,8 +63,10 @@
     "interval-to-human": "^0.1.1",
     "ip": "^1.1.5",
     "is-promise": "^2.1.0",
+    "knex": "^0.14.4",
     "lru-cache": "^4.1.1",
     "node-forge": "^0.7.1",
+    "objection": "^1.0.0",
     "otplib": "^7.0.0",
     "popsicle": "^9.2.0",
     "progress": "^2.0.0",
