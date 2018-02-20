@@ -3,9 +3,15 @@ const Block = require('app/models/block')
 const Transaction = require('app/models/transaction')
 const config = require('app/core/config')
 const logger = require('app/core/logger')
-const schema = require('app/database/sequelize/schema')
 const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
+
+const { Model } = require('objection')
+const Knex = require('knex')
+const knexConfig = require('knexfile')
+
+const fg = require('fast-glob')
+const path = require('path')
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
@@ -13,24 +19,25 @@ module.exports = class SequelizeDB extends DBInterface {
       throw new Error('Already initialised')
     }
 
-    this.db = new Sequelize(params.uri, {
-      dialect: params.dialect,
-      logging: !!params.logging,
-      operatorsAliases: Sequelize.Op
-    })
+    this.db = Knex(knexConfig.development)
+    Model.knex(this.db)
 
-    await this.db.authenticate()
-
-    const models = await schema(this.db)
-    models.forEach(model => (this[`${model.tableName}Table`] = model))
-
+    await this.registerModels()
     this.registerHooks()
+  }
+
+  async registerModels () {
+    const modelFiles = await fg([path.resolve(__dirname, 'models/**/*.js')])
+    modelFiles.forEach(modelFile => {
+      const model = require(modelFile)
+      this[`${model.tableName}Table`] = model
+    })
   }
 
   registerHooks () {
     if (config.webhooks.enabled) {
-      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
-      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
+      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block))
+      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
     }
   }
 
@@ -109,7 +116,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async buildWallets () {
     this.walletManager.reset()
 
-    try {
+    // try {
       // Received TX
       logger.printTracker('SPV Building', 1, 7, 'received transactions')
       let data = await this.transactionsTable.findAll({
@@ -232,9 +239,9 @@ module.exports = class SequelizeDB extends DBInterface {
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
       return this.walletManager.walletsByAddress || []
-    } catch (error) {
-      logger.error(error)
-    }
+    // } catch (error) {
+    //   logger.error(JSON.stringify(error))
+    // }
   }
 
   // must be called before builddelegates for  new round
@@ -273,17 +280,47 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async saveBlock (block) {
-    let transaction
+    const { transaction } = require('objection')
 
-    try {
-      transaction = await this.db.transaction()
-      await this.blocksTable.create(block.data, {transaction})
-      await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
-      await transaction.commit()
-    } catch (error) {
-      logger.error(error)
-      await transaction.rollback()
-    }
+    // try {
+    //   await transaction(this.db, async (trx) => {
+    //     await this.blocksTable.query(trx).insert(block.data)
+    //     await this.transactionsTable.query(trx).insert(block.transactions || [])
+    //   })
+    // } catch (err) {
+    //   console.log(err)
+    // }
+const tx = await this
+  .db('transactions')
+  .join('blocks', 'transactions.blockId', 'blocks.id')
+  .first()
+console.log(tx)
+process.exit()
+
+    const row = await this.db('blocks').where('id', block.data.id).first()
+    if (!row) this.db('blocks').insert(block.data)
+
+    block.transactions = block.transactions.map(tx => {
+      delete tx['data']
+      delete tx['secondSignature']
+      delete tx['signature']
+      delete tx['verified']
+
+      return tx
+    })
+    const rows = await this.db.batchInsert('transactions', block.transactions)
+    console.log(rows)
+    process.exit()
+
+    // try {
+    //   transaction = await this.db.transaction()
+    //   await this.blocksTable.create(block.data, {transaction})
+    //   await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
+    //   await transaction.commit()
+    // } catch (error) {
+    //   logger.error(JSON.stringify(error))
+    //   await transaction.rollback()
+    // }
   }
 
   async deleteBlock (block) {
@@ -301,18 +338,23 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getBlock (id) {
-    const block = await this.blocksTable.findOne({
-      include: [{
-        model: this.transactionsTable,
-        attributes: ['serialized']
-      }],
-      attributes: {
-        exclude: ['createdAt', 'updatedAt']
-      },
-      where: {
-        id: id
-      }
-    })
+    // const block = await this.blocksTable.findOne({
+    //   include: [{
+    //     model: this.transactionsTable,
+    //     attributes: ['serialized']
+    //   }],
+    //   attributes: {
+    //     exclude: ['createdAt', 'updatedAt']
+    //   },
+    //   where: {
+    //     id: id
+    //   }
+    // })
+
+    const block = await this.blocksTable.query().findById(id).eager('transactions').limit(1)[0]
+
+    console.log(block)
+    process.exit()
 
     const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
@@ -336,9 +378,11 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.blocksTable.findOne({order: [['height', 'DESC']]})
+    const block = await this.blocksTable.query().orderBy('height', 'desc').limit(1)[0]
+
     if (!block) return null
-    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
+
+    const data = await this.transactionsTable.query().where('blockId', block.id)
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
