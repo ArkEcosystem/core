@@ -92,7 +92,7 @@ module.exports = class SequelizeDB extends DBInterface {
     this.activedelegates = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, 51)
-      .map(a => ({...{round: round}, ...a.dataValues}))
+      .map(a => ({...{round}, ...a}))
 
     logger.debug(`generated ${this.activedelegates.length} active delegates`)
 
@@ -102,7 +102,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async buildWallets () {
     this.walletManager.reset()
 
-    // try {
+    try {
       // Received TX
       logger.printTracker('SPV Building', 1, 8, 'Received Transactions')
 
@@ -201,7 +201,7 @@ module.exports = class SequelizeDB extends DBInterface {
         }
       })
 
-      // Multisignatures
+      // Multi Signatures
       logger.printTracker('SPV Building', 8, 8, 'Multi Signatures')
 
       data = await this.transactionsTable.query()
@@ -215,13 +215,15 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       logger.stopTracker('SPV Building', 8, 8)
+
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
       return this.walletManager.walletsByAddress || []
-    // } catch (error) {
-    //   logger.error(error.stack)
-    // }
+    } catch (error) {
+      logger.error(error.stack)
+      process.exit()
+    }
   }
 
   // must be called before builddelegates for  new round
@@ -237,8 +239,6 @@ module.exports = class SequelizeDB extends DBInterface {
 
         activedelegates.forEach(delegate => {
           let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
-          console.log(delegate)
-          process.exit()
           const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
           idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
