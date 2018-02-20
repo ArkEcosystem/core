@@ -1,17 +1,14 @@
-const Sequelize = require('sequelize')
-const Block = require('app/models/block')
-const Transaction = require('app/models/transaction')
-const config = require('app/core/config')
-const logger = require('app/core/logger')
-const DBInterface = require('app/core/dbinterface')
-const webhookManager = require('app/core/managers/webhook').getInstance()
-
 const { Model } = require('objection')
+const Block = require('app/models/block')
+const config = require('app/core/config')
+const DBInterface = require('app/core/dbinterface')
+const fg = require('fast-glob')
 const Knex = require('knex')
 const knexConfig = require('knexfile')
-
-const fg = require('fast-glob')
+const logger = require('app/core/logger')
 const path = require('path')
+const Transaction = require('app/models/transaction')
+const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
@@ -290,15 +287,24 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   getTransaction (id) {
-    return this.db.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
+    return this.transactionsTable.query()
+      .where('id', id)
+      .first()
   }
 
   getCommonBlock (ids) {
-    return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
+    return this.blocksTable.query()
+      .select('id', 'previousBlock', 'timestamp', this.db.raw('MAX("height") as height'))
+      .whereIn('id', ids)
+      .orderBy('height', 'desc')
+      .groupBy('id')
   }
 
   async getTransactionsFromIds (txids) {
-    const rows = await this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+    const rows = await this.transactionsTable.query()
+      .select('serialized')
+      .whereIn('id', txids)
+
     const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
 
     return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
@@ -317,20 +323,11 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getBlocks (offset, limit) {
     const last = offset + limit
-    const blocks = await this.blocksTable.findAll({
-      include: [{
-        model: this.transactionsTable,
-        attributes: ['serialized']
-      }],
-      attributes: {
-        exclude: ['created_at', 'updatedAt']
-      },
-      where: {
-        height: {
-          [Sequelize.Op.between]: [offset, last]
-        }
-      }
-    })
+
+    const blocks = await this.blocksTable.query()
+      .whereBetween('height', [offset, last])
+      .eager('transactions') // serialized
+
     const nblocks = blocks.map(block => {
       block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
 
@@ -342,16 +339,9 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
-    const blocks = await this.blocksTable.findAll({
-      attributes: {
-        exclude: ['created_at', 'updatedAt']
-      },
-      where: {
-        height: {
-          [Sequelize.Op.between]: [offset, last]
-        }
-      }
-    })
+
+    const blocks = await this.blocksTable.query()
+      .whereBetween('height', [offset, last])
 
     return blocks.map(block => Block.serialize(block))
   }
