@@ -7,7 +7,7 @@
     "console": "info"
   },
   "db": {
-    "driver": "app/database/sequelize",
+    "driver": "app/database/knex",
     "uri": "sqlite:storage/database/test.sqlite",
     "dialect": "sqlite",
     "logging": false

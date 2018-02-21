@@ -50,7 +50,7 @@ async function init () {
     logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
-    logger.error(`Fatal Error - ${error}`)
+    logger.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }

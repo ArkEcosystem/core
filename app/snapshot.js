@@ -34,7 +34,8 @@ async function init () {
 
     logger.info('Snapshot saved')
   } catch (error) {
-    logger.error('fatal error', error)
+    logger.error('Fatal Error', error.stack)
+    process.exit(1)
   }
 }
 
