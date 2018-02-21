@@ -73,12 +73,12 @@ exports.blocks = {
 exports.votes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
-    transactions = transactions.rows.filter(v => v.asset.votes[0].startsWith('+'))
+    transactions = transactions.results.filter(v => v.asset.votes[0].startsWith('+'))
 
     return {
       data: {
         count: transactions.length,
-        amount: _.sumBy(transactions.rows, 'amount'),
+        amount: _.sumBy(transactions.results, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }
     }
@@ -88,12 +88,12 @@ exports.votes = {
 exports.unvotes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
-    transactions = transactions.rows.filter(v => v.asset.votes[0].startsWith('-'))
+    transactions = transactions.results.filter(v => v.asset.votes[0].startsWith('-'))
 
     return {
       data: {
         count: transactions.length,
-        amount: _.sumBy(transactions.rows, 'amount'),
+        amount: _.sumBy(transactions.results, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }
     }
