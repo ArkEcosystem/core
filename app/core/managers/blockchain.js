@@ -193,7 +193,7 @@ module.exports = class BlockchainManager {
   }
 
   getUnconfirmedTransactions () {
-    // TO TEST FORGING
+    /*// TO TEST FORGING
     let trxs = []
 
     let tx1 = arkjs.transaction.createTransaction("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 1, null, "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire", "")
@@ -201,23 +201,15 @@ module.exports = class BlockchainManager {
     trxs.push(tx1)
     trxs.push(tx2)
 
-    return trxs
+    return trxs*/
 
-    /*return this.transactionQueue.send({event: 'getTransactions'})
+    return this.transactionPool.send({event: 'getTransactions'})
     .on('message', (response) => {
       console.log('response', response)
       return response
     })
-    .on('error', (error) => {
-      console.error('Worker errored:', error)
-    })
-    .on('exit', () => {
-      console.log('Worker has been terminated.')
-    })
-    .on('done', () => {
-      console.log('done')
-    })*/
   }
+
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
     return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime

@@ -92,7 +92,7 @@ class TransactionPool {
   }
 
   getTransactions () {
-    return {transactions: this.pool.getItems()}
+    return {transactions: Object.keys(this.pool)}
   }
 
   // rebuildBlockHeader (block) {
