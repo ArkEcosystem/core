@@ -31,7 +31,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const delegate = await db.delegates.findById(request.query.id)
+    const delegate = await db.delegates.findById(request.query.publicKey || request.query.username)
 
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
