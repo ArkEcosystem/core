@@ -23,7 +23,7 @@ class Transaction extends Model {
     let row = await this.query().findById(data.id)
 
     if (!row) {
-      const insert = await this.query().insert(this.fillable(data))
+      const insert = await this.query().insert(pick(data, this.fillable))
       row = await this.query().where('id', insert.id).first()
     }
 
@@ -34,8 +34,8 @@ class Transaction extends Model {
     return Promise.all(data.map((d) => this.findOrInsert(d)))
   }
 
-  static fillable (data) {
-    return pick(data, [
+  static get fillable () {
+    return [
       'id',
       'version',
       'blockId',
@@ -47,7 +47,7 @@ class Transaction extends Model {
       'amount',
       'fee',
       'serialized'
-    ])
+    ]
   }
 }
 

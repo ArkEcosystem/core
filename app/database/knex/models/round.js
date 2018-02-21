@@ -10,7 +10,7 @@ class Round extends Model {
     let row = await this.query().where('round', data.round).first()
 
     if (!row) {
-      const insert = await this.query().insert(this.fillable(data))
+      const insert = await this.query().insert(pick(data, this.fillable))
       row = await this.query().where('id', insert.id).first()
     }
 
@@ -21,12 +21,12 @@ class Round extends Model {
     return Promise.all(data.map((d) => this.findOrInsert(d)))
   }
 
-  static fillable (data) {
-    return pick(data, [
+  static get fillable () {
+    return [
       'publicKey',
       'balance',
       'round'
-    ])
+    ]
   }
 }
 

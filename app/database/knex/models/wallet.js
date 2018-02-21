@@ -10,15 +10,15 @@ class Wallet extends Model {
     let row = await this.query().where('address', data.address).first()
 
     if (!row) {
-      const insert = await this.query().insert(this.fillable(data))
+      const insert = await this.query().insert(pick(data, this.fillable))
       row = await this.query().where('id', insert.id).first()
     }
 
     return row
   }
 
-  static fillable (data) {
-    return pick(data, [
+  static get fillable () {
+    return [
       'address',
       'publicKey',
       'secondPublicKey',
@@ -28,7 +28,7 @@ class Wallet extends Model {
       'votebalance',
       'producedBlocks',
       'missedBlocks'
-    ])
+    ]
   }
 }
 
