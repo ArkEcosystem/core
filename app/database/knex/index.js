@@ -279,7 +279,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getBlock (id) {
     const block = await this.blocksTable.query()
-      .findById(id)
+      .where('id', id)
       .eager('serializedTransactions as transactions')
 
     block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
@@ -287,13 +287,13 @@ module.exports = class SequelizeDB extends DBInterface {
     return new Block(block)
   }
 
-  getTransaction (id) {
+  async getTransaction (id) {
     return this.transactionsTable.query()
       .where('id', id)
       .first()
   }
 
-  getCommonBlock (ids) {
+  async getCommonBlock (ids) {
     return this.blocksTable.query()
       .select('id', 'previousBlock', 'timestamp', this.db.raw('MAX("height") as height'))
       .whereIn('id', ids)
@@ -312,12 +312,14 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.blocksTable.query().orderBy('height', 'desc').first()
+    const block = await this.blocksTable.query()
+      .orderBy('height', 'desc')
+      .eager('serializedTransactions as transactions')
+      .first()
 
     if (!block) return null
 
-    const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
-    block.transactions = transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
   }
