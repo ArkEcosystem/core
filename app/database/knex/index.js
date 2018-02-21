@@ -21,7 +21,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     await this.db.migrate.latest()
     await this.registerModels()
-    this.registerHooks()
+    // this.registerHooks()
   }
 
   async registerModels () {
@@ -32,12 +32,12 @@ module.exports = class SequelizeDB extends DBInterface {
     })
   }
 
-  registerHooks () {
-    if (config.webhooks.enabled) {
-      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block))
-      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
-    }
-  }
+  // registerHooks () {
+  //   if (config.webhooks.enabled) {
+  //     this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block))
+  //     this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
+  //   }
+  // }
 
   async getActiveDelegates (height) {
     const activeDelegates = config.getConstants(height).activeDelegates
