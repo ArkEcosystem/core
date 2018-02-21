@@ -96,12 +96,12 @@ module.exports = class BlockchainManager {
   }
 
   postTransactions (transactions) {
-    logger.info(`Received new transactions ${transactions.map(transaction => transaction.id)}`)
+    logger.info(`Received ${transactions.length} new transactions ${transactions.map(transaction => transaction.id)}`)
     return this.transactionQueue.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
-    logger.info(`Received new block at height ${block.height}`)
+    logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
     this.downloadQueue.push(block)
   }
 
