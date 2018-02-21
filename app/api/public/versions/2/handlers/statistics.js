@@ -48,9 +48,9 @@ exports.transactions = {
 
     return {
       data: {
-        count: blocks.count,
-        amount: _.sumBy(blocks.rows, 'amount'),
-        fees: _.sumBy(blocks.rows, 'fee')
+        count: blocks.total,
+        amount: _.sumBy(blocks.results, 'amount'),
+        fees: _.sumBy(blocks.results, 'fee')
       }
     }
   }
@@ -62,9 +62,9 @@ exports.blocks = {
 
     return {
       data: {
-        count: blocks.count,
-        rewards: _.sumBy(blocks.rows, 'reward'),
-        fees: _.sumBy(blocks.rows, 'totalFee')
+        count: blocks.total,
+        rewards: _.sumBy(blocks.results, 'reward'),
+        fees: _.sumBy(blocks.results, 'totalFee')
       }
     }
   }

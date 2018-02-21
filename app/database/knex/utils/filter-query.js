@@ -4,7 +4,7 @@ module.exports = (query, params, filters) => {
   if (filters.hasOwnProperty('exact')) {
     for (const elem of filters['exact']) {
       if (params[elem]) {
-        query = query.where(elem, params[elem])
+        query.where(elem, params[elem])
       }
     }
   }
@@ -14,18 +14,18 @@ module.exports = (query, params, filters) => {
       if (!params[elem] && !params[`${elem}From`] && !params[`${elem}To`]) continue
 
       if (!params[`${elem}From`] && !params[`${elem}To`]) {
-        query = query.where(elem, params[elem])
+        query.where(elem, params[elem])
       }
 
       if (params[`${elem}From`] || params[`${elem}To`]) {
         where[elem] = {}
 
         if (params[`${elem}From`]) {
-          query = query.where(elem, '>=', params[`${elem}From`])
+          query.where(elem, '>=', params[`${elem}From`])
         }
 
         if (params[`${elem}To`]) {
-          query = query.where(elem, '<=', params[`${elem}To`])
+          query.where(elem, '<=', params[`${elem}To`])
         }
       }
     }
@@ -34,7 +34,7 @@ module.exports = (query, params, filters) => {
   if (filters.hasOwnProperty('wildcard')) {
     for (const elem of filters['wildcard']) {
       if (params[elem]) {
-        query = query.where(elem, 'like', `%${params[elem]}%`)
+        query.where(elem, 'like', `%${params[elem]}%`)
       }
     }
   }

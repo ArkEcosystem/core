@@ -12,15 +12,15 @@ module.exports = class BlocksRepository {
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
       if (params[elem]) {
-        query = query.where(elem, params[elem])
+        query.where(elem, params[elem])
       }
     }
 
     if (params.orderBy) {
       const [column, direction] = params.orderBy.split(':')
-      query = query.orderBy(column, direction)
+      query.orderBy(column, direction)
     } else {
-      query = query.orderBy('height', 'desc')
+      query.orderBy('height', 'desc')
     }
 
     return query.offset(params.offset).limit(params.limit).range()
@@ -42,14 +42,26 @@ module.exports = class BlocksRepository {
       .first()
   }
 
-  findAllByDateTimeRange (from, to) {
-    return this.db.blocksTable.query()
-      .select('totalFee', 'reward')
-      .whereBetween('created_at', [
-        moment(to).endOf('day').toDate(),
-        moment(from).startOf('day').toDate()
-      ])
-      .range()
+  findAllByDateTimeRange (start, end) {
+    let query = this.db.blocksTable.query().select('totalFee', 'reward')
+
+    const epoch = moment.unix(1490101200).utc()
+
+    if (start) {
+      start = moment(start).startOf('day').utc()
+
+      if (start.unix() < epoch.unix()) start = epoch
+
+      query.where('timestamp', '>=', start.diff(epoch))
+    }
+
+    if (end) {
+      end = moment(end).endOf('day').utc()
+
+      query.where('timestamp', '<=', end.diff(epoch))
+    }
+
+    return query.range()
   }
 
   search (params, columns = ['*']) {

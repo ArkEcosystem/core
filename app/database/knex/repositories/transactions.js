@@ -13,7 +13,7 @@ module.exports = class TransactionsRepository {
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
       if (params[elem]) {
-        query = query.where(elem, params[elem])
+        query.where(elem, params[elem])
       }
     }
 
@@ -21,7 +21,7 @@ module.exports = class TransactionsRepository {
       let wallet = this.db.walletManager.getWalletByAddress([params['senderId']])
 
       if (wallet) {
-        query = query.where('senderPublicKey', wallet.publicKey)
+        query.where('senderPublicKey', wallet.publicKey)
       }
     }
 
@@ -30,7 +30,7 @@ module.exports = class TransactionsRepository {
 
       if (['timestamp', 'type', 'amount'].includes(order[0])) {
         const [column, direction] = params.orderBy.split(':')
-        query = query.orderBy(column, direction)
+        query.orderBy(column, direction)
       }
     }
 
@@ -77,16 +77,27 @@ module.exports = class TransactionsRepository {
       .eager('blockHeight as block')
   }
 
-  async findAllByDateAndType (type, from, to) {
-    const rows = await this.db.transactionsTable.query()
-      .select('id')
-      .where('type', type)
-      .whereBetween('created_at', [
-        moment(to).endOf('day').toDate(),
-        moment(from).startOf('day').toDate()
-      ])
-      .eager('blockHeight as block')
-      .range()
+  async findAllByDateAndType (type, start, end) {
+    let query = this.db.transactionsTable.query().select('serialized')
+
+    if (type) {
+      query.where('type', type)
+    }
+
+    const epoch = moment.unix(1490101200).utc()
+
+    if (start) {
+      start = moment(start).startOf('day').utc()
+      if (start.unix() < epoch.unix()) start = epoch
+    }
+
+    if (end) {
+      end = moment(end).endOf('day').utc()
+
+      query.where('timestamp', '>=', end.diff(epoch))
+    }
+
+    const rows = await query.eager('blockHeight as block').range()
 
     return {
       total: rows.total,
