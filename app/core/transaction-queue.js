@@ -78,7 +78,6 @@ class TransactionQueue {
 
     const blocktxsid = block.transactions.map(tx => tx.data.id)
     this.pool.removeForgedTransactions(blocktxsid)
-
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
