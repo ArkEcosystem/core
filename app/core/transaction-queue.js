@@ -4,6 +4,7 @@ const config = require('app/core/config')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
+const MemoryPool = require('app/core/memory-pool')
 
 let instance = null
 
@@ -26,7 +27,7 @@ class TransactionQueue {
   constructor () {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = {}
+    this.pool = new MemoryPool(Transaction)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block
@@ -37,7 +38,7 @@ class TransactionQueue {
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
-        this.pool[transaction.id] = transaction
+        this.pool.add(transaction)
       }
       qcallback()
     }, 1)
@@ -76,11 +77,11 @@ class TransactionQueue {
     await this.walletManager.applyBlock(block)
     // logger.debug(`removing ${block.transactions.length} transactions from transactionQueue`)
     const pooltxs = Object.values(this.pool)
-    this.pool = {}
+    this.pool.clear()
     const blocktxsid = block.transactions.map(tx => tx.data.id)
 
     // no return the main thread is liberated
-    pooltxs.forEach(tx => tx.id in blocktxsid ? delete this.pool[tx.id] : null)
+    pooltxs.forEach(tx => tx.id in blocktxsid ? this.pool.delete(tx.id) : null)
 
     this.addTransactions(pooltxs)
   }
@@ -92,7 +93,7 @@ class TransactionQueue {
   }
 
   getTransactions () {
-    return {transactions: this.pool}
+    return {transactions: this.pool.getItems()}
   }
 
   // rebuildBlockHeader (block) {
