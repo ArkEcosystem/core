@@ -93,7 +93,7 @@ class TransactionQueue {
   }
 
   getTransactions () {
-    return {transactions: this.pool.getItems()}
+    return this.pool.getItems()
   }
 
   // rebuildBlockHeader (block) {
