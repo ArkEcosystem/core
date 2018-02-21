@@ -278,10 +278,11 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getBlock (id) {
-    const block = await this.blocksTable.query().findById(id)
+    const block = await this.blocksTable.query()
+      .findById(id)
+      .eager('serializedTransactions as transactions')
 
-    const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
-    block.transactions = transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -324,12 +325,12 @@ module.exports = class SequelizeDB extends DBInterface {
   async getBlocks (offset, limit) {
     const last = offset + limit
 
-    const blocks = await this.blocksTable.query().whereBetween('height', [offset, last])
+    const blocks = await this.blocksTable.query()
+      .whereBetween('height', [offset, last])
+      .eager('serializedTransactions as transactions')
 
     return Promise.all(blocks.map(async (block) => {
-      const transactions = await this.transactionsTable.query().select('serialized').where('blockId', block.id)
-
-      block.transactions = transactions.map(tx => tx.serialized.toString('hex'))
+      block.transactions = block.transactions.map(tx => tx.serialized.toString('hex'))
 
       return block
     }))
