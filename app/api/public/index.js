@@ -2,7 +2,7 @@ const logger = require('app/core/logger')
 const Hapi = require('hapi')
 
 module.exports = async (config) => {
-  if (!config.api.public.init) {
+  if (!config.api.public.mount) {
     return logger.info('Oh snap! Public API not mounted...')
   }
 
