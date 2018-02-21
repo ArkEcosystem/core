@@ -12,7 +12,7 @@ class Wallet extends Model {
         relation: Model.HasManyRelation,
         modelClass: `${__dirname}/Block`,
         join: {
-          from: 'wallet.publicKey',
+          from: 'wallets.publicKey',
           to: 'blocks.generatorPublicKey'
         }
       }
