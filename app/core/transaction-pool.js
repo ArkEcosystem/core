@@ -89,6 +89,10 @@ class TransactionPool {
     this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
+  getTransactions () {
+    return {transactions: this.pool.getItems()}
+  }
+
   // rebuildBlockHeader (block) {
 
   // }
