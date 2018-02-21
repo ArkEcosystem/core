@@ -81,7 +81,7 @@ class TransactionQueue {
     const blocktxsid = block.transactions.map(tx => tx.data.id)
 
     // no return the main thread is liberated
-    pooltxs.forEach(tx => tx.id in blocktxsid ? this.pool.delete(tx.id) : null)
+    pooltxs.forEach(tx => tx.id in blocktxsid ? delete this.pooltxs[tx.id] : null)
 
     this.addTransactions(pooltxs)
   }
