@@ -70,7 +70,7 @@ module.exports = class SequelizeDB extends DBInterface {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
 
     let data = await this.walletsTable.query()
-      .select('vote', 'publicKey', this.db.raw('SUM(balance) AS balance'))
+      .select('vote', 'publicKey', this.db.raw('SUM(balance) as balance'))
       .whereNotNull('vote')
       .groupBy('vote')
 
@@ -105,7 +105,7 @@ module.exports = class SequelizeDB extends DBInterface {
       logger.printTracker('SPV Building', 1, 8, 'Received Transactions')
 
       let data = await this.transactionsTable.query()
-        .select('recipientId', this.db.raw('sum(amount) AS amount'))
+        .select('recipientId', this.db.raw('sum(amount) as amount'))
         .where('type', 0)
         .groupBy('recipientId')
 
@@ -122,7 +122,7 @@ module.exports = class SequelizeDB extends DBInterface {
       logger.printTracker('SPV Building', 2, 8, 'Block Rewards')
 
       data = await this.blocksTable.query()
-        .select('generatorPublicKey', this.db.raw('SUM(`reward`+`totalFee`) AS reward'), this.db.raw('count(*) AS produced'))
+        .select('generatorPublicKey', this.db.raw('SUM(`reward`+`totalFee`) as reward'), this.db.raw('count(*) as produced'))
         .groupBy('generatorPublicKey')
 
       data.forEach(row => {
@@ -146,7 +146,7 @@ module.exports = class SequelizeDB extends DBInterface {
       logger.printTracker('SPV Building', 4, 8, 'Sent Transactions')
 
       data = await this.transactionsTable.query()
-        .select('senderPublicKey', this.db.raw('SUM(amount) AS amount'), this.db.raw('SUM(fee) AS fee'))
+        .select('senderPublicKey', this.db.raw('SUM(amount) as amount'), this.db.raw('SUM(fee) as fee'))
         .groupBy('senderPublicKey')
 
         data.forEach(row => {
@@ -281,7 +281,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async getBlock (id) {
     const block = await this.blocksTable.query()
       .where('id', id)
-      .eager('serializedTransactions AS transactions')
+      .eager('serializedTransactions as transactions')
 
     block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
@@ -296,7 +296,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getCommonBlock (ids) {
     return this.blocksTable.query()
-      .select('id', 'previousBlock', 'timestamp', this.db.raw('MAX("height") AS height'))
+      .select('id', 'previousBlock', 'timestamp', this.db.raw('MAX("height") as height'))
       .whereIn('id', ids)
       .orderBy('height', 'desc')
       .groupBy('id')
@@ -319,7 +319,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     if (!block) return
 
-    await block.$loadRelated('serializedTransactions AS transactions')
+    await block.$loadRelated('serializedTransactions as transactions')
 
     block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
@@ -331,7 +331,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     const blocks = await this.blocksTable.query()
       .whereBetween('height', [offset, last])
-      .eager('serializedTransactions AS transactions')
+      .eager('serializedTransactions as transactions')
 
     return Promise.all(blocks.map(async (block) => {
       block.transactions = block.transactions.map(tx => tx.serialized.toString('hex'))

@@ -37,7 +37,7 @@ module.exports = class TransactionsRepository {
     return query
       .offset(params.offset)
       .limit(params.limit)
-      .eager('blockHeight AS block')
+      .eager('blockHeight as block')
   }
 
   findAllByWallet (wallet, paginator) {
@@ -69,24 +69,24 @@ module.exports = class TransactionsRepository {
   findById (id) {
     return this.db.transactionsTable.query()
       .where('id', id)
-      .eager('blockHeight AS block')
+      .eager('blockHeight as block')
   }
 
   findByIdAndType (id, type) {
     return this.db.transactionsTable.query()
       .where({ id, type })
-      .eager('blockHeight AS block')
+      .eager('blockHeight as block')
   }
 
   async findAllByDateAndType (type, from, to) {
     const results = await this.db.transactionsTable.query()
-      .select('serialized', this.db.raw('COUNT(*) AS count'))
+      .select('serialized', this.db.raw('COUNT(*) as count'))
       .where('type', type)
       .whereBetween('created_at', [
         moment(to).endOf('day').toDate(),
         moment(from).startOf('day').toDate()
       ])
-      .eager('blockHeight AS block')
+      .eager('blockHeight as block')
 
     return {
       count: results.count,
@@ -102,6 +102,6 @@ module.exports = class TransactionsRepository {
       exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
       between: ['timestamp', 'amount', 'fee'],
       wildcard: ['vendorFieldHex']
-    }).eager('blockHeight AS block')
+    }).eager('blockHeight as block')
   }
 }

@@ -59,7 +59,7 @@ module.exports = class BlocksRepository {
 
   search (params) {
     let query = this.db.blocksTable.query()
-      .select('*', this.db.raw('COUNT(*) AS count'))
+      .select('*', this.db.raw('COUNT(*) as count'))
 
     query = buildFilterQuery(query, params, {
       exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
@@ -75,9 +75,9 @@ module.exports = class BlocksRepository {
   totalsByGenerator (generatorPublicKey) {
     return this.db.blocksTable.query()
       .select(
-        this.db.raw('SUM(totalFee) AS fees'),
-        this.db.raw('SUM(reward) AS rewards'),
-        this.db.raw('SUM(reward+totalFee) AS forged')
+        this.db.raw('SUM(totalFee) as fees'),
+        this.db.raw('SUM(reward) as rewards'),
+        this.db.raw('SUM(reward+totalFee) as forged')
       )
       .where('generatorPublicKey', generatorPublicKey)
   }
