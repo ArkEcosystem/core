@@ -54,7 +54,7 @@ module.exports = class DelegatesRepository {
 
       return {
         username: wallet.username,
-        approval: calculateApproval(delegate),
+        approval: calculateApproval(wallet),
         productivity: calculateProductivity(wallet)
       }
     }))

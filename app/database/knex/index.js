@@ -47,14 +47,9 @@ module.exports = class SequelizeDB extends DBInterface {
       return this.activedelegates
     }
 
-    const data = await this.roundsTable.findAll({
-      where: {
-        round: round
-      },
-      order: [[ 'publicKey', 'ASC' ]]
-    })
+    const data = await this.roundsTable.query().where('round', round).orderBy('publicKey', 'asc')
 
-    return data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance)
+    return data.sort((a, b) => b.balance - a.balance)
   }
 
   saveRounds (rounds) {
