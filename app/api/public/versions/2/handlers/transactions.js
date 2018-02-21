@@ -10,13 +10,6 @@ exports.index = {
   }
 }
 
-exports.store = {
-  handler: async (request, h) => {
-    // think about if this will be implemented here or in a "transport" controller
-    return Boom.notImplemented()
-  }
-}
-
 exports.show = {
   handler: async (request, h) => {
     const transaction = await db.transactions.findById(request.params.id)

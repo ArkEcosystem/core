@@ -1,14 +1,13 @@
 const moment = require('moment')
 const buildFilterQuery = require('../utils/filter-query')
-const Sequelize = require('sequelize')
 
 module.exports = class BlocksRepository {
   constructor (db) {
     this.db = db
   }
 
-  findAll (params) {
-    let query = this.db.blocksTable.query()
+  async findAll (params, columns = ['*']) {
+    let query = this.db.blocksTable.query().select(columns)
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
@@ -24,7 +23,7 @@ module.exports = class BlocksRepository {
       query = query.orderBy('height', 'desc')
     }
 
-    return query.offset(params.offset).limit(params.limit)
+    return query.offset(params.offset).limit(params.limit).range()
   }
 
   findAllByGenerator (generatorPublicKey, paginator) {
@@ -44,32 +43,22 @@ module.exports = class BlocksRepository {
   }
 
   findAllByDateTimeRange (from, to) {
-    const query = this.db.blocksTable.query()
+    return this.db.blocksTable.query()
       .select('totalFee', 'reward')
       .whereBetween('created_at', [
         moment(to).endOf('day').toDate(),
         moment(from).startOf('day').toDate()
       ])
-
-    return {
-      count: query.count(),
-      rows: query
-    }
+      .range()
   }
 
-  search (params) {
-    let query = this.db.blocksTable.query()
-      .select('*', this.db.raw('COUNT(*) as count'))
+  search (params, columns = ['*']) {
+    let query = this.db.blocksTable.query().select(columns)
 
-    query = buildFilterQuery(query, params, {
+    return buildFilterQuery(query, params, {
       exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
       between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
-    })
-
-    return {
-      count: query.count,
-      rows: query
-    }
+    }).offset(params.offset).limit(params.limit).range()
   }
 
   totalsByGenerator (generatorPublicKey) {

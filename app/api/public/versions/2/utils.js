@@ -28,8 +28,8 @@ const toCollection = (request, data, transformerClass) => {
 
 const toPagination = (request, data, transformerClass) => {
   return {
-    results: transformCollection(request, data.rows, transformerClass),
-    totalCount: data.count
+    results: transformCollection(request, data.results, transformerClass),
+    totalCount: data.total
   }
 }
 

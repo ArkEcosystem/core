@@ -8,7 +8,7 @@ module.exports = class TransactionsRepository {
   }
 
   findAll (params) {
-    let query = this.transactionsTable.query().select('blockId', 'serialized')
+    let query = this.db.transactionsTable.query().select('blockId', 'serialized')
 
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
@@ -37,6 +37,7 @@ module.exports = class TransactionsRepository {
     return query
       .offset(params.offset)
       .limit(params.limit)
+      .range()
       .eager('blockHeight as block')
   }
 
@@ -67,9 +68,7 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsTable.query()
-      .where('id', id)
-      .eager('blockHeight as block')
+    return this.db.transactionsTable.query().findById(id).eager('blockHeight as block')
   }
 
   findByIdAndType (id, type) {
@@ -79,18 +78,19 @@ module.exports = class TransactionsRepository {
   }
 
   async findAllByDateAndType (type, from, to) {
-    const results = await this.db.transactionsTable.query()
-      .select('serialized', this.db.raw('COUNT(*) as count'))
+    const rows = await this.db.transactionsTable.query()
+      .select('id')
       .where('type', type)
       .whereBetween('created_at', [
         moment(to).endOf('day').toDate(),
         moment(from).startOf('day').toDate()
       ])
       .eager('blockHeight as block')
+      .range()
 
     return {
-      count: results.count,
-      rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+      total: rows.total,
+      results: rows.results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
     }
   }
 
@@ -102,6 +102,10 @@ module.exports = class TransactionsRepository {
       exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
       between: ['timestamp', 'amount', 'fee'],
       wildcard: ['vendorFieldHex']
-    }).eager('blockHeight as block')
+    })
+    .eager('blockHeight as block')
+    .offset(params.offset)
+    .limit(params.limit)
+    .range()
   }
 }
