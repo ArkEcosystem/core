@@ -19,6 +19,7 @@ module.exports = class SequelizeDB extends DBInterface {
     this.db = Knex(knexConfig.development)
     Model.knex(this.db)
 
+    await this.db.migrate.latest()
     await this.registerModels()
     this.registerHooks()
   }
@@ -227,7 +228,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async updateDelegateStats (activedelegates) {
     if (!activedelegates) return
 
-    logger.verbose('Calculating delegate statistics')
+    logger.debug('Calculating delegate statistics')
 
     try {
       let lastBlockGenerators = await this.blocksTable.query()
@@ -313,11 +314,12 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getLastBlock () {
     const block = await this.blocksTable.query()
-      .orderBy('height', 'desc')
-      .eager('serializedTransactions as transactions')
+      .orderBy('height', 'asc')
       .first()
 
-    if (!block) return null
+    await block.$loadRelated('serializedTransactions as transactions')
+
+    if (!block) return
 
     block.transactions = block.transactions.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
