@@ -4,10 +4,15 @@ module.exports = class WebhooksRepository {
   }
 
   paginate (params) {
-    return this.db.webhooksTable.query()
+    const query = this.db.webhooksTable.query()
+      .select('*', this.db.raw('COUNT(*) AS count'))
       .offset(params.offset)
       .limit(params.limit)
-      .count()
+
+    return {
+      count: query.count,
+      rows: query
+    }
   }
 
   findById (id) {

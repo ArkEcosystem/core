@@ -27,7 +27,7 @@
     "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/webhooks",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
-    "db:fresh": "rm storage/database/devnet.sqlite && knex migrate:latest",
+    "db:fresh": "rm storage/database/devnet.sqlite && yarn start:devnet",
     "lint": "eslint ./ --fix"
   },
   "keywords": [

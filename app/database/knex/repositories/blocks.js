@@ -44,27 +44,41 @@ module.exports = class BlocksRepository {
   }
 
   findAllByDateTimeRange (from, to) {
-    return this.db.blocksTable.query()
+    const query = this.db.blocksTable.query()
       .select('totalFee', 'reward')
       .whereBetween('created_at', [
         moment(to).endOf('day').toDate(),
         moment(from).startOf('day').toDate()
       ])
-      .count()
+
+    return {
+      count: query.count(),
+      rows: query
+    }
   }
 
   search (params) {
-    const query = this.db.blocksTable.query()
+    let query = this.db.blocksTable.query()
+      .select('*', this.db.raw('COUNT(*) AS count'))
 
-    return buildFilterQuery(query, params, {
+    query = buildFilterQuery(query, params, {
       exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
       between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
-    }).count()
+    })
+
+    return {
+      count: query.count,
+      rows: query
+    }
   }
 
   totalsByGenerator (generatorPublicKey) {
-    return this.db.db.query(`SELECT SUM(totalFee) AS fees, SUM(reward) as rewards, SUM(reward+totalFee) as forged FROM blocks WHERE generatorPublicKey = "${generatorPublicKey}"`, {
-      type: Sequelize.QueryTypes.SELECT
-    })
+    return this.db.blocksTable.query()
+      .select(
+        this.db.raw('SUM(totalFee) AS fees'),
+        this.db.raw('SUM(reward) AS rewards'),
+        this.db.raw('SUM(reward+totalFee) AS forged')
+      )
+      .where('generatorPublicKey', generatorPublicKey)
   }
 }

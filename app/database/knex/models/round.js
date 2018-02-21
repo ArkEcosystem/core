@@ -7,7 +7,10 @@ class Round extends Model {
   }
 
   static async findOrInsert (data) {
-    let row = await this.query().where('round', data.round).first()
+    let row = await this.query().where({
+      round: data.round,
+      publicKey: data.publicKey
+    }).first()
 
     if (!row) {
       const insert = await this.query().insert(pick(data, this.fillable))
