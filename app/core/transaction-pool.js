@@ -63,8 +63,8 @@ class TransactionPool {
   }
 
   verify (transaction) {
-    // this throws an "undefined method canApply" because it is defined in "models/wallet" and not instance.walletManager
-    if (arkjs.crypto.verify(transaction) && instance.walletManager.canApply(transaction)) {
+    const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    if (arkjs.crypto.verify(transaction) && wallet.canApply(transaction)) {
       this.walletManager.applyTransaction(transaction)
       return true
     }
