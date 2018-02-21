@@ -6,6 +6,19 @@ class Wallet extends Model {
     return 'wallets'
   }
 
+  static relationMappings () {
+    return {
+      blocks: {
+        relation: Model.HasManyRelation,
+        modelClass: `${__dirname}/Block`,
+        join: {
+          from: 'wallet.publicKey',
+          to: 'blocks.generatorPublicKey'
+        }
+      }
+    }
+  }
+
   static async findOrInsert (data) {
     let row = await this.query().where('address', data.address).first()
 

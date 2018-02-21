@@ -1,4 +1,3 @@
-const Op = require('sequelize').Op
 const moment = require('moment')
 const buildFilterQuery = require('../utils/filter-query')
 const Sequelize = require('sequelize')
@@ -9,24 +8,23 @@ module.exports = class BlocksRepository {
   }
 
   findAll (params) {
-    let whereStatement = {}
-    let orderBy = []
+    let query = this.db.blocksTable.query()
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
-      if (params[elem]) whereStatement[elem] = params[elem]
+      if (params[elem]) {
+        query = query.where(elem, params[elem])
+      }
     }
 
-    params.orderBy
-      ? orderBy.push(params.orderBy.split(':'))
-      : orderBy.push([[ 'height', 'DESC' ]])
+    if (params.orderBy) {
+      const [column, direction] = params.orderBy.split(':')
+      query = query.orderBy(column, direction)
+    } else {
+      query = query.orderBy('height', 'desc')
+    }
 
-    return this.db.blocksTable.findAndCountAll({
-      where: whereStatement,
-      order: orderBy,
-      offset: params.offset,
-      limit: params.limit
-    })
+    return query.offset(params.offset).limit(params.limit)
   }
 
   findAllByGenerator (generatorPublicKey, paginator) {
@@ -34,37 +32,34 @@ module.exports = class BlocksRepository {
   }
 
   findById (id) {
-    return this.db.blocksTable.findById(id)
+    return this.db.blocksTable.query().findById(id)
   }
 
   findLastByPublicKey (generatorPublicKey) {
-    return this.db.blocksTable.findOne({
-      limit: 1,
-      where: { generatorPublicKey },
-      order: [[ 'created_at', 'DESC' ]],
-      attributes: ['id', 'timestamp']
-    })
+    return this.db.blocksTable.query()
+      .select('id', 'timestamp')
+      .where('generatorPublicKey', generatorPublicKey)
+      .orderBy('created_at', 'desc')
+      .first()
   }
 
   findAllByDateTimeRange (from, to) {
-    return this.db.blocksTable.findAndCountAll({
-      attributes: ['totalFee', 'reward'],
-      where: {
-        created_at: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      }
-    })
+    return this.db.blocksTable.query()
+      .select('totalFee', 'reward')
+      .whereBetween('created_at', [
+        moment(to).endOf('day').toDate(),
+        moment(from).startOf('day').toDate()
+      ])
+      .count()
   }
 
   search (params) {
-    return this.db.blocksTable.findAndCountAll({
-      where: buildFilterQuery(params, {
-        exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
-        between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
-      })
-    })
+    const query = this.db.blocksTable.query()
+
+    return buildFilterQuery(query, params, {
+      exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
+      between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+    }).count()
   }
 
   totalsByGenerator (generatorPublicKey) {

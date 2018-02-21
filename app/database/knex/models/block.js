@@ -8,6 +8,14 @@ class Block extends Model {
 
   static relationMappings () {
     return {
+      generator: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: `${__dirname}/Wallet`,
+        join: {
+          from: 'blocks.generatorPublicKey',
+          to: 'wallets.publicKey'
+        }
+      },
       transactions: {
         relation: Model.HasManyRelation,
         modelClass: `${__dirname}/Transaction`,

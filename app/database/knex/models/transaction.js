@@ -15,6 +15,15 @@ class Transaction extends Model {
           from: 'transactions.blockId',
           to: 'blocks.id'
         }
+      },
+      blockHeight: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: `${__dirname}/Block`,
+        filter: query => query.select('height'),
+        join: {
+          from: 'transactions.blockId',
+          to: 'blocks.id'
+        }
       }
     }
   }

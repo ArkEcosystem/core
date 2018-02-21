@@ -1,4 +1,3 @@
-const Op = require('sequelize').Op
 const moment = require('moment')
 const Transaction = require('app/models/transaction')
 const buildFilterQuery = require('../utils/filter-query')
@@ -9,50 +8,42 @@ module.exports = class TransactionsRepository {
   }
 
   findAll (params) {
-    let whereStatement = {}
-    let orderBy = []
+    let query = this.transactionsTable.query().select('blockId', 'serialized')
 
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
-      if (params[elem]) { whereStatement[elem] = params[elem] }
+      if (params[elem]) {
+        query = query.where(elem, params[elem])
+      }
     }
 
     if (params['senderId']) {
       let wallet = this.db.walletManager.getWalletByAddress([params['senderId']])
 
-      if (wallet) whereStatement['senderPublicKey'] = wallet.publicKey
+      if (wallet) {
+        query = query.where('senderPublicKey', wallet.publicKey)
+      }
     }
 
     if (params.orderBy) {
       const order = params.orderBy.split(':')
 
-      if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(params.orderBy.split(':'))
+      if (['timestamp', 'type', 'amount'].includes(order[0])) {
+        const [column, direction] = params.orderBy.split(':')
+        query = query.orderBy(column, direction)
+      }
     }
 
-    return this.db.transactionsTable.findAndCountAll({
-      attributes: ['blockId', 'serialized'],
-      where: whereStatement,
-      order: orderBy,
-      offset: params.offset,
-      limit: params.limit,
-      include: {
-        model: this.db.blocksTable,
-        attributes: ['height']
-      }
-    })
+    return query
+      .offset(params.offset)
+      .limit(params.limit)
+      .eager('blockHeight as block')
   }
 
   findAllByWallet (wallet, paginator) {
-    return this.findAll({
-      ...{
-        [Op.or]: [{
-          senderPublicKey: wallet.publicKey
-        }, {
-          recipientId: wallet.address
-        }]
-      },
-      ...paginator
-    })
+    return this.findAll(paginator)
+      .orWhere('senderPublicKey', wallet.publicKey)
+      .orWhere('recipientId', wallet.address)
   }
 
   findAllBySender (senderPublicKey, paginator) {
@@ -76,39 +67,27 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsTable.findById(id, {
-      include: {
-        model: this.db.blocksTable,
-        attributes: ['height']
-      }
-    })
+    return this.db.transactionsTable.query()
+      .where('id', id)
+      .eager('blockHeight as block')
   }
 
   findByIdAndType (id, type) {
-    return this.db.transactionsTable.findOne({
-      where: {id, type},
-      include: {
-        model: this.db.blocksTable,
-        attributes: ['height']
-      }
-    })
+    return this.db.transactionsTable.query()
+      .where({ id, type })
+      .eager('blockHeight as block')
   }
 
   async findAllByDateAndType (type, from, to) {
-    const results = await this.db.transactionsTable.findAndCountAll({
-      attributes: ['serialized'],
-      where: {
-        type: type,
-        created_at: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      },
-      include: {
-        model: this.db.blocksTable,
-        attributes: ['height']
-      }
-    })
+    const results = await this.db.transactionsTable.query()
+      .select('serialized')
+      .where('type', type)
+      .whereBetween('created_at', [
+        moment(to).endOf('day').toDate(),
+        moment(from).startOf('day').toDate()
+      ])
+      .eager('blockHeight as block')
+      .count()
 
     return {
       count: results.count,
@@ -117,20 +96,12 @@ module.exports = class TransactionsRepository {
   }
 
   search (params) {
-    return this.db.transactionsTable.findAndCountAll({
-      attributes: ['blockId', 'serialized'],
-      where: buildFilterQuery(
-        params,
-        {
-          exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
-          between: ['timestamp', 'amount', 'fee'],
-          wildcard: ['vendorFieldHex']
-        }
-      ),
-      include: {
-        model: this.db.blocksTable,
-        attributes: ['height']
-      }
-    })
+    const query = this.db.transactionsTable.query()
+
+    return buildFilterQuery(query, params, {
+      exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+      between: ['timestamp', 'amount', 'fee'],
+      wildcard: ['vendorFieldHex']
+    }).select('blockId', 'serialized').eager('blockHeight as block')
   }
 }
