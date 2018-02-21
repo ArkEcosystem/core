@@ -37,7 +37,7 @@ class TransactionPool {
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
-        this.pool.push(transaction)
+        this.pool[transaction.id] = transaction
       }
       qcallback()
     }, 1)
