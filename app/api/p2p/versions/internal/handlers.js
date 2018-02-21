@@ -50,11 +50,11 @@ exports.getRound = {
 }
 
 exports.getUnconfirmedTransactions = {
-  handler: (request, h) => {
+  handler: async (request, h) => {
     try {
       return {
         success: true,
-        transactions: blockchain.getInstance().getUnconfirmedTransactions()
+        transactions: await blockchain.getInstance().getUnconfirmedTransactions()
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()

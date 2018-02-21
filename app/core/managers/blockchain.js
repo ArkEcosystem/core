@@ -15,8 +15,8 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.transactionPool = threads.spawn('app/core/transaction-pool.js')
-    this.transactionPool.send({event: 'init', data: config})
+    this.transactionQueue = threads.spawn('app/core/transaction-queue.js')
+    this.transactionQueue.send({event: 'init', data: config})
 
     this.actions = stateMachine.actionMap(this)
 
@@ -97,7 +97,7 @@ module.exports = class BlockchainManager {
 
   postTransactions (transactions) {
     logger.info(`Received new transactions ${transactions.map(transaction => transaction.id)}`)
-    return this.transactionPool.send({event: 'addTransactions', data: transactions})
+    return this.transactionQueue.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
@@ -128,7 +128,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    await this.transactionPool.send({event: 'undoBlock', data: lastBlock})
+    await this.transactionQueue.send({event: 'undoBlock', data: lastBlock})
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -162,7 +162,7 @@ module.exports = class BlockchainManager {
           await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
-          this.transactionPool.send({event: 'addBlock', data: block})
+          this.transactionQueue.send({event: 'addBlock', data: block})
           qcallback()
         } catch (error) {
           logger.error(error)
@@ -192,22 +192,8 @@ module.exports = class BlockchainManager {
     }
   }
 
-  getUnconfirmedTransactions () {
-    /*// TO TEST FORGING
-    let trxs = []
-
-    let tx1 = arkjs.transaction.createTransaction("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 1, null, "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire", "")
-    let tx2 = arkjs.transaction.createTransaction("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 2, null, "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire", "")
-    trxs.push(tx1)
-    trxs.push(tx2)
-
-    return trxs*/
-
-    return this.transactionPool.send({event: 'getTransactions'})
-    .on('message', (response) => {
-      console.log('response', response)
-      return response
-    })
+  async getUnconfirmedTransactions () {
+    return this.transactionQueue.send({event: 'getTransactions'}).promise()
   }
 
   isSynced (block) {

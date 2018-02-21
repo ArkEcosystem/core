@@ -1,9 +1,9 @@
-const TransactionPool = require('app/core/transaction-pool')
+const TransactionQueue = require('app/core/transaction-queue')
 
-describe('Core | TransactionPool', () => {
+describe('Core | TransactionQueue', () => {
   describe('new', () => {
     it.skip('establish an empty pool', function () {
-      const pool = new TransactionPool()
+      const pool = new TransactionQueue()
       pool.pool.toBe({})
     })
   })

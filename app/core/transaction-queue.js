@@ -10,8 +10,8 @@ let instance = null
 module.exports = async (message, done) => {
   if (message.event === 'init') {
     const conf = await config.init(message.data)
-    logger.init(conf.server.logging, conf.network.name + '_transactionPool')
-    instance = new TransactionPool()
+    logger.init(conf.server.logging, conf.network.name + '_transactionQueue')
+    instance = new TransactionQueue()
     return done()
   }
 
@@ -22,7 +22,7 @@ module.exports = async (message, done) => {
   throw new Error(`message '${message.event}' not recognised`)
 }
 
-class TransactionPool {
+class TransactionQueue {
   constructor () {
     const that = this
     this.walletManager = new WalletManager()
@@ -74,7 +74,7 @@ class TransactionPool {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    // logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
+    // logger.debug(`removing ${block.transactions.length} transactions from transactionQueue`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)
@@ -92,7 +92,7 @@ class TransactionPool {
   }
 
   getTransactions () {
-    return {transactions: Object.keys(this.pool)}
+    return {transactions: this.pool}
   }
 
   // rebuildBlockHeader (block) {
