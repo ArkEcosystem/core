@@ -61,7 +61,7 @@ module.exports = class ForgerManager {
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       }
 
-      await sleep(500)
+      await sleep(2000)
       return monitor()
     }
 
