@@ -72,7 +72,7 @@ class TransactionPool {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
+    // logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
     const pooltxs = Object.values(this.pool)
     this.pool = {}
     const blocktxsid = block.transactions.map(tx => tx.data.id)

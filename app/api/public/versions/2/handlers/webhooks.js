@@ -2,6 +2,7 @@ const db = require('app/core/dbinterface').getInstance()
 const config = require('app/core/config')
 const utils = require('../utils')
 const schema = require('../schema/webhooks')
+const argon2 = require('argon2')
 
 exports.index = {
   config: {
@@ -22,9 +23,11 @@ exports.store = {
     }
   },
   handler: async (request, h) => {
-    request.payload.secret = require('crypto').randomBytes(32).toString('hex')
+    const secret = require('crypto').randomBytes(32).toString('hex')
+    request.payload.secret = await argon2.hash(secret, { type: argon2.argon2id })
 
     const webhook = await db.webhooks.create(request.payload)
+    webhook.secret = secret
 
     return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
   }
