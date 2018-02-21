@@ -35,11 +35,13 @@ module.exports = class ForgerManager {
   startForging (proxy) {
     this.proxy = proxy
     let round = null
+    let transactions = null
     const data = {}
 
     const monitor = async () => {
       try {
         round = await this.getRound()
+        transactions = await this.getTransactions()
 
         if (!round.canForge) {
           throw new Error('Block already forged in current slot')
@@ -50,7 +52,7 @@ module.exports = class ForgerManager {
         data.reward = round.reward
 
         const delegate = await this.pickForgingDelegate(round)
-        const block = await delegate.forge([], data)
+        const block = await delegate.forge(transactions, data)
 
         this.broadcast(block)
       } catch (error) {
@@ -93,5 +95,16 @@ module.exports = class ForgerManager {
     }).use(popsicle.plugins.parse('json'))
 
     return result.body.round
+  }
+
+  async getTransactions () {
+    const result = await popsicle.request({
+      method: 'GET',
+      url: this.proxy + '/internal/unconfirmedTransactions',
+      headers: this.headers,
+      timeout: 2000
+    }).use(popsicle.plugins.parse('json'))
+
+    return result.body.transactions
   }
 }
