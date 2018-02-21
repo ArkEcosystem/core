@@ -15,12 +15,22 @@ const winstonConsoleFormatter = (info) => {
     'silly': chalk.bold.white(level)
   }[info.level]
 
+  let message = info.message
+  message = {
+    'error': chalk.bold.bgRed(message),
+    'warn': chalk.bold.black.bgYellow(message),
+    'info': message,
+    'verbose': message,
+    'debug': chalk.bold.bgMagenta(message),
+    'silly': chalk.bold.black.bgWhite(message)
+  }[info.level]
+
   const timestamp = moment(info.timestamp()).format('YYYY-MM-DD HH:MM:SS')
 
   const dateAndLevel = `[${timestamp}][${level}]:`
   const lineSpacer = ' '.repeat(Math.abs(dateAndLevel.length - 50) + 1)
 
-  return `[${timestamp}][${level}]${lineSpacer}: ${info.message}`
+  return `[${timestamp}][${level}]${lineSpacer}: ${message}`
 }
 
 class Logger {
