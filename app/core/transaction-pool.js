@@ -36,7 +36,9 @@ class TransactionPool {
     // - apply block txs
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
-      that.verify(transaction)
+      if (that.verify(transaction)) {
+        this.pool.push(transaction)
+      }
       qcallback()
     }, 1)
   }
