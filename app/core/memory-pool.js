@@ -39,7 +39,7 @@ module.exports = class MemoryPool {
   }
 
   getItems (reverse = false, limit = 50) {
-    return this.pool
+    return Object.values(this.pool)
   }
 
   delete (id) {
