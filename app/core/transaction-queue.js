@@ -75,15 +75,10 @@ class TransactionQueue {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    // logger.debug(`removing ${block.transactions.length} transactions from transactionQueue`)
-    const pooltxs = Object.values(this.pool)
-    this.pool.clear()
+
     const blocktxsid = block.transactions.map(tx => tx.data.id)
+    this.pool.removeForgedTransactions(blocktxsid)
 
-    // no return the main thread is liberated
-    pooltxs.forEach(tx => tx.id in blocktxsid ? delete this.pooltxs[tx.id] : null)
-
-    this.addTransactions(pooltxs)
   }
 
   async undoBlock (block) { // we add back the block txs to the pool

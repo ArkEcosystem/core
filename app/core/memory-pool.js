@@ -24,12 +24,10 @@ module.exports = class MemoryPool {
     return Object.keys(this.pool).length
   }
 
-  remove () {
-    if (this.pool.length === 0) {
-      return new this.Class()
-    } else {
-      return this.pool.pop()
-    }
+  removeForgedTransactions (forgedIds) {
+    forgedIds.forEach(id => {
+      this.delete(id)
+    })
   }
 
   add (object) {
