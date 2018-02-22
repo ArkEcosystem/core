@@ -9,6 +9,7 @@ const logger = require('app/core/logger')
 const path = require('path')
 const Transaction = require('app/models/transaction')
 const webhookManager = require('app/core/managers/webhook').getInstance()
+const _ = require('lodash')
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
@@ -74,10 +75,14 @@ module.exports = class SequelizeDB extends DBInterface {
       const data2 = await this.walletsTable.query()
         .select('publicKey')
         .whereNotNull('username')
+        .whereNotIn('publicKey', _.map(data, 'publicKey'))
         .orderBy('publicKey', 'asc')
         .limit(activeDelegates - data.length)
 
       data = data.concat(data2)
+
+      // logger.verbose(data.length) // 51 Delegates...
+      // logger.verbose(_.uniqBy(data, 'publicKey').length) // 50 Delegates...
     }
 
     // logger.info(`got ${data.length} voted delegates`)
