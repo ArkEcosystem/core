@@ -189,7 +189,7 @@ module.exports = class SequelizeDB extends DBInterface {
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
-        this.walletManager.updateWallet(wallet)
+        this.walletManager.reindex(wallet)
       })
 
       // Votes

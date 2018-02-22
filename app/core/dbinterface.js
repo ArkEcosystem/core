@@ -156,7 +156,7 @@ class DBInterface {
     let sender = this.walletManager.getWalletByAddress[senderId] // should exist
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
-      this.walletManager.updateWallet(sender)
+      this.walletManager.reindex(sender)
     }
     return sender.canApply(transaction.data) && !this.getTransaction(transaction.data.id)
   }

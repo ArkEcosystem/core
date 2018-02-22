@@ -52,7 +52,7 @@ class TransactionQueue {
       for (let key in Object(wallet)) {
         acc[key] = wallet[key]
       }
-      instance.walletManager.updateWallet(acc)
+      instance.walletManager.reindex(acc)
     })
     logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
   }
