@@ -126,11 +126,13 @@ class DBInterface {
   }
 
   async undoRound (block) {
+    const activeDelegates = config.getConstants(block.data.height).activeDelegates
+
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
-    if (previousRound + 1 === round && block.data.height > 51) {
+    if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round

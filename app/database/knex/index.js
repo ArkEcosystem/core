@@ -82,10 +82,11 @@ module.exports = class SequelizeDB extends DBInterface {
     }
 
     // logger.info(`got ${data.length} voted delegates`)
-    const round = parseInt(block.data.height / 51)
+    const round = parseInt(block.data.height / activeDelegates)
+
     this.activedelegates = data
       .sort((a, b) => b.balance - a.balance)
-      .slice(0, 51)
+      .slice(0, activeDelegates)
       .map(a => ({...{round}, ...a}))
 
     logger.debug(`generated ${this.activedelegates.length} active delegates`)
