@@ -9,8 +9,8 @@ const register = async (server, options) => {
     { method: 'GET', path: '/peer/transactions', ...handlers.getTransactions },
     { method: 'GET', path: '/peer/blocks/common', ...handlers.getCommonBlock },
     { method: 'GET', path: '/peer/status', ...handlers.getStatus },
-    { method: 'POST', path: '/blocks', ...handlers.postBlock },
-    { method: 'POST', path: '/transactions', ...handlers.postTransactions }
+    { method: 'POST', path: '/peer/blocks', ...handlers.postBlock },
+    { method: 'POST', path: '/peer/transactions', ...handlers.postTransactions }
   ])
 }
 

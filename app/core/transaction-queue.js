@@ -4,14 +4,15 @@ const config = require('app/core/config')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
+const MemoryPool = require('app/core/memory-pool')
 
 let instance = null
 
 module.exports = async (message, done) => {
   if (message.event === 'init') {
     const conf = await config.init(message.data)
-    logger.init(conf.server.logging, conf.network.name + '_transactionPool')
-    instance = new TransactionPool()
+    logger.init(conf.server.logging, conf.network.name + '_transactionQueue')
+    instance = new TransactionQueue()
     return done()
   }
 
@@ -22,11 +23,11 @@ module.exports = async (message, done) => {
   throw new Error(`message '${message.event}' not recognised`)
 }
 
-class TransactionPool {
+class TransactionQueue {
   constructor () {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = {}
+    this.pool = new MemoryPool(Transaction)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block
@@ -36,7 +37,9 @@ class TransactionPool {
     // - apply block txs
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
-      that.verify(transaction)
+      if (that.verify(transaction)) {
+        this.pool.add(transaction)
+      }
       qcallback()
     }, 1)
   }
@@ -63,8 +66,8 @@ class TransactionPool {
   }
 
   verify (transaction) {
-    // this throws an "undefined method canApply" because it is defined in "models/wallet" and not instance.walletManager
-    if (arkjs.crypto.verify(transaction) && instance.walletManager.canApply(transaction)) {
+    const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    if (arkjs.crypto.verify(transaction) && wallet.canApply(transaction)) {
       this.walletManager.applyTransaction(transaction)
       return true
     }
@@ -72,21 +75,22 @@ class TransactionPool {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    // logger.debug(`removing ${block.transactions.length} transactions from transactionPool`)
-    const pooltxs = Object.values(this.pool)
-    this.pool = {}
-    const blocktxsid = block.transactions.map(tx => tx.data.id)
-
-    // no return the main thread is liberated
-    pooltxs.forEach(tx => tx.id in blocktxsid ? delete this.pool[tx.id] : null)
-
-    this.addTransactions(pooltxs)
+    this.pool.removeForgedTransactions(block.transactions.map(tx => tx.data.id))
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
     this.addTransactions(block.transactions.map(tx => tx.data))
+  }
+
+  getTransactions (blockSize) {
+    let retItems = this.pool.getItems(blockSize)
+    return {
+      transactions: this.pool.getItems(blockSize),
+      poolSize: this.pool.size,
+      count: retItems.length
+    }
   }
 
   // rebuildBlockHeader (block) {

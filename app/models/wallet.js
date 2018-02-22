@@ -37,10 +37,11 @@ module.exports = class Wallet {
             this.vote = null
           }
         },
-        4: () => (this.multisignature = transaction.asset.multisignature)
+        4: () => (this.multisignature = transaction.asset.multisignature),
+        'default': () => (false)
       }
 
-      actions[transaction.type]()
+      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }
@@ -63,10 +64,11 @@ module.exports = class Wallet {
         4: () => (this.multisignature = null),
         5: () => {},
         6: () => {},
-        7: () => {}
+        7: () => {},
+        'default': () => (false)
       }
 
-      actions[transaction.type]()
+      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }
