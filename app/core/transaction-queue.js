@@ -75,9 +75,7 @@ class TransactionQueue {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-
-    const blocktxsid = block.transactions.map(tx => tx.data.id)
-    this.pool.removeForgedTransactions(blocktxsid)
+    this.pool.removeForgedTransactions(block.transactions.map(tx => tx.data.id))
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
