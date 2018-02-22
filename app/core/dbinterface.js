@@ -23,6 +23,7 @@ const tickSyncTracker = (block, rebuild, fastRebuild) => {
     if (block.data.timestamp - arkjs.slots.getTime() < 8) {
       logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
     } else {
+      synctracker = null
       logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
     }
   }
