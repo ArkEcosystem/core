@@ -15,8 +15,8 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.transactionPool = threads.spawn('app/core/transaction-pool.js')
-    this.transactionPool.send({event: 'init', data: config})
+    this.transactionQueue = threads.spawn('app/core/transaction-queue.js')
+    this.transactionQueue.send({event: 'init', data: config})
 
     this.actions = stateMachine.actionMap(this)
 
@@ -96,12 +96,12 @@ module.exports = class BlockchainManager {
   }
 
   postTransactions (transactions) {
-    logger.info(`Received new transactions ${transactions.map(transaction => transaction.id)}`)
-    return this.transactionPool.send({event: 'addTransactions', data: transactions})
+    logger.info(`Received ${transactions.length} new transactions`)
+    return this.transactionQueue.send({event: 'addTransactions', data: transactions})
   }
 
   postBlock (block) {
-    logger.info(`Received new block at height ${block.height}`)
+    logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
     this.downloadQueue.push(block)
   }
 
@@ -128,7 +128,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    await this.transactionPool.send({event: 'undoBlock', data: lastBlock})
+    await this.transactionQueue.send({event: 'undoBlock', data: lastBlock})
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -162,7 +162,7 @@ module.exports = class BlockchainManager {
           await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
-          this.transactionPool.send({event: 'addBlock', data: block})
+          this.transactionQueue.send({event: 'addBlock', data: block})
           qcallback()
         } catch (error) {
           logger.error(error)
@@ -190,6 +190,10 @@ module.exports = class BlockchainManager {
       logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
+  }
+
+  async getUnconfirmedTransactions (blockSize) {
+    return this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
   }
 
   isSynced (block) {

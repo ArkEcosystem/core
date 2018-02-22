@@ -49,6 +49,21 @@ exports.getRound = {
   }
 }
 
+exports.getUnconfirmedTransactions = {
+  handler: async (request, h) => {
+    const height = blockchain.getInstance().getState().lastBlock.data.height
+    const blockSize = config.getConstants(height).block.maxTransactions
+    try {
+      return {
+        success: true,
+        data: await blockchain.getInstance().getUnconfirmedTransactions(blockSize)
+      }
+    } catch (error) {
+      return h.response({ success: false, message: error.message }).code(500).takeover()
+    }
+  }
+}
+
 async function __getActiveDelegates (height) {
   const round = parseInt(height / config.getConstants(height).activeDelegates)
   const seedSource = round.toString()
