@@ -41,11 +41,9 @@ module.exports = class WalletManager {
 
       return delegate.applyBlock(block.data)
     } catch (error) {
-      try {
-        await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
-      } catch (error) {
-        throw error
-      }
+      logger.error(error.stack)
+      await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
+      throw error
     }
   }
 
@@ -64,11 +62,9 @@ module.exports = class WalletManager {
 
       return delegate.undoBlock(block.data)
     } catch (error) {
-      Promise.each(undoedTransactions, async (tx) => {
-        await that.applyTransaction(tx)
-
-        throw error
-      })
+      logger.error(error.stack)
+      await Promise.each(undoedTransactions, async (tx) => that.applyTransaction(tx))
+      throw error
     }
   }
 
@@ -101,6 +97,7 @@ module.exports = class WalletManager {
       logger.warn('Transaction is forced to be applied because it has been added as an exception:')
       logger.warn(datatx)
     } else if (!sender.canApply(datatx)) {
+      // logger.info(JSON.stringify(sender))
       // logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }

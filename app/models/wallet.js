@@ -27,6 +27,7 @@ module.exports = class Wallet {
       this.balance -= transaction.amount + transaction.fee
 
       const actions = {
+        0: () => (true),
         1: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
         2: () => (this.username = transaction.asset.delegate.username),
         3: () => {
@@ -135,7 +136,7 @@ module.exports = class Wallet {
       'default': () => (false)
     }
 
-    actions[transaction.type]
+    return actions[transaction.type]
       ? actions[transaction.type]()
       : actions['default']()
   }
