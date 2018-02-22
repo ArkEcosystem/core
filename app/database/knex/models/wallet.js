@@ -1,7 +1,7 @@
 const { Model } = require('objection')
 const pick = require('lodash/pick')
 
-class Wallet extends Model {
+module.exports = class Wallet extends Model {
   static get tableName () {
     return 'wallets'
   }
@@ -44,5 +44,3 @@ class Wallet extends Model {
     ]
   }
 }
-
-module.exports = Wallet

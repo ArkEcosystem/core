@@ -1,7 +1,7 @@
 const { Model } = require('objection')
 const pick = require('lodash/pick')
 
-class Round extends Model {
+module.exports = class Round extends Model {
   static get tableName () {
     return 'rounds'
   }
@@ -32,5 +32,3 @@ class Round extends Model {
     ]
   }
 }
-
-module.exports = Round

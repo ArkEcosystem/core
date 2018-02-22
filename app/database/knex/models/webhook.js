@@ -1,9 +1,7 @@
 const { Model } = require('objection')
 
-class Webhook extends Model {
+module.exports = class Webhook extends Model {
   static get tableName () {
     return 'webhooks'
   }
 }
-
-module.exports = Webhook
