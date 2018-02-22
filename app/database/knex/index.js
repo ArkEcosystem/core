@@ -52,8 +52,8 @@ module.exports = class SequelizeDB extends DBInterface {
     return data.sort((a, b) => b.balance - a.balance)
   }
 
-  saveRounds (rounds) {
-    return this.roundsTable.batchInsert(rounds)
+  async saveRounds (delegates) {
+    return this.roundsTable.batchInsert(delegates)
   }
 
   deleteRound (round) {
