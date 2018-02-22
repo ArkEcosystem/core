@@ -1,3 +1,5 @@
+const blockchain = require('app/core/managers/blockchain')
+
 let instance = null
 // TODO here check also
 // - exipration date of transactoions
@@ -36,8 +38,8 @@ module.exports = class MemoryPool {
     }
   }
 
-  getItems (reverse = false, limit = 50) {
-    return Object.values(this.pool)
+  getItems (blockSize) {
+    return Object.values(this.pool).slice(0, blockSize)
   }
 
   delete (id) {

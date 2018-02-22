@@ -192,8 +192,8 @@ module.exports = class BlockchainManager {
     }
   }
 
-  async getUnconfirmedTransactions () {
-    return this.transactionQueue.send({event: 'getTransactions'}).promise()
+  async getUnconfirmedTransactions (blockSize) {
+    return this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
   }
 
   isSynced (block) {

@@ -84,8 +84,8 @@ class TransactionQueue {
     this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
-  getTransactions () {
-    return this.pool.getItems()
+  getTransactions (blockSize) {
+    return this.pool.getItems(blockSize)
   }
 
   // rebuildBlockHeader (block) {
