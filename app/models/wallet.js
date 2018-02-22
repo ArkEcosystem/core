@@ -27,14 +27,15 @@ module.exports = class Wallet {
       this.balance -= transaction.amount + transaction.fee
 
       const actions = {
+        0: () => (true),
         1: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
         2: () => (this.username = transaction.asset.delegate.username),
         3: () => {
-            if (transaction.asset.votes[0].startsWith('+')) {
-              this.vote = transaction.asset.votes[0].slice(1)
-            } else if (transaction.asset.votes[0].startsWith('-')) {
-              this.vote = null
-            }
+          if (transaction.asset.votes[0].startsWith('+')) {
+            this.vote = transaction.asset.votes[0].slice(1)
+          } else if (transaction.asset.votes[0].startsWith('-')) {
+            this.vote = null
+          }
         },
         4: () => (this.multisignature = transaction.asset.multisignature)
       }
@@ -135,7 +136,7 @@ module.exports = class Wallet {
       'default': () => (false)
     }
 
-    actions[transaction.type]
+    return actions[transaction.type]
       ? actions[transaction.type]()
       : actions['default']()
   }
