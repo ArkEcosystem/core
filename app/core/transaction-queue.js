@@ -85,7 +85,12 @@ class TransactionQueue {
   }
 
   getTransactions (blockSize) {
-    return this.pool.getItems(blockSize)
+    let retItems = this.pool.getItems(blockSize)
+    return {
+      transactions: this.pool.getItems(blockSize),
+      poolSize: this.pool.size,
+      count: retItems.length
+    }
   }
 
   // rebuildBlockHeader (block) {

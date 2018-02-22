@@ -56,7 +56,7 @@ exports.getUnconfirmedTransactions = {
     try {
       return {
         success: true,
-        transactions: await blockchain.getInstance().getUnconfirmedTransactions(blockSize)
+        data: await blockchain.getInstance().getUnconfirmedTransactions(blockSize)
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()

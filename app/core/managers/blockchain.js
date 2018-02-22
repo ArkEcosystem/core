@@ -96,7 +96,7 @@ module.exports = class BlockchainManager {
   }
 
   postTransactions (transactions) {
-    logger.info(`Received ${transactions.length} new transactions ${transactions.map(transaction => transaction.id)}`)
+    logger.info(`Received ${transactions.length} new transactions`)
     return this.transactionQueue.send({event: 'addTransactions', data: transactions})
   }
 
