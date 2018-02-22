@@ -10,7 +10,7 @@ const winstonConsoleFormatter = (info) => {
     'error': chalk.bold.red(level),
     'warn': chalk.bold.yellow(level),
     'info': chalk.bold.green(level),
-    'verbose': chalk.bold.cyan(level),
+    'verbose': chalk.bold.blue(level),
     'debug': chalk.bold.magenta(level),
     'silly': chalk.bold.white(level)
   }[info.level]
@@ -20,7 +20,7 @@ const winstonConsoleFormatter = (info) => {
     'error': chalk.bold.bgRed(message),
     'warn': chalk.bold.black.bgYellow(message),
     'info': message,
-    'verbose': message,
+    'verbose': chalk.bold.black.bgBlue(message),
     'debug': chalk.bold.bgMagenta(message),
     'silly': chalk.bold.black.bgWhite(message)
   }[info.level]
