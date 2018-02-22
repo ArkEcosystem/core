@@ -1,8 +1,6 @@
-const blockchain = require('app/core/managers/blockchain')
-
 let instance = null
 // TODO here check also
-// - exipration date of transactoions
+// - exipration date of transactions
 // - spamming
 // - max size, etc...
 module.exports = class MemoryPool {
