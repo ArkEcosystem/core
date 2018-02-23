@@ -16,6 +16,12 @@ module.exports = class BaseModel extends Model {
     // return Promise.all(data.map((d) => this.findOrInsert(d)))
   }
 
+  static transform (data) {
+    return Array.isArray(data)
+      ? data.map(d => pick(d, this.fillable))
+      : pick(data, this.fillable)
+  }
+
   $beforeInsert () {
     this.created_at = new Date().toISOString();
   }

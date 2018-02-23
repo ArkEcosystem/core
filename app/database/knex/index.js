@@ -10,7 +10,7 @@ const path = require('path')
 const Transaction = require('app/models/transaction')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 
-module.exports = class SequelizeDB extends DBInterface {
+module.exports = class KnexDriver extends DBInterface {
   async init (params) {
     if (this.db) {
       throw new Error('Already initialised')
@@ -261,6 +261,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async saveBlock (block) {
+    // @TODO wrap into transaction - http://knexjs.org/#Transactions
     try {
       await this.blocksTable.findOrInsert(block.data)
       await this.transactionsTable.batchInsert(block.transactions || [])
@@ -270,6 +271,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async deleteBlock (block) {
+    // @TODO wrap into transaction - http://knexjs.org/#Transactions
     try {
       await this.transactionsTable.query().delete().where('blockId', block.data.id)
       await this.blocksTable.query().delete().where('id', block.data.id)
