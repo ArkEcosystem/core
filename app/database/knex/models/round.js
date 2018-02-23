@@ -42,4 +42,12 @@ module.exports = class Round extends Model {
       'round'
     ]
   }
+
+  $beforeInsert () {
+    this.created_at = new Date().toISOString();
+  }
+
+  $beforeUpdate () {
+    this.updated_at = new Date().toISOString();
+  }
 }

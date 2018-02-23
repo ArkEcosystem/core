@@ -78,4 +78,12 @@ module.exports = class Block extends Model {
       'blockSignature'
     ]
   }
+
+  $beforeInsert () {
+    this.created_at = new Date().toISOString();
+  }
+
+  $beforeUpdate () {
+    this.updated_at = new Date().toISOString();
+  }
 }

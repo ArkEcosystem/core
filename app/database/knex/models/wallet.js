@@ -43,4 +43,12 @@ module.exports = class Wallet extends Model {
       'missedBlocks'
     ]
   }
+
+  $beforeInsert () {
+    this.created_at = new Date().toISOString();
+  }
+
+  $beforeUpdate () {
+    this.updated_at = new Date().toISOString();
+  }
 }
