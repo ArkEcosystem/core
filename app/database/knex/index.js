@@ -283,12 +283,24 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async deleteBlock (block) {
-    // @TODO wrap into transaction - http://knexjs.org/#Transactions
     try {
-      await this.transactionsTable.query().delete().where('blockId', block.data.id)
-      await this.blocksTable.query().delete().where('id', block.data.id)
+      await this.db.transaction(async (trx) => {
+        await this.db
+          .table(this.transactionsTable.tableName)
+          .delete()
+          .where('blockId', block.data.id)
+          .transacting(trx)
+
+        return this.db
+          .table(this.blocksTable.tableName)
+          .delete()
+          .where('id', block.data.id)
+          .transacting(trx)
+      })
+
+      logger.verbose(`Block ${block.data.height} and ${block.transactions.length} Transactions were deleted.`)
     } catch (error) {
-      logger.error(error.stack)
+      logger.error(`Block ${block.data.height} was rolled back.`)
     }
   }
 
