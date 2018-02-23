@@ -1,4 +1,4 @@
-const { Model } = require('objection')
+const Model = require('./model')
 const pick = require('lodash/pick')
 
 module.exports = class Wallet extends Model {
@@ -42,13 +42,5 @@ module.exports = class Wallet extends Model {
       'producedBlocks',
       'missedBlocks'
     ]
-  }
-
-  $beforeInsert () {
-    this.created_at = new Date().toISOString();
-  }
-
-  $beforeUpdate () {
-    this.updated_at = new Date().toISOString();
   }
 }

@@ -1,15 +1,7 @@
-const { Model } = require('objection')
+const Model = require('./model')
 
 module.exports = class Webhook extends Model {
   static get tableName () {
     return 'webhooks'
-  }
-
-  $beforeInsert () {
-    this.created_at = new Date().toISOString();
-  }
-
-  $beforeUpdate () {
-    this.updated_at = new Date().toISOString();
   }
 }
