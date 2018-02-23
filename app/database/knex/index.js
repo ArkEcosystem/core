@@ -315,6 +315,7 @@ module.exports = class SequelizeDB extends DBInterface {
   async getLastBlock () {
     const block = await this.blocksTable.query()
       .orderBy('height', 'desc')
+      .limit(1)
       .first()
 
     if (!block) return
