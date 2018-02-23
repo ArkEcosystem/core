@@ -1,5 +1,4 @@
 const Model = require('./model')
-const pick = require('lodash/pick')
 
 module.exports = class Wallet extends Model {
   static get tableName () {

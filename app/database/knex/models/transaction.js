@@ -1,5 +1,4 @@
 const Model = require('./model')
-const pick = require('lodash/pick')
 
 module.exports = class Transaction extends Model {
   static get tableName () {

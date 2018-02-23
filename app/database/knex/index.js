@@ -261,12 +261,24 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async saveBlock (block) {
-    // @TODO wrap into transaction - http://knexjs.org/#Transactions
     try {
-      await this.blocksTable.findOrInsert(block.data)
-      await this.transactionsTable.batchInsert(block.transactions || [])
+      await this.db.transaction(async (trx) => {
+        await trx
+          .insert(this.blocksTable.transform(block.data))
+          .into(this.blocksTable.tableName)
+          .transacting(trx)
+
+        // logger.verbose(`Block ${block.data.height} was stored.`)
+
+        return this.db.batchInsert(
+          this.transactionsTable.tableName,
+          this.transactionsTable.transform(block.transactions || [])
+        ).transacting(trx)
+      })
+
+      logger.verbose(`Block ${block.data.height} and ${block.transactions.length} Transactions were stored.`)
     } catch (error) {
-      logger.error(error.stack)
+      logger.error(`Block ${block.data.height} was rolled back.`)
     }
   }
 
