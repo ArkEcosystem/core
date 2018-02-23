@@ -185,10 +185,11 @@ module.exports = class SequelizeDB extends DBInterface {
       data = await this.transactionsTable.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 3)
-        .orderBy('created_at', 'desc')
+        .orderBy('timestamp', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+
         if (!wallet.voted) {
           let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
           if (vote.startsWith('+')) wallet.vote = vote.slice(1)
@@ -202,7 +203,7 @@ module.exports = class SequelizeDB extends DBInterface {
       data = await this.transactionsTable.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 4)
-        .orderBy('created_at', 'desc')
+        .orderBy('timestamp', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)

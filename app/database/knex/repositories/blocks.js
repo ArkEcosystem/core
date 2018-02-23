@@ -38,7 +38,7 @@ module.exports = class BlocksRepository {
     return this.db.blocksTable.query()
       .select('id', 'timestamp')
       .where('generatorPublicKey', generatorPublicKey)
-      .orderBy('created_at', 'desc')
+      .orderBy('timestamp', 'desc')
       .first()
   }
 
