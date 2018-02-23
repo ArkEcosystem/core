@@ -185,7 +185,7 @@ module.exports = class KnexDriver extends DBInterface {
       data = await this.transactionsTable.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 3)
-        .orderBy('timestamp', 'desc')
+        .orderBy('created_at', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -203,7 +203,7 @@ module.exports = class KnexDriver extends DBInterface {
       data = await this.transactionsTable.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 4)
-        .orderBy('timestamp', 'desc')
+        .orderBy('created_at', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)

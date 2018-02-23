@@ -10,7 +10,7 @@ exports.up = (knex, Promise) => {
     table.bigInteger('votebalance')
     table.bigInteger('producedBlocks')
     table.bigInteger('missedBlocks')
-    table.timestamps()
+    table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
   })
 }
 

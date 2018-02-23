@@ -13,7 +13,7 @@ exports.up = (knex, Promise) => {
     table.string('payloadHash', 64)
     table.string('generatorPublicKey', 66).index()
     table.string('blockSignature', 256)
-    table.timestamps()
+    table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
   })
 }
 

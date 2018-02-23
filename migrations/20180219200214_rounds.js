@@ -4,7 +4,7 @@ exports.up = (knex, Promise) => {
     table.string('publicKey', 66).index()
     table.bigInteger('balance')
     table.bigInteger('round').index()
-    table.timestamps()
+    table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
 
     table.unique(['publicKey', 'round'])
   })
