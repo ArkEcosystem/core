@@ -20,11 +20,6 @@ module.exports = class Round extends Model {
       publicKey: data.publicKey
     }).first()
 
-    if (!row) {
-      const insert = await this.query().insert(pick(data, this.fillable))
-      row = await this.query().where('id', insert.id).first()
-    }
-
-    return row
+    if (!row) await this.query().insert(pick(data, this.fillable))
   }
 }
