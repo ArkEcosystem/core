@@ -268,15 +268,13 @@ module.exports = class KnexDriver extends DBInterface {
           .into(this.blocksTable.tableName)
           .transacting(trx)
 
-        // logger.verbose(`Block ${block.data.height} was stored.`)
-
         return this.db.batchInsert(
           this.transactionsTable.tableName,
           this.transactionsTable.transform(block.transactions || [])
         ).transacting(trx)
       })
 
-      logger.verbose(`Block ${block.data.height} and ${block.transactions.length} Transactions were stored.`)
+      logger.debug(`Block ${block.data.id} at Height ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }
@@ -298,7 +296,7 @@ module.exports = class KnexDriver extends DBInterface {
           .transacting(trx)
       })
 
-      logger.verbose(`Block ${block.data.height} and ${block.transactions.length} Transactions were deleted.`)
+      logger.debug(`Block ${block.data.id} at Height ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }
