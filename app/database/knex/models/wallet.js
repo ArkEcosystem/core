@@ -8,7 +8,7 @@ module.exports = class Wallet extends Model {
   static relationMappings () {
     return {
       blocks: {
-        relation: Model.HasManyRelation,
+        relation: sModel.HasManyRelation,
         modelClass: `${__dirname}/Block`,
         join: {
           from: 'wallets.publicKey',

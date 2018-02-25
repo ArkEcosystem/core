@@ -24,7 +24,7 @@ module.exports = class Transaction extends Model {
   static relationMappings () {
     return {
       block: {
-        relation: Model.BelongsToOneRelation,
+        relation: sModel.BelongsToOneRelation,
         modelClass: `${__dirname}/Block`,
         join: {
           from: 'transactions.blockId',
@@ -32,7 +32,7 @@ module.exports = class Transaction extends Model {
         }
       },
       blockHeight: {
-        relation: Model.BelongsToOneRelation,
+        relation: sModel.BelongsToOneRelation,
         modelClass: `${__dirname}/Block`,
         filter: query => query.select('height'),
         join: {

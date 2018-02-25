@@ -8,7 +8,7 @@ module.exports = class TransactionsRepository {
   }
 
   findAll (params) {
-    let query = this.db.transactionModel.query().select('blockId', 'serialized')
+    let query = this.db.transactionsModel.query().select('blockId', 'serialized')
 
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
@@ -68,17 +68,17 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionModel.query().findById(id).eager('blockHeight as block')
+    return this.db.transactionsModel.query().findById(id).eager('blockHeight as block')
   }
 
   findByIdAndType (id, type) {
-    return this.db.transactionModel.query()
+    return this.db.transactionsModel.query()
       .where({ id, type })
       .eager('blockHeight as block')
   }
 
   async findAllByDateAndType (type, start, end) {
-    let query = this.db.transactionModel.query().select('serialized')
+    let query = this.db.transactionsModel.query().select('serialized')
 
     if (type) {
       query.where('type', type)
@@ -106,7 +106,7 @@ module.exports = class TransactionsRepository {
   }
 
   search (params) {
-    const query = this.db.transactionModel.query()
+    const query = this.db.transactionsModel.query()
       .select('blockId', 'serialized')
 
     return buildFilterQuery(query, params, {

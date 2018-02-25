@@ -26,7 +26,7 @@ module.exports = class Block extends Model {
   static relationMappings () {
     return {
       generator: {
-        relation: Model.BelongsToOneRelation,
+        relation: sModel.BelongsToOneRelation,
         modelClass: `${__dirname}/Wallet`,
         join: {
           from: 'blocks.generatorPublicKey',
@@ -34,7 +34,7 @@ module.exports = class Block extends Model {
         }
       },
       transactions: {
-        relation: Model.HasManyRelation,
+        relation: sModel.HasManyRelation,
         modelClass: `${__dirname}/Transaction`,
         join: {
           from: 'blocks.id',
@@ -42,7 +42,7 @@ module.exports = class Block extends Model {
         }
       },
       serializedTransactions: {
-        relation: Model.HasManyRelation,
+        relation: sModel.HasManyRelation,
         modelClass: `${__dirname}/Transaction`,
         filter: query => query.select('serialized'),
         join: {
