@@ -14,6 +14,14 @@ module.exports = class Wallet extends Model {
           from: 'wallets.publicKey',
           to: 'blocks.generatorPublicKey'
         }
+      },
+      rounds: {
+        relation: Model.HasManyRelation,
+        modelClass: `${__dirname}/Round`,
+        join: {
+          from: 'wallets.publicKey',
+          to: 'rounds.publicKey'
+        }
       }
     }
   }

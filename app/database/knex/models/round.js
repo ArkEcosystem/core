@@ -13,6 +13,19 @@ module.exports = class Round extends Model {
     ]
   }
 
+  static relationMappings () {
+    return {
+      wallet: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: `${__dirname}/Wallet`,
+        join: {
+          from: 'rounds.publicKey',
+          to: 'wallets.publicKey'
+        }
+      },
+    }
+  }
+
   static async findOrInsert (data) {
     let row = await this.query().where({
       round: data.round,

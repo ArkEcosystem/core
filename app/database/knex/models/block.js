@@ -42,7 +42,7 @@ module.exports = class Block extends Model {
         }
       },
       serializedTransactions: {
-        relation: sModel.HasManyRelation,
+        relation: Model.HasManyRelation,
         modelClass: `${__dirname}/Transaction`,
         filter: query => query.select('serialized'),
         join: {
