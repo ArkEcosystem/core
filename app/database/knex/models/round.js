@@ -22,7 +22,7 @@ module.exports = class Round extends Model {
           from: 'rounds.publicKey',
           to: 'wallets.publicKey'
         }
-      },
+      }
     }
   }
 

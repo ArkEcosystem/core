@@ -7,7 +7,7 @@ const Knex = require('knex')
 const logger = require('app/core/logger')
 const path = require('path')
 const Transaction = require('app/models/transaction')
-const webhookManager = require('app/core/managers/webhook').getInstance()
+// const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class KnexDriver extends DBInterface {
   async init (config) {
