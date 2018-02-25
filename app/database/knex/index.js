@@ -16,7 +16,7 @@ module.exports = class KnexDriver extends DBInterface {
     }
 
     this.db = Knex(config.options)
-    sModel.knex(this.db)
+    Model.knex(this.db)
 
     await this.db.migrate.latest()
     await this.registerModels()

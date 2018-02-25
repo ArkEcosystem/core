@@ -26,7 +26,7 @@ module.exports = class Block extends Model {
   static relationMappings () {
     return {
       generator: {
-        relation: sModel.BelongsToOneRelation,
+        relation: Model.BelongsToOneRelation,
         modelClass: `${__dirname}/Wallet`,
         join: {
           from: 'blocks.generatorPublicKey',
@@ -34,7 +34,7 @@ module.exports = class Block extends Model {
         }
       },
       transactions: {
-        relation: sModel.HasManyRelation,
+        relation: Model.HasManyRelation,
         modelClass: `${__dirname}/Transaction`,
         join: {
           from: 'blocks.id',
