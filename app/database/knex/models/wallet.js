@@ -5,6 +5,20 @@ module.exports = class Wallet extends Model {
     return 'wallets'
   }
 
+  static get fillable () {
+    return [
+      'address',
+      'publicKey',
+      'secondPublicKey',
+      'vote',
+      'username',
+      'balance',
+      'votebalance',
+      'producedBlocks',
+      'missedBlocks'
+    ]
+  }
+
   static relationMappings () {
     return {
       blocks: {
@@ -46,19 +60,5 @@ module.exports = class Wallet extends Model {
     let row = await this.query().where('address', data.address).first()
 
     if (!row) await this.query().insert(this.transform(data))
-  }
-
-  static get fillable () {
-    return [
-      'address',
-      'publicKey',
-      'secondPublicKey',
-      'vote',
-      'username',
-      'balance',
-      'votebalance',
-      'producedBlocks',
-      'missedBlocks'
-    ]
   }
 }

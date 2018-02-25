@@ -11,7 +11,7 @@ exports.up = (knex, Promise) => {
     table.bigInteger('reward')
     table.integer('payloadLength')
     table.string('payloadHash', 64)
-    table.string('generatorPublicKey', 66).index()
+    table.string('generatorPublicKey', 66).references('publicKey').inTable('wallets').index()
     table.string('blockSignature', 256)
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
   })
