@@ -4,10 +4,10 @@ class DependencyHandler {
   checkDatabaseLibraries (config) {
     let dependencies = {
       'app/database/knex': {
-        'mysql': ['knex', 'mysql2'],
-        'sqlite': ['knex', 'sqlite3'],
+        'mysql': ['knex', 'mysql'],
+        'sqlite3': ['knex', 'sqlite3'],
         'postgres': ['knex', 'pg']
-      }[config.server.db.dialect]
+      }[config.server.db.options.client]
     }[config.server.db.driver]
 
     return this._install(dependencies)

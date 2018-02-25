@@ -4,19 +4,18 @@ const config = require('app/core/config')
 const DBInterface = require('app/core/dbinterface')
 const fg = require('fast-glob')
 const Knex = require('knex')
-const knexConfig = require('knexfile')
 const logger = require('app/core/logger')
 const path = require('path')
 const Transaction = require('app/models/transaction')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class KnexDriver extends DBInterface {
-  async init (params) {
+  async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
     }
 
-    this.db = Knex(knexConfig.development)
+    this.db = Knex(config.options)
     Model.knex(this.db)
 
     await this.db.migrate.latest()

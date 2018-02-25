@@ -8,9 +8,13 @@
   },
   "db": {
     "driver": "app/database/knex",
-    "uri": "sqlite:storage/database/devnet.sqlite",
-    "dialect": "sqlite",
-    "logging": false
+    "options": {
+      "client": "sqlite3",
+      "useNullAsDefault": true,
+      "connection": {
+        "filename": "storage/database/devnet.sqlite"
+      }
+    }
   },
   "queue": {
     "host": "localhost",
