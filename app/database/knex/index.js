@@ -16,8 +16,10 @@ module.exports = class KnexDriver extends DBInterface {
     }
 
     this.db = Knex(Object.assign(config.options, {
-      directory: path.resolve(__dirname, 'migrations'),
-      tableName: 'migrations'
+      migrations: {
+        directory: path.resolve(__dirname, 'migrations'),
+        tableName: 'migrations'
+      }
     }))
 
     Model.knex(this.db)
