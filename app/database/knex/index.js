@@ -274,7 +274,7 @@ module.exports = class KnexDriver extends DBInterface {
         ).transacting(trx)
       })
 
-      logger.debug(`Block ${block.data.id} at Height ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
+      logger.debug(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }
@@ -296,7 +296,7 @@ module.exports = class KnexDriver extends DBInterface {
           .transacting(trx)
       })
 
-      logger.debug(`Block ${block.data.id} at Height ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
+      logger.debug(`Block ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }
