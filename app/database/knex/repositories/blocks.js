@@ -7,7 +7,7 @@ module.exports = class BlocksRepository {
   }
 
   async findAll (params, columns = ['*']) {
-    let query = this.db.blocksTable.query().select(columns)
+    let query = this.db.blockModel.query().select(columns)
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
     for (const elem of filter) {
@@ -31,11 +31,11 @@ module.exports = class BlocksRepository {
   }
 
   findById (id) {
-    return this.db.blocksTable.query().findById(id)
+    return this.db.blockModel.query().findById(id)
   }
 
   findLastByPublicKey (generatorPublicKey) {
-    return this.db.blocksTable.query()
+    return this.db.blockModel.query()
       .select('id', 'timestamp')
       .where('generatorPublicKey', generatorPublicKey)
       .orderBy('timestamp', 'desc')
@@ -43,7 +43,7 @@ module.exports = class BlocksRepository {
   }
 
   findAllByDateTimeRange (start, end) {
-    let query = this.db.blocksTable.query().select('totalFee', 'reward')
+    let query = this.db.blockModel.query().select('totalFee', 'reward')
 
     const epoch = moment.unix(1490101200).utc()
 
@@ -65,7 +65,7 @@ module.exports = class BlocksRepository {
   }
 
   search (params, columns = ['*']) {
-    let query = this.db.blocksTable.query().select(columns)
+    let query = this.db.blockModel.query().select(columns)
 
     return buildFilterQuery(query, params, {
       exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
@@ -78,7 +78,7 @@ module.exports = class BlocksRepository {
     //   type: Sequelize.QueryTypes.SELECT
     // })
 
-    return this.db.blocksTable.query()
+    return this.db.blockModel.query()
       .select(
         this.db.db.raw('SUM(totalFee) as fees'),
         this.db.db.raw('SUM(reward) as rewards'),

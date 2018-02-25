@@ -33,8 +33,8 @@ module.exports = class KnexDriver extends DBInterface {
 
   // registerHooks () {
   //   if (config.webhooks.enabled) {
-  //     this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block))
-  //     this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
+  //     this.blockModel.afterCreate((block) => webhookManager.emit('block.created', block))
+  //     this.transactionModel.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
   //   }
   // }
 
@@ -46,31 +46,31 @@ module.exports = class KnexDriver extends DBInterface {
       return this.activedelegates
     }
 
-    const data = await this.roundsTable.query().where('round', round).orderBy('publicKey', 'asc')
+    const data = await this.roundModel.query().where('round', round).orderBy('publicKey', 'asc')
 
     return data.sort((a, b) => b.balance - a.balance)
   }
 
   async saveRounds (delegates) {
-    return this.roundsTable.batchInsert(delegates)
+    return this.roundModel.batchInsert(delegates)
   }
 
   deleteRound (round) {
     console.log('delete', round)
-    return this.roundsTable.query().delete().where('round', round)
+    return this.roundModel.query().delete().where('round', round)
   }
 
   async buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
 
-    let data = await this.walletsTable.query()
+    let data = await this.walletModel.query()
       .select('vote', 'publicKey', this.db.raw('SUM(balance) as balance'))
       .whereNotNull('vote')
       .groupBy('vote')
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < activeDelegates) {
-      const data2 = await this.walletsTable.query()
+      const data2 = await this.walletModel.query()
         .select('publicKey')
         .whereNotNull('username')
         .whereNotIn('publicKey', data.map(d => d.publicKey))
@@ -100,7 +100,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Received TX
       logger.printTracker('SPV Building', 1, 8, 'Received Transactions')
 
-      let data = await this.transactionsTable.query()
+      let data = await this.transactionModel.query()
         .select('recipientId', this.db.raw('sum(amount) as amount'))
         .where('type', 0)
         .groupBy('recipientId')
@@ -117,7 +117,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Block Rewards
       logger.printTracker('SPV Building', 2, 8, 'Block Rewards')
 
-      data = await this.blocksTable.query()
+      data = await this.blockModel.query()
         .select('generatorPublicKey', this.db.raw('SUM(`reward`+`totalFee`) as reward'), this.db.raw('count(*) as produced'))
         .groupBy('generatorPublicKey')
 
@@ -129,7 +129,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Last block forged for each delegate
       logger.printTracker('SPV Building', 3, 8, 'Last Forged Blocks')
 
-      data = await this.blocksTable.query()
+      data = await this.blockModel.query()
         .select('*', this.db.raw('max(`timestamp`)'))
         .groupBy('generatorPublicKey')
 
@@ -141,7 +141,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Sent Transactions
       logger.printTracker('SPV Building', 4, 8, 'Sent Transactions')
 
-      data = await this.transactionsTable.query()
+      data = await this.transactionModel.query()
         .select('senderPublicKey', this.db.raw('SUM(amount) as amount'), this.db.raw('SUM(fee) as fee'))
         .groupBy('senderPublicKey')
 
@@ -156,7 +156,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Second Signature
       logger.printTracker('SPV Building', 5, 8, 'Second Signatures')
 
-      data = await this.transactionsTable.query()
+      data = await this.transactionModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 1)
 
@@ -168,7 +168,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Delegates
       logger.printTracker('SPV Building', 6, 8, 'Delegates')
 
-      data = await this.transactionsTable.query()
+      data = await this.transactionModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 2)
 
@@ -181,7 +181,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Votes
       logger.printTracker('SPV Building', 7, 8, 'Votes')
 
-      data = await this.transactionsTable.query()
+      data = await this.transactionModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 3)
         .orderBy('created_at', 'desc')
@@ -199,7 +199,7 @@ module.exports = class KnexDriver extends DBInterface {
       // Multi Signatures
       logger.printTracker('SPV Building', 8, 8, 'Multi Signatures')
 
-      data = await this.transactionsTable.query()
+      data = await this.transactionModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 4)
         .orderBy('created_at', 'desc')
@@ -230,7 +230,7 @@ module.exports = class KnexDriver extends DBInterface {
     try {
       const activeDelegates = config.getConstants(block.data.height).activeDelegates
 
-      let lastBlockGenerators = await this.blocksTable.query()
+      let lastBlockGenerators = await this.blockModel.query()
         .select('id', 'generatorPublicKey')
         .whereRaw(`height/${activeDelegates} = ${delegates[0].round}`)
 
@@ -251,7 +251,7 @@ module.exports = class KnexDriver extends DBInterface {
       Object.values(this.walletManager.walletsByPublicKey || {})
         // cold addresses are not saved on database
         .filter(acc => acc.publicKey && (force || acc.dirty))
-        .map(acc => this.walletsTable.findOrInsert(acc))
+        .map(acc => this.walletModel.findOrInsert(acc))
     )
 
     logger.info('Rebuilt wallets saved')
@@ -263,13 +263,13 @@ module.exports = class KnexDriver extends DBInterface {
     try {
       await this.db.transaction(async (trx) => {
         await trx
-          .insert(this.blocksTable.transform(block.data))
-          .into(this.blocksTable.tableName)
+          .insert(this.blockModel.transform(block.data))
+          .into(this.blockModel.tableName)
           .transacting(trx)
 
         return this.db.batchInsert(
-          this.transactionsTable.tableName,
-          this.transactionsTable.transform(block.transactions || [])
+          this.transactionModel.tableName,
+          this.transactionModel.transform(block.transactions || [])
         ).transacting(trx)
       })
 
@@ -283,13 +283,13 @@ module.exports = class KnexDriver extends DBInterface {
     try {
       await this.db.transaction(async (trx) => {
         await this.db
-          .table(this.transactionsTable.tableName)
+          .table(this.transactionModel.tableName)
           .delete()
           .where('blockId', block.data.id)
           .transacting(trx)
 
         return this.db
-          .table(this.blocksTable.tableName)
+          .table(this.blockModel.tableName)
           .delete()
           .where('id', block.data.id)
           .transacting(trx)
@@ -302,7 +302,7 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async getBlock (id) {
-    const block = await this.blocksTable.query()
+    const block = await this.blockModel.query()
       .where('id', id)
       .eager('serializedTransactions as transactions')
 
@@ -312,13 +312,13 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async getTransaction (id) {
-    return this.transactionsTable.query()
+    return this.transactionModel.query()
       .where('id', id)
       .first()
   }
 
   async getCommonBlock (ids) {
-    return this.blocksTable.query()
+    return this.blockModel.query()
       .select('id', 'previousBlock', 'timestamp', this.db.raw('MAX("height") as height'))
       .whereIn('id', ids)
       .orderBy('height', 'desc')
@@ -326,7 +326,7 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async getTransactionsFromIds (txids) {
-    const rows = await this.transactionsTable.query()
+    const rows = await this.transactionModel.query()
       .select('serialized')
       .whereIn('id', txids)
 
@@ -336,7 +336,7 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.blocksTable.query()
+    const block = await this.blockModel.query()
       .orderBy('height', 'desc')
       .limit(1)
       .first()
@@ -353,7 +353,7 @@ module.exports = class KnexDriver extends DBInterface {
   async getBlocks (offset, limit) {
     const last = offset + limit
 
-    const blocks = await this.blocksTable.query()
+    const blocks = await this.blockModel.query()
       .whereBetween('height', [offset, last])
       .eager('serializedTransactions as transactions')
 
@@ -367,7 +367,7 @@ module.exports = class KnexDriver extends DBInterface {
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
 
-    const blocks = await this.blocksTable.query()
+    const blocks = await this.blockModel.query()
       .whereBetween('height', [offset, last])
 
     return blocks.map(block => Block.serialize(block))
