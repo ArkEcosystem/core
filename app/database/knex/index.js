@@ -15,7 +15,11 @@ module.exports = class KnexDriver extends DBInterface {
       throw new Error('Already initialised')
     }
 
-    this.db = Knex(config.options)
+    this.db = Knex(Object.assign(config.options, {
+      directory: path.resolve(__dirname, 'migrations'),
+      tableName: 'migrations'
+    }))
+
     Model.knex(this.db)
 
     await this.db.migrate.latest()
