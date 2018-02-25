@@ -22,6 +22,22 @@ module.exports = class Wallet extends Model {
           from: 'wallets.publicKey',
           to: 'rounds.publicKey'
         }
+      },
+      sentTransactions: {
+        relation: Model.HasManyRelation,
+        modelClass: `${__dirname}/Transaction`,
+        join: {
+          from: 'wallets.publicKey',
+          to: 'transactions.senderPublicKey'
+        }
+      },
+      receivedTransactions: {
+        relation: Model.HasManyRelation,
+        modelClass: `${__dirname}/Transaction`,
+        join: {
+          from: 'wallets.address',
+          to: 'transactions.recipientId'
+        }
       }
     }
   }
