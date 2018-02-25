@@ -39,6 +39,22 @@ module.exports = class Transaction extends Model {
           from: 'transactions.blockId',
           to: 'blocks.id'
         }
+      },
+      sender: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: `${__dirname}/Wallet`,
+        join: {
+          from: 'transactions.senderPublicKey',
+          to: 'wallets.publicKey'
+        }
+      },
+      recipient: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: `${__dirname}/Wallet`,
+        join: {
+          from: 'transactions.recipientId',
+          to: 'wallets.address'
+        }
       }
     }
   }
