@@ -31,7 +31,7 @@ module.exports = class BlocksRepository {
   }
 
   findById (id) {
-    return this.db.blocksModel.query().findById(id)
+    return this.db.blocksModel.query().where('id', id).first()
   }
 
   findLastByPublicKey (generatorPublicKey) {

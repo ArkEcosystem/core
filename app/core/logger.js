@@ -21,7 +21,7 @@ const winstonConsoleFormatter = (info) => {
     'warn': chalk.bold.black.bgYellow(message),
     'info': message,
     'verbose': chalk.bold.black.bgBlue(message),
-    'debug': chalk.bold.bgMagenta(message),
+    'debug': chalk.bold.inverse(message),
     'silly': chalk.bold.black.bgWhite(message)
   }[info.level]
 

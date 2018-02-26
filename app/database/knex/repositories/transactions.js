@@ -68,7 +68,7 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsModel.query().findById(id).eager('blockHeight as block')
+    return this.db.transactionsModel.query().where('id', id).eager('blockHeight as block')
   }
 
   findByIdAndType (id, type) {

@@ -34,7 +34,7 @@ exports.showUnconfirmed = {
 
 exports.search = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.search(request.query)
+    const transactions = await db.transactions.search({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, transactions, 'transaction')
   }
