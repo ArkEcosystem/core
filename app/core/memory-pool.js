@@ -19,7 +19,6 @@ module.exports = class MemoryPool {
       throw new Error(`${Class} is not a function`)
     }
 
-    this.config = config
     this.Class = Class
     this.pool = {}
     this.key = 'ark:tx_pool'
@@ -48,14 +47,11 @@ module.exports = class MemoryPool {
   }
 
   getItems (blockSize) {
-    let res = this.client.lrange(this.key, 0, blockSize - 1)
-    console.log('lalal', res)
-    return res
-    //return Object.values(this.pool).slice(0, blockSize)
+    return Object.values(this.pool).slice(0, blockSize)
   }
 
   delete (transaction) {
-    return this.client.lrem(this.key, transaction)
+    // return this.client.lrem(this.key, transaction)
   }
 
   clear () {
