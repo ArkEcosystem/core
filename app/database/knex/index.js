@@ -292,7 +292,7 @@ module.exports = class KnexDriver extends DBInterface {
         // ).transacting(trx)
       })
 
-      logger.info(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
+      // logger.info(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
     } catch (error) {
       logger.error(error.stack)
 
