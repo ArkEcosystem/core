@@ -68,13 +68,14 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsModel.query().where('id', id).eager('blockHeight as block')
+    return this.db.transactionsModel.query().where('id', id).eager('blockHeight as block').first()
   }
 
   findByIdAndType (id, type) {
     return this.db.transactionsModel.query()
       .where({ id, type })
       .eager('blockHeight as block')
+      .first()
   }
 
   async findAllByDateAndType (type, start, end) {

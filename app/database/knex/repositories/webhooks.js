@@ -11,7 +11,7 @@ module.exports = class WebhooksRepository {
   }
 
   findById (id) {
-    return this.db.webhooksModel.query().where('id', id)
+    return this.db.webhooksModel.query().where('id', id).first()
   }
 
   findByEvent (event) {
