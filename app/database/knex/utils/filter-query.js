@@ -1,6 +1,4 @@
 module.exports = (query, params, filters) => {
-  let where = {}
-
   if (filters.hasOwnProperty('exact')) {
     for (const elem of filters['exact']) {
       if (params[elem]) {
@@ -18,8 +16,6 @@ module.exports = (query, params, filters) => {
       }
 
       if (params[`${elem}From`] || params[`${elem}To`]) {
-        where[elem] = {}
-
         if (params[`${elem}From`]) {
           query.where(elem, '>=', params[`${elem}From`])
         }
@@ -39,5 +35,5 @@ module.exports = (query, params, filters) => {
     }
   }
 
-  return where
+  return query
 }

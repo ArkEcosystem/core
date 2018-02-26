@@ -59,7 +59,7 @@ exports.search = {
     const delegates = await db.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      delegates: utils.toCollection(request, delegates.rows, 'delegate')
+      delegates: utils.toCollection(request, delegates.results, 'delegate')
     })
   }
 }

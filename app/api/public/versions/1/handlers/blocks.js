@@ -17,7 +17,7 @@ exports.index = {
     const blocks = await db.blocks.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks.rows, 'block')
+      blocks: utils.toCollection(request, blocks.results, 'block')
     })
   }
 }

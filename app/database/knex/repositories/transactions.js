@@ -110,13 +110,13 @@ module.exports = class TransactionsRepository {
       .select('blockId', 'serialized')
 
     return buildFilterQuery(query, params, {
-      exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
-      between: ['timestamp', 'amount', 'fee'],
-      wildcard: ['vendorFieldHex']
-    })
-    .eager('blockHeight as block')
-    .offset(params.offset)
-    .limit(params.limit)
-    .range()
+        exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+        between: ['timestamp', 'amount', 'fee'],
+        wildcard: ['vendorFieldHex']
+      })
+      .eager('blockHeight as block')
+      .offset(params.offset)
+      .limit(params.limit)
+      .range()
   }
 }
