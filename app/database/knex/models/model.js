@@ -21,12 +21,4 @@ module.exports = class BaseModel extends Model {
       ? data.map(d => pick(d, this.fillable))
       : pick(data, this.fillable)
   }
-
-  $beforeInsert () {
-    this.created_at = new Date().toISOString()
-  }
-
-  $beforeUpdate () {
-    this.updated_at = new Date().toISOString()
-  }
 }

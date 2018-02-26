@@ -276,15 +276,29 @@ module.exports = class KnexDriver extends DBInterface {
           .into(this.blocksModel.tableName)
           .transacting(trx)
 
-        return this.db.batchInsert(
-          this.transactionsModel.tableName,
-          this.transactionsModel.transform(block.transactions || [])
+        if (!block.transactions.length) return
+
+        return trx.raw(
+          this.db
+            .insert(this.transactionsModel.transform(block.transactions || []))
+            .into(this.transactionsModel.tableName)
+            .toString()
         ).transacting(trx)
+
+        // return this.db.batchInsert(
+        //   this.transactionsModel.tableName,
+        //   this.transactionsModel.transform(block.transactions || []),
+        //   50
+        // ).transacting(trx)
       })
 
-      logger.debug(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
+      logger.info(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
     } catch (error) {
+      logger.error(error.stack)
+
       logger.error(`Block ${block.data.height} was rolled back.`)
+
+      process.exit()
     }
   }
 
@@ -304,7 +318,7 @@ module.exports = class KnexDriver extends DBInterface {
           .transacting(trx)
       })
 
-      logger.debug(`Block ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
+      logger.info(`Block ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }
