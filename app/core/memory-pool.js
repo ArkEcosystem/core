@@ -32,7 +32,7 @@ module.exports = class MemoryPool {
 
   add (object) {
     if (object instanceof this.Class) {
-      this.pool[object.id] = object
+      this.pool[object.id] = object.serialized.toString('hex')
     }
   }
 
