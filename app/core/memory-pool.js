@@ -1,10 +1,13 @@
+const Redis = require('ioredis')
+const redis = new Redis()
+
 let instance = null
 // TODO here check also
 // - exipration date of transactions
 // - spamming
 // - max size, etc...
 module.exports = class MemoryPool {
-  constructor (Class) {
+  constructor (Class, config) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 MemoryPools!')
 
@@ -16,8 +19,10 @@ module.exports = class MemoryPool {
       throw new Error(`${Class} is not a function`)
     }
 
+    this.config = config
     this.Class = Class
     this.pool = {}
+    this.key = 'ark:tx_pool'
   }
 
   get size () {
@@ -30,18 +35,27 @@ module.exports = class MemoryPool {
     })
   }
 
-  add (object) {
+  async add (object) {
     if (object instanceof this.Class) {
       this.pool[object.id] = object.serialized.toString('hex')
+      try {
+          const result = await redis.rpush(this.key, object.serialized.toString('hex'))
+          console.log(result)
+      } catch (error) {
+          console.error(error)
+      }
     }
   }
 
   getItems (blockSize) {
-    return Object.values(this.pool).slice(0, blockSize)
+    let res = this.client.lrange(this.key, 0, blockSize - 1)
+    console.log('lalal', res)
+    return res
+    //return Object.values(this.pool).slice(0, blockSize)
   }
 
-  delete (id) {
-    delete this.pool[id]
+  delete (transaction) {
+    return this.client.lrem(this.key, transaction)
   }
 
   clear () {

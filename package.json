@@ -58,6 +58,7 @@
     "hapi-rate-limit": "^2.1.1",
     "inquirer": "^5.1.0",
     "interval-to-human": "^0.1.1",
+    "ioredis": "^3.2.2",
     "ip": "^1.1.5",
     "is-promise": "^2.1.0",
     "lru-cache": "^4.1.1",

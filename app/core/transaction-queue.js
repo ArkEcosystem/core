@@ -27,7 +27,7 @@ class TransactionQueue {
   constructor () {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = new MemoryPool(Transaction)
+    this.pool = new MemoryPool(Transaction, config.server.queue)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block
@@ -75,7 +75,7 @@ class TransactionQueue {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    this.pool.removeForgedTransactions(block.transactions.map(tx => tx.data.id))
+    this.pool.removeForgedTransactions(block.transactions.map(tx => tx.serialized.toString('hex')))
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
@@ -84,8 +84,9 @@ class TransactionQueue {
     this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
-  getTransactions (blockSize) {
-    let retItems = this.pool.getItems(blockSize)
+  async getTransactions (blockSize) {
+    let retItems = await this.pool.getItems(blockSize)
+    console.log(retItems)
     return {
       transactions: retItems,
       poolSize: this.pool.size,
