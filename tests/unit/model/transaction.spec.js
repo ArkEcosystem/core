@@ -1,4 +1,5 @@
 const Transaction = require('app/models/transaction')
+const arkjs = require('arkjs')
 
 const txdata = {
   version: 1,
@@ -21,12 +22,42 @@ const txdata = {
   id: 'a8eefb5c216845d2eccda5e489076bc70d2eaef8e8f127726c249c16187a25a4'
 }
 
-const hex = Transaction.serialize(txdata).toString('hex')
-const tx = Transaction.fromBytes(hex)
+const createRandomTx = (type) => {
+  arkjs.crypto.setNetworkVersion(0x17)
+  switch (type) {
+    case 0: // transfer
+      return arkjs.transaction.createTransaction('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX', ~~(Math.random() * Math.pow(10, 10)), Math.random().toString(36), Math.random().toString(36), Math.random().toString(36))
+    case 1: // second signature
+      return arkjs.signature.createSignature(Math.random().toString(36), Math.random().toString(36))
+    case 2: // delegate registration
+      return arkjs.delegate.createDelegate(Math.random().toString(36), Math.random().toString(12))
+    case 3: // vote registration
+      return arkjs.vote.createVote(Math.random().toString(36), ['+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760'])
+    case 4: // multisignature registration
+      const ECkeys = [1, 2, 3].map(() => arkjs.crypto.getKeys(Math.random().toString(36)))
+      const tx = arkjs.multisignature.createMultisignature(Math.random().toString(36), '', ECkeys.map(k => k.publicKey), 48, 2)
+      const hash = arkjs.crypto.getHash(tx, true, true)
+      tx.signatures = ECkeys.slice(1).map((k) => k.sign(hash).toDER().toString('hex'))
+      console.log(tx)
+      return tx
+    default:
+      return null
+  }
+}
 
 describe('Model | Transaction', () => {
   describe('static fromBytes', () => {
     it('returns a new transaction', () => {
+      [0, 1, 2, 3, 4].map(type => createRandomTx(type))
+        .map(tx => { tx.network = 0x17; return tx })
+        .map(tx => Transaction.serialize(tx).toString('hex'))
+        .map(tx => { console.log(tx); return tx })
+        .map(serialized => Transaction.fromBytes(serialized))
+        .forEach(tx => console.log(JSON.stringify(tx)))
+
+      let hex = Transaction.serialize(txdata).toString('hex')
+      let tx = Transaction.fromBytes(hex)
+
       expect(tx).toBeInstanceOf(Transaction)
       expect(tx.data).toEqual(txdata)
     })
