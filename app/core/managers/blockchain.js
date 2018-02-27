@@ -4,6 +4,8 @@ const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
+const Redis = require('ioredis')
+const redis = new Redis()
 
 const sleep = require('app/utils/sleep')
 
@@ -193,7 +195,7 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    return this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
+    return redis.lrange('ark:tx_pool', 0, blockSize - 1)
   }
 
   isSynced (block) {

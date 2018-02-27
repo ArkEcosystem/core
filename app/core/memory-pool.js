@@ -39,15 +39,19 @@ module.exports = class MemoryPool {
       this.pool[object.id] = object.serialized.toString('hex')
       try {
           const result = await redis.rpush(this.key, object.serialized.toString('hex'))
-          console.log(result)
+          // console.log(result)
       } catch (error) {
           console.error(error)
       }
     }
   }
 
-  getItems (blockSize) {
-    return Object.values(this.pool).slice(0, blockSize)
+  async getItems (blockSize) {
+      try {
+          return redis.lrange(this.key, 0, blockSize - 1)
+      } catch (error) {
+          console.error(error)
+      }
   }
 
   delete (transaction) {
