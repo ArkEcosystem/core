@@ -31,16 +31,17 @@ module.exports = class Wallet {
         1: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
         2: () => (this.username = transaction.asset.delegate.username),
         3: () => {
-            if (transaction.asset.votes[0].startsWith('+')) {
-              this.vote = transaction.asset.votes[0].slice(1)
-            } else if (transaction.asset.votes[0].startsWith('-')) {
-              this.vote = null
-            }
+          if (transaction.asset.votes[0].startsWith('+')) {
+            this.vote = transaction.asset.votes[0].slice(1)
+          } else if (transaction.asset.votes[0].startsWith('-')) {
+            this.vote = null
+          }
         },
-        4: () => (this.multisignature = transaction.asset.multisignature)
+        4: () => (this.multisignature = transaction.asset.multisignature),
+        'default': () => (false)
       }
 
-      actions[transaction.type]()
+      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }
@@ -63,10 +64,11 @@ module.exports = class Wallet {
         4: () => (this.multisignature = null),
         5: () => {},
         6: () => {},
-        7: () => {}
+        7: () => {},
+        'default': () => (false)
       }
 
-      actions[transaction.type]()
+      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }

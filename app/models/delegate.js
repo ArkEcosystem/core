@@ -6,6 +6,7 @@ const otplib = require('otplib')
 const Block = require('./block')
 const forge = require('node-forge')
 const sortTransactions = require('app/utils/sort-transactions')
+const logger = require('app/core/logger')
 
 module.exports = class Delegate {
   constructor (passphrase, network, password) {
@@ -87,6 +88,7 @@ module.exports = class Delegate {
 
   // we consider transactions are signed, verified and unique
   forge (transactions, options) {
+    logger.info(`Forging ${transactions.length} number of transactions`)
     if (!options.version && (this.encryptedKeys || !this.bip38)) {
       const txstats = {
         amount: 0,

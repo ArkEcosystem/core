@@ -223,7 +223,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         await blockchainManager.db.buildWallets()
-        await blockchainManager.transactionPool.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+        await blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.applyRound(block, false, false)
