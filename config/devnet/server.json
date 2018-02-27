@@ -7,13 +7,11 @@
     "console": "debug"
   },
   "db": {
-    "driver": "app/database/knex",
+    "driver": "app/database/sequelize",
     "options": {
-      "client": "sqlite3",
-      "useNullAsDefault": true,
-      "connection": {
-        "filename": "storage/database/devnet.sqlite"
-      }
+      "uri": "sqlite:storage/database/devnet.sqlite",
+      "dialect": "sqlite",
+      "logging": false
     }
   },
   "queue": {
