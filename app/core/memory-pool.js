@@ -29,9 +29,9 @@ module.exports = class MemoryPool {
     return redis.llen(key)
   }
 
-  async removeForgedTransactions (transactions) {
-    await transactions.forEach(tx => {
-      redis.lrem(key, 1, tx.serialized.toString('hex'))
+  async removeForgedTransactions (serializedTransactions) {
+    await serializedTransactions.forEach(tx => {
+      redis.lrem(key, 1, tx)
     })
   }
 
