@@ -13,6 +13,7 @@ module.exports = async (message, done) => {
     const conf = await config.init(message.data)
     logger.init(conf.server.logging, conf.network.name + '_transactionQueue')
     instance = new TransactionQueue(config)
+    logger.info('Init transaction queue')
     return done()
   }
 
@@ -27,7 +28,7 @@ class TransactionQueue {
   constructor (config) {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = new MemoryPool(Transaction, config)
+    this.pool = new MemoryPool(Transaction)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block
@@ -47,7 +48,7 @@ class TransactionQueue {
   // duplication of the walletManager from blockchainManager to apply/validate transactions before storing them into pool
   async start (wallets) {
     instance.walletManager.reset()
-    wallets.forEach(wallet => {
+    await wallets.forEach(wallet => {
       const acc = instance.walletManager.getWalletByAddress(wallet.address)
       for (let key in Object(wallet)) {
         acc[key] = wallet[key]
