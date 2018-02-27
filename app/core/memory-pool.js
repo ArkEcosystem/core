@@ -46,12 +46,12 @@ module.exports = class MemoryPool {
     }
   }
 
-  async getItems (blockSize) {
-      try {
-          return redis.lrange(this.key, 0, blockSize - 1)
-      } catch (error) {
-          console.error(error)
-      }
+  getItems (blockSize) {
+    try {
+        return redis.lrange(this.key, 0, blockSize - 1)
+    } catch (error) {
+        console.error(error)
+    }
   }
 
   delete (transaction) {

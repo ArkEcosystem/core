@@ -195,7 +195,16 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    return redis.lrange('ark:tx_pool', 0, blockSize - 1)
+    // TODO get from thread
+    // const res = await this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
+    //console.log('ghjkl', res)
+
+    let retItems = await redis.lrange('ark:tx_pool', 0, blockSize - 1)
+    return {
+      transactions: await redis.lrange('ark:tx_pool', 0, blockSize - 1),
+      poolSize: await redis.llen('ark:tx_pool'),
+      count: retItems.length
+    }
   }
 
   isSynced (block) {
