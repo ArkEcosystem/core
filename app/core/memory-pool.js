@@ -1,5 +1,6 @@
 const Redis = require('ioredis')
 const redis = new Redis()
+const Transaction = require('app/models/transaction')
 
 const key = 'ark:tx_pool'
 
@@ -31,7 +32,7 @@ module.exports = class MemoryPool {
 
   async removeForgedTransactions (serializedTransactions) {
     await serializedTransactions.forEach(tx => {
-      redis.lrem(key, 1, tx)
+      redis.lrem(key, 1, Transaction.serialize(tx).toString('hex'))
     })
   }
 
@@ -52,10 +53,6 @@ module.exports = class MemoryPool {
     } catch (error) {
         console.error(error)
     }
-  }
-
-  delete (transaction) {
-    // return this.client.lrem(this.key, transaction)
   }
 
   clear () {
