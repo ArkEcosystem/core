@@ -184,7 +184,7 @@ module.exports = class KnexDriver extends DBInterface {
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
-        this.walletManager.updateWallet(wallet)
+        this.walletManager.reindex(wallet)
       })
 
       // Votes
@@ -193,7 +193,8 @@ module.exports = class KnexDriver extends DBInterface {
       data = await this.transactionsModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 3)
-        .orderBy('created_at', 'desc') // this doesn't properly work yet, use created_at instead of timestamp
+        // FIXME: this doesn't properly work yet as sometimes vote are out of order
+        .orderBy('created_at', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
