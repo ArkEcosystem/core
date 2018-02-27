@@ -238,7 +238,7 @@ module.exports = class SequelizeDriver extends DBInterface {
   }
 
   // must be called before builddelegates for  new round
-  async updateDelegateStats (activedelegates) {
+  async updateDelegateStats (block, activedelegates) {
     if (!activedelegates) {
       return
     }

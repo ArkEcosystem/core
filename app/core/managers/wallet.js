@@ -15,7 +15,7 @@ module.exports = class WalletManager {
     this.delegatesByUsername = {}
   }
 
-  updateWallet (wallet) {
+  reindex (wallet) {
     if (wallet.address) this.walletsByAddress[wallet.address] = wallet
     if (wallet.publicKey) this.walletsByPublicKey[wallet.publicKey] = wallet
     if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
@@ -99,6 +99,8 @@ module.exports = class WalletManager {
     } else if (!sender.canApply(datatx)) {
       // logger.info(JSON.stringify(sender))
       // logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Can't apply transaction ${datatx.id}`)
+      process.exit()
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }
 
