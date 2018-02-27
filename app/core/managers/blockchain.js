@@ -4,9 +4,8 @@ const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
-const Redis = require('ioredis')
-const redis = new Redis()
-
+const MemoryPool = require('app/core/memory-pool')
+const Transaction = require('app/models/transaction')
 const sleep = require('app/utils/sleep')
 
 let instance = null
@@ -39,6 +38,8 @@ module.exports = class BlockchainManager {
     this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
 
     this.downloadQueue.drain = () => this.dispatch('DOWNLOADED')
+
+    this.mempool = new MemoryPool(Transaction)
 
     if (!instance) instance = this
   }
@@ -195,14 +196,10 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    // TODO get from thread
-    // const res = await this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
-    //console.log('ghjkl', res)
-
-    let retItems = await redis.lrange('ark:tx_pool', 0, blockSize - 1)
+    let retItems = await this.mempool.getItems(blockSize)
     return {
-      transactions: await redis.lrange('ark:tx_pool', 0, blockSize - 1),
-      poolSize: await redis.llen('ark:tx_pool'),
+      transactions: retItems,
+      poolSize: await this.mempool.size(),
       count: retItems.length
     }
   }
