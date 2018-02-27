@@ -63,7 +63,7 @@
     "interval-to-human": "^0.1.1",
     "ip": "^1.1.5",
     "is-promise": "^2.1.0",
-    "knex": "^0.14.4",
+    "knex": "0.14.3",
     "lru-cache": "^4.1.1",
     "node-forge": "^0.7.1",
     "objection": "^1.0.0",
