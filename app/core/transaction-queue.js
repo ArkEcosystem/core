@@ -5,6 +5,7 @@ const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
 const MemoryPool = require('app/core/memory-pool')
+const sleep = require('app/utils/sleep')
 
 let instance = null
 
@@ -48,7 +49,7 @@ class TransactionQueue {
   // duplication of the walletManager from blockchainManager to apply/validate transactions before storing them into pool
   async start (wallets) {
     instance.walletManager.reset()
-    await wallets.forEach(wallet => {
+    wallets.forEach(wallet => {
       const acc = instance.walletManager.getWalletByAddress(wallet.address)
       for (let key in Object(wallet)) {
         acc[key] = wallet[key]
@@ -76,7 +77,7 @@ class TransactionQueue {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    await this.pool.removeForgedTransactions(block.transactions.map(tx => tx.serialized.toString('hex')))
+    await this.pool.removeForgedTransactions(block.transactions)
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
