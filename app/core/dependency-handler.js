@@ -5,6 +5,7 @@ class DependencyHandler {
     let dependencies = {
       // KnexJS
       'app/database/knex': {
+        'mysql': ['knex', 'objection', 'mysql'],
         'mysql2': ['knex', 'objection', 'mysql2'],
         'sqlite3': ['knex', 'objection', 'sqlite3'],
         'pg': ['knex', 'objection', 'pg']
