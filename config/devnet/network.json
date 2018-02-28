@@ -9,9 +9,9 @@
   "nethash": "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
   "wif": 170,
   "client": {
-    "token": "ARK",
-    "symbol": "Ѧ",
-    "explorer": "https://explorer.ark.io"
+    "token": "DARK",
+    "symbol": "DѦ",
+    "explorer": "https://dexplorer.ark.io"
   },
   "peers": [{
     "ip": "167.114.29.32",
