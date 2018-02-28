@@ -5,9 +5,9 @@ class DependencyHandler {
     let dependencies = {
       // KnexJS
       'app/database/knex': {
-        'mysql': ['knex', 'mysql'],
-        'sqlite3': ['knex', 'sqlite3'],
-        'postgres': ['knex', 'pg']
+        'mysql': ['knex', 'objection', 'mysql'],
+        'sqlite3': ['knex', 'objection', 'sqlite3'],
+        'postgres': ['knex', 'objection', 'pg']
       }[config.server.db.options.client],
       // SequelizeDB
       'app/database/sequelize': {
