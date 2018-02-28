@@ -11,7 +11,6 @@ exports.up = (knex, Promise) => {
     table.bigInteger('amount')
     table.bigInteger('fee')
     table.specificType('serialized', 'blob')
-    table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
   })
 }
 

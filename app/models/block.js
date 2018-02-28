@@ -19,6 +19,7 @@ module.exports = class Block {
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
       txx.blockId = data.id
+      txx.timestamp = data.timestamp
       return txx
     })
     this.verification = this.verify()

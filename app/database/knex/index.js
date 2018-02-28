@@ -61,7 +61,22 @@ module.exports = class KnexDriver extends DBInterface {
   }
 
   async saveRounds (delegates) {
-    return this.roundsModel.batchInsert(delegates)
+    try {
+      await this.db.transaction(async (trx) => {
+        return trx.raw(
+          this.db
+            .insert(this.roundsModel.transform(delegates))
+            .into(this.roundsModel.tableName)
+            .toString()
+        ).transacting(trx)
+      })
+
+      // logger.debug(`Round ${delegates[0].round} with ${delegates.length} Delegates was stored.`)
+    } catch (error) {
+      logger.error(error.stack)
+
+      logger.error(`Round ${delegates[0].round} was rolled back.`)
+    }
   }
 
   deleteRound (round) {
@@ -193,8 +208,7 @@ module.exports = class KnexDriver extends DBInterface {
       data = await this.transactionsModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 3)
-        // FIXME: this doesn't properly work yet as sometimes vote are out of order
-        .orderBy('created_at', 'desc')
+        .orderBy('timestamp', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -216,7 +230,7 @@ module.exports = class KnexDriver extends DBInterface {
       data = await this.transactionsModel.query()
         .select('senderPublicKey', 'serialized')
         .where('type', 4)
-        .orderBy('created_at', 'desc')
+        .orderBy('timestamp', 'desc')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -231,7 +245,8 @@ module.exports = class KnexDriver extends DBInterface {
       return this.walletManager.walletsByAddress || []
     } catch (error) {
       logger.error(error.stack)
-      process.exit()
+
+      process.exit(1)
     }
   }
 
@@ -256,7 +271,6 @@ module.exports = class KnexDriver extends DBInterface {
         })
     } catch (error) {
       logger.error(error.stack)
-      process.exit()
     }
   }
 
@@ -289,21 +303,13 @@ module.exports = class KnexDriver extends DBInterface {
             .into(this.transactionsModel.tableName)
             .toString()
         ).transacting(trx)
-
-        // return this.db.batchInsert(
-        //   this.transactionsModel.tableName,
-        //   this.transactionsModel.transform(block.transactions || []),
-        //   50
-        // ).transacting(trx)
       })
 
-      // logger.info(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
+      // logger.debug(`Block ${block.data.height} with ${block.transactions.length} Transactions was stored.`)
     } catch (error) {
       logger.error(error.stack)
 
       logger.error(`Block ${block.data.height} was rolled back.`)
-
-      process.exit()
     }
   }
 
@@ -323,7 +329,7 @@ module.exports = class KnexDriver extends DBInterface {
           .transacting(trx)
       })
 
-      logger.info(`Block ${block.data.height} and ${block.transactions.length} Transactions was deleted.`)
+      logger.debug(`Block ${block.data.height} and ${block.transactions.length} Transactions were deleted.`)
     } catch (error) {
       logger.error(`Block ${block.data.height} was rolled back.`)
     }

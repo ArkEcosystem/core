@@ -6,8 +6,6 @@ exports.up = (knex, Promise) => {
     table.json('conditions')
     table.string('secret')
     table.boolean('enabled')
-    table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
-    table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now())
   })
 }
 
