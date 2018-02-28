@@ -9,6 +9,10 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
+process.on('unhandledRejection', (reason, p) => {
+  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`)
+
+  process.exit(1)
+})
 
 config.init(commander.config)

@@ -5,9 +5,9 @@ class DependencyHandler {
     let dependencies = {
       // KnexJS
       'app/database/knex': {
-        'mysql': ['knex', 'objection', 'mysql'],
+        'mysql2': ['knex', 'objection', 'mysql2'],
         'sqlite3': ['knex', 'objection', 'sqlite3'],
-        'postgres': ['knex', 'objection', 'pg']
+        'pg': ['knex', 'objection', 'pg']
       }[config.server.db.options.client],
       // SequelizeDB
       'app/database/sequelize': {
@@ -17,6 +17,10 @@ class DependencyHandler {
         'mssql': ['sequelize', 'tedious']
       }[config.server.db.options.dialect]
     }[config.server.db.driver]
+
+    if (!dependencies) {
+      throw new Error('Invalid database driver specified.')
+    }
 
     return this._install(dependencies)
   }
