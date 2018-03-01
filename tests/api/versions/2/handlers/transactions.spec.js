@@ -1,23 +1,23 @@
 const utils = require('../utils')
 
-const transactionId = '77229b181e3f06218a35854cc7cfad3b4bc5b3036defc6186467c3608cb4bd67'
-const blockId = '15319587314238821909'
+const transactionId = '1d151056a431f14909c9e9c7b11d6f40eb5fe01f07afa206e45c1cb4080a1e09'
+const blockId = '15160252859890579479'
 const type = 0
 const wrongType = 3
 const version = 1
-const senderPublicKey = '031f3dffe4d10f78d85806d6b46f9c9a116e1aa56e8c538da2e02a416ff654b1db'
-const senderAddress = 'DEig5G83hAFgcmNXtpFQVoVAoexeMdKQ2E'
-const recipientAddress = 'DEig5G83hAFgcmNXtpFQVoVAoexeMdKQ2E'
-const timestamp = 29782480
-const timestampFrom = 29782480
-const timestampTo = 29782552
+const senderPublicKey = '030cf398655cc01d0425a615aceb6b6d2acad40eb7b42039826dbce98b20fd578f'
+const senderAddress = 'DTywx2qNfefZZ2Z2bjbugQgUML7yhYEatX'
+const recipientAddress = 'DKf1RUGCM3G3DxdE7V7DW7SFJ4Afmvb4YU'
+const timestamp = 4517477
+const timestampFrom = 4517476
+const timestampTo = 4517478
 const amount = 100000000
 const amountFrom = 0
 const amountTo = 200000000
 const fee = 10000000
 const feeFrom = 0
 const feeTo = 20000000
-const vendorFieldHex = '66617374'
+const vendorFieldHex = '796f'
 
 describe('API 2.0 - Transactions', () => {
   describe('GET /api/transactions', () => {
@@ -228,16 +228,7 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should GET a search for transactions with the specific criteria', async () => {
-      const res = await utils.request('GET', 'transactions/search', {
-        id: transactionId,
-        senderPublicKey,
-        type,
-        blockId,
-        amount,
-        timestampFrom,
-        timestampTo
-      })
-
+      const res = await utils.request('GET', 'transactions/search', {senderPublicKey, type, timestampFrom, timestampTo})
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
