@@ -49,14 +49,18 @@ module.exports = class BlocksRepository {
   }
 
   findAllByDateTimeRange (from, to) {
+    const where = {}
+
+    if (from) {
+      where.createdAt[Op.lte] = moment(to).endOf('day').toDate()
+    }
+
+    if (to) {
+      where.createdAt[Op.gte] = moment(from).startOf('day').toDate()
+    }
+
     return this.db.blocksTable.findAndCountAll({
-      attributes: ['totalFee', 'reward'],
-      where: {
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      }
+      attributes: ['totalFee', 'reward'], where
     })
   }
 

@@ -97,15 +97,19 @@ module.exports = class TransactionsRepository {
   }
 
   async findAllByDateAndType (type, from, to) {
+    const where = { type }
+
+    if (from) {
+      where.createdAt[Op.lte] = moment(to).endOf('day').toDate()
+    }
+
+    if (to) {
+      where.createdAt[Op.gte] = moment(from).startOf('day').toDate()
+    }
+
     const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
-      where: {
-        type: type,
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      },
+      where,
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
