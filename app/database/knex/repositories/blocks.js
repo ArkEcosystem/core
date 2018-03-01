@@ -45,6 +45,7 @@ module.exports = class BlocksRepository {
   findAllByDateTimeRange (start, end) {
     let query = this.db.blocksModel.query().select('totalFee', 'reward')
 
+    // TODO: rework this to allow passing in real timestamps and not the genesis mambo jambo
     const epoch = moment.unix(1490101200).utc()
 
     if (start) {

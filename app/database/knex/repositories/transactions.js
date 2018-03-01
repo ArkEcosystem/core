@@ -85,6 +85,7 @@ module.exports = class TransactionsRepository {
       query.where('type', type)
     }
 
+    // TODO: rework this to allow passing in real timestamps and not the genesis mambo jambo
     const epoch = moment.unix(1490101200).utc()
 
     if (start) {
@@ -98,12 +99,9 @@ module.exports = class TransactionsRepository {
       query.where('timestamp', '>=', end.diff(epoch))
     }
 
-    const rows = await query.eager('blockHeight as block').range()
+    const rows = await query
 
-    return {
-      results: rows.results.map(row => Transaction.deserialize(row.serialized.toString('hex'))),
-      total: rows.total
-    }
+    return rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
   search (params) {
