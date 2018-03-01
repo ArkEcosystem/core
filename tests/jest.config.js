@@ -13,7 +13,7 @@ module.exports = {
   setupFiles: ['<rootDir>/tests/support/setup-files'],
   setupTestFrameworkScriptFile: '<rootDir>/tests/support/setup-framework',
 
-  collectCoverage: true,
+  collectCoverage: false,
   coverageDirectory: 'tests/coverage/all',
   collectCoverageFrom: [
     'app/api/**/*.js',

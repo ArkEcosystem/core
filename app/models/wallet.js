@@ -114,10 +114,8 @@ module.exports = class Wallet {
       check = check && this.verifySignatures(transaction, this.multisignature)
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
-
-      check = this.secondPublicKey && transaction.signSignature
-        ? check && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)
-        : check && arkjs.crypto.verify(transaction, config.network)
+      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
+      check = check && (!this.secondPublicKey || arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network))
     }
 
     if (!check) {
