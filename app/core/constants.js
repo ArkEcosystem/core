@@ -1,3 +1,5 @@
+exports.ARKTOSHI = 100000000
+
 exports.TRANSACTION_TYPES = Object.freeze({
   TRANSFER: 0,
   SECOND_SIGNATURE: 1,

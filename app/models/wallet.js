@@ -1,6 +1,6 @@
 const arkjs = require('arkjs')
 const config = require('app/core/config')
-const { TRANSACTION_TYPES } = require('app/core/constants')
+const { ARKTOSHI, TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class Wallet {
   constructor (address) {
@@ -19,8 +19,7 @@ module.exports = class Wallet {
   }
 
   toString () {
-    // TODO is it 10000000 or 100000000 TODO use constant to avoid typos
-    return `${this.address}=${this.balance / 100000000}`
+    return `${this.address}=${this.balance / ARKTOSHI}`
   }
 
   applyTransactionToSender (transaction) {
