@@ -49,15 +49,11 @@ module.exports = class BlocksRepository {
   }
 
   findAllByDateTimeRange (from, to) {
-    const where = {}
+    let where = { timestamp: {} }
 
-    if (from) {
-      where.createdAt[Op.lte] = moment(to).endOf('day').toDate()
-    }
-
-    if (to) {
-      where.createdAt[Op.gte] = moment(from).startOf('day').toDate()
-    }
+    if (from) where.timestamp[Op.lte] = to
+    if (to) where.timestamp[Op.gte] = from
+    if (!where.timestamp.length) delete where.timestamp
 
     return this.db.blocksTable.findAndCountAll({
       attributes: ['totalFee', 'reward'], where
