@@ -102,7 +102,7 @@ module.exports = class TransactionsRepository {
 
     return {
       results: rows.results.map(row => Transaction.deserialize(row.serialized.toString('hex'))),
-      totalCount: rows.total
+      total: rows.total
     }
   }
 

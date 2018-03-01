@@ -11,7 +11,7 @@ module.exports = class WalletsRepository {
 
     return Object.keys(params).length ? {
       results: wallets.slice(params.offset, params.offset + params.limit),
-      totalCount: wallets.length
+      total: wallets.length
     } : wallets
   }
 
@@ -20,7 +20,7 @@ module.exports = class WalletsRepository {
 
     return {
       results: wallets.slice(params.offset, params.offset + params.limit),
-      totalCount: wallets.length
+      total: wallets.length
     }
   }
 
@@ -30,7 +30,7 @@ module.exports = class WalletsRepository {
 
     return Object.keys(params).length ? {
       results: wallets.slice(params.offset, params.offset + params.limit),
-      totalCount: wallets.length
+      total: wallets.length
     } : wallets
   }
 
@@ -62,7 +62,7 @@ module.exports = class WalletsRepository {
 
     return {
       results: wallets,
-      totalCount: wallets.length
+      total: wallets.length
     }
   }
 }

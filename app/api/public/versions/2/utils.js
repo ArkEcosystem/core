@@ -29,7 +29,7 @@ const toCollection = (request, data, transformerClass) => {
 const toPagination = (request, data, transformerClass) => {
   return {
     results: transformCollection(request, data.results, transformerClass),
-    totalCount: data.totalCount
+    totalCount: data.total
   }
 }
 
