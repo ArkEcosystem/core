@@ -1,5 +1,6 @@
 const arkjs = require('arkjs')
 const config = require('app/core/config')
+const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class Wallet {
   constructor (address) {
@@ -27,17 +28,17 @@ module.exports = class Wallet {
       this.balance -= transaction.amount + transaction.fee
 
       const actions = {
-        0: () => (true),
-        1: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
-        2: () => (this.username = transaction.asset.delegate.username),
-        3: () => {
+        [TRANSACTION_TYPES.TRANSFER]: () => (true),
+        [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
+        [TRANSACTION_TYPES.DELEGATE]: () => (this.username = transaction.asset.delegate.username),
+        [TRANSACTION_TYPES.VOTE]: () => {
           if (transaction.asset.votes[0].startsWith('+')) {
             this.vote = transaction.asset.votes[0].slice(1)
           } else if (transaction.asset.votes[0].startsWith('-')) {
             this.vote = null
           }
         },
-        4: () => (this.multisignature = transaction.asset.multisignature),
+        [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => (this.multisignature = transaction.asset.multisignature),
         'default': () => (false)
       }
 
@@ -52,19 +53,19 @@ module.exports = class Wallet {
       this.balance += transaction.amount + transaction.fee
 
       const actions = {
-        1: () => (this.secondPublicKey = null),
-        2: () => (this.username = null),
-        3: () => {
+        [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (this.secondPublicKey = null),
+        [TRANSACTION_TYPES.DELEGATE]: () => (this.username = null),
+        [TRANSACTION_TYPES.VOTE]: () => {
           if (transaction.asset.votes[0].startsWith('+')) {
             this.vote = null
           } else if (transaction.asset.votes[0].startsWith('-')) {
             this.vote = transaction.asset.votes[0].slice(1)
           }
         },
-        4: () => (this.multisignature = null),
-        5: () => {},
-        6: () => {},
-        7: () => {},
+        [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => (this.multisignature = null),
+        [TRANSACTION_TYPES.IPFS]: () => {},
+        [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => {},
+        [TRANSACTION_TYPES.MULTI_PAYMENT]: () => {},
         'default': () => (false)
       }
 
@@ -115,26 +116,27 @@ module.exports = class Wallet {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
       check = check && (!this.secondPublicKey || arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network))
     }
+
     if (!check) return false
 
     const actions = {
-      0: () => (true), // transfer
-      1: () => (!this.secondPublicKey), // second signature registration
-      2: () => {
+      [TRANSACTION_TYPES.TRANSFER]: () => (true), // transfer
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (!this.secondPublicKey), // second signature registration
+      [TRANSACTION_TYPES.DELEGATE]: () => {
         const username = transaction.asset.delegate.username
         return !this.username && username && username === username.toLowerCase()
       },
-      3: () => {
+      [TRANSACTION_TYPES.VOTE]: () => {
         if (transaction.asset.votes[0].startsWith('-') && this.vote) return true
         if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
 
         return false
       },
-      4: () => (!this.multisignature && transaction.asset.multisignature.keysgroup.length >= transaction.asset.multisignature.min - 1 && transaction.asset.multisignature.keysgroup.length === transaction.signatures.length && this.verifySignatures(transaction, transaction.asset.multisignature)),
-      5: () => (true),
-      6: () => (true),
-      7: () => (this.balance - transaction.asset.payments.reduce((a, p) => (a += p.amount), 0) - transaction.fee > -1), // multipayment
-      8: () => (!!this.username), // delegate resignation
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => (!this.multisignature && transaction.asset.multisignature.keysgroup.length >= transaction.asset.multisignature.min - 1 && transaction.asset.multisignature.keysgroup.length === transaction.signatures.length && this.verifySignatures(transaction, transaction.asset.multisignature)),
+      [TRANSACTION_TYPES.IPFS]: () => (true),
+      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => (true),
+      [TRANSACTION_TYPES.MULTI_PAYMENT]: () => (this.balance - transaction.asset.payments.reduce((a, p) => (a += p.amount), 0) - transaction.fee > -1), // multipayment
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: () => (!!this.username), // delegate resignation
       'default': () => (false)
     }
 
