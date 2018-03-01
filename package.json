@@ -73,6 +73,7 @@
     "redis": "^2.8.0",
     "request-ip": "^2.0.2",
     "sequelize": "^4.32.7",
+    "sinon": "^4.4.2",
     "sntp": "^3.0.1",
     "sqlite3": "^3.1.13",
     "standard": "^10.0.3",
