@@ -109,19 +109,20 @@ module.exports = class Wallet {
 
   canApply (transaction) {
     let check = true
+
     if (this.multisignature) {
       check = check && this.verifySignatures(transaction, this.multisignature)
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
 
-      if (this.secondPublicKey && transaction.signSignature) {
-        check = check && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)
-      } else {
-        check = check && arkjs.crypto.verify(transaction, config.network)
-      }
+      check = this.secondPublicKey && transaction.signSignature
+        ? check && arkjs.crypto.verifySecondSignature(transaction, this.secondPublicKey, config.network)
+        : check && arkjs.crypto.verify(transaction, config.network)
     }
 
-    if (!check) return false
+    if (!check) {
+      return false
+    }
 
     const actions = {
       [TRANSACTION_TYPES.TRANSFER]: () => (true), // transfer

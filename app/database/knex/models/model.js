@@ -1,6 +1,5 @@
 const { Model } = require('objection')
 const pick = require('lodash/pick')
-const logger = require('app/core/logger')
 
 module.exports = class BaseModel extends Model {
   static transform (data) {
