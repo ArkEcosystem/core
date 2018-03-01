@@ -101,8 +101,8 @@ module.exports = class TransactionsRepository {
     const rows = await query.eager('blockHeight as block').range()
 
     return {
-      total: rows.total,
-      results: rows.results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+      results: rows.results.map(row => Transaction.deserialize(row.serialized.toString('hex'))),
+      totalCount: rows.total
     }
   }
 
