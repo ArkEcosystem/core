@@ -102,7 +102,7 @@ class DBInterface {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
-  updateDelegateStats (delegates) {
+  updateDelegateStats (block, delegates) {
     throw new Error('Method [updateDelegateStats] not implemented!')
   }
 
