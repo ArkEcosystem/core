@@ -52,10 +52,4 @@ module.exports = class Block extends Model {
       }
     }
   }
-
-  static async findOrInsert (data) {
-    const row = await this.query().where({ id: data.id, height: data.height }).first()
-
-    if (!row) await this.query().insert(this.transform(data))
-  }
 }

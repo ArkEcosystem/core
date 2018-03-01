@@ -65,7 +65,7 @@ module.exports = class KnexDriver extends DBInterface {
       await this.db.transaction(async (trx) => {
         return trx.raw(
           this.db
-            .insert(this.roundsModel.transform(delegates))
+            .insert(this.roundsModel.prepare(delegates))
             .into(this.roundsModel.tableName)
             .toString()
         ).transacting(trx)
@@ -279,7 +279,7 @@ module.exports = class KnexDriver extends DBInterface {
       Object.values(this.walletManager.walletsByPublicKey || {})
         // cold addresses are not saved on database
         .filter(acc => acc.publicKey && (force || acc.dirty))
-        .map(acc => this.walletsModel.findOrInsert(acc))
+        .map(acc => this.walletsModel.updateOrCreate(acc))
     )
 
     logger.info('Rebuilt wallets saved')
@@ -291,7 +291,7 @@ module.exports = class KnexDriver extends DBInterface {
     try {
       await this.db.transaction(async (trx) => {
         await trx
-          .insert(this.blocksModel.transform(block.data))
+          .insert(this.blocksModel.prepare(block.data))
           .into(this.blocksModel.tableName)
           .transacting(trx)
 
@@ -299,7 +299,7 @@ module.exports = class KnexDriver extends DBInterface {
 
         return trx.raw(
           this.db
-            .insert(this.transactionsModel.transform(block.transactions || []))
+            .insert(this.transactionsModel.prepare(block.transactions || []))
             .into(this.transactionsModel.tableName)
             .toString()
         ).transacting(trx)

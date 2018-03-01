@@ -25,13 +25,4 @@ module.exports = class Round extends Model {
       }
     }
   }
-
-  static async findOrInsert (data) {
-    let row = await this.query().where({
-      round: data.round,
-      publicKey: data.publicKey
-    }).first()
-
-    if (!row) await this.query().insert(this.transform(data))
-  }
 }

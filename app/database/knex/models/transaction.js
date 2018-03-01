@@ -58,10 +58,4 @@ module.exports = class Transaction extends Model {
       }
     }
   }
-
-  static async findOrInsert (data) {
-    let row = await this.query().findById(data.id)
-
-    if (!row) await this.query().insert(this.transform(data))
-  }
 }

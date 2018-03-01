@@ -56,9 +56,11 @@ module.exports = class Wallet extends Model {
     }
   }
 
-  static async findOrInsert (data) {
-    let row = await this.query().where('address', data.address).first()
+  static async updateOrCreate (data) {
+    let roundExists = await this.query().where('address', data.address).first()
 
-    if (!row) await this.query().insert(this.transform(data))
+    roundExists
+      ? await this.query().where('address', data.address).update(this.prepare(data))
+      : await this.query().insert(this.prepare(data))
   }
 }
