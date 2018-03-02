@@ -3,11 +3,13 @@ module.exports = class WebhooksRepository {
     this.db = db
   }
 
-  paginate (params) {
-    return this.db.webhooksTable.findAndCountAll({
+  async paginate (params) {
+    const results = await this.db.webhooksTable.findAndCountAll({
       offset: params.offset,
       limit: params.limit
     })
+
+    return { results: results.rows, total: results.count }
   }
 
   findById (id) {

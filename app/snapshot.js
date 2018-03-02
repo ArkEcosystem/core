@@ -20,7 +20,11 @@ if (!fs.existsSync(path.resolve(commander.config))) {
   throw new Error('The directory does not exist or is not accessible because of security settings.')
 }
 
-process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
+process.on('unhandledRejection', (reason, p) => {
+  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`)
+
+  process.exit(1)
+})
 
 async function init () {
   try {
@@ -34,7 +38,8 @@ async function init () {
 
     logger.info('Snapshot saved')
   } catch (error) {
-    logger.error('fatal error', error)
+    logger.error('Fatal Error', error.stack)
+    process.exit(1)
   }
 }
 

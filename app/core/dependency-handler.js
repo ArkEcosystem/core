@@ -3,13 +3,25 @@ const Promise = require('bluebird')
 class DependencyHandler {
   checkDatabaseLibraries (config) {
     let dependencies = {
+      // KnexJS
+      'app/database/knex': {
+        'mysql': ['knex', 'objection', 'mysql'],
+        'mysql2': ['knex', 'objection', 'mysql2'],
+        'sqlite3': ['knex', 'objection', 'sqlite3'],
+        'pg': ['knex', 'objection', 'pg']
+      }[config.server.db.options.client],
+      // SequelizeDB
       'app/database/sequelize': {
         'mysql': ['sequelize', 'mysql2'],
         'sqlite': ['sequelize', 'sqlite3'],
         'postgres': ['sequelize', 'pg', 'pg-hstore'],
         'mssql': ['sequelize', 'tedious']
-      }[config.server.db.dialect]
+      }[config.server.db.options.dialect]
     }[config.server.db.driver]
+
+    if (!dependencies) {
+      throw new Error('Invalid database driver specified.')
+    }
 
     return this._install(dependencies)
   }

@@ -8,7 +8,7 @@ module.exports = class BlocksRepository {
     this.db = db
   }
 
-  findAll (params) {
+  async findAll (params) {
     let whereStatement = {}
     let orderBy = []
 
@@ -21,12 +21,14 @@ module.exports = class BlocksRepository {
       ? orderBy.push(params.orderBy.split(':'))
       : orderBy.push([[ 'height', 'DESC' ]])
 
-    return this.db.blocksTable.findAndCountAll({
+    const results = await this.db.blocksTable.findAndCountAll({
       where: whereStatement,
       order: orderBy,
       offset: params.offset,
       limit: params.limit
     })
+
+    return { results: results.rows, total: results.count }
   }
 
   findAllByGenerator (generatorPublicKey, paginator) {
@@ -41,30 +43,32 @@ module.exports = class BlocksRepository {
     return this.db.blocksTable.findOne({
       limit: 1,
       where: { generatorPublicKey },
-      order: [[ 'createdAt', 'DESC' ]],
+      order: [[ 'timestamp', 'DESC' ]],
       attributes: ['id', 'timestamp']
     })
   }
 
   findAllByDateTimeRange (from, to) {
+    let where = { timestamp: {} }
+
+    if (from) where.timestamp[Op.lte] = to
+    if (to) where.timestamp[Op.gte] = from
+    if (!where.timestamp.length) delete where.timestamp
+
     return this.db.blocksTable.findAndCountAll({
-      attributes: ['totalFee', 'reward'],
-      where: {
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      }
+      attributes: ['totalFee', 'reward'], where
     })
   }
 
-  search (params) {
-    return this.db.blocksTable.findAndCountAll({
+  async search (params) {
+    const results = await this.db.blocksTable.findAndCountAll({
       where: buildFilterQuery(params, {
         exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
         between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
       })
     })
+
+    return { results: results.rows, total: results.count }
   }
 
   totalsByGenerator (generatorPublicKey) {

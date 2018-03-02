@@ -23,7 +23,7 @@ exports.index = {
       }
     }
 
-    return utils.toPagination(request, { rows: result, count: result.length }, 'peer')
+    return utils.toPagination(request, { results: result, total: result.length }, 'peer')
   }
 }
 

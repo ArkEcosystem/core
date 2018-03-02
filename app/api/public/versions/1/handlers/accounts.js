@@ -12,7 +12,7 @@ exports.index = {
     const wallets = await db.wallets.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      wallets: utils.toCollection(request, wallets.rows, 'wallet')
+      wallets: utils.toCollection(request, wallets.results, 'wallet')
     })
   }
 }
@@ -126,7 +126,7 @@ exports.top = {
   handler: async (request, h) => {
     const accounts = await db.wallets.top(request.query)
 
-    return utils.respondWith({ wallets: accounts.rows })
+    return utils.respondWith({ wallets: accounts.results })
   }
 }
 

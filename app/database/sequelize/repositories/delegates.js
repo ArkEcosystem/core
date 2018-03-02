@@ -13,8 +13,8 @@ module.exports = class DelegatesRepository {
     const delegates = await this.findAll()
 
     return {
-      rows: delegates.slice(params.offset, params.offset + params.limit),
-      count: delegates.length
+      results: delegates.slice(params.offset, params.offset + params.limit),
+      total: delegates.length
     }
   }
 
@@ -35,8 +35,8 @@ module.exports = class DelegatesRepository {
     }
 
     return {
-      rows: delegates.slice(params.offset, params.offset + params.limit),
-      count: delegates.length
+      results: delegates.slice(params.offset, params.offset + params.limit),
+      total: delegates.length
     }
   }
 

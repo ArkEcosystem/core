@@ -102,19 +102,21 @@ class DBInterface {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
-  // updateDelegateStats (delegates) {
-  // }
+  updateDelegateStats (block, delegates) {
+    throw new Error('Method [updateDelegateStats] not implemented!')
+  }
 
   async applyRound (block, rebuild, fastRebuild) {
     tickSyncTracker(block, rebuild, fastRebuild)
+
     if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
       if (rebuild) { // basically don't make useless database interaction like saving wallet state
-        await this.updateDelegateStats(this.activedelegates)
+        await this.updateDelegateStats(block, this.activedelegates)
         await this.buildDelegates(block)
         await this.saveRounds(this.activedelegates)
       } else {
         logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
-        await this.updateDelegateStats(this.activedelegates)
+        await this.updateDelegateStats(block, this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
         await this.buildDelegates(block) // active build delegate list from database state
         await this.saveRounds(this.activedelegates) // save next round delegate list
@@ -125,11 +127,13 @@ class DBInterface {
   }
 
   async undoRound (block) {
+    const activeDelegates = config.getConstants(block.data.height).activeDelegates
+
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
-    if (previousRound + 1 === round && block.data.height > 51) {
+    if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round

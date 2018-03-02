@@ -17,7 +17,7 @@ exports.index = {
     if (!transactions) return utils.respondWith('No transactions found', true)
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions.rows, 'transaction')
+      transactions: utils.toCollection(request, transactions.results, 'transaction')
     })
   }
 }

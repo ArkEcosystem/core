@@ -10,8 +10,8 @@ module.exports = class WalletsRepository {
     const wallets = this.db.walletManager.getLocalWallets()
 
     return Object.keys(params).length ? {
-      rows: wallets.slice(params.offset, params.offset + params.limit),
-      count: wallets.length
+      results: wallets.slice(params.offset, params.offset + params.limit),
+      total: wallets.length
     } : wallets
   }
 
@@ -19,8 +19,8 @@ module.exports = class WalletsRepository {
     const wallets = await this.findAll()
 
     return {
-      count: wallets.length,
-      rows: wallets.slice(params.offset, params.offset + params.limit)
+      results: wallets.slice(params.offset, params.offset + params.limit),
+      total: wallets.length
     }
   }
 
@@ -29,8 +29,8 @@ module.exports = class WalletsRepository {
     wallets = await wallets.filter(a => a.vote === publicKey)
 
     return Object.keys(params).length ? {
-      rows: wallets.slice(params.offset, params.offset + params.limit),
-      count: wallets.length
+      results: wallets.slice(params.offset, params.offset + params.limit),
+      total: wallets.length
     } : wallets
   }
 
@@ -61,8 +61,8 @@ module.exports = class WalletsRepository {
     })
 
     return {
-      count: wallets.length,
-      rows: wallets
+      results: wallets,
+      total: wallets.length
     }
   }
 }

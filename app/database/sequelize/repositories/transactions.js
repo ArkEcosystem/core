@@ -8,7 +8,7 @@ module.exports = class TransactionsRepository {
     this.db = db
   }
 
-  findAll (params) {
+  async findAll (params) {
     let whereStatement = {}
     let orderBy = []
 
@@ -29,7 +29,7 @@ module.exports = class TransactionsRepository {
       if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(params.orderBy.split(':'))
     }
 
-    return this.db.transactionsTable.findAndCountAll({
+    const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
@@ -40,6 +40,8 @@ module.exports = class TransactionsRepository {
         attributes: ['height']
       }
     })
+
+    return { results: results.rows, total: results.count }
   }
 
   findAllByWallet (wallet, paginator) {
@@ -95,29 +97,26 @@ module.exports = class TransactionsRepository {
   }
 
   async findAllByDateAndType (type, from, to) {
+    let where = { type, timestamp: {} }
+
+    if (from) where.timestamp[Op.lte] = to
+    if (to) where.timestamp[Op.gte] = from
+    if (!where.timestamp.length) delete where.timestamp
+
     const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
-      where: {
-        type: type,
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      },
+      where,
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
       }
     })
 
-    return {
-      count: results.count,
-      rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-    }
+    return results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
-  search (params) {
-    return this.db.transactionsTable.findAndCountAll({
+  async search (params) {
+    const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: buildFilterQuery(
         params,
@@ -132,5 +131,7 @@ module.exports = class TransactionsRepository {
         attributes: ['height']
       }
     })
+
+    return { results: results.rows, total: results.count }
   }
 }

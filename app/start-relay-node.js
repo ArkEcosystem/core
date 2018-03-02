@@ -16,7 +16,11 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
+process.on('unhandledRejection', (reason, p) => {
+  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`)
+
+  process.exit(1)
+})
 
 async function init () {
   try {
@@ -50,7 +54,7 @@ async function init () {
     logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
-    logger.error(`Fatal Error - ${error}`)
+    logger.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }

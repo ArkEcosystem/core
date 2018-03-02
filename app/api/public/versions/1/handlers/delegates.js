@@ -31,7 +31,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const delegate = await db.delegates.findById(request.query.id)
+    const delegate = await db.delegates.findById(request.query.publicKey || request.query.username)
 
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
@@ -59,7 +59,7 @@ exports.search = {
     const delegates = await db.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      delegates: utils.toCollection(request, delegates.rows, 'delegate')
+      delegates: utils.toCollection(request, delegates.results, 'delegate')
     })
   }
 }

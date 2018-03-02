@@ -13,9 +13,9 @@ module.exports = class SequelizeDB extends DBInterface {
       throw new Error('Already initialised')
     }
 
-    this.db = new Sequelize(params.uri, {
-      dialect: params.dialect,
-      logging: !!params.logging,
+    this.db = new Sequelize(params.options.uri, {
+      dialect: params.options.dialect,
+      logging: !!params.options.logging,
       operatorsAliases: Sequelize.Op
     })
 
@@ -198,7 +198,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        order: [[ 'createdAt', 'DESC' ]],
+        order: [[ 'createdAt', 'DESC' ]], // TODO: change this to timestamp later on - requires a fresh sync
         where: {type: 3}}
       )
       logger.printTracker('SPV Building', 6, 7, 'votes')
@@ -218,7 +218,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        order: [[ 'createdAt', 'DESC' ]],
+        order: [[ 'createdAt', 'DESC' ]], // TODO: change this to timestamp later on - requires a fresh sync
         where: {type: 4}}
       )
       logger.printTracker('SPV Building', 7, 7, 'multisignatures')
@@ -233,12 +233,12 @@ module.exports = class SequelizeDB extends DBInterface {
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
   // must be called before builddelegates for  new round
-  async updateDelegateStats (activedelegates) {
+  async updateDelegateStats (block, activedelegates) {
     if (!activedelegates) {
       return
     }
@@ -253,7 +253,7 @@ module.exports = class SequelizeDB extends DBInterface {
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
       })
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
@@ -281,7 +281,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
   }
@@ -295,7 +295,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
   }
@@ -307,7 +307,7 @@ module.exports = class SequelizeDB extends DBInterface {
         attributes: ['serialized']
       }],
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'] // TODO: change this to timestamp later on - requires a fresh sync
       },
       where: {
         id: id
@@ -352,7 +352,7 @@ module.exports = class SequelizeDB extends DBInterface {
         attributes: ['serialized']
       }],
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'] // TODO: change this to timestamp later on - requires a fresh sync
       },
       where: {
         height: {
@@ -373,7 +373,7 @@ module.exports = class SequelizeDB extends DBInterface {
     const last = offset + limit
     const blocks = await this.blocksTable.findAll({
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'] // TODO: change this to timestamp later on - requires a fresh sync
       },
       where: {
         height: {
