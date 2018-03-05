@@ -101,10 +101,10 @@ module.exports = class SequelizeDB extends DBInterface {
     }
 
     // logger.info(`got ${data.length} voted delegates`)
-    const round = parseInt(block.data.height / 51)
+    const round = parseInt(block.data.height / activeDelegates)
     this.activedelegates = data
       .sort((a, b) => b.balance - a.balance)
-      .slice(0, 51)
+      .slice(0, activeDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
     logger.debug(`generated ${this.activedelegates.length} active delegates`)
@@ -244,15 +244,18 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   // must be called before builddelegates for  new round
-  async updateDelegateStats (block, activedelegates) {
-    if (!activedelegates) {
+  async updateDelegateStats (block, delegates) {
+    if (!delegates) {
       return
     }
-    logger.debug('Calculating delegate statistics')
-    try {
-      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${activedelegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
 
-        activedelegates.forEach(delegate => {
+    logger.debug('Calculating delegate statistics')
+
+    try {
+      const activeDelegates = config.getConstants(block.data.height).activeDelegates
+      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/${activeDelegates} = ${delegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+
+      delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
