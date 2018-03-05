@@ -39,7 +39,7 @@ module.exports = class BlockchainManager {
 
     this.downloadQueue.drain = () => this.dispatch('DOWNLOADED')
 
-    this.mempool = new MemoryPool(Transaction)
+    this.mempool = new MemoryPool(Transaction, this.config)
 
     if (!instance) instance = this
   }

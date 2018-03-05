@@ -5,7 +5,6 @@ const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
 const MemoryPool = require('app/core/memory-pool')
-const sleep = require('app/utils/sleep')
 
 let instance = null
 
@@ -13,7 +12,7 @@ module.exports = async (message, done) => {
   if (message.event === 'init') {
     const conf = await config.init(message.data)
     logger.init(conf.server.logging, conf.network.name + '_transactionQueue')
-    instance = new TransactionQueue(config)
+    instance = new TransactionQueue(conf)
     logger.info('Init transaction queue')
     return done()
   }
@@ -29,7 +28,7 @@ class TransactionQueue {
   constructor (config) {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = new MemoryPool(Transaction)
+    this.pool = new MemoryPool(Transaction, config, true)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block

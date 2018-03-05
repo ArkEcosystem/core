@@ -1,21 +1,26 @@
 const Redis = require('ioredis')
-const redis = new Redis()
 const Transaction = require('app/models/transaction')
-
-const key = 'ark:tx_pool'
+const logger = require('app/core/logger')
 
 let instance = null
 // TODO here check also
 // - exipration date of transactions
-// - spamming
 // - max size, etc...
 module.exports = class MemoryPool {
-  constructor (Class) {
-    if (!instance) instance = this
-    else throw new Error('Can\'t initialise 2 MemoryPools!')
+  constructor (Class, config, log = false) {
+    if (!instance) {
+      instance = this
+    } else {
+      throw new Error('Cannot initialize two instances of memory pool...');
+    }
+    this.redis = config.server.txpool ? new Redis(config.server.txpool.port, config.server.txpool.host) : new Redis()
+    this.key = config.server.txpool ? config.server.txpool.key : 'ark:tx_pool'
+    if (log) {
+      logger.init(config.server.logging, config.network.name + '_memoryTxPool')
+    }
 
     if (Class === undefined) {
-      throw new Error('No arguments');
+      throw new Error('MemoryPool must be initilized with correct type to store it...');
     }
 
     if (typeof Class !== 'function') {
@@ -23,40 +28,39 @@ module.exports = class MemoryPool {
     }
 
     this.Class = Class
-    this.pool = {}
+    logger.info('Memory pool initialized')
   }
 
   async size () {
-    return redis.llen(key)
+    return this.redis.llen(this.key)
   }
 
   async removeForgedTransactions (serializedTransactions) {
-    await serializedTransactions.forEach(tx => {
-      redis.lrem(key, 1, Transaction.serialize(tx).toString('hex'))
-    })
+    try {
+      await serializedTransactions.forEach(tx => {
+        this.redis.lrem(this.key, 1, Transaction.serialize(tx).toString('hex'))
+      })
+    } catch (error) {
+      logger.error('Error removing forged transactions from pool', error.stack)
+    }
   }
 
   async add (object) {
     if (object instanceof this.Class) {
-      this.pool[object.id] = object.serialized.toString('hex')
       try {
-          await redis.rpush(key, object.serialized.toString('hex'))
+          await this.redis.rpush(this.key, object.serialized.toString('hex'))
       } catch (error) {
-          console.error(error)
+          logger.error('Rpush tx to txpool error:', error.stack)
       }
     }
   }
 
   getItems (blockSize) {
     try {
-        return redis.lrange(key, 0, blockSize - 1)
+        return this.redis.lrange(this.key, 0, blockSize - 1)
     } catch (error) {
-        console.error(error)
+      logger.error('Get Items from this.redis: ', error.stack)
     }
-  }
-
-  clear () {
-    this.pool = {}
   }
 
   static getInstance () {
