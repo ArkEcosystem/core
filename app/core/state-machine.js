@@ -3,6 +3,27 @@ const arkjs = require('arkjs')
 const logger = require('app/core/logger')
 const Block = require('app/models/block')
 const sleep = require('app/utils/sleep')
+const human = require('interval-to-human')
+
+let synctracker = null
+
+const tickSyncTracker = (blockdata) => {
+  const block = new Block(blockdata)
+  if (!synctracker) {
+    synctracker = {
+      starttimestamp: block.data.timestamp,
+      startdate: new Date().getTime()
+    }
+  }
+  const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
+  const title = 'Fast Synchronisation'
+  if (block.data.timestamp - arkjs.slots.getTime() < 8) {
+    logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+  } else {
+    synctracker = null
+    logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+  }
+}
 
 // const init = Machine({
 //   initial: 'unitisalised',
@@ -57,12 +78,6 @@ const syncWithNetwork = {
         NOBLOCK: 'syncing'
       }
     },
-    processBlocks: {
-      onEntry: ['startProcessBlock'],
-      on: {
-        STARTED: 'idle'
-      }
-    },
     downloadfinished: {
       onEntry: ['downloadFinished'],
       on: {
@@ -86,6 +101,65 @@ const syncWithNetwork = {
     },
     end: {
       onEntry: ['syncingFinished']
+    },
+    forked: {
+      onEntry: ['recoverFromFork']
+    }
+  }
+}
+
+const rebuildFromNetwork = {
+  initial: 'rebuilding',
+  states: {
+    rebuilding: {
+      onEntry: ['checkLastDownloadedBlockSynced'],
+      on: {
+        SYNCED: 'waitingfinished',
+        NOTSYNCED: 'rebuildBlocks',
+        PAUSED: 'rebuildpaused'
+      }
+    },
+    idle: {
+      on: {
+        DOWNLOADED: 'rebuildBlocks',
+        FORKED: 'forked'
+      }
+    },
+    rebuildBlocks: {
+      onEntry: ['rebuildBlocks'],
+      on: {
+        DOWNLOADED: 'rebuilding',
+        NOBLOCK: 'rebuilding'
+      }
+    },
+    waitingfinished: {
+      on: {
+        REBUILDFINISHED: 'rebuildfinished',
+        FORKED: 'forked'
+      }
+    },
+    rebuildfinished: {
+      onEntry: ['rebuildFinished'],
+      on: {
+        FORKED: 'forked'
+      }
+    },
+    rebuildpaused: {
+      onEntry: ['downloadPaused'],
+      on: {
+        PROCESSFINISHED: 'processfinished',
+        FORKED: 'forked'
+      }
+    },
+    processfinished: {
+      onEntry: ['checkRebuildBlockSynced'],
+      on: {
+        SYNCED: 'end',
+        NOTSYNCED: 'rebuildBlocks'
+      }
+    },
+    end: {
+      onEntry: ['rebuildingFinished']
     },
     forked: {
       onEntry: ['recoverFromFork']
@@ -124,10 +198,17 @@ const blockchainMachine = Machine({
     init: {
       onEntry: ['init'],
       on: {
-        SUCCESS: 'syncWithNetwork',
+        REBUILD: 'rebuild',
+        SYNC: 'syncWithNetwork',
         FAILURE: 'exit'
+      }
+    },
+    rebuild: {
+      on: {
+        PROCESSFINISHED: 'syncWithNetwork',
+        FORK: 'fork'
       },
-      onExit: ['blockchainReady']
+      ...rebuildFromNetwork
     },
     syncWithNetwork: {
       on: {
@@ -138,7 +219,7 @@ const blockchainMachine = Machine({
       ...syncWithNetwork
     },
     idle: {
-      onEntry: ['checkLater'],
+      onEntry: ['checkLater', 'blockchainReady'],
       on: {
         WAKEUP: 'syncWithNetwork',
         NEWBLOCK: 'processingBlock'
@@ -184,19 +265,39 @@ blockchainMachine.actionMap = (blockchainManager) => {
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
+    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isBuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
-      logger.debug(`Blocks in queue: ${blockchainManager.processQueue.length()}`)
+      logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
       if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => logger.info('Blockchain download completed 🚀'),
+    rebuildFinished: async () => {
+      try {
+        state.rebuild = false
+        await blockchainManager.db.saveBlockCommit()
+        await blockchainManager.db.buildWallets()
+        blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+        await blockchainManager.db.saveWallets(true)
+        logger.info('boom')
+        await blockchainManager.db.applyRound(state.lastBlock)
+        return blockchainManager.dispatch('PROCESSFINISHED')
+      } catch (error) {
+        logger.info(error.message)
+        return blockchainManager.dispatch('FAILURE')
+      }
+    },
     downloadPaused: () => logger.info('Blockchain download paused 🕥'),
     syncingFinished: () => {
       logger.info('Blockchain completed, congratulations! 🦄')
       blockchainManager.dispatch('SYNCFINISHED')
+    },
+    rebuildingFinished: () => {
+      logger.info('Blockchain completed, congratulations! 🦄')
+      blockchainManager.dispatch('REBUILDFINISHED')
     },
     exitApp: () => {
       logger.error('Failed to startup blockchain, exiting app...')
@@ -219,19 +320,42 @@ blockchainMachine.actionMap = (blockchainManager) => {
         const constants = blockchainManager.config.getConstants(block.data.height)
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
-        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
+        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) || !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
+        if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
         await blockchainManager.db.buildWallets()
         await blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.applyRound(block, false, false)
         }
-        return blockchainManager.dispatch('SUCCESS')
+        return blockchainManager.dispatch('SYNC')
       } catch (error) {
         logger.info(error.message)
         return blockchainManager.dispatch('FAILURE')
+      }
+    },
+    rebuildBlocks: async () => {
+      const block = state.lastDownloadedBlock || state.lastBlock
+      logger.info(`Downloading blocks from block ${block.data.height}`)
+      tickSyncTracker(block.data)
+      const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
+
+      if (!blocks || blocks.length === 0) {
+        logger.info('No new block found on this peer')
+
+        blockchainManager.dispatch('NOBLOCK')
+      } else {
+        logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+
+        if (blocks.length && blocks[0].previousBlock === block.data.id) {
+          state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+          blockchainManager.rebuildQueue.push(blocks)
+          blockchainManager.dispatch('DOWNLOADED')
+        } else {
+          blockchainManager.dispatch('FORK')
+        }
       }
     },
     downloadBlocks: async () => {
@@ -245,10 +369,10 @@ blockchainMachine.actionMap = (blockchainManager) => {
         blockchainManager.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-
         if (blocks.length && blocks[0].previousBlock === block.data.id) {
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
-          blockchainManager.downloadQueue.push(blocks)
+          blockchainManager.processQueue.push(blocks)
+          blockchainManager.dispatch('DOWNLOADED')
         } else {
           blockchainManager.dispatch('FORK')
         }

@@ -1,14 +1,14 @@
 {
   "port": 4001,
   "version": "2.0.0",
-  "fastRebuild": false,
+  "fastRebuild": true,
   "logging": {
     "file": "debug",
     "console": "debug"
   },
   "db": {
     "driver": "app/database/sequelize",
-    "uri": "sqlite:storage/database/mainnet.sqlite",
+    "uri": "sqlite:storage/database/mainnetJJ.sqlite",
     "dialect": "sqlite",
     "logging": false
   },

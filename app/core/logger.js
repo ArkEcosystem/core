@@ -39,7 +39,7 @@ class Logger {
     this.winston.filters.push((level, message, meta) => {
       if (this.tracker) {
         process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
-        this.tracker = false
+        this.tracker = null
       }
 
       return message
@@ -76,7 +76,7 @@ class Logger {
     line += progress.toFixed(figures) + '% '
     if (posttitle) line += posttitle + '                     '
     process.stdout.write(line)
-    this.tracker = true
+    this.tracker = line
   }
 
   stopTracker (title, current, max) {
@@ -90,7 +90,7 @@ class Logger {
     if (current === max) line += '✔️'
     line += '                              \n'
     process.stdout.write(line)
-    this.tracker = false
+    this.tracker = null
   }
 }
 

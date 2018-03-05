@@ -19,6 +19,8 @@ module.exports = class SequelizeDB extends DBInterface {
       operatorsAliases: Sequelize.Op
     })
 
+    this.asyncTransaction = null
+
     await this.db.authenticate()
 
     const models = await schema(this.db)
@@ -284,6 +286,27 @@ module.exports = class SequelizeDB extends DBInterface {
       logger.error(error)
       await transaction.rollback()
     }
+  }
+
+  async saveBlockAsync (block) {
+    if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
+    await this.blocksTable.create(block.data, {transaction: this.asyncTransaction})
+    await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+  }
+
+  async saveBlockCommit () {
+    if (!this.asyncTransaction) return
+    logger.debug('Committing DB transaction')
+    try {
+      await this.asyncTransaction.commit()
+    } catch (error) {
+      logger.error(error)
+      logger.error('boom')
+
+      logger.error(error.sql)
+      await this.asyncTransaction.rollback()
+    }
+    this.asyncTransaction = null
   }
 
   async deleteBlock (block) {

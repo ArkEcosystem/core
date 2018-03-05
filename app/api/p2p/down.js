@@ -146,7 +146,6 @@ module.exports = class Down {
 
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
-    logger.info(`Downloading blocks from ${randomPeer.url} from block ${fromBlockHeight}`)
 
     try {
       await randomPeer.ping()

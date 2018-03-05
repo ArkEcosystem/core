@@ -102,23 +102,17 @@ class DBInterface {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
-  // updateDelegateStats (delegates) {
-  // }
+  updateDelegateStats (delegates) {
+    throw new Error('Method [updateDelegateStats] not implemented!')
+  }
 
-  async applyRound (block, rebuild, fastRebuild) {
-    tickSyncTracker(block, rebuild, fastRebuild)
-    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      if (rebuild) { // basically don't make useless database interaction like saving wallet state
-        await this.updateDelegateStats(this.activedelegates)
-        await this.buildDelegates(block)
-        await this.saveRounds(this.activedelegates)
-      } else {
-        logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
-        await this.updateDelegateStats(this.activedelegates)
-        await this.saveWallets(false) // save only modified wallets during the last round
-        await this.buildDelegates(block) // active build delegate list from database state
-        await this.saveRounds(this.activedelegates) // save next round delegate list
-      }
+  async applyRound (block) {
+    if ((block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
+      logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
+      await this.updateDelegateStats(this.activedelegates)
+      await this.saveWallets(false) // save only modified wallets during the last round
+      await this.buildDelegates(block) // active build delegate list from database state
+      await this.saveRounds(this.activedelegates) // save next round delegate list
     }
 
     return block
@@ -139,10 +133,10 @@ class DBInterface {
     return block
   }
 
-  async applyBlock (block, rebuild, fastRebuild) {
+  async applyBlock (block) {
     await this.walletManager.applyBlock(block)
 
-    return this.applyRound(block, rebuild, fastRebuild)
+    return this.applyRound(block)
   }
 
   async undoBlock (block) {
