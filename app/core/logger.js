@@ -15,7 +15,7 @@ const winstonConsoleFormatter = (info) => {
     'silly': chalk.bold.white(level)
   }[info.level]
 
-  const timestamp = moment(info.timestamp()).format('YYYY-MM-DD hh:mm:ss')
+  const timestamp = moment(info.timestamp()).format('YYYY-MM-DD HH:mm:ss')
 
   const dateAndLevel = `[${timestamp}][${level}]:`
   const lineSpacer = ' '.repeat(Math.abs(dateAndLevel.length - 50) + 1)

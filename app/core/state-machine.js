@@ -4,18 +4,19 @@ const logger = require('app/core/logger')
 const Block = require('app/models/block')
 const sleep = require('app/utils/sleep')
 const human = require('interval-to-human')
+const config = require('app/core/config')
 
 let synctracker = null
 
-const tickSyncTracker = (blockdata) => {
-  const block = new Block(blockdata)
+const tickSyncTracker = (block) => {
+  const constants = config.getConstants(block.data.height)
   if (!synctracker) {
     synctracker = {
       starttimestamp: block.data.timestamp,
       startdate: new Date().getTime()
     }
   }
-  const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
+  const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
   const title = 'Fast Synchronisation'
   if (block.data.timestamp - arkjs.slots.getTime() < 8) {
     logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
@@ -339,7 +340,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     rebuildBlocks: async () => {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
-      tickSyncTracker(block.data)
+      tickSyncTracker(block)
       const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
