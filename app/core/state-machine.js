@@ -222,10 +222,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
-        await sleep(5000)
         await blockchainManager.db.buildWallets()
-        await sleep(5000)
-
         await blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
