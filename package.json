@@ -25,7 +25,8 @@
     "test:unit:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/unit",
     "test:webhook": "NODE_PATH=. jest --no-cache --forceExit --projects tests/webhooks",
     "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/webhooks",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "db": "node_modules/.bin/sequelize"
   },
   "keywords": [
     "ark",
@@ -70,6 +71,7 @@
     "redis": "^2.8.0",
     "request-ip": "^2.0.2",
     "sequelize": "^4.32.7",
+    "sequelize-cli": "^4.0.0",
     "sinon": "^4.4.2",
     "sntp": "^3.0.1",
     "sqlite3": "^3.1.13",
