@@ -95,25 +95,22 @@ module.exports = class TransactionsRepository {
   }
 
   async findAllByDateAndType (type, from, to) {
+    let where = { type, timestamp: {} }
+
+    if (from) where.timestamp[Op.lte] = to
+    if (to) where.timestamp[Op.gte] = from
+    if (!where.timestamp.length) delete where.timestamp
+
     const results = await this.db.transactionsTable.findAndCountAll({
       attributes: ['serialized'],
-      where: {
-        type: type,
-        createdAt: {
-          [Op.lte]: moment(to).endOf('day').toDate(),
-          [Op.gte]: moment(from).startOf('day').toDate()
-        }
-      },
+      where,
       include: {
         model: this.db.blocksTable,
         attributes: ['height']
       }
     })
 
-    return {
-      count: results.count,
-      rows: results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-    }
+    return results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
   search (params) {

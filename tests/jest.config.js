@@ -7,13 +7,13 @@ module.exports = {
   // globalTeardown: 'tests/support/teardown.js',
 
   testEnvironment: 'node',
-  bail: true,
-  verbose: true,
+  bail: false,
+  verbose: false,
 
   setupFiles: ['<rootDir>/tests/support/setup-files'],
   setupTestFrameworkScriptFile: '<rootDir>/tests/support/setup-framework',
 
-  collectCoverage: true,
+  collectCoverage: false,
   coverageDirectory: 'tests/coverage/all',
   collectCoverageFrom: [
     'app/api/**/*.js',

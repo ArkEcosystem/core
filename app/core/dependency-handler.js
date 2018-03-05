@@ -8,8 +8,12 @@ class DependencyHandler {
         'sqlite': ['sequelize', 'sqlite3'],
         'postgres': ['sequelize', 'pg', 'pg-hstore'],
         'mssql': ['sequelize', 'tedious']
-      }[config.server.db.dialect]
+      }[config.server.db.options.dialect]
     }[config.server.db.driver]
+
+    if (!dependencies) {
+      throw new Error('Invalid database driver specified.')
+    }
 
     return this._install(dependencies)
   }
