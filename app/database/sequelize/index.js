@@ -13,18 +13,24 @@ module.exports = class SequelizeDB extends DBInterface {
       throw new Error('Already initialised')
     }
 
-    this.db = new Sequelize(params.uri, {
-      dialect: params.dialect,
-      logging: !!params.logging,
+    this.db = new Sequelize(params.options.uri, {
+      dialect: params.options.dialect,
+      logging: !!params.options.logging,
       operatorsAliases: Sequelize.Op
     })
 
-    await this.db.authenticate()
+    try {
+      await this.db.authenticate()
 
-    const models = await schema(this.db)
-    models.forEach(model => (this[`${model.tableName}Table`] = model))
+      logger.info('Database Connection has been established successfully.')
 
-    this.registerHooks()
+      const models = await schema(this.db)
+      models.forEach(model => (this[`${model.tableName}Table`] = model))
+
+      this.registerHooks()
+    } catch (error) {
+      logger.error('Unable to connect to the database:', error.stack)
+    }
   }
 
   registerHooks () {
@@ -233,12 +239,12 @@ module.exports = class SequelizeDB extends DBInterface {
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
   // must be called before builddelegates for  new round
-  async updateDelegateStats (activedelegates) {
+  async updateDelegateStats (block, activedelegates) {
     if (!activedelegates) {
       return
     }
@@ -253,7 +259,7 @@ module.exports = class SequelizeDB extends DBInterface {
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
       })
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
@@ -281,7 +287,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
   }
@@ -295,7 +301,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
   }

@@ -3,6 +3,7 @@ const config = require('app/core/config')
 const logger = require('app/core/logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
+const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class WalletManager {
   constructor () {
@@ -41,7 +42,7 @@ module.exports = class WalletManager {
 
       return delegate.applyBlock(block.data)
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
       throw error
     }
@@ -62,6 +63,7 @@ module.exports = class WalletManager {
 
       return delegate.undoBlock(block.data)
     } catch (error) {
+      logger.error(error.stack)
       await Promise.each(undoedTransactions, async (tx) => that.applyTransaction(tx))
       throw error
     }
@@ -84,10 +86,10 @@ module.exports = class WalletManager {
       this.walletsByAddress[recipientId] = recipient
     }
 
-    if (datatx.type === 2 && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
+    if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
       logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
       throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
-    } else if (datatx.type === 3 && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
+    } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
       logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
       throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
     }
@@ -103,7 +105,7 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(datatx)
 
-    if (datatx.type === 0) recipient.applyTransactionToRecipient(datatx)
+    if (datatx.type === TRANSACTION_TYPES.TRANSFER) recipient.applyTransactionToRecipient(datatx)
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
@@ -118,7 +120,7 @@ module.exports = class WalletManager {
     let recipient = this.walletsByAddress[transaction.data.recipientId]
     sender.undoTransactionToSender(transaction.data)
 
-    if (recipient && transaction.type === 0) {
+    if (recipient && transaction.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.undoTransactionToRecipient(transaction.data)
     }
 

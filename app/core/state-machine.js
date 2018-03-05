@@ -200,7 +200,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     exitApp: () => {
       logger.error('Failed to startup blockchain, exiting app...')
-      process.exit(0)
+      process.exit(1)
     },
     init: async () => {
       try {

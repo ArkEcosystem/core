@@ -8,9 +8,11 @@
   },
   "db": {
     "driver": "app/database/sequelize",
-    "uri": "sqlite:storage/database/mainnet.sqlite",
-    "dialect": "sqlite",
-    "logging": false
+    "options": {
+      "uri": "sqlite:storage/database/mainnet.sqlite",
+      "dialect": "sqlite",
+      "logging": false
+    }
   },
   "queue": {
     "host": "localhost",
