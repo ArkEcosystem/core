@@ -204,7 +204,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        order: [[ 'timestamp', 'DESC' ]],
+        order: [[ 'createdAt', 'DESC' ]],
         where: {type: 3}}
       )
       logger.printTracker('SPV Building', 6, 7, 'votes')
@@ -224,7 +224,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        order: [[ 'timestamp', 'DESC' ]],
+        order: [[ 'createdAt', 'DESC' ]],
         where: {type: 4}}
       )
       logger.printTracker('SPV Building', 7, 7, 'multisignatures')
@@ -313,7 +313,7 @@ module.exports = class SequelizeDB extends DBInterface {
         attributes: ['serialized']
       }],
       attributes: {
-        exclude: ['timestamp', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt']
       },
       where: {
         id: id
@@ -358,7 +358,7 @@ module.exports = class SequelizeDB extends DBInterface {
         attributes: ['serialized']
       }],
       attributes: {
-        exclude: ['timestamp', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt']
       },
       where: {
         height: {
@@ -379,7 +379,7 @@ module.exports = class SequelizeDB extends DBInterface {
     const last = offset + limit
     const blocks = await this.blocksTable.findAll({
       attributes: {
-        exclude: ['timestamp', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt']
       },
       where: {
         height: {
