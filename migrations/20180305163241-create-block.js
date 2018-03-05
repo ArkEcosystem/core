@@ -1,12 +1,30 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('blocks', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('blocks', {
       id: {
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: false,
         primaryKey: true,
+        type: Sequelize.STRING(64)
+      },
+      version: Sequelize.SMALLINT,
+      timestamp: {
+        unique: true,
         type: Sequelize.INTEGER
       },
+      previousBlock: Sequelize.STRING(64),
+      height: {
+        unique: true,
+        type: Sequelize.INTEGER
+      },
+      numberOfTransactions: Sequelize.INTEGER,
+      totalAmount: Sequelize.BIGINT,
+      totalFee: Sequelize.BIGINT,
+      reward: Sequelize.BIGINT,
+      payloadLength: Sequelize.INTEGER,
+      payloadHash: Sequelize.STRING(64),
+      generatorPublicKey: Sequelize.STRING(66),
+      blockSignature: Sequelize.STRING(256),
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -16,6 +34,8 @@ module.exports = {
         type: Sequelize.DATE
       }
     })
+
+    queryInterface.addIndex('blocks', ['id', 'height', 'generatorPublicKey'])
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('blocks')

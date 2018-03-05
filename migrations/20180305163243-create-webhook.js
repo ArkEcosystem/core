@@ -1,12 +1,20 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('webhooks', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('webhooks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      event: Sequelize.STRING,
+      target: Sequelize.STRING,
+      conditions: Sequelize.JSON,
+      secret: {
+        unique: true,
+        type: Sequelize.STRING
+      },
+      enabled: Sequelize.BOOLEAN,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -16,6 +24,8 @@ module.exports = {
         type: Sequelize.DATE
       }
     })
+
+    queryInterface.addIndex('webhooks', ['event'])
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('webhooks')
