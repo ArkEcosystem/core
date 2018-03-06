@@ -52,7 +52,7 @@ module.exports = class BlocksRepository {
     if (to) where.timestamp[Op.gte] = from
     if (!where.timestamp.length) delete where.timestamp
 
-    return this.db.models.block.findAndCountAll({
+    return this.db.models.block.findAll({
       attributes: ['totalFee', 'reward'], where
     })
   }

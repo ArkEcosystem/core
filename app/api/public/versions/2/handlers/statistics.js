@@ -62,9 +62,9 @@ exports.blocks = {
 
     return {
       data: {
-        count: blocks.count,
-        rewards: _.sumBy(blocks.rows, 'reward'),
-        fees: _.sumBy(blocks.rows, 'totalFee')
+        count: blocks.length,
+        rewards: _.sumBy(blocks, 'reward'),
+        fees: _.sumBy(blocks, 'totalFee')
       }
     }
   }
@@ -73,12 +73,12 @@ exports.blocks = {
 exports.votes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
-    transactions = transactions.rows.filter(v => v.asset.votes[0].startsWith('+'))
+    transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
 
     return {
       data: {
         count: transactions.length,
-        amount: _.sumBy(transactions.rows, 'amount'),
+        amount: _.sumBy(transactions, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }
     }
@@ -88,12 +88,12 @@ exports.votes = {
 exports.unvotes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
-    transactions = transactions.rows.filter(v => v.asset.votes[0].startsWith('-'))
+    transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))
 
     return {
       data: {
         count: transactions.length,
-        amount: _.sumBy(transactions.rows, 'amount'),
+        amount: _.sumBy(transactions, 'amount'),
         fees: _.sumBy(transactions, 'fee')
       }
     }

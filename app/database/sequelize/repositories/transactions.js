@@ -100,7 +100,7 @@ module.exports = class TransactionsRepository {
     if (to) where.timestamp[Op.gte] = from
     if (!where.timestamp.length) delete where.timestamp
 
-    const results = await this.db.models.transaction.findAndCountAll({
+    const results = await this.db.models.transaction.findAll({
       attributes: ['serialized'],
       where,
       include: {
@@ -109,7 +109,7 @@ module.exports = class TransactionsRepository {
       }
     })
 
-    return results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+    return results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
   search (params) {
