@@ -163,6 +163,7 @@ module.exports = class BlockchainManager {
           await this.db.saveBlockCommit()
         }
         state.lastBlock = block
+        logger.info('sending addblocks event')
         this.transactionQueue.send({event: 'addBlock', data: block})
         qcallback()
       } else if (block.data.height > state.lastBlock.data.height + 1) {
