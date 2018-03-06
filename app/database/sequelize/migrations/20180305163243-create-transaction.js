@@ -17,14 +17,14 @@ module.exports = {
       },
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
-        type: Sequelize.STRING(66),
+        type: Sequelize.STRING(66)
         // references: {
         //   model: 'wallets',
         //   key: 'publicKey'
         // }
       },
       recipientId: {
-        type: Sequelize.STRING(36),
+        type: Sequelize.STRING(36)
         // references: {
         //   model: 'wallets',
         //   key: 'address'

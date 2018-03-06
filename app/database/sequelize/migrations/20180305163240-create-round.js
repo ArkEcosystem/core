@@ -8,7 +8,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       publicKey: {
-        type: Sequelize.STRING(66),
+        type: Sequelize.STRING(66)
         // references: {
         //   model: 'wallets',
         //   key: 'publicKey'
