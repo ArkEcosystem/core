@@ -341,8 +341,8 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async saveBlockAsync (block) {
     if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
-    await this.blocksTable.create(block.data, {transaction: this.asyncTransaction})
-    await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+    await this.models.block.create(block.data, {transaction: this.asyncTransaction})
+    await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
 
   async saveBlockCommit () {
