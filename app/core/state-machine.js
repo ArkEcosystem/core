@@ -148,7 +148,7 @@ const rebuildFromNetwork = {
     rebuildpaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processfinished',
+        REBUILDFINISHED: 'processfinished',
         FORKED: 'forked'
       }
     },
@@ -270,7 +270,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
-      if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
+      if (blockchainManager.rebuildQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
