@@ -31,7 +31,7 @@ module.exports = {
       name: 'rounds_unique'
     })
 
-    queryInterface.addIndex('rounds', ['address', 'publicKey', 'vote', 'username'])
+    queryInterface.addIndex('rounds', ['publicKey', 'round'])
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('rounds')

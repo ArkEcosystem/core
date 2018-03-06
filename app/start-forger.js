@@ -35,7 +35,7 @@ commander
   .parse(process.argv)
 
 process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`)
+  logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
 
   process.exit(1)
 })

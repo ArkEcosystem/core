@@ -26,7 +26,8 @@
     "test:webhook": "NODE_PATH=. jest --no-cache --forceExit --projects tests/webhooks",
     "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/webhooks",
     "lint": "eslint ./ --fix",
-    "db": "node_modules/.bin/sequelize"
+    "db": "node_modules/.bin/sequelize",
+    "fresh": "rm storage/database/devnet.sqlite && yarn start:devnet"
   },
   "keywords": [
     "ark",
@@ -53,6 +54,7 @@
     "commander": "^2.14.0",
     "deepmerge": "^2.0.1",
     "directory-tree": "^2.0.0",
+    "fast-glob": "^2.1.0",
     "hapi": "^17.2.0",
     "hapi-api-version": "^2.0.0",
     "hapi-pagination": "^2.0.0",
@@ -78,6 +80,7 @@
     "standard": "^10.0.3",
     "threads": "^0.10.1",
     "tiny-worker": "^2.1.1",
+    "umzug": "^2.1.0",
     "wif": "^2.0.6",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2",
