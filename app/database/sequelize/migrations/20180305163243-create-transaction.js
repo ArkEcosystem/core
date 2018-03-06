@@ -18,17 +18,17 @@ module.exports = {
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
         type: Sequelize.STRING(66),
-        references: {
-          model: 'wallets',
-          key: 'publicKey'
-        }
+        // references: {
+        //   model: 'wallets',
+        //   key: 'publicKey'
+        // }
       },
       recipientId: {
         type: Sequelize.STRING(36),
-        references: {
-          model: 'wallets',
-          key: 'address'
-        }
+        // references: {
+        //   model: 'wallets',
+        //   key: 'address'
+        // }
       },
       type: Sequelize.SMALLINT,
       vendorFieldHex: Sequelize.BLOB,
