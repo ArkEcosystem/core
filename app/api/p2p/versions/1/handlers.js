@@ -80,7 +80,7 @@ exports.getStatus = {
         height: lastBlock.height,
         forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
         currentSlot: arkjs.slots.getSlotNumber(),
-        header: lastBlock
+        header: lastBlock.getHeader()
       }
     }
   }
