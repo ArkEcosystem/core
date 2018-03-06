@@ -16,8 +16,20 @@ module.exports = {
         }
       },
       timestamp: Sequelize.INTEGER,
-      senderPublicKey: Sequelize.STRING(66),
-      recipientId: Sequelize.STRING(36),
+      senderPublicKey: {
+        type: Sequelize.STRING(66),
+        references: {
+          model: 'wallets',
+          key: 'publicKey'
+        }
+      },
+      recipientId: {
+        type: Sequelize.STRING(36),
+        references: {
+          model: 'wallets',
+          key: 'address'
+        }
+      },
       type: Sequelize.SMALLINT,
       vendorFieldHex: Sequelize.BLOB,
       amount: Sequelize.BIGINT,
@@ -33,7 +45,7 @@ module.exports = {
       }
     })
 
-    queryInterface.addIndex('transactions', ['id', 'senderPublicKey', 'recipientId', 'vendorFieldHex', 'timestamp'])
+    queryInterface.addIndex('transactions', ['senderPublicKey', 'recipientId', 'vendorFieldHex', 'timestamp'])
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('transactions')
