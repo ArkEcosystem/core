@@ -23,12 +23,13 @@ module.exports = class SequelizeDB extends DBInterface {
 
     try {
       await this.db.authenticate()
-
-      logger.info('Database Connection has been established.')
+      logger.info('Database connection has been established.')
 
       await this.runMigrations()
+      logger.info('Database has been migrated.')
 
       await this.registerModels()
+      logger.info('Database models have been registered.')
 
       this.registerHooks()
     } catch (error) {
