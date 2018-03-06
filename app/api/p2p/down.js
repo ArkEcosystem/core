@@ -30,7 +30,7 @@ module.exports = class Down {
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
 
       this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
@@ -146,7 +146,6 @@ module.exports = class Down {
 
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
-    logger.info(`Downloading blocks from ${randomPeer.url} from block ${fromBlockHeight}`)
 
     try {
       await randomPeer.ping()

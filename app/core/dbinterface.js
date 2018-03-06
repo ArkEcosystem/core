@@ -5,29 +5,8 @@ const logger = require('app/core/logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const human = require('interval-to-human')
 
-let synctracker
 let instance
-
-const tickSyncTracker = (block, rebuild, fastRebuild) => {
-  if (rebuild) { // basically don't make useless database interaction like saving wallet state
-    if (!synctracker) {
-      synctracker = {
-        starttimestamp: block.data.timestamp,
-        startdate: new Date().getTime()
-      }
-    }
-    const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
-    const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    if (block.data.timestamp - arkjs.slots.getTime() < 8) {
-      logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
-    } else {
-      synctracker = null
-      logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
-    }
-  }
-}
 
 class DBInterface {
   static getInstance () {
@@ -102,34 +81,30 @@ class DBInterface {
     throw new Error('Method [deleteRound] not implemented!')
   }
 
-  // updateDelegateStats (delegates) {
-  // }
+  updateDelegateStats (delegates) {
+    throw new Error('Method [updateDelegateStats] not implemented!')
+  }
 
-  async applyRound (block, rebuild, fastRebuild) {
-    tickSyncTracker(block, rebuild, fastRebuild)
-    if ((!fastRebuild && block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      if (rebuild) { // basically don't make useless database interaction like saving wallet state
-        await this.updateDelegateStats(this.activedelegates)
-        await this.buildDelegates(block)
-        await this.saveRounds(this.activedelegates)
-      } else {
-        logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
-        await this.updateDelegateStats(this.activedelegates)
-        await this.saveWallets(false) // save only modified wallets during the last round
-        await this.buildDelegates(block) // active build delegate list from database state
-        await this.saveRounds(this.activedelegates) // save next round delegate list
-      }
+  async applyRound (block) {
+    if ((block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
+      logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
+      await this.updateDelegateStats(this.activedelegates)
+      await this.saveWallets(false) // save only modified wallets during the last round
+      await this.buildDelegates(block) // active build delegate list from database state
+      await this.saveRounds(this.activedelegates) // save next round delegate list
     }
 
     return block
   }
 
   async undoRound (block) {
+    const activeDelegates = config.getConstants(block.data.height).activeDelegates
+
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
-    if (previousRound + 1 === round && block.data.height > 51) {
+    if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round
@@ -139,10 +114,10 @@ class DBInterface {
     return block
   }
 
-  async applyBlock (block, rebuild, fastRebuild) {
+  async applyBlock (block) {
     await this.walletManager.applyBlock(block)
 
-    return this.applyRound(block, rebuild, fastRebuild)
+    return this.applyRound(block)
   }
 
   async undoBlock (block) {

@@ -13,24 +13,32 @@ module.exports = class SequelizeDB extends DBInterface {
       throw new Error('Already initialised')
     }
 
-    this.db = new Sequelize(params.uri, {
-      dialect: params.dialect,
-      logging: !!params.logging,
+    this.db = new Sequelize(params.options.uri, {
+      dialect: params.options.dialect,
+      logging: !!params.options.logging,
       operatorsAliases: Sequelize.Op
     })
 
-    await this.db.authenticate()
+    this.asyncTransaction = null
 
-    const models = await schema(this.db)
-    models.forEach(model => (this[`${model.tableName}Table`] = model))
+    try {
+      await this.db.authenticate()
 
-    this.registerHooks()
+      logger.info('Database Connection has been established successfully.')
+
+      const models = await schema(this.db)
+      models.forEach(model => (this[`${model.tableName}Table`] = model))
+
+      this.registerHooks()
+    } catch (error) {
+      logger.error('Unable to connect to the database:', error.stack)
+    }
   }
 
   registerHooks () {
     if (config.webhooks.enabled) {
-      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block));
-      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction));
+      this.blocksTable.afterCreate((block) => webhookManager.emit('block.created', block))
+      this.transactionsTable.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
     }
   }
 
@@ -85,6 +93,9 @@ module.exports = class SequelizeDB extends DBInterface {
         where: {
           username: {
             [Sequelize.Op.ne]: null
+          },
+          publicKey: {
+            [Sequelize.Op.notIn]: data.map(d => d.publicKey)
           }
         },
         order: [[ 'publicKey', 'ASC' ]],
@@ -95,10 +106,10 @@ module.exports = class SequelizeDB extends DBInterface {
     }
 
     // logger.info(`got ${data.length} voted delegates`)
-    const round = parseInt(block.data.height / 51)
+    const round = parseInt(block.data.height / activeDelegates)
     this.activedelegates = data
       .sort((a, b) => b.balance - a.balance)
-      .slice(0, 51)
+      .slice(0, activeDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
     logger.debug(`generated ${this.activedelegates.length} active delegates`)
@@ -233,27 +244,30 @@ module.exports = class SequelizeDB extends DBInterface {
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
   // must be called before builddelegates for  new round
-  async updateDelegateStats (activedelegates) {
-    if (!activedelegates) {
+  async updateDelegateStats (block, delegates) {
+    if (!delegates) {
       return
     }
-    logger.debug('Calculating delegate statistics')
-    try {
-      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/51 = ${activedelegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
 
-        activedelegates.forEach(delegate => {
+    logger.debug('Calculating delegate statistics')
+
+    try {
+      const activeDelegates = config.getConstants(block.data.height).activeDelegates
+      let lastBlockGenerators = await this.db.query(`SELECT id, generatorPublicKey FROM blocks WHERE height/${activeDelegates} = ${delegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+
+      delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
       })
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
     }
   }
 
@@ -281,9 +295,30 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
+  }
+
+  async saveBlockAsync (block) {
+    if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
+    await this.blocksTable.create(block.data, {transaction: this.asyncTransaction})
+    await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+  }
+
+  async saveBlockCommit () {
+    if (!this.asyncTransaction) return
+    logger.debug('Committing DB transaction')
+    try {
+      await this.asyncTransaction.commit()
+    } catch (error) {
+      logger.error(error)
+      logger.error('boom')
+
+      logger.error(error.sql)
+      await this.asyncTransaction.rollback()
+    }
+    this.asyncTransaction = null
   }
 
   async deleteBlock (block) {
@@ -295,7 +330,7 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
       await transaction.rollback()
     }
   }

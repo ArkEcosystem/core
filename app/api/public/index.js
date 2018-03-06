@@ -6,14 +6,22 @@ module.exports = async (config) => {
     return logger.info('Oh snap! Public API not mounted...')
   }
 
-  const server = new Hapi.Server({
+  const baseConfig = {
     port: config.api.public.port,
     routes: {
       validate: {
         failAction: async (request, h, err) => { throw err }
       }
     }
-  })
+  }
+
+  if (config.api.public.cache.enabled) {
+    const cacheOptions = config.api.public.cache.options
+    cacheOptions.engine = require(cacheOptions.engine)
+    baseConfig.cache = [cacheOptions]
+  }
+
+  const server = new Hapi.Server(baseConfig)
 
   await server.register(require('./plugins/auth/webhooks'))
 
@@ -75,18 +83,12 @@ module.exports = async (config) => {
     routes: { prefix: '/api/v2' }
   })
 
-  if (config.api.public.cache.enabled) {
-    const cacheOptions = config.api.public.cache.options
-    cacheOptions.engine = require(cacheOptions.engine)
-    server.cache = [cacheOptions]
-  }
-
   try {
     await server.start()
 
     logger.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
   } catch (error) {
-    logger.error(error)
+    logger.error(error.stack)
 
     process.exit(1)
   }

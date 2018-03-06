@@ -44,13 +44,13 @@ exports.blockchain = {
 
 exports.transactions = {
   handler: async (request, h) => {
-    const blocks = await db.transactions.findAllByDateAndType(0, request.query.from, request.query.to)
+    const transactions = await db.transactions.findAllByDateAndType(0, request.query.from, request.query.to)
 
     return {
       data: {
-        count: blocks.count,
-        amount: _.sumBy(blocks.rows, 'amount'),
-        fees: _.sumBy(blocks.rows, 'fee')
+        count: transactions.length,
+        amount: _.sumBy(transactions, 'amount'),
+        fees: _.sumBy(transactions, 'fee')
       }
     }
   }

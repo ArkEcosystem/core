@@ -4,10 +4,7 @@ module.exports = class WebhooksRepository {
   }
 
   paginate (params) {
-    return this.db.webhooksTable.findAndCountAll({
-      offset: params.offset,
-      limit: params.limit
-    })
+    return this.db.webhooksTable.findAndCountAll(params)
   }
 
   findById (id) {
