@@ -20,15 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     balance: DataTypes.BIGINT,
     votebalance: DataTypes.BIGINT,
     producedBlocks: DataTypes.BIGINT,
-    missedBlocks: DataTypes.BIGINT,
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    }
+    missedBlocks: DataTypes.BIGINT
   }, {})
 
   Wallet.associate = (models) => {

@@ -14,15 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     balance: DataTypes.BIGINT,
-    round: DataTypes.BIGINT,
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    }
+    round: DataTypes.BIGINT
   }, {})
 
   Round.associate = (models) => {

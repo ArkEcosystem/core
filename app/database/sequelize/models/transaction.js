@@ -33,15 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     vendorFieldHex: DataTypes.BLOB,
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
-    serialized: DataTypes.BLOB,
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    }
+    serialized: DataTypes.BLOB
   }, {})
 
   Transaction.associate = (models) => {

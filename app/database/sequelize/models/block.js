@@ -29,15 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'publicKey'
       }
     },
-    blockSignature: DataTypes.STRING(256),
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    }
+    blockSignature: DataTypes.STRING(256)
   }, {})
 
   Block.associate = (models) => {
