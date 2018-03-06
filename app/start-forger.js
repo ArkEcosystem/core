@@ -34,7 +34,11 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`))
+process.on('unhandledRejection', (reason, p) => {
+  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`)
+
+  process.exit(1)
+})
 
 const delegateFilePath = path.resolve(commander.config, 'delegates.json')
 
@@ -48,7 +52,8 @@ async function init (password, address) {
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    logger.error('fatal error', error)
+    logger.error('Fatal Error', error.stack)
+    process.exit(1)
   }
 }
 

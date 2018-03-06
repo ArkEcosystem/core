@@ -5,29 +5,8 @@ const logger = require('app/core/logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const human = require('interval-to-human')
 
-let synctracker
 let instance
-
-const tickSyncTracker = (block, rebuild, fastRebuild) => {
-  if (rebuild) { // basically don't make useless database interaction like saving wallet state
-    if (!synctracker) {
-      synctracker = {
-        starttimestamp: block.data.timestamp,
-        startdate: new Date().getTime()
-      }
-    }
-    const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate)
-    const title = fastRebuild ? 'Fast Synchronisation' : 'Full Synchronisation'
-    if (block.data.timestamp - arkjs.slots.getTime() < 8) {
-      logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
-    } else {
-      synctracker = null
-      logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
-    }
-  }
-}
 
 class DBInterface {
   static getInstance () {
@@ -119,11 +98,13 @@ class DBInterface {
   }
 
   async undoRound (block) {
+    const activeDelegates = config.getConstants(block.data.height).activeDelegates
+
     const previousHeight = block.data.height - 1
     const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
-    if (previousRound + 1 === round && block.data.height > 51) {
+    if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info('Back to previous round', previousRound)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round

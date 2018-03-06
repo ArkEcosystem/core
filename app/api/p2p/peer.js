@@ -46,7 +46,7 @@ module.exports = class Peer {
 
       return res.body
     } catch (error) {
-      // logger.error(error)
+      // logger.error(error.stack)
 
       this.status = error.code
     }
@@ -66,7 +66,7 @@ module.exports = class Peer {
 
       return res.body
     } catch (error) {
-      logger.error(error)
+      logger.error(error.stack)
 
       this.status = error.code
     }

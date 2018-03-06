@@ -302,7 +302,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     exitApp: () => {
       logger.error('Failed to startup blockchain, exiting app...')
-      process.exit(0)
+      process.exit(1)
     },
     init: async () => {
       try {
@@ -321,7 +321,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         const constants = blockchainManager.config.getConstants(block.data.height)
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
-        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) || !!blockchainManager.config.server.fastRebuild
+        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
