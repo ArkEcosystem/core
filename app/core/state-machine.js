@@ -148,7 +148,7 @@ const rebuildFromNetwork = {
     rebuildpaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processfinished',
+        REBUILDFINISHED: 'processfinished',
         FORKED: 'forked'
       }
     },
