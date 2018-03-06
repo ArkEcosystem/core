@@ -4,7 +4,6 @@ const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
-
 const sleep = require('app/utils/sleep')
 
 let instance = null
@@ -25,18 +24,17 @@ module.exports = class BlockchainManager {
       1
     )
 
-    this.downloadQueue = async.queue(
+    this.rebuildQueue = async.queue(
       (block, qcallback) => {
-        if (that.downloadQueue.paused) return qcallback()
-        that.processQueue.push(block)
-        return qcallback()
+        if (!that.rebuildQueue.paused) that.rebuildBlock(new Block(block), stateMachine.state, qcallback)
+        else qcallback()
       },
       1
     )
 
     this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
 
-    this.downloadQueue.drain = () => this.dispatch('DOWNLOADED')
+    this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
 
     if (!instance) instance = this
   }
@@ -102,7 +100,7 @@ module.exports = class BlockchainManager {
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    this.downloadQueue.push(block)
+    this.rebuildQueue.push(block)
   }
 
   async removeBlocks (nblocks) {
@@ -137,29 +135,58 @@ module.exports = class BlockchainManager {
   }
 
   async pauseQueues () {
-    this.downloadQueue.pause()
+    this.rebuildQueue.pause()
     this.processQueue.pause()
   }
 
   async clearQueues () {
-    this.downloadQueue.remove(() => true)
+    this.rebuildQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
   }
 
   async resumeQueues () {
-    this.downloadQueue.resume()
+    this.rebuildQueue.resume()
     this.processQueue.resume()
+  }
+
+  async rebuildBlock (block, state, qcallback) {
+    if (block.verification.verified) {
+      const constants = this.config.getConstants(block.data.height)
+      if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
+        await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+        if (block.data.height % 10000 === 0) {
+          await this.db.saveBlockCommit()
+        }
+        state.lastBlock = block
+        qcallback()
+      } else if (block.data.height > state.lastBlock.data.height + 1) {
+        // requeue it (was not received in right order)
+        // this.processQueue.push(block.data)
+        logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
+        state.lastDownloadedBlock = state.lastBlock
+        qcallback()
+      } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
+        logger.debug('Block disregarded because already in blockchain')
+        qcallback()
+      } else {
+        // TODO: manage fork here
+        this.dispatch('FORK')
+        logger.info('Block disregarded because on a fork')
+        qcallback()
+      }
+    } else {
+      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      qcallback()
+    }
   }
 
   async processBlock (block, state, qcallback) {
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
-      // no fast rebuild if in last round
-      state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime) && !!this.config.server.fastRebuild && !this.config.server.test
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
         try {
-          await this.db.applyBlock(block, state.rebuild, state.fastRebuild)
+          await this.db.applyBlock(block)
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           this.transactionQueue.send({event: 'addBlock', data: block})
@@ -199,6 +226,12 @@ module.exports = class BlockchainManager {
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
     return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
+  }
+
+  isBuildSynced (block) {
+    block = block || stateMachine.state.lastBlock.data
+    logger.info(arkjs.slots.getTime() - block.timestamp)
+    return arkjs.slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
   attachNetworkInterface (networkInterface) {

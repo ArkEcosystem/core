@@ -69,14 +69,19 @@ exports.getTransactions = {
 
 exports.getStatus = {
   handler: (request, h) => {
-    const lastBlock = blockchain.getInstance().getState().lastBlock.getHeader()
-
-    return {
-      success: true,
-      height: lastBlock.height,
-      forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
-      currentSlot: arkjs.slots.getSlotNumber(),
-      header: lastBlock
+    const lastBlock = blockchain.getInstance().getState().lastBlock
+    if (!lastBlock) {
+      return {
+        success: false
+      }
+    } else {
+      return {
+        success: true,
+        height: lastBlock.height,
+        forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
+        currentSlot: arkjs.slots.getSlotNumber(),
+        header: lastBlock.getHeader()
+      }
     }
   }
 }
