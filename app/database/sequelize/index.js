@@ -130,6 +130,9 @@ module.exports = class SequelizeDB extends DBInterface {
         where: {
           username: {
             [Sequelize.Op.ne]: null
+          },
+          publicKey: {
+            [Sequelize.Op.notIn]: data.map(d => d.publicKey)
           }
         },
         order: [[ 'publicKey', 'ASC' ]],
