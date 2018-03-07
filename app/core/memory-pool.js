@@ -56,7 +56,6 @@ module.exports = class MemoryPool {
     if (object instanceof this.Class) {
       try {
           logger.debug(`Adding transaction ${object.id} to redis pool`)
-          logger.warn(JSON.stringify(object.data))
           await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
           await this.redis.rpush(this.key, object.serialized.toString('hex'))
           logger.warn(JSON.stringify(object.data))
