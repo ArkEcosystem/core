@@ -40,7 +40,7 @@ class TransactionQueue {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        transaction.data.expiration = Math.floor(Math.random() * Math.floor(200));
+        if (config.server.test) transaction.data.expiration = Math.floor(Math.random() * Math.floor(200));
         this.pool.add(transaction)
       }
       qcallback()
