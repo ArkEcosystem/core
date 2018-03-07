@@ -39,6 +39,8 @@ class TransactionQueue {
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
+        // for expiration testing
+        transaction.data.expiration = Math.floor(Math.random() * Math.floor(10));
         this.pool.add(transaction)
       }
       qcallback()
@@ -77,7 +79,7 @@ class TransactionQueue {
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
     await this.pool.removeForgedTransactions(block.transactions)
-    this.pool.cleanPool(block.data.height)
+    this.pool.cleanPool(block.data.timestamp, config.getConstants(block.data.height).blocktime)
   }
 
   async undoBlock (block) { // we add back the block txs to the pool

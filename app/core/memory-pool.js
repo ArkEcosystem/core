@@ -1,6 +1,6 @@
 const Redis = require('ioredis')
-const Transaction = require('app/models/transaction')
 const logger = require('app/core/logger')
+const arkjs = require('arkjs')
 
 let instance = null
 // TODO here check also
@@ -37,9 +37,16 @@ module.exports = class MemoryPool {
 
   async removeForgedTransactions (serializedTransactions) {
     try {
-      await serializedTransactions.forEach(tx => {
-        this.redis.lrem(this.key, 1, Transaction.serialize(tx).toString('hex'))
-      })
+      for (let tx of serializedTransactions) {
+        const serialized = await this.redis.hget(`${this.key}/tx:${tx.id}`, 'serialized')
+        logger.debug(`Removing transaction ${tx.id} from redis pool`)
+        let x = this.redis.lrem(this.key, 1, serialized)
+        if (x < 1) {
+          logger.warn(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
+        }
+        await this.redis.del(`${this.key}/tx:${tx.id}`)
+        await this.redis.del(`${this.key}/tx/expiration:${tx.id}`)
+      }
     } catch (error) {
       logger.error('Error removing forged transactions from pool', error.stack)
     }
@@ -48,7 +55,15 @@ module.exports = class MemoryPool {
   async add (object) {
     if (object instanceof this.Class) {
       try {
+          logger.debug(`Adding transaction ${object.id} to redis pool`)
+          logger.warn(JSON.stringify(object.data))
+          await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
           await this.redis.rpush(this.key, object.serialized.toString('hex'))
+          logger.warn(JSON.stringify(object.data))
+          if (object.data.expiration > 0) {
+            logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
+            await this.redis.hset(`${this.key}/tx/expiration:${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
+          }
       } catch (error) {
           logger.error('Rpush tx to txpool error:', error.stack)
       }
@@ -59,22 +74,22 @@ module.exports = class MemoryPool {
     try {
         return this.redis.lrange(this.key, 0, blockSize - 1)
     } catch (error) {
-      logger.error('Get Items from this.redis: ', error.stack)
+      logger.error('Get serialized items from redis list: ', error.stack)
     }
   }
 
-  async cleanPool (blockHeight, blockTimeStamp) {
-    const items = await this.redis.lrange(this.key, 0, -1)
-    // const items = await this.redis.lrange(this.key, 0, 4)
-    logger.debug('start cleanin')
-    items.forEach(tx => {
-      let trans = Transaction.fromBytes(tx)
-      // TODO check expiration and remove from pool if needed
-      if (trans.expiration > 0) {
-        // remove
+  async cleanPool (currentTimestamp, blockTime) {
+    const items = await this.redis.keys(`${this.key}/tx/expiration:*`)
+    for (const key of items) {
+      const txDetails = await this.redis.hmget(key, 'id', 'serialized', 'timestamp', 'expiration')
+      const expiration = parseInt(txDetails[2]) + (parseInt(txDetails[3]) * blockTime)
+      if (expiration <= currentTimestamp) {
+        logger.debug(`Removing expired transaction ${key}, expirationTime:${expiration} actualTime:${currentTimestamp}`)
+        await this.redis.lrem(this.key, 1, txDetails[1])
+        await this.redis.del(`${this.key}/tx:${txDetails[0]}`)
+        await this.redis.del(`${this.key}/tx/expiration:${txDetails[0]}`)
       }
-    })
-    logger.debug('stop cleaning')
+    }
   }
 
   static getInstance () {
