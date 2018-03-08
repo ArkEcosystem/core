@@ -35,7 +35,7 @@ module.exports = class MemoryPool {
     try {
       for (let tx of serializedTransactions) {
         const serialized = await this.redis.hget(`${this.key}/tx:${tx.id}`, 'serialized')
-        logger.silly(`Removing transaction ${tx.id} from redis pool`)
+        // logger.debug(`Removing transaction ${tx.id} from redis pool`)
         let x = this.redis.lrem(this.key, 1, serialized)
         if (x < 1) {
           logger.warn(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
