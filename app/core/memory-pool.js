@@ -1,11 +1,7 @@
 const Redis = require('ioredis')
 const logger = require('app/core/logger')
-const arkjs = require('arkjs')
 
 let instance = null
-// TODO here check also
-// - exipration date of transactions
-// - max size, etc...
 module.exports = class MemoryPool {
   constructor (Class, config, log = false) {
     if (!instance) {
