@@ -17,7 +17,7 @@
   "txpool": {
     "host": "localhost",
     "port": 6379,
-    "key": "ark:tx_pool"
+    "key": "ark/pool"
   },
   "queue": {
     "host": "localhost",
