@@ -2,7 +2,7 @@ const Redis = require('ioredis')
 const logger = require('app/core/logger')
 
 let instance = null
-module.exports = class MemoryPool {
+module.exports = class TransactionPool {
   constructor (Class, config, log = false) {
     if (!instance) {
       instance = this

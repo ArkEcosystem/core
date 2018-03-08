@@ -5,7 +5,7 @@ const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
 const sleep = require('app/utils/sleep')
-const MemoryPool = require('app/core/memory-pool')
+const TransactionPool = require('app/core/transaction-pool')
 const Transaction = require('app/models/transaction')
 
 let instance = null
@@ -38,7 +38,7 @@ module.exports = class BlockchainManager {
 
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
 
-    this.mempool = new MemoryPool(Transaction, this.config)
+    this.transactionPool = new TransactionPool(Transaction, this.config)
 
     if (!instance) instance = this
   }
@@ -230,10 +230,10 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    let retItems = await this.mempool.getItems(blockSize)
+    let retItems = await this.transactionPool.getItems(blockSize)
     return {
       transactions: retItems,
-      poolSize: await this.mempool.size(),
+      poolSize: await this.transactionPool.size(),
       count: retItems.length
     }
   }
