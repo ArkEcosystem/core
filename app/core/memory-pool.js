@@ -10,7 +10,7 @@ module.exports = class MemoryPool {
       throw new Error('Cannot initialize two instances of memory pool...');
     }
     this.redis = config.server.txpool ? new Redis(config.server.txpool.port, config.server.txpool.host) : new Redis()
-    this.key = config.server.txpool ? config.server.txpool.key : 'ark:tx_pool'
+    this.key = config.server.txpool ? config.server.txpool.key : 'ark/pool'
     if (log) {
       logger.init(config.server.logging, config.network.name + '_memoryTxPool')
     }
