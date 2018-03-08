@@ -57,7 +57,7 @@ class TransactionQueue {
       }
       instance.walletManager.reindex(acc)
     })
-    logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
+    logger.debug(`Transactions queue started with ${instance.walletManager.getLocalWallets().length} wallets`)
   }
 
   async addTransaction (transaction) {
