@@ -105,7 +105,6 @@ module.exports = class BlockchainManager {
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
     if (this.isSynced()) {
-      logger.debug('SYNCED')
       this.processQueue.push(block)
     } else {
       this.rebuildQueue.push(block)

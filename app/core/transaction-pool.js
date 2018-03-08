@@ -31,9 +31,9 @@ module.exports = class TransactionPool {
     return this.redis.llen(this.key)
   }
 
-  async removeForgedTransactions (serializedTransactions) {
+  async removeForgedTransactions (blockTransactions) {
     try {
-      for (let tx of serializedTransactions) {
+      for (let tx of blockTransactions) {
         const serialized = await this.redis.hget(`${this.key}/tx:${tx.id}`, 'serialized')
         // logger.debug(`Removing transaction ${tx.id} from redis pool`)
         let x = this.redis.lrem(this.key, 1, serialized)
@@ -51,12 +51,12 @@ module.exports = class TransactionPool {
   async add (object) {
     if (object instanceof this.Class) {
       try {
-          // logger.debug(`Adding transaction ${object.id} to redis pool`)
+          logger.debug(`Adding transaction ${object.id} to redis pool`)
           await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
           await this.redis.rpush(this.key, object.serialized.toString('hex'))
           // logger.warn(JSON.stringify(object.data))
           if (object.data.expiration > 0) {
-            // logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
+            logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
             await this.redis.hset(`${this.key}/tx/expiration:${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
           }
       } catch (error) {
@@ -79,7 +79,7 @@ module.exports = class TransactionPool {
       const txDetails = await this.redis.hmget(key, 'id', 'serialized', 'timestamp', 'expiration')
       const expiration = parseInt(txDetails[2]) + (parseInt(txDetails[3]) * blockTime)
       if (expiration <= currentTimestamp) {
-        // logger.debug(`Removing expired transaction ${key}, expirationTime:${expiration} actualTime:${currentTimestamp}`)
+        logger.debug(`Removing expired transaction ${key}, expirationTime:${expiration} actualTime:${currentTimestamp}`)
         await this.redis.lrem(this.key, 1, txDetails[1])
         await this.redis.del(`${this.key}/tx:${txDetails[0]}`)
         await this.redis.del(`${this.key}/tx/expiration:${txDetails[0]}`)

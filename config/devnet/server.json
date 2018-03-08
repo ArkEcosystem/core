@@ -4,7 +4,7 @@
   "fastRebuild": false,
   "logging": {
     "file": "debug",
-    "console": "debug"
+    "console": "info"
   },
   "db": {
     "driver": "app/database/sequelize",
