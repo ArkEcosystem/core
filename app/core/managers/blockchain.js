@@ -104,13 +104,12 @@ module.exports = class BlockchainManager {
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    /* if (this.isSynced()) {
+    if (this.isSynced()) {
       logger.debug('SYNCED')
       this.processQueue.push(block)
     } else {
-     this.rebuildQueue.push(block)
-   } */
-   this.rebuildQueue.push(block)
+      this.rebuildQueue.push(block)
+    }
   }
 
   async removeBlocks (nblocks) {
@@ -169,8 +168,6 @@ module.exports = class BlockchainManager {
           await this.db.saveBlockCommit()
         }
         state.lastBlock = block
-        logger.info('sending addblocks event')
-        this.transactionQueue.send({event: 'addBlock', data: block})
         qcallback()
       } else if (block.data.height > state.lastBlock.data.height + 1) {
         // requeue it (was not received in right order)
@@ -199,7 +196,8 @@ module.exports = class BlockchainManager {
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
         try {
           await this.db.applyBlock(block)
-          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockCommit()
           state.lastBlock = block
           this.transactionQueue.send({event: 'addBlock', data: block})
           qcallback()
