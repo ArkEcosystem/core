@@ -1,5 +1,4 @@
 const Op = require('sequelize').Op
-const moment = require('moment')
 const buildFilterQuery = require('../utils/filter-query')
 const Sequelize = require('sequelize')
 
@@ -68,7 +67,7 @@ module.exports = class BlocksRepository {
   }
 
   totalsByGenerator (generatorPublicKey) {
-    return this.db.db.query(`SELECT SUM(totalFee) AS fees, SUM(reward) as rewards, SUM(reward+totalFee) as forged FROM blocks WHERE \`generatorPublicKey\` = "${generatorPublicKey}"`, {
+    return this.db.db.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {
       type: Sequelize.QueryTypes.SELECT
     })
   }

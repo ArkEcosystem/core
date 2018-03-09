@@ -258,7 +258,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     try {
       const activeDelegates = config.getConstants(block.data.height).activeDelegates
-      let lastBlockGenerators = await this.db.query(`SELECT id, \`generatorPublicKey\` FROM blocks WHERE height/${activeDelegates} = ${delegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+      let lastBlockGenerators = await this.db.query(`SELECT id, "generatorPublicKey" FROM blocks WHERE height/${activeDelegates} = ${delegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
 
       delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
