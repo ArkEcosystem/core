@@ -4,7 +4,7 @@
   "fastRebuild": false,
   "logging": {
     "file": "debug",
-    "console": "debug"
+    "console": "info"
   },
   "db": {
     "driver": "app/database/sequelize",
@@ -13,6 +13,11 @@
       "dialect": "sqlite",
       "logging": false
     }
+  },
+  "txpool": {
+    "host": "localhost",
+    "port": 6379,
+    "key": "ark/pool"
   },
   "queue": {
     "host": "localhost",

@@ -5,6 +5,7 @@ const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
 const sleep = require('app/utils/sleep')
+const TransactionPool = require('app/core/transaction-pool')
 
 let instance = null
 
@@ -35,6 +36,8 @@ module.exports = class BlockchainManager {
     this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
 
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
+
+    this.transactionPool = new TransactionPool(this.config)
 
     if (!instance) instance = this
   }
@@ -100,7 +103,11 @@ module.exports = class BlockchainManager {
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    this.rebuildQueue.push(block)
+    if (this.isSynced()) {
+      this.processQueue.push(block)
+    } else {
+      this.rebuildQueue.push(block)
+    }
   }
 
   async removeBlocks (nblocks) {
@@ -187,7 +194,8 @@ module.exports = class BlockchainManager {
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
         try {
           await this.db.applyBlock(block)
-          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockCommit()
           state.lastBlock = block
           this.transactionQueue.send({event: 'addBlock', data: block})
           qcallback()
@@ -220,7 +228,12 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    return this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
+    let retItems = await this.transactionPool.getItems(blockSize)
+    return {
+      transactions: retItems,
+      poolSize: await this.transactionPool.size(),
+      count: retItems.length
+    }
   }
 
   isSynced (block) {

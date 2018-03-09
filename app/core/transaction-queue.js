@@ -4,7 +4,7 @@ const config = require('app/core/config')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const WalletManager = require('app/core/managers/wallet')
-const MemoryPool = require('app/core/memory-pool')
+const TransactionPool = require('app/core/transaction-pool')
 
 let instance = null
 
@@ -12,7 +12,8 @@ module.exports = async (message, done) => {
   if (message.event === 'init') {
     const conf = await config.init(message.data)
     logger.init(conf.server.logging, conf.network.name + '_transactionQueue')
-    instance = new TransactionQueue()
+    instance = new TransactionQueue(conf)
+    logger.info('Init transaction queue')
     return done()
   }
 
@@ -24,10 +25,10 @@ module.exports = async (message, done) => {
 }
 
 class TransactionQueue {
-  constructor () {
+  constructor (config) {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = new MemoryPool(Transaction)
+    this.pool = new TransactionPool(config, true)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block
@@ -38,6 +39,8 @@ class TransactionQueue {
     // - reinject remaining txs to the pool
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
+        // for expiration testing
+        if (config.server.test) transaction.data.expiration = Math.floor(Math.random() * Math.floor(200));
         this.pool.add(transaction)
       }
       qcallback()
@@ -54,7 +57,7 @@ class TransactionQueue {
       }
       instance.walletManager.reindex(acc)
     })
-    logger.debug(`transactions pool started with ${instance.walletManager.getLocalWallets().length} wallets`)
+    logger.debug(`Transactions queue started with ${instance.walletManager.getLocalWallets().length} wallets`)
   }
 
   async addTransaction (transaction) {
@@ -75,7 +78,8 @@ class TransactionQueue {
 
   async addBlock (block) { // we remove the block txs from the pool
     await this.walletManager.applyBlock(block)
-    this.pool.removeForgedTransactions(block.transactions.map(tx => tx.data.id))
+    await this.pool.removeForgedTransactions(block.transactions)
+    this.pool.cleanPool(block.data.timestamp, config.getConstants(block.data.height).blocktime)
   }
 
   async undoBlock (block) { // we add back the block txs to the pool
@@ -84,10 +88,11 @@ class TransactionQueue {
     this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
-  getTransactions (blockSize) {
-    let retItems = this.pool.getItems(blockSize)
+  async getTransactions (blockSize) {
+    let retItems = await this.pool.getItems(blockSize)
+    console.log(retItems)
     return {
-      transactions: this.pool.getItems(blockSize),
+      transactions: retItems,
       poolSize: this.pool.size,
       count: retItems.length
     }
