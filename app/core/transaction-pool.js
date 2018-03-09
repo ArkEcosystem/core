@@ -1,6 +1,6 @@
 const Redis = require('ioredis')
 const logger = require('app/core/logger')
-const Transaction = require('app/c')
+const Transaction = require('app/models/transaction')
 
 let instance = null
 module.exports = class TransactionPool {
