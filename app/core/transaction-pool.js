@@ -43,6 +43,10 @@ module.exports = class TransactionPool {
     }
   }
 
+  initialiseWallets (wallets) {
+    this.transactionQueue.send({event: 'start', data: wallets})
+  }
+
   addBlock (block) {
     this.transactionQueue.send({event: 'addBlock', data: block})
   }
