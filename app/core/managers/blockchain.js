@@ -4,7 +4,6 @@ const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
 const sleep = require('app/utils/sleep')
-const TransactionPool = require('app/core/transaction-pool')
 
 let instance = null
 
@@ -33,8 +32,6 @@ module.exports = class BlockchainManager {
     this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
 
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
-
-    this.transactionPool = new TransactionPool(this.config)
 
     if (!instance) instance = this
   }
@@ -100,11 +97,7 @@ module.exports = class BlockchainManager {
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    if (this.isSynced()) {
-      this.processQueue.push(block)
-    } else {
-      this.rebuildQueue.push(block)
-    }
+    this.isSynced() ? this.processQueue.push(block) : this.rebuildQueue.push(block)
   }
 
   async removeBlocks (nblocks) {
@@ -130,7 +123,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    this.transactionPool.undoBlock(lastBlock)
+    await this.transactionPool.undoBlock(lastBlock)
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -251,6 +244,11 @@ module.exports = class BlockchainManager {
 
   attachDBInterface (dbinterface) {
     this.db = dbinterface
+    return this
+  }
+
+  attachTransactionPool (txPool) {
+    this.transactionPool = txPool
     return this
   }
 

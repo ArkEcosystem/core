@@ -280,7 +280,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = false
         await blockchainManager.db.saveBlockCommit()
         await blockchainManager.db.buildWallets()
-        blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         await blockchainManager.db.applyRound(state.lastBlock)
         return blockchainManager.dispatch('PROCESSFINISHED')
@@ -324,7 +324,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
         await blockchainManager.db.buildWallets()
-        blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.applyRound(block, false, false)

@@ -9,6 +9,7 @@ const WebhookManager = require('app/core/managers/webhook')
 const QueueManager = require('app/core/managers/queue')
 const DependencyHandler = require('app/core/dependency-handler')
 const PublicAPI = require('app/api/public')
+const TransactionPool = require('app/core/transaction-pool')
 
 commander
   .version(packageJson.version)
@@ -44,6 +45,10 @@ async function init () {
     const p2p = await new P2PInterface(config)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)
+
+    logger.info('Initialising Transaction Pool...')
+    const txPool = await new TransactionPool(config)
+    await blockchainManager.attachTransactionPool(txPool)
 
     logger.info('Initialising Blockchain Manager...')
     await blockchainManager.start()
