@@ -1,4 +1,5 @@
 const Redis = require('ioredis')
+const threads = require('threads')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 
@@ -8,8 +9,10 @@ module.exports = class TransactionPool {
     if (!instance) {
       instance = this
     } else {
-      throw new Error('Cannot initialize two instances of memory pool...');
+      throw new Error('Cannot initialize two instances of memory pool...')
     }
+    this.transactionQueue = threads.spawn('app/core/transaction-queue.js')
+    this.transactionQueue.send({event: 'init', data: config})
     this.redis = config.server.txpool ? new Redis(config.server.txpool.port, config.server.txpool.host) : new Redis()
     this.key = config.server.txpool ? config.server.txpool.key : 'ark/pool'
     if (log) {
@@ -40,26 +43,38 @@ module.exports = class TransactionPool {
     }
   }
 
+  addBlock (block) {
+    this.transactionQueue.send({event: 'addBlock', data: block})
+  }
+
+  undoBlock (block) {
+    this.transactionQueue.send({event: 'undoBlock', data: block})
+  }
+
+  addTransactions (transactions) {
+    this.transactionQueue.send({event: 'addTransactions', data: transactions})
+  }
+
   async add (object) {
     if (object instanceof Transaction) {
       try {
-          logger.debug(`Adding transaction ${object.id} to redis pool`)
-          await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
-          await this.redis.rpush(this.key, object.serialized.toString('hex'))
-          // logger.warn(JSON.stringify(object.data))
-          if (object.data.expiration > 0) {
-            logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
-            await this.redis.hset(`${this.key}/tx/expiration:${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
-          }
+        logger.debug(`Adding transaction ${object.id} to redis pool`)
+        await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
+        await this.redis.rpush(this.key, object.serialized.toString('hex'))
+        // logger.warn(JSON.stringify(object.data))
+        if (object.data.expiration > 0) {
+          logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
+          await this.redis.hset(`${this.key}/tx/expiration:${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
+        }
       } catch (error) {
-          logger.error('Rpush tx to txpool error:', error.stack)
+        logger.error('Rpush tx to txpool error:', error.stack)
       }
     }
   }
 
   getItems (blockSize) {
     try {
-        return this.redis.lrange(this.key, 0, blockSize - 1)
+      return this.redis.lrange(this.key, 0, blockSize - 1)
     } catch (error) {
       logger.error('Get serialized items from redis list: ', error.stack)
     }

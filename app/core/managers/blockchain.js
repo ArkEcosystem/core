@@ -3,7 +3,6 @@ const arkjs = require('arkjs')
 const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
-const threads = require('threads')
 const sleep = require('app/utils/sleep')
 const TransactionPool = require('app/core/transaction-pool')
 
@@ -15,8 +14,6 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.transactionQueue = threads.spawn('app/core/transaction-queue.js')
-    this.transactionQueue.send({event: 'init', data: config})
 
     this.actions = stateMachine.actionMap(this)
 
@@ -98,7 +95,7 @@ module.exports = class BlockchainManager {
 
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
-    return this.transactionQueue.send({event: 'addTransactions', data: transactions})
+    return this.transactionPool.addTransactions(transactions)
   }
 
   postBlock (block) {
@@ -133,7 +130,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    await this.transactionQueue.send({event: 'undoBlock', data: lastBlock})
+    this.transactionPool.undoBlock(lastBlock)
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -197,7 +194,7 @@ module.exports = class BlockchainManager {
           await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           await this.db.saveBlockCommit()
           state.lastBlock = block
-          this.transactionQueue.send({event: 'addBlock', data: block})
+          this.transactionPool.addBlock(block)
           qcallback()
         } catch (error) {
           logger.error(error.stack)
