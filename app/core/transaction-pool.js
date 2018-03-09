@@ -17,7 +17,7 @@ module.exports = class TransactionPool {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        // if (config.server.test) transaction.data.expiration = Math.floor(Math.random() * Math.floor(200));
+        if (config.server.test) transaction.data.expiration = Math.floor(Math.random() * Math.floor(200))
         that.add(transaction)
       }
       qcallback()
