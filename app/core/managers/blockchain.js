@@ -6,7 +6,6 @@ const stateMachine = require('app/core/state-machine')
 const threads = require('threads')
 const sleep = require('app/utils/sleep')
 const TransactionPool = require('app/core/transaction-pool')
-const Transaction = require('app/models/transaction')
 
 let instance = null
 
