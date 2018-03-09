@@ -1,9 +1,10 @@
 const Redis = require('ioredis')
 const logger = require('app/core/logger')
+const Transaction = require('app/c')
 
 let instance = null
 module.exports = class TransactionPool {
-  constructor (Class, config, log = false) {
+  constructor (config, log = false) {
     if (!instance) {
       instance = this
     } else {
@@ -15,15 +16,6 @@ module.exports = class TransactionPool {
       logger.init(config.server.logging, config.network.name + '_memoryTxPool')
     }
 
-    if (Class === undefined) {
-      throw new Error('MemoryPool must be initilized with correct type to store it...');
-    }
-
-    if (typeof Class !== 'function') {
-      throw new Error(`${Class} is not a function`)
-    }
-
-    this.Class = Class
     logger.info('Memory pool initialized')
   }
 
@@ -49,7 +41,7 @@ module.exports = class TransactionPool {
   }
 
   async add (object) {
-    if (object instanceof this.Class) {
+    if (object instanceof Transaction) {
       try {
           logger.debug(`Adding transaction ${object.id} to redis pool`)
           await this.redis.hset(`${this.key}/tx:${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)

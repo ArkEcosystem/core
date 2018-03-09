@@ -28,7 +28,7 @@ class TransactionQueue {
   constructor (config) {
     const that = this
     this.walletManager = new WalletManager()
-    this.pool = new TransactionPool(Transaction, config, true)
+    this.pool = new TransactionPool(config, true)
     // this.transactionsByWallet = {} // "<Address>": [tx1, tx2, ..., txn]
     // idea is to cherrypick the related transaction in the pool to be undoed should a new block being added:
     // - grab all the transactions from the block

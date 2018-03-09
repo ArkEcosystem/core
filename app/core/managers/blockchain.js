@@ -38,7 +38,7 @@ module.exports = class BlockchainManager {
 
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
 
-    this.transactionPool = new TransactionPool(Transaction, this.config)
+    this.transactionPool = new TransactionPool(this.config)
 
     if (!instance) instance = this
   }
