@@ -110,8 +110,7 @@ module.exports = class TransactionPool {
     }
   }
 
-  async addBlock (block) { // we remove the block txs from the pool
-    await this.db.walletManager.applyBlock(block)
+  async removeForgedBlock (block) { // we remove the block txs from the pool
     await this.removeForgedTransactions(block.transactions)
     await this.cleanPool(block.data.timestamp, this.config.getConstants(block.data.height).blocktime)
   }
