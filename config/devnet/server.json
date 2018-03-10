@@ -9,10 +9,10 @@
   "db": {
     "driver": "app/database/sequelize",
     "options": {
-      "ur11": "sqlite:storage/database/testnet.sqlite",
-      "uri": "postgres://node:password@localhost:5432/ark_testnet",
-      "dialect1": "sqlite",
-      "dialect": "postgres",
+      "uri": "sqlite:storage/database/testnet.sqlite",
+      "uri_1": "postgres://node:password@localhost:5432/ark_testnet",
+      "dialect": "sqlite",
+      "dialect_1": "postgres",
       "logging": false
     }
   },
