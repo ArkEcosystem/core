@@ -42,23 +42,23 @@ module.exports = class ForgerManager {
     const monitor = async () => {
       try {
         round = await this.getRound()
-        forgingData = await this.getTransactions()
-
-        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-        logger.debug(`Received ${transactions.length} transaction from transaction pool with size ${forgingData.poolSize}`)
-
         if (!round.canForge) {
           logger.debug('Block already forged in current slot')
           await sleep(100) // basically looping until we lock at beginning of next slot
           return monitor()
         }
-        
+
         const delegate = await this.pickForgingDelegate(round)
         if (!delegate) {
           logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
           await sleep(7900) // we will check at next slot
           return monitor()
         }
+
+        forgingData = await this.getTransactions()
+        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
+        logger.debug(`Received ${transactions.length} transactions from the pool containing ${forgingData.poolSize}`)
+
         data.previousBlock = round.lastBlock
         data.timestamp = round.timestamp
         data.reward = round.reward
@@ -82,7 +82,7 @@ module.exports = class ForgerManager {
 
   async broadcast (block) {
     logger.info(`Broadcasting forged block at height ${block.data.height} with ${block.data.numberOfTransactions}`)
-    logger.debug(block.data)
+    logger.debug(JSON.stringify(block.data))
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
