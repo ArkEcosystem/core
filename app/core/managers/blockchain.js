@@ -3,7 +3,6 @@ const arkjs = require('arkjs')
 const Block = require('app/models/block')
 const logger = require('app/core/logger')
 const stateMachine = require('app/core/state-machine')
-const threads = require('threads')
 const sleep = require('app/utils/sleep')
 
 let instance = null
@@ -14,8 +13,6 @@ module.exports = class BlockchainManager {
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
-    this.transactionQueue = threads.spawn('app/core/transaction-queue.js')
-    this.transactionQueue.send({event: 'init', data: config})
 
     this.actions = stateMachine.actionMap(this)
 
@@ -95,12 +92,12 @@ module.exports = class BlockchainManager {
 
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
-    return this.transactionQueue.send({event: 'addTransactions', data: transactions})
+    return this.transactionPool.addTransactions(transactions)
   }
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    this.rebuildQueue.push(block)
+    this.isSynced() ? this.processQueue.push(block) : this.rebuildQueue.push(block)
   }
 
   async removeBlocks (nblocks) {
@@ -126,7 +123,7 @@ module.exports = class BlockchainManager {
 
     await this.db.undoBlock(lastBlock)
     await this.db.deleteBlock(lastBlock)
-    await this.transactionQueue.send({event: 'undoBlock', data: lastBlock})
+    await this.transactionPool.undoBlock(lastBlock)
 
     const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
     stateMachine.state.lastBlock = newLastBlock
@@ -187,9 +184,10 @@ module.exports = class BlockchainManager {
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
         try {
           await this.db.applyBlock(block)
-          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
+          await this.db.saveBlockCommit()
           state.lastBlock = block
-          this.transactionQueue.send({event: 'addBlock', data: block})
+          this.transactionPool.removeForgedBlock(block)
           qcallback()
         } catch (error) {
           logger.error(error.stack)
@@ -220,7 +218,12 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    return this.transactionQueue.send({event: 'getTransactions', data: blockSize}).promise()
+    let retItems = await this.transactionPool.getItems(blockSize)
+    return {
+      transactions: retItems,
+      poolSize: await this.transactionPool.size(),
+      count: retItems ? retItems.length : -1
+    }
   }
 
   isSynced (block) {
@@ -241,6 +244,11 @@ module.exports = class BlockchainManager {
 
   attachDBInterface (dbinterface) {
     this.db = dbinterface
+    return this
+  }
+
+  attachTransactionPool (txPool) {
+    this.transactionPool = txPool
     return this
   }
 

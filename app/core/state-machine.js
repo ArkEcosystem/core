@@ -83,7 +83,7 @@ const syncWithNetwork = {
       onEntry: ['downloadFinished'],
       on: {
         PROCESSFINISHED: 'processfinished',
-        FORKED: 'forked'
+        FORK: 'forked'
       }
     },
     downloadpaused: {
@@ -104,7 +104,6 @@ const syncWithNetwork = {
       onEntry: ['syncingFinished']
     },
     forked: {
-      onEntry: ['recoverFromFork']
     }
   }
 }
@@ -136,20 +135,20 @@ const rebuildFromNetwork = {
     waitingfinished: {
       on: {
         REBUILDFINISHED: 'rebuildfinished',
-        FORKED: 'forked'
+        FORK: 'forked'
       }
     },
     rebuildfinished: {
       onEntry: ['rebuildFinished'],
       on: {
-        FORKED: 'forked'
+        FORK: 'forked'
       }
     },
     rebuildpaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processfinished',
-        FORKED: 'forked'
+        REBUILDFINISHED: 'processfinished',
+        FORK: 'forked'
       }
     },
     processfinished: {
@@ -270,7 +269,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
-      if (blockchainManager.processQueue.length() > 100000) event = 'PAUSED'
+      if (blockchainManager.rebuildQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
@@ -281,9 +280,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = false
         await blockchainManager.db.saveBlockCommit()
         await blockchainManager.db.buildWallets()
-        blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
-        logger.info('boom')
         await blockchainManager.db.applyRound(state.lastBlock)
         return blockchainManager.dispatch('PROCESSFINISHED')
       } catch (error) {
@@ -326,7 +324,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
         await blockchainManager.db.buildWallets()
-        await blockchainManager.transactionQueue.send({event: 'start', data: blockchainManager.db.walletManager.getLocalWallets()})
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.applyRound(block, false, false)

@@ -4,15 +4,23 @@
   "fastRebuild": true,
   "logging": {
     "file": "debug",
-    "console": "debug"
+    "console": "info"
   },
   "db": {
     "driver": "app/database/sequelize",
     "options": {
-      "uri": "sqlite:storage/database/devnet.sqlite",
+      "uri": "sqlite:storage/database/testnet.sqlite",
+      "uri_1": "postgres://node:password@localhost:5432/ark_testnet",
       "dialect": "sqlite",
+      "dialect_1": "postgres",
       "logging": false
     }
+  },
+  "txpool": {
+    "enabled": false,
+    "host": "localhost",
+    "port": 6379,
+    "key": "ark/pool"
   },
   "queue": {
     "host": "localhost",

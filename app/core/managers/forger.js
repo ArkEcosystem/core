@@ -2,6 +2,7 @@ const popsicle = require('popsicle')
 const Delegate = require('app/models/delegate')
 const logger = require('app/core/logger')
 const sleep = require('app/utils/sleep')
+const Transaction = require('app/models/transaction')
 
 module.exports = class ForgerManager {
   constructor (config, password) {
@@ -42,7 +43,9 @@ module.exports = class ForgerManager {
       try {
         round = await this.getRound()
         forgingData = await this.getTransactions()
-        logger.debug(`Received ${forgingData.count} transaction from transaction pool with size ${forgingData.poolSize}`)
+
+        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
+        logger.debug(`Received ${transactions.length} transaction from transaction pool with size ${forgingData.poolSize}`)
 
         if (!round.canForge) {
           throw new Error('Block already forged in current slot')
@@ -53,7 +56,7 @@ module.exports = class ForgerManager {
         data.reward = round.reward
 
         const delegate = await this.pickForgingDelegate(round)
-        const block = await delegate.forge(forgingData.transactions, data)
+        const block = await delegate.forge(transactions, data)
 
         this.broadcast(block)
       } catch (error) {
