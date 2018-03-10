@@ -48,25 +48,33 @@ module.exports = class ForgerManager {
         logger.debug(`Received ${transactions.length} transaction from transaction pool with size ${forgingData.poolSize}`)
 
         if (!round.canForge) {
-          throw new Error('Block already forged in current slot')
+          logger.debug('Block already forged in current slot')
+          await sleep(100) // basically looping until we lock at beginning of next slot
+          return monitor()
         }
-
+        
+        const delegate = await this.pickForgingDelegate(round)
+        if (!delegate) {
+          logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
+          await sleep(7900) // we will check at next slot
+          return monitor()
+        }
         data.previousBlock = round.lastBlock
         data.timestamp = round.timestamp
         data.reward = round.reward
 
-        const delegate = await this.pickForgingDelegate(round)
         const block = await delegate.forge(transactions, data)
 
         this.broadcast(block)
+        await sleep(7900) // we will check at next slot
+        return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
+        return monitor()
       }
-
-      await sleep(2000)
-      return monitor()
     }
 
     return monitor()
