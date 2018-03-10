@@ -222,7 +222,7 @@ module.exports = class BlockchainManager {
     return {
       transactions: retItems,
       poolSize: await this.transactionPool.size(),
-      count: retItems.length
+      count: retItems ? retItems.length : -1
     }
   }
 
