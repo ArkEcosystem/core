@@ -184,8 +184,7 @@ module.exports = class BlockchainManager {
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
         try {
           await this.db.applyBlock(block)
-          await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-          await this.db.saveBlockCommit()
+          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           this.transactionPool.removeForgedBlock(block)
           qcallback()
