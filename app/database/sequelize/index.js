@@ -143,14 +143,14 @@ module.exports = class SequelizeDB extends DBInterface {
 
       // Block Rewards
       logger.printTracker('SPV Building', 2, 7, 'block rewards')
-      data = await this.db.query('select `generatorPublicKey`, sum(`reward`+`totalFee`) as reward, count(*) as produced from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.db.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.balance += parseInt(row.reward)
       })
 
       // Last block forged for each delegate
-      data = await this.db.query('select *, max(`timestamp`) from blocks group by `generatorPublicKey`', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.db.query('select *, max("timestamp") from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
