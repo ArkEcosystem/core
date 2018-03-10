@@ -288,16 +288,16 @@ module.exports = class SequelizeDB extends DBInterface {
 
   // to be used when node is in sync and committing newly received blocks
   async saveBlock (block) {
-    let transaction
+    let dbTransaction
 
     try {
-      transaction = await this.db.transaction()
-      await this.blocksTable.create(block.data, {transaction})
-      await this.transactionsTable.bulkCreate(block.transactions || [], {transaction})
-      await transaction.commit()
+      dbTransaction = await this.db.transaction()
+      await this.blocksTable.create(block.data, {transaction: dbTransaction})
+      await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: dbTransaction})
+      await dbTransaction.commit()
     } catch (error) {
       logger.error(error.stack)
-      await transaction.rollback()
+      await dbTransaction.rollback()
     }
   }
 
