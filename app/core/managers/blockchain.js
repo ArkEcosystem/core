@@ -8,12 +8,18 @@ const sleep = require('app/utils/sleep')
 let instance = null
 
 module.exports = class BlockchainManager {
-  constructor (config) {
+  constructor (config, networkStart) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
     const that = this
     this.config = config
 
+    // flag to force a network start
+    stateMachine.state.networkStart = !!networkStart
+    if (stateMachine.state.networkStart) {
+      logger.warn('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
+    }
     this.actions = stateMachine.actionMap(this)
 
     this.processQueue = async.queue(

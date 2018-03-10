@@ -16,6 +16,7 @@ commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
   .option('-i, --interactive', 'launch cli')
+  .option('--network-start', 'force genesis network start')
   .parse(process.argv)
 
 process.on('unhandledRejection', (reason, p) => {
@@ -27,7 +28,7 @@ async function init () {
     await config.init(commander.config)
 
     await logger.init(config.server.logging, config.network.name)
-    const blockchainManager = await new BlockchainManager(config)
+    const blockchainManager = await new BlockchainManager(config, commander.networkStart)
 
     logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
