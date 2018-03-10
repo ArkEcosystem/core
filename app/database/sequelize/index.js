@@ -286,6 +286,7 @@ module.exports = class SequelizeDB extends DBInterface {
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
+  // to be used when node is in sync and committing newly received blocks
   async saveBlock (block) {
     let transaction
 
@@ -300,12 +301,14 @@ module.exports = class SequelizeDB extends DBInterface {
     }
   }
 
+  // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
   async saveBlockAsync (block) {
     if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
     await this.blocksTable.create(block.data, {transaction: this.asyncTransaction})
     await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
 
+  // to be used in combination with saveBlockAsync
   async saveBlockCommit () {
     if (!this.asyncTransaction) return
     logger.debug('Committing DB transaction')
