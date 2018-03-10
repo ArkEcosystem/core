@@ -157,7 +157,7 @@ module.exports = class Down {
   }
 
   broadcastBlock (block) {
-    return Promise.all(Object.values(this.peers).map((peer) => peer.broadcastBlock(block.toBroadcastV1())))
+    return Promise.all(Object.values(this.peers).map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
 
   broadcastTransactions (transactions) {

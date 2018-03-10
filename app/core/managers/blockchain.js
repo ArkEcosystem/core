@@ -187,6 +187,7 @@ module.exports = class BlockchainManager {
           await this.db.applyBlock(block)
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
+          this.networkInterface.broadcastBlock(block)
           this.transactionPool.removeForgedBlock(block)
           qcallback()
         } catch (error) {
