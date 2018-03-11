@@ -58,13 +58,8 @@ module.exports = class BlockchainManager {
   }
 
   async isReady () {
-    if (stateMachine.state.started) {
-      return true
-    }
-
-    await sleep(10000)
-
-    return this.isReady()
+    while (!stateMachine.state.started) await sleep(1000)
+    return true
   }
 
   static getInstance () {
