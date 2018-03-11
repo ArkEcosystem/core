@@ -25,10 +25,11 @@ module.exports = {
       payloadHash: Sequelize.STRING(64),
       generatorPublicKey: {
         type: Sequelize.STRING(66),
-        references: {
-          model: 'wallets',
-          key: 'publicKey'
-        }
+        // very bad practice to disable references, easy to corrupt database...
+        // references: {
+        //   model: 'wallets',
+        //   key: 'publicKey'
+        // }
       },
       blockSignature: Sequelize.STRING(256),
       createdAt: {

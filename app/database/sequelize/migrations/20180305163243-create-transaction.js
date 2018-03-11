@@ -18,17 +18,19 @@ module.exports = {
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
         type: Sequelize.STRING(66),
-        references: {
-          model: 'wallets',
-          key: 'publicKey'
-        }
+        // very bad practice to disable references, easy to corrupt database...
+        // references: {
+        //   model: 'wallets',
+        //   key: 'publicKey'
+        // }
       },
       recipientId: {
         type: Sequelize.STRING(36),
-        references: {
-          model: 'wallets',
-          key: 'address'
-        }
+        // very bad practice to disable references, easy to corrupt database...
+        // references: {
+        //   model: 'wallets',
+        //   key: 'address'
+        // }
       },
       type: Sequelize.SMALLINT,
       vendorFieldHex: Sequelize.BLOB,
