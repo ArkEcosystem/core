@@ -42,31 +42,39 @@ module.exports = class ForgerManager {
     const monitor = async () => {
       try {
         round = await this.getRound()
-        forgingData = await this.getTransactions()
-
-        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-        logger.debug(`Received ${transactions.length} transaction from transaction pool with size ${forgingData.poolSize}`)
-
         if (!round.canForge) {
-          throw new Error('Block already forged in current slot')
+          logger.debug('Block already forged in current slot')
+          await sleep(100) // basically looping until we lock at beginning of next slot
+          return monitor()
         }
+
+        const delegate = await this.pickForgingDelegate(round)
+        if (!delegate) {
+          logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
+          await sleep(7900) // we will check at next slot
+          return monitor()
+        }
+
+        forgingData = await this.getTransactions()
+        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
+        logger.debug(`Received ${transactions.length} transactions from the pool containing ${forgingData.poolSize}`)
 
         data.previousBlock = round.lastBlock
         data.timestamp = round.timestamp
         data.reward = round.reward
 
-        const delegate = await this.pickForgingDelegate(round)
         const block = await delegate.forge(transactions, data)
 
         this.broadcast(block)
+        await sleep(7900) // we will check at next slot
+        return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+        await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
+        return monitor()
       }
-
-      await sleep(2000)
-      return monitor()
     }
 
     return monitor()
@@ -74,7 +82,7 @@ module.exports = class ForgerManager {
 
   async broadcast (block) {
     logger.info(`Broadcasting forged block at height ${block.data.height} with ${block.data.numberOfTransactions}`)
-    logger.debug(block.data)
+    logger.debug(JSON.stringify(block.data))
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

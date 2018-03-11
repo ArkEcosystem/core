@@ -24,12 +24,18 @@ module.exports = class WalletManager {
 
   async applyBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
-    if (!delegate && block.data.height === 1) {
+    if (!delegate) {
       const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
-      delegate = new Wallet(generator)
-      delegate.publicKey = block.data.generatorPublicKey
-      this.walletsByAddress[generator] = delegate
-      this.walletsByPublicKey[block.generatorPublicKey] = delegate
+      if (block.data.height === 1) {
+        delegate = new Wallet(generator)
+        delegate.publicKey = block.data.generatorPublicKey
+        this.walletsByAddress[generator] = delegate
+        this.walletsByPublicKey[block.generatorPublicKey] = delegate
+      } else {
+        logger.debug('delegate by address', this.walletsByAddress[generator])
+        if (this.walletsByAddress[generator]) logger.info('Oops ! this look like a bug, please report 🐛')
+        throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
+      }
     }
     const appliedTransactions = []
 

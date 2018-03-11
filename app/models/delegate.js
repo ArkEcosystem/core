@@ -88,7 +88,7 @@ module.exports = class Delegate {
 
   // we consider transactions are signed, verified and unique
   forge (transactions, options) {
-    logger.info(`Forging ${transactions.length} number of transactions`)
+    logger.info(`Forging new block with ${transactions.length} transactions`)
     if (!options.version && (this.encryptedKeys || !this.bip38)) {
       const txstats = {
         amount: 0,
