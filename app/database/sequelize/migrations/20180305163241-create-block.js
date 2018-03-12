@@ -24,7 +24,7 @@ module.exports = {
       payloadLength: Sequelize.INTEGER,
       payloadHash: Sequelize.STRING(64),
       generatorPublicKey: {
-        type: Sequelize.STRING(66),
+        type: Sequelize.STRING(66)
         // very bad practice to disable references, easy to corrupt database...
         // references: {
         //   model: 'wallets',

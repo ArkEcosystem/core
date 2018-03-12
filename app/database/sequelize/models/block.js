@@ -23,11 +23,12 @@ module.exports = (sequelize, DataTypes) => {
     payloadLength: DataTypes.INTEGER,
     payloadHash: DataTypes.STRING(64),
     generatorPublicKey: {
-      type: DataTypes.STRING(66),
-      references: {
-        model: 'wallets',
-        key: 'publicKey'
-      }
+      type: DataTypes.STRING(66)
+      // very bad practice to disable references, easy to corrupt database...
+      // references: {
+      //   model: 'wallets',
+      //   key: 'publicKey'
+      // }
     },
     blockSignature: DataTypes.STRING(256)
   }, {})

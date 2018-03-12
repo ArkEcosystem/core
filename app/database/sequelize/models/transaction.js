@@ -8,26 +8,29 @@ module.exports = (sequelize, DataTypes) => {
     },
     version: DataTypes.SMALLINT,
     blockId: {
-      type: DataTypes.STRING(64),
-      references: {
-        model: 'blocks',
-        key: 'id'
-      }
+      type: DataTypes.STRING(64)
+      // very bad practice to disable references, easy to corrupt database...
+      // references: {
+      //   model: 'blocks',
+      //   key: 'id'
+      // }
     },
     timestamp: DataTypes.INTEGER,
     senderPublicKey: {
-      type: DataTypes.STRING(66),
-      references: {
-        model: 'wallets',
-        key: 'publicKey'
-      }
+      type: DataTypes.STRING(66)
+      // very bad practice to disable references, easy to corrupt database...
+      // references: {
+      //   model: 'wallets',
+      //   key: 'publicKey'
+      // }
     },
     recipientId: {
-      type: DataTypes.STRING(36),
-      references: {
-        model: 'wallets',
-        key: 'address'
-      }
+      type: DataTypes.STRING(36)
+      // very bad practice to disable references, easy to corrupt database...
+      // references: {
+      //   model: 'wallets',
+      //   key: 'address'
+      // }
     },
     type: DataTypes.SMALLINT,
     vendorFieldHex: DataTypes.BLOB,

@@ -9,15 +9,15 @@ module.exports = {
       },
       version: Sequelize.SMALLINT,
       blockId: {
-        type: Sequelize.STRING(64),
-        references: {
-          model: 'blocks',
-          key: 'id'
-        }
+        type: Sequelize.STRING(64)
+        // references: {
+        //   model: 'blocks',
+        //   key: 'id'
+        // }
       },
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
-        type: Sequelize.STRING(66),
+        type: Sequelize.STRING(66)
         // very bad practice to disable references, easy to corrupt database...
         // references: {
         //   model: 'wallets',
@@ -25,7 +25,7 @@ module.exports = {
         // }
       },
       recipientId: {
-        type: Sequelize.STRING(36),
+        type: Sequelize.STRING(36)
         // very bad practice to disable references, easy to corrupt database...
         // references: {
         //   model: 'wallets',
