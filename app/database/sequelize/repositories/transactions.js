@@ -1,6 +1,7 @@
 const Op = require('sequelize').Op
 const Transaction = require('app/models/transaction')
 const buildFilterQuery = require('../utils/filter-query')
+const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class TransactionsRepository {
   constructor (db) {
@@ -63,7 +64,7 @@ module.exports = class TransactionsRepository {
   }
 
   allVotesBySender (senderPublicKey, paginator) {
-    return this.findAll({...{senderPublicKey, type: 3}, ...paginator})
+    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...paginator})
   }
 
   findAllByBlock (blockId, paginator) {

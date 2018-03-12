@@ -8,6 +8,7 @@ const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
 const fg = require('fast-glob')
 const path = require('path')
+const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
@@ -167,7 +168,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'recipientId',
           [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
         ],
-        where: {type: 0},
+        where: {type: TRANSACTION_TYPES.TRANSFER},
         group: 'recipientId'
       })
 
@@ -219,7 +220,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        where: {type: 1}}
+        where: {type: TRANSACTION_TYPES.SECOND_SIGNATURE}}
       )
       logger.printTracker('SPV Building', 4, 7, 'second signatures')
       data.forEach(row => {
@@ -233,7 +234,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'senderPublicKey',
           'serialized'
         ],
-        where: {type: 2}}
+        where: {type: TRANSACTION_TYPES.DELEGATE}}
       )
       logger.printTracker('SPV Building', 5, 7, 'delegates')
       data.forEach(row => {
@@ -249,7 +250,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'serialized'
         ],
         order: [[ 'createdAt', 'DESC' ]],
-        where: {type: 3}}
+        where: {type: TRANSACTION_TYPES.VOTE}}
       )
       logger.printTracker('SPV Building', 6, 7, 'votes')
 
@@ -269,7 +270,7 @@ module.exports = class SequelizeDB extends DBInterface {
           'serialized'
         ],
         order: [[ 'createdAt', 'DESC' ]],
-        where: {type: 4}}
+        where: {type: TRANSACTION_TYPES.MULTI_SIGNATURE}}
       )
       logger.printTracker('SPV Building', 7, 7, 'multisignatures')
       data.forEach(row => {
