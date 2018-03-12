@@ -5,16 +5,26 @@ const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const config = require('../core/config')
 
+const applyV1Fix = (data) => {
+  // START Fix for v1 api
+  data.totalAmount = parseInt(data.totalAmount)
+  data.totalFee = parseInt(data.totalFee)
+  data.reward = parseInt(data.reward)
+  // END Fix for v1 api
+
+  // order of transactions messed up in mainnet V1
+  if (data.transactions.length === 2 && (data.height === 3084276 || data.height === 34420)) {
+    const temp = data.transactions[0]
+    data.transactions[0] = data.transactions[1]
+    data.transactions[1] = temp
+  }
+}
+
 module.exports = class Block {
   constructor (data) {
+    applyV1Fix(data)
+
     this.data = data
-
-    // START Fix for v1 api
-    this.data.totalAmount = parseInt(this.data.totalAmount)
-    this.data.totalFee = parseInt(this.data.totalFee)
-    this.data.reward = parseInt(this.data.reward)
-    // END Fix for v1 api
-
     this.genesis = data.height === 1
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
@@ -23,12 +33,6 @@ module.exports = class Block {
       return txx
     })
     this.verification = this.verify()
-    // order of transactions messed up in mainnet V1
-    if (this.transactions.length === 2 && (this.data.height === 3084276 || this.data.height === 34420)) {
-      const temp = this.transactions[0]
-      this.transactions[0] = this.transactions[1]
-      this.transactions[1] = temp
-    }
   }
 
   static create (data, keys) {
