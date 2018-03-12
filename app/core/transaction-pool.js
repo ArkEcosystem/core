@@ -113,6 +113,11 @@ module.exports = class TransactionPool {
     }
   }
 
+  async getUnconfirmedTransaction (trID) {
+    const serialized = await this.redis.hget(`${this.key}/tx/${trID}`, 'serialized')
+    return Transaction.fromBytes(serialized)
+  }
+
   async addTransaction (transaction) {
     if (this.isConnected) {
       this.queue.push(new Transaction(transaction))
