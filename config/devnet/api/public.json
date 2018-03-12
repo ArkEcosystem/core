@@ -11,10 +11,8 @@
   "cache": {
     "enabled": false,
     "options": {
-      "name": "public-api-cache",
       "engine": "catbox-redis",
-      "host": "127.0.0.1",
-      "partition": "cache"
+      "host": "127.0.0.1"
     }
   },
   "rateLimit": {
