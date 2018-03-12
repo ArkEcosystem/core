@@ -2,25 +2,34 @@
   "enabled": false,
   "secret": "my-secret-auth-token",
   "events": [{
-    "name": "block.created",
-    "description": "Fired when a new block is created. (any Block, e.g. during rebuilds)"
+    "name": "forging.started",
+    "description": "Emitted when the current delegate starts forging."
   }, {
-    "name": "block.forged",
-    "description": "Fired when a new block is forged."
+    "name": "forging.stopped",
+    "description": "Emitted when the current delegate stops forging."
   }, {
-    "name": "block.missing",
-    "description": "Fired when blocks are missing."
+    "name": "forging.missing",
+    "description": "Emitted when the current delegate is missing blocks."
   }, {
-    "name": "block.stopped",
-    "description": "Fired when blocks are not produced."
+    "name": "forging.success",
+    "description": "Emitted when the current delegate forged a block."
+  }, {
+    "name": "block.removed",
+    "description": "Emitted when a blocks is removed."
   }, {
     "name": "transaction.created",
-    "description": "Fired when a new transaction is created."
+    "description": "Emitted when a transaction is created."
+  }, {
+    "name": "transaction.removed",
+    "description": "Emitted when a transaction is removed."
+  }, {
+    "name": "transaction.expired",
+    "description": "Emitted when a transaction expired."
   }, {
     "name": "vote.created",
-    "description": "Fired when a vote is created."
+    "description": "Emitted when a vote is created."
   }, {
     "name": "vote.removed",
-    "description": "Fired when a vote is removed."
+    "description": "Emitted when a vote is removed."
   }]
 }

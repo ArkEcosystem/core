@@ -304,7 +304,13 @@ module.exports = class SequelizeDB extends DBInterface {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
+        if (idx === -1) {
+          wallet.missedBlocks++
+          webhookManager.emit('forging.missing', block)
+        } else {
+          wallet.producedBlocks++
+          webhookManager.emit('forging.success', block)
+        }
       })
     } catch (error) {
       logger.error(error.stack)

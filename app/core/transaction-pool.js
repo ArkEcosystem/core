@@ -4,6 +4,7 @@ const Transaction = require('app/models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('app/core/managers/blockchain')
+const webhookManager = require('app/core/managers/webhook').getInstance()
 
 let instance = null
 
@@ -116,6 +117,7 @@ module.exports = class TransactionPool {
           await this.redis.lrem(this.key, 1, txDetails[1])
           await this.redis.del(`${this.key}/tx/${txDetails[0]}`)
           await this.redis.del(`${this.key}/tx/expiration/${txDetails[0]}`)
+          // webhookManager.emit('transaction.removed', txDetails)
         }
       }
     }
@@ -147,6 +149,8 @@ module.exports = class TransactionPool {
     if (this.isConnected) {
       await this.removeForgedTransactions(block.transactions)
       await this.cleanPool(block.data.timestamp, this.config.getConstants(block.data.height).blocktime)
+
+      block.transactions.foreach(tx => webhookManager.emit('transaction.removed', tx))
     }
   }
 
