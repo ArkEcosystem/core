@@ -19,6 +19,15 @@ module.exports = async (config) => {
     const cacheOptions = config.api.public.cache.options
     cacheOptions.engine = require(cacheOptions.engine)
     baseConfig.cache = [cacheOptions]
+
+    // Enable cache with expiration on all routes
+    baseConfig.options = {
+      routes: {
+        cache: {
+          expiresIn: cacheOptions.expiresIn
+        }
+      }
+    }
   }
 
   const server = new Hapi.Server(baseConfig)

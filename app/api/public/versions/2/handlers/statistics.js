@@ -5,11 +5,6 @@ const db = require('app/core/dbinterface').getInstance()
 const _ = require('lodash')
 
 exports.blockchain = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 10
-    }
-  },
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
 
@@ -48,11 +43,6 @@ exports.blockchain = {
 }
 
 exports.transactions = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 10
-    }
-  },
   handler: async (request, h) => {
     const transactions = await db.transactions.findAllByDateAndType(0, request.query.from, request.query.to)
 
@@ -67,11 +57,6 @@ exports.transactions = {
 }
 
 exports.blocks = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 10
-    }
-  },
   handler: async (request, h) => {
     const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
@@ -86,11 +71,6 @@ exports.blocks = {
 }
 
 exports.votes = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 10
-    }
-  },
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
@@ -106,11 +86,6 @@ exports.votes = {
 }
 
 exports.unvotes = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 10
-    }
-  },
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))

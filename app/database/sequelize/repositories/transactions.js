@@ -84,7 +84,7 @@ module.exports = class TransactionsRepository {
     })
   }
 
-  findByIdAndType (id, type) {
+  findByTypeAndId (type, id) {
     return this.db.models.transaction.findOne({
       where: {id, type},
       include: {
