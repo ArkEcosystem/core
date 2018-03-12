@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     version: DataTypes.SMALLINT,
     blockId: {
-      type: DataTypes.STRING(64)
+      type: DataTypes.STRING(64),
       // very bad practice to disable references, easy to corrupt database...
-      // references: {
-      //   model: 'blocks',
-      //   key: 'id'
-      // }
+      references: {
+        model: 'blocks',
+        key: 'id'
+      }
     },
     timestamp: DataTypes.INTEGER,
     senderPublicKey: {
@@ -40,11 +40,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {})
 
   Transaction.associate = (models) => {
-    Transaction.belongsTo(models.block, {
-      foreignKey: 'id',
-      sourceKey: 'blockId',
-      as: 'block'
-    })
+    Transaction.belongsTo(models.block)
 
     // Transaction.belongsTo(models.wallet, {
     //   foreignKey: 'publicKey',

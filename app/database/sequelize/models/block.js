@@ -34,11 +34,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {})
 
   Block.associate = (models) => {
-    Block.hasMany(models.transaction, {
-      foreignKey: 'blockId',
-      sourceKey: 'id',
-      as: 'transactions'
-    })
+    Block.hasMany(models.transaction)
 
     // Block.belongsTo(models.wallet, {
     //   foreignKey: 'publicKey',

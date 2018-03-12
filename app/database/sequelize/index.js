@@ -5,7 +5,7 @@ const Transaction = require('app/models/transaction')
 const config = require('app/core/config')
 const logger = require('app/core/logger')
 const DBInterface = require('app/core/dbinterface')
-const webhookManager = require('app/core/managers/webhook').getInstance()
+const webhookManager = require('app/core/managers/webhook')
 const fg = require('fast-glob')
 const path = require('path')
 const { TRANSACTION_TYPES } = require('app/core/constants')
@@ -297,10 +297,10 @@ module.exports = class SequelizeDB extends DBInterface {
 
         if (idx === -1) {
           wallet.missedBlocks++
-          webhookManager.emit('forging.missing', block)
+          webhookManager.getInstance().emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
-          webhookManager.emit('block.forged', block)
+          webhookManager.getInstance().emit('block.forged', block)
         }
       })
     } catch (error) {
@@ -379,7 +379,6 @@ module.exports = class SequelizeDB extends DBInterface {
     const block = await this.models.block.findOne({
       include: [{
         model: this.models.transaction,
-        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {
@@ -425,7 +424,6 @@ module.exports = class SequelizeDB extends DBInterface {
     const blocks = await this.models.block.findAll({
       include: [{
         model: this.models.transaction,
-        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {

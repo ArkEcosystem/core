@@ -5,7 +5,7 @@ const logger = require('app/core/logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const webhookManager = require('app/core/managers/webhook').getInstance()
+const webhookManager = require('app/core/managers/webhook')
 
 let instance
 
@@ -124,7 +124,7 @@ class DBInterface {
   async undoBlock (block) {
     await this.walletManager.undoBlock(block)
 
-    webhookManager.emit('block.removed', block)
+    webhookManager.getInstance().emit('block.removed', block)
 
     return this.undoRound(block)
   }
