@@ -39,6 +39,12 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: 'id',
       as: 'transactions'
     })
+
+    // Block.belongsTo(models.wallet, {
+    //   foreignKey: 'publicKey',
+    //   sourceKey: 'generatorPublicKey',
+    //   as: 'transactions'
+    // })
   }
 
   return Block

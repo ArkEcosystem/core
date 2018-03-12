@@ -46,17 +46,17 @@ module.exports = (sequelize, DataTypes) => {
       as: 'block'
     })
 
-    Transaction.belongsTo(models.wallet, {
-      foreignKey: 'publicKey',
-      sourceKey: 'senderPublicKey',
-      as: 'sender'
-    })
+    // Transaction.belongsTo(models.wallet, {
+    //   foreignKey: 'publicKey',
+    //   sourceKey: 'senderPublicKey',
+    //   as: 'sender'
+    // })
 
-    Transaction.belongsTo(models.wallet, {
-      foreignKey: 'generatorPublicKey',
-      sourceKey: 'recipientId',
-      as: 'recipient'
-    })
+    // Transaction.belongsTo(models.wallet, {
+    //   foreignKey: 'generatorPublicKey',
+    //   sourceKey: 'recipientId',
+    //   as: 'recipient'
+    // })
   }
 
   return Transaction
