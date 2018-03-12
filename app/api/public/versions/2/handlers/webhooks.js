@@ -24,10 +24,10 @@ exports.store = {
   },
   handler: async (request, h) => {
     const secret = require('crypto').randomBytes(32).toString('hex')
-    request.payload.secret = await argon2.hash(secret, { type: argon2.argon2id })
+    request.payload.secret = secret.substring(0, 32) // We only store the first 32 chars
 
     const webhook = await db.webhooks.create(request.payload)
-    webhook.secret = secret
+    webhook.secret = secret // We show the full secret once on creation
 
     return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
   }

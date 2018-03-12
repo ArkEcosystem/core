@@ -1,11 +1,13 @@
 const Sequelize = require('sequelize')
+const Umzug = require('umzug')
 const Block = require('app/models/block')
 const Transaction = require('app/models/transaction')
 const config = require('app/core/config')
 const logger = require('app/core/logger')
-const schema = require('app/database/sequelize/schema')
 const DBInterface = require('app/core/dbinterface')
 const webhookManager = require('app/core/managers/webhook').getInstance()
+const fg = require('fast-glob')
+const path = require('path')
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (params) {
@@ -23,11 +25,13 @@ module.exports = class SequelizeDB extends DBInterface {
 
     try {
       await this.db.authenticate()
+      logger.info('Database connection has been established.')
 
-      logger.info('Database Connection has been established successfully.')
+      await this.runMigrations()
+      logger.info('Database has been migrated.')
 
-      const models = await schema(this.db)
-      models.forEach(model => (this[`${model.tableName}Table`] = model))
+      await this.registerModels()
+      logger.info('Database models have been registered.')
 
       this.registerHooks()
     } catch (error) {
@@ -35,10 +39,45 @@ module.exports = class SequelizeDB extends DBInterface {
     }
   }
 
+  runMigrations () {
+    const umzug = new Umzug({
+      storage: 'sequelize',
+      storageOptions: {
+        sequelize: this.db
+      },
+      migrations: {
+        params: [
+          this.db.getQueryInterface(),
+          Sequelize
+        ],
+        path: path.join(__dirname, 'migrations')
+      }
+    })
+
+    return umzug.up()
+  }
+
+  async registerModels () {
+    this.models = {}
+
+    const entries = await fg(path.resolve(__dirname, 'models/**/*.js'))
+
+    entries.forEach(file => {
+      const model = this.db['import'](file)
+      this.models[model.name] = model
+    })
+
+    Object.keys(this.models).forEach(modelName => {
+      if (this.models[modelName].associate) {
+        this.models[modelName].associate(this.models)
+      }
+    })
+  }
+
   registerHooks () {
     if (config.webhooks.enabled) {
-      this.blocksTable.afterCreate(block => webhookManager.emit('block.created', block))
-      this.transactionsTable.afterCreate(transaction => webhookManager.emit('transaction.created', transaction))
+      this.models.block.afterCreate((block) => webhookManager.emit('block.created', block))
+      this.models.transaction.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
     }
   }
 
@@ -50,7 +89,7 @@ module.exports = class SequelizeDB extends DBInterface {
       return this.activedelegates
     }
 
-    const data = await this.roundsTable.findAll({
+    const data = await this.models.round.findAll({
       where: {
         round: round
       },
@@ -61,17 +100,17 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   saveRounds (rounds) {
-    return this.roundsTable.bulkCreate(rounds)
+    return this.models.round.bulkCreate(rounds)
   }
 
   deleteRound (round) {
-    return this.roundsTable.destroy({where: {round}})
+    return this.models.round.destroy({where: {round}})
   }
 
   async buildDelegates (block) {
     const activeDelegates = config.getConstants(block.data.height).activeDelegates
 
-    let data = await this.walletsTable.findAll({
+    let data = await this.models.wallet.findAll({
       attributes: [
         ['vote', 'publicKey'],
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
@@ -86,7 +125,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < activeDelegates) {
-      const data2 = await this.walletsTable.findAll({
+      const data2 = await this.models.wallet.findAll({
         attributes: [
           'publicKey'
         ],
@@ -123,7 +162,7 @@ module.exports = class SequelizeDB extends DBInterface {
     try {
       // Received TX
       logger.printTracker('SPV Building', 1, 7, 'received transactions')
-      let data = await this.transactionsTable.findAll({
+      let data = await this.models.transaction.findAll({
         attributes: [
           'recipientId',
           [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
@@ -157,7 +196,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Sent Transactions
-      data = await this.transactionsTable.findAll({
+      data = await this.models.transaction.findAll({
         attributes: [
           'senderPublicKey',
           [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
@@ -175,7 +214,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Second Signature
-      data = await this.transactionsTable.findAll({
+      data = await this.models.transaction.findAll({
         attributes: [
           'senderPublicKey',
           'serialized'
@@ -189,7 +228,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Delegates
-      data = await this.transactionsTable.findAll({
+      data = await this.models.transaction.findAll({
         attributes: [
           'senderPublicKey',
           'serialized'
@@ -204,7 +243,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Votes
-      data = await this.transactionsTable.findAll({
+      data = await this.models.transaction.findAll({
         attributes: [
           'senderPublicKey',
           'serialized'
@@ -224,7 +263,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Multisignatures
-      data = await this.transactionsTable.findAll({
+      data = await this.models.transaction.findAll({
         attributes: [
           'senderPublicKey',
           'serialized'
@@ -277,7 +316,7 @@ module.exports = class SequelizeDB extends DBInterface {
         Object.values(this.walletManager.walletsByPublicKey || {})
           // cold addresses are not saved on database
           .filter(acc => acc.publicKey && (force || acc.dirty))
-          .map(acc => this.walletsTable.upsert(acc, {transaction: t}))
+          .map(acc => this.models.wallet.upsert(acc, {transaction: t}))
       )
     )
 
@@ -288,24 +327,24 @@ module.exports = class SequelizeDB extends DBInterface {
 
   // to be used when node is in sync and committing newly received blocks
   async saveBlock (block) {
-    let dbTransaction
+    let transaction
 
     try {
-      dbTransaction = await this.db.transaction()
-      await this.blocksTable.create(block.data, {transaction: dbTransaction})
-      await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: dbTransaction})
-      await dbTransaction.commit()
+      transaction = await this.db.transaction()
+      await this.models.block.create(block.data, {transaction})
+      await this.models.transaction.bulkCreate(block.transactions || [], {transaction})
+      await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
-      await dbTransaction.rollback()
+      await transaction.rollback()
     }
   }
 
   // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
   async saveBlockAsync (block) {
     if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
-    await this.blocksTable.create(block.data, {transaction: this.asyncTransaction})
-    await this.transactionsTable.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+    await this.models.block.create(block.data, {transaction: this.asyncTransaction})
+    await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
 
   // to be used in combination with saveBlockAsync
@@ -329,8 +368,8 @@ module.exports = class SequelizeDB extends DBInterface {
 
     try {
       transaction = await this.db.transaction()
-      await this.transactionsTable.destroy({where: {blockId: block.data.id}}, {transaction})
-      await this.blocksTable.destroy({where: {id: block.data.id}}, {transaction})
+      await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction})
+      await this.models.block.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
@@ -339,9 +378,9 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getBlock (id) {
-    const block = await this.blocksTable.findOne({
+    const block = await this.models.block.findOne({
       include: [{
-        model: this.transactionsTable,
+        model: this.models.transaction,
         attributes: ['serialized']
       }],
       attributes: {
@@ -352,7 +391,7 @@ module.exports = class SequelizeDB extends DBInterface {
       }
     })
 
-    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
+    const data = await this.models.transaction.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
@@ -374,9 +413,9 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.blocksTable.findOne({order: [['height', 'DESC']]})
+    const block = await this.models.block.findOne({order: [['height', 'DESC']]})
     if (!block) return null
-    const data = await this.transactionsTable.findAll({where: {blockId: block.id}})
+    const data = await this.models.transaction.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
 
     return new Block(block)
@@ -384,9 +423,9 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getBlocks (offset, limit) {
     const last = offset + limit
-    const blocks = await this.blocksTable.findAll({
+    const blocks = await this.models.block.findAll({
       include: [{
-        model: this.transactionsTable,
+        model: this.models.transaction,
         attributes: ['serialized']
       }],
       attributes: {
@@ -409,7 +448,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
-    const blocks = await this.blocksTable.findAll({
+    const blocks = await this.models.block.findAll({
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },

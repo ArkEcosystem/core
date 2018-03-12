@@ -4,10 +4,10 @@ class DependencyHandler {
   checkDatabaseLibraries (config) {
     let dependencies = {
       'app/database/sequelize': {
-        'mysql': ['sequelize', 'mysql2'],
-        'sqlite': ['sequelize', 'sqlite3'],
-        'postgres': ['sequelize', 'pg', 'pg-hstore'],
-        'mssql': ['sequelize', 'tedious']
+        'mysql': ['sequelize', 'umzug', 'mysql2'],
+        'sqlite': ['sequelize', 'umzug', 'sqlite3'],
+        'postgres': ['sequelize', 'umzug', 'pg', 'pg-hstore'],
+        'mssql': ['sequelize', 'umzug', 'tedious']
       }[config.server.db.options.dialect]
     }[config.server.db.driver]
 

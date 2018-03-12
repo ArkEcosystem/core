@@ -3,6 +3,11 @@ const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {
+  options: {
+    cache: {
+      expiresIn: 60 * 1000 * 5
+    }
+  },
   handler: async (request, h) => {
     const transactions = await db.transactions.findAll(utils.paginate(request))
 
@@ -33,6 +38,11 @@ exports.showUnconfirmed = {
 }
 
 exports.search = {
+  options: {
+    cache: {
+      expiresIn: 60 * 1000 * 5
+    }
+  },
   handler: async (request, h) => {
     const transactions = await db.transactions.search({...request.query, ...utils.paginate(request)})
 
