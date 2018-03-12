@@ -26,7 +26,7 @@ process.on('unhandledRejection', (reason, p) => {
   process.exit(1)
 })
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
 
@@ -43,4 +43,4 @@ async function init () {
   }
 }
 
-init()
+start()

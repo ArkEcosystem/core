@@ -6,14 +6,15 @@ const figlet = require('figlet')
 const start = async () => {
   clear()
 
-  console.log(chalk.blue(figlet.textSync('ARK Core', { font: 'Coinstak', horizontalLayout: 'full' })))
+  console.log(chalk.red(figlet.textSync('ARK Core', { font: 'Coinstak', horizontalLayout: 'full' })))
 
-  let questions = [{
+  const questions = [{
     type: 'select',
     name: 'action',
     message: 'What action would you like to perform?',
     choices: [
-      { title: 'Start Delegate', value: 'start-delegate' },
+      { title: 'Start Forger', value: 'start-forger' },
+      { title: 'Start Relay', value: 'start-relay' },
       { title: 'Configure Delegate', value: 'configure-delegate' },
       { title: 'Configure Database', value: 'configure-database' },
       { title: 'Configure Redis', value: 'configure-redis' },
@@ -24,13 +25,9 @@ const start = async () => {
     ]
   }]
 
-  let response = await prompts(questions)
+  const response = await prompts(questions)
 
-  if (!response.action) {
-    console.error('Invalid configuration provided, exiting application.')
-
-    process.exit()
-  }
+  if (!response.action) process.exit()
 
   require(`app/wizard/${response.action}`)(response)
 }

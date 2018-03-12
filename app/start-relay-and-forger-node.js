@@ -23,7 +23,7 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
 })
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
 
@@ -71,4 +71,4 @@ async function init () {
   }
 }
 
-init()
+start()

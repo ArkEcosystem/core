@@ -40,7 +40,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 const delegateFilePath = path.resolve(commander.config, 'delegates.json')
 
-async function init (password, address) {
+const start = async (password, address) => {
   try {
     logger.init(config.server.logging, config.network.name + '-forger')
 
@@ -55,11 +55,11 @@ async function init (password, address) {
   }
 }
 
-async function configure () {
+const configure = async () => {
   await config.init(commander.config)
 
   if (config.server.test) {
-    return init()
+    return start()
   }
 
   if (!config.delegates.bip38) {
@@ -70,14 +70,14 @@ async function configure () {
         if (err) {
           throw new Error('Failed to save the encrypted key in file')
         } else {
-          return init(answers.password)
+          return start(answers.password)
         }
       })
     })
   } else {
     inquirer.prompt(bip38DecryptSchema).then((answers) => {
       if (!answers.address || arkjs.crypto.validateAddress(answers.address, config.network.pubKeyHash)) {
-        return init(answers.password, answers.address)
+        return start(answers.password, answers.address)
       } else {
         throw new Error('Invalid Address Provided')
       }
