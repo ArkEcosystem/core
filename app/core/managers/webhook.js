@@ -26,7 +26,7 @@ module.exports = class WebhookManager {
   }
 
   async init () {
-    if (!this.config.enabled) return false
+    if (!this.config.enabled) return
 
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, async (payload) => {
@@ -67,6 +67,8 @@ module.exports = class WebhookManager {
   }
 
   emit (event, payload) {
+    if (!this.config.enabled) return
+
     this.emitter.emit(event, payload)
   }
 

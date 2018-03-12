@@ -56,7 +56,7 @@ module.exports = class Peer {
     try {
       const res = await popsicle.request({
         method: 'POST',
-        url: this.url + '/peer/block/',
+        url: this.url + '/peer/block',
         data: block,
         headers: this.headers,
         timeout: 5000
