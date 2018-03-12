@@ -8,4 +8,8 @@ module.exports = [{
     { title: 'MySQL', value: 'mysql' },
     { title: 'MSSQL', value: 'mssql' }
   ]
+}, {
+  type: 'confirm',
+  name: 'logging',
+  message: 'Would you like to enable query logging?'
 }]
