@@ -33,8 +33,6 @@ module.exports = class SequelizeDB extends DBInterface {
 
       await this.registerModels()
       logger.info('Database models have been registered.')
-
-      this.registerHooks()
     } catch (error) {
       logger.error('Unable to connect to the database:', error.stack)
     }
@@ -73,13 +71,6 @@ module.exports = class SequelizeDB extends DBInterface {
         this.models[modelName].associate(this.models)
       }
     })
-  }
-
-  registerHooks () {
-    if (config.webhooks.enabled) {
-      this.models.block.afterCreate((block) => webhookManager.emit('block.created', block))
-      this.models.transaction.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
-    }
   }
 
   async getActiveDelegates (height) {
@@ -309,7 +300,7 @@ module.exports = class SequelizeDB extends DBInterface {
           webhookManager.emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
-          webhookManager.emit('forging.success', block)
+          webhookManager.emit('block.forged', block)
         }
       })
     } catch (error) {

@@ -117,7 +117,8 @@ module.exports = class TransactionPool {
           await this.redis.lrem(this.key, 1, txDetails[1])
           await this.redis.del(`${this.key}/tx/${txDetails[0]}`)
           await this.redis.del(`${this.key}/tx/expiration/${txDetails[0]}`)
-          // webhookManager.emit('transaction.removed', txDetails)
+          // this needs to emit a serialized transaction
+          // webhookManager.emit('transaction.expired', txDetails.serialzed)
         }
       }
     }

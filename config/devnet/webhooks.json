@@ -11,14 +11,14 @@
     "name": "forging.missing",
     "description": "Emitted when the current delegate is missing blocks."
   }, {
-    "name": "forging.success",
-    "description": "Emitted when the current delegate forged a block."
+    "name": "block.forged",
+    "description": "Emitted when a blocks is forged."
   }, {
     "name": "block.removed",
     "description": "Emitted when a blocks is removed."
   }, {
-    "name": "transaction.created",
-    "description": "Emitted when a transaction is created."
+    "name": "transaction.forged",
+    "description": "Emitted when a transaction is forged."
   }, {
     "name": "transaction.removed",
     "description": "Emitted when a transaction is removed."
@@ -31,5 +31,14 @@
   }, {
     "name": "vote.removed",
     "description": "Emitted when a vote is removed."
+  }, {
+    "name": "peer.added",
+    "description": "Emitted when a peer is added."
+  }, {
+    "name": "peer.removed",
+    "description": "Emitted when a peer is removed."
+  }, {
+    "name": "peer.banned",
+    "description": "Emitted when a peer is banned."
   }]
 }

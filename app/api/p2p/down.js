@@ -2,6 +2,7 @@ const Peer = require('./peer')
 const logger = require('app/core/logger')
 const dns = require('dns')
 const isLocalhost = require('app/utils/is-localhost')
+const webhookManager = require('app/core/managers/webhook').getInstance()
 
 module.exports = class Down {
   constructor (config) {
@@ -58,6 +59,8 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
+        webhookManager.emit('peer.removed', this.peers[ip])
+
         return null
       }
     }))
@@ -75,6 +78,8 @@ module.exports = class Down {
     try {
       await npeer.ping()
       this.peers[peer.ip] = npeer
+
+      webhookManager.emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }
