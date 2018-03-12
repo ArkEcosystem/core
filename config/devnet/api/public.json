@@ -13,7 +13,7 @@
     "options": {
       "name": "redisCache",
       "engine": "catbox-redis",
-      "host": "127.0.0.1",
+      "host": "localhost",
       "partition": "cache",
       "expiresIn": 60000
     }

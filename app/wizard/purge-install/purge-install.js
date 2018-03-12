@@ -1,5 +1,5 @@
 const prompts = require('prompts')
-const questions = require('app/wizard/questions/configure-purge')
+const questions = require('./questions')
 
 module.exports = async (answers) => {
   const response = await prompts(questions)

@@ -9,8 +9,8 @@ const start = async () => {
       { title: 'Start Delegate', value: 'start-delegate' },
       { title: 'Configure Delegate', value: 'configure-delegate' },
       { title: 'Configure Database', value: 'configure-database' },
+      { title: 'Configure Redis', value: 'configure-redis' },
       { title: 'Configure Public API', value: 'configure-public-api' },
-      { title: 'Configure Explorer API', value: 'configure-explorer-api' },
       { title: 'Configure Webhooks', value: 'configure-webhooks' },
       { title: 'Purge Database', value: 'purge-database' },
       { title: 'Purge Installation', value: 'purge-install' }
@@ -25,7 +25,7 @@ const start = async () => {
     process.exit()
   }
 
-  require(`app/wizard/handlers/${response.action}`)(response)
+  require(`app/wizard/${response.action}`)(response)
 }
 
 start()
