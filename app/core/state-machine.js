@@ -304,7 +304,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         await blockchainManager.db.applyRound(state.lastBlock)
         return blockchainManager.dispatch('PROCESSFINISHED')
       } catch (error) {
-        logger.info(error.message)
+        logger.error(error.stack)
         return blockchainManager.dispatch('FAILURE')
       }
     },
@@ -353,7 +353,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         }
         return blockchainManager.dispatch('STARTED')
       } catch (error) {
-        logger.info(error.message)
+        logger.error(error.stack)
         return blockchainManager.dispatch('FAILURE')
       }
     },
