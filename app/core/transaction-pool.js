@@ -90,7 +90,7 @@ module.exports = class TransactionPool {
   getUnconfirmedTransactions (start, size) {
     if (this.isConnected) {
       try {
-        return this.redis.lrange(this.key, start, start + size)
+        return this.redis.lrange(this.key, start, start + size - 1)
       } catch (error) {
         logger.error('Get serialized items from redis list: ', error.stack)
       }
