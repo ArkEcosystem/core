@@ -39,3 +39,11 @@ exports.search = {
     return utils.toPagination(request, transactions, 'transaction')
   }
 }
+
+exports.types = {
+  handler: async (request, h) => {
+    return {
+      data: require('app/core/constants').TRANSACTION_TYPES
+    }
+  }
+}

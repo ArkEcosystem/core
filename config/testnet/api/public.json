@@ -11,16 +11,17 @@
   "cache": {
     "enabled": false,
     "options": {
-      "name": "public-api-cache",
+      "name": "redisCache",
       "engine": "catbox-redis",
       "host": "127.0.0.1",
-      "partition": "cache"
+      "partition": "cache",
+      "expiresIn": 60000
     }
   },
   "rateLimit": {
     "enabled": false,
     "limit": 300,
-    "expires": 600000
+    "expires": 60000
   },
   "pagination": {
     "limit": 100,
@@ -45,8 +46,5 @@
       "/api/v2/wallets/search",
       "/api/v2/webhooks"
     ]
-  },
-  "webhooks": {
-    "secret": "my-secret-auth-token"
   }
 }

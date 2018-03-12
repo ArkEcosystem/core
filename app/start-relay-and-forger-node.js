@@ -5,8 +5,8 @@ const config = require('app/core/config')
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
 const DB = require('app/core/dbinterface')
-const WebhookManager = require('app/core/managers/webhook')
 const QueueManager = require('app/core/managers/queue')
+const WebhookManager = require('app/core/managers/webhook')
 const DependencyHandler = require('app/core/dependency-handler')
 const PublicAPI = require('app/api/public')
 const TransactionPool = require('app/core/transaction-pool')
@@ -16,6 +16,7 @@ commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
   .option('-i, --interactive', 'launch cli')
+  .option('--network-start', 'force genesis network start')
   .parse(process.argv)
 
 process.on('unhandledRejection', (reason, p) => {
@@ -27,7 +28,7 @@ async function init () {
     await config.init(commander.config)
 
     await logger.init(config.server.logging, config.network.name)
-    const blockchainManager = await new BlockchainManager(config)
+    const blockchainManager = await new BlockchainManager(config, commander.networkStart)
 
     logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)

@@ -5,8 +5,8 @@ const config = require('app/core/config')
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
 const DB = require('app/core/dbinterface')
-const WebhookManager = require('app/core/managers/webhook')
 const QueueManager = require('app/core/managers/queue')
+const WebhookManager = require('app/core/managers/webhook')
 const DependencyHandler = require('app/core/dependency-handler')
 const PublicAPI = require('app/api/public')
 const TransactionPool = require('app/core/transaction-pool')
@@ -19,6 +19,8 @@ commander
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
+
+  process.exit(1)
 })
 
 async function init () {

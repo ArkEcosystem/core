@@ -1,7 +1,7 @@
 const Op = require('sequelize').Op
-const moment = require('moment')
 const Transaction = require('app/models/transaction')
 const buildFilterQuery = require('../utils/filter-query')
+const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class TransactionsRepository {
   constructor (db) {
@@ -29,14 +29,15 @@ module.exports = class TransactionsRepository {
       if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(params.orderBy.split(':'))
     }
 
-    return this.db.transactionsTable.findAndCountAll({
+    return this.db.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
       offset: params.offset,
       limit: params.limit,
       include: {
-        model: this.db.blocksTable,
+        model: this.db.models.block,
+        as: 'block',
         attributes: ['height']
       }
     })
@@ -64,7 +65,7 @@ module.exports = class TransactionsRepository {
   }
 
   allVotesBySender (senderPublicKey, paginator) {
-    return this.findAll({...{senderPublicKey, type: 3}, ...paginator})
+    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...paginator})
   }
 
   findAllByBlock (blockId, paginator) {
@@ -76,19 +77,21 @@ module.exports = class TransactionsRepository {
   }
 
   findById (id) {
-    return this.db.transactionsTable.findById(id, {
+    return this.db.models.transaction.findById(id, {
       include: {
-        model: this.db.blocksTable,
+        model: this.db.models.block,
+        as: 'block',
         attributes: ['height']
       }
     })
   }
 
-  findByIdAndType (id, type) {
-    return this.db.transactionsTable.findOne({
+  findByTypeAndId (type, id) {
+    return this.db.models.transaction.findOne({
       where: {id, type},
       include: {
-        model: this.db.blocksTable,
+        model: this.db.models.block,
+        as: 'block',
         attributes: ['height']
       }
     })
@@ -101,20 +104,21 @@ module.exports = class TransactionsRepository {
     if (to) where.timestamp[Op.gte] = from
     if (!where.timestamp.length) delete where.timestamp
 
-    const results = await this.db.transactionsTable.findAndCountAll({
+    const results = await this.db.models.transaction.findAll({
       attributes: ['serialized'],
       where,
       include: {
-        model: this.db.blocksTable,
+        model: this.db.models.block,
+        as: 'block',
         attributes: ['height']
       }
     })
 
-    return results.rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+    return results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
   search (params) {
-    return this.db.transactionsTable.findAndCountAll({
+    return this.db.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: buildFilterQuery(
         params,
@@ -125,7 +129,8 @@ module.exports = class TransactionsRepository {
         }
       ),
       include: {
-        model: this.db.blocksTable,
+        model: this.db.models.block,
+        as: 'block',
         attributes: ['height']
       }
     })
