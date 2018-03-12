@@ -1,3 +1,4 @@
+const { TRANSACTION_TYPES } = require('app/core/constants')
 const chainInstance = require('app/core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
 const config = require('app/core/config')
@@ -72,7 +73,7 @@ exports.blocks = {
 
 exports.votes = {
   handler: async (request, h) => {
-    let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
+    let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
 
     return {
@@ -87,7 +88,7 @@ exports.votes = {
 
 exports.unvotes = {
   handler: async (request, h) => {
-    let transactions = await db.transactions.findAllByDateAndType(3, request.query.from, request.query.to)
+    let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))
 
     return {
