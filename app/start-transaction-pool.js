@@ -11,8 +11,6 @@ commander
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
-
-  process.exit(1)
 })
 
 config.init(commander.config)
