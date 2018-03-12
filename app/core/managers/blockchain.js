@@ -265,4 +265,8 @@ module.exports = class BlockchainManager {
   getDb () {
     return this.db
   }
+
+  getTxPool () {
+    return this.transactionPool
+  }
 }

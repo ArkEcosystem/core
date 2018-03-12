@@ -36,8 +36,6 @@ commander
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
-
-  process.exit(1)
 })
 
 const delegateFilePath = path.resolve(commander.config, 'delegates.json')
