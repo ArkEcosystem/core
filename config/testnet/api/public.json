@@ -11,8 +11,10 @@
   "cache": {
     "enabled": false,
     "options": {
+      "name": "redisCache",
       "engine": "catbox-redis",
       "host": "127.0.0.1",
+      "partition": "cache",
       "expiresIn": 60000
     }
   },
