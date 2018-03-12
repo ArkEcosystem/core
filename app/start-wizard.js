@@ -1,6 +1,13 @@
 const prompts = require('prompts')
+const chalk = require('chalk')
+const clear = require('clear')
+const figlet = require('figlet')
 
 const start = async () => {
+  clear()
+
+  console.log(chalk.blue(figlet.textSync('ARK Core', { font: 'Coinstak', horizontalLayout: 'full' })))
+
   let questions = [{
     type: 'select',
     name: 'action',
