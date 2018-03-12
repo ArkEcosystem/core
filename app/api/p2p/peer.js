@@ -59,14 +59,14 @@ module.exports = class Peer {
         url: this.url + '/peer/block/',
         data: block,
         headers: this.headers,
-        timeout: 2000
+        timeout: 5000
       }).use(popsicle.plugins.parse('json'))
 
       this.parseHeaders(res)
 
       return res.body
     } catch (error) {
-      logger.error(error.stack)
+      logger.debug('Peer unreachable', this.url + '/peer/block/', error.code)
 
       this.status = error.code
     }
