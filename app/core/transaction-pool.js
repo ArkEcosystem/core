@@ -26,7 +26,7 @@ module.exports = class TransactionPool {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        if (config.server.test) transaction.data.expiration = Math.floor(Math.random() * Math.floor(200))
+        if (config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(200))
         that.add(transaction)
       }
       qcallback()
@@ -56,7 +56,7 @@ module.exports = class TransactionPool {
       try {
         for (let tx of blockTransactions) {
           const serialized = await this.redis.hget(`${this.key}/tx/${tx.id}`, 'serialized')
-          logger.debug(`Removing transaction ${tx.id} from redis pool`)
+          logger.debug(`Removing forged transaction ${tx.id} from redis pool`)
           let x = this.redis.lrem(this.key, 1, serialized)
           if (x < 1) {
             logger.warn(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
@@ -87,7 +87,7 @@ module.exports = class TransactionPool {
     }
   }
 
-  getUnconfirmedTransactions (start, size) {
+  async getUnconfirmedTransactions (start, size) {
     if (this.isConnected) {
       try {
         return this.redis.lrange(this.key, start, start + size - 1)
@@ -105,12 +105,12 @@ module.exports = class TransactionPool {
     }
   }
 
-  async cleanPool (currentTimestamp, blockTime) {
+  async cleanPool (currentTimestamp) {
     if (this.isConnected) {
       const items = await this.redis.keys(`${this.key}/tx/expiration/*`)
       for (const key of items) {
         const txDetails = await this.redis.hmget(key, 'id', 'serialized', 'timestamp', 'expiration')
-        const expiration = parseInt(txDetails[2]) + (parseInt(txDetails[3]) * blockTime)
+        const expiration = parseInt(txDetails[3])
         if (expiration <= currentTimestamp) {
           logger.debug(`Removing expired transaction ${key}, expirationTime:${expiration} actualTime:${currentTimestamp}`)
           await this.redis.lrem(this.key, 1, txDetails[1])
@@ -119,11 +119,6 @@ module.exports = class TransactionPool {
         }
       }
     }
-  }
-
-  async getUnconfirmedTransaction (trID) {
-    const serialized = await this.redis.hget(`${this.key}/tx/${trID}`, 'serialized')
-    return Transaction.fromBytes(serialized)
   }
 
   async addTransaction (transaction) {
@@ -151,7 +146,7 @@ module.exports = class TransactionPool {
   async removeForgedBlock (block) { // we remove the block txs from the pool
     if (this.isConnected) {
       await this.removeForgedTransactions(block.transactions)
-      await this.cleanPool(block.data.timestamp, this.config.getConstants(block.data.height).blocktime)
+      await this.cleanPool(arkjs.slots.getTime()) // we check for expiration of transactions and clean them
     }
   }
 
