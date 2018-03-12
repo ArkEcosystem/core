@@ -220,7 +220,7 @@ module.exports = class BlockchainManager {
   }
 
   async getUnconfirmedTransactions (blockSize) {
-    let retItems = await this.transactionPool.getUnconfirmedTransactions(0, blockSize - 1) // [0, 49] return max 50 tx for forging
+    let retItems = await this.transactionPool.getUnconfirmedTransactions(0, blockSize) // [0, 49] return max 50 tx for forging
     return {
       transactions: retItems,
       poolSize: await this.transactionPool.size(),
