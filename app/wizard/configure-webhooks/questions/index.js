@@ -1,6 +1,6 @@
 module.exports = [{
   type: 'confirm',
-  name: 'enable',
+  name: 'enabled',
   message: 'Would you like to enable webhooks?'
 }, {
   type: 'password',

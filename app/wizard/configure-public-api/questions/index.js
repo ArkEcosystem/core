@@ -5,9 +5,9 @@ module.exports = [{
 }, {
   type: 'confirm',
   name: 'cache',
-  message: 'Would you like to enable caching? (Recommended in Production)'
+  message: 'Would you like to configure caching? (Recommended in Production)'
 }, {
   type: 'confirm',
   name: 'rateLimit',
-  message: 'Would you like to enable rate limiting? (Recommended in Production)'
+  message: 'Would you like to configure rate limiting? (Recommended in Production)'
 }]

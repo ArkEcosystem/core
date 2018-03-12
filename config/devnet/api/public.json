@@ -1,5 +1,5 @@
 {
-  "mount": true,
+  "enabled": true,
   "port": 4003,
   "versions": {
     "default": 2,
