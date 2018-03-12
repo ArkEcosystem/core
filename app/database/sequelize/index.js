@@ -5,7 +5,7 @@ const Transaction = require('app/models/transaction')
 const config = require('app/core/config')
 const logger = require('app/core/logger')
 const DBInterface = require('app/core/dbinterface')
-const webhookManager = require('app/core/managers/webhook').getInstance()
+const webhookManager = require('app/core/managers/webhook')
 const fg = require('fast-glob')
 const path = require('path')
 const { TRANSACTION_TYPES } = require('app/core/constants')
@@ -33,8 +33,6 @@ module.exports = class SequelizeDB extends DBInterface {
 
       await this.registerModels()
       logger.info('Database models have been registered.')
-
-      this.registerHooks()
     } catch (error) {
       logger.error('Unable to connect to the database:', error.stack)
     }
@@ -73,13 +71,6 @@ module.exports = class SequelizeDB extends DBInterface {
         this.models[modelName].associate(this.models)
       }
     })
-  }
-
-  registerHooks () {
-    if (config.webhooks.enabled) {
-      this.models.block.afterCreate((block) => webhookManager.emit('block.created', block))
-      this.models.transaction.afterCreate((transaction) => webhookManager.emit('transaction.created', transaction))
-    }
   }
 
   async getActiveDelegates (height) {
@@ -304,7 +295,13 @@ module.exports = class SequelizeDB extends DBInterface {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        idx === -1 ? wallet.missedBlocks++ : wallet.producedBlocks++
+        if (idx === -1) {
+          wallet.missedBlocks++
+          webhookManager.getInstance().emit('forging.missing', block)
+        } else {
+          wallet.producedBlocks++
+          webhookManager.getInstance().emit('block.forged', block)
+        }
       })
     } catch (error) {
       logger.error(error.stack)
@@ -382,7 +379,6 @@ module.exports = class SequelizeDB extends DBInterface {
     const block = await this.models.block.findOne({
       include: [{
         model: this.models.transaction,
-        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {
@@ -428,7 +424,6 @@ module.exports = class SequelizeDB extends DBInterface {
     const blocks = await this.models.block.findAll({
       include: [{
         model: this.models.transaction,
-        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {

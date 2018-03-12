@@ -1,5 +1,5 @@
 {
-  "name": "ark-core",
+  "name": "@arkecosystem/core",
   "version": "1.0.0",
   "description": "Revamped ark-node",
   "main": "app.js",

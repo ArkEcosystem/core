@@ -37,7 +37,6 @@ module.exports = class TransactionsRepository {
       limit: params.limit,
       include: {
         model: this.db.models.block,
-        as: 'block',
         attributes: ['height']
       }
     })
@@ -80,7 +79,6 @@ module.exports = class TransactionsRepository {
     return this.db.models.transaction.findById(id, {
       include: {
         model: this.db.models.block,
-        as: 'block',
         attributes: ['height']
       }
     })
@@ -91,7 +89,6 @@ module.exports = class TransactionsRepository {
       where: {id, type},
       include: {
         model: this.db.models.block,
-        as: 'block',
         attributes: ['height']
       }
     })
@@ -109,7 +106,6 @@ module.exports = class TransactionsRepository {
       where,
       include: {
         model: this.db.models.block,
-        as: 'block',
         attributes: ['height']
       }
     })
@@ -130,7 +126,6 @@ module.exports = class TransactionsRepository {
       ),
       include: {
         model: this.db.models.block,
-        as: 'block',
         attributes: ['height']
       }
     })

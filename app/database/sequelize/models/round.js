@@ -18,13 +18,13 @@ module.exports = (sequelize, DataTypes) => {
     round: DataTypes.BIGINT
   }, {})
 
-  Round.associate = (models) => {
-    Round.belongsTo(models.wallet, {
-      foreignKey: 'publicKey',
-      sourceKey: 'publicKey',
-      as: 'delegate'
-    })
-  }
+  // Round.associate = (models) => {
+  //   Round.belongsTo(models.wallet, {
+  //     foreignKey: 'publicKey',
+  //     sourceKey: 'publicKey',
+  //     as: 'delegate'
+  //   })
+  // }
 
   return Round
 }
