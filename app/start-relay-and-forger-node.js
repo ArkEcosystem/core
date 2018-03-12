@@ -5,6 +5,7 @@ const config = require('app/core/config')
 const BlockchainManager = require('app/core/managers/blockchain')
 const P2PInterface = require('app/api/p2p/p2pinterface')
 const DB = require('app/core/dbinterface')
+const QueueManager = require('app/core/managers/queue')
 const WebhookManager = require('app/core/managers/webhook')
 const DependencyHandler = require('app/core/dependency-handler')
 const PublicAPI = require('app/api/public')
@@ -31,6 +32,9 @@ async function init () {
 
     logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
+
+    logger.info('Initialising Queue Manager...')
+    await new QueueManager(config.server.queue)
 
     logger.info('Initialising Webhook Manager...')
     await new WebhookManager(config.webhooks).init()

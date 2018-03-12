@@ -12,13 +12,14 @@
     "enabled": false,
     "options": {
       "engine": "catbox-redis",
-      "host": "127.0.0.1"
+      "host": "127.0.0.1",
+      "expiresIn": 60000
     }
   },
   "rateLimit": {
     "enabled": false,
     "limit": 300,
-    "expires": 600000
+    "expires": 60000
   },
   "pagination": {
     "limit": 100,

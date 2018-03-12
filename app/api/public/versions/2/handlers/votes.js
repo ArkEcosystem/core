@@ -2,11 +2,6 @@ const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 5
-    }
-  },
   handler: async (request, h) => {
     const transactions = await db.transactions.findAllByType(3, utils.paginate(request))
 

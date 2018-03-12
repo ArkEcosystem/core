@@ -2,11 +2,6 @@ const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 5
-    }
-  },
   handler: async (request, h) => {
     const blocks = await db.blocks.findAll(utils.paginate(request))
 
@@ -32,11 +27,6 @@ exports.transactions = {
 }
 
 exports.search = {
-  options: {
-    cache: {
-      expiresIn: 60 * 1000 * 5
-    }
-  },
   handler: async (request, h) => {
     const blocks = await db.blocks.search({...request.query, ...utils.paginate(request)})
 
