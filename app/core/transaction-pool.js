@@ -150,7 +150,7 @@ module.exports = class TransactionPool {
     if (this.isConnected) {
       await this.removeForgedTransactions(block.transactions)
       await this.cleanPool(arkjs.slots.getTime()) // we check for expiration of transactions and clean them
-      block.transactions.foreach(tx => webhookManager.getInstance().emit('transaction.removed', tx))
+      // block.transactions.foreach(tx => webhookManager.getInstance().emit('transaction.removed', tx))
     }
   }
 

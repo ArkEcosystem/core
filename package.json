@@ -4,6 +4,7 @@
   "description": "Revamped ark-node",
   "main": "app.js",
   "scripts": {
+    "start": "NODE_PATH=. node app/start-wizard.js",
     "start:mainnet": "NODE_PATH=. node app/start-relay-node.js -c config/mainnet",
     "start:mainnet:watch": "NODE_PATH=. nodemon app/start-relay-node.js -c config/mainnet",
     "start:devnet": "NODE_PATH=. node app/start-relay-node.js -c config/devnet",
@@ -68,6 +69,7 @@
     "otplib": "^7.0.0",
     "popsicle": "^9.2.0",
     "progress": "^2.0.0",
+    "prompts": "^0.1.7",
     "public-ip": "^2.4.0",
     "ratelimiter": "^3.0.3",
     "redis": "^2.8.0",
