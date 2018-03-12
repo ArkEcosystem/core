@@ -27,8 +27,7 @@
     "test:webhook": "NODE_PATH=. jest --no-cache --forceExit --projects tests/webhooks",
     "test:webhook:watch": "NODE_PATH=. jest --no-cache --watch --projects tests/webhooks",
     "lint": "eslint ./ --fix",
-    "db": "node_modules/.bin/sequelize",
-    "fresh": "rm storage/database/devnet.sqlite && yarn start:devnet"
+    "db": "node_modules/.bin/sequelize"
   },
   "keywords": [
     "ark",
