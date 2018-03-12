@@ -2,6 +2,7 @@
   "port": 4001,
   "version": "2.0.0",
   "fastRebuild": true,
+  "bip38": true,
   "logging": {
     "file": "debug",
     "console": "debug"
