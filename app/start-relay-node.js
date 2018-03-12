@@ -32,13 +32,13 @@ async function init () {
     await DependencyHandler.checkDatabaseLibraries(config)
 
     logger.info('Initialising Queue Manager...')
-    await new QueueManager(config.server.queue)
+    await new QueueManager(config.server.redis)
 
     logger.info('Initialising Webhook Manager...')
     await new WebhookManager(config.webhooks).init()
 
     logger.info('Initialising Database Interface...')
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     await blockchainManager.attachDBInterface(db)
 
     logger.info('Initialising P2P Interface...')

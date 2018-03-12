@@ -33,7 +33,7 @@ async function init () {
     logger.init(config.server.logging, config.network.name)
 
     await DependencyHandler.checkDatabaseLibraries(config)
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     db.snapshot(`${__dirname}/storage/snapshot`)
 
     logger.info('Snapshot saved')

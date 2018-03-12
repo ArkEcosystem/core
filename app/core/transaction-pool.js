@@ -4,15 +4,14 @@ const Transaction = require('app/models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('app/core/managers/blockchain')
-const webhookManager = require('app/core/managers/webhook')
 
 let instance = null
 
 module.exports = class TransactionPool {
   constructor (config) {
     this.isConnected = false
-    this.redis = config.server.txpool.enabled ? new Redis(config.server.txpool.port, config.server.txpool.host) : null
-    this.key = config.server.txpool.key
+    this.redis = config.server.transactionPool.enabled ? new Redis(config.server.redis) : null
+    this.key = config.server.transactionPool.key
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
 
@@ -38,7 +37,7 @@ module.exports = class TransactionPool {
     }
 
     logger.info(`Transaction pool initialized with connection status ${this.isConnected}`)
-    if (!config.server.txpool.enabled) {
+    if (!config.server.transactionPool.enabled) {
       logger.warn('Transaction pool IS DISABLED')
     }
     return instance
@@ -83,7 +82,7 @@ module.exports = class TransactionPool {
           await this.redis.hset(`${this.key}/tx/expiration/${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
         }
       } catch (error) {
-        logger.error('Rpush tx to txpool error:', error.stack)
+        logger.error('Rpush transaction to transaction pool error:', error.stack)
       }
     }
   }
