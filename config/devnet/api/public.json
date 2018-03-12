@@ -43,8 +43,5 @@
       "/api/v2/wallets/search",
       "/api/v2/webhooks"
     ]
-  },
-  "webhooks": {
-    "secret": "my-secret-auth-token"
   }
 }

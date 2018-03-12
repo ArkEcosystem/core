@@ -26,7 +26,7 @@ module.exports = async (config) => {
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
-    secret: config.api.public.webhooks.secret
+    secret: config.webhooks.secret
   })
 
   await server.register({

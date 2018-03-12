@@ -1,5 +1,6 @@
 {
   "enabled": false,
+  "secret": "my-secret-auth-token",
   "events": [{
     "name": "block.created",
     "description": "Fired when a new block is created. (any Block, e.g. during rebuilds)"
