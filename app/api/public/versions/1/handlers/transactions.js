@@ -1,4 +1,4 @@
-const Boom = require('boom')
+const chainInstance = require('app/core/managers/blockchain').getInstance()
 const db = require('app/core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
@@ -40,15 +40,21 @@ exports.show = {
 }
 
 exports.unconfirmed = {
-  handler: (request, h) => {
-    // needs to be picked up from transaction pool
-    return Boom.notImplemented()
+  handler: async (request, h) => {
+    const pagination = utils.paginate(request)
+    const transactions = await chainInstance.getTxPool().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+
+    return utils.toPagination({
+      count: transactions.length,
+      rows: transactions
+    }, transactions, 'transaction')
   }
 }
 
 exports.showUnconfirmed = {
-  handler: (request, h) => {
-    // needs to be picked up from transaction pool
-    return Boom.notImplemented()
+  handler: async (request, h) => {
+    const transaction = await chainInstance.getTxPool().getUnconfirmedTransaction(request.param.id)
+
+    return utils.respondWithResource(request, transaction, 'transaction')
   }
 }

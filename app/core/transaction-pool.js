@@ -97,6 +97,14 @@ module.exports = class TransactionPool {
     }
   }
 
+  async getUnconfirmedTransaction (id) {
+    if (this.isConnected) {
+      const serialized = await this.redis.hget(`${this.key}/tx/${id}`, 'serialized')
+
+      return Transaction.fromBytes(serialized)
+    }
+  }
+
   async cleanPool (currentTimestamp, blockTime) {
     if (this.isConnected) {
       const items = await this.redis.keys(`${this.key}/tx/expiration/*`)
