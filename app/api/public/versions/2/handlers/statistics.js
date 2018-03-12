@@ -45,7 +45,7 @@ exports.blockchain = {
 
 exports.transactions = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAllByDateAndType(0, request.query.from, request.query.to)
+    const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.transfer, request.query.from, request.query.to)
 
     return {
       data: {
