@@ -7,11 +7,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     publicKey: {
-      type: DataTypes.STRING(66),
-      references: {
-        model: 'wallets',
-        key: 'publicKey'
-      }
+      type: DataTypes.STRING(66)
+      // very bad practice to disable references, easy to corrupt database...
+      // references: {
+      //   model: 'wallets',
+      //   key: 'publicKey'
+      // }
     },
     balance: DataTypes.BIGINT,
     round: DataTypes.BIGINT
