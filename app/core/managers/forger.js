@@ -81,8 +81,7 @@ module.exports = class ForgerManager {
   }
 
   async broadcast (block) {
-    logger.info(`Broadcasting forged block at height ${block.data.height} with ${block.data.numberOfTransactions}`)
-    logger.debug(JSON.stringify(block.data))
+    logger.info(`Broadcasting forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions`)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
