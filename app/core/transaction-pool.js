@@ -87,10 +87,10 @@ module.exports = class TransactionPool {
     }
   }
 
-  getItems (blockSize) {
+  getUnconfirmedTransactions (start, size) {
     if (this.isConnected) {
       try {
-        return this.redis.lrange(this.key, 0, blockSize - 1)
+        return this.redis.lrange(this.key, start, start + size)
       } catch (error) {
         logger.error('Get serialized items from redis list: ', error.stack)
       }
@@ -146,15 +146,6 @@ module.exports = class TransactionPool {
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
     this.addTransactions(block.transactions.map(tx => tx.data))
-  }
-
-  async getTransactions (blockSize) {
-    let retItems = this.isConnected ? await this.pool.getItems(blockSize) : []
-    return {
-      transactions: retItems,
-      poolSize: this.size,
-      count: this.isConnected ? retItems.length : -1
-    }
   }
 
   // rebuildBlockHeader (block) {
