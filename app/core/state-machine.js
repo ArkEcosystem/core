@@ -168,20 +168,37 @@ const rebuildFromNetwork = {
 }
 
 const fork = {
-  initial: 'rebuilding',
+  initial: 'network',
   states: {
-    rebuilding: {
-      onEntry: ['rebuild'],
+    network: {
+      onEntry: ['checkNetwork'],
       on: {
-        SUCCESS: 'success',
-        FAILURE: 'fail'
+        SUCCESS: 'blockchain',
+        FAILURE: 'reset'
       }
     },
-    fail: {
-      onEntry: ['resetNode']
+    blockchain: {
+      onEntry: ['removeBlocks'],
+      on: {
+        SUCCESS: 'wallets',
+        FAILURE: 'reset'
+      }
+    },
+    wallets: {
+      onEntry: ['rebuildWallets'],
+      on: {
+        SUCCESS: 'success',
+        FAILURE: 'reset'
+      }
+    },
+    reset: {
+      onEntry: ['resetNode'],
+      on: {
+        RESET: 'success',
+        FAILURE: 'reset'
+      }
     },
     success: {
-      onEntry: ['resetNode']
     }
   }
 }
@@ -199,7 +216,8 @@ const blockchainMachine = Machine({
       onEntry: ['init'],
       on: {
         REBUILD: 'rebuild',
-        SYNC: 'syncWithNetwork',
+        NETWORKSTART: 'idle',
+        STARTED: 'syncWithNetwork',
         FAILURE: 'exit'
       }
     },
@@ -233,6 +251,7 @@ const blockchainMachine = Machine({
       }
     },
     fork: {
+      onEntry: ['startRecovery'],
       on: {
         SUCCESS: 'syncWithNetwork',
         FAILURE: 'exit'
@@ -329,7 +348,10 @@ blockchainMachine.actionMap = (blockchainManager) => {
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           await blockchainManager.db.applyRound(block, false, false)
         }
-        return blockchainManager.dispatch('SYNC')
+        if (block.data.height === 1 && state.networkStart) {
+          return blockchainManager.dispatch('NETWORKSTART')
+        }
+        return blockchainManager.dispatch('STARTED')
       } catch (error) {
         logger.info(error.message)
         return blockchainManager.dispatch('FAILURE')

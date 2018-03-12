@@ -3,12 +3,12 @@ version: '2'
 services:
   db:
     image: postgres:10.3-alpine
-    container_name: ark-core-testnet
+    container_name: ark-core-devnet
     restart: always
     ports:
       - '5432:5432'
     environment:
-      # To connect from your computer: `psql -h localhost -p 5432 -U node -d ark_testnet`
+      # To connect from your computer: `psql -h localhost -p 5432 -U node -d ark_devnet`
       POSTGRES_USER: node
-      POSTGRES_DB: ark_testnet
+      POSTGRES_DB: ark_devnet
       POSTGRES_PASSWORD: password
