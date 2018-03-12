@@ -382,6 +382,7 @@ module.exports = class SequelizeDB extends DBInterface {
     const block = await this.models.block.findOne({
       include: [{
         model: this.models.transaction,
+        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {
@@ -427,6 +428,7 @@ module.exports = class SequelizeDB extends DBInterface {
     const blocks = await this.models.block.findAll({
       include: [{
         model: this.models.transaction,
+        as: 'transactions',
         attributes: ['serialized']
       }],
       attributes: {
