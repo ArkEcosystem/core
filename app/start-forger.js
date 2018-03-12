@@ -58,7 +58,7 @@ async function init (password, address) {
 async function configure () {
   await config.init(commander.config)
 
-  if (config.server.test) {
+  if (config.server.test || !config.server.bip38) {
     return init()
   }
 
