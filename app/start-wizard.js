@@ -17,12 +17,7 @@ const start = async () => {
     ]
   }]
 
-  let onCancel = prompt => {
-    console.log('Never stop prompting!')
-    return true
-  }
-
-  let response = await prompts(questions, { onCancel })
+  let response = await prompts(questions)
 
   if (!response.action) {
     console.error('Invalid configuration provided, exiting application.')
