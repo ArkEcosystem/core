@@ -16,12 +16,12 @@ process.on('unhandledRejection', (reason, p) => {
   logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
 })
 
-const start = async (password, address) => {
+const start = async () => {
   try {
     logger.init(config.server.logging, config.network.name + '-forger')
 
-    const forgerManager = await new ForgerManager(config, password)
-    const forgers = await forgerManager.loadDelegates(address)
+    const forgerManager = await new ForgerManager(config, commander.password)
+    const forgers = await forgerManager.loadDelegates(commander.address)
 
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
@@ -31,10 +31,4 @@ const start = async (password, address) => {
   }
 }
 
-const configure = async () => {
-  await config.init(commander.config)
-
-  return config.server.test ? start() : start(commander.password, commander.address)
-}
-
-configure()
+start()
