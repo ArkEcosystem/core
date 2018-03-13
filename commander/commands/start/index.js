@@ -9,5 +9,5 @@ module.exports = async () => {
 
   if (response.action === 'exit') process.exit()
 
-  require(`app/commander/${response.action}`)(response)
+  require(`../${response.action}`)(response)
 }
