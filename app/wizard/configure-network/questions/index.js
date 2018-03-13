@@ -3,8 +3,8 @@ module.exports = [{
   name: 'network',
   message: 'What network are you on?',
   choices: [
-    { title: 'Mainnet', value: 'mainnet' },
-    { title: 'Devnet', value: 'devnet' },
-    { title: 'Testnet', value: 'testnet' }
+    { title: 'Main / Production', value: 'mainnet' },
+    { title: 'Development', value: 'devnet' },
+    { title: 'Test', value: 'testnet' }
   ]
 }]
