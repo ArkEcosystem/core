@@ -55,6 +55,7 @@
     "commander": "^2.14.0",
     "deepmerge": "^2.0.1",
     "directory-tree": "^2.0.0",
+    "dotenv": "^5.0.1",
     "fast-glob": "^2.1.0",
     "figlet": "^1.2.0",
     "hapi": "^17.2.0",
