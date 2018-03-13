@@ -12,7 +12,6 @@ module.exports = [{
     { title: 'Configure Public API', value: 'configure-public-api' },
     { title: 'Configure Webhooks', value: 'configure-webhooks' },
     { title: 'Show Logs', value: 'show-logs' },
-    { title: 'Reset Configuration', value: 'reset-config' },
     { title: 'Exit', value: 'exit' }
   ]
 }]
