@@ -19,9 +19,7 @@ commander
   .option('--network-start', 'force genesis network start')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`))
 
 const start = async () => {
   try {
