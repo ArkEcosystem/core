@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const log = console.log
 
-module.exports = async (answers) => {
+module.exports = async () => {
   log(chalk.bold('Hello world!'))
 }

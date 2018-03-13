@@ -1,7 +1,7 @@
 module.exports = [{
   type: 'password',
-  name: 'passphrase',
-  message: 'What is your passphrase?'
+  name: 'secret',
+  message: 'What is your secret?'
 }, {
   type: 'password',
   name: 'password',
