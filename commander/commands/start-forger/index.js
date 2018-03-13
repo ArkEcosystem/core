@@ -1,5 +1,7 @@
 const prompts = require('prompts')
 const arkjs = require('arkjs')
+const chalk = require('chalk')
+const { sleep } = require('sleep')
 const questions = require('./questions')
 const { onCancel, readConfig } = require('commander/utils')
 
@@ -13,6 +15,10 @@ module.exports = async () => {
       return console.log('start forger with password & address')
     }
 
-    throw new Error('Invalid Address Provided')
+    console.log(chalk.bgRed('The provided address could not be validated.'))
+
+    sleep(1)
+
+    onCancel()
   }
 }

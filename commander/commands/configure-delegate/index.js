@@ -4,10 +4,18 @@ const { onCancel, readConfig, writeConfig } = require('commander/utils')
 const Delegate = require('app/models/delegate')
 
 module.exports = async () => {
-  const response = await prompts(questions, { onCancel })
+  let response = await prompts(questions, { onCancel })
 
   let config = readConfig('delegates')
   config['bip38'] = Delegate.encrypt(response.secret, readConfig('network'), response.password)
 
-  return writeConfig('delegates', config)
+  writeConfig('delegates', config)
+
+  response = await prompts([{
+    type: 'confirm',
+    name: 'start',
+    message: 'Your delegate has been configured. Would you like to start the forger?'
+  }], { onCancel })
+
+  response.start ? require('../start-forger')() : onCancel()
 }
