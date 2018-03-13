@@ -4,7 +4,7 @@
   "description": "Revamped ark-node",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_PATH=. node app/start-wizard.js",
+    "start": "NODE_PATH=. node commander/index.js",
     "start:mainnet": "NODE_PATH=. node app/start-relay-node.js -c config/mainnet",
     "start:mainnet:watch": "NODE_PATH=. nodemon app/start-relay-node.js -c config/mainnet",
     "start:devnet": "NODE_PATH=. node app/start-relay-node.js -c config/devnet",
