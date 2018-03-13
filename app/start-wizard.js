@@ -5,6 +5,9 @@ const writeFile = util.promisify(fs.writeFile)
 const splash = require('./wizard/splash')
 
 const start = async () => {
+  // Exist if we are in OpenVZ, move this to the config later (config is mounted first)
+  if (fs.existsSync('/proc/user_beancounters')) process.exit()
+
   splash()
 
   if (!fs.existsSync('.env') && !process.env.NETWORK) {
