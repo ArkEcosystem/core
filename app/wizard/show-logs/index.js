@@ -14,6 +14,8 @@ module.exports = async () => {
     choices: choices.map(f => ({ title: path.basename(f), value: f }))
   }], { onCancel })
 
-  const tail = new Tail(response.file)
-  tail.on('line', (data) => console.log(data))
+  if (response.file) {
+    const tail = new Tail(response.file)
+    tail.on('line', (data) => console.log(data))
+  }
 }

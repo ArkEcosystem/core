@@ -5,5 +5,5 @@ const onCancel = require('../cancel')
 module.exports = async (answers) => {
   const response = await prompts(questions, { onCancel })
 
-  require(`./handlers/${response.action}`)()
+  if (response.action) require(`./handlers/${response.action}`)()
 }
