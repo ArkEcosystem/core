@@ -2,7 +2,7 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const util = require('util')
 const writeFile = util.promisify(fs.writeFile)
-const splash = require('./commander/splash')
+const { splash } = require('commander/utils')
 
 const start = async () => {
   // Exist if we are in OpenVZ, move this to the config later (config is mounted first)
@@ -11,14 +11,14 @@ const start = async () => {
   splash()
 
   if (!fs.existsSync('.env') && !process.env.NETWORK) {
-    const response = await require('./commander/configure-network')()
+    const response = await require('./commands/configure-network')()
 
     await writeFile('.env', `NETWORK=${response.network}`, () => console.log(`${response.network} has been configured as your network.`))
   }
 
   dotenv.config()
 
-  require('./commander/start')()
+  require('./commands/start')()
 }
 
 start()
