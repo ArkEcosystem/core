@@ -1,9 +1,11 @@
 const Sequelize = require('sequelize')
-const config = require(`config/${process.env.NETWORK}/server.json`).database
-const onCancel = require('../../cancel')
+const onCancel = require('app/wizard/cancel')
 const { sleep } = require('sleep')
+const utils = require('app/wizard/utils')
 
 module.exports = async () => {
+  const config = utils.readConfig('server').database
+
   const db = new Sequelize(config.options.uri, {
     dialect: config.options.dialect,
     logging: config.options.logging,

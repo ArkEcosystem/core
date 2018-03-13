@@ -1,8 +1,13 @@
 const prompts = require('prompts')
 const questions = require('./questions')
-const onCancel = require('../../../cancel')
-const config = require(`config/${process.env.NETWORK}/api/public.json`)
+const onCancel = require('app/wizard/cancel')
+const utils = require('app/wizard/utils')
 
 module.exports = async (answers) => {
-  config.rateLimit = await prompts(questions, { onCancel })
+  const response = await prompts(questions, { onCancel })
+
+  let config = utils.readConfig('api/public')
+  config.rateLimit = response.rateLimit
+
+  return utils.writeConfig('api/public', config)
 }

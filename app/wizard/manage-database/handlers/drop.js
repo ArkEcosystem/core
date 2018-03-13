@@ -1,9 +1,11 @@
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
 const path = require('path')
-const config = require(`config/${process.env.NETWORK}/server.json`).database
+const utils = require('app/wizard/utils')
 
 module.exports = async () => {
+  const config = utils.readConfig('server').database
+
   const db = new Sequelize(config.options.uri, {
     dialect: config.options.dialect,
     logging: config.options.logging,

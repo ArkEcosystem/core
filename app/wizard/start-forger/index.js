@@ -1,6 +1,6 @@
 const prompts = require('prompts')
 const questions = require('./questions')
-const onCancel = require('../cancel')
+const onCancel = require('app/wizard/cancel')
 // const pm2 = require('pm2')
 
 module.exports = async (answers) => {

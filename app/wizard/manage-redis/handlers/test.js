@@ -1,10 +1,10 @@
 const Redis = require('ioredis')
-const config = require(`config/${process.env.NETWORK}/server.json`)
-const onCancel = require('../../cancel')
+const onCancel = require('app/wizard/cancel')
 const { sleep } = require('sleep')
+const utils = require('app/wizard/utils')
 
 module.exports = async () => {
-  const client = new Redis(config.redis)
+  const client = new Redis(utils.readConfig('server').redis)
 
   client.on('connect', () => {
     console.log('Redis connection established.')

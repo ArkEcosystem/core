@@ -1,20 +1,16 @@
 const prompts = require('prompts')
 const questions = require('./questions')
-const onCancel = require('../../../cancel')
-const config = require(`config/${process.env.NETWORK}/api/public.json`)
+const onCancel = require('app/wizard/cancel')
+const utils = require('app/wizard/utils')
 
 module.exports = async (answers) => {
   const response = await prompts(questions, { onCancel })
 
-  config.cache = {
-    enabled: response.enabled,
-    options: {
-      name: 'redisCache',
-      engine: 'catbox-redis',
-      host: response.host,
-      port: response.port,
-      partition: 'cache',
-      expiresIn: response.expiresIn
-    }
-  }
+  let config = utils.readConfig('api/public')
+  config.cache.enabled = response.enabled
+  config.cache.options.host = response.host
+  config.cache.options.port = response.port
+  config.cache.options.expiresIn = response.expiresIn
+
+  return utils.writeConfig('api/public', config)
 }

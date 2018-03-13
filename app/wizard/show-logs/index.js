@@ -2,7 +2,7 @@ const prompts = require('prompts')
 const fg = require('fast-glob')
 const Tail = require('tail').Tail
 const path = require('path')
-const onCancel = require('../cancel')
+const onCancel = require('app/wizard/cancel')
 
 module.exports = async () => {
   const choices = await fg(path.resolve(__dirname, '../../../storage/logs/*.log'))

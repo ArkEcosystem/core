@@ -1,8 +1,8 @@
 const prompts = require('prompts')
 const argon2 = require('argon2')
 const questions = require('./questions')
-const onCancel = require('../cancel')
-const utils = require('../utils')
+const onCancel = require('app/wizard/cancel')
+const utils = require('app/wizard/utils')
 
 module.exports = async (answers) => {
   const response = await prompts(questions, { onCancel })
