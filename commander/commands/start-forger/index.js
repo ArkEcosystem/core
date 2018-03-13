@@ -4,18 +4,27 @@ const chalk = require('chalk')
 const { sleep } = require('sleep')
 const questions = require('./questions')
 const { onCancel, readConfig } = require('commander/utils')
+const { decrypt } = require('app/utils/forger-crypto')
 
 module.exports = async () => {
-  if (!readConfig('delegates').bip38) await require('../configure-delegate')()
+  const identity = readConfig('delegates').identity
+
+  if (!identity) await require('../configure-delegate')()
 
   const response = await prompts(questions, { onCancel })
 
-  if (response.password && response.address) {
-    if (arkjs.crypto.validateAddress(response.address, readConfig('network').pubKeyHash)) {
-      return console.log('start forger with password & address')
-    }
+  if (response.password) {
+    try {
+      const [bip38, address] = decrypt(identity, response.password)
 
-    console.log(chalk.bgRed('The provided address could not be validated.'))
+      if (arkjs.crypto.validateAddress(address, readConfig('network').pubKeyHash)) {
+        return console.log('start forger with password & address')
+      } else {
+        console.log(chalk.bgRed('The provided address could not be validated.'))
+      }
+    } catch (error) {
+      console.log(chalk.bgRed('The provided password could not be validated.'))
+    }
 
     sleep(1)
 
