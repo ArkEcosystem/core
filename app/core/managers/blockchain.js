@@ -189,7 +189,7 @@ module.exports = class BlockchainManager {
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           // broadcast only recent blocks
-          if (arkjs.slots.getTime() - block.data.timestamp < 16) this.networkInterface.broadcastBlock(block)
+          if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
           this.transactionPool.removeForgedBlock(block)
           qcallback()
         } catch (error) {

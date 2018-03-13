@@ -346,6 +346,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
         // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
+          // remove round if it was sotred in db already
+          await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
           await blockchainManager.db.applyRound(block, false, false)
         }
         if (block.data.height === 1 && state.networkStart) {
