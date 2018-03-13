@@ -1,6 +1,6 @@
-const prompts = require('prompts')
-const questions = require('./questions')
+const chalk = require('chalk')
+const log = console.log
 
 module.exports = async (answers) => {
-  const response = await prompts(questions)
+  log(chalk.bold('Hello world!'))
 }

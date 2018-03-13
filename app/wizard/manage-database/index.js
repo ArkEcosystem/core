@@ -1,8 +1,9 @@
 const prompts = require('prompts')
 const questions = require('./questions')
+const onCancel = require('../cancel')
 
 module.exports = async (answers) => {
-  const response = await prompts(questions)
+  const response = await prompts(questions, { onCancel })
   const dialectResponse = await prompts(require(`./questions/${response.dialect}`))
 
   const connectionString = response.dialect === 'sqlite'
