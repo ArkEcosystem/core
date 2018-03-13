@@ -1,19 +1,11 @@
 const prompts = require('prompts')
-const chalk = require('chalk')
-const clear = require('clear')
-const figlet = require('figlet')
+const splash = require('../splash')
 const questions = require('./questions')
 
-const onCancel = () => process.exit()
-
 module.exports = async () => {
-  clear()
+  splash()
 
-  console.log(chalk.red(figlet.textSync('ARK Core', { font: 'Coinstak', horizontalLayout: 'full' })))
-
-  const response = await prompts(questions, { onCancel })
-
-  if (!response.action) process.exit()
+  const response = await prompts(questions, { onCancel: () => process.exit() })
 
   require(`app/wizard/${response.action}`)(response)
 }
