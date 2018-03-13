@@ -10,6 +10,11 @@ module.exports = [{
   initial: 'localhost'
 }, {
   type: 'number',
+  name: 'port',
+  message: 'What is your port?',
+  initial: 6379
+}, {
+  type: 'number',
   name: 'expiresIn',
   message: 'When should the cache expire and be refreshed?',
   initial: 60000

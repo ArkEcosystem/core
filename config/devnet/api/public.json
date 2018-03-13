@@ -14,6 +14,7 @@
       "name": "redisCache",
       "engine": "catbox-redis",
       "host": "localhost",
+      "port": 6379,
       "partition": "cache",
       "expiresIn": 60000
     }

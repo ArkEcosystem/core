@@ -1,6 +1,6 @@
 module.exports = [{
   type: 'confirm',
-  name: 'mount',
+  name: 'enabled',
   message: 'Would you like to enable rate limiting? (Recommended in Production)'
 }, {
   type: 'number',
