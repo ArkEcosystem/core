@@ -12,7 +12,7 @@ exports.writeConfig = async (file, data) => writeFile(`config/${process.env.NETW
 exports.splash = async () => {
   clear()
 
-  console.log(chalk.red(figlet.textSync('ARK Core', { font: 'Coinstak', horizontalLayout: 'full' })))
+  console.log(chalk.red(figlet.textSync('ARK Core 2.0', { font: '3D-ASCII' })))
 }
 
 exports.onCancel = prompt => require('./commands/start')()
