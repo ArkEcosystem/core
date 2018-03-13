@@ -7,6 +7,7 @@ const config = require('app/core/config')
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
+  .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
   .option('-i, --interactive', 'launch cli')
@@ -21,7 +22,7 @@ const start = async () => {
     logger.init(config.server.logging, config.network.name + '-forger')
 
     const forgerManager = await new ForgerManager(config, commander.password)
-    const forgers = await forgerManager.loadDelegates(commander.address)
+    const forgers = await forgerManager.loadDelegates(commander.bip38, commander.address)
 
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)

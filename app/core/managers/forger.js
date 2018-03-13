@@ -7,7 +7,6 @@ const Transaction = require('app/models/transaction')
 module.exports = class ForgerManager {
   constructor (config, password) {
     this.password = password
-    this.bip38 = config.delegates ? config.delegates.bip38 : null
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
     this.headers = {
@@ -17,13 +16,13 @@ module.exports = class ForgerManager {
     }
   }
 
-  async loadDelegates (address) {
-    if (!this.bip38 && !this.secrets) {
+  async loadDelegates (bip38, address) {
+    if (!bip38 && !this.secrets) {
       throw new Error('No delegate found')
     }
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, this.password))
-    if (this.bip38) {
-      const bip38Delegate = new Delegate(this.bip38, this.network, this.password)
+    if (bip38) {
+      const bip38Delegate = new Delegate(bip38, this.network, this.password)
       if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
         logger.info('BIP38 Delegate loaded')
         this.delegates.push(bip38Delegate)

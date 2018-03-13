@@ -18,10 +18,10 @@ module.exports = async () => {
       const [bip38, address] = decrypt(identity, response.password)
 
       if (arkjs.crypto.validateAddress(address, readConfig('network').pubKeyHash)) {
-        return console.log('start forger with password & address')
-      } else {
-        console.log(chalk.bgRed('The provided address could not be validated.'))
+        return console.log('start forger with bip38, password and address')
       }
+
+      console.log(chalk.bgRed('The provided address could not be validated.'))
     } catch (error) {
       console.log(chalk.bgRed('The provided password could not be validated.'))
     }
