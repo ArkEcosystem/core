@@ -16,6 +16,7 @@ module.exports = async () => {
 
   const umzug = new Umzug({
     storage: 'sequelize',
+    logging: console.log,
     storageOptions: {
       sequelize: db
     },
@@ -24,7 +25,7 @@ module.exports = async () => {
         db.getQueryInterface(),
         Sequelize
       ],
-      path: path.join(__dirname, '../../../database/sequelize/migrations')
+      path: path.join(__dirname, '../../../../app/database/sequelize/migrations')
     }
   })
 

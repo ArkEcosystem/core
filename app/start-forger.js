@@ -17,7 +17,8 @@ process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejectio
 
 const start = async () => {
   try {
-    logger.init(config.server.logging, config.network.name + '-forger')
+    await config.init(commander.config)
+    await logger.init(config.server.logging, config.network.name + '-forger')
 
     const forgerManager = await new ForgerManager(config)
     const forgers = await forgerManager.loadDelegates(commander.bip38, commander.address, commander.password)

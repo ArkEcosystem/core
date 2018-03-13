@@ -11,14 +11,14 @@ const path = require('path')
 const { TRANSACTION_TYPES } = require('app/core/constants')
 
 module.exports = class SequelizeDB extends DBInterface {
-  async init (params) {
+  async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
     }
 
-    this.db = new Sequelize(params.options.uri, {
-      dialect: params.options.dialect,
-      logging: !!params.options.logging,
+    this.db = new Sequelize(config.options.uri, {
+      dialect: config.options.dialect,
+      logging: !!config.options.logging,
       operatorsAliases: Sequelize.Op
     })
 
