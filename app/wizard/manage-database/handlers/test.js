@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize')
 const config = require(`config/${process.env.NETWORK}/server.json`).database
+const onCancel = require('../../cancel')
+const { sleep } = require('sleep')
 
 module.exports = async () => {
   const db = new Sequelize(config.options.uri, {
@@ -12,6 +14,10 @@ module.exports = async () => {
     await db.authenticate()
 
     console.log('Database connection has been established.')
+
+    sleep(1)
+
+    onCancel()
   } catch (error) {
     console.error('Unable to connect to the database:', error.stack)
   }

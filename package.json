@@ -81,6 +81,7 @@
     "sequelize": "^4.32.7",
     "sequelize-cli": "^4.0.0",
     "sinon": "^4.4.2",
+    "sleep": "^5.1.1",
     "sntp": "^3.0.1",
     "sqlite3": "^3.1.13",
     "standard": "^10.0.3",
