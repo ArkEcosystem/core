@@ -7,5 +7,7 @@ module.exports = async () => {
 
   const response = await prompts(questions, { onCancel: () => process.exit() })
 
+  if (response.action === 'exit') process.exit()
+
   require(`app/wizard/${response.action}`)(response)
 }

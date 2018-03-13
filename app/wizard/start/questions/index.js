@@ -10,6 +10,7 @@ module.exports = [{
     { title: 'Configure Delegate', value: 'configure-delegate' },
     { title: 'Configure Public API', value: 'configure-public-api' },
     { title: 'Configure Webhooks', value: 'configure-webhooks' },
-    { title: 'Purge Installation', value: 'purge-install' }
+    { title: 'Purge Installation', value: 'purge-install' },
+    { title: 'Exit', value: 'exit' }
   ]
 }]

@@ -5,6 +5,6 @@ module.exports = [{
   choices: [
     { title: 'Configure Connection', value: 'configure' },
     { title: 'Test Connection', value: 'test' },
-    { title: 'Purge Database', value: 'purge' }
+    { title: 'Drop Database Tables', value: 'drop' }
   ]
 }]
