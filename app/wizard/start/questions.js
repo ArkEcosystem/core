@@ -7,11 +7,12 @@ module.exports = [{
     { title: 'Start Relay', value: 'start-relay' },
     { title: 'Manage Database', value: 'manage-database' },
     { title: 'Manage Redis', value: 'manage-redis' },
+    { title: 'Configure Network', value: 'configure-network' },
     { title: 'Configure Delegate', value: 'configure-delegate' },
     { title: 'Configure Public API', value: 'configure-public-api' },
     { title: 'Configure Webhooks', value: 'configure-webhooks' },
     { title: 'Show Logs', value: 'show-logs' },
-    { title: 'Purge Installation', value: 'purge-install' },
+    { title: 'Reset Configuration', value: 'reset-config' },
     { title: 'Exit', value: 'exit' }
   ]
 }]
