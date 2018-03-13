@@ -56,9 +56,9 @@
     "commander": "^2.14.0",
     "deepmerge": "^2.0.1",
     "directory-tree": "^2.0.0",
-    "dotenv": "^5.0.1",
     "fast-glob": "^2.1.0",
     "figlet": "^1.2.0",
+    "fs-extra": "^5.0.0",
     "hapi": "^17.2.0",
     "hapi-api-version": "^2.0.0",
     "hapi-pagination": "^2.0.0",
@@ -81,11 +81,9 @@
     "request-ip": "^2.0.2",
     "sequelize": "^4.32.7",
     "sequelize-cli": "^4.0.0",
-    "sinon": "^4.4.2",
     "sleep": "^5.1.1",
     "sntp": "^3.0.1",
     "sqlite3": "^3.1.13",
-    "standard": "^10.0.3",
     "tail": "^1.2.3",
     "threads": "^0.10.1",
     "tiny-worker": "^2.1.1",
@@ -106,6 +104,8 @@
     "express": "^4.16.2",
     "jest": "^22.3.0",
     "jest-extended": "^0.6.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "sinon": "^4.4.2",
+    "standard": "^10.0.3"
   }
 }

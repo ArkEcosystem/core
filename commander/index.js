@@ -1,7 +1,6 @@
-const dotenv = require('dotenv')
 const fs = require('fs')
-const util = require('util')
-const writeFile = util.promisify(fs.writeFile)
+const os = require('os')
+const path = require('path')
 const { splash } = require('commander/utils')
 
 const start = async () => {
@@ -10,13 +9,9 @@ const start = async () => {
 
   splash()
 
-  if (!fs.existsSync('.env') && !process.env.NETWORK) {
-    const response = await require('./commands/configure-network')()
+  process.env.ARK_CONFIG = path.resolve(os.homedir(), '.ark')
 
-    await writeFile('.env', `NETWORK=${response.network}`, () => console.log(`${response.network} has been configured as your network.`))
-  }
-
-  dotenv.config()
+  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('./commands/configure-network')()
 
   require('./commands/start')()
 }

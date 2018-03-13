@@ -5,14 +5,14 @@ const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
 
-exports.readConfig = (file) => require(`config/${process.env.NETWORK}/${file}.json`)
+exports.readConfig = (file) => require(`${process.env.ARK_CONFIG}/${file}.json`)
 
-exports.writeConfig = async (file, data) => writeFile(`config/${process.env.NETWORK}/${file}.json`, JSON.stringify(data, null, 2))
+exports.writeConfig = async (file, data) => writeFile(`${process.env.ARK_CONFIG}/${file}.json`, JSON.stringify(data, null, 2))
 
 exports.splash = async () => {
   clear()
 
-  console.log(chalk.red(figlet.textSync('ARK Core 2.0', { font: '3D-ASCII' })))
+  console.log(chalk.blue(figlet.textSync('ARK Core 2.0', { font: 'isometric3' })))
 }
 
 exports.onCancel = prompt => require('./commands/start')()
