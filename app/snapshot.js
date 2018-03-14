@@ -26,21 +26,21 @@ process.on('unhandledRejection', (reason, p) => {
   process.exit(1)
 })
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
 
     logger.init(config.server.logging, config.network.name)
 
     await DependencyHandler.checkDatabaseLibraries(config)
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     db.snapshot(`${__dirname}/storage/snapshot`)
 
     logger.info('Snapshot saved')
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }
 
-init()
+start()

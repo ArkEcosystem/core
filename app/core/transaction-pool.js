@@ -4,15 +4,14 @@ const Transaction = require('app/models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('app/core/managers/blockchain')
-const webhookManager = require('app/core/managers/webhook')
 
 let instance = null
 
 module.exports = class TransactionPool {
   constructor (config) {
     this.isConnected = false
-    this.redis = config.server.txpool.enabled ? new Redis(config.server.txpool.port, config.server.txpool.host) : null
-    this.key = config.server.txpool.key
+    this.redis = config.server.transactionPool.enabled ? new Redis(config.server.redis) : null
+    this.key = config.server.transactionPool.key
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
 
@@ -38,8 +37,8 @@ module.exports = class TransactionPool {
     }
 
     logger.info(`Transaction pool initialized with connection status ${this.isConnected}`)
-    if (!config.server.txpool.enabled) {
-      logger.warn('Transaction pool IS DISABLED')
+    if (!config.server.transactionPool.enabled) {
+      logger.warning('Transaction pool IS DISABLED')
     }
     return instance
   }
@@ -60,13 +59,14 @@ module.exports = class TransactionPool {
           logger.debug(`Removing forged transaction ${tx.id} from redis pool`)
           let x = this.redis.lrem(this.key, 1, serialized)
           if (x < 1) {
-            logger.warn(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
+            logger.warning(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
           }
           await this.redis.del(`${this.key}/tx/${tx.id}`)
           await this.redis.del(`${this.key}/tx/expiration/${tx.id}`)
         }
       } catch (error) {
-        logger.error('Error removing forged transactions from pool', error.stack)
+        logger.error('Error removing forged transactions from pool')
+        logger.error(error.stack)
       }
     }
   }
@@ -77,13 +77,14 @@ module.exports = class TransactionPool {
         logger.debug(`Adding transaction ${object.id} to redis pool`)
         await this.redis.hset(`${this.key}/tx/${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
         await this.redis.rpush(this.key, object.serialized.toString('hex'))
-        // logger.warn(JSON.stringify(object.data))
+        // logger.warning(JSON.stringify(object.data))
         if (object.data.expiration > 0) {
           logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
           await this.redis.hset(`${this.key}/tx/expiration/${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
         }
       } catch (error) {
-        logger.error('Rpush tx to txpool error:', error.stack)
+        logger.error('Rpush transaction to transaction pool error')
+        logger.error(error.stack)
       }
     }
   }
@@ -93,7 +94,8 @@ module.exports = class TransactionPool {
       try {
         return this.redis.lrange(this.key, start, start + size - 1)
       } catch (error) {
-        logger.error('Get serialized items from redis list: ', error.stack)
+        logger.error('Get serialized items from redis list: ')
+        logger.error(error.stack)
       }
     }
   }

@@ -106,7 +106,7 @@ class DBInterface {
     const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
 
     if (previousRound + 1 === round && block.data.height > activeDelegates) {
-      logger.info('Back to previous round', previousRound)
+      logger.info(`Back to previous round: ${previousRound}`)
 
       await this.getActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list
