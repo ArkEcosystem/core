@@ -3,10 +3,13 @@
   "port": 4000,
   "version": "2.0.0",
   "logging": {
-    "file": "debug",
-    "console": "debug"
+    "driver": "app/logging/winston",
+    "options": {
+      "file": "debug",
+      "console": "info"
+    }
   },
-  "db": {
+  "database": {
     "driver": "app/database/sequelize",
     "options": {
       "uri": "sqlite:storage/database/testnet.sqlite",
@@ -16,15 +19,13 @@
       "logging": false
     }
   },
-  "txpool": {
-    "enabled": true,
-    "host": "localhost",
-    "port": 6379,
-    "key": "ark/pool"
-  },
-  "queue": {
+  "redis": {
     "host": "localhost",
     "port": 6379
+  },
+  "transactionPool": {
+    "enabled": false,
+    "key": "ark/pool"
   },
   "peers": {
     "blackList": []

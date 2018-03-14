@@ -1,5 +1,5 @@
 {
-  "mount": true,
+  "enabled": true,
   "port": 4003,
   "versions": {
     "default": 2,
@@ -13,7 +13,7 @@
     "options": {
       "name": "public-api-cache",
       "engine": "catbox-redis",
-      "host": "127.0.0.1",
+      "host": "localhost",
       "partition": "cache"
     }
   },

@@ -44,7 +44,5 @@ module.exports = {
 
     queryInterface.addIndex('blocks', ['height', 'generatorPublicKey'])
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('blocks')
-  }
+  down: (queryInterface, Sequelize) => queryInterface.dropTable('blocks')
 }

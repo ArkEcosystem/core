@@ -19,15 +19,13 @@ commander
   .option('--network-start', 'force genesis network start')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`))
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
-
     await logger.init(config.server.logging, config.network.name)
+
     const blockchainManager = await new BlockchainManager(config, commander.networkStart)
 
     logger.info('Initialising Dependencies...')
@@ -40,7 +38,7 @@ async function init () {
     await new WebhookManager(config.webhooks).init()
 
     logger.info('Initialising Database Interface...')
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     await blockchainManager.attachDBInterface(db)
 
     logger.info('Initialising P2P Interface...')
@@ -66,9 +64,9 @@ async function init () {
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }
 
-init()
+start()

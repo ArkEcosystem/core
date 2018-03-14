@@ -18,7 +18,7 @@ module.exports = async function () {
 
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     await blockchainManager.attachDBInterface(db)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)

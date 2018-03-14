@@ -325,7 +325,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       try {
         let block = await blockchainManager.db.getLastBlock()
         if (!block) {
-          logger.warn('No block found in database')
+          logger.warning('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
           if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
             logger.error('FATAL: The genesis block payload hash is different from configured nethash')
@@ -346,6 +346,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
         // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
+          // remove round if it was sotred in db already
+          await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
           await blockchainManager.db.applyRound(block, false, false)
         }
         if (block.data.height === 1 && state.networkStart) {

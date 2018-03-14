@@ -17,7 +17,7 @@ module.exports = class BlockchainManager {
     // flag to force a network start
     stateMachine.state.networkStart = !!networkStart
     if (stateMachine.state.networkStart) {
-      logger.warn('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.warning('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
       logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
     }
     this.actions = stateMachine.actionMap(this)
@@ -175,7 +175,7 @@ module.exports = class BlockchainManager {
         qcallback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
@@ -189,12 +189,12 @@ module.exports = class BlockchainManager {
           await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
           state.lastBlock = block
           // broadcast only recent blocks
-          if (arkjs.slots.getTime() - block.data.timestamp < 16) this.networkInterface.broadcastBlock(block)
+          if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
           this.transactionPool.removeForgedBlock(block)
           qcallback()
         } catch (error) {
           logger.error(error.stack)
-          logger.debug('Refused new block', JSON.stringify(block.data))
+          logger.debug(`Refused new block: ${JSON.stringify(block.data)}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')
           qcallback()
@@ -215,7 +215,7 @@ module.exports = class BlockchainManager {
         qcallback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
