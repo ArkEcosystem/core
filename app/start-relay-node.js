@@ -55,7 +55,7 @@ const start = async () => {
     logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
-    console.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }

@@ -26,7 +26,7 @@ const start = async () => {
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    console.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }

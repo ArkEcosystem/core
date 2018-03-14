@@ -38,7 +38,7 @@ const start = async () => {
 
     logger.info('Snapshot saved')
   } catch (error) {
-    console.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }

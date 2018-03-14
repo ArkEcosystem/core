@@ -15,6 +15,9 @@ const ForgerManager = require('app/core/managers/forger')
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
+  .option('-b, --bip38 <bip38>', 'forger bip38')
+  .option('-a, --address <address>', 'forger address')
+  .option('-p, --password <password>', 'forger password')
   .option('-i, --interactive', 'launch cli')
   .option('--network-start', 'force genesis network start')
   .parse(process.argv)
@@ -59,12 +62,12 @@ const start = async () => {
 
     logger.info('Starting Forger...')
     const forgerManager = await new ForgerManager(config)
-    const forgers = await forgerManager.loadDelegates()
+    const forgers = await forgerManager.loadDelegates(commander.bip38, commander.address, commander.password)
 
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    console.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }
