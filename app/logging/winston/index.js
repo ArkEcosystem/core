@@ -10,14 +10,14 @@ module.exports = class Logger {
     this.winston.add(winston.transports.DailyRotateFile, {
       filename: `${__dirname}/../../../storage/logs/ark-node-${network}`,
       datePattern: '.yyyy-MM-dd.log',
-      level: config.file,
+      level: config.options.file,
       zippedArchive: true,
       formatter: (info) => formatter(info)
     })
 
     this.winston.add(winston.transports.Console, {
       colorize: true,
-      level: config.console,
+      level: config.options.console,
       timestamp: () => Date.now(),
       formatter: (info) => formatter(info)
     })
