@@ -20,6 +20,7 @@ module.exports = class TransactionPool {
       this.redis.on('connect', () => {
         logger.info('Redis connection established.')
         this.isConnected = true
+        this.cleanPool(arkjs.slots.getTime()).then(() => logger.info('Pool cleaned')) // we check for expiration of transactions and clean them
       })
     }
 
@@ -79,7 +80,7 @@ module.exports = class TransactionPool {
         await this.redis.rpush(this.key, object.serialized.toString('hex'))
         // logger.warn(JSON.stringify(object.data))
         if (object.data.expiration > 0) {
-          logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
+          // logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
           await this.redis.hset(`${this.key}/tx/expiration/${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
         }
       } catch (error) {
