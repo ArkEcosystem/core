@@ -8,7 +8,7 @@ module.exports = class Logger {
     this.winston = new (winston.Logger)()
 
     this.winston.add(winston.transports.DailyRotateFile, {
-      filename: `${__dirname}/../../storage/logs/ark-node-${network}`,
+      filename: `${__dirname}/../../../storage/logs/ark-node-${network}`,
       datePattern: '.yyyy-MM-dd.log',
       level: config.file,
       zippedArchive: true,
