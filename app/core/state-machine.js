@@ -325,7 +325,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       try {
         let block = await blockchainManager.db.getLastBlock()
         if (!block) {
-          logger.warn('No block found in database')
+          logger.warning('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
           if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
             logger.error('FATAL: The genesis block payload hash is different from configured nethash')

@@ -17,13 +17,13 @@ commander
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`))
+process.on('unhandledRejection', (reason, p) => console.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`))
 
 const start = async () => {
   try {
     await config.init(commander.config)
-
     await logger.init(config.server.logging, config.network.name)
+
     const blockchainManager = await new BlockchainManager(config)
 
     logger.info('Initialising Dependencies...')
@@ -55,7 +55,7 @@ const start = async () => {
     logger.info('Initialising Public API...')
     await PublicAPI(config)
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }

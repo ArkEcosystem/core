@@ -34,7 +34,8 @@ module.exports = class SequelizeDB extends DBInterface {
       await this.registerModels()
       logger.info('Database models have been registered.')
     } catch (error) {
-      logger.error('Unable to connect to the database:', error.stack)
+      logger.error('Unable to connect to the database:')
+      logger.error(error.stack)
     }
   }
 
@@ -168,7 +169,7 @@ module.exports = class SequelizeDB extends DBInterface {
         if (wallet) {
           wallet.balance = parseInt(row.amount)
         } else {
-          logger.warn(`lost cold wallet: ${row.recipientId} ${row.amount}`)
+          logger.warning(`lost cold wallet: ${row.recipientId} ${row.amount}`)
         }
       })
 
@@ -201,7 +202,7 @@ module.exports = class SequelizeDB extends DBInterface {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
         if (wallet.balance < 0) {
-          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
+          logger.warning(`Negative balance should never happen except from premining address: ${wallet}`)
         }
       })
 

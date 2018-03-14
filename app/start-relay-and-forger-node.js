@@ -24,8 +24,8 @@ process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejectio
 const start = async () => {
   try {
     await config.init(commander.config)
-
     await logger.init(config.server.logging, config.network.name)
+
     const blockchainManager = await new BlockchainManager(config, commander.networkStart)
 
     logger.info('Initialising Dependencies...')
@@ -64,7 +64,7 @@ const start = async () => {
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error('Fatal Error', error.stack)
     process.exit(1)
   }
 }

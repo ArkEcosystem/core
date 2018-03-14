@@ -17,7 +17,7 @@ module.exports = class BlockchainManager {
     // flag to force a network start
     stateMachine.state.networkStart = !!networkStart
     if (stateMachine.state.networkStart) {
-      logger.warn('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.warning('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
       logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
     }
     this.actions = stateMachine.actionMap(this)
@@ -175,7 +175,7 @@ module.exports = class BlockchainManager {
         qcallback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
@@ -193,7 +193,7 @@ module.exports = class BlockchainManager {
           qcallback()
         } catch (error) {
           logger.error(error.stack)
-          logger.debug('Refused new block', JSON.stringify(block.data))
+          logger.debug(`Refused new block: ${JSON.stringify(block.data)}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')
           qcallback()
@@ -214,7 +214,7 @@ module.exports = class BlockchainManager {
         qcallback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
       qcallback()
     }
   }
