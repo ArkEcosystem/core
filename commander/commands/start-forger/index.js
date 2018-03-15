@@ -29,7 +29,7 @@ module.exports = async () => {
             '--password', response.password
           ]
         }, () => {
-          console.log('The forger has been started.')
+          console.log(chalk.green('The forger has been started.'))
 
           sleep(1)
 

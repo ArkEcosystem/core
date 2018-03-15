@@ -1,3 +1,4 @@
+const chalk = require('chalk')
 const path = require('path')
 const { startProcess } = require('../../utils')
 const { sleep } = require('sleep')
@@ -11,7 +12,7 @@ module.exports = async () => {
       '--config', process.env.ARK_CONFIG
     ]
   }, () => {
-    console.log('The relay node has been started.')
+    console.log(chalk.green('The relay node has been started.'))
 
     sleep(1)
 
