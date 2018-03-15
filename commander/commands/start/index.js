@@ -1,5 +1,5 @@
 const prompts = require('prompts')
-const { splash } = require('commander/utils')
+const { splash } = require('../../utils')
 const questions = require('./questions')
 
 module.exports = async () => {

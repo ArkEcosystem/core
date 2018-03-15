@@ -1,7 +1,7 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { splash } = require('commander/utils')
+const { splash } = require('./utils')
 
 const start = async () => {
   // Exist if we are in OpenVZ, move this to the config later (config is mounted first)

@@ -4,7 +4,7 @@ const arkjs = require('arkjs')
 const chalk = require('chalk')
 const { sleep } = require('sleep')
 const questions = require('./questions')
-const { onCancel, readConfig, startProcess } = require('commander/utils')
+const { onCancel, readConfig, startProcess } = require('../../utils')
 const { decrypt } = require('../../../utils/forger-crypto')
 
 module.exports = async () => {

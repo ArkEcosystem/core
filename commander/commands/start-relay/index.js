@@ -1,5 +1,5 @@
 const path = require('path')
-const { startProcess } = require('commander/utils')
+const { startProcess } = require('../../utils')
 
 module.exports = async () => {
   startProcess({
