@@ -20,8 +20,8 @@ module.exports = async () => {
 
       if (arkjs.crypto.validateAddress(address, readConfig('network').pubKeyHash)) {
         startProcess({
-          name: 'ark-core:forger',
-          script: path.resolve(__dirname, '../../../app/start-forger.js'),
+          name: 'ark-core:relay-and-forger',
+          script: path.resolve(__dirname, '../../../app/start-relay-and-forger.js'),
           args: [
             '--config', process.env.ARK_CONFIG,
             '--bip38', bip38,

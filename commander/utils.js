@@ -1,3 +1,4 @@
+const pm2 = require('pm2')
 const fs = require('fs')
 const util = require('util')
 const writeFile = util.promisify(fs.writeFile)
@@ -16,3 +17,23 @@ exports.splash = async () => {
 }
 
 exports.onCancel = prompt => require('./commands/start')()
+
+exports.startProcess = (options) => {
+  pm2.connect((error) => {
+    if (error) {
+      console.log(chalk.bgRed(error.message))
+      process.exit(2)
+    }
+
+    pm2.start(options, (error, apps) => {
+      pm2.disconnect()
+
+      if (error) {
+        console.log(chalk.bgRed(error.message))
+        process.exit(2)
+      } else {
+        console.log(chalk.green('started'))
+      }
+    })
+  })
+}
