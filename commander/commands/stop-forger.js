@@ -6,10 +6,10 @@ module.exports = async () => {
   stopProcess('ark-core:forger', () => {
     console.log(chalk.bgRed('The forger has been stopped.'))
 
-    getProcessStatus()
+    getProcessStatus(() => {
+      sleep(1)
 
-    sleep(1)
-
-    onCancel()
+      onCancel()
+    })
   })
 }

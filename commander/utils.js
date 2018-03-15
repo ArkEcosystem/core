@@ -18,7 +18,7 @@ exports.splash = async () => {
 
 exports.onCancel = prompt => require('./commands/start')()
 
-exports.startProcess = (options) => {
+exports.startProcess = (options, callback) => {
   pm2.connect((error) => {
     if (error) {
       console.log(chalk.bgRed(error.message))
@@ -31,9 +31,9 @@ exports.startProcess = (options) => {
       if (error) {
         console.log(chalk.bgRed(error.message))
         process.exit(2)
-      } else {
-        console.log(chalk.green('started'))
       }
+
+      if (callback instanceof Function) callback()
     })
   })
 }
@@ -51,9 +51,9 @@ exports.stopProcess = (pid, callback) => {
       if (error) {
         console.log(chalk.bgRed(error.message))
         process.exit(2)
-      } else {
-        callback()
       }
+
+      if (callback instanceof Function) callback()
     })
   })
 }
@@ -73,9 +73,10 @@ exports.getProcessStatus = (callback) => {
         process.exit(2)
       } else {
         const getProcess = (prefix, name) => {
-          const relay = processes.filter(e => e.name === name)[0]
-          process.env[`${prefix}_PID`] = relay ? relay.pid : 0
-          process.env[`${prefix}_STATUS`] = relay ? relay.pm2_env.status : 'offline'
+          const details = processes.filter(e => e.name === name)[0]
+          console.log(details ? details.pid : 0)
+          process.env[`${prefix}_PID`] = details ? details.pid : 0
+          process.env[`${prefix}_STATUS`] = details ? details.pm2_env.status : 'offline'
         }
 
         getProcess('ARK_RELAY', 'ark-core:relay')

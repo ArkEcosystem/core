@@ -28,6 +28,12 @@ module.exports = async () => {
             '--address', address,
             '--password', response.password
           ]
+        }, () => {
+          console.log('The relay node and forger have been started.')
+
+          sleep(1)
+
+          onCancel()
         })
       }
 
