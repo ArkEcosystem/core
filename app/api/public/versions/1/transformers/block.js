@@ -1,4 +1,4 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 
 module.exports = (model) => {

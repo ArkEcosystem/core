@@ -1,5 +1,5 @@
-const Wallet = require('app/models/wallet')
-const sortTransactions = require('app/utils/sort-transactions')
+const Wallet = require('../../../app/models/wallet')
+const sortTransactions = require('../../../app/utils/sort-transactions')
 
 describe('Model | Delegate', () => {
   describe('static sortTransactions', () => {

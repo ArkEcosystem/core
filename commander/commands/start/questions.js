@@ -5,6 +5,7 @@ module.exports = [{
   choices: [
     { title: 'Start Forger', value: 'start-forger' },
     { title: 'Start Relay', value: 'start-relay' },
+    { title: 'Start Relay & Forger', value: 'start-relay-and-forger' },
     { title: 'Manage Database', value: 'manage-database' },
     { title: 'Manage Redis', value: 'manage-redis' },
     { title: 'Configure Network', value: 'configure-network' },

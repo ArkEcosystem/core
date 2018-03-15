@@ -1,9 +1,9 @@
 const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
-const db = require('app/core/dbinterface')
-const logger = require('app/core/logger')
-const queue = require('app/core/managers/queue')
+const db = require('../dbinterface')
+const logger = require('../logger')
+const queue = require('../managers/queue')
 
 let instance
 

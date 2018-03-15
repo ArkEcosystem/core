@@ -1,9 +1,9 @@
 const async = require('async')
 const arkjs = require('arkjs')
-const Block = require('app/models/block')
-const logger = require('app/core/logger')
-const stateMachine = require('app/core/state-machine')
-const sleep = require('app/utils/sleep')
+const Block = require('../../models/block')
+const logger = require('../logger')
+const stateMachine = require('../state-machine')
+const sleep = require('../../utils/sleep')
 
 let instance = null
 

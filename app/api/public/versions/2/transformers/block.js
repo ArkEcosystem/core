@@ -1,4 +1,4 @@
-const db = require('app/core/dbinterface').getInstance()
+const db = require('../../../../../core/dbinterface').getInstance()
 
 module.exports = (model) => {
   const generator = db.walletManager.getWalletByPublicKey(model.generatorPublicKey)

@@ -1,6 +1,12 @@
-const chalk = require('chalk')
-const log = console.log
+const path = require('path')
+const { startProcess } = require('../../utils')
 
 module.exports = async () => {
-  log(chalk.bold('Hello world!'))
+  startProcess({
+    name: 'ark-core:relay',
+    script: path.resolve(__dirname, '../../../app/start-relay.js'),
+    args: [
+      '--config', process.env.ARK_CONFIG
+    ]
+  })
 }

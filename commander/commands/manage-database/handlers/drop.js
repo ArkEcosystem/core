@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
 const path = require('path')
-const { readConfig } = require('commander/utils')
+const { readConfig } = require('../../../utils')
 
 module.exports = async () => {
   const config = readConfig('server').database

@@ -1,4 +1,4 @@
-const constants = require('app/core/config').constants
+const constants = require('../../../../../core/config').constants
 
 module.exports = {
   forgingStatus: {

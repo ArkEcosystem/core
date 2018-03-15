@@ -1,8 +1,8 @@
 const prompts = require('prompts')
 const questions = require('./questions')
-const { onCancel, readConfig, writeConfig } = require('commander/utils')
-const Delegate = require('app/models/delegate')
-const { encrypt } = require('app/utils/forger-crypto')
+const { onCancel, readConfig, writeConfig } = require('../../utils')
+const Delegate = require('../../../app/models/delegate')
+const { encrypt } = require('../../../app/utils/forger-crypto')
 
 module.exports = async () => {
   let response = await prompts(questions, { onCancel })

@@ -1,9 +1,9 @@
-const Wallet = require('app/models/wallet')
-const config = require('app/core/config')
-const logger = require('app/core/logger')
+const Wallet = require('../../models/wallet')
+const config = require('../config')
+const logger = require('../logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
-const { TRANSACTION_TYPES } = require('app/core/constants')
+const { TRANSACTION_TYPES } = require('../constants')
 
 module.exports = class WalletManager {
   constructor () {

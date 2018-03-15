@@ -2,7 +2,7 @@ const prompts = require('prompts')
 const fg = require('fast-glob')
 const Tail = require('tail').Tail
 const path = require('path')
-const { onCancel } = require('commander/utils')
+const { onCancel } = require('../../utils')
 
 module.exports = async () => {
   const choices = await fg(path.resolve(__dirname, '../../../storage/logs/*.log'))

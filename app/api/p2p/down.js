@@ -1,8 +1,8 @@
 const Peer = require('./peer')
-const logger = require('app/core/logger')
+const logger = require('../../core/logger')
 const dns = require('dns')
-const isLocalhost = require('app/utils/is-localhost')
-const webhookManager = require('app/core/managers/webhook')
+const isLocalhost = require('../../utils/is-localhost')
+const webhookManager = require('../../core/managers/webhook')
 
 module.exports = class Down {
   constructor (config) {
