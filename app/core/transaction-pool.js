@@ -10,28 +10,9 @@ let instance = null
 module.exports = class TransactionPool {
   constructor (config) {
     this.isConnected = false
-    this.redis = config.server.transactionPool.enabled ? new Redis(config.server.redis) : null
-    this.key = config.server.transactionPool.key
+    this.keyPrefix = config.server.transactionPool.keyPrefix
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-
-    if (this.redis) {
-      this.redis.on('connect', () => {
-        logger.info('Redis connection established.')
-        this.isConnected = true
-        this.cleanPool(arkjs.slots.getTime()).then(() => logger.info('Pool cleaned')) // we check for expiration of transactions and clean them
-      })
-    }
-
-    const that = this
-    this.queue = async.queue((transaction, qcallback) => {
-      if (that.verify(transaction)) {
-        // for expiration testing
-        if (config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(200))
-        that.add(transaction)
-      }
-      qcallback()
-    }, 1)
 
     if (!instance) {
       instance = this
@@ -44,56 +25,108 @@ module.exports = class TransactionPool {
     return instance
   }
 
+  async init () {
+    this.redis = this.config.server.transactionPool.enabled ? new Redis(this.config.server.redis) : null
+    this.redisSub = this.config.server.transactionPool.enabled ? new Redis(this.config.server.redis) : null
+
+    const that = this
+    this.queue = async.queue((transaction, qcallback) => {
+      if (that.verify(transaction)) {
+        // for expiration testing
+        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(500) + 1)
+        that.add(transaction)
+      }
+      qcallback()
+    }, 1)
+
+    if (this.redis) {
+      this.redis.on('connect', () => {
+        logger.info('Redis connection established.')
+        that.isConnected = true
+        that.redis.config('set', 'notify-keyspace-events', 'Ex')
+        that.redisSub.subscribe('__keyevent@0__:expired')
+      })
+
+      this.redisSub.on('message', (channel, message) => {
+        // logger.debug(`Receive message ${message} from channel ${channel}`)
+        const keyDetails = message.split('/')
+        that.removeTransaction(keyDetails[4], keyDetails[3])
+      })
+    }
+    return instance
+  }
+
   static getInstance () {
     return instance
   }
 
   async size () {
-    return this.isConnected ? this.redis.llen(this.key) : -1
+    return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
   }
 
-  async removeForgedTransactions (blockTransactions) {
-    if (this.isConnected) {
-      try {
-        for (let tx of blockTransactions) {
-          const serialized = await this.redis.hget(`${this.key}/tx/${tx.id}`, 'serialized')
-          logger.debug(`Removing forged transaction ${tx.id} from redis pool`)
-          let x = this.redis.lrem(this.key, 1, serialized)
-          if (x < 1) {
-            logger.warning(`Removing failed, transaction not found in pool with key:${this.key} tx:${serialized} TX_JSON:${JSON.stringify(tx)}`)
-          }
-          await this.redis.del(`${this.key}/tx/${tx.id}`)
-          await this.redis.del(`${this.key}/tx/expiration/${tx.id}`)
-        }
-      } catch (error) {
-        logger.error('Error removing forged transactions from pool')
-        logger.error(error.stack)
-      }
-    }
-  }
-
-  async add (object) {
+  async add (object, limit) {
     if (this.isConnected && object instanceof Transaction) {
       try {
-        logger.debug(`Adding transaction ${object.id} to redis pool`)
-        await this.redis.hset(`${this.key}/tx/${object.id}`, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
-        await this.redis.rpush(this.key, object.serialized.toString('hex'))
+        let sendersTrx = await this.redis.get(this.__getRedisSenderPublicKey(object.data.senderPublicKey))
+        sendersTrx = !sendersTrx ? 0 : sendersTrx
+        console.log(sendersTrx, this.config.server.transactionPool.maxTransactionsPerSender)
+
+        if (sendersTrx > this.config.server.transactionPool.maxTransactionsPerSender) {
+          logger.warning(`Sender ${object.data.senderPublicKey} has too many transaction in pool. Transactions not added`)
+          return
+        }
+
+        // logger.debug(`Adding transaction ${object.id} to redis pool`)
+        await this.redis.hset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timeLock', object.data.timelock)
+        await this.redis.rpush(this.__getRedisOrderKey(), object.id)
+
+        await this.redis.incr(this.__getRedisSenderPublicKey(object.data.senderPublicKey))
         // logger.warning(JSON.stringify(object.data))
         if (object.data.expiration > 0) {
           // logger.debug(`Received transaction ${object.id} with expiration ${object.data.expiration}`)
-          await this.redis.hset(`${this.key}/tx/expiration/${object.id}`, 'id', object.id, 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration)
+          await this.redis.setex(this.__getRedisTransactionExpirationKey(object.id, object.data.senderPublicKey), object.data.expiration - object.data.timestamp, 1)
         }
       } catch (error) {
-        logger.error('Rpush transaction to transaction pool error')
+        logger.error('Error adding transaction to transaction pool error')
         logger.error(error.stack)
       }
     }
+  }
+
+  async removeForgedBlock (transactions) { // we remove the block txs from the pool
+    if (this.isConnected) {
+      try {
+        for (let transaction of transactions) {
+          logger.debug(`Removing forged transaction ${transaction.id} from redis pool`)
+          await this.removeTransaction(transaction)
+        }
+      } catch (error) {
+        logger.error(`Error removing forged transactions from pool ${error.stack}`)
+      }
+    }
+  }
+
+  async removeTransaction (txID, senderPublicKey) {
+    await this.redis.del(this.__getRedisTransactionKey(txID))
+    await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
+    await this.redis.decr(this.__getRedisSenderPublicKey(senderPublicKey))
   }
 
   async getUnconfirmedTransactions (start, size) {
     if (this.isConnected) {
       try {
-        return this.redis.lrange(this.key, start, start + size - 1)
+        const trIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        let retList = []
+        for (const id of trIds) {
+          const serTrx = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+          if (serTrx) {
+            retList.push(serTrx)
+          } else { // transaction already expired - we also remove its id from keep-order list
+            logger.debug(`Removing expired transaction ${id} from order list`)
+            await this.redis.lrem(this.__getRedisTransactionKey(id), 1, id)
+          }
+        }
+        return retList
       } catch (error) {
         logger.error('Get serialized items from redis list: ')
         logger.error(error.stack)
@@ -103,26 +136,11 @@ module.exports = class TransactionPool {
 
   async getUnconfirmedTransaction (id) {
     if (this.isConnected) {
-      const serialized = await this.redis.hget(`${this.key}/tx/${id}`, 'serialized')
-
-      return Transaction.fromBytes(serialized)
-    }
-  }
-
-  async cleanPool (currentTimestamp) {
-    if (this.isConnected) {
-      const items = await this.redis.keys(`${this.key}/tx/expiration/*`)
-      for (const key of items) {
-        const txDetails = await this.redis.hmget(key, 'id', 'serialized', 'timestamp', 'expiration')
-        const expiration = parseInt(txDetails[3])
-        if (expiration <= currentTimestamp) {
-          logger.debug(`Removing expired transaction ${key}, expirationTime:${expiration} actualTime:${currentTimestamp}`)
-          await this.redis.lrem(this.key, 1, txDetails[1])
-          await this.redis.del(`${this.key}/tx/${txDetails[0]}`)
-          await this.redis.del(`${this.key}/tx/expiration/${txDetails[0]}`)
-          // this needs to emit a serialized transaction
-          // webhookManager.getInstance().emit('transaction.expired', txDetails.serialzed)
-        }
+      const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+      if (serialized) {
+        return Transaction.fromBytes(serialized)
+      } else {
+        return 'Error: Non existing transaction'
       }
     }
   }
@@ -149,18 +167,26 @@ module.exports = class TransactionPool {
     }
   }
 
-  async removeForgedBlock (block) { // we remove the block txs from the pool
-    if (this.isConnected) {
-      await this.removeForgedTransactions(block.transactions)
-      await this.cleanPool(arkjs.slots.getTime()) // we check for expiration of transactions and clean them
-      // block.transactions.foreach(tx => webhookManager.getInstance().emit('transaction.removed', tx))
-    }
-  }
-
   async undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
     this.addTransactions(block.transactions.map(tx => tx.data))
+  }
+
+  __getRedisTransactionKey (id) {
+    return `${this.keyPrefix}/tx/${id}`
+  }
+
+  __getRedisTransactionExpirationKey (txId, senderPublicKey) {
+    return `${this.keyPrefix}/expiration/${senderPublicKey}/${txId}`
+  }
+
+  __getRedisOrderKey () {
+    return `${this.keyPrefix}/order`
+  }
+
+  __getRedisSenderPublicKey (senderPublicKey) {
+    return `${this.keyPrefix}/senderPublicKey/${senderPublicKey}`
   }
 
   // rebuildBlockHeader (block) {
