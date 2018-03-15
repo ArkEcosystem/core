@@ -5,6 +5,6 @@ module.exports = [{
   choices: [
     { title: 'Configure Connection', value: 'configure' },
     { title: 'Test Connection', value: 'test' },
-    { title: 'Back to Main Menu', value: '../../back-to-main-menu' }
+    { title: 'Back to Main Menu', value: '../../start' }
   ]
 }]

@@ -6,6 +6,6 @@ module.exports = [{
     { title: 'Configure Connection', value: 'configure' },
     { title: 'Test Connection', value: 'test' },
     // { title: 'Drop Database Tables', value: 'drop' },
-    { title: 'Back to Main Menu', value: '../../back-to-main-menu' }
+    { title: 'Back to Main Menu', value: '../../start' }
   ]
 }]
