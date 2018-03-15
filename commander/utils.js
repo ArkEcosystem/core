@@ -37,3 +37,53 @@ exports.startProcess = (options) => {
     })
   })
 }
+
+exports.stopProcess = (pid, callback) => {
+  pm2.connect((error) => {
+    if (error) {
+      console.log(chalk.bgRed(error.message))
+      process.exit(2)
+    }
+
+    pm2.stop(pid, (error, apps) => {
+      pm2.disconnect()
+
+      if (error) {
+        console.log(chalk.bgRed(error.message))
+        process.exit(2)
+      } else {
+        callback()
+      }
+    })
+  })
+}
+
+exports.getProcessStatus = (callback) => {
+  pm2.connect((error) => {
+    if (error) {
+      console.log(chalk.bgRed(error.message))
+      process.exit(2)
+    }
+
+    pm2.list((error, processes) => {
+      pm2.disconnect()
+
+      if (error) {
+        console.log(chalk.bgRed(error.message))
+        process.exit(2)
+      } else {
+        const getProcess = (prefix, name) => {
+          const relay = processes.filter(e => e.name === name)[0]
+          process.env[`${prefix}_PID`] = relay ? relay.pid : 0
+          process.env[`${prefix}_STATUS`] = relay ? relay.pm2_env.status : 'offline'
+        }
+
+        getProcess('ARK_RELAY', 'ark-core:relay')
+        getProcess('ARK_FORGER', 'ark-core:forger')
+        getProcess('ARK_RELAY_FORGER', 'ark-core:relay-and-forger')
+
+        if (callback instanceof Function) callback()
+      }
+    })
+  })
+}
