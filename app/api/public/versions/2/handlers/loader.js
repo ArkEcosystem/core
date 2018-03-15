@@ -41,7 +41,8 @@ exports.configuration = {
         token: config.network.client.token,
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
-        version: config.network.pubKeyHash
+        version: config.network.pubKeyHash,
+        constants: config.getConstants(blockchain.getState().lastBlock.data.height)
       }
     }
   }
