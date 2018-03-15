@@ -28,6 +28,12 @@ module.exports = async () => {
             '--address', address,
             '--password', response.password
           ]
+        }, () => {
+          console.log('The forger has been started.')
+
+          sleep(1)
+
+          onCancel()
         })
       }
 
