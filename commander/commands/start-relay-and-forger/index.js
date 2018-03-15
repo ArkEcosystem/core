@@ -29,7 +29,7 @@ module.exports = async () => {
             '--password', response.password
           ]
         }, () => {
-          console.log('The relay node and forger have been started.')
+          console.log(chalk.green('The relay node and forger have been started.'))
 
           sleep(1)
 
