@@ -4,7 +4,7 @@ const dirTree = require('directory-tree')
 const Sntp = require('sntp')
 const deepmerge = require('deepmerge')
 const isString = require('lodash/isString')
-const logger = require('app/core/logger')
+const logger = require('./logger')
 const assert = require('assert-plus')
 
 let instance = null

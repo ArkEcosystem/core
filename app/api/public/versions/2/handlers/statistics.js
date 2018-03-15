@@ -1,8 +1,8 @@
-const { TRANSACTION_TYPES } = require('app/core/constants')
-const chainInstance = require('app/core/managers/blockchain').getInstance()
+const { TRANSACTION_TYPES } = require('../../../../../core/constants')
+const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
-const config = require('app/core/config')
-const db = require('app/core/dbinterface').getInstance()
+const config = require('../../../../../core/config')
+const db = require('../../../../../core/dbinterface').getInstance()
 const _ = require('lodash')
 
 exports.blockchain = {

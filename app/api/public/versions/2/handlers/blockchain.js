@@ -1,5 +1,5 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
-const config = require('app/core/config')
+const blockchain = require('../../../../../core/managers/blockchain').getInstance()
+const config = require('../../../../../core/config')
 
 exports.index = {
   handler: (request, h) => {

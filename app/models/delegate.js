@@ -5,8 +5,8 @@ const crypto = require('crypto')
 const otplib = require('otplib')
 const Block = require('./block')
 const forge = require('node-forge')
-const sortTransactions = require('app/utils/sort-transactions')
-const logger = require('app/core/logger')
+const sortTransactions = require('../utils/sort-transactions')
+const logger = require('../core/logger')
 
 module.exports = class Delegate {
   constructor (passphrase, network, password) {

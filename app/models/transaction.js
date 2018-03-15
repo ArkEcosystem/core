@@ -2,7 +2,7 @@ const arkjs = require('arkjs')
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const config = require('../core/config')
-const { TRANSACTION_TYPES } = require('app/core/constants')
+const { TRANSACTION_TYPES } = require('../core/constants')
 
 module.exports = class Transaction {
   constructor (transaction) {

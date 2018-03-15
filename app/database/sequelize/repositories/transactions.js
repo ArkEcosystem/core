@@ -1,7 +1,7 @@
 const Op = require('sequelize').Op
-const Transaction = require('app/models/transaction')
+const Transaction = require('../../../models/transaction')
 const buildFilterQuery = require('../utils/filter-query')
-const { TRANSACTION_TYPES } = require('app/core/constants')
+const { TRANSACTION_TYPES } = require('../../../core/constants')
 
 module.exports = class TransactionsRepository {
   constructor (db) {

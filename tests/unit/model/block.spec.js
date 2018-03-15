@@ -1,6 +1,6 @@
 const sinon = require('sinon')
 
-const Block = require('app/models/block')
+const Block = require('../../../app/models/block')
 
 describe('Model | Block', () => {
   const data = {

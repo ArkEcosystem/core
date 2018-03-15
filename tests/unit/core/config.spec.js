@@ -1,5 +1,5 @@
 const path = require('path')
-const config = require('app/core/config')
+const config = require('../../../app/core/config')
 
 const stubConfigPath = 'config/devnet'
 const stubConfig = {

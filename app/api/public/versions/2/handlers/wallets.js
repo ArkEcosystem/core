@@ -1,4 +1,4 @@
-const db = require('app/core/dbinterface').getInstance()
+const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {

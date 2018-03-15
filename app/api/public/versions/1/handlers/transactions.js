@@ -1,5 +1,5 @@
-const chainInstance = require('app/core/managers/blockchain').getInstance()
-const db = require('app/core/dbinterface').getInstance()
+const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
+const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 
