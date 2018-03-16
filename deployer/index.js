@@ -1,5 +1,5 @@
 const commander = require('commander')
-const assert = require('assert')
+const assert = require('assert-plus')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
