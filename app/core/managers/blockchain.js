@@ -224,7 +224,7 @@ module.exports = class BlockchainManager {
     let retItems = await this.transactionPool.getUnconfirmedTransactions(0, blockSize) // [0, 49] return max 50 tx for forging
     return {
       transactions: retItems,
-      poolSize: await this.transactionPool.size(),
+      poolSize: await this.transactionPool.getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
