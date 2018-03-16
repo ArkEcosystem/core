@@ -44,7 +44,7 @@ module.exports = class RedisManager {
     return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
   }
 
-  async add (object) {
+  async addTransaction (object) {
     if (this.isConnected && object instanceof Transaction) {
       try {
         await this.redis.hset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timeLock', object.data.timelock)
@@ -54,8 +54,7 @@ module.exports = class RedisManager {
           await this.redis.expire(this.__getRedisTransactionKey(object.id), object.data.expiration - object.data.timestamp)
         }
       } catch (error) {
-        logger.error('Error adding transaction to transaction pool error')
-        logger.error(error.stack)
+        logger.error('Error adding transaction to transaction pool error', error, error.stack)
       }
     }
   }
@@ -68,7 +67,6 @@ module.exports = class RedisManager {
   async removeTransactions (transactions) {
     try {
       for (let transaction of transactions) {
-        // logger.debug(`Removing forged transaction ${transaction.id} from redis pool`)
         await this.removeTransaction(transaction.id)
       }
     } catch (error) {

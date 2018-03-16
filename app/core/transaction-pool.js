@@ -1,4 +1,3 @@
-const Redis = require('ioredis')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const arkjs = require('arkjs')
@@ -16,7 +15,7 @@ module.exports = class TransactionPool {
   constructor (config) {
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-    this.redis = this.config.server.transactionPool.enabled ? new RedisManager(config) : null
+    this.redis = this.config.server.transactionPool.enabled ? new RedisManager(config) : false
 
     if (!instance) {
       instance = this
@@ -27,7 +26,7 @@ module.exports = class TransactionPool {
       if (that.verify(transaction)) {
         // for expiration testing
         if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(20) + 1)
-        that.add(transaction)
+        that.addTransactionToRedis(transaction)
       }
       qcallback()
     }, 1)
@@ -38,23 +37,9 @@ module.exports = class TransactionPool {
     return instance
   }
 
-  async getPoolSize () {
-    return this.redis ? this.redis.llen(this.__getRedisOrderKey()) : -1
-  }
-
-  async add (object) {
-    if (this.redis && object instanceof Transaction) {
-      try {
-        await this.redis.hset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timeLock', object.data.timelock)
-        await this.redis.rpush(this.__getRedisOrderKey(), object.id)
-
-        if (object.data.expiration > 0) {
-          await this.redis.expire(this.__getRedisTransactionKey(object.id), object.data.expiration - object.data.timestamp)
-        }
-      } catch (error) {
-        logger.error('Error adding transaction to transaction pool error')
-        logger.error(error.stack)
-      }
+  async addTransactionToRedis (object) {
+    if (this.redis) {
+      await this.redis.addTransaction(object)
     }
   }
 
@@ -65,7 +50,7 @@ module.exports = class TransactionPool {
   }
 
   async getUnconfirmedTransactions (start, size) {
-    return this.redis.getTraansactions(start, size)
+    return this.redis.getTransactions(start, size)
   }
 
   async getUnconfirmedTransaction (id) {
@@ -80,13 +65,9 @@ module.exports = class TransactionPool {
 
   async addTransactions (transactions) {
     if (this.redis) {
-      if (this.getPoolSize() > this.config.server.transaction.maxPoolSize) {
-        this.queue.push(transactions.map(tx => new Transaction(tx)))
-      } else {
-        logger.warning('Transactions size reached maxium.')
-      }
+      this.queue.push(transactions.map(tx => new Transaction(tx)))
     } else {
-      logger.info('Transactions not added to the transaction pool. Pool is disabled.')
+      logger.info('Transactions not added to the transaction pool. Pool is disabled or reached maximum size.')
     }
   }
 
