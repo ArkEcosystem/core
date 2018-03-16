@@ -34,7 +34,7 @@ module.exports = class TransactionPool {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(500) + 1)
+        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(1000) + 1)
         that.add(transaction)
       }
       qcallback()
@@ -50,8 +50,7 @@ module.exports = class TransactionPool {
 
       this.redisSub.on('message', (channel, message) => {
         // logger.debug(`Receive message ${message} from channel ${channel}`)
-        const keyDetails = message.split('/')
-        that.removeTransaction(keyDetails[4], keyDetails[3])
+        this.removeTransaction(message.split('/')[3])
       })
     }
     return instance
@@ -68,19 +67,11 @@ module.exports = class TransactionPool {
   async add (object) {
     if (this.isConnected && object instanceof Transaction) {
       try {
-        this.__recordTransaction(object.data.senderPublicKey)
-        console.log(this.counters[object.data.senderPublicKey])
-
-        if (this.counters[object.data.senderPublicKey] > this.config.server.transactionPool.maxTransactionsPerSender) {
-          logger.warning(`Sender ${object.data.senderPublicKey} has too many transaction in pool. Transactions not added`)
-          return
-        }
-
         await this.redis.hset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timeLock', object.data.timelock)
         await this.redis.rpush(this.__getRedisOrderKey(), object.id)
 
         if (object.data.expiration > 0) {
-          await this.redis.setex(this.__getRedisTransactionExpirationKey(object.id, object.data.senderPublicKey), object.data.expiration - object.data.timestamp, 1)
+          await this.redis.expire(this.__getRedisTransactionKey(object.id), object.data.expiration - object.data.timestamp)
         }
       } catch (error) {
         logger.error('Error adding transaction to transaction pool error')
@@ -93,8 +84,8 @@ module.exports = class TransactionPool {
     if (this.isConnected) {
       try {
         for (let transaction of transactions) {
-          logger.debug(`Removing forged transaction ${transaction.id} from redis pool`)
-          await this.removeTransaction(transaction)
+          // logger.debug(`Removing forged transaction ${transaction.id} from redis pool`)
+          await this.removeTransaction(transaction.id)
         }
       } catch (error) {
         logger.error(`Error removing forged transactions from pool ${error.stack}`)
@@ -102,29 +93,23 @@ module.exports = class TransactionPool {
     }
   }
 
-  async removeTransaction (txID, senderPublicKey) {
-    await this.redis.del(this.__getRedisTransactionKey(txID))
+  async removeTransaction (txID) {
     await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
-    this.counters[this.__getRedisSenderPublicKey(senderPublicKey)]--
+    await this.redis.del(this.__getRedisTransactionKey(txID))
   }
 
   async getUnconfirmedTransactions (start, size) {
     if (this.isConnected) {
       try {
-        const trIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
         let retList = []
-        for (const id of trIds) {
+        for (const id of transactionIds) {
           const serTrx = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
-          if (serTrx) {
-            retList.push(serTrx)
-          } else { // transaction already expired - we also remove its id from keep-order list
-            logger.debug(`Removing expired transaction ${id} from order list`)
-            await this.redis.lrem(this.__getRedisTransactionKey(id), 1, id)
-          }
+          serTrx ? retList.push(serTrx) : await this.removeTransaction(id)
         }
         return retList
       } catch (error) {
-        logger.error('Get serialized items from redis list: ')
+        logger.error('Get serialized items from redis list: ', error)
         logger.error(error.stack)
       }
     }
@@ -143,7 +128,6 @@ module.exports = class TransactionPool {
 
   async addTransaction (transaction) {
     if (this.isConnected) {
-      this.__recordTransaction(transaction.data.senderPublicKey)
       this.queue.push(new Transaction(transaction))
     }
   }
@@ -174,34 +158,8 @@ module.exports = class TransactionPool {
     return `${this.keyPrefix}/tx/${id}`
   }
 
-  __getRedisTransactionExpirationKey (txId, senderPublicKey) {
-    return `${this.keyPrefix}/expiration/${senderPublicKey}/${txId}`
-  }
-
   __getRedisOrderKey () {
     return `${this.keyPrefix}/order`
-  }
-
-  __getRedisSenderPublicKey (senderPublicKey) {
-    return `${this.keyPrefix}/senderPublicKey/${senderPublicKey}`
-  }
-
-  async __initCounters () {
-    const keys = await this.redis.keys(`${this.keyPrefix}/senderPublicKey/*`)
-    for (const key of keys) {
-      this.counters[key] = await this.redis.get(key)
-    }
-  }
-
-  __recordTransaction (senderPublicKey) {
-    if (!this.counters[senderPublicKey]) {
-      console.log('null')
-      this.counters[senderPublicKey] = 0
-    } else {
-      console.log('incr')
-
-      this.counters[senderPublicKey]++
-    }
   }
 
   // rebuildBlockHeader (block) {
