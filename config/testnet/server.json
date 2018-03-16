@@ -6,7 +6,7 @@
     "driver": "app/logging/winston",
     "options": {
       "file": "debug",
-      "console": "info"
+      "console": "debug"
     }
   },
   "database": {
@@ -24,8 +24,11 @@
     "port": 6379
   },
   "transactionPool": {
-    "enabled": false,
-    "key": "ark/pool"
+    "enabled": true,
+    "keyPrefix": "ark/pool",
+    "maxPoolSize": 10000,
+    "maxTransactionsPerSender": 5,
+    "whiteList" : []
   },
   "peers": {
     "blackList": []

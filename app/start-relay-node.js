@@ -45,7 +45,7 @@ const start = async () => {
     await blockchainManager.attachNetworkInterface(p2p)
 
     logger.info('Initialising Transaction Pool...')
-    const txPool = await new TransactionPool(config)
+    const txPool = await new TransactionPool(config).init()
     await blockchainManager.attachTransactionPool(txPool)
 
     logger.info('Initialising Blockchain Manager...')
