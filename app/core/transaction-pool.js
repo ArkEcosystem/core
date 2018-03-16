@@ -37,6 +37,34 @@ module.exports = class TransactionPool {
     return instance
   }
 
+  async addTransaction (transaction) {
+    if (this.redis) {
+      this.queue.push(new Transaction(transaction))
+    }
+  }
+
+  async addTransactions (transactions) {
+    if (this.redis && (await this.redis.getPoolSize() < this.config.server.transactionPool.maxPoolSize)) {
+      this.queue.push(transactions.map(tx => new Transaction(tx)))
+    } else {
+      logger.info('Transactions not added to the transaction pool. Pool is disabled or reached maximum size.')
+    }
+  }
+
+  verify (transaction) {
+    const wallet = this.db.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    if (arkjs.crypto.verify(transaction) && wallet.canApply(transaction)) {
+      this.db.walletManager.applyTransaction(transaction)
+      return true
+    }
+  }
+
+  async undoBlock (block) { // we add back the block txs to the pool
+    if (block.transactions.length === 0) return
+    // no return the main thread is liberated
+    this.redis.addTransactions(block.transactions.map(tx => tx.data))
+  }
+
   async addTransactionToRedis (object) {
     if (this.redis) {
       await this.redis.addTransaction(object)
@@ -57,32 +85,8 @@ module.exports = class TransactionPool {
     return this.redis.getTransaction(id)
   }
 
-  async addTransaction (transaction) {
-    if (this.redis) {
-      this.queue.push(new Transaction(transaction))
-    }
-  }
-
-  async addTransactions (transactions) {
-    if (this.redis) {
-      this.queue.push(transactions.map(tx => new Transaction(tx)))
-    } else {
-      logger.info('Transactions not added to the transaction pool. Pool is disabled or reached maximum size.')
-    }
-  }
-
-  verify (transaction) {
-    const wallet = this.db.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-    if (arkjs.crypto.verify(transaction) && wallet.canApply(transaction)) {
-      this.db.walletManager.applyTransaction(transaction)
-      return true
-    }
-  }
-
-  async undoBlock (block) { // we add back the block txs to the pool
-    if (block.transactions.length === 0) return
-    // no return the main thread is liberated
-    this.redis.addTransactions(block.transactions.map(tx => tx.data))
+  async getPoolSize () {
+    return this.redis.getPoolSize()
   }
 
   // rebuildBlockHeader (block) {
