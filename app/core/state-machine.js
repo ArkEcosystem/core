@@ -251,7 +251,7 @@ const blockchainMachine = Machine({
       }
     },
     fork: {
-      onEntry: ['startRecovery'],
+      onEntry: ['startForkRecovery'],
       on: {
         SUCCESS: 'syncWithNetwork',
         FAILURE: 'exit'
@@ -400,6 +400,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.dispatch('FORK')
         }
       }
+    },
+    startForkRecovery: async () => {
+      logger.info('Starting Fork Recovery 🍴')
+      logger.info('Let sail the Ark in stormy waters ⛵️')
+      state.forked = true
     }
   }
 }
