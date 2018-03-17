@@ -1,13 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const Wallet = sequelize.define('wallet', {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.INTEGER
-    },
     address: {
+      allowNull: false,
       unique: true,
+      primaryKey: true,
       type: DataTypes.STRING(36)
     },
     publicKey: {
