@@ -1,6 +1,6 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('app/core/config')
+const config = require('../../../../../core/config')
 
 exports.status = {
   handler: async (request, h) => {
@@ -41,7 +41,8 @@ exports.configuration = {
         token: config.network.client.token,
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
-        version: config.network.pubKeyHash
+        version: config.network.pubKeyHash,
+        constants: config.getConstants(blockchain.getState().lastBlock.data.height)
       }
     }
   }

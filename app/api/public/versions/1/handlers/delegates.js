@@ -1,7 +1,7 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('app/core/config')
-const db = require('app/core/dbinterface').getInstance()
+const config = require('../../../../../core/config')
+const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schemas/delegates')
 

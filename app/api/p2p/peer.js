@@ -1,5 +1,5 @@
 const popsicle = require('popsicle')
-const logger = require('app/core/logger')
+const logger = require('../../core/logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 

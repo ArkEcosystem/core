@@ -1,11 +1,11 @@
-const config = require('app/core/config')
-const logger = require('app/core/logger')
+const config = require('../../core/config')
+const logger = require('../../core/logger')
 
-const BlockchainManager = require('app/core/managers/blockchain')
-const P2PInterface = require('app/api/p2p/p2pinterface')
-const DB = require('app/core/dbinterface')
-const DependencyHandler = require('app/core/dependency-handler')
-const PublicAPI = require('app/api/public')
+const BlockchainManager = require('../../core/managers/blockchain')
+const P2PInterface = require('../../api/p2p/p2pinterface')
+const DB = require('../../core/dbinterface')
+const DependencyHandler = require('../../core/dependency-handler')
+const PublicAPI = require('../../api/public')
 
 module.exports = async function () {
   try {
@@ -18,7 +18,7 @@ module.exports = async function () {
 
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     await blockchainManager.attachDBInterface(db)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)

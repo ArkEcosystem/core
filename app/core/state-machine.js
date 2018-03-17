@@ -1,10 +1,10 @@
 const Machine = require('xstate').Machine
 const arkjs = require('arkjs')
-const logger = require('app/core/logger')
-const Block = require('app/models/block')
-const sleep = require('app/utils/sleep')
+const logger = require('./logger')
+const Block = require('../models/block')
+const sleep = require('../utils/sleep')
 const human = require('interval-to-human')
-const config = require('app/core/config')
+const config = require('./config')
 
 let synctracker = null
 
@@ -325,7 +325,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       try {
         let block = await blockchainManager.db.getLastBlock()
         if (!block) {
-          logger.warn('No block found in database')
+          logger.warning('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
           if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
             logger.error('FATAL: The genesis block payload hash is different from configured nethash')

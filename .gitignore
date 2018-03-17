@@ -14,3 +14,4 @@ storage/snapshot/*.data
 tests/coverage/*
 yarn.lock
 yarn-error.log
+.env

@@ -1,9 +1,9 @@
-const logger = require('app/core/logger')
+const logger = require('../../core/logger')
 const Hapi = require('hapi')
 
 module.exports = async (config) => {
-  if (!config.api.public.mount) {
-    return logger.info('Oh snap! Public API not mounted...')
+  if (!config.api.public.enabled) {
+    return logger.info('Oh snap! Public API not enabled...')
   }
 
   const baseConfig = {
@@ -27,7 +27,7 @@ module.exports = async (config) => {
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
-    secret: config.webhooks.secret
+    password: config.webhooks.password
   })
 
   await server.register({

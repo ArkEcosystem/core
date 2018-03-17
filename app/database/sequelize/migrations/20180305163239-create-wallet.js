@@ -31,7 +31,5 @@ module.exports = {
 
     queryInterface.addIndex('wallets', ['address', 'publicKey', 'vote', 'username'])
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('wallets')
-  }
+  down: (queryInterface, Sequelize) => queryInterface.dropTable('wallets')
 }

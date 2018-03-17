@@ -5,8 +5,8 @@ const crypto = require('crypto')
 const otplib = require('otplib')
 const Block = require('./block')
 const forge = require('node-forge')
-const sortTransactions = require('app/utils/sort-transactions')
-const logger = require('app/core/logger')
+const sortTransactions = require('../utils/sort-transactions')
+const logger = require('../core/logger')
 
 module.exports = class Delegate {
   constructor (passphrase, network, password) {
@@ -38,9 +38,7 @@ module.exports = class Delegate {
     const wifKey = keys.toWIF()
     const decoded = wif.decode(wifKey)
 
-    const encryptedKey = bip38.encrypt(decoded.privateKey, decoded.compressed, password)
-
-    return encryptedKey
+    return bip38.encrypt(decoded.privateKey, decoded.compressed, password)
   }
 
   encryptKeysWithOtp () {

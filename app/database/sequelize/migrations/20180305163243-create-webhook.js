@@ -27,7 +27,5 @@ module.exports = {
 
     queryInterface.addIndex('webhooks', ['event'])
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('webhooks')
-  }
+  down: (queryInterface, Sequelize) => queryInterface.dropTable('webhooks')
 }

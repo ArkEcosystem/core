@@ -1,5 +1,5 @@
-const db = require('app/core/dbinterface').getInstance()
-const chainInstance = require('app/core/managers/blockchain').getInstance()
+const db = require('../../../../../core/dbinterface').getInstance()
+const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const utils = require('../utils')
 
 exports.index = {
@@ -49,7 +49,7 @@ exports.search = {
 exports.types = {
   handler: async (request, h) => {
     return {
-      data: require('app/core/constants').TRANSACTION_TYPES
+      data: require('../../../../../core/constants').TRANSACTION_TYPES
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "enabled": false,
-  "secret": "my-secret-auth-token",
+  "password": "my-secret-auth-token",
   "events": [{
     "name": "forging.started",
     "description": "Emitted when the current delegate starts forging."

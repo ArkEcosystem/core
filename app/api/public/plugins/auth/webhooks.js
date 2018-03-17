@@ -1,4 +1,5 @@
 const Boom = require('boom')
+const argon2 = require('argon2')
 
 const implementation = (server, options) => {
   const scheme = {
@@ -9,11 +10,11 @@ const implementation = (server, options) => {
         throw Boom.unauthorized(null)
       }
 
-      if (authorization !== options.secret) {
-        throw Boom.unauthorized()
+      if (await argon2.verify(options.password, authorization)) {
+        return h.continue
       }
 
-      return h.continue
+      throw Boom.unauthorized()
     }
   }
 

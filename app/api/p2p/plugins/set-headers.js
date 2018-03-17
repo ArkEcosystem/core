@@ -1,4 +1,4 @@
-const config = require('app/core/config')
+const config = require('../../../core/config')
 
 const register = async (server, options) => {
   const _headers = {

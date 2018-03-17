@@ -49,7 +49,5 @@ module.exports = {
 
     queryInterface.addIndex('transactions', ['senderPublicKey', 'recipientId', 'vendorFieldHex', 'timestamp'])
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('transactions')
-  }
+  down: (queryInterface, Sequelize) => queryInterface.dropTable('transactions')
 }

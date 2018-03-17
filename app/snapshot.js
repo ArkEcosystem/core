@@ -3,10 +3,10 @@ const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('../package.json')
 const path = require('path')
-const DB = require('app/core/dbinterface')
-const DependencyHandler = require('app/core/dependency-handler')
-const config = require('app/core/config')
-const logger = require('app/core/logger')
+const DB = require('./core/dbinterface')
+const DependencyHandler = require('./core/dependency-handler')
+const config = require('./core/config')
+const logger = require('./core/logger')
 
 commander
   .version(packageJson.version)
@@ -26,21 +26,21 @@ process.on('unhandledRejection', (reason, p) => {
   process.exit(1)
 })
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
 
     logger.init(config.server.logging, config.network.name)
 
     await DependencyHandler.checkDatabaseLibraries(config)
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     db.snapshot(`${__dirname}/storage/snapshot`)
 
     logger.info('Snapshot saved')
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }
 
-init()
+start()

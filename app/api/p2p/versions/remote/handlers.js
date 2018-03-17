@@ -1,4 +1,4 @@
-const blockchain = require('app/core/managers/blockchain')
+const blockchain = require('../../../../core/managers/blockchain')
 
 exports.sendBlockchainEvent = {
   handler: (request, h) => {

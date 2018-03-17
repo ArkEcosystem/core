@@ -1,33 +1,34 @@
 const commander = require('commander')
 const packageJson = require('../package.json')
-const logger = require('app/core/logger')
-const config = require('app/core/config')
-const BlockchainManager = require('app/core/managers/blockchain')
-const P2PInterface = require('app/api/p2p/p2pinterface')
-const DB = require('app/core/dbinterface')
-const QueueManager = require('app/core/managers/queue')
-const WebhookManager = require('app/core/managers/webhook')
-const DependencyHandler = require('app/core/dependency-handler')
-const PublicAPI = require('app/api/public')
-const TransactionPool = require('app/core/transaction-pool')
-const ForgerManager = require('app/core/managers/forger')
+const logger = require('./core/logger')
+const config = require('./core/config')
+const BlockchainManager = require('./core/managers/blockchain')
+const P2PInterface = require('./api/p2p/p2pinterface')
+const DB = require('./core/dbinterface')
+const QueueManager = require('./core/managers/queue')
+const WebhookManager = require('./core/managers/webhook')
+const DependencyHandler = require('./core/dependency-handler')
+const PublicAPI = require('./api/public')
+const TransactionPool = require('./core/transaction-pool')
+const ForgerManager = require('./core/managers/forger')
 
 commander
   .version(packageJson.version)
   .option('-c, --config <path>', 'config files path')
+  .option('-b, --bip38 <bip38>', 'forger bip38')
+  .option('-a, --address <address>', 'forger address')
+  .option('-p, --password <password>', 'forger password')
   .option('-i, --interactive', 'launch cli')
   .option('--network-start', 'force genesis network start')
   .parse(process.argv)
 
-process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`)
-})
+process.on('unhandledRejection', (reason, p) => logger.error(`Unhandled Rejection at: ${JSON.stringify(p)} reason: ${reason}`))
 
-async function init () {
+const start = async () => {
   try {
     await config.init(commander.config)
-
     await logger.init(config.server.logging, config.network.name)
+
     const blockchainManager = await new BlockchainManager(config, commander.networkStart)
 
     logger.info('Initialising Dependencies...')
@@ -40,7 +41,7 @@ async function init () {
     await new WebhookManager(config.webhooks).init()
 
     logger.info('Initialising Database Interface...')
-    const db = await DB.create(config.server.db)
+    const db = await DB.create(config.server.database)
     await blockchainManager.attachDBInterface(db)
 
     logger.info('Initialising P2P Interface...')
@@ -61,14 +62,14 @@ async function init () {
 
     logger.info('Starting Forger...')
     const forgerManager = await new ForgerManager(config)
-    const forgers = await forgerManager.loadDelegates()
+    const forgers = await forgerManager.loadDelegates(commander.bip38, commander.address, commander.password)
 
     logger.info('ForgerManager started with', forgers.length, 'forgers')
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
-    logger.error('Fatal Error', error.stack)
+    console.error(error.stack)
     process.exit(1)
   }
 }
 
-init()
+start()

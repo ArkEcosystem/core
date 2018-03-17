@@ -1,6 +1,6 @@
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('app/core/config')
+const config = require('../core/config')
 
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data
