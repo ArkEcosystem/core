@@ -25,7 +25,7 @@ module.exports = class TransactionPool {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(20) + 1)
+        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(100000) + 1)
         that.addTransactionToRedis(transaction)
       }
       qcallback()
