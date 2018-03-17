@@ -100,14 +100,12 @@ module.exports = class RedisManager {
         for (const id of transactionIds) {
           const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock')
           if (serTrx[0]) {
-            if (serTrx[2]) {
-              const timeLock = parseInt(serTrx[2])
-              const timecur = arkjs.slots.getTime()
-              if (timeLock < timecur) { // timelock ready - we add it to the pool
-                logger.debug(`timelock transaction released ${serTrx[2]} ${timecur}`)
+            if (serTrx[2]) { // timelock is defined
+              if (parseInt(serTrx[2]) < arkjs.slots.getTime()) { // timelock ready - we add it to the pool
+                logger.debug(`Timelock transaction ${id} released timelock=${serTrx[2]}`)
                 retList.push(serTrx[0])
               } else {
-                logger.debug('transaction timelock waiting')
+                logger.debug(`Timelocked transaction ${id} timelock waiting`)
               }
             } else {
               retList.push(serTrx[0])
