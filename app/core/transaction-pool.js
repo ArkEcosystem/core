@@ -26,8 +26,8 @@ module.exports = class TransactionPool {
       if (that.verify(transaction)) {
         // for expiration testing
         if (this.config.server.test) {
-          // transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(100000) + 1)
-          transaction.data.timelock = arkjs.slots.getTime() + 50
+          transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(40) + 1)
+          transaction.data.timelock = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(40) + 1)
         }
         that.addTransactionToRedis(transaction)
       }

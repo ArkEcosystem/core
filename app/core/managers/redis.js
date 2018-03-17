@@ -102,10 +102,10 @@ module.exports = class RedisManager {
           if (serTrx[0]) {
             if (serTrx[2]) { // timelock is defined
               if (parseInt(serTrx[2]) < arkjs.slots.getTime()) { // timelock ready - we add it to the pool
-                logger.debug(`Timelock transaction ${id} released timelock=${serTrx[2]}`)
+                logger.debug(`Transaction ${id} released timelock=${serTrx[2]}`)
                 retList.push(serTrx[0])
               } else {
-                logger.debug(`Timelocked transaction ${id} timelock waiting`)
+                logger.debug(`Transaction ${id} timelock waiting`)
               }
             } else {
               retList.push(serTrx[0])
