@@ -25,7 +25,10 @@ module.exports = class TransactionPool {
     this.queue = async.queue((transaction, qcallback) => {
       if (that.verify(transaction)) {
         // for expiration testing
-        if (this.config.server.test) transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(100000) + 1)
+        if (this.config.server.test) {
+          // transaction.data.expiration = arkjs.slots.getTime() + Math.floor(Math.random() * Math.floor(100000) + 1)
+          transaction.data.timelock = arkjs.slots.getTime() + 50
+        }
         that.addTransactionToRedis(transaction)
       }
       qcallback()
@@ -78,7 +81,7 @@ module.exports = class TransactionPool {
   }
 
   async getUnconfirmedTransactions (start, size) {
-    return this.redis.getTransactions(start, size)
+    return this.redis.getTransactionsForForger(start, size)
   }
 
   async getUnconfirmedTransaction (id) {
