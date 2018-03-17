@@ -1,6 +1,7 @@
 const Redis = require('ioredis')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
+const arkjs = require('arkjs')
 
 let instance = null
 
@@ -47,7 +48,7 @@ module.exports = class RedisManager {
   async addTransaction (object) {
     if (this.isConnected && object instanceof Transaction) {
       try {
-        await this.redis.hset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timeLock', object.data.timelock)
+        await this.redis.hmset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timelock', object.data.timelock)
         await this.redis.rpush(this.__getRedisOrderKey(), object.id)
 
         if (object.data.expiration > 0) {
@@ -80,12 +81,44 @@ module.exports = class RedisManager {
         const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
         let retList = []
         for (const id of transactionIds) {
-          const serTrx = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
-          serTrx ? retList.push(serTrx) : await this.removeTransaction(id)
+          const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
+          serTrx ? retList.push(serTrx[0]) : await this.removeTransaction(id)
         }
         return retList
       } catch (error) {
-        logger.error('Get serialized items from redis list: ', error)
+        logger.error('Get Transactions items from redis pool: ', error)
+        logger.error(error.stack)
+      }
+    }
+  }
+
+  async getTransactionsForForger (start, size) {
+    if (this.isConnected) {
+      try {
+        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        let retList = []
+        for (const id of transactionIds) {
+          const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock')
+          if (serTrx[0]) {
+            if (serTrx[2]) {
+              const timeLock = parseInt(serTrx[2])
+              const timecur = arkjs.slots.getTime()
+              if (timeLock < timecur) { // timelock ready - we add it to the pool
+                logger.debug(`timelock transaction released ${serTrx[2]} ${timecur}`)
+                retList.push(serTrx[0])
+              } else {
+                logger.debug('transaction timelock waiting')
+              }
+            } else {
+              retList.push(serTrx[0])
+            }
+          } else {
+            await this.removeTransaction(id)
+          }
+        }
+        return retList
+      } catch (error) {
+        logger.error('Get transactions for forging from redis list: ', error)
         logger.error(error.stack)
       }
     }
