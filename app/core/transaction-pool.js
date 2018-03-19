@@ -52,11 +52,11 @@ module.exports = class TransactionPool {
           transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
           if (Math.round(Math.random() * Math.floor(1)) === 0) {
-            transaction.data.timelocktype = 0 // or 1 for blockcheight
+            transaction.data.timelocktype = 0 // timestamp
             transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
           } else {
-            transaction.data.timelocktype = 1 // or 1 for blockcheight
-            transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(5) + 1)
+            transaction.data.timelocktype = 1 // block
+            transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
           }
         }
 
