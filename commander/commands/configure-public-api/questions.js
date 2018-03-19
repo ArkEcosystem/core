@@ -6,6 +6,7 @@ module.exports = [{
     { title: 'Enable Public API', value: 'enable' },
     { title: 'Disable Public API', value: 'disable' },
     { title: 'Configure Cache', value: 'cache' },
-    { title: 'Configure Rate Limiting', value: 'rate-limit' }
+    { title: 'Configure Rate Limiting', value: 'rate-limit' },
+    { title: 'Back to Main Menu', value: '../../start' }
   ]
 }]

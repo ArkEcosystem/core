@@ -1,5 +1,5 @@
-const { TRANSACTION_TYPES } = require('app/core/constants')
-const db = require('app/core/dbinterface').getInstance()
+const { TRANSACTION_TYPES } = require('../../../../../core/constants')
+const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 
 exports.index = {

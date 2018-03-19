@@ -1,4 +1,4 @@
-const { readConfig, writeConfig } = require('commander/utils')
+const { readConfig, writeConfig } = require('../../../utils')
 
 module.exports = async () => {
   let config = readConfig('api/public')

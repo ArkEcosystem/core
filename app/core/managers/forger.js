@@ -1,8 +1,8 @@
 const popsicle = require('popsicle')
-const Delegate = require('app/models/delegate')
-const logger = require('app/core/logger')
-const sleep = require('app/utils/sleep')
-const Transaction = require('app/models/transaction')
+const Delegate = require('../../models/delegate')
+const logger = require('../logger')
+const sleep = require('../../utils/sleep')
+const Transaction = require('../../models/transaction')
 
 module.exports = class ForgerManager {
   constructor (config) {

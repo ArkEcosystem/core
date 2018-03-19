@@ -1,7 +1,7 @@
 const arkjs = require('arkjs')
-const logger = require('app/core/logger')
-const blockchain = require('app/core/managers/blockchain')
-const Transaction = require('app/models/transaction')
+const logger = require('../../../../core/logger')
+const blockchain = require('../../../../core/managers/blockchain')
+const Transaction = require('../../../../models/transaction')
 
 exports.getPeers = {
   handler: async (request, h) => {

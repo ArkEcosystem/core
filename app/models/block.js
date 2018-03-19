@@ -5,24 +5,23 @@ const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const config = require('../core/config')
 
-const applyV1Fix = (data) => {
+const applyV1Fix = (block) => {
   // START Fix for v1 api
-  data.totalAmount = parseInt(data.totalAmount)
-  data.totalFee = parseInt(data.totalFee)
-  data.reward = parseInt(data.reward)
+  block.data.totalAmount = parseInt(block.data.totalAmount)
+  block.data.totalFee = parseInt(block.data.totalFee)
+  block.data.reward = parseInt(block.data.reward)
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
-  if (data.transactions.length === 2 && (data.height === 3084276 || data.height === 34420)) {
-    const temp = data.transactions[0]
-    data.transactions[0] = data.transactions[1]
-    data.transactions[1] = temp
-  }
+  // if (block.data.transactions.length === 2 && (block.data.height === 3084276 || block.data.height === 34420)) {
+  //   const temp = block.data.transactions[0]
+  //   block.data.transactions[0] = block.data.transactions[1]
+  //   block.data.transactions[1] = temp
+  // }
 }
 
 module.exports = class Block {
   constructor (data) {
-    applyV1Fix(data)
 
     this.data = data
     this.genesis = data.height === 1
@@ -32,6 +31,8 @@ module.exports = class Block {
       txx.timestamp = data.timestamp
       return txx
     })
+
+    applyV1Fix(this)
     this.verification = this.verify()
   }
 

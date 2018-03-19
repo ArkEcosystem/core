@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize')
-const { onCancel, readConfig } = require('commander/utils')
+const { onCancel, readConfig } = require('../../../utils')
 const { sleep } = require('sleep')
 
 module.exports = async () => {

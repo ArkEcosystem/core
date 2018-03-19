@@ -1,4 +1,4 @@
-const BlockchainManager = require('app/core/managers/blockchain')
+const BlockchainManager = require('../../../app/core/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {

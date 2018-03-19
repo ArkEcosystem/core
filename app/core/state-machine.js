@@ -1,10 +1,10 @@
 const Machine = require('xstate').Machine
 const arkjs = require('arkjs')
-const logger = require('app/core/logger')
-const Block = require('app/models/block')
-const sleep = require('app/utils/sleep')
+const logger = require('./logger')
+const Block = require('../models/block')
+const sleep = require('../utils/sleep')
 const human = require('interval-to-human')
-const config = require('app/core/config')
+const config = require('./config')
 
 let synctracker = null
 
@@ -251,7 +251,7 @@ const blockchainMachine = Machine({
       }
     },
     fork: {
-      onEntry: ['startRecovery'],
+      onEntry: ['startForkRecovery'],
       on: {
         SUCCESS: 'syncWithNetwork',
         FAILURE: 'exit'
@@ -400,6 +400,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.dispatch('FORK')
         }
       }
+    },
+    startForkRecovery: async () => {
+      logger.info('Starting Fork Recovery 🍴')
+      logger.info('Let sail the Ark in stormy waters ⛵️')
+      state.forked = true
     }
   }
 }

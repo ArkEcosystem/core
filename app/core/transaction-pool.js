@@ -1,9 +1,9 @@
-const logger = require('app/core/logger')
-const Transaction = require('app/models/transaction')
+const logger = require('./logger')
+const Transaction = require('../models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
-const BlockchainManager = require('app/core/managers/blockchain')
-const RedisManager = require('app/core/managers/redis')
+const BlockchainManager = require('./managers/blockchain')
+const RedisManager = require('./managers/redis')
 
 let instance = null
 

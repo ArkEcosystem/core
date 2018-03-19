@@ -1,4 +1,4 @@
-const logger = require('app/core/logger')
+const logger = require('../../core/logger')
 const Hapi = require('hapi')
 
 module.exports = async (config) => {

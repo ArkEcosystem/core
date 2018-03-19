@@ -1,8 +1,8 @@
 const arkjs = require('arkjs')
-const blockchain = require('app/core/managers/blockchain').getInstance()
+const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('app/core/config')
-const Transaction = require('app/models/transaction')
+const config = require('../../../../../core/config')
+const Transaction = require('../../../../../models/transaction')
 
 module.exports = (model) => {
   const lastBlock = state.lastBlock

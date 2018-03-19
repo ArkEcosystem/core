@@ -1,6 +1,6 @@
 const prompts = require('prompts')
 const questions = require('./questions')
-const { onCancel } = require('commander/utils')
+const { onCancel } = require('../../utils')
 
 module.exports = async () => {
   const response = await prompts(questions, { onCancel })

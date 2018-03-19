@@ -1,11 +1,11 @@
 const arkjs = require('arkjs')
-const WalletManager = require('app/core/managers/wallet')
-const config = require('app/core/config')
-const logger = require('app/core/logger')
+const WalletManager = require('./managers/wallet')
+const config = require('./config')
+const logger = require('./logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const webhookManager = require('app/core/managers/webhook')
+const webhookManager = require('./managers/webhook')
 
 let instance
 
@@ -35,7 +35,7 @@ class DBInterface {
     })
 
     // this is a special case repository and will be forced to be read from memory...
-    instance['wallets'] = new (require('app/database/repositories/wallets'))(instance)
+    instance['wallets'] = new (require('../database/repositories/wallets'))(instance)
   }
 
   getActiveDelegates (height) {

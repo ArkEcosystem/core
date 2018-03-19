@@ -1,8 +1,8 @@
 const arkjs = require('arkjs')
 const crypto = require('crypto')
-const blockchain = require('app/core/managers/blockchain')
-const config = require('app/core/config')
-const Transaction = require('app/models/transaction')
+const blockchain = require('../../../../core/managers/blockchain')
+const config = require('../../../../core/config')
+const Transaction = require('../../../../models/transaction')
 
 exports.postVerifyTransaction = {
   handler: async (request, h) => {
