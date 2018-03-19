@@ -2,6 +2,7 @@ const Redis = require('ioredis')
 const logger = require('app/core/logger')
 const Transaction = require('app/models/transaction')
 const arkjs = require('arkjs')
+const blockchain = require('app/core/managers/blockchain')
 
 let instance = null
 
@@ -48,7 +49,7 @@ module.exports = class RedisManager {
   async addTransaction (object) {
     if (this.isConnected && object instanceof Transaction) {
       try {
-        await this.redis.hmset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timelock', object.data.timelock)
+        await this.redis.hmset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timelock', object.data.timelock, 'timelocktype', object.data.timelocktype)
         await this.redis.rpush(this.__getRedisOrderKey(), object.id)
 
         if (object.data.expiration > 0) {
@@ -98,20 +99,29 @@ module.exports = class RedisManager {
         const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
         let retList = []
         for (const id of transactionIds) {
-          const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock')
-          if (serTrx[0]) {
-            if (serTrx[2]) { // timelock is defined
-              if (parseInt(serTrx[2]) < arkjs.slots.getTime()) { // timelock ready - we add it to the pool
-                logger.debug(`Transaction ${id} released timelock=${serTrx[2]}`)
-                retList.push(serTrx[0])
-              } else {
-                logger.debug(`Transaction ${id} timelock waiting`)
-              }
-            } else {
-              retList.push(serTrx[0])
-            }
-          } else {
+          const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+          if (!transaction[0]) {
             await this.removeTransaction(id)
+            break
+          }
+          if (transaction[2]) { // timelock is defined
+            const actions = {
+              0: () => { // timestamp lock defined
+                if (parseInt(transaction[2]) <= arkjs.slots.getTime()) {
+                  logger.debug(`Timelock for ${id} released timestamp=${transaction[2]}`)
+                  retList.push(transaction[0])
+                }
+              },
+              1: () => { // block height time lock
+                if (parseInt(transaction[2]) <= blockchain.getInstance().getState().lastBlock.data.height) {
+                  logger.debug(`Timelock for ${id} released block height=${transaction[2]}`)
+                  retList.push(transaction[0])
+                }
+              }
+            }
+            actions[parseInt(transaction[3])]()
+            } else {
+            retList.push(transaction[0])
           }
         }
         return retList
