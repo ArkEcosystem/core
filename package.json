@@ -4,7 +4,8 @@
   "description": "Revamped ark-node",
   "main": "app.js",
   "scripts": {
-    "start": "node commander/index.js",
+    "commander": "node commander/index.js",
+    "deployer": "node deployer/index.js",
     "start:mainnet": "node app/start-relay.js -c config/mainnet",
     "start:mainnet:watch": "nodemon app/start-relay.js -c config/mainnet",
     "start:devnet": "node app/start-relay.js -c config/devnet",
