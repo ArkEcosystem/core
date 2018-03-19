@@ -49,7 +49,7 @@ module.exports = class TransactionPool {
         // TODO for expiration and time lock testing remove from production
         if (this.config.server.test) {
           const current = arkjs.slots.getTime()
-          // transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(40) + 1)
+          transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
           if (Math.round(Math.random() * Math.floor(1)) === 0) {
             transaction.data.timelocktype = 0 // or 1 for blockcheight
