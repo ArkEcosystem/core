@@ -190,7 +190,7 @@ module.exports = class BlockchainManager {
           state.lastBlock = block
           // broadcast only recent blocks
           if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
-          this.transactionPool.removeForgedBlock(block)
+          this.transactionPool.removeForgedBlock(block.transactions)
           qcallback()
         } catch (error) {
           logger.error(error.stack)
@@ -224,7 +224,7 @@ module.exports = class BlockchainManager {
     let retItems = await this.transactionPool.getUnconfirmedTransactions(0, blockSize) // [0, 49] return max 50 tx for forging
     return {
       transactions: retItems,
-      poolSize: await this.transactionPool.size(),
+      poolSize: await this.transactionPool.getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
