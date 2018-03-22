@@ -6,7 +6,7 @@ const blockchain = require('./blockchain')
 
 let instance = null
 
-module.exports = class RedisManager {
+module.exports = class PoolManager {
   static getInstance () {
     return instance
   }

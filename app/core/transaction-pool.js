@@ -3,7 +3,7 @@ const Transaction = require('../models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('./managers/blockchain')
-const RedisManager = require('./managers/redis')
+const PoolManager = require('./managers/redis')
 
 let instance = null
 
@@ -15,7 +15,7 @@ module.exports = class TransactionPool {
   constructor (config) {
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-    this.redis = this.config.server.transactionPool.enabled ? new RedisManager(config) : false
+    this.pool = this.config.server.transactionPool.enabled ? new PoolManager(config) : false
 
     if (!instance) {
       instance = this
@@ -36,13 +36,13 @@ module.exports = class TransactionPool {
   }
 
   async addTransaction (transaction) {
-    if (this.redis) {
+    if (this.pool) {
       this.queue.push(new Transaction(transaction))
     }
   }
 
   async addTransactions (transactions) {
-    if (this.redis && (await this.redis.getPoolSize() < this.config.server.transactionPool.maxPoolSize)) {
+    if (this.pool && (await this.pool.getPoolSize() < this.config.server.transactionPool.maxPoolSize)) {
       this.queue.push(transactions.map(tx => {
         let transaction = new Transaction(tx)
 
@@ -78,31 +78,31 @@ module.exports = class TransactionPool {
   async undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
-    this.redis.addTransactions(block.transactions.map(tx => tx.data))
+    this.pool.addTransactions(block.transactions.map(tx => tx.data))
   }
 
   async addTransactionToRedis (object) {
-    if (this.redis) {
-      await this.redis.addTransaction(object)
+    if (this.pool) {
+      await this.pool.addTransaction(object)
     }
   }
 
   async removeForgedBlock (transactions) { // we remove the block txs from the pool
-    if (this.redis) {
-      await this.redis.removeTransactions(transactions)
+    if (this.pool) {
+      await this.pool.removeTransactions(transactions)
     }
   }
 
   async getUnconfirmedTransactions (start, size) {
-    return this.redis.getTransactionsForForger(start, size)
+    return this.pool.getTransactionsForForger(start, size)
   }
 
   async getUnconfirmedTransaction (id) {
-    return this.redis.getTransaction(id)
+    return this.pool.getTransaction(id)
   }
 
   async getPoolSize () {
-    return this.redis.getPoolSize()
+    return this.pool.getPoolSize()
   }
 
   // rebuildBlockHeader (block) {
