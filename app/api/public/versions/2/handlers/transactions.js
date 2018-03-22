@@ -18,7 +18,7 @@ exports.store = {
 
     chainInstance.postTransactions(transactions)
 
-    return { success: true, transactionIds: [] }
+    return { transactionIds: [] }
   }
 }
 
