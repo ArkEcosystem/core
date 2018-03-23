@@ -58,7 +58,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe('GET /api/transactions/search', () => {
+  describe.skip('GET /api/transactions/search', () => {
     it('should GET a search for transactions with the exact specified transactionId', async () => {
       const res = await utils.request('GET', 'transactions/search', { id: transactionId })
       await utils.assertSuccessful(res)
