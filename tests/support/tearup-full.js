@@ -1,11 +1,11 @@
-const config = require('../../core/config')
-const logger = require('../../core/logger')
+const config = require('../../app/core/config')
+const logger = require('../../app/core/logger')
 
-const BlockchainManager = require('../../core/managers/blockchain')
-const P2PInterface = require('../../api/p2p/p2pinterface')
-const DB = require('../../core/dbinterface')
-const DependencyHandler = require('../../core/dependency-handler')
-const PublicAPI = require('../../api/public')
+const BlockchainManager = require('../../app/core/managers/blockchain')
+const P2PInterface = require('../../app/api/p2p/p2pinterface')
+const DB = require('../../app/core/dbinterface')
+const DependencyHandler = require('../../app/core/dependency-handler')
+const PublicAPI = require('../../app/api/public')
 
 module.exports = async function () {
   try {
