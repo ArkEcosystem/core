@@ -163,7 +163,7 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/unconfirmed/get?id=', () => {
+  describe('GET /api/transactions/unconfirmed/get?id=', () => {
     it('should be ok using valid id', async () => {
       let params = 'id=' + transactionList[transactionList.length - 1].id
 
@@ -179,7 +179,7 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/unconfirmed', () => {
+  describe('GET /api/transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')
       await utils.assertSuccessful(res)

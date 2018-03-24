@@ -1,6 +1,6 @@
 const utils = require('../utils')
 
-describe.skip('API 2.0 - Webhooks', () => {
+describe('API 2.0 - Webhooks', () => {
   describe('GET /api/webhooks', () => {
     it('should GET all the webhooks', async () => {
       const res = await utils.request('GET', 'webhooks')

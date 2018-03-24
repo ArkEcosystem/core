@@ -347,7 +347,7 @@ describe('API 2.0 - Blocks', () => {
       await expect(res.body.data).toHaveLength(0)
     })
 
-    it.skip('should GET a search for blocks with the specific criteria', async () => {
+    it('should GET a search for blocks with the specific criteria', async () => {
       const res = await utils.request('GET', 'blocks/search', {
         generatorPublicKey,
         version,

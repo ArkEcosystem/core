@@ -42,7 +42,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/unconfirmed', () => {
+  describe('GET /api/transactions/unconfirmed', () => {
     it('should GET all the unconfirmed transactions', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')
       await utils.assertSuccessful(res)
@@ -50,7 +50,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/unconfirmed/:id', () => {
+  describe('GET /api/transactions/unconfirmed/:id', () => {
     it('should GET an unconfirmed transaction by the given identifier', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed/:id')
       await utils.assertSuccessful(res)
@@ -58,7 +58,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /api/transactions/search', () => {
+  describe('GET /api/transactions/search', () => {
     it('should GET a search for transactions with the exact specified transactionId', async () => {
       const res = await utils.request('GET', 'transactions/search', { id: transactionId })
       await utils.assertSuccessful(res)
@@ -207,7 +207,7 @@ describe('API 2.0 - Transactions', () => {
       await expect(transaction.id).toBe(transactionId)
     })
 
-    it.skip('should GET a search for transactions with the exact specified vendorFieldHex', async () => {
+    it('should GET a search for transactions with the exact specified vendorFieldHex', async () => {
       const res = await utils.request('GET', 'transactions/search', { id: transactionId, vendorFieldHex })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
