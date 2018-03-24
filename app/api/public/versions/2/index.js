@@ -31,7 +31,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/multisignatures/wallets', ...multisignatures.wallets },
 
     { method: 'GET', path: '/peers', ...peers.index },
-    { method: 'GET', path: '/peers/me', ...peers.me },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/signatures', ...signatures.index },
