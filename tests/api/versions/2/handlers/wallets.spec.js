@@ -169,7 +169,7 @@ describe('API 2.0 - Wallets', () => {
       await expect(wallet.address).toBe(addressActive)
     })
 
-    it.skip('should GET a search for wallets with the exact specified balance', async () => {
+    it('should GET a search for wallets with the exact specified balance', async () => {
       const res = await utils.request('GET', 'wallets/search', { address: addressActive, balance })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -182,7 +182,7 @@ describe('API 2.0 - Wallets', () => {
       await expect(wallet.balance).toBe(balance)
     })
 
-    it.skip('should GET a search for wallets with the specified balance range', async () => {
+    it('should GET a search for wallets with the specified balance range', async () => {
       const res = await utils.request('GET', 'wallets/search', { address: addressActive, balanceFrom, balanceTo })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -195,7 +195,7 @@ describe('API 2.0 - Wallets', () => {
       await expect(wallet.balance).toBe(balance)
     })
 
-    it.skip('should GET a search for wallets with the exact specified votebalance', async () => {
+    it('should GET a search for wallets with the exact specified votebalance', async () => {
       const res = await utils.request('GET', 'wallets/search', { address: addressActive, votebalance })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)

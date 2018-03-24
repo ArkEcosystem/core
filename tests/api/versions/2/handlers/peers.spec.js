@@ -19,7 +19,7 @@ describe('API 2.0 - Peers', () => {
     })
   })
 
-  describe.skip('GET /api/peers/me', () => {
+  describe('GET /api/peers/me', () => {
     it('should GET the current peer', async () => {
       const res = await utils.request('GET', 'peers/me')
       await utils.assertSuccessful(res)

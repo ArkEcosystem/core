@@ -13,8 +13,8 @@ describe('Model | Block', () => {
   }
 
   describe('constructor', () => {
-    it.skip('stores the data', () => {})
-    it.skip('verifies the block', () => {})
+    it('stores the data', () => {})
+    it('verifies the block', () => {})
   })
 
   describe('getHeader', () => {
