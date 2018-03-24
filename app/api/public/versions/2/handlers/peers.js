@@ -1,5 +1,4 @@
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
-const publicIp = require('public-ip')
 const utils = require('../utils')
 
 exports.index = {
@@ -32,14 +31,5 @@ exports.show = {
     const peers = await blockchain.networkInterface.getPeers()
 
     return utils.respondWithResource(request, peers.find(p => p.ip === request.params.ip), 'peer')
-  }
-}
-
-exports.me = {
-  handler: async (request, h) => {
-    const ip = await publicIp.v4()
-    const peers = await blockchain.networkInterface.getPeers()
-
-    return utils.respondWithResource(request, peers.find(p => p.ip === ip), 'peer')
   }
 }

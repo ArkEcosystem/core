@@ -22,7 +22,6 @@ const applyV1Fix = (block) => {
 
 module.exports = class Block {
   constructor (data) {
-
     this.data = data
     this.genesis = data.height === 1
     this.transactions = data.transactions.map(tx => {
