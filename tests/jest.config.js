@@ -7,7 +7,7 @@ module.exports = {
   // globalTeardown: 'tests/support/teardown.js',
 
   testEnvironment: 'node',
-  bail: false,
+  bail: true,
   verbose: false,
 
   setupFiles: ['<rootDir>/tests/support/setup-files'],

@@ -8,9 +8,6 @@ const secondPublicKey = '027c0dc4da12a3842981d37240a4da48eea435299191609d5f44617
 const vote = '0257b7724e97cd832e0c28533a86da5220656f9b5122141daab20e8526decce01f'
 const username = 'boldninja'
 const wrongUsername = 'alexbarnsley'
-const balance = 9970340000000
-const balanceFrom = 8947070000000
-const balanceTo = 10947070000000
 const votebalance = 0
 const votebalanceFrom = -1
 const votebalanceTo = 1
@@ -170,7 +167,10 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should GET a search for wallets with the exact specified balance', async () => {
-      const res = await utils.request('GET', 'wallets/search', { address: addressActive, balance })
+      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
+      const balance = 4858470000000
+
+      const res = await utils.request('GET', 'wallets/search', { address, balance })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -178,12 +178,17 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
       await expect(wallet.balance).toBe(balance)
     })
 
     it('should GET a search for wallets with the specified balance range', async () => {
-      const res = await utils.request('GET', 'wallets/search', { address: addressActive, balanceFrom, balanceTo })
+      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
+      const balance = 4858470000000
+      const balanceFrom = 4858460000000
+      const balanceTo = 4858480000000
+
+      const res = await utils.request('GET', 'wallets/search', { address, balanceFrom, balanceTo })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -191,7 +196,7 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
       await expect(wallet.balance).toBe(balance)
     })
 
@@ -228,11 +233,14 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should GET a search for wallets with the specific criteria', async () => {
+      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
+      const publicKey = '0223ac52179903e79865b9a98cf0b52ddc1ab46180c157e8f6bd1e63e7f14fcf31'
+      const username = 'genesis_48'
+      const balanceFrom = 4858470000000
+      const balanceTo = 4858470000000
+
       const res = await utils.request('GET', 'wallets/search', {
-        publicKey,
-        username,
-        balanceFrom,
-        balanceTo
+        publicKey, username, balanceFrom, balanceTo
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -241,7 +249,7 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
   })
 })
