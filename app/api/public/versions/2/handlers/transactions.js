@@ -1,4 +1,6 @@
+const Boom = require('boom')
 const db = require('../../../../../core/dbinterface').getInstance()
+const config = require('../../../../../core/config')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const utils = require('../utils')
 const Transaction = require('../../../../../models/transaction')
@@ -32,6 +34,10 @@ exports.show = {
 
 exports.unconfirmed = {
   handler: async (request, h) => {
+    if (!config.server.transactionPool.enabled) {
+      return Boom.teapot('Transaction Pool disabled...');
+    }
+
     const pagination = utils.paginate(request)
     const transactions = await chainInstance.getTxPool().getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
@@ -44,6 +50,10 @@ exports.unconfirmed = {
 
 exports.showUnconfirmed = {
   handler: async (request, h) => {
+    if (!config.server.transactionPool.enabled) {
+      return Boom.teapot('Transaction Pool disabled...');
+    }
+
     const transaction = await chainInstance.getTxPool().getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
