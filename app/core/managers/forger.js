@@ -48,6 +48,7 @@ module.exports = class ForgerManager {
           await sleep(100) // basically looping until we lock at beginning of next slot
           return monitor()
         }
+        // console.log(round)
 
         const delegate = await this.pickForgingDelegate(round)
         if (!delegate) {
@@ -67,7 +68,7 @@ module.exports = class ForgerManager {
         const block = await delegate.forge(transactions, data)
 
         this.broadcast(block)
-        await sleep(7900) // we will check at next slot
+        await sleep(7800) // we will check at next slot
         return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
@@ -117,6 +118,6 @@ module.exports = class ForgerManager {
       timeout: 2000
     }).use(popsicle.plugins.parse('json'))
 
-    return result.body.data
+    return result.body.data || {}
   }
 }

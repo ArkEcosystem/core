@@ -88,6 +88,7 @@ exports.getStatus = {
 
 exports.postBlock = {
   handler: (request, h) => {
+    // console.log(request.payload)
     if (!request.payload.block) return { success: false }
 
     blockchain.getInstance().postBlock(request.payload.block)

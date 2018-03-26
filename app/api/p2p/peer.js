@@ -53,20 +53,22 @@ module.exports = class Peer {
   }
 
   async postBlock (block) {
+    // console.log(block)
+    // console.log(this)
     try {
       const res = await popsicle.request({
         method: 'POST',
-        url: this.url + '/peer/block',
-        data: block,
+        url: this.url + '/peer/blocks',
+        body: {block},
         headers: this.headers,
         timeout: 5000
       }).use(popsicle.plugins.parse('json'))
 
       this.parseHeaders(res)
-
+      // console.log(res.body)
       return res.body
     } catch (error) {
-      logger.debug('Peer unreachable', this.url + '/peer/block/', error.code)
+      // logger.debug('Peer unreachable', this.url + '/peer/blocks/', error.code)
 
       this.status = error.code
     }

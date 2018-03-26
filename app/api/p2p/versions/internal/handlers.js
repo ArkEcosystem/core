@@ -30,15 +30,20 @@ exports.getRound = {
       const blockTime = config.getConstants(lastBlock.data.height).blocktime
       const reward = config.getConstants(lastBlock.data.height).reward
       const delegates = await __getActiveDelegates(lastBlock.data.height)
+      const timestamp = arkjs.slots.getTime()
+
+      // console.log(delegates.length)
+      // console.log(~~(timestamp / blockTime) % maxActive)
+      // console.log(delegates[~~(timestamp / blockTime) % maxActive])
 
       return {
         success: true,
         round: {
           current: parseInt(lastBlock.data.height / maxActive),
           reward: reward,
-          timestamp: arkjs.slots.getTime(),
+          timestamp: timestamp,
           delegates: delegates,
-          delegate: delegates[lastBlock.data.height % maxActive],
+          delegate: delegates[~~(timestamp / blockTime) % maxActive],
           lastBlock: lastBlock.data,
           canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
         }

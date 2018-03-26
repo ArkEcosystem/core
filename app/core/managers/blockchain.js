@@ -181,6 +181,7 @@ module.exports = class BlockchainManager {
   }
 
   async processBlock (block, state, qcallback) {
+    // console.log(state)
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {

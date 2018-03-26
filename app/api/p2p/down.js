@@ -8,7 +8,9 @@ module.exports = class Down {
   constructor (config) {
     this.config = config
     this.peers = {}
-    config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+    config.network.peers
+      .filter(peer => (!peer.ip === '127.0.0.1' || peer.port !== this.config.server.port))
+      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
   isOnline () {
@@ -25,8 +27,9 @@ module.exports = class Down {
       if (!this.config.server.test) await this.discoverPeers()
       if (!this.config.server.test) await this.cleanPeers()
 
-      if (Object.keys(this.peers).length < this.config.network.peers.length) {
-        this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      if (Object.keys(this.peers).length < this.config.network.peers.length && !this.config.server.test) {
+        this.config.network.peers
+          .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
         return this.updateNetworkStatus()
       }
@@ -163,6 +166,7 @@ module.exports = class Down {
 
   broadcastBlock (block) {
     const bpeers = Object.values(this.peers)
+    // console.log(Object.values(this.peers))
     logger.info(`Broadcasting block ${block.data.height} to ${bpeers.length} peers`)
     return Promise.all(bpeers.map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
