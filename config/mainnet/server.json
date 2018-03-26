@@ -23,7 +23,9 @@
   },
   "transactionPool": {
     "enabled": false,
-    "key": "ark/pool"
+    "key": "ark/pool",
+    "maxTransactionsPerSender": 5,
+    "whiteList" : []
   },
   "peers": {
     "minimumNetworkReach": 20,
