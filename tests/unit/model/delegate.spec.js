@@ -16,7 +16,7 @@ describe('Model | Delegate', () => {
 
   describe('forge', () => {
     describe('without version option', () => {
-      it.skip('doesn\'t sort the transactions', () => {
+      it('doesn\'t sort the transactions', () => {
         const address = 'Abcde'
         const wallet = new Wallet(address)
         wallet.balance = 10 ** 8
@@ -25,7 +25,7 @@ describe('Model | Delegate', () => {
       })
 
       // TODO probably useful for debugging
-      it.skip('throws an Error', () => {})
+      it('throws an Error', () => {})
     })
   })
 })

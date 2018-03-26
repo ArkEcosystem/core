@@ -1,3 +1,4 @@
+const Boom = require('boom')
 const { TRANSACTION_TYPES } = require('../../../../../core/constants')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
@@ -45,29 +46,33 @@ exports.blockchain = {
 
 exports.transactions = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.transfer, request.query.from, request.query.to)
+    return Boom.teapot('Temporarily disabled...');
 
-    return {
-      data: {
-        count: transactions.length,
-        amount: _.sumBy(transactions, 'amount'),
-        fees: _.sumBy(transactions, 'fee')
-      }
-    }
+    // const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
+
+    // return {
+    //   data: {
+    //     count: transactions.length,
+    //     amount: _.sumBy(transactions, 'amount'),
+    //     fees: _.sumBy(transactions, 'fee')
+    //   }
+    // }
   }
 }
 
 exports.blocks = {
   handler: async (request, h) => {
-    const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
+    return Boom.teapot('Temporarily disabled...');
 
-    return {
-      data: {
-        count: blocks.length,
-        rewards: _.sumBy(blocks, 'reward'),
-        fees: _.sumBy(blocks, 'totalFee')
-      }
-    }
+    // const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
+
+    // return {
+    //   data: {
+    //     count: blocks.length,
+    //     rewards: _.sumBy(blocks, 'reward'),
+    //     fees: _.sumBy(blocks, 'totalFee')
+    //   }
+    // }
   }
 }
 

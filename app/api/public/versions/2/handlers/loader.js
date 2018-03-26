@@ -11,7 +11,7 @@ exports.status = {
       data: {
         loaded: blockchain.isSynced(),
         now: lastBlock ? lastBlock.data.height : 0,
-        blocksCount: networkHeight - lastBlock.data.height
+        blocksCount: networkHeight - lastBlock.data.height || 0
       }
     }
   }
@@ -25,7 +25,7 @@ exports.syncing = {
     return {
       data: {
         syncing: !blockchain.isSynced(),
-        blocks: networkHeight - lastBlock.data.height,
+        blocks: networkHeight - lastBlock.data.height || 0,
         height: lastBlock.data.height,
         id: lastBlock.data.id
       }

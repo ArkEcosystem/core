@@ -31,7 +31,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/multisignatures/wallets', ...multisignatures.wallets },
 
     { method: 'GET', path: '/peers', ...peers.index },
-    { method: 'GET', path: '/peers/me', ...peers.me },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/signatures', ...signatures.index },
@@ -43,6 +42,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
+    { method: 'POST', path: '/transactions', ...transactions.store },
     { method: 'GET', path: '/transactions/{id}', ...transactions.show },
     { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
     { method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed },

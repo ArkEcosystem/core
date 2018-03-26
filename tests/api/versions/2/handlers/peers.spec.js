@@ -12,25 +12,10 @@ describe('API 2.0 - Peers', () => {
       const peer = res.body.data[0]
       await expect(peer.ip).toBeType('string')
       await expect(peer.port).toBeType('number')
-      await expect(peer.version).toBeType('string')
-      await expect(peer.height).toBeType('number')
+      // await expect(peer.version).toBeType('string')
+      // await expect(peer.height).toBeType('number')
       await expect(peer.status).toBeType('string')
       await expect(peer.latency).toBeType('number')
-    })
-  })
-
-  describe.skip('GET /api/peers/me', () => {
-    it('should GET the current peer', async () => {
-      const res = await utils.request('GET', 'peers/me')
-      await utils.assertSuccessful(res)
-      await utils.assertResource(res)
-
-      await expect(res.body.data.ip).toBeType('string')
-      await expect(res.body.data.port).toBeType('number')
-      await expect(res.body.data.version).toBeType('string')
-      await expect(res.body.data.height).toBeType('number')
-      await expect(res.body.data.status).toBeType('string')
-      await expect(res.body.data.latency).toBeType('number')
     })
   })
 
@@ -42,8 +27,8 @@ describe('API 2.0 - Peers', () => {
 
       await expect(res.body.data.ip).toBeType('string')
       await expect(res.body.data.port).toBeType('number')
-      await expect(res.body.data.version).toBeType('string')
-      await expect(res.body.data.height).toBeType('number')
+      // await expect(res.body.data.version).toBeType('string')
+      // await expect(res.body.data.height).toBeType('number')
       await expect(res.body.data.status).toBeType('string')
       await expect(res.body.data.latency).toBeType('number')
     })
