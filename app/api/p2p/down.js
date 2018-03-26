@@ -9,7 +9,7 @@ module.exports = class Down {
     this.config = config
     this.peers = {}
     config.network.peers
-      .filter(peer => (!peer.ip === '127.0.0.1' || peer.port !== this.config.server.port))
+      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
