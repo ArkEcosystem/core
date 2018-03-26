@@ -42,29 +42,25 @@ module.exports = class TransactionPool {
   }
 
   async addTransactions (transactions) {
-    if (this.pool && (await this.pool.getPoolSize() < this.config.server.transactionPool.maxPoolSize)) {
-      this.queue.push(transactions.map(tx => {
-        let transaction = new Transaction(tx)
+    this.queue.push(transactions.map(tx => {
+      let transaction = new Transaction(tx)
 
-        // TODO for expiration and time lock testing remove from production
-        if (this.config.server.test) {
-          const current = arkjs.slots.getTime()
-          transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
+      // TODO for expiration and time lock testing remove from production
+      if (this.config.server.test) {
+        const current = arkjs.slots.getTime()
+        transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
-          if (Math.round(Math.random() * Math.floor(1)) === 0) {
-            transaction.data.timelocktype = 0 // timestamp
-            transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
-          } else {
-            transaction.data.timelocktype = 1 // block
-            transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
-          }
+        if (Math.round(Math.random() * Math.floor(1)) === 0) {
+          transaction.data.timelocktype = 0 // timestamp
+          transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
+        } else {
+          transaction.data.timelocktype = 1 // block
+          transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
         }
+      }
 
-        return transaction
-      }))
-    } else {
-      logger.info('Transactions not added to the transaction pool. Pool is disabled or reached maximum size.')
-    }
+      return transaction
+    }))
   }
 
   verify (transaction) {

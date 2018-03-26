@@ -26,9 +26,8 @@
   "transactionPool": {
     "enabled": true,
     "keyPrefix": "ark/pool",
-    "maxPoolSize": 10000,
     "maxTransactionsPerSender": 5,
-    "whiteList" : []
+    "whiteListAddresses" : []
   },
   "peers": {
     "blackList": []
