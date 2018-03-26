@@ -3,7 +3,7 @@ const Transaction = require('../models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('./managers/blockchain')
-const PoolManager = require('./managers/redis')
+const PoolManager = require('./managers/pool')
 
 let instance = null
 
