@@ -47,5 +47,8 @@
       "/api/v2/wallets/search",
       "/api/v2/webhooks"
     ]
+  },
+  "statistics": {
+    "enabled": false
   }
 }
