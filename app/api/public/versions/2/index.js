@@ -1,3 +1,4 @@
+const config = require('../../../../core/config')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const loader = require('./handlers/loader')
@@ -11,7 +12,7 @@ const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
 
 const register = async (server, options) => {
-  server.route([
+  let routes = [
     { method: 'GET', path: '/blocks', ...blocks.index },
     { method: 'GET', path: '/blocks/{id}', ...blocks.show },
     { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
@@ -34,12 +35,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/signatures', ...signatures.index },
-
-    { method: 'GET', path: '/statistics/blockchain', ...statistics.blockchain },
-    { method: 'GET', path: '/statistics/transactions', ...statistics.transactions },
-    { method: 'GET', path: '/statistics/blocks', ...statistics.blocks },
-    { method: 'GET', path: '/statistics/votes', ...statistics.votes },
-    { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
     { method: 'POST', path: '/transactions', ...transactions.store },
@@ -68,7 +63,22 @@ const register = async (server, options) => {
     { method: 'DELETE', path: '/webhooks/{id}', ...webhooks.destroy },
 
     { method: 'GET', path: '/webhooks/events', ...webhooks.events }
-  ])
+  ]
+
+  if (config.api.public.statistics.enabled) {
+    routes = [
+      ...routes,
+      ...[
+        { method: 'GET', path: '/statistics/blockchain', ...statistics.blockchain },
+        { method: 'GET', path: '/statistics/transactions', ...statistics.transactions },
+        { method: 'GET', path: '/statistics/blocks', ...statistics.blocks },
+        { method: 'GET', path: '/statistics/votes', ...statistics.votes },
+        { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes },
+      ]
+    ]
+  }
+
+  server.route(routes)
 }
 
 exports.plugin = {
