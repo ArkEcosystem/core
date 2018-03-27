@@ -3,18 +3,31 @@
   "port": 4000,
   "version": "2.0.0",
   "logging": {
-    "file": "info",
-    "console": "info"
+    "driver": "app/logging/winston",
+    "options": {
+      "file": "debug",
+      "console": "debug"
+    }
   },
-  "db": {
+  "database": {
     "driver": "app/database/sequelize",
-    "uri": "sqlite:storage/database/jest.sqlite",
-    "dialect": "sqlite",
-    "logging": false
+    "options": {
+      "uri": "sqlite:storage/database/testnet.sqlite",
+      "uri1": "postgres://node:password@localhost:5432/ark_testnet",
+      "dialect": "sqlite",
+      "dialect1": "postgres",
+      "logging": false
+    }
   },
-  "queue": {
+  "redis": {
     "host": "localhost",
     "port": 6379
+  },
+  "transactionPool": {
+    "enabled": true,
+    "keyPrefix": "ark/pool",
+    "maxTransactionsPerSender": 5,
+    "whiteList" : []
   },
   "peers": {
     "blackList": []

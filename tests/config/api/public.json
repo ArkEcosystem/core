@@ -11,16 +11,18 @@
   "cache": {
     "enabled": false,
     "options": {
-      "name": "public-api-cache",
+      "name": "redisCache",
       "engine": "catbox-redis",
       "host": "localhost",
-      "partition": "cache"
+      "port": 6379,
+      "partition": "cache",
+      "expiresIn": 60000
     }
   },
   "rateLimit": {
     "enabled": false,
     "limit": 300,
-    "expires": 600000
+    "expires": 60000
   },
   "pagination": {
     "limit": 100,
@@ -46,7 +48,7 @@
       "/api/v2/webhooks"
     ]
   },
-  "webhooks": {
-    "secret": "my-secret-auth-token"
+  "statistics": {
+    "enabled": false
   }
 }
