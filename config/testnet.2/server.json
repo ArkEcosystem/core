@@ -1,7 +1,7 @@
 {
-  "port": 4002,
+  "test": true,
+  "port": 4102,
   "version": "2.0.0",
-  "fastRebuild": true,
   "logging": {
     "driver": "app/logging/winston",
     "options": {
@@ -12,10 +12,10 @@
   "database": {
     "driver": "app/database/sequelize",
     "options": {
-      "uri": "sqlite:storage/database/devnet.sqlite",
-      "uri_1": "postgres://node:password@localhost:5432/ark_devnet",
+      "uri": "sqlite:storage/database/testnet.2.sqlite",
+      "uri1": "postgres://node:password@localhost:5432/ark_testnet",
       "dialect": "sqlite",
-      "dialect_1": "postgres",
+      "dialect1": "postgres",
       "logging": false
     }
   },
@@ -25,12 +25,12 @@
   },
   "transactionPool": {
     "enabled": false,
-    "key": "ark/pool",
+    "keyPrefix": "ark/pool",
+    "maxPoolSize": 10000,
     "maxTransactionsPerSender": 5,
     "whiteList" : []
   },
   "peers": {
-    "minimumNetworkReach": 10,
     "blackList": []
   }
 }

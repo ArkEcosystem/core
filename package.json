@@ -18,6 +18,7 @@
     "forge:devnet:watch": "nodemon app/start-forger.js -c config/devnet",
     "forge:testnet": "node app/start-forger.js -c config/testnet",
     "full:testnet": "node app/start-relay-and-forger.js -c config/testnet",
+    "full:testnet:2tier": "node app/start-relay-and-forger.js -c config/testnet.1 --network-start & node app/start-relay-and-forger.js -c config/testnet.2 --network-start",
     "forge:testnet:watch": "nodemon app/start-forger.js -c config/testnet",
     "snapshot:devnet": "nodemon app/snapshot.js -c config/devnet",
     "test": "jest --no-cache --forceExit --projects tests",
