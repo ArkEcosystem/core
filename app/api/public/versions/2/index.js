@@ -65,7 +65,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/webhooks/events', ...webhooks.events }
   ]
 
-  if (config.api.public.statistics.enabled) {
+  if (config.api.public.statistics && config.api.public.statistics.enabled) {
     routes = [
       ...routes,
       ...[
