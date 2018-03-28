@@ -122,7 +122,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async buildDelegates (maxDelegates, height) {
-    if (parseInt(height / maxDelegates) !== height / maxDelegates) {
+    if (height > 1 && parseInt(height / maxDelegates) !== height / maxDelegates) {
       throw new Error('Trying to build delegates outside of round change')
     }
     let data = await this.models.wallet.findAll({

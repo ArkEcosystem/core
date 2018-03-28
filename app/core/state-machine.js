@@ -348,7 +348,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
           // remove round if it was stored in db already
           await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
-          await blockchainManager.db.applyRound(block, false, false)
+          await blockchainManager.db.applyRound(block.data.height)
         }
         if (block.data.height === 1 && state.networkStart) {
           return blockchainManager.dispatch('NETWORKSTART')
