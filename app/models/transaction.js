@@ -26,6 +26,7 @@ module.exports = class Transaction {
     return true
   }
 
+  // AIP11 serialization
   static serialize (transaction) {
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
