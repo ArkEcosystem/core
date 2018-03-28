@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize')
+const crypto = require('crypto')
 const Umzug = require('umzug')
 const Block = require('../../models/block')
 const Transaction = require('../../models/transaction')
@@ -75,21 +76,41 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getActiveDelegates (height) {
-    const activeDelegates = config.getConstants(height).activeDelegates
-    const round = ~~(height / activeDelegates)
+    const maxDelegates = config.getConstants(height).activeDelegates
+    const round = ~~(height / maxDelegates)
 
     if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) {
       return this.activedelegates
     }
+    if (height % maxDelegates === 0) {
+      await this.applyRound(height)
+    }
 
-    const data = await this.models.round.findAll({
+    let data = await this.models.round.findAll({
       where: {
         round: round
       },
       order: [[ 'publicKey', 'ASC' ]]
     })
 
-    return data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance)
+    data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance)
+
+    const seedSource = round.toString()
+    let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
+
+    for (let i = 0, delCount = data.length; i < delCount; i++) {
+      for (let x = 0; x < 4 && i < delCount; i++, x++) {
+        const newIndex = currentSeed[x] % delCount
+        const b = data[newIndex]
+        data[newIndex] = data[i]
+        data[i] = b
+      }
+      currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
+    }
+
+    this.activedelegates = data
+
+    return this.activedelegates
   }
 
   saveRounds (rounds) {
@@ -100,9 +121,10 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.models.round.destroy({where: {round}})
   }
 
-  async buildDelegates (block) {
-    const activeDelegates = config.getConstants(block.data.height).activeDelegates
-
+  async buildDelegates (maxDelegates, height) {
+    if (parseInt(height / maxDelegates) !== height / maxDelegates) {
+      throw new Error('Trying to build delegates outside of round change')
+    }
     let data = await this.models.wallet.findAll({
       attributes: [
         ['vote', 'publicKey'],
@@ -117,7 +139,7 @@ module.exports = class SequelizeDB extends DBInterface {
     })
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
-    if (data.length < activeDelegates) {
+    if (data.length < maxDelegates) {
       const data2 = await this.models.wallet.findAll({
         attributes: [
           'publicKey'
@@ -131,17 +153,17 @@ module.exports = class SequelizeDB extends DBInterface {
           }
         },
         order: [[ 'publicKey', 'ASC' ]],
-        limit: activeDelegates - data.length
+        limit: maxDelegates - data.length
       })
 
       data = data.concat(data2)
     }
 
     // logger.info(`got ${data.length} voted delegates`)
-    const round = parseInt(block.data.height / activeDelegates)
+    const round = parseInt(height / maxDelegates)
     this.activedelegates = data
       .sort((a, b) => b.balance - a.balance)
-      .slice(0, activeDelegates)
+      .slice(0, maxDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
     logger.debug(`generated ${this.activedelegates.length} active delegates`)

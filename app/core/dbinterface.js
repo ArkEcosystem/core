@@ -42,7 +42,7 @@ class DBInterface {
     throw new Error('Method [getActiveDelegates] not implemented!')
   }
 
-  buildDelegates (block) {
+  buildDelegates (maxDelegates, height) {
     throw new Error('Method [buildDelegates] not implemented!')
   }
 
@@ -86,16 +86,20 @@ class DBInterface {
     throw new Error('Method [updateDelegateStats] not implemented!')
   }
 
-  async applyRound (block) {
-    if ((block.data.height % config.getConstants(block.data.height).activeDelegates === 0) || block.data.height === 1) {
-      logger.info(`New round ${block.data.height / config.getConstants(block.data.height).activeDelegates}`)
-      await this.updateDelegateStats(this.activedelegates)
-      await this.saveWallets(false) // save only modified wallets during the last round
-      await this.buildDelegates(block) // active build delegate list from database state
-      await this.saveRounds(this.activedelegates) // save next round delegate list
+  async applyRound (height) {
+    const maxDelegates = config.getConstants(height).activeDelegates
+    if (height % maxDelegates === 0 || height === 1) {
+      const round = height / maxDelegates
+      if (!this.activedelegates || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
+        logger.info(`New round ${round}`)
+        await this.updateDelegateStats(this.activedelegates)
+        await this.saveWallets(false) // save only modified wallets during the last round
+        await this.buildDelegates(maxDelegates, height) // active build delegate list from database state
+        await this.saveRounds(this.activedelegates) // save next round delegate list
+      } else {
+        logger.info(`New round ${round} already applied. This should happen only of you are a forger`)
+      }
     }
-
-    return block
   }
 
   async undoRound (block) {
@@ -108,17 +112,30 @@ class DBInterface {
     if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info(`Back to previous round: ${previousRound}`)
 
-      await this.getActiveDelegates(previousHeight) // active delegate list from database round
+      this.activedelegates = await this.getOrderedActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list
     }
 
     return block
   }
 
-  async applyBlock (block) {
-    await this.walletManager.applyBlock(block)
+  async validateDelegate (block) {
+    const blockTime = config.getConstants(block.data.height).blocktime
+    const delegates = await this.getActiveDelegates(block.data.height)
+    const forgingDelegate = delegates[parseInt(block.data.timestamp / blockTime) % delegates.length]
 
-    return this.applyRound(block)
+    // TODO: get this right
+    if (forgingDelegate && forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
+    } else {
+      logger.debug('Delegate allowed to forge block ' + block.data.generatorPublicKey)
+    }
+  }
+
+  async applyBlock (block) {
+    // await this.validateDelegate(block)
+    await this.walletManager.applyBlock(block)
+    await this.applyRound(block.data.height)
   }
 
   async undoBlock (block) {

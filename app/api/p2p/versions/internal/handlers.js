@@ -26,10 +26,11 @@ exports.getRound = {
   handler: async (request, h) => {
     const lastBlock = blockchain.getInstance().getState().lastBlock
     try {
-      const maxActive = config.getConstants(lastBlock.data.height).activeDelegates
-      const blockTime = config.getConstants(lastBlock.data.height).blocktime
-      const reward = config.getConstants(lastBlock.data.height).reward
-      const delegates = await __getActiveDelegates(lastBlock.data.height)
+      const height = lastBlock.data.height + 1
+      const maxActive = config.getConstants(height).activeDelegates
+      const blockTime = config.getConstants(height).blocktime
+      const reward = config.getConstants(height).reward
+      const delegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
       const timestamp = arkjs.slots.getTime()
 
       // console.log(delegates.length)
@@ -39,13 +40,13 @@ exports.getRound = {
       return {
         success: true,
         round: {
-          current: parseInt(lastBlock.data.height / maxActive),
+          current: parseInt(height / maxActive),
           reward: reward,
           timestamp: timestamp,
           delegates: delegates,
-          delegate: delegates[~~(timestamp / blockTime) % maxActive],
+          delegate: delegates[parseInt(timestamp / blockTime) % maxActive],
           lastBlock: lastBlock.data,
-          canForge: parseInt(lastBlock.data.timestamp / blockTime) < parseInt(arkjs.slots.getTime() / blockTime)
+          canForge: parseInt(1 + lastBlock.data.timestamp / blockTime) * blockTime < timestamp - 1
         }
       }
     } catch (error) {
@@ -67,24 +68,4 @@ exports.getUnconfirmedTransactions = {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
   }
-}
-
-async function __getActiveDelegates (height) {
-  const round = parseInt(height / config.getConstants(height).activeDelegates)
-  const seedSource = round.toString()
-  let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
-
-  const activedelegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
-
-  for (let i = 0, delCount = activedelegates.length; i < delCount; i++) {
-    for (let x = 0; x < 4 && i < delCount; i++, x++) {
-      const newIndex = currentSeed[x] % delCount
-      const b = activedelegates[newIndex]
-      activedelegates[newIndex] = activedelegates[i]
-      activedelegates[i] = b
-    }
-    currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
-  }
-
-  return activedelegates
 }

@@ -44,15 +44,14 @@ module.exports = class ForgerManager {
       try {
         round = await this.getRound()
         if (!round.canForge) {
-          logger.debug('Block already forged in current slot')
+          // logger.debug('Block already forged in current slot')
           await sleep(100) // basically looping until we lock at beginning of next slot
           return monitor()
         }
-        // console.log(round)
 
         const delegate = await this.pickForgingDelegate(round)
         if (!delegate) {
-          logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
+          // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
           await sleep(7900) // we will check at next slot
           return monitor()
         }
