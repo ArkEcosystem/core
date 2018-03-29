@@ -23,11 +23,9 @@ module.exports = class TransactionsRepository {
       if (wallet) whereStatement['senderPublicKey'] = wallet.publicKey
     }
 
-    if (params.orderBy) {
-      const order = params.orderBy.split(':')
-
-      if (['timestamp', 'type', 'amount'].includes(order[0])) orderBy.push(params.orderBy.split(':'))
-    }
+    params.orderBy
+      ? orderBy.push([params.orderBy.split(':')])
+      : orderBy.push([['timestamp', 'DESC']])
 
     return this.db.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],

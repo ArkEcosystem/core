@@ -1,4 +1,5 @@
 const db = require('../../../../../core/dbinterface').getInstance()
+const formatTimestamp = require('../../../../../utils/format-timestamp')
 
 module.exports = (model) => {
   const generator = db.walletManager.getWalletByPublicKey(model.generatorPublicKey)
@@ -25,6 +26,10 @@ module.exports = (model) => {
     signature: model.blockSignature,
     confirmations: model.confirmations,
     transactions: model.numberOfTransactions,
-    timestamp: model.timestamp
-  };
+    timestamp: {
+      epoch: model.timestamp,
+      unix: formatTimestamp(model.timestamp).unix(),
+      human: formatTimestamp(model.timestamp).format()
+    }
+  }
 }
