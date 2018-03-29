@@ -111,17 +111,26 @@ module.exports = class TransactionsRepository {
     return results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
-  search (params) {
+  search (payload) {
+    let orderBy = []
+
+    payload.orderBy
+      ? orderBy.push([payload.orderBy.split(':')])
+      : orderBy.push([['timestamp', 'DESC']])
+
     return this.db.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: buildFilterQuery(
-        params,
+        payload,
         {
           exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
           between: ['timestamp', 'amount', 'fee'],
           wildcard: ['vendorFieldHex']
         }
       ),
+      order: orderBy,
+      offset: payload.offset,
+      limit: payload.limit,
       include: {
         model: this.db.models.block,
         attributes: ['height']

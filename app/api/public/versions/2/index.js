@@ -16,7 +16,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/blocks', ...blocks.index },
     { method: 'GET', path: '/blocks/{id}', ...blocks.show },
     { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
-    { method: 'GET', path: '/blocks/search', ...blocks.search },
+    { method: 'POST', path: '/blocks/search', ...blocks.search },
 
     { method: 'GET', path: '/delegates', ...delegates.index },
     { method: 'GET', path: '/delegates/{id}', ...delegates.show },
@@ -41,7 +41,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/transactions/{id}', ...transactions.show },
     { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
     { method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed },
-    { method: 'GET', path: '/transactions/search', ...transactions.search },
+    { method: 'POST', path: '/transactions/search', ...transactions.search },
     { method: 'GET', path: '/transactions/types', ...transactions.types },
 
     { method: 'GET', path: '/votes', ...votes.index },
@@ -54,7 +54,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/transactions/send', ...wallets.transactionsSend },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
-    { method: 'GET', path: '/wallets/search', ...wallets.search },
+    { method: 'POST', path: '/wallets/search', ...wallets.search },
 
     { method: 'GET', path: '/webhooks', ...webhooks.index },
     { method: 'POST', path: '/webhooks', ...webhooks.store },
@@ -73,7 +73,7 @@ const register = async (server, options) => {
         { method: 'GET', path: '/statistics/transactions', ...statistics.transactions },
         { method: 'GET', path: '/statistics/blocks', ...statistics.blocks },
         { method: 'GET', path: '/statistics/votes', ...statistics.votes },
-        { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes },
+        { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes }
       ]
     ]
   }
