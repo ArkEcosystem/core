@@ -1,5 +1,4 @@
 const arkjs = require('arkjs')
-const crypto = require('crypto')
 const blockchain = require('../../../../core/managers/blockchain')
 const config = require('../../../../core/config')
 const Transaction = require('../../../../models/transaction')
