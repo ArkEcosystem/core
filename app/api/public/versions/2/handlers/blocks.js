@@ -28,7 +28,11 @@ exports.transactions = {
 
 exports.search = {
   handler: async (request, h) => {
-    const blocks = await db.blocks.search({...request.query, ...utils.paginate(request)})
+    const blocks = await db.blocks.search({
+      ...request.payload,
+      ...request.query,
+      ...utils.paginate(request)
+    })
 
     return utils.toPagination(request, blocks, 'block')
   }

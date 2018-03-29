@@ -55,8 +55,6 @@ describe('API 2.0 - Blocks', () => {
   })
 
   describe('GET /api/blocks/:id/transactions', () => {
-    // jest.setTimeout(10000)
-
     it('should GET all the transactions for the given block by id', async () => {
       const res = await utils.request('GET', `blocks/${blockId}/transactions`)
       await utils.assertSuccessful(res)
@@ -68,9 +66,9 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/search', () => {
-    it('should GET a search for blocks with the exact specified blockId', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId })
+  describe('POST /api/blocks/search', () => {
+    it('should POST a search for blocks with the exact specified blockId', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -81,8 +79,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.id).toBe(blockId)
     })
 
-    it('should GET a search for blocks with the exact specified version', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, version })
+    it('should POST a search for blocks with the exact specified version', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, version })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -94,8 +92,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.version).toBe(version)
     })
 
-    it('should GET a search for blocks with the exact specified previousBlock', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, previousBlock })
+    it('should POST a search for blocks with the exact specified previousBlock', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, previousBlock })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -107,8 +105,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.previous).toBe(previousBlock)
     })
 
-    it('should GET a search for blocks with the exact specified payloadHash', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, payloadHash })
+    it('should POST a search for blocks with the exact specified payloadHash', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, payloadHash })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -121,8 +119,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.payload.hash).toBe(payloadHash)
     })
 
-    it('should GET a search for blocks with the exact specified generatorPublicKey', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, generatorPublicKey })
+    it('should POST a search for blocks with the exact specified generatorPublicKey', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, generatorPublicKey })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -134,8 +132,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.generator.publicKey).toBe(generatorPublicKey)
     })
 
-    it('should GET a search for blocks with the exact specified blockSignature', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, blockSignature })
+    it('should POST a search for blocks with the exact specified blockSignature', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, blockSignature })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -147,8 +145,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.signature).toBe(blockSignature)
     })
 
-    it('should GET a search for blocks with the exact specified timestamp', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, timestamp })
+    it('should POST a search for blocks with the exact specified timestamp', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, timestamp })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -159,8 +157,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.id).toBe(blockId)
     })
 
-    it('should GET a search for blocks with the exact specified height', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, height })
+    it('should POST a search for blocks with the exact specified height', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, height })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -172,8 +170,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.height).toBe(height)
     })
 
-    it('should GET a search for blocks with the specified height range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified height range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         heightFrom,
         heightTo
@@ -189,8 +187,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.height).toBe(height)
     })
 
-    it('should GET a search for blocks with the exact specified numberOfTransactions', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, numberOfTransactions })
+    it('should POST a search for blocks with the exact specified numberOfTransactions', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, numberOfTransactions })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -202,8 +200,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.transactions).toBe(numberOfTransactions)
     })
 
-    it('should GET a search for blocks with the specified numberOfTransactions range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified numberOfTransactions range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         numberOfTransactionsFrom,
         numberOfTransactionsTo
@@ -219,8 +217,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.transactions).toBe(numberOfTransactions)
     })
 
-    it('should GET a search for blocks with the exact specified totalAmount', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, totalAmount })
+    it('should POST a search for blocks with the exact specified totalAmount', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalAmount })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -231,8 +229,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.id).toBe(blockId)
     })
 
-    it('should GET a search for blocks with the specified totalAmount range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified totalAmount range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         totalAmountFrom,
         totalAmountTo
@@ -247,8 +245,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.id).toBe(blockId)
     })
 
-    it('should GET a search for blocks with the exact specified totalFee', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, totalFee })
+    it('should POST a search for blocks with the exact specified totalFee', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalFee })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -260,8 +258,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.forged.fee).toBe(totalFee)
     })
 
-    it('should GET a search for blocks with the specified totalFee range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified totalFee range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         totalFeeFrom,
         totalFeeTo
@@ -277,8 +275,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.forged.fee).toBe(totalFee)
     })
 
-    it('should GET a search for blocks with the exact specified reward', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, reward })
+    it('should POST a search for blocks with the exact specified reward', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, reward })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -290,8 +288,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.forged.reward).toBe(reward)
     })
 
-    it('should GET a search for blocks with the specified reward range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified reward range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         reward: {
           from: rewardFrom,
@@ -309,8 +307,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.forged.reward).toBe(reward)
     })
 
-    it('should GET a search for blocks with the exact specified payloadLength', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, payloadLength })
+    it('should POST a search for blocks with the exact specified payloadLength', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, payloadLength })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -322,8 +320,8 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.payload.length).toBe(payloadLength)
     })
 
-    it('should GET a search for blocks with the specified payloadLength range', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specified payloadLength range', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
         payloadLengthFrom,
         payloadLengthTo
@@ -339,16 +337,16 @@ describe('API 2.0 - Blocks', () => {
       await expect(block.payload.length).toBe(payloadLength)
     })
 
-    it('should GET a search for blocks with the wrong specified version', async () => {
-      const res = await utils.request('GET', 'blocks/search', { id: blockId, version: wrongVersion })
+    it('should POST a search for blocks with the wrong specified version', async () => {
+      const res = await utils.request('POST', 'blocks/search', { id: blockId, version: wrongVersion })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
       await expect(res.body.data).toHaveLength(0)
     })
 
-    it('should GET a search for blocks with the specific criteria', async () => {
-      const res = await utils.request('GET', 'blocks/search', {
+    it('should POST a search for blocks with the specific criteria', async () => {
+      const res = await utils.request('POST', 'blocks/search', {
         generatorPublicKey,
         version,
         timestampFrom,

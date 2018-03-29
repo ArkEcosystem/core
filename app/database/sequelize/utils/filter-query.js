@@ -13,15 +13,15 @@ module.exports = (params, filters) => {
 
   if (filters.hasOwnProperty('between')) {
     for (const elem of filters['between']) {
-      if (!params[elem] && !params[`${elem}From`] && !params[`${elem}To`]) continue
+      if (!params[elem]) continue
 
-      if (!params[`${elem}From`] && !params[`${elem}To`]) where[elem] = params[elem]
+      if (!params[elem].from && !params[elem].to) where[elem] = params[elem]
 
-      if (params[`${elem}From`] || params[`${elem}To`]) {
+      if (params[elem].from || params[elem].to) {
         where[elem] = {}
 
-        if (params[`${elem}From`]) where[elem][Op.gte] = params[`${elem}From`]
-        if (params[`${elem}To`]) where[elem][Op.lte] = params[`${elem}To`]
+        if (params[elem].from) where[elem][Op.gte] = params[elem].from
+        if (params[elem].to) where[elem][Op.lte] = params[elem].to
       }
     }
   }
