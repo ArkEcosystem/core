@@ -27,7 +27,7 @@ module.exports = class Down {
       if (!this.config.server.test) await this.discoverPeers()
       if (!this.config.server.test) await this.cleanPeers()
 
-      if (Object.keys(this.peers).length < this.config.network.peers.length && !this.config.server.test) {
+      if (Object.keys(this.peers).length < this.config.network.peers.length - 1 && !this.config.server.test) {
         this.config.network.peers
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
