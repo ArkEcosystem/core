@@ -3,9 +3,9 @@ const blockchain = require('../../../../../core/managers/blockchain').getInstanc
 const state = blockchain.getState()
 const config = require('../../../../../core/config')
 const Transaction = require('../../../../../models/transaction')
+const formatTimestamp = require('../../../../../utils/format-timestamp')
 
 module.exports = (model) => {
-  const lastBlock = state.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
   return {
@@ -13,12 +13,16 @@ module.exports = (model) => {
     blockId: model.blockId,
     type: data.type,
     amount: data.amount,
-    timestamp: data.timestamp,
     fee: data.fee,
     sender: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     recipient: data.recipientId,
     signature: data.signature,
     asset: data.asset,
-    confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
+    confirmations: state.lastBlock ? state.lastBlock.data.height - model.block.height : 0,
+    timestamp: {
+      epoch: data.timestamp,
+      unix: formatTimestamp(data.timestamp).unix(),
+      human: formatTimestamp(data.timestamp).format()
+    }
   }
 }

@@ -17,7 +17,7 @@ module.exports = class BlocksRepository {
     }
 
     params.orderBy
-      ? orderBy.push(params.orderBy.split(':'))
+      ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([[ 'height', 'DESC' ]])
 
     return this.db.models.block.findAndCountAll({
