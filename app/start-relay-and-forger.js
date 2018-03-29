@@ -64,7 +64,7 @@ const start = async () => {
     const forgerManager = await new ForgerManager(config)
     const forgers = await forgerManager.loadDelegates(commander.bip38, commander.address, commander.password)
 
-    logger.info('ForgerManager started with', forgers.length, 'forgers')
+    logger.info(`ForgerManager started with ${forgers.length} forgers`)
     forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
   } catch (error) {
     console.error(error.stack)

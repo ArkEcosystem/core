@@ -113,8 +113,9 @@ module.exports = class SequelizeDB extends DBInterface {
     return this.activedelegates
   }
 
-  saveRounds (rounds) {
-    return this.models.round.bulkCreate(rounds)
+  saveRounds (activeDelegates) {
+    logger.info(`saving round ${activeDelegates[0].round}`)
+    return this.models.round.bulkCreate(activeDelegates)
   }
 
   deleteRound (round) {

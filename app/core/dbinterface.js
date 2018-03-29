@@ -74,7 +74,7 @@ class DBInterface {
     throw new Error('Method [getBlocks] not implemented!')
   }
 
-  saveRounds (rounds) {
+  saveRounds (activeDelegates) {
     throw new Error('Method [saveRounds] not implemented!')
   }
 
@@ -89,7 +89,7 @@ class DBInterface {
   async applyRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
     if (height % maxDelegates === 0 || height === 1) {
-      const round = height / maxDelegates
+      const round = parseInt(height / maxDelegates)
       if (!this.activedelegates || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(this.activedelegates)
@@ -97,7 +97,7 @@ class DBInterface {
         await this.buildDelegates(maxDelegates, height) // active build delegate list from database state
         await this.saveRounds(this.activedelegates) // save next round delegate list
       } else {
-        logger.info(`New round ${round} already applied. This should happen only of you are a forger`)
+        logger.info(`New round ${round} already applied. This should happen only if you are a forger`)
       }
     }
   }
