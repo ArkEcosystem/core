@@ -9,11 +9,11 @@ module.exports = class Cache {
     Promise.promisifyAll(redis.RedisClient.prototype)
 
     if (!instance) {
-      logger.debug('Cache has been instantiated.');
+      logger.debug('Cache has been instantiated.')
 
       instance = this
     } else {
-      logger.debug('Cache already instantiated.');
+      logger.debug('Cache already instantiated.')
     }
 
     this.client = redis.createClient(Object.keys(config).forEach((key) => (config[key] == null) && delete config[key]))

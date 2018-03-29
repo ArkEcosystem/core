@@ -120,7 +120,7 @@ module.exports = class PoolManager {
               }
             }
             actions[parseInt(transaction[3])]()
-            } else {
+          } else {
             retList.push(transaction[0])
           }
         }
