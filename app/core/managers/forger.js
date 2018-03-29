@@ -1,4 +1,5 @@
 const popsicle = require('popsicle')
+const arkjs = require('arkjs')
 const Delegate = require('../../models/delegate')
 const logger = require('../logger')
 const sleep = require('../../utils/sleep')
@@ -34,7 +35,7 @@ module.exports = class ForgerManager {
     return this.delegates
   }
 
-  startForging (proxy) {
+  async startForging (proxy) {
     this.proxy = proxy
     let round = null
     let forgingData = null
@@ -76,6 +77,12 @@ module.exports = class ForgerManager {
         await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
         return monitor()
       }
+    }
+
+    // TODO: assuming that blockTime = 8s
+    const slot = arkjs.slots.getSlotNumber()
+    while (arkjs.slots.getSlotNumber() === slot) {
+      await sleep(100)
     }
 
     return monitor()

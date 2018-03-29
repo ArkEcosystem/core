@@ -301,7 +301,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         await blockchainManager.db.buildWallets()
         // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
-        await blockchainManager.db.applyRound(state.lastBlock)
+        await blockchainManager.db.applyRound(state.lastBlock.data.height)
         return blockchainManager.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
