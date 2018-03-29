@@ -82,18 +82,16 @@ module.exports = class SequelizeDB extends DBInterface {
     if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) {
       return this.activedelegates
     }
-    if (height % maxDelegates === 0) {
-      await this.applyRound(height)
-    }
 
     let data = await this.models.round.findAll({
       where: {
         round: round
       },
-      order: [[ 'publicKey', 'ASC' ]]
-    })
+      order: [[ 'balance', 'DESC' ], [ 'publicKey', 'ASC' ]]
+    }).map(del => del)
 
-    data.map(a => a.dataValues).sort((a, b) => b.balance - a.balance)
+    // console.log(round)
+    // console.log(data.length)
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()

@@ -87,15 +87,17 @@ class DBInterface {
   }
 
   async applyRound (height) {
-    const maxDelegates = config.getConstants(height).activeDelegates
-    if (height % maxDelegates === 0 || height === 1) {
-      const round = parseInt(height / maxDelegates)
-      if (!this.activedelegates || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
+    const nextHeight = height === 1 ? 1 : height + 1
+    const maxDelegates = config.getConstants(nextHeight).activeDelegates
+    if (nextHeight % maxDelegates === 0 || nextHeight === 1) {
+      const round = parseInt(nextHeight / maxDelegates)
+      if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
-        await this.buildDelegates(maxDelegates, height) // active build delegate list from database state
+        await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
         await this.saveRounds(this.activedelegates) // save next round delegate list
+        await this.getActiveDelegates(nextHeight) // generate the new active delegates list
       } else {
         logger.info(`New round ${round} already applied. This should happen only if you are a forger`)
       }
@@ -112,7 +114,7 @@ class DBInterface {
     if (previousRound + 1 === round && block.data.height > activeDelegates) {
       logger.info(`Back to previous round: ${previousRound}`)
 
-      this.activedelegates = await this.getOrderedActiveDelegates(previousHeight) // active delegate list from database round
+      this.activedelegates = await this.getActiveDelegates(previousHeight) // active delegate list from database round
       await this.deleteRound(round) // remove round delegate list
     }
 
@@ -120,29 +122,31 @@ class DBInterface {
   }
 
   async validateDelegate (block) {
-    const blockTime = config.getConstants(block.data.height).blocktime
+    // const blockTime = config.getConstants(block.data.height).blocktime
     const delegates = await this.getActiveDelegates(block.data.height)
-    const forgingDelegate = delegates[parseInt(block.data.timestamp / blockTime) % delegates.length]
+    const slot = arkjs.slots.getSlotNumber(block.data.timestamp)
+    const forgingDelegate = delegates[slot % delegates.length]
 
     // TODO: get this right
-    if (forgingDelegate && forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+    // console.log(delegates)
+    if (!forgingDelegate) {
+      logger.debug('Could not decide yet if delegate ' + block.data.generatorPublicKey + ' is allowed to forge block ' + block.data.height)
+    } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
     } else {
-      logger.debug('Delegate allowed to forge block ' + block.data.generatorPublicKey)
+      logger.debug('Delegate ' + block.data.generatorPublicKey + ' allowed to forge block ' + block.data.height)
     }
   }
 
   async applyBlock (block) {
-    // await this.validateDelegate(block)
+    await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
   }
 
   async undoBlock (block) {
     await this.walletManager.undoBlock(block)
-
     webhookManager.getInstance().emit('block.removed', block)
-
     return this.undoRound(block)
   }
 
