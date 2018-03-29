@@ -17,6 +17,7 @@ module.exports = (model) => {
     sender: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     recipient: data.recipientId,
     signature: data.signature,
+    vendorField: data.vendorField,
     asset: data.asset,
     confirmations: state.lastBlock ? state.lastBlock.data.height - model.block.height : 0,
     timestamp: {
