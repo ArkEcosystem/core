@@ -195,7 +195,7 @@ module.exports = class BlockchainManager {
           qcallback()
         } catch (error) {
           logger.error(error.stack)
-          logger.debug(`Refused new block: ${JSON.stringify(block.data)}`)
+          logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
           state.lastDownloadedBlock = state.lastBlock
           this.dispatch('FORK')
           qcallback()
