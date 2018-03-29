@@ -290,10 +290,14 @@ blockchainMachine.actionMap = (blockchainManager) => {
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
       if (blockchainManager.rebuildQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
+      if (state.networkStart) event = 'SYNCED'
       if (blockchainManager.config.server.test) event = 'TEST'
       blockchainManager.dispatch(event)
     },
-    downloadFinished: () => logger.info('Blockchain download completed 🚀'),
+    downloadFinished: () => {
+      logger.info('Blockchain download completed 🚀')
+      if (state.networkStart) blockchainManager.dispatch('SYNCFINISHED')
+    },
     rebuildFinished: async () => {
       try {
         state.rebuild = false
@@ -343,16 +347,15 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
         await blockchainManager.db.buildWallets()
-        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
-        if (block.data.height === 1 || block.data.height % constants.activeDelegates === 0) {
+        if (block.data.height === 1) {
           // remove round if it was stored in db already
           await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
           await blockchainManager.db.applyRound(block.data.height)
         }
-        if (block.data.height === 1 && state.networkStart) {
-          return blockchainManager.dispatch('NETWORKSTART')
-        }
+        // if (block.data.height === 1 && state.networkStart) {
+        //   return blockchainManager.dispatch('NETWORKSTART')
+        // }
         return blockchainManager.dispatch('STARTED')
       } catch (error) {
         logger.error(error.stack)
@@ -367,7 +370,6 @@ blockchainMachine.actionMap = (blockchainManager) => {
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
-
         blockchainManager.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
@@ -388,7 +390,6 @@ blockchainMachine.actionMap = (blockchainManager) => {
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
-
         blockchainManager.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
