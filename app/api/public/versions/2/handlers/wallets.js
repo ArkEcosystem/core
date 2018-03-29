@@ -63,7 +63,11 @@ exports.votes = {
 
 exports.search = {
   handler: async (request, h) => {
-    const wallets = await db.wallets.search({...request.query, ...utils.paginate(request)})
+    const wallets = await db.wallets.search({
+      ...request.payload,
+      ...request.query,
+      ...utils.paginate(request)
+    })
 
     return utils.toPagination(request, wallets, 'wallet')
   }
