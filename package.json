@@ -63,7 +63,7 @@
     "figlet": "^1.2.0",
     "fs-extra": "^5.0.0",
     "hapi": "^17.2.3",
-    "hapi-api-version": "^2.0.0",
+    "hapi-api-version": "https://github.com/faustbrian/hapi-api-version",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
     "hapi-rate-limit": "^2.1.1",
     "hoek": "^5.0.3",
