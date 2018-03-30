@@ -98,8 +98,10 @@ module.exports = class BlockchainManager {
 
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
-    if (stateMachine.state.started) this.processQueue.push(block)
-    else logger.info('Block disregarded because blockchain is not ready')
+    if (stateMachine.state.started) {
+      this.processQueue.push(block)
+      stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
+    } else logger.info('Block disregarded because blockchain is not ready')
   }
 
   async removeBlocks (nblocks) {
