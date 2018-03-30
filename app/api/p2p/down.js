@@ -13,9 +13,9 @@ module.exports = class Down {
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
-  start (p2p) {
+  async start (p2p) {
     this.p2p = p2p
-    return this.updateNetworkStatus()
+    await this.updateNetworkStatus()
   }
 
   async updateNetworkStatus () {
@@ -131,7 +131,7 @@ module.exports = class Down {
 
       return this.peers
     } catch (error) {
-      this.discoverPeers()
+      return this.discoverPeers()
     }
   }
 
@@ -141,7 +141,7 @@ module.exports = class Down {
 
   getNetworkHeight () {
     const median = Object.values(this.peers)
-      .filter(peer => peer.state && peer.state.height)
+      .filter(peer => peer.state.height)
       .map(peer => peer.state.height)
       .sort()
     return median[~~(median.length / 2)]
@@ -150,7 +150,7 @@ module.exports = class Down {
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = arkjs.slots.getSlotNumber()
-    const syncedPeers = Object.values(this.peers).filter(peer => peer.state && peer.state.currentSlot === slot)
+    const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
     const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
     return ratio

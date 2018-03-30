@@ -40,7 +40,7 @@ const start = async () => {
     await blockchainManager.attachDBInterface(db)
 
     logger.info('Initialising P2P Interface...')
-    const p2p = await new P2PInterface(config)
+    const p2p = new P2PInterface(config)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)
 
