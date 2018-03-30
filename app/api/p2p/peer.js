@@ -9,6 +9,7 @@ module.exports = class Peer {
     this.port = port
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
+    this.state = {}
     this.headers = {
       version: config.server.version,
       port: config.server.port,
@@ -23,7 +24,7 @@ module.exports = class Peer {
       version: this.version,
       os: this.os,
       status: this.status,
-      height: this.height,
+      height: this.state.height,
       delay: this.delay
     }
   }
@@ -75,7 +76,7 @@ module.exports = class Peer {
   }
 
   parseHeaders (res) {
-    ['nethash', 'os', 'version', 'height'].forEach(key => (this[key] = res.headers[key]))
+    ['nethash', 'os', 'version'].forEach(key => (this[key] = res.headers[key]))
     this.status = 'OK'
 
     return res
@@ -107,16 +108,17 @@ module.exports = class Peer {
 
   async ping (delay) {
     const body = await this.get('/peer/status', delay || 5000)
-
     if (body) {
-      return (this.height = body.height)
+      this.state = body
+      return body
     }
 
     throw new Error('Peer unreachable')
   }
 
   async getPeers () {
-    await this.ping(2000)
+    logger.info(`Getting fresh peer list from ${this.url}`)
+    await this.ping(5000)
     const body = await this.get('/peer/list')
 
     return body.peers
