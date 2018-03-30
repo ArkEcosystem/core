@@ -2,13 +2,13 @@ const logger = require('../../core/logger')
 const Hapi = require('hapi')
 
 module.exports = class Up {
-  constructor (config) {
+  constructor (p2p, config) {
+    this.p2p = p2p
     this.config = config
   }
 
-  async start (p2p) {
+  async start () {
     this.server = new Hapi.Server({ port: this.config.server.port })
-    this.server.app.p2p = p2p
 
     await this.server.register({
       plugin: require('./plugins/accept-request')

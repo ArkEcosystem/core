@@ -46,7 +46,7 @@ const start = async () => {
 
     logger.info('Initialising P2P Interface...')
     const p2p = new P2PInterface(config)
-    await p2p.warmup()
+    await p2p.warmup(commander.networkStart)
     await blockchainManager.attachNetworkInterface(p2p)
 
     logger.info('Initialising Transaction Pool...')

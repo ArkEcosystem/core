@@ -5,7 +5,8 @@ const isLocalhost = require('../../utils/is-localhost')
 const webhookManager = require('../../core/managers/webhook')
 
 module.exports = class Down {
-  constructor (config) {
+  constructor (p2p, config) {
+    this.p2p = p2p
     this.config = config
     this.peers = {}
     config.network.peers
@@ -13,9 +14,10 @@ module.exports = class Down {
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
-  async start (p2p) {
-    this.p2p = p2p
-    await this.updateNetworkStatus()
+  async start (networkStart = false) {
+    if (!networkStart) {
+      await this.updateNetworkStatus()
+    }
   }
 
   async updateNetworkStatus () {
@@ -99,7 +101,7 @@ module.exports = class Down {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
-      this.checkOnline()
+      this.p2p.checkOnline()
       return this.getRandomPeer()
     }
     return randomPeer

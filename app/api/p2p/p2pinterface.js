@@ -8,8 +8,8 @@ const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8
 
 module.exports = class P2PInterface {
   constructor (config) {
-    this.down = new Down(config)
-    this.up = new Up(config)
+    this.down = new Down(this, config)
+    this.up = new Up(this, config)
   }
 
   async checkOnline () {
@@ -20,10 +20,10 @@ module.exports = class P2PInterface {
     logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
   }
 
-  async warmup () {
+  async warmup (networkStart) {
     await this.checkOnline()
-    await this.down.start(this)
-    await this.up.start(this)
+    await this.down.start(networkStart)
+    await this.up.start()
   }
 
   tearDown () {
