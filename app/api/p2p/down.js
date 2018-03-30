@@ -1,6 +1,6 @@
 const Peer = require('./peer')
 const logger = require('../../core/logger')
-const dns = require('dns')
+const arkjs = require('arkjs')
 const isLocalhost = require('../../utils/is-localhost')
 const webhookManager = require('../../core/managers/webhook')
 
@@ -11,10 +11,6 @@ module.exports = class Down {
     config.network.peers
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
-  }
-
-  isOnline () {
-    dns.lookupService('8.8.8.8', 53, (err, hostname, service) => !err)
   }
 
   start (p2p) {
@@ -46,17 +42,17 @@ module.exports = class Down {
     // Noop
   }
 
-  async cleanPeers () {
+  async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
     let count = 0
     const max = keys.length
     let wrongpeers = 0
 
-    logger.info('Looking for network peers')
+    logger.info(`Checking ${max} peers`)
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping()
+        await this.peers[ip].ping(fast ? 1000 : 5000)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
@@ -70,6 +66,8 @@ module.exports = class Down {
 
     logger.stopTracker('Peers Discovery', max, max)
     logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
+    logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
+    logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
   }
 
   async acceptNewPeer (peer) {
@@ -101,9 +99,7 @@ module.exports = class Down {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
-      this.isOnline(online => {
-        if (!online) logger.error('Seems the noe cannott access to internet (tested google DNS)')
-      })
+      this.checkOnline()
       return this.getRandomPeer()
     }
     return randomPeer
@@ -143,13 +139,21 @@ module.exports = class Down {
     return new Promise(resolve => setTimeout(resolve, delay, value))
   }
 
-  async getNetworkHeight () {
+  getNetworkHeight () {
     const median = Object.values(this.peers)
-      .filter(peer => peer.height)
-      .map(peer => peer.height)
+      .filter(peer => peer.state && peer.state.height)
+      .map(peer => peer.state.height)
       .sort()
+    return median[~~(median.length / 2)]
+  }
 
-    return median[parseInt(median.length / 2)]
+  getPBFTForgingStatus () {
+    const height = this.getNetworkHeight()
+    const slot = arkjs.slots.getSlotNumber()
+    const syncedPeers = Object.values(this.peers).filter(peer => peer.state && peer.state.currentSlot === slot)
+    const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
+    const ratio = okForging / syncedPeers.length
+    return ratio
   }
 
   async downloadBlocks (fromBlockHeight) {

@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const dirTree = require('directory-tree')
-const Sntp = require('sntp')
 const deepmerge = require('deepmerge')
 const isString = require('lodash/isString')
 const logger = require('./logger')
@@ -32,9 +31,6 @@ class Config {
 
       await logger.init(this.server.logging, this.network.name)
 
-      const time = await this.ntp()
-      logger.debug('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
-
       this.buildConstants()
 
       return this
@@ -55,15 +51,6 @@ class Config {
     while (lastmerged < this.constants.length - 1) {
       this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
       lastmerged++
-    }
-  }
-
-  async ntp () {
-    try {
-      return Sntp.time()
-    } catch (error) {
-      logger.warning('can\'t ping ntp')
-      return {t: 0}
     }
   }
 

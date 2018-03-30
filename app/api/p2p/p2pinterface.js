@@ -1,10 +1,24 @@
 const Down = require('./down')
 const Up = require('./up')
+const logger = require('../../core/logger')
+const dns = require('dns')
+const Sntp = require('sntp')
+
+const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8.8', 53, (err, hostname, service) => resolve(!err)))
 
 module.exports = class P2PInterface {
   constructor (config) {
+    this.checkOnline()
     this.down = new Down(config)
     this.up = new Up(config)
+  }
+
+  async checkOnline () {
+    const online = await isOnline()
+    if (!online) logger.error('Seems the node cannot access to internet (tested google DNS)')
+    else logger.info('Node is online, Google DNS is reachable')
+    const time = await Sntp.time()
+    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
   }
 
   warmup () {
