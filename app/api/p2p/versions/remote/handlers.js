@@ -12,7 +12,7 @@ exports.sendBlockchainEvent = {
       }).code(500)
     }
 
-    const event = bm[request.params.event]()
+    const event = bm[request.params.event]
 
     request.query.param
       ? event(request.query.paramrequest.params.param)
