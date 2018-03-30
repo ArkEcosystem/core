@@ -160,14 +160,14 @@ module.exports = class SequelizeDB extends DBInterface {
 
     // logger.info(`got ${data.length} voted delegates`)
     const round = parseInt(height / maxDelegates)
-    this.activedelegates = data
+    data = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, maxDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
-    logger.debug(`generated ${this.activedelegates.length} active delegates`)
+    logger.debug(`generated ${data.length} active delegates`)
 
-    return this.activedelegates
+    return data
   }
 
   async buildWallets () {

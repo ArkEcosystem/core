@@ -68,8 +68,7 @@ const syncWithNetwork = {
     },
     idle: {
       on: {
-        DOWNLOADED: 'downloadBlocks',
-        FORKED: 'forked'
+        DOWNLOADED: 'downloadBlocks'
       }
     },
     downloadBlocks: {
@@ -82,15 +81,13 @@ const syncWithNetwork = {
     downloadfinished: {
       onEntry: ['downloadFinished'],
       on: {
-        PROCESSFINISHED: 'processfinished',
-        FORK: 'forked'
+        PROCESSFINISHED: 'processfinished'
       }
     },
     downloadpaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processfinished',
-        FORKED: 'forked'
+        PROCESSFINISHED: 'processfinished'
       }
     },
     processfinished: {
@@ -102,8 +99,6 @@ const syncWithNetwork = {
     },
     end: {
       onEntry: ['syncingFinished']
-    },
-    forked: {
     }
   }
 }
@@ -121,8 +116,7 @@ const rebuildFromNetwork = {
     },
     idle: {
       on: {
-        DOWNLOADED: 'rebuildBlocks',
-        FORKED: 'forked'
+        DOWNLOADED: 'rebuildBlocks'
       }
     },
     rebuildBlocks: {
@@ -134,21 +128,16 @@ const rebuildFromNetwork = {
     },
     waitingfinished: {
       on: {
-        REBUILDFINISHED: 'rebuildfinished',
-        FORK: 'forked'
+        REBUILDFINISHED: 'rebuildfinished'
       }
     },
     rebuildfinished: {
-      onEntry: ['rebuildFinished'],
-      on: {
-        FORK: 'forked'
-      }
+      onEntry: ['rebuildFinished']
     },
     rebuildpaused: {
       onEntry: ['downloadPaused'],
       on: {
-        REBUILDFINISHED: 'processfinished',
-        FORK: 'forked'
+        REBUILDFINISHED: 'processfinished'
       }
     },
     processfinished: {
@@ -160,48 +149,53 @@ const rebuildFromNetwork = {
     },
     end: {
       onEntry: ['rebuildingFinished']
-    },
-    forked: {
-      onEntry: ['recoverFromFork']
     }
   }
 }
 
 const fork = {
-  initial: 'network',
+  initial: 'undoBlocks',
   states: {
-    network: {
-      onEntry: ['checkNetwork'],
-      on: {
-        SUCCESS: 'blockchain',
-        FAILURE: 'reset'
-      }
-    },
-    blockchain: {
-      onEntry: ['removeBlocks'],
-      on: {
-        SUCCESS: 'wallets',
-        FAILURE: 'reset'
-      }
-    },
-    wallets: {
-      onEntry: ['rebuildWallets'],
-      on: {
-        SUCCESS: 'success',
-        FAILURE: 'reset'
-      }
-    },
-    reset: {
-      onEntry: ['resetNode'],
-      on: {
-        RESET: 'success',
-        FAILURE: 'reset'
-      }
-    },
-    success: {
+    undoBlocks: {
     }
   }
 }
+
+// const fork = {
+//   initial: 'network',
+//   states: {
+//     network: {
+//       onEntry: ['checkNetwork'],
+//       on: {
+//         SUCCESS: 'blockchain',
+//         FAILURE: 'reset'
+//       }
+//     },
+//     blockchain: {
+//       onEntry: ['removeBlocks'],
+//       on: {
+//         SUCCESS: 'wallets',
+//         FAILURE: 'reset'
+//       }
+//     },
+//     wallets: {
+//       onEntry: ['rebuildWallets'],
+//       on: {
+//         SUCCESS: 'success',
+//         FAILURE: 'reset'
+//       }
+//     },
+//     reset: {
+//       onEntry: ['resetNode'],
+//       on: {
+//         RESET: 'success',
+//         FAILURE: 'reset'
+//       }
+//     },
+//     success: {
+//     }
+//   }
+// }
 
 const blockchainMachine = Machine({
   key: 'blockchain',
@@ -408,7 +402,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
     startForkRecovery: async () => {
       logger.info('Starting Fork Recovery 🍴')
       logger.info('Let sail the Ark in stormy waters ⛵️')
-      state.forked = true
+      // state.forked = true
+      const random = ~~(4 / Math.random())
+      await blockchainManager.removeBlocks(random)
+      logger.info('Nice ride on the last ' + random + ' blocks 🌊')
+      blockchainManager.dispatch('SUCCESS')
     }
   }
 }

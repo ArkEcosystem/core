@@ -95,8 +95,8 @@ class DBInterface {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
-        await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
-        await this.saveRounds(this.activedelegates) // save next round delegate list
+        const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+        await this.saveRounds(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
       } else {
         logger.info(`New round ${round} already applied. This should happen only if you are a forger`)
@@ -104,21 +104,19 @@ class DBInterface {
     }
   }
 
-  async undoRound (block) {
-    const activeDelegates = config.getConstants(block.data.height).activeDelegates
+  async undoRound (height) {
+    const maxDelegates = config.getConstants(height).activeDelegates
+    const nextHeight = height + 1
 
-    const previousHeight = block.data.height - 1
-    const round = ~~(block.data.height / config.getConstants(block.data.height).activeDelegates)
-    const previousRound = ~~(previousHeight / config.getConstants(previousHeight).activeDelegates)
+    const round = ~~(height / maxDelegates)
+    const nextRound = ~~(nextHeight / config.getConstants(nextHeight).activeDelegates)
 
-    if (previousRound + 1 === round && block.data.height > activeDelegates) {
-      logger.info(`Back to previous round: ${previousRound}`)
+    if (nextRound === round + 1 && height > maxDelegates) {
+      logger.info(`Back to previous round: ${round}`)
 
-      this.activedelegates = await this.getActiveDelegates(previousHeight) // active delegate list from database round
-      await this.deleteRound(round) // remove round delegate list
+      this.activedelegates = await this.getActiveDelegates(height) // active delegate list from database round
+      await this.deleteRound(nextRound) // remove round delegate list
     }
-
-    return block
   }
 
   async validateDelegate (block) {
@@ -145,9 +143,9 @@ class DBInterface {
   }
 
   async undoBlock (block) {
+    await this.undoRound(block.data.height)
     await this.walletManager.undoBlock(block)
-    webhookManager.getInstance().emit('block.removed', block)
-    return this.undoRound(block)
+    // webhookManager.getInstance().emit('block.removed', block)
   }
 
   verifyTransaction (transaction) {
