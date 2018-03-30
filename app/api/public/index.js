@@ -59,6 +59,9 @@ module.exports = async (config) => {
   await server.register({
     plugin: require('hapi-pagination'),
     options: {
+      meta: {
+        baseUri: ''
+      },
       query: {
         limit: {
           default: config.api.public.pagination.limit
