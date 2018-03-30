@@ -9,6 +9,7 @@ module.exports = async (config) => {
   const baseConfig = {
     port: config.api.public.port,
     routes: {
+      cors: true,
       validate: {
         failAction: async (request, h, err) => { throw err }
       }
