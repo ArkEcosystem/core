@@ -35,7 +35,7 @@ exports.index = {
     }
 
     return utils.respondWith({
-      peers: utils.toCollection(request, retPeers, 'peer')
+      peers: utils.toCollection(request, retPeers.map(peer => peer.toBroadcastInfo()), 'peer')
     })
   }
 }
