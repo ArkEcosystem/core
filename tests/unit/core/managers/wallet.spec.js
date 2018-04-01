@@ -1,17 +1,31 @@
-const WalletManager = require('../../../app/core/managers/wallet')
+const WalletManager = require('../../../../app/core/managers/wallet')
+const Wallet = require('../../../../app/models/wallet')
+
+// TODO refactor tests
 
 describe('Core | WalletManager', () => {
   describe('reset', ()=> {
-    it('', () => {
+    it('empties the manager', () => {
+      const wallet = new Wallet('blabl')
+      const manager = new WalletManager()
+
+      manager.reindex(wallet)
+      expect(manager.getLocalWallets()).toEqual([wallet])
+
+      manager.reset()
+      expect(manager.getLocalWallets()).toEqual([])
     })
   })
 
   describe('reindex', ()=> {
-    it('indexes the wallet by address if it has one', () => {
-    })
-    it('indexes the wallet by public key if it has one', () => {
-    })
-    it('indexes the wallet (delegate) by username if it has one', () => {
+    it('indexes the wallet', () => {
+      const wallet = new Wallet('blabl')
+      const manager = new WalletManager()
+
+      expect(manager.getLocalWallets()).toEqual([])
+
+      manager.reindex(wallet)
+      expect(manager.getLocalWallets()).toEqual([wallet])
     })
   })
 
@@ -101,15 +115,32 @@ describe('Core | WalletManager', () => {
   describe('getDelegate', ()=> {
     it('returns the delegate of a specific username', () => {
       const manager = new WalletManager()
-      manager.getDelegate()
-      // expect()
+
+      const wallet1 = new Wallet('ble')
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('burr')
+      wallet2.username = 'dummy'
+      manager.reindex(wallet2)
+
+      const wallet3 = new Wallet('ble')
+      manager.reindex(wallet3)
+
+      expect(manager.getDelegate('dummy')).toEqual(wallet2)
     })
   })
 
   describe('getLocalWallets', ()=> {
     it('returns the wallets as an Array', () => {
       const manager = new WalletManager()
-      manager.getLocalWallets()
+
+      const wallet1 = new Wallet('blabl')
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('ble')
+      manager.reindex(wallet2)
+
+      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
     })
   })
 })
