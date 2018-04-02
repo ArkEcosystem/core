@@ -11,38 +11,53 @@ module.exports = class WalletManager {
   }
 
   reset () {
+    // TODO replace with Map: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+    // TODO use a closure / advanced properties to avoid exposing the properties (and force devs to use get methods)
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
+    // TODO why not walletsByUsername ?
     this.delegatesByUsername = {}
   }
 
+  /*
+   * @param {Wallet}
+   */
   reindex (wallet) {
     if (wallet.address) this.walletsByAddress[wallet.address] = wallet
     if (wallet.publicKey) this.walletsByPublicKey[wallet.publicKey] = wallet
     if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
   }
 
+  /*
+   * @param {Block}
+   */
   async applyBlock (block) {
-    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+    const generatorPublicKey = block.data.generatorPublicKey
+
+    // TODO refactor
+    let delegate = this.walletsByPublicKey[generatorPublicKey]
     if (!delegate) {
-      const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+      const generator = arkjs.crypto.getAddress(generatorPublicKey, config.network.pubKeyHash)
       if (block.data.height === 1) {
         delegate = new Wallet(generator)
-        delegate.publicKey = block.data.generatorPublicKey
+        delegate.publicKey = generatorPublicKey
         this.walletsByAddress[generator] = delegate
-        this.walletsByPublicKey[block.generatorPublicKey] = delegate
+        // FIXME?
+        // this.walletsByPublicKey[block.generatorPublicKey] = delegate
+        this.walletsByPublicKey[generatorPublicKey] = delegate
       } else {
         logger.debug('delegate by address', this.walletsByAddress[generator])
-        if (this.walletsByAddress[generator]) logger.info('Oops ! this look like a bug, please report 🐛')
-        throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
+        if (this.walletsByAddress[generator]) {
+          logger.info('Oops ! this look like a bug, please report 🐛')
+        }
+        throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`)
       }
     }
-    const appliedTransactions = []
 
+    const appliedTransactions = []
     try {
       await Promise.each(block.transactions, async (tx) => {
         await this.applyTransaction(tx)
-
         appliedTransactions.push(tx)
       })
 
@@ -54,64 +69,59 @@ module.exports = class WalletManager {
     }
   }
 
+  /*
+   * @param {Block}
+   */
   async undoBlock (block) {
-    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+    const delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
 
     const undoedTransactions = []
-    const that = this
-
     try {
       await Promise.each(block.transactions, async (tx) => {
-        await that.undoTransaction(tx)
-
+        await this.undoTransaction(tx)
         undoedTransactions.push(tx)
       })
 
       return delegate.undoBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
-      await Promise.each(undoedTransactions, async (tx) => that.applyTransaction(tx))
+      await Promise.each(undoedTransactions, async (tx) => this.applyTransaction(tx))
       throw error
     }
   }
 
+  /*
+   * @param {Transaction}
+   */
   async applyTransaction (transaction) {
-    const datatx = transaction.data
-    let sender = this.walletsByPublicKey[datatx.senderPublicKey]
-    if (!sender) {
-      const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
-      sender = this.walletsByAddress[senderId] // should exist
-      if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
-      this.walletsByPublicKey[datatx.senderPublicKey] = sender
+    const txData = transaction.data
+
+    const sender = this.getWalletByPublicKey(txData.senderPublicKey) // Should exist
+    const recipient = this.getWalletByAddress(txData.recipientId) // May not exist yet
+
+    // FIXME why here is important lower case and not in other places?
+    if (txData.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[txData.asset.delegate.username.toLowerCase()]) {
+      logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(txData))
+      throw new Error(`Can't apply transaction ${txData.id}: delegate name already taken`)
+    } else if (txData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[txData.asset.votes[0].slice(1)].username) {
+      logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(txData))
+      throw new Error(`Can't apply transaction ${txData.id}: voted delegate does not exist`)
     }
 
-    const recipientId = datatx.recipientId // may not exist
-    let recipient = this.walletsByAddress[recipientId]
-    if (!recipient && recipientId) { // cold wallet
-      recipient = new Wallet(recipientId)
-      this.walletsByAddress[recipientId] = recipient
-    }
-
-    if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-      logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
-      throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
-    } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-      logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
-      throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
-    }
-
-    if (config.network.exceptions[datatx.id]) {
+    if (config.network.exceptions[txData.id]) {
       logger.warning('Transaction is forced to be applied because it has been added as an exception:')
-      logger.warning(datatx)
-    } else if (!sender.canApply(datatx)) {
+      logger.warning(txData)
+    } else if (!sender.canApply(txData)) {
       logger.info(JSON.stringify(sender))
-      logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
-      throw new Error(`Can't apply transaction ${datatx.id}`)
+      logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(txData))
+      throw new Error(`Can't apply transaction ${txData.id}`)
     }
 
-    sender.applyTransactionToSender(datatx)
+    sender.applyTransactionToSender(txData)
+    if (txData.type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(txData)
+    }
 
-    if (datatx.type === TRANSACTION_TYPES.TRANSFER) recipient.applyTransactionToRecipient(datatx)
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
@@ -121,41 +131,42 @@ module.exports = class WalletManager {
     return transaction
   }
 
-  async undoTransaction (transaction) {
-    let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
-    let recipient = this.walletsByAddress[transaction.data.recipientId]
-    sender.undoTransactionToSender(transaction.data)
+  /*
+   * @param {Transaction}
+   */
+  async undoTransaction ({ type, data }) {
+    const sender = this.walletsByPublicKey[data.senderPublicKey] // Should exist
+    const recipient = this.walletsByAddress[data.recipientId]
 
-    if (recipient && transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.undoTransactionToRecipient(transaction.data)
+    sender.undoTransactionToSender(data)
+
+    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.undoTransactionToRecipient(data)
     }
 
-    return transaction.data
+    return data
   }
 
   getWalletByAddress (address) {
-    let wallet = this.walletsByAddress[address]
-    if (wallet) return wallet
-    else {
+    if (!this.walletsByAddress[address]) {
       if (!arkjs.crypto.validateAddress(address, config.network.pubKeyHash)) {
+        // TODO throw an Error instead?
         return null
       }
-      wallet = new Wallet(address)
-      this.walletsByAddress[address] = wallet
-      return wallet
+      this.walletsByAddress[address] = new Wallet(address)
     }
+
+    return this.walletsByAddress[address]
   }
 
   getWalletByPublicKey (publicKey) {
-    let wallet = this.walletsByPublicKey[publicKey]
-    if (wallet) return wallet
-    else {
+    if (!this.walletsByPublicKey[publicKey]) {
       const address = arkjs.crypto.getAddress(publicKey, config.network.pubKeyHash)
-      wallet = this.getWalletByAddress(address)
-      wallet.publicKey = publicKey
-      this.walletsByPublicKey[publicKey] = wallet
-      return wallet
+      this.walletsByPublicKey[publicKey] = this.getWalletByAddress(address)
+      this.walletsByPublicKey[publicKey].publicKey = publicKey
     }
+
+    return this.walletsByPublicKey[publicKey]
   }
 
   getDelegate (username) {
