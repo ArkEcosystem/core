@@ -79,7 +79,7 @@ module.exports = class WebhookManager {
       if (!webhook.conditions) webhooks.push(webhook)
 
       for (let condition of webhook.conditions) {
-        const satisfies = require(`app/webhooks/conditions/${condition.condition}`)
+        const satisfies = require(`../../webhooks/conditions/${condition.condition}`)
 
         if (!satisfies(payload[condition.key], condition.value)) break
 
