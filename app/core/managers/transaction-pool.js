@@ -6,7 +6,7 @@ const blockchain = require('./blockchain')
 
 let instance = null
 
-module.exports = class PoolManager {
+module.exports = class TransactionPoolManager {
   static getInstance () {
     return instance
   }
@@ -59,6 +59,10 @@ module.exports = class PoolManager {
         logger.error('Error adding transaction to transaction pool error', error, error.stack)
       }
     }
+  }
+
+  async addTransactions (transactions) {
+    transactions.each(transaction => this.addTransaction(transaction))
   }
 
   async removeTransaction (txID) {

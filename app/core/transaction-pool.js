@@ -3,7 +3,7 @@ const Transaction = require('../models/transaction')
 const arkjs = require('arkjs')
 const async = require('async')
 const BlockchainManager = require('./managers/blockchain')
-const PoolManager = require('./managers/pool')
+const TransactionPoolManager = require('./managers/transaction-pool')
 
 let instance = null
 
@@ -15,7 +15,7 @@ module.exports = class TransactionPool {
   constructor (config) {
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-    this.pool = this.config.server.transactionPool.enabled ? new PoolManager(config) : false
+    this.pool = this.config.server.transactionPool.enabled ? new TransactionPoolManager(config) : false
 
     if (!instance) {
       instance = this
