@@ -15,7 +15,7 @@ const postData = {
   }]
 }
 
-const authorization = 'my-secret-auth-token'
+const authorization = 'password'
 
 function createWebhook () {
   return utils.request('POST', 'webhooks', postData).set('Authorization', authorization)
