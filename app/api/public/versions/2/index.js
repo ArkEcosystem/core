@@ -61,7 +61,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/webhooks/{id}', ...webhooks.show },
     { method: 'PUT', path: '/webhooks/{id}', ...webhooks.update },
     { method: 'DELETE', path: '/webhooks/{id}', ...webhooks.destroy },
-
     { method: 'GET', path: '/webhooks/events', ...webhooks.events }
   ]
 

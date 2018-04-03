@@ -1,6 +1,6 @@
 const utils = require('../utils')
 
-describe('API 2.0 - Statistics', () => {
+describe.skip('API 2.0 - Statistics', () => {
   describe('GET /api/statistics/blockchain', () => {
     it('should GET the blockchain statistics', async () => {
       const res = await utils.request('GET', 'statistics/blockchain')

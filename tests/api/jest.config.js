@@ -4,5 +4,6 @@ module.exports = Object.assign(baseConfig, {
   globalSetup: './tests/support/tearup-full.js',
   testMatch: ['**/tests/api/**/*.spec.js'],
   coverageDirectory: 'tests/coverage/api',
-  collectCoverageFrom: ['api/**/*.js']
+  collectCoverageFrom: ['api/**/*.js'],
+  verbose: true
 })

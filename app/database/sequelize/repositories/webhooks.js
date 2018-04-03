@@ -4,30 +4,38 @@ module.exports = class WebhooksRepository {
   }
 
   paginate (params) {
-    return this.db.webhooksTable.findAndCountAll(params)
+    return this.db.models.webhook.findAndCountAll(params)
   }
 
   findById (id) {
-    return this.db.webhooksTable.findById(id)
+    return this.db.models.webhook.findById(id)
   }
 
   findByEvent (event) {
-    return this.db.webhooksTable.findAll({ where: {event} })
+    return this.db.models.webhook.findAll({ where: {event} })
   }
 
   create (data) {
-    return this.db.webhooksTable.create(data)
+    return this.db.models.webhook.create(data)
   }
 
   async update (id, data) {
-    const webhook = await this.db.webhooksTable.findById(id)
+    try {
+      const webhook = await this.db.models.webhook.findById(id)
 
-    webhook.update(data)
+      webhook.update(data)
+    } catch (e) {
+      return false
+    }
   }
 
   async destroy (id) {
-    const webhook = await this.db.webhooksTable.findById(id)
+    try {
+      const webhook = await this.db.models.webhook.findById(id)
 
-    webhook.destroy()
+      webhook.destroy()
+    } catch (e) {
+      return false
+    }
   }
 }

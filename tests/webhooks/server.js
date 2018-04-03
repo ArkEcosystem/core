@@ -6,11 +6,13 @@ const server = express()
 const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json()
 
-const hookToken = crypto.createHash('md5').update('ark-rest-hooks').digest('hex')
+const fixture = require('./fixture')
 
 beforeAll(() => {
   server.post('/', jsonParser, (req, res) => {
-    if (req.headers['x-hook-token'] !== hookToken) {
+    const fullToken = req.headers['x-hook-token'] + fixture.client
+
+    if (fullToken !== fixture.token) {
       return res.status(401).send('Unauthorized!')
     }
 
