@@ -19,6 +19,11 @@ exports.store = {
     auth: 'webhooks',
     validate: {
       payload: schema
+    },
+    plugins: {
+      pagination: {
+        enabled: false
+      }
     }
   },
   handler: async (request, h) => {
@@ -53,7 +58,7 @@ exports.update = {
   handler: async (request, h) => {
     const webhook = await db.webhooks.update(request.params.id, request.payload)
 
-    return utils.respondWithResource(request, webhook, 'webhook')
+    return h.response(null).code(204)
   }
 }
 
@@ -64,7 +69,7 @@ exports.destroy = {
   handler: async (request, h) => {
     await db.webhooks.destroy(request.params.id, request.payload)
 
-    h.response(null).code(204)
+    return h.response(null).code(204)
   }
 }
 
@@ -73,6 +78,8 @@ exports.events = {
     auth: 'webhooks'
   },
   handler: (request, h) => {
-    return { data: config.webhooks.events }
+    return {
+      data: config.webhooks.events
+    }
   }
 }

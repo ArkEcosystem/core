@@ -10,7 +10,9 @@ const implementation = (server, options) => {
         throw Boom.unauthorized(null)
       }
 
-      if (await argon2.verify(options.password, authorization)) {
+      // TODO: do we hash the password via ark-commander and argon2?
+      // await argon2.verify(options.password, authorization)
+      if (options.password === authorization) {
         return h.continue
       }
 

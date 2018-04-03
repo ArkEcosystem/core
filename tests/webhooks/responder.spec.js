@@ -2,18 +2,17 @@ require('./server')
 
 const axios = require('axios')
 const crypto = require('crypto')
-
-const hookToken = crypto.createHash('md5').update('ark-rest-hooks').digest('hex')
+const fixture = require('./fixture')
 
 describe('REST Hooks', () => {
   it('should respond with 200 with valid event and token', async () => {
     const response = await axios.post(
       'http://localhost:5555/',
       { event: 'block:forged' },
-      { headers: { 'X-Hook-Token': hookToken }
+      { headers: { 'X-Hook-Token': fixture.server }
     })
 
-    expect(response.status).toBe(200)
+    await expect(response.status).toBe(200)
   })
 
   it('should respond with 400 with invalid event', async () => {
@@ -21,10 +20,10 @@ describe('REST Hooks', () => {
       await axios.post(
         'http://localhost:5555/',
         { event: 'invalid:event' },
-        { headers: { 'X-Hook-Token': hookToken }
+        { headers: { 'X-Hook-Token': fixture.server }
       })
     } catch (error) {
-      expect(error.response.status).toBe(400)
+      await expect(error.response.status).toBe(400)
     }
   })
 
@@ -36,7 +35,7 @@ describe('REST Hooks', () => {
         { headers: { 'X-Hook-Token': 'invalid token' }
       })
     } catch (error) {
-      expect(error.response.status).toBe(401)
+      await expect(error.response.status).toBe(401)
     }
   })
 })
