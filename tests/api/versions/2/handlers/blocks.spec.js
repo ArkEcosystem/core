@@ -203,8 +203,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified numberOfTransactions range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        numberOfTransactionsFrom,
-        numberOfTransactionsTo
+        numberOfTransactions: {
+          from: numberOfTransactionsFrom,
+          to: numberOfTransactionsTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -232,8 +234,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified totalAmount range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        totalAmountFrom,
-        totalAmountTo
+        totalAmount: {
+          from: totalAmountFrom,
+          to: totalAmountTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -261,8 +265,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified totalFee range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        totalFeeFrom,
-        totalFeeTo
+        totalFee: {
+          from: totalFeeFrom,
+          to: totalFeeTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -323,8 +329,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified payloadLength range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        payloadLengthFrom,
-        payloadLengthTo
+        payloadLength: {
+          from: payloadLengthFrom,
+          to: payloadLengthTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -349,8 +357,10 @@ describe('API 2.0 - Blocks', () => {
       const res = await utils.request('POST', 'blocks/search', {
         generatorPublicKey,
         version,
-        timestampFrom,
-        timestampTo
+        timestamp: {
+          from: timestampFrom,
+          to: timestampTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
