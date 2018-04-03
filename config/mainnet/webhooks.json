@@ -1,6 +1,6 @@
 {
   "enabled": false,
-  "password": "my-secret-auth-token",
+  "password": "$argon2id$v=19$m=4096,t=3,p=1$/sUhlZGQp/K+zGLlwWp5Kw$8aNVK5F6DU20zaA8WjBSge/xNf75793BcfBo/zj5Yxw",
   "events": [{
     "name": "forging.started",
     "description": "Emitted when the current delegate starts forging."
