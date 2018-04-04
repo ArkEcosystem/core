@@ -1,7 +1,6 @@
 require('./server')
 
 const axios = require('axios')
-const crypto = require('crypto')
 const fixture = require('./fixture')
 
 describe('REST Hooks', () => {

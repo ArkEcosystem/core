@@ -11,15 +11,15 @@ exports.index = {
     const webhooks = await db.webhooks.paginate(utils.paginate(request))
 
     return utils.toPagination(request, webhooks, 'webhook')
+  },
+  options: {
+    validate: schema.index
   }
 }
 
 exports.store = {
   config: {
     auth: 'webhooks',
-    validate: {
-      payload: schema
-    },
     plugins: {
       pagination: {
         enabled: false
@@ -34,6 +34,9 @@ exports.store = {
     webhook.secret = secret // We show the full secret once on creation
 
     return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
+  },
+  options: {
+    validate: schema.store
   }
 }
 
@@ -45,20 +48,23 @@ exports.show = {
     const webhook = await db.webhooks.findById(request.params.id)
 
     return utils.respondWithResource(request, webhook, 'webhook')
+  },
+  options: {
+    validate: schema.show
   }
 }
 
 exports.update = {
   config: {
-    auth: 'webhooks',
-    validate: {
-      payload: schema
-    }
+    auth: 'webhooks'
   },
   handler: async (request, h) => {
-    const webhook = await db.webhooks.update(request.params.id, request.payload)
+    await db.webhooks.update(request.params.id, request.payload)
 
     return h.response(null).code(204)
+  },
+  options: {
+    validate: schema.update
   }
 }
 
@@ -70,6 +76,9 @@ exports.destroy = {
     await db.webhooks.destroy(request.params.id, request.payload)
 
     return h.response(null).code(204)
+  },
+  options: {
+    validate: schema.destroy
   }
 }
 

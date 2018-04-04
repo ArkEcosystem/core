@@ -2,7 +2,7 @@ const graylog2 = require('graylog2')
 
 module.exports = class Logger {
   init (config, network) {
-    this.graylog = new graylog2.graylog(config.options)
+    this.graylog = new graylog2.graylog(config.options) // eslint-disable-line new-cap
   }
 
   error (message) {
