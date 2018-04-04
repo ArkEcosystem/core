@@ -25,6 +25,8 @@ module.exports = async (config) => {
 
   const server = new Hapi.Server(baseConfig)
 
+  await server.register([require('vision'), require('inert'), require('lout')])
+
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
