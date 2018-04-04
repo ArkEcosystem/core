@@ -38,6 +38,7 @@ exports.store = {
 exports.show = {
   handler: async (request, h) => {
     const webhook = await db.webhooks.findById(request.params.id)
+    delete webhook.token
 
     return utils.respondWithResource(request, webhook, 'webhook')
   },
