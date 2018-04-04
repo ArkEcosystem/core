@@ -1,3 +1,5 @@
+![ARK Core](https://i.imgur.com/1aP6F2o.png)
+
 # ARK CORE
 This is a rewrite of ark-node to prepare the upcoming AIP11 fork
 
