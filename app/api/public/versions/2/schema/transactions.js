@@ -39,5 +39,25 @@ exports.search = {
     page: Joi.number().integer(),
     limit: Joi.number().integer()
   },
-  payload: {}
+  payload: {
+    transactionId: Joi.string(),
+    blockId: Joi.string(),
+    type: Joi.number().integer(),
+    version: Joi.number().integer(),
+    senderPublicKey: Joi.string(),
+    senderAddress: Joi.string(),
+    recipientAddress: Joi.string(),
+    timestamp: Joi.object().keys({
+      from: Joi.number().integer(),
+      to: Joi.number().integer()
+    }),
+    amount: Joi.object().keys({
+      from: Joi.number().integer(),
+      to: Joi.number().integer()
+    }),
+    fee: Joi.object().keys({
+      from: Joi.number().integer(),
+      to: Joi.number().integer()
+    })
+  }
 }
