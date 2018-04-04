@@ -1,10 +1,8 @@
 const config = require('../../../../core/config')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
-const loader = require('./handlers/loader')
-const multisignatures = require('./handlers/multisignatures')
+const node = require('./handlers/node')
 const peers = require('./handlers/peers')
-const signatures = require('./handlers/signatures')
 const statistics = require('./handlers/statistics')
 const webhooks = require('./handlers/webhooks')
 const transactions = require('./handlers/transactions')
@@ -23,18 +21,12 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
     { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
 
-    { method: 'GET', path: '/loader/status', ...loader.status },
-    { method: 'GET', path: '/loader/syncing', ...loader.syncing },
-    { method: 'GET', path: '/loader/configuration', ...loader.configuration },
-
-    { method: 'GET', path: '/multisignatures', ...multisignatures.index },
-    { method: 'GET', path: '/multisignatures/pending', ...multisignatures.pending },
-    { method: 'GET', path: '/multisignatures/wallets', ...multisignatures.wallets },
+    { method: 'GET', path: '/node/status', ...node.status },
+    { method: 'GET', path: '/node/syncing', ...node.syncing },
+    { method: 'GET', path: '/node/configuration', ...node.configuration },
 
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
-
-    { method: 'GET', path: '/signatures', ...signatures.index },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
     { method: 'POST', path: '/transactions', ...transactions.store },
@@ -51,7 +43,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/top', ...wallets.top },
     { method: 'GET', path: '/wallets/{id}', ...wallets.show },
     { method: 'GET', path: '/wallets/{id}/transactions', ...wallets.transactions },
-    { method: 'GET', path: '/wallets/{id}/transactions/send', ...wallets.transactionsSend },
+    { method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search },

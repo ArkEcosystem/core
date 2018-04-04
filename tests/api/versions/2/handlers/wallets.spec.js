@@ -13,7 +13,7 @@ const votebalanceFrom = -1
 const votebalanceTo = 1
 
 describe('API 2.0 - Wallets', () => {
-  describe('GET /api/wallets', () => {
+  describe('GET /wallets', () => {
     it('should GET all the wallets', async () => {
       const res = await utils.request('GET', 'wallets')
       await utils.assertSuccessful(res)
@@ -23,7 +23,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/top', () => {
+  describe('GET /wallets/top', () => {
     it('should GET all the top wallets', async () => {
       const res = await utils.request('GET', 'wallets/top')
       await utils.assertSuccessful(res)
@@ -33,7 +33,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:id', () => {
+  describe('GET /wallets/:id', () => {
     it('should GET a wallet by the given identifier', async () => {
       const res = await utils.request('GET', `wallets/${addressActive}`)
       await utils.assertSuccessful(res)
@@ -53,7 +53,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:id/transactions', () => {
+  describe('GET /wallets/:id/transactions', () => {
     it('should GET all the transactions for the given wallet by id', async () => {
       const res = await utils.request('GET', `wallets/${addressActive}/transactions`)
       await utils.assertSuccessful(res)
@@ -63,7 +63,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:id/transactions/send', () => {
+  describe('GET /wallets/:id/transactions/send', () => {
     it('should GET all the send transactions for the given wallet by id', async () => {
       const res = await utils.request('GET', `wallets/${addressActive}/transactions/send`)
       await utils.assertSuccessful(res)
@@ -75,7 +75,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:id/transactions/received', () => {
+  describe('GET /wallets/:id/transactions/received', () => {
     it('should GET all the received transactions for the given wallet by id', async () => {
       const res = await utils.request('GET', `wallets/${addressActive}/transactions/received`)
       await utils.assertSuccessful(res)
@@ -85,7 +85,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/wallets/:id/votes', () => {
+  describe('GET /wallets/:id/votes', () => {
     it('should GET all the votes for the given wallet by id', async () => {
       const res = await utils.request('GET', `wallets/${addressActive}/votes`)
       await utils.assertSuccessful(res)
@@ -104,7 +104,7 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('POST /api/wallets/search', () => {
+  describe('POST /wallets/search', () => {
     it('should POST a search for wallets with the exact specified address', async () => {
       const res = await utils.request('POST', 'wallets/search', { address: addressActive })
       await utils.assertSuccessful(res)
@@ -170,7 +170,13 @@ describe('API 2.0 - Wallets', () => {
       const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
       const balance = 4858470000000
 
-      const res = await utils.request('POST', 'wallets/search', { address, balance })
+      const res = await utils.request('POST', 'wallets/search', {
+        address,
+        balance: {
+          from: balance,
+          to: balance
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -207,7 +213,13 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should POST a search for wallets with the exact specified votebalance', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive, votebalance })
+      const res = await utils.request('POST', 'wallets/search', {
+        address: addressActive,
+        votebalance: {
+          from: votebalance,
+          to: votebalance
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -252,7 +264,12 @@ describe('API 2.0 - Wallets', () => {
       const balanceTo = 4858470000000
 
       const res = await utils.request('POST', 'wallets/search', {
-        publicKey, username, balanceFrom, balanceTo
+        publicKey,
+        username,
+        balance: {
+          from: balanceFrom,
+          to: balanceTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)

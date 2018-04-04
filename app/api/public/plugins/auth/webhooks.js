@@ -10,7 +10,7 @@ const implementation = (server, options) => {
         throw Boom.unauthorized(null)
       }
 
-      if (await argon2.verify(options.password, authorization)) {
+      if (await argon2.verify(options.token, authorization)) {
         return h.continue
       }
 

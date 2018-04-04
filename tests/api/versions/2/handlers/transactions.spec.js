@@ -19,7 +19,7 @@ const feeFrom = 0
 const feeTo = 20000000
 
 describe('API 2.0 - Transactions', () => {
-  describe('GET /api/transactions', () => {
+  describe('GET /transactions', () => {
     it('should GET all the transactions', async () => {
       const res = await utils.request('GET', 'transactions')
       await utils.assertSuccessful(res)
@@ -29,7 +29,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe('GET /api/transactions/:id', () => {
+  describe('GET /transactions/:id', () => {
     it('should GET a transaction by the given identifier', async () => {
       const res = await utils.request('GET', `transactions/${transactionId}`)
       await utils.assertSuccessful(res)
@@ -42,7 +42,7 @@ describe('API 2.0 - Transactions', () => {
   })
 
   // @TODO: TypeError: this.redis.getTransactionsForForger is not a function
-  describe.skip('GET /api/transactions/unconfirmed', () => {
+  describe.skip('GET /transactions/unconfirmed', () => {
     it('should GET all the unconfirmed transactions', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')
       await utils.assertSuccessful(res)
@@ -51,7 +51,7 @@ describe('API 2.0 - Transactions', () => {
   })
 
   // @TODO: TypeError: this.redis.getTransactionsForForger is not a function
-  describe.skip('GET /api/transactions/unconfirmed/:id', () => {
+  describe.skip('GET /transactions/unconfirmed/:id', () => {
     it('should GET an unconfirmed transaction by the given identifier', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed/:id')
       await utils.assertSuccessful(res)
@@ -59,7 +59,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe('POST /api/transactions/search', () => {
+  describe('POST /transactions/search', () => {
     it('should POST a search for transactions with the exact specified transactionId', async () => {
       const res = await utils.request('POST', 'transactions/search', { id: transactionId })
       await utils.assertSuccessful(res)
@@ -137,7 +137,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified timestamp', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, timestamp })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        timestamp: {
+          from: timestamp,
+          to: timestamp
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -167,7 +173,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified amount', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, amount })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        amount: {
+          from: amount,
+          to: amount
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -197,7 +209,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified fee', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, fee })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        fee: {
+          from: fee,
+          to: fee
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 

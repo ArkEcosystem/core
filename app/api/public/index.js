@@ -25,10 +25,12 @@ module.exports = async (config) => {
 
   const server = new Hapi.Server(baseConfig)
 
+  await server.register([require('vision'), require('inert'), require('lout')])
+
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
-    password: config.webhooks.password
+    token: config.webhooks.token
   })
 
   await server.register({
@@ -36,8 +38,7 @@ module.exports = async (config) => {
     options: {
       validVersions: config.api.public.versions.valid,
       defaultVersion: config.api.public.versions.default,
-      vendorName: 'arkpublic',
-      basePath: '/api/'
+      vendorName: 'ark-core-public-api'
     }
   })
 
@@ -80,12 +81,12 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('./versions/1'),
-    routes: { prefix: '/api/v1' }
+    routes: { prefix: '/v1' }
   })
 
   await server.register({
     plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' }
+    routes: { prefix: '/v2' }
   })
 
   try {

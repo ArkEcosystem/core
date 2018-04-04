@@ -1,7 +1,7 @@
 const utils = require('../utils')
 
 describe('API 1.0 - Blocks', () => {
-  describe('GET /api/blocks/get?id', () => {
+  describe('GET /blocks/get?id', () => {
     it('should return blocks based on id', async () => {
       const res = await utils.request('GET', 'blocks/get', { id: '1877716674628308671' })
       await utils.assertSuccessful(res)
@@ -19,7 +19,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks?limit=XX', () => {
+  describe('GET /blocks?limit=XX', () => {
     it('should return 5 blocks', async () => {
       const res = await utils.request('GET', 'blocks', { limit: 5 })
       await utils.assertSuccessful(res)
@@ -36,7 +36,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getfees', () => {
+  describe('GET /blocks/getfees', () => {
     it('should return matching fees with the config', async () => {
       const res = await utils.request('GET', 'blocks/getFees')
       await utils.assertSuccessful(res)
@@ -48,7 +48,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getNethash', () => {
+  describe('GET /blocks/getNethash', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'blocks/getNethash')
       await utils.assertSuccessful(res)
@@ -60,7 +60,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getMilestone', () => {
+  describe('GET /blocks/getMilestone', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'blocks/getMilestone')
       await utils.assertSuccessful(res)
@@ -69,7 +69,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getReward', () => {
+  describe('GET /blocks/getReward', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'blocks/getReward')
       await utils.assertSuccessful(res)
@@ -78,7 +78,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getSupply', () => {
+  describe('GET /blocks/getSupply', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'blocks/getSupply')
       await utils.assertSuccessful(res)
@@ -87,7 +87,7 @@ describe('API 1.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/getStatus', () => {
+  describe('GET /blocks/getStatus', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'blocks/getStatus')
       await utils.assertSuccessful(res)

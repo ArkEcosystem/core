@@ -44,7 +44,7 @@ describe('API 1.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/accounts/getPublicKey?address', () => {
+  describe('GET /accounts/getPublicKey?address', () => {
     it('should return public key for address', async () => {
       const res = await utils.request('GET', 'accounts/getPublicKey', { address: AddressActive })
       await utils.assertSuccessful(res)
@@ -60,7 +60,7 @@ describe('API 1.0 - Wallets', () => {
     })
   })
 
-  describe('GET /api/accounts/delegates?address', () => {
+  describe('GET /accounts/delegates?address', () => {
     it('should return delegate info the address has voted for', async () => {
       const res = await utils.request('GET', 'accounts/delegates', { address: AddressActive })
       await utils.assertSuccessful(res)

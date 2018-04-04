@@ -5,7 +5,7 @@ const delegateAddress = 'D5PXQVeJmchVrZFHL7cALZK8mWWzjCaVfz'
 const delegatePublicKey = '02a9a0ac34a94f9d27fd9b4b56eb3c565a9a3f61e660f269775fb456f7f3301586'
 
 describe('API 2.0 - Delegates', () => {
-  describe('GET /api/delegates', () => {
+  describe('GET /delegates', () => {
     it('should GET all the delegates', async () => {
       const res = await utils.request('GET', 'delegates')
       await utils.assertSuccessful(res)
@@ -18,7 +18,7 @@ describe('API 2.0 - Delegates', () => {
     })
   })
 
-  describe('GET /api/delegates/:id', () => {
+  describe('GET /delegates/:id', () => {
     it('should GET a delegate by the given username', async () => {
       const res = await utils.request('GET', `delegates/${delegateUsername}`)
       await utils.assertSuccessful(res)
@@ -50,7 +50,7 @@ describe('API 2.0 - Delegates', () => {
     })
   })
 
-  describe('GET /api/delegates/:id/blocks', () => {
+  describe('GET /delegates/:id/blocks', () => {
     it('should GET all blocks for a delegate by the given identifier', async () => {
       const res = await utils.request('GET', `delegates/${delegatePublicKey}/blocks`)
       await utils.assertSuccessful(res)
@@ -78,7 +78,7 @@ describe('API 2.0 - Delegates', () => {
     })
   })
 
-  describe('GET /api/delegates/:id/voters', () => {
+  describe('GET /delegates/:id/voters', () => {
     it('should GET all voters for a delegate by the given identifier', async () => {
       const res = await utils.request('GET', `delegates/${delegatePublicKey}/voters`)
       await utils.assertSuccessful(res)

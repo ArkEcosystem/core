@@ -5,7 +5,6 @@ const logger = require('./logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const webhookManager = require('./managers/webhook')
 
 let instance
 
