@@ -9,8 +9,8 @@ exports.index = {
     let result = peers.sort(() => 0.5 - Math.random())
     result = request.query.os ? result.filter(peer => peer.os === request.query.os) : result
     result = request.query.status ? result.filter(peer => peer.status === request.query.status) : result
-    result = request.query.port ? result.filter(peer => peer.port === request.query.pors) : result
-    result = request.query.version ? result.filter(peer => peer.version === request.query.versios) : result
+    result = request.query.port ? result.filter(peer => peer.port === request.query.port) : result
+    result = request.query.version ? result.filter(peer => peer.version === request.query.version) : result
     result = result.slice(0, (request.params.limit || 100))
 
     if (request.query.orderBy) {

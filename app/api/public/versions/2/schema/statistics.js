@@ -1,29 +1,29 @@
-exports.blockchain = {
-  params: {},
-  query: {},
-  payload: {}
-}
+const Joi = require('joi')
 
 exports.transactions = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    from: Joi.date().timestamp('unix'),
+    to: Joi.date().timestamp('unix')
+  }
 }
 
 exports.blocks = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    from: Joi.date().timestamp('unix'),
+    to: Joi.date().timestamp('unix')
+  }
 }
 
 exports.votes = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    from: Joi.date().timestamp('unix'),
+    to: Joi.date().timestamp('unix')
+  }
 }
 
 exports.unvotes = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    from: Joi.date().timestamp('unix'),
+    to: Joi.date().timestamp('unix')
+  }
 }

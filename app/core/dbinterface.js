@@ -5,7 +5,6 @@ const logger = require('./logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-const webhookManager = require('./managers/webhook')
 
 let instance
 
@@ -139,7 +138,7 @@ class DBInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
-    await this.applyRound(block.data.height)
+    // await this.applyRound(block.data.height)
   }
 
   async undoBlock (block) {

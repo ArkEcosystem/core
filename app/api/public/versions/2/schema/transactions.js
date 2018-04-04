@@ -1,9 +1,13 @@
-exports = {
-  params: {},
-  query: {},
-  payload: {}
+const Joi = require('joi')
+
+exports.index = {
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
+  }
 }
 
+// TODO: validate transaction payload?
 exports.store = {
   params: {},
   query: {},
@@ -11,31 +15,29 @@ exports.store = {
 }
 
 exports.show = {
-  params: {},
-  query: {},
-  payload: {}
+  params: {
+    id: Joi.string()
+  }
 }
 
 exports.unconfirmed = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    offset: Joi.number().integer(),
+    limit: Joi.number().integer()
+  }
 }
 
 exports.showUnconfirmed = {
-  params: {},
-  query: {},
-  payload: {}
+  params: {
+    id: Joi.string()
+  }
 }
 
+// TODO: fill out schema according to tests
 exports.search = {
-  params: {},
-  query: {},
-  payload: {}
-}
-
-exports.types = {
-  params: {},
-  query: {},
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
+  },
   payload: {}
 }

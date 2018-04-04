@@ -1,23 +1,33 @@
+const Joi = require('joi')
+
 exports.index = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
+  }
 }
 
 exports.show = {
-  params: {},
-  query: {},
-  payload: {}
+  params: {
+    id: Joi.string()
+  }
 }
 
 exports.transactions = {
-  params: {},
-  query: {},
-  payload: {}
+  params: {
+    id: Joi.string()
+  },
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
+  }
 }
 
+// TODO: fill out schema according to tests
 exports.search = {
-  params: {},
-  query: {},
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
+  },
   payload: {}
 }

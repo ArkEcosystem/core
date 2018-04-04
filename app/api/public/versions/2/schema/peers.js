@@ -1,11 +1,17 @@
+const Joi = require('joi')
+
 exports.index = {
-  params: {},
-  query: {},
-  payload: {}
+  query: {
+    os: Joi.string(),
+    status: Joi.string(),
+    port: Joi.number().integer(),
+    version: Joi.string(),
+    orderBy: Joi.string()
+  }
 }
 
 exports.show = {
-  params: {},
-  query: {},
-  payload: {}
+  params: {
+    ip: Joi.string().ip()
+  }
 }

@@ -59,7 +59,7 @@ exports.update = {
     auth: 'webhooks'
   },
   handler: async (request, h) => {
-    const webhook = await db.webhooks.update(request.params.id, request.payload)
+    await db.webhooks.update(request.params.id, request.payload)
 
     return h.response(null).code(204)
   },
