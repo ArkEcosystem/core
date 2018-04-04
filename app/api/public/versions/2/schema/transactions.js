@@ -9,8 +9,6 @@ exports.index = {
 
 // TODO: validate transaction payload?
 exports.store = {
-  params: {},
-  query: {},
   payload: {}
 }
 
