@@ -1,6 +1,6 @@
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
-const node = require('./handlers/node')
+const loader = require('./handlers/loader')
 const peers = require('./handlers/peers')
 const signatures = require('./handlers/signatures')
 const transactions = require('./handlers/transactions')
@@ -28,9 +28,9 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/fee', ...delegates.fee },
     { method: 'GET', path: '/delegates/forging/getForgedByAccount', ...delegates.forged },
 
-    { method: 'GET', path: '/node/status', ...node.status },
-    { method: 'GET', path: '/node/status/sync', ...node.syncing },
-    { method: 'GET', path: '/node/autoconfigure', ...node.autoconfigure },
+    { method: 'GET', path: '/loader/status', ...loader.status },
+    { method: 'GET', path: '/loader/status/sync', ...loader.syncing },
+    { method: 'GET', path: '/loader/autoconfigure', ...loader.autoconfigure },
 
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/get', ...peers.show },

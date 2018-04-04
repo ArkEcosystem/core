@@ -1,7 +1,7 @@
 const config = require('../../../../core/config')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
-const loader = require('./handlers/loader')
+const node = require('./handlers/node')
 const peers = require('./handlers/peers')
 const statistics = require('./handlers/statistics')
 const webhooks = require('./handlers/webhooks')
@@ -21,9 +21,9 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
     { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
 
-    { method: 'GET', path: '/loader/status', ...loader.status },
-    { method: 'GET', path: '/loader/syncing', ...loader.syncing },
-    { method: 'GET', path: '/loader/configuration', ...loader.configuration },
+    { method: 'GET', path: '/node/status', ...node.status },
+    { method: 'GET', path: '/node/syncing', ...node.syncing },
+    { method: 'GET', path: '/node/configuration', ...node.configuration },
 
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
@@ -43,7 +43,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/top', ...wallets.top },
     { method: 'GET', path: '/wallets/{id}', ...wallets.show },
     { method: 'GET', path: '/wallets/{id}/transactions', ...wallets.transactions },
-    { method: 'GET', path: '/wallets/{id}/transactions/transactionsSend', ...wallets.transactionsSend },
+    { method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search },
