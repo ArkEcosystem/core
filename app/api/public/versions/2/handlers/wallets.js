@@ -44,7 +44,7 @@ exports.transactions = {
   }
 }
 
-exports.transactionsSend = {
+exports.transactionsSent = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
     const transactions = await db.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
