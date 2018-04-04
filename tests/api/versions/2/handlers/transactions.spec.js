@@ -137,7 +137,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified timestamp', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, timestamp })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        timestamp: {
+          from: timestamp,
+          to: timestamp
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -167,7 +173,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified amount', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, amount })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        amount: {
+          from: amount,
+          to: amount
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -197,7 +209,13 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified fee', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, fee })
+      const res = await utils.request('POST', 'transactions/search', {
+        id: transactionId,
+        fee: {
+          from: fee,
+          to: fee
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 

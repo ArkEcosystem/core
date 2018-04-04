@@ -38,13 +38,13 @@ exports.search = {
     limit: Joi.number().integer()
   },
   payload: {
-    transactionId: Joi.string(),
+    id: Joi.string(),
     blockId: Joi.string(),
     type: Joi.number().integer(),
     version: Joi.number().integer(),
     senderPublicKey: Joi.string(),
-    senderAddress: Joi.string(),
-    recipientAddress: Joi.string(),
+    recipientId: Joi.string(),
+    vendorFieldHex: Joi.string().hex(),
     timestamp: Joi.object().keys({
       from: Joi.number().integer(),
       to: Joi.number().integer()

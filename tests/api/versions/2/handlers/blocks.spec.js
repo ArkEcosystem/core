@@ -146,7 +146,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified timestamp', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, timestamp })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        timestamp: {
+          from: timestamp,
+          to: timestamp
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -158,7 +164,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified height', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, height })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        height: {
+          from: height,
+          to: height
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -173,8 +185,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified height range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        heightFrom,
-        heightTo
+        height: {
+          from: heightFrom,
+          to: heightTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -188,7 +202,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified numberOfTransactions', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, numberOfTransactions })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        numberOfTransactions: {
+          from: numberOfTransactions,
+          to: numberOfTransactions
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -220,7 +240,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified totalAmount', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalAmount })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        totalAmount: {
+          from: totalAmount,
+          to: totalAmount
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -250,7 +276,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified totalFee', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalFee })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        totalFee: {
+          from: totalFee,
+          to: totalFee
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -282,7 +314,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified reward', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, reward })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        reward: {
+          from: reward,
+          to: reward
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -314,7 +352,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified payloadLength', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, payloadLength })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        payloadLength: {
+          from: payloadLength,
+          to: payloadLength
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 

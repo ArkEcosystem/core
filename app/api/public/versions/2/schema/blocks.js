@@ -30,7 +30,7 @@ exports.search = {
     limit: Joi.number().integer()
   },
   payload: {
-    blockId: Joi.string(),
+    id: Joi.string(),
     version: Joi.number().integer(),
     previousBlock: Joi.string(),
     payloadHash: Joi.string(),
