@@ -89,8 +89,8 @@ class DBInterface {
   async applyRound (height) {
     const nextHeight = height === 1 ? 1 : height + 1
     const maxDelegates = config.getConstants(nextHeight).activeDelegates
-    if (nextHeight % maxDelegates === 0 || nextHeight === 1) {
-      const round = parseInt(nextHeight / maxDelegates)
+    if (nextHeight % maxDelegates === 1 || nextHeight === 1) {
+      const round = Math.floor((height - 1) / maxDelegates) + 1
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(this.activedelegates)
@@ -108,8 +108,8 @@ class DBInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     const nextHeight = height + 1
 
-    const round = ~~(height / maxDelegates)
-    const nextRound = ~~(nextHeight / config.getConstants(nextHeight).activeDelegates)
+    const round = Math.floor((height - 1) / maxDelegates) + 1
+    const nextRound = Math.floor((nextHeight - 1) / config.getConstants(nextHeight).activeDelegates) + 1
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round}`)
@@ -120,13 +120,10 @@ class DBInterface {
   }
 
   async validateDelegate (block) {
-    // const blockTime = config.getConstants(block.data.height).blocktime
     const delegates = await this.getActiveDelegates(block.data.height)
     const slot = arkjs.slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
-    // TODO: get this right
-    // console.log(delegates)
     if (!forgingDelegate) {
       logger.debug('Could not decide yet if delegate ' + block.data.generatorPublicKey + ' is allowed to forge block ' + block.data.height)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
@@ -134,6 +131,10 @@ class DBInterface {
     } else {
       logger.debug('Delegate ' + block.data.generatorPublicKey + ' allowed to forge block ' + block.data.height)
     }
+  }
+
+  async validateForkedBlock (block) {
+    await this.validateDelegate(block)
   }
 
   async applyBlock (block) {
