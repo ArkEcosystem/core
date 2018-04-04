@@ -43,7 +43,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/top', ...wallets.top },
     { method: 'GET', path: '/wallets/{id}', ...wallets.show },
     { method: 'GET', path: '/wallets/{id}/transactions', ...wallets.transactions },
-    { method: 'GET', path: '/wallets/{id}/transactions/transactionsSend', ...wallets.transactionsSend },
+    { method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search },
