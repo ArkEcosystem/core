@@ -9,7 +9,7 @@ exports.status = {
 
     return {
       data: {
-        loaded: blockchain.isSynced(),
+        synced: blockchain.isSynced(),
         now: lastBlock ? lastBlock.data.height : 0,
         blocksCount: networkHeight - lastBlock.data.height || 0
       }
