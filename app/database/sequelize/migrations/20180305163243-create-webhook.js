@@ -10,7 +10,7 @@ module.exports = {
       event: Sequelize.STRING,
       target: Sequelize.STRING,
       conditions: Sequelize.JSON,
-      secret: {
+      token: {
         unique: true,
         type: Sequelize.STRING
       },

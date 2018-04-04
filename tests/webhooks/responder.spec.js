@@ -8,7 +8,7 @@ describe('REST Hooks', () => {
     const response = await axios.post(
       'http://localhost:5555/',
       { event: 'block:forged' },
-      { headers: { 'X-Hook-Token': fixture.server }
+      { headers: { 'Authorization': fixture.server }
     })
 
     await expect(response.status).toBe(200)
@@ -19,7 +19,7 @@ describe('REST Hooks', () => {
       await axios.post(
         'http://localhost:5555/',
         { event: 'invalid:event' },
-        { headers: { 'X-Hook-Token': fixture.server }
+        { headers: { 'Authorization': fixture.server }
       })
     } catch (error) {
       await expect(error.response.status).toBe(400)
@@ -31,7 +31,7 @@ describe('REST Hooks', () => {
       await axios.post(
         'http://localhost:5555/',
         { event: 'block:forged' },
-        { headers: { 'X-Hook-Token': 'invalid token' }
+        { headers: { 'Authorization': 'invalid token' }
       })
     } catch (error) {
       await expect(error.response.status).toBe(401)

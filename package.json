@@ -27,8 +27,8 @@
     "test:api:watch": "jest --no-cache --watch --projects tests/api",
     "test:unit": "jest --no-cache --forceExit --projects tests/unit",
     "test:unit:watch": "jest --no-cache --watch --projects tests/unit",
-    "test:webhook": "jest --no-cache --forceExit --projects tests/webhooks",
-    "test:webhook:watch": "jest --no-cache --watch --projects tests/webhooks",
+    "test:webhooks": "jest --no-cache --forceExit --projects tests/webhooks",
+    "test:webhooks:watch": "jest --no-cache --watch --projects tests/webhooks",
     "lint": "eslint ./ --fix",
     "db": "node_modules/.bin/sequelize"
   },

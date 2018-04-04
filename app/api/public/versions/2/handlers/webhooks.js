@@ -16,11 +16,11 @@ exports.index = {
 
 exports.store = {
   handler: async (request, h) => {
-    const secret = require('crypto').randomBytes(32).toString('hex')
-    request.payload.secret = secret.substring(0, 32) // We only store the first 32 chars
+    const token = require('crypto').randomBytes(32).toString('hex')
+    request.payload.token = token.substring(0, 32)
 
     const webhook = await db.webhooks.create(request.payload)
-    webhook.secret = secret // We show the full secret once on creation
+    webhook.token = token
 
     return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
   },
