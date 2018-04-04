@@ -88,8 +88,8 @@ class DBInterface {
   async applyRound (height) {
     const nextHeight = height === 1 ? 1 : height + 1
     const maxDelegates = config.getConstants(nextHeight).activeDelegates
-    if (nextHeight % maxDelegates === 1 || nextHeight === 1) {
-      const round = Math.floor((height - 1) / maxDelegates) + 1
+    if (nextHeight % maxDelegates === 1) {
+      const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(this.activedelegates)
