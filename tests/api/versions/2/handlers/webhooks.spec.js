@@ -1,7 +1,7 @@
 const utils = require('../utils')
 
 const postData = {
-  event: 'block:forged',
+  event: 'block.forged',
   target: 'https://httpbin.org/post',
   enabled: true,
   conditions: [{

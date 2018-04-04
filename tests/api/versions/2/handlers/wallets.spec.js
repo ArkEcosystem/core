@@ -197,8 +197,8 @@ describe('API 2.0 - Wallets', () => {
       const res = await utils.request('POST', 'wallets/search', {
         address,
         balance: {
-          from: balanceFrom,
-          to: balanceTo
+          from: balance,
+          to: balance
         }
       })
       await utils.assertSuccessful(res)
@@ -216,8 +216,8 @@ describe('API 2.0 - Wallets', () => {
       const res = await utils.request('POST', 'wallets/search', {
         address: addressActive,
         votebalance: {
-          from: votebalance,
-          to: votebalance
+          from: 0,
+          to: 0
         }
       })
       await utils.assertSuccessful(res)
@@ -264,7 +264,8 @@ describe('API 2.0 - Wallets', () => {
       const balanceTo = 4858470000000
 
       const res = await utils.request('POST', 'wallets/search', {
-        publicKey, username,
+        publicKey,
+        username,
         balance: {
           from: balanceFrom,
           to: balanceTo
