@@ -3,7 +3,7 @@ const utils = require('../utils')
 const voteId = '663d7e247c8876f1431ebac93bbbc9031fcbc804954a7133c451bce6edd5aee0'
 
 describe('API 2.0 - Votes', () => {
-  describe('GET /api/votes', () => {
+  describe('GET /votes', () => {
     it('should GET all the votes', async () => {
       const res = await utils.request('GET', 'votes')
       await utils.assertSuccessful(res)
@@ -25,7 +25,7 @@ describe('API 2.0 - Votes', () => {
     })
   })
 
-  describe('GET /api/votes/:id', () => {
+  describe('GET /votes/:id', () => {
     it('should GET a vote by the given identifier', async () => {
       const res = await utils.request('GET', `votes/${voteId}`)
       await utils.assertSuccessful(res)

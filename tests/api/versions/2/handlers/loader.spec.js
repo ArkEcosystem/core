@@ -1,7 +1,7 @@
 const utils = require('../utils')
 
 describe('API 2.0 - Loader', () => {
-  describe('GET /api/loader/status', () => {
+  describe('GET /loader/status', () => {
     it('should GET the loader status', async () => {
       const res = await utils.request('GET', 'loader/status')
       await utils.assertSuccessful(res)
@@ -13,7 +13,7 @@ describe('API 2.0 - Loader', () => {
     })
   })
 
-  describe('GET /api/loader/syncing', () => {
+  describe('GET /loader/syncing', () => {
     it('should GET the loader syncing status', async () => {
       const res = await utils.request('GET', 'loader/syncing')
       await utils.assertSuccessful(res)
@@ -26,7 +26,7 @@ describe('API 2.0 - Loader', () => {
     })
   })
 
-  describe('GET /api/loader/configuration', () => {
+  describe('GET /loader/configuration', () => {
     it('should GET the loader configuration', async () => {
       const res = await utils.request('GET', 'loader/configuration')
       await utils.assertSuccessful(res)

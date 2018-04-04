@@ -20,7 +20,7 @@ const transactionList = [{
 // let offsetTimestamp = 0
 
 describe('API 1.0 - Transactions', () => {
-  describe('GET /api/transactions', () => {
+  describe('GET /transactions', () => {
     it('should be ok using valid parameters', async () => {
       const res = await utils.request('GET', 'transactions', {
         'blockId': '9635341524063110283',
@@ -137,7 +137,7 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe('GET /api/transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
+  describe('GET /transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
     it('should be ok using valid id', async () => {
       let transactionInCheck = transactionList[0]
 
@@ -164,7 +164,7 @@ describe('API 1.0 - Transactions', () => {
   })
 
   // @TODO: TypeError: this.redis.getTransactionsForForger is not a function
-  describe.skip('GET /api/transactions/unconfirmed/get?id=', () => {
+  describe.skip('GET /transactions/unconfirmed/get?id=', () => {
     it('should be ok using valid id', async () => {
       let params = 'id=' + transactionList[transactionList.length - 1].id
 
@@ -181,7 +181,7 @@ describe('API 1.0 - Transactions', () => {
   })
 
   // @TODO: TypeError: this.redis.getTransactionsForForger is not a function
-  describe.skip('GET /api/transactions/unconfirmed', () => {
+  describe.skip('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')
       await utils.assertSuccessful(res)

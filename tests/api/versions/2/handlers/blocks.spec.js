@@ -30,7 +30,7 @@ const payloadLengthFrom = 159
 const payloadLengthTo = 161
 
 describe('API 2.0 - Blocks', () => {
-  describe('GET /api/blocks', () => {
+  describe('GET /blocks', () => {
     it('should GET all the blocks', async () => {
       const res = await utils.request('GET', 'blocks')
       await utils.assertSuccessful(res)
@@ -42,7 +42,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/:id', () => {
+  describe('GET /blocks/:id', () => {
     it('should GET a block by the given identifier', async () => {
       const res = await utils.request('GET', `blocks/${blockId}`)
       await utils.assertSuccessful(res)
@@ -54,7 +54,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/:id/transactions', () => {
+  describe('GET /blocks/:id/transactions', () => {
     it('should GET all the transactions for the given block by id', async () => {
       const res = await utils.request('GET', `blocks/${blockId}/transactions`)
       await utils.assertSuccessful(res)
@@ -66,7 +66,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('POST /api/blocks/search', () => {
+  describe('POST /blocks/search', () => {
     it('should POST a search for blocks with the exact specified blockId', async () => {
       const res = await utils.request('POST', 'blocks/search', { id: blockId })
       await utils.assertSuccessful(res)
