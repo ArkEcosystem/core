@@ -156,6 +156,13 @@ const rebuildFromNetwork = {
 const fork = {
   initial: 'undoBlocks',
   states: {
+    network: {
+      onEntry: ['checkNetwork'],
+      on: {
+        SUCCESS: 'blockchain',
+        FAILURE: 'reset'
+      }
+    },
     undoBlocks: {
     }
   }

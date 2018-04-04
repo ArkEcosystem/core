@@ -17,7 +17,7 @@ module.exports = class BlockchainManager {
     // flag to force a network start
     stateMachine.state.networkStart = !!networkStart
     if (stateMachine.state.networkStart) {
-      logger.warning('Arkchain is launchhed in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.warning('Arkchain is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
       logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
     }
     this.actions = stateMachine.actionMap(this)
@@ -171,7 +171,6 @@ module.exports = class BlockchainManager {
         logger.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {
-        // TODO: manage fork here
         this.dispatch('FORK')
         logger.info('Block disregarded because on a fork')
         qcallback()
@@ -183,7 +182,6 @@ module.exports = class BlockchainManager {
   }
 
   async processBlock (block, state, qcallback) {
-    // console.log(state)
     if (block.verification.verified) {
       const constants = this.config.getConstants(block.data.height)
       if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
@@ -213,8 +211,11 @@ module.exports = class BlockchainManager {
         qcallback()
       } else {
         // TODO: manage fork here
-        this.dispatch('FORK')
-        logger.info('Block disregarded because on a fork')
+        const isValid = await this.db.validateForkedBlock(block)
+        if (isValid) this.dispatch('FORK')
+        else {
+          logger.info('Forked block disregarded because it is not valid, looks like an attack 💣')
+        }
         qcallback()
       }
     } else {
