@@ -47,17 +47,15 @@ exports.blockchain = {
 
 exports.transactions = {
   handler: async (request, h) => {
-    return Boom.teapot('Temporarily disabled...');
+    const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
 
-    // const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
-
-    // return {
-    //   data: {
-    //     count: transactions.length,
-    //     amount: _.sumBy(transactions, 'amount'),
-    //     fees: _.sumBy(transactions, 'fee')
-    //   }
-    // }
+    return {
+      data: {
+        count: transactions.length,
+        amount: _.sumBy(transactions, 'amount'),
+        fees: _.sumBy(transactions, 'fee')
+      }
+    }
   },
   options: {
     validate: schema.transactions
@@ -66,17 +64,15 @@ exports.transactions = {
 
 exports.blocks = {
   handler: async (request, h) => {
-    return Boom.teapot('Temporarily disabled...');
+    const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
-    // const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
-
-    // return {
-    //   data: {
-    //     count: blocks.length,
-    //     rewards: _.sumBy(blocks, 'reward'),
-    //     fees: _.sumBy(blocks, 'totalFee')
-    //   }
-    // }
+    return {
+      data: {
+        count: blocks.length,
+        rewards: _.sumBy(blocks, 'reward'),
+        fees: _.sumBy(blocks, 'totalFee')
+      }
+    }
   },
   options: {
     validate: schema.blocks
