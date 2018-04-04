@@ -138,7 +138,7 @@ class DBInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
-    // await this.applyRound(block.data.height)
+    await this.applyRound(block.data.height)
   }
 
   async undoBlock (block) {
