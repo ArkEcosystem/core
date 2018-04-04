@@ -1,4 +1,5 @@
 const Boom = require('boom')
+const schema = require('../schema/multisignatures')
 
 exports.index = {
   handler: (request, h) => {

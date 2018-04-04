@@ -1,5 +1,6 @@
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const utils = require('../utils')
+const schema = require('../schema/peers')
 
 exports.index = {
   handler: async (request, h) => {
@@ -23,6 +24,9 @@ exports.index = {
     }
 
     return utils.toPagination(request, { rows: result, count: result.length }, 'peer')
+  },
+  options: {
+    validate: schema.index
   }
 }
 
@@ -31,5 +35,8 @@ exports.show = {
     const peers = await blockchain.networkInterface.getPeers()
 
     return utils.respondWithResource(request, peers.find(p => p.ip === request.params.ip), 'peer')
+  },
+  options: {
+    validate: schema.show
   }
 }

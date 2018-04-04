@@ -1,10 +1,11 @@
 const Boom = require('boom')
+const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('../../../../../core/constants')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
 const config = require('../../../../../core/config')
 const db = require('../../../../../core/dbinterface').getInstance()
-const _ = require('lodash')
+const schema = require('../schema/statistics')
 
 exports.blockchain = {
   handler: async (request, h) => {
@@ -57,6 +58,9 @@ exports.transactions = {
     //     fees: _.sumBy(transactions, 'fee')
     //   }
     // }
+  },
+  options: {
+    validate: schema.transactions
   }
 }
 
@@ -73,6 +77,9 @@ exports.blocks = {
     //     fees: _.sumBy(blocks, 'totalFee')
     //   }
     // }
+  },
+  options: {
+    validate: schema.blocks
   }
 }
 
@@ -88,6 +95,9 @@ exports.votes = {
         fees: _.sumBy(transactions, 'fee')
       }
     }
+  },
+  options: {
+    validate: schema.query
   }
 }
 
@@ -103,5 +113,8 @@ exports.unvotes = {
         fees: _.sumBy(transactions, 'fee')
       }
     }
+  },
+  options: {
+    validate: schema.unvotes
   }
 }

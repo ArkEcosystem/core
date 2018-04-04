@@ -4,6 +4,7 @@ const config = require('../../../../../core/config')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const utils = require('../utils')
 const Transaction = require('../../../../../models/transaction')
+const schema = require('../schema/transactions')
 
 exports.index = {
   handler: async (request, h) => {
@@ -21,6 +22,9 @@ exports.store = {
     chainInstance.postTransactions(transactions)
 
     return { transactionIds: [] }
+  },
+  options: {
+    validate: schema.store
   }
 }
 
@@ -29,6 +33,9 @@ exports.show = {
     const transaction = await db.transactions.findById(request.params.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
+  },
+  options: {
+    validate: schema.show
   }
 }
 
@@ -69,6 +76,9 @@ exports.search = {
     })
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.search
   }
 }
 
