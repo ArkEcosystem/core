@@ -197,8 +197,8 @@ describe('API 2.0 - Wallets', () => {
       const res = await utils.request('POST', 'wallets/search', {
         address,
         balance: {
-          from: balance,
-          to: balance
+          from: balanceFrom,
+          to: balanceTo
         }
       })
       await utils.assertSuccessful(res)
@@ -216,8 +216,8 @@ describe('API 2.0 - Wallets', () => {
       const res = await utils.request('POST', 'wallets/search', {
         address: addressActive,
         votebalance: {
-          from: 0,
-          to: 0
+          from: votebalance,
+          to: votebalance
         }
       })
       await utils.assertSuccessful(res)
