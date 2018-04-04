@@ -23,7 +23,6 @@ exports.transactions = {
   }
 }
 
-// TODO: fill out schema according to tests
 exports.search = {
   query: {
     page: Joi.number().integer(),
