@@ -23,14 +23,13 @@ exports.transactions = {
   }
 }
 
-// TODO: fill out schema according to tests
 exports.search = {
   query: {
     page: Joi.number().integer(),
     limit: Joi.number().integer()
   },
   payload: {
-    blockId: Joi.string(),
+    id: Joi.string(),
     version: Joi.number().integer(),
     previousBlock: Joi.string(),
     payloadHash: Joi.string(),

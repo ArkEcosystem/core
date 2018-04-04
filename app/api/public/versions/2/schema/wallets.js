@@ -53,7 +53,6 @@ exports.votes = {
   }
 }
 
-// TODO: fill out schema according to tests
 exports.search = {
   query: {
     page: Joi.number().integer(),
@@ -65,6 +64,10 @@ exports.search = {
     secondPublicKey: Joi.string(),
     vote: Joi.string(),
     username: Joi.string(),
+    balance: Joi.object().keys({
+      from: Joi.number().integer(),
+      to: Joi.number().integer()
+    })
     votebalance: Joi.object().keys({
       from: Joi.number().integer(),
       to: Joi.number().integer()
