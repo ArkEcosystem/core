@@ -30,7 +30,7 @@ module.exports = async (config) => {
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
-    password: config.webhooks.password
+    token: config.webhooks.token
   })
 
   await server.register({

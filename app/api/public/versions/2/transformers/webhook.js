@@ -3,7 +3,7 @@ module.exports = (model) => {
     id: model.id,
     event: model.event,
     target: model.target,
-    secret: model.secret,
+    token: model.token,
     enabled: model.enabled,
     conditions: model.conditions
   }
