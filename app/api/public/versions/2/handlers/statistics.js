@@ -97,7 +97,7 @@ exports.votes = {
     }
   },
   options: {
-    validate: schema.query
+    validate: schema.votes
   }
 }
 
