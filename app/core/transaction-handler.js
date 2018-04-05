@@ -7,7 +7,7 @@ const TransactionPoolManager = require('./managers/transaction-pool')
 
 let instance = null
 
-module.exports = class TransactionPool {
+module.exports = class TransactionHandler {
   static getInstance () {
     return instance
   }
@@ -15,7 +15,7 @@ module.exports = class TransactionPool {
   constructor (config) {
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-    this.pool = this.config.server.transactionPool.enabled ? new TransactionPoolManager(config) : false
+    this.poolManager = this.config.server.transactionPool.enabled ? new TransactionPoolManager(config) : false
 
     if (!instance) {
       instance = this
@@ -36,7 +36,7 @@ module.exports = class TransactionPool {
   }
 
   async addTransaction (transaction) {
-    if (this.pool) {
+    if (this.poolManager) {
       this.queue.push(new Transaction(transaction))
     }
   }
@@ -74,31 +74,35 @@ module.exports = class TransactionPool {
   async undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
-    this.pool.addTransactions(block.transactions.map(tx => tx.data))
+    this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
   async addTransactionToRedis (object) {
-    if (this.pool) {
-      await this.pool.addTransaction(object)
+    if (this.poolManager) {
+      await this.poolManager.addTransaction(object)
     }
   }
 
   async removeForgedBlock (transactions) { // we remove the block txs from the pool
-    if (this.pool) {
-      await this.pool.removeTransactions(transactions)
+    if (this.poolManager) {
+      await this.poolManager.removeTransactions(transactions)
     }
   }
 
   async getUnconfirmedTransactions (start, size) {
-    return this.pool.getTransactionsForForger(start, size)
+    return this.poolManager.getTransactions(start, size)
+  }
+
+  async getTransactionsForForging (start, size) {
+    return this.poolManager.getTransactionsForForging(start, size)
   }
 
   async getUnconfirmedTransaction (id) {
-    return this.pool.getTransaction(id)
+    return this.poolManager.getTransaction(id)
   }
 
   async getPoolSize () {
-    return this.pool.getPoolSize()
+    return this.poolManager.getPoolSize()
   }
 
   // rebuildBlockHeader (block) {

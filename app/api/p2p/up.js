@@ -9,6 +9,7 @@ module.exports = class Up {
 
   async start () {
     this.server = new Hapi.Server({ port: this.config.server.port })
+    this.server.app.p2p = this.p2p
 
     await this.server.register({
       plugin: require('./plugins/accept-request')
