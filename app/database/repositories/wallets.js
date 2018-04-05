@@ -47,9 +47,11 @@ module.exports = class WalletsRepository {
   }
 
   async top (params) {
-    const wallets = await this.findAll()
+    let wallets = await this.findAll()
 
-    return _.sortBy(wallets, 'balance').reverse()
+    wallets = _.sortBy(wallets, 'balance').reverse()
+
+    return wallets.slice(params.offset, params.offset + params.limit)
   }
 
   async search (params) {

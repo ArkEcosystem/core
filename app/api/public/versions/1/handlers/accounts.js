@@ -106,7 +106,7 @@ exports.delegates = {
         publicKey: account.publicKey,
         vote: delegate.balance + '',
         producedblocks: account.producedBlocks,
-        missedblocks: account.missedBlocks, // TODO how?
+        missedblocks: account.missedBlocks,
         rate: delegateRank + 1,
         approval: calculateApproval(delegate),
         productivity: calculateProductivity(account)
@@ -114,6 +114,7 @@ exports.delegates = {
     })
   }
 }
+
 
 exports.top = {
   config: {
@@ -124,9 +125,15 @@ exports.top = {
     }
   },
   handler: async (request, h) => {
-    const accounts = await db.wallets.top(request.query)
+    let accounts = await db.wallets.top(utils.paginator(request))
 
-    return utils.respondWith({ wallets: accounts.rows })
+    accounts = accounts.map((a) => ({
+      address: a.address,
+      balance: a.balance,
+      publicKey: a.publicKey
+    }))
+
+    return utils.respondWith({ accounts })
   }
 }
 
@@ -134,6 +141,6 @@ exports.count = {
   handler: async (request, h) => {
     const accounts = await db.wallets.findAll()
 
-    return utils.respondWith({ count: accounts.count })
+    return utils.respondWith({ count: accounts.length })
   }
 }

@@ -23,7 +23,7 @@ exports.transactions = {
   }
 }
 
-exports.transactionsSend = {
+exports.transactionsSent = {
   params: {
     id: Joi.string()
   },
