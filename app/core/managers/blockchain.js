@@ -71,8 +71,8 @@ module.exports = class BlockchainManager {
   }
 
   async resetState () {
-    await this.pauseQueues()
-    await this.clearQueues()
+    this.pauseQueues()
+    this.clearQueues()
 
     stateMachine.state = {
       blockchain: stateMachine.initialState,
@@ -81,8 +81,7 @@ module.exports = class BlockchainManager {
       lastDownloadedBlock: null
     }
 
-    await this.resumeQueues()
-
+    this.resumeQueues()
     return this.start()
   }
 
@@ -100,32 +99,27 @@ module.exports = class BlockchainManager {
   }
 
   async removeBlocks (nblocks) {
+    const undoLastBlock = async () => {
+      const lastBlock = stateMachine.state.lastBlock
+      await this.db.undoBlock(lastBlock)
+      await this.db.deleteBlock(lastBlock)
+      await this.transactionPool.undoBlock(lastBlock)
+      const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+      stateMachine.state.lastBlock = newLastBlock
+      return (stateMachine.state.lastDownloadedBlock = newLastBlock)
+    }
+    const __removeBlocks = async (nblocks) => {
+      if (nblocks < 1) return
+      logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
+      await undoLastBlock()
+      await __removeBlocks(nblocks - 1)
+    }
+
     logger.info(`Starting ${nblocks} blocks undo from height ${stateMachine.state.lastBlock.data.height}`)
-    await this.pauseQueues()
-    await this.__removeBlocks(nblocks)
-    await this.clearQueues()
-    await this.resumeQueues()
-  }
-
-  async __removeBlocks (nblocks) {
-    if (!nblocks) return
-
-    logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
-    await this.undoLastBlock()
-    return this.__removeBlocks(nblocks - 1)
-  }
-
-  async undoLastBlock () {
-    const lastBlock = stateMachine.state.lastBlock
-
-    await this.db.undoBlock(lastBlock)
-    await this.db.deleteBlock(lastBlock)
-    await this.transactionPool.undoBlock(lastBlock)
-
-    const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
-    stateMachine.state.lastBlock = newLastBlock
-
-    return (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock)
+    this.pauseQueues()
+    this.clearQueues()
+    await __removeBlocks(nblocks)
+    this.resumeQueues()
   }
 
   async pauseQueues () {
