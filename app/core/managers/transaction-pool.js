@@ -61,10 +61,6 @@ module.exports = class TransactionPoolManager {
     }
   }
 
-  async addTransactions (transactions) {
-    transactions.each(transaction => this.addTransaction(transaction))
-  }
-
   async removeTransaction (txID) {
     await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
     await this.redis.del(this.__getRedisTransactionKey(txID))
