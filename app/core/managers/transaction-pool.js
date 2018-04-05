@@ -96,7 +96,8 @@ module.exports = class TransactionPoolManager {
   async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
-        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        transactionIds = await this.__checkIfForged(transactionIds)
         let retList = []
         for (const id of transactionIds) {
           const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
@@ -143,6 +144,13 @@ module.exports = class TransactionPoolManager {
     }
   }
 
+  // Checks if any of transactions in pool was already forged by another delegate and removes them from pool
+  // it returns only the ids of transactions that have yet to be forged and removes others from redis pool
+  async __checkIfForged (transactionIds) {
+    const forgedIds = await blockchain.getInstance().getDb().getForgedTransactionsIds(transactionIds)
+    forgedIds.forEach(element => this.removeTransaction(element))
+    return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
+  }
   __getRedisTransactionKey (id) {
     return `${this.keyPrefix}/tx/${id}`
   }
