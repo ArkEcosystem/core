@@ -93,7 +93,7 @@ module.exports = class TransactionPoolManager {
     }
   }
 
-  async getTransactionsForForger (start, size) {
+  async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
         const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
