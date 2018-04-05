@@ -9,6 +9,7 @@ module.exports = class Down {
     this.p2p = p2p
     this.config = config
     this.peers = {}
+    if (!config.server.peers.list) throw new Error('No seed peers defined in config/server.json')
     config.server.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
