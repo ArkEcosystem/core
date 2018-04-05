@@ -11,5 +11,9 @@ exports.calculateApproval = (delegate) => {
 }
 
 exports.calculateProductivity = (delegate) => {
+  if (!delegate.missedBlocks && !delegate.producedBlocks) {
+    return (0).toFixed(2)
+  }
+
   return (100 - (delegate.missedBlocks / ((delegate.producedBlocks + delegate.missedBlocks) / 100))).toFixed(2)
 }
