@@ -106,7 +106,7 @@ module.exports = class BlockchainManager {
       await this.transactionPool.undoBlock(lastBlock)
       const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
-      return (stateMachine.state.lastDownloadedBlock = newLastBlock)
+      stateMachine.state.lastDownloadedBlock = newLastBlock
     }
     const __removeBlocks = async (nblocks) => {
       if (nblocks < 1) return
