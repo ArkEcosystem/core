@@ -116,7 +116,6 @@ exports.delegates = {
 }
 
 
-// TODO: update response schema to match v1
 exports.top = {
   config: {
     plugins: {
@@ -126,9 +125,15 @@ exports.top = {
     }
   },
   handler: async (request, h) => {
-    const accounts = await db.wallets.top(request.query)
+    let accounts = await db.wallets.top(utils.paginator(request))
 
-    return utils.respondWith({ wallets: accounts })
+    accounts = accounts.map((a) => ({
+      address: a.address,
+      balance: a.balance,
+      publicKey: a.publicKey
+    }))
+
+    return utils.respondWith({ accounts })
   }
 }
 
