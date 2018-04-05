@@ -46,12 +46,16 @@ module.exports = class WalletsRepository {
     return wallets.length
   }
 
-  async top (params) {
+  async top (params, legacy = false) {
     let wallets = await this.findAll()
 
     wallets = _.sortBy(wallets, 'balance').reverse()
+    wallets = wallets.slice(params.offset, params.offset + params.limit)
 
-    return wallets.slice(params.offset, params.offset + params.limit)
+    return legacy ? wallets : {
+      rows: wallets.slice(params.offset, params.offset + params.limit),
+      count: wallets.length
+    }
   }
 
   async search (params) {
