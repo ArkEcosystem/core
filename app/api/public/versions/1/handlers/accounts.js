@@ -106,7 +106,7 @@ exports.delegates = {
         publicKey: account.publicKey,
         vote: delegate.balance + '',
         producedblocks: account.producedBlocks,
-        missedblocks: account.missedBlocks, // TODO how?
+        missedblocks: account.missedBlocks,
         rate: delegateRank + 1,
         approval: calculateApproval(delegate),
         productivity: calculateProductivity(account)
@@ -115,6 +115,8 @@ exports.delegates = {
   }
 }
 
+
+// TODO: update response schema to match v1
 exports.top = {
   config: {
     plugins: {
@@ -126,7 +128,7 @@ exports.top = {
   handler: async (request, h) => {
     const accounts = await db.wallets.top(request.query)
 
-    return utils.respondWith({ wallets: accounts.rows })
+    return utils.respondWith({ wallets: accounts })
   }
 }
 
@@ -134,6 +136,6 @@ exports.count = {
   handler: async (request, h) => {
     const accounts = await db.wallets.findAll()
 
-    return utils.respondWith({ count: accounts.count })
+    return utils.respondWith({ count: accounts.length })
   }
 }
