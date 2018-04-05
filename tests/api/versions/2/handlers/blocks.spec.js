@@ -30,7 +30,7 @@ const payloadLengthFrom = 159
 const payloadLengthTo = 161
 
 describe('API 2.0 - Blocks', () => {
-  describe('GET /api/blocks', () => {
+  describe('GET /blocks', () => {
     it('should GET all the blocks', async () => {
       const res = await utils.request('GET', 'blocks')
       await utils.assertSuccessful(res)
@@ -42,7 +42,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/:id', () => {
+  describe('GET /blocks/:id', () => {
     it('should GET a block by the given identifier', async () => {
       const res = await utils.request('GET', `blocks/${blockId}`)
       await utils.assertSuccessful(res)
@@ -54,7 +54,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('GET /api/blocks/:id/transactions', () => {
+  describe('GET /blocks/:id/transactions', () => {
     it('should GET all the transactions for the given block by id', async () => {
       const res = await utils.request('GET', `blocks/${blockId}/transactions`)
       await utils.assertSuccessful(res)
@@ -66,7 +66,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe('POST /api/blocks/search', () => {
+  describe('POST /blocks/search', () => {
     it('should POST a search for blocks with the exact specified blockId', async () => {
       const res = await utils.request('POST', 'blocks/search', { id: blockId })
       await utils.assertSuccessful(res)
@@ -146,7 +146,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified timestamp', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, timestamp })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        timestamp: {
+          from: timestamp,
+          to: timestamp
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -158,7 +164,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified height', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, height })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        height: {
+          from: height,
+          to: height
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -173,8 +185,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified height range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        heightFrom,
-        heightTo
+        height: {
+          from: heightFrom,
+          to: heightTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -188,7 +202,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified numberOfTransactions', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, numberOfTransactions })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        numberOfTransactions: {
+          from: numberOfTransactions,
+          to: numberOfTransactions
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -203,8 +223,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified numberOfTransactions range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        numberOfTransactionsFrom,
-        numberOfTransactionsTo
+        numberOfTransactions: {
+          from: numberOfTransactionsFrom,
+          to: numberOfTransactionsTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -218,7 +240,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified totalAmount', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalAmount })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        totalAmount: {
+          from: totalAmount,
+          to: totalAmount
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -232,8 +260,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified totalAmount range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        totalAmountFrom,
-        totalAmountTo
+        totalAmount: {
+          from: totalAmountFrom,
+          to: totalAmountTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -246,7 +276,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified totalFee', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, totalFee })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        totalFee: {
+          from: totalFee,
+          to: totalFee
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -261,8 +297,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified totalFee range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        totalFeeFrom,
-        totalFeeTo
+        totalFee: {
+          from: totalFeeFrom,
+          to: totalFeeTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -276,7 +314,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified reward', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, reward })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        reward: {
+          from: reward,
+          to: reward
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -308,7 +352,13 @@ describe('API 2.0 - Blocks', () => {
     })
 
     it('should POST a search for blocks with the exact specified payloadLength', async () => {
-      const res = await utils.request('POST', 'blocks/search', { id: blockId, payloadLength })
+      const res = await utils.request('POST', 'blocks/search', {
+        id: blockId,
+        payloadLength: {
+          from: payloadLength,
+          to: payloadLength
+        }
+      })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -323,8 +373,10 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified payloadLength range', async () => {
       const res = await utils.request('POST', 'blocks/search', {
         id: blockId,
-        payloadLengthFrom,
-        payloadLengthTo
+        payloadLength: {
+          from: payloadLengthFrom,
+          to: payloadLengthTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
@@ -349,8 +401,10 @@ describe('API 2.0 - Blocks', () => {
       const res = await utils.request('POST', 'blocks/search', {
         generatorPublicKey,
         version,
-        timestampFrom,
-        timestampTo
+        timestamp: {
+          from: timestampFrom,
+          to: timestampTo
+        }
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)

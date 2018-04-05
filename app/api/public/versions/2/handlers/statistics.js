@@ -1,10 +1,11 @@
 const Boom = require('boom')
+const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('../../../../../core/constants')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
 const config = require('../../../../../core/config')
 const db = require('../../../../../core/dbinterface').getInstance()
-const _ = require('lodash')
+const schema = require('../schema/statistics')
 
 exports.blockchain = {
   handler: async (request, h) => {
@@ -46,33 +47,35 @@ exports.blockchain = {
 
 exports.transactions = {
   handler: async (request, h) => {
-    return Boom.teapot('Temporarily disabled...');
+    const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
 
-    // const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
-
-    // return {
-    //   data: {
-    //     count: transactions.length,
-    //     amount: _.sumBy(transactions, 'amount'),
-    //     fees: _.sumBy(transactions, 'fee')
-    //   }
-    // }
+    return {
+      data: {
+        count: transactions.length,
+        amount: _.sumBy(transactions, 'amount'),
+        fees: _.sumBy(transactions, 'fee')
+      }
+    }
+  },
+  options: {
+    validate: schema.transactions
   }
 }
 
 exports.blocks = {
   handler: async (request, h) => {
-    return Boom.teapot('Temporarily disabled...');
+    const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
-    // const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
-
-    // return {
-    //   data: {
-    //     count: blocks.length,
-    //     rewards: _.sumBy(blocks, 'reward'),
-    //     fees: _.sumBy(blocks, 'totalFee')
-    //   }
-    // }
+    return {
+      data: {
+        count: blocks.length,
+        rewards: _.sumBy(blocks, 'reward'),
+        fees: _.sumBy(blocks, 'totalFee')
+      }
+    }
+  },
+  options: {
+    validate: schema.blocks
   }
 }
 
@@ -88,6 +91,9 @@ exports.votes = {
         fees: _.sumBy(transactions, 'fee')
       }
     }
+  },
+  options: {
+    validate: schema.votes
   }
 }
 
@@ -103,5 +109,8 @@ exports.unvotes = {
         fees: _.sumBy(transactions, 'fee')
       }
     }
+  },
+  options: {
+    validate: schema.unvotes
   }
 }

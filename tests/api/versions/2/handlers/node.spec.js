@@ -1,9 +1,9 @@
 const utils = require('../utils')
 
 describe('API 2.0 - Loader', () => {
-  describe('GET /api/loader/status', () => {
-    it('should GET the loader status', async () => {
-      const res = await utils.request('GET', 'loader/status')
+  describe('GET /node/status', () => {
+    it('should GET the node status', async () => {
+      const res = await utils.request('GET', 'node/status')
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
@@ -13,9 +13,9 @@ describe('API 2.0 - Loader', () => {
     })
   })
 
-  describe('GET /api/loader/syncing', () => {
-    it('should GET the loader syncing status', async () => {
-      const res = await utils.request('GET', 'loader/syncing')
+  describe('GET /node/syncing', () => {
+    it('should GET the node syncing status', async () => {
+      const res = await utils.request('GET', 'node/syncing')
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
@@ -26,9 +26,9 @@ describe('API 2.0 - Loader', () => {
     })
   })
 
-  describe('GET /api/loader/configuration', () => {
-    it('should GET the loader configuration', async () => {
-      const res = await utils.request('GET', 'loader/configuration')
+  describe('GET /node/configuration', () => {
+    it('should GET the node configuration', async () => {
+      const res = await utils.request('GET', 'node/configuration')
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 

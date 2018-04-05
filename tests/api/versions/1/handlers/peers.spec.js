@@ -4,7 +4,7 @@ const peerIp = '167.114.29.55'
 const peerPort = '4002'
 
 describe('API 1.0 - Peers', () => {
-  describe('GET /api/peers/version', () => {
+  describe('GET /peers/version', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'peers/version')
       await utils.assertSuccessful(res)
@@ -13,7 +13,7 @@ describe('API 1.0 - Peers', () => {
     })
   })
 
-  describe('GET /api/peers', () => {
+  describe('GET /peers', () => {
     it('should fail using empty parameters', async () => {
       const res = await utils.request('GET', 'peers', {
         state: null,
@@ -52,7 +52,7 @@ describe('API 1.0 - Peers', () => {
     })
   })
 
-  describe('GET /api/peers/get', () => {
+  describe('GET /peers/get', () => {
     it('should fail using known ip address with no port', async () => {
       const res = await utils.request('GET', 'peers/get?ip=127.0.0.1')
       await utils.assertError(res)

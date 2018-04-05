@@ -30,7 +30,23 @@
     "whiteList" : []
   },
   "peers": {
-    "minimumNetworkReach": 10,
+    "minimumNetworkReach": 3,
+    "list": [{
+      "ip": "167.114.29.32",
+      "port": 4002
+    }, {
+      "ip": "167.114.29.33",
+      "port": 4002
+    }, {
+      "ip": "167.114.29.34",
+      "port": 4002
+    }, {
+      "ip": "167.114.29.35",
+      "port": 4002
+    }, {
+      "ip": "167.114.29.36",
+      "port": 4002
+    }],
     "blackList": []
   }
 }

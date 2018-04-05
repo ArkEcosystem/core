@@ -1,7 +1,7 @@
 const utils = require('../utils')
 
 describe.skip('API 2.0 - Statistics', () => {
-  describe('GET /api/statistics/blockchain', () => {
+  describe('GET /statistics/blockchain', () => {
     it('should GET the blockchain statistics', async () => {
       const res = await utils.request('GET', 'statistics/blockchain')
       await utils.assertSuccessful(res)
@@ -30,7 +30,7 @@ describe.skip('API 2.0 - Statistics', () => {
   })
 
   // @TODO: big performance impact, think about storing them in memory on boot
-  describe.skip('GET /api/statistics/transactions', () => {
+  describe.skip('GET /statistics/transactions', () => {
     it('should GET the transaction statistics', async () => {
       const res = await utils.request('GET', 'statistics/transactions')
       await utils.assertSuccessful(res)
@@ -43,7 +43,7 @@ describe.skip('API 2.0 - Statistics', () => {
   })
 
   // @TODO: big performance impact, think about storing them in memory on boot
-  describe.skip('GET /api/statistics/blocks', () => {
+  describe.skip('GET /statistics/blocks', () => {
     it('should GET the block statistics', async () => {
       const res = await utils.request('GET', 'statistics/blocks')
       await utils.assertSuccessful(res)
@@ -55,7 +55,7 @@ describe.skip('API 2.0 - Statistics', () => {
     })
   })
 
-  describe('GET /api/statistics/votes', () => {
+  describe('GET /statistics/votes', () => {
     it('should GET the vote statistics', async () => {
       const res = await utils.request('GET', 'statistics/votes')
       await utils.assertSuccessful(res)
@@ -67,7 +67,7 @@ describe.skip('API 2.0 - Statistics', () => {
     })
   })
 
-  describe('GET /api/statistics/unvotes', () => {
+  describe('GET /statistics/unvotes', () => {
     it('should GET the unvote statistics', async () => {
       const res = await utils.request('GET', 'statistics/unvotes')
       await utils.assertSuccessful(res)

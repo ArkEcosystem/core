@@ -77,7 +77,7 @@ module.exports = class SequelizeDB extends DBInterface {
 
   async getActiveDelegates (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
-    const round = ~~(height / maxDelegates)
+    const round = Math.floor((height - 1) / maxDelegates) + 1
 
     if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) {
       return this.activedelegates
@@ -88,10 +88,7 @@ module.exports = class SequelizeDB extends DBInterface {
         round: round
       },
       order: [[ 'balance', 'DESC' ], [ 'publicKey', 'ASC' ]]
-    }).map(del => del)
-
-    // console.log(round)
-    // console.log(data.length)
+    }).map(del => del.dataValues)
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
@@ -121,7 +118,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async buildDelegates (maxDelegates, height) {
-    if (height > 1 && parseInt(height / maxDelegates) !== height / maxDelegates) {
+    if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
     let data = await this.models.wallet.findAll({
@@ -159,7 +156,7 @@ module.exports = class SequelizeDB extends DBInterface {
     }
 
     // logger.info(`got ${data.length} voted delegates`)
-    const round = parseInt(height / maxDelegates)
+    const round = Math.floor((height - 1) / maxDelegates) + 1
     data = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, maxDelegates)
@@ -203,7 +200,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Last block forged for each delegate
-      data = await this.db.query('select "generatorPublicKey", max("timestamp") from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.db.query('select "id", "generatorPublicKey", max("timestamp") as timestamp from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
@@ -398,6 +395,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getBlock (id) {
+    // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
     const block = await this.models.block.findOne({
       include: [{
         model: this.models.transaction,

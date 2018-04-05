@@ -1,7 +1,7 @@
 const utils = require('../utils')
 
 const postData = {
-  event: 'block:forged',
+  event: 'block.forged',
   target: 'https://httpbin.org/post',
   enabled: true,
   conditions: [{
@@ -22,7 +22,7 @@ function createWebhook () {
 }
 
 describe('API 2.0 - Webhooks', () => {
-  describe('GET /api/webhooks', () => {
+  describe('GET /webhooks', () => {
     it('should GET all the webhooks', async () => {
       const res = await utils.request('GET', 'webhooks').set('Authorization', authorization)
       await utils.assertSuccessful(res)
@@ -30,7 +30,7 @@ describe('API 2.0 - Webhooks', () => {
     })
   })
 
-  describe('POST /api/webhooks', () => {
+  describe('POST /webhooks', () => {
     it('should POST a new webhook', async () => {
       const res = await createWebhook()
       await utils.assertSuccessful(res, 201)
@@ -38,7 +38,7 @@ describe('API 2.0 - Webhooks', () => {
     })
   })
 
-  describe('GET /api/webhooks/{id}', () => {
+  describe('GET /webhooks/{id}', () => {
     it('should GET a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
@@ -48,7 +48,7 @@ describe('API 2.0 - Webhooks', () => {
     })
   })
 
-  describe('PUT /api/webhooks/{id}', () => {
+  describe('PUT /webhooks/{id}', () => {
     it('should PUT a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
@@ -57,7 +57,7 @@ describe('API 2.0 - Webhooks', () => {
     })
   })
 
-  describe('DELETE /api/webhooks/{id}', () => {
+  describe('DELETE /webhooks/{id}', () => {
     it('should DELETE a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
@@ -66,7 +66,7 @@ describe('API 2.0 - Webhooks', () => {
     })
   })
 
-  describe('GET /api/webhooks/events', () => {
+  describe('GET /webhooks/events', () => {
     it('should GET all the webhook events', async () => {
       const res = await utils.request('GET', 'webhooks/events').set('Authorization', authorization)
       await utils.assertSuccessful(res)

@@ -31,6 +31,14 @@
     "whiteList" : []
   },
   "peers": {
-    "blackList": []
+    "blackList": [],
+    "list": [{
+      "ip": "127.0.0.1",
+      "port": 4101
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 4102
+    }]
   }
 }

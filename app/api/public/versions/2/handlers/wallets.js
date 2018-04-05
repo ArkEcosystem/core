@@ -1,11 +1,15 @@
 const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
+const schema = require('../schema/wallets')
 
 exports.index = {
   handler: async (request, h) => {
     const wallets = await db.wallets.paginate(utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
+  },
+  options: {
+    validate: schema.index
   }
 }
 
@@ -22,6 +26,9 @@ exports.show = {
     const wallet = await db.wallets.findById(request.params.id)
 
     return utils.respondWithResource(request, wallet, 'wallet')
+  },
+  options: {
+    validate: schema.show
   }
 }
 
@@ -31,15 +38,21 @@ exports.transactions = {
     const transactions = await db.transactions.findAllByWallet(wallet, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.transactions
   }
 }
 
-exports.transactionsSend = {
+exports.transactionsSent = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
     const transactions = await db.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.transactionsSent
   }
 }
 
@@ -49,6 +62,9 @@ exports.transactionsReceived = {
     const transactions = await db.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.transactionsReceived
   }
 }
 
@@ -58,6 +74,9 @@ exports.votes = {
     const transactions = await db.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
+  },
+  options: {
+    validate: schema.votes
   }
 }
 
@@ -70,5 +89,8 @@ exports.search = {
     })
 
     return utils.toPagination(request, wallets, 'wallet')
+  },
+  options: {
+    validate: schema.search
   }
 }

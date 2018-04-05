@@ -3,7 +3,11 @@
 const BigNumber = require('bignumber.js')
 
 function isBoolean (value) {
-  return (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+  try {
+    return (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+  } catch (e) {
+    return false
+  }
 }
 
 function isNumber (value) {

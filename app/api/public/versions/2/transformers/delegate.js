@@ -1,4 +1,5 @@
 const { calculateApproval, calculateProductivity } = require('../../../../../utils/delegate-calculator')
+const formatTimestamp = require('../../../../../utils/format-timestamp')
 
 module.exports = (delegate) => {
   const data = {
@@ -17,10 +18,16 @@ module.exports = (delegate) => {
     }
   }
 
-  if (delegate.lastBlock) {
+  const lastBlock = delegate.lastBlock
+
+  if (lastBlock) {
     data.blocks.last = {
-      id: delegate.lastBlock.id,
-      timestamp: delegate.lastBlock.timestamp
+      id: lastBlock.id,
+      timestamp: {
+        epoch: lastBlock.timestamp,
+        unix: formatTimestamp(lastBlock.timestamp).unix(),
+        human: formatTimestamp(lastBlock.timestamp).format()
+      }
     }
   }
 

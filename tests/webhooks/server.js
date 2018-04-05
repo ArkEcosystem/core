@@ -1,5 +1,4 @@
 const express = require('express')
-const crypto = require('crypto')
 
 const server = express()
 
@@ -10,7 +9,7 @@ const fixture = require('./fixture')
 
 beforeAll(() => {
   server.post('/', jsonParser, (req, res) => {
-    const fullToken = req.headers['x-hook-token'] + fixture.client
+    const fullToken = req.headers['authorization'] + fixture.client
 
     if (fullToken !== fixture.token) {
       return res.status(401).send('Unauthorized!')

@@ -4,82 +4,81 @@ const utils = require('../utils')
 const schema = require('../schema/webhooks')
 
 exports.index = {
-  config: {
-    auth: 'webhooks'
-  },
   handler: async (request, h) => {
     const webhooks = await db.webhooks.paginate(utils.paginate(request))
 
     return utils.toPagination(request, webhooks, 'webhook')
+  },
+  options: {
+    auth: 'webhooks'
   }
 }
 
 exports.store = {
-  config: {
+  handler: async (request, h) => {
+    const token = require('crypto').randomBytes(32).toString('hex')
+    request.payload.token = token.substring(0, 32)
+
+    const webhook = await db.webhooks.create(request.payload)
+    webhook.token = token
+
+    return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
+  },
+  options: {
     auth: 'webhooks',
-    validate: {
-      payload: schema
-    },
     plugins: {
       pagination: {
         enabled: false
       }
-    }
-  },
-  handler: async (request, h) => {
-    const secret = require('crypto').randomBytes(32).toString('hex')
-    request.payload.secret = secret.substring(0, 32) // We only store the first 32 chars
-
-    const webhook = await db.webhooks.create(request.payload)
-    webhook.secret = secret // We show the full secret once on creation
-
-    return h.response(utils.respondWithResource(request, webhook, 'webhook')).code(201)
+    },
+    validate: schema.store
   }
 }
 
 exports.show = {
-  config: {
-    auth: 'webhooks'
-  },
   handler: async (request, h) => {
     const webhook = await db.webhooks.findById(request.params.id)
+    delete webhook.token
 
     return utils.respondWithResource(request, webhook, 'webhook')
+  },
+  options: {
+    auth: 'webhooks',
+    validate: schema.show
   }
 }
 
 exports.update = {
-  config: {
-    auth: 'webhooks',
-    validate: {
-      payload: schema
-    }
-  },
   handler: async (request, h) => {
-    const webhook = await db.webhooks.update(request.params.id, request.payload)
+    await db.webhooks.update(request.params.id, request.payload)
 
     return h.response(null).code(204)
+  },
+  options: {
+    auth: 'webhooks',
+    validate: schema.update
   }
 }
 
 exports.destroy = {
-  config: {
-    auth: 'webhooks'
-  },
   handler: async (request, h) => {
     await db.webhooks.destroy(request.params.id, request.payload)
 
     return h.response(null).code(204)
+  },
+  options: {
+    auth: 'webhooks',
+    validate: schema.destroy
   }
 }
 
 exports.events = {
-  config: {
-    auth: 'webhooks'
-  },
   handler: (request, h) => {
     return {
       data: config.webhooks.events
     }
+  },
+  options: {
+    auth: 'webhooks'
   }
 }

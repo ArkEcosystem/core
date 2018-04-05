@@ -9,7 +9,7 @@ module.exports = class Down {
     this.p2p = p2p
     this.config = config
     this.peers = {}
-    config.network.peers
+    config.server.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
@@ -25,8 +25,8 @@ module.exports = class Down {
       if (!this.config.server.test) await this.discoverPeers()
       if (!this.config.server.test) await this.cleanPeers()
 
-      if (Object.keys(this.peers).length < this.config.network.peers.length - 1 && !this.config.server.test) {
-        this.config.network.peers
+      if (Object.keys(this.peers).length < this.config.server.peers.list.length - 1 && !this.config.server.test) {
+        this.config.server.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
         return this.updateNetworkStatus()
@@ -34,7 +34,7 @@ module.exports = class Down {
     } catch (error) {
       logger.error(error.stack)
 
-      this.config.network.peers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      this.config.server.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
       return this.updateNetworkStatus()
     }
