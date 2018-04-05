@@ -45,7 +45,7 @@ module.exports = class TransactionHandler {
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
 
-      // TODO for expiration and time lock testing remove from production
+      // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
       if (this.config.server.test) {
         const current = arkjs.slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
@@ -58,7 +58,6 @@ module.exports = class TransactionHandler {
           transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
         }
       }
-
       return transaction
     }))
   }
@@ -83,7 +82,7 @@ module.exports = class TransactionHandler {
     }
   }
 
-  async removeForgedBlock (transactions) { // we remove the block txs from the pool
+  async removeForgedTransactions (transactions) { // we remove the txs from the pool
     if (this.poolManager) {
       await this.poolManager.removeTransactions(transactions)
     }

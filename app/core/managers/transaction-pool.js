@@ -96,7 +96,8 @@ module.exports = class TransactionPoolManager {
   async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
-        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        transactionIds = await this.__checkIfForged(transactionIds)
         let retList = []
         for (const id of transactionIds) {
           const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
@@ -141,6 +142,14 @@ module.exports = class TransactionPoolManager {
         return 'Error: Non existing transaction'
       }
     }
+  }
+
+  // Checks if any of transactions for forging from pool was already forged and removes them from pool
+  // It returns only the ids of transactions that have yet to be forged
+  async __checkIfForged (transactionIds) {
+    const forgedIds = await blockchain.getInstance().getDb().getForgedTransactionsIds(transactionIds)
+    forgedIds.forEach(element => this.removeTransaction(element))
+    return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 
   __getRedisTransactionKey (id) {

@@ -186,7 +186,7 @@ module.exports = class BlockchainManager {
       state.lastBlock = block
       // broadcast only recent blocks
       if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
-      this.transactionHandler.removeForgedBlock(block.transactions)
+      this.transactionHandler.removeForgedTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
