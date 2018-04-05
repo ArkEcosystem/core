@@ -63,7 +63,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await chainInstance.getTxHandlerl().getUnconfirmedTransaction(request.param.id)
+    const transaction = await chainInstance.getTxHandler().getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }
