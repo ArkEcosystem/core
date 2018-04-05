@@ -83,7 +83,7 @@ module.exports = class TransactionHandler {
     }
   }
 
-  async removeForgedBlock (transactions) { // we remove the block txs from the pool
+  async removeForgedTransactions (transactions) { // we remove the txs from the pool
     if (this.poolManager) {
       await this.poolManager.removeTransactions(transactions)
     }
