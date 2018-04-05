@@ -5,7 +5,7 @@ chai.use(chaiHttp)
 
 class Helpers {
   request (method, path, params = {}) {
-    let request = chai.request('http://localhost:4003/')
+    let request = chai.request('http://localhost:4003/api/')
 
     request = request[method.toLowerCase()](path)
     request = (method === 'GET') ? request.query(params) : request.send(params)

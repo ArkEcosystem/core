@@ -61,10 +61,6 @@ module.exports = class TransactionPoolManager {
     }
   }
 
-  async addTransactions (transactions) {
-    transactions.each(transaction => this.addTransaction(transaction))
-  }
-
   async removeTransaction (txID) {
     await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
     await this.redis.del(this.__getRedisTransactionKey(txID))
@@ -97,7 +93,7 @@ module.exports = class TransactionPoolManager {
     }
   }
 
-  async getTransactionsForForger (start, size) {
+  async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
         const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)

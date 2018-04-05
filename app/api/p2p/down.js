@@ -9,6 +9,7 @@ module.exports = class Down {
     this.p2p = p2p
     this.config = config
     this.peers = {}
+    if (!config.server.peers.list) throw new Error('No seed peers defined in config/server.json')
     config.server.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
@@ -73,9 +74,10 @@ module.exports = class Down {
   }
 
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip]) return
+    if (this.peers[peer.ip] || this.config.server.test) return
     if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
-    if (peer.ip === '::ffff:127.0.0.1') throw new Error('Localhost peer not accepted')
+    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') throw new Error('Localhost peer not accepted')
+
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
     try {

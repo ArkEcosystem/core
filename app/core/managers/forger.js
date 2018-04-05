@@ -118,7 +118,7 @@ module.exports = class ForgerManager {
   async getTransactions () {
     const result = await popsicle.request({
       method: 'GET',
-      url: this.proxy + '/internal/unconfirmedTransactions',
+      url: this.proxy + '/internal/forgingTransactions',
       headers: this.headers,
       timeout: 2000
     }).use(popsicle.plugins.parse('json'))

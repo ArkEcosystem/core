@@ -9,7 +9,7 @@ const QueueManager = require('./core/managers/queue')
 const WebhookManager = require('./core/managers/webhook')
 const DependencyHandler = require('./core/dependency-handler')
 const PublicAPI = require('./api/public')
-const TransactionPool = require('./core/transaction-pool')
+const TransactionHandler = require('./core/transaction-handler')
 const ForgerManager = require('./core/managers/forger')
 
 commander
@@ -50,8 +50,8 @@ const start = async () => {
     await blockchainManager.attachNetworkInterface(p2p)
 
     logger.info('Initialising Transaction Pool...')
-    const txPool = await new TransactionPool(config)
-    await blockchainManager.attachTransactionPool(txPool)
+    const txHandler = await new TransactionHandler(config)
+    await blockchainManager.attachTransactionHandler(txHandler)
 
     logger.info('Initialising Blockchain Manager...')
     await blockchainManager.start()
