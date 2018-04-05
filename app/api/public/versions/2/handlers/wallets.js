@@ -52,7 +52,7 @@ exports.transactionsSent = {
     return utils.toPagination(request, transactions, 'transaction')
   },
   options: {
-    validate: schema.transactionsSend
+    validate: schema.transactionsSent
   }
 }
 

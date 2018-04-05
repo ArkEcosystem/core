@@ -42,7 +42,7 @@
       "/v2/wallets",
       "/v2/wallets/{id}/transactions",
       "/v2/wallets/{id}/transactions/received",
-      "/v2/wallets/{id}/transactions/send",
+      "/v2/wallets/{id}/transactions/sent",
       "/v2/wallets/{id}/votes",
       "/v2/wallets/search",
       "/v2/webhooks"

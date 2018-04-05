@@ -6,7 +6,9 @@ exports.index = {
     status: Joi.string(),
     port: Joi.number().integer(),
     version: Joi.string(),
-    orderBy: Joi.string()
+    orderBy: Joi.string(),
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
   }
 }
 

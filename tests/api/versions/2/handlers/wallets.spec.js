@@ -63,9 +63,9 @@ describe('API 2.0 - Wallets', () => {
     })
   })
 
-  describe('GET /wallets/:id/transactions/send', () => {
+  describe('GET /wallets/:id/transactions/sent', () => {
     it('should GET all the send transactions for the given wallet by id', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}/transactions/send`)
+      const res = await utils.request('GET', `wallets/${addressActive}/transactions/sent`)
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
