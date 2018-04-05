@@ -125,7 +125,7 @@ exports.top = {
     }
   },
   handler: async (request, h) => {
-    let accounts = await db.wallets.top(utils.paginator(request))
+    let accounts = await db.wallets.top(utils.paginator(request), true)
 
     accounts = accounts.map((a) => ({
       address: a.address,

@@ -15,9 +15,9 @@ exports.index = {
 
 exports.top = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.top()
+    const wallets = await db.wallets.top(utils.paginate(request))
 
-    return utils.respondWithCollection(request, wallet, 'wallet')
+    return utils.toPagination(request, wallets, 'wallet')
   }
 }
 
