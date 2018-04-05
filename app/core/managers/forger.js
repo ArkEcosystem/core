@@ -67,7 +67,7 @@ module.exports = class ForgerManager {
 
         const block = await delegate.forge(transactions, data)
 
-        this.broadcast(block)
+        this.send(block)
         await sleep(7800) // we will check at next slot
         return monitor()
       } catch (error) {
@@ -88,8 +88,8 @@ module.exports = class ForgerManager {
     return monitor()
   }
 
-  async broadcast (block) {
-    logger.info(`Broadcasting forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions`)
+  async send (block) {
+    logger.info(`Sending forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions to relay node`)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
@@ -112,7 +112,6 @@ module.exports = class ForgerManager {
       headers: this.headers,
       timeout: 2000
     }).use(popsicle.plugins.parse('json'))
-
     return result.body.round
   }
 
