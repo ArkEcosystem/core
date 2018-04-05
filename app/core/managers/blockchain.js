@@ -11,7 +11,7 @@ module.exports = class BlockchainManager {
   constructor (config, networkStart) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
-    const that = this
+
     this.config = config
 
     // flag to force a network start
@@ -20,6 +20,7 @@ module.exports = class BlockchainManager {
       logger.warning('Arkchain is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
       logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
     }
+
     this.actions = stateMachine.actionMap(this)
 
     this.processQueue = async.queue(
@@ -28,18 +29,12 @@ module.exports = class BlockchainManager {
     )
 
     this.rebuildQueue = async.queue(
-      (block, qcallback) => {
-        if (!that.rebuildQueue.paused) that.rebuildBlock(new Block(block), stateMachine.state, qcallback)
-        else qcallback()
-      },
+      (block, qcallback) => this.rebuildQueue.paused ? qcallback() : this.rebuildBlock(new Block(block), stateMachine.state, qcallback),
       1
     )
 
     this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
-
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
-
-    if (!instance) instance = this
   }
 
   dispatch (event) {
@@ -76,8 +71,8 @@ module.exports = class BlockchainManager {
   }
 
   async resetState () {
-    await this.pauseQueues()
-    await this.clearQueues()
+    this.pauseQueues()
+    this.clearQueues()
 
     stateMachine.state = {
       blockchain: stateMachine.initialState,
@@ -86,8 +81,7 @@ module.exports = class BlockchainManager {
       lastDownloadedBlock: null
     }
 
-    await this.resumeQueues()
-
+    this.resumeQueues()
     return this.start()
   }
 
@@ -105,34 +99,27 @@ module.exports = class BlockchainManager {
   }
 
   async removeBlocks (nblocks) {
+    const undoLastBlock = async () => {
+      const lastBlock = stateMachine.state.lastBlock
+      await this.db.undoBlock(lastBlock)
+      await this.db.deleteBlock(lastBlock)
+      await this.transactionPool.undoBlock(lastBlock)
+      const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+      stateMachine.state.lastBlock = newLastBlock
+      return (stateMachine.state.lastDownloadedBlock = newLastBlock)
+    }
+    const __removeBlocks = async (nblocks) => {
+      if (nblocks < 1) return
+      logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
+      await undoLastBlock()
+      await __removeBlocks(nblocks - 1)
+    }
+
     logger.info(`Starting ${nblocks} blocks undo from height ${stateMachine.state.lastBlock.data.height}`)
-    await this.pauseQueues()
-    await this.__removeBlocks(nblocks)
-    await this.clearQueues()
-    await this.resumeQueues()
-  }
-
-  async __removeBlocks (nblocks) {
-    if (!nblocks) return
-
-    logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
-
-    await this.undoLastBlock()
-
-    return this.__removeBlocks(nblocks - 1)
-  }
-
-  async undoLastBlock () {
-    const lastBlock = stateMachine.state.lastBlock
-
-    await this.db.undoBlock(lastBlock)
-    await this.db.deleteBlock(lastBlock)
-    await this.transactionPool.undoBlock(lastBlock)
-
-    const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
-    stateMachine.state.lastBlock = newLastBlock
-
-    return (stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock)
+    this.pauseQueues()
+    this.clearQueues()
+    await __removeBlocks(nblocks)
+    this.resumeQueues()
   }
 
   async pauseQueues () {
@@ -151,19 +138,20 @@ module.exports = class BlockchainManager {
     this.processQueue.resume()
   }
 
+  isChained (block, nextBlock) {
+    return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
+  }
+
   async rebuildBlock (block, state, qcallback) {
     if (block.verification.verified) {
-      const constants = this.config.getConstants(block.data.height)
-      if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
-        await this.db.saveBlockAsync(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-        if (block.data.height % 10000 === 0) {
-          await this.db.saveBlockCommit()
-        }
+      if (this.isChained(state.lastBlock, block)) {
+        // save block on database
+        await this.db.saveBlockAsync(block)
+        // committing to db every 10,000 blocks
+        if (block.data.height % 10000 === 0) await this.db.saveBlockCommit()
         state.lastBlock = block
         qcallback()
       } else if (block.data.height > state.lastBlock.data.height + 1) {
-        // requeue it (was not received in right order)
-        // this.processQueue.push(block.data)
         logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
         state.lastDownloadedBlock = state.lastBlock
         qcallback()
@@ -171,56 +159,50 @@ module.exports = class BlockchainManager {
         logger.debug('Block disregarded because already in blockchain')
         qcallback()
       } else {
-        this.dispatch('FORK')
+        state.lastDownloadedBlock = state.lastBlock
         logger.info('Block disregarded because on a fork')
         qcallback()
       }
     } else {
-      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
+      logger.warning('Block disregarded because verification failed. Tentative to hack the network 💣')
       qcallback()
     }
   }
 
   async processBlock (block, state, qcallback) {
-    if (block.verification.verified) {
-      const constants = this.config.getConstants(block.data.height)
-      if (block.data.previousBlock === stateMachine.state.lastBlock.data.id && ~~(block.data.timestamp / constants.blocktime) > ~~(stateMachine.state.lastBlock.data.timestamp / constants.blocktime)) {
-        try {
-          await this.db.applyBlock(block)
-          await this.db.saveBlock(block) // should we save block first, this way we are sure the blockchain is enforced (unicity of block id and transactions id)?
-          state.lastBlock = block
-          // broadcast only recent blocks
-          if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
-          this.transactionPool.removeForgedBlock(block.transactions)
-          qcallback()
-        } catch (error) {
-          logger.error(error.stack)
-          logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
-          state.lastDownloadedBlock = state.lastBlock
-          this.dispatch('FORK')
-          qcallback()
-        }
-      } else if (block.data.height > state.lastBlock.data.height + 1) {
-        // requeue it (was not received in right order)
-        // this.processQueue.push(block.data)
-        logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
-        state.lastDownloadedBlock = state.lastBlock
-        qcallback()
-      } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
-        logger.debug('Block disregarded because already in blockchain')
-        qcallback()
-      } else {
-        // TODO: manage fork here
-        const isValid = await this.db.validateForkedBlock(block)
-        if (isValid) this.dispatch('FORK')
-        else {
-          logger.info('Forked block disregarded because it is not valid, looks like an attack 💣')
-        }
-        qcallback()
-      }
-    } else {
-      logger.warning('Block disregarded because verification failed. Might be a tentative to hack the network 💣')
-      qcallback()
+    if (!block.verification.verified) {
+      logger.warning('Block disregarded because verification failed. Tentative to hack the network 💣')
+      return qcallback()
+    }
+    if (this.isChained(state.lastBlock, block)) await this.acceptChainedBlock(block, state)
+    else await this.manageUnchainedBlock(block, state)
+    qcallback()
+  }
+
+  async acceptChainedBlock (block, state) {
+    try {
+      await this.db.applyBlock(block)
+      await this.db.saveBlock(block)
+      state.lastBlock = block
+      // broadcast only recent blocks
+      if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
+      this.transactionPool.removeForgedBlock(block.transactions)
+    } catch (error) {
+      logger.error(error.stack)
+      logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
+      this.dispatch('FORK')
+    }
+    state.lastDownloadedBlock = state.lastBlock
+  }
+
+  async manageUnchainedBlock (block, state) {
+    if (block.data.height > state.lastBlock.data.height + 1) logger.info(`blockchain not ready to accept new block at height ${block.data.height}, lastBlock ${state.lastBlock.data.height}`)
+    else if (block.data.height < state.lastBlock.data.height) logger.debug('Block disregarded because already in blockchain')
+    else if (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id) logger.debug('Block just received')
+    else {
+      const isValid = await this.db.validateForkedBlock(block)
+      if (isValid) this.dispatch('FORK')
+      else logger.info(`Forked block disregarded because it is not allowed to forge, looks like an attack by delegate ${block.data.generatorPublicKey} 💣`)
     }
   }
 

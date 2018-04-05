@@ -30,6 +30,7 @@ Still alpha
   - [x] Rebuild mainnet
   - [x] Start independant testnet
   - [x] Fast rebuild (with automatic switch to full rebuild when rebuild is close to network height)
+  - [x] Awesome logging
   - [x] Rotating and compressing log
   - [x] Constants in config file, with progressive fork rules (to be improved to take into wallet rounds instead of height)
   - [x] Support for MySQL (not tested)
@@ -38,15 +39,17 @@ Still alpha
   - [x] Support for MsSQL (not tested)
   - [x] Internal API for forger
   - [x] Forger on independent core
+  - [x] BIP38 encryption of delegate passphrase
+  - [x] Connect forger to Transaction Pool
+  - [x] Finite State Machine
+  - [x] API to interact with state machine
 
 Upcoming:
-  - [ ] Testing
-  - [ ] P2P API compatibility (60%)
-  - [ ] Transaction Pool (20%)
-  - [ ] Connect forger to Transaction Pool
-  - [ ] New P2P API
-  - [ ] Fork management
-  - [ ] BIP38 encryption of delegate passphrase
+  - [ ] Testing (20%)
+  - [ ] P2P API compatibility (95%)
+  - [ ] Transaction Pool (80%)
+  - [ ] New P2P API (0%)
+  - [ ] HardFork management (30%)
   - [ ] Documentation
 
 ## Development

@@ -395,6 +395,7 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getBlock (id) {
+    // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
     const block = await this.models.block.findOne({
       include: [{
         model: this.models.transaction,
