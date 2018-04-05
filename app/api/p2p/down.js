@@ -73,9 +73,10 @@ module.exports = class Down {
   }
 
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip]) return
+    if (this.peers[peer.ip] || this.config.server.test) return
     if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
-    if (peer.ip === '::ffff:127.0.0.1') throw new Error('Localhost peer not accepted')
+    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') throw new Error('Localhost peer not accepted')
+
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
     try {
