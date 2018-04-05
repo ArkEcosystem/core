@@ -11,7 +11,7 @@ exports.index = {
     result = request.query.status ? result.filter(peer => peer.status === request.query.status) : result
     result = request.query.port ? result.filter(peer => peer.port === request.query.port) : result
     result = request.query.version ? result.filter(peer => peer.version === request.query.version) : result
-    result = result.slice(0, (request.params.limit || 100))
+    result = result.slice(0, (request.query.limit || 100))
 
     if (request.query.orderBy) {
       const order = request.query.orderBy.split(':')
