@@ -38,6 +38,7 @@ module.exports = async (config) => {
     options: {
       validVersions: config.api.public.versions.valid,
       defaultVersion: config.api.public.versions.default,
+      basePath: '/api/',
       vendorName: 'ark-core-public-api'
     }
   })
@@ -81,12 +82,12 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('./versions/1'),
-    routes: { prefix: '/v1' }
+    routes: { prefix: '/api/v1' }
   })
 
   await server.register({
     plugin: require('./versions/2'),
-    routes: { prefix: '/v2' }
+    routes: { prefix: '/api/v2' }
   })
 
   try {
