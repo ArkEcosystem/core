@@ -74,7 +74,7 @@ module.exports = class TransactionPool {
   async undoBlock (block) { // we add back the block txs to the pool
     if (block.transactions.length === 0) return
     // no return the main thread is liberated
-    this.pool.addTransactions(block.transactions.map(tx => tx.data))
+    this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
   async addTransactionToRedis (object) {
