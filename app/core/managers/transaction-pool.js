@@ -144,13 +144,14 @@ module.exports = class TransactionPoolManager {
     }
   }
 
-  // Checks if any of transactions in pool was already forged by another delegate and removes them from pool
-  // it returns only the ids of transactions that have yet to be forged and removes others from redis pool
+  // Checks if any of transactions for forging from pool was already forged and removes them from pool
+  // It returns only the ids of transactions that have yet to be forged
   async __checkIfForged (transactionIds) {
     const forgedIds = await blockchain.getInstance().getDb().getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
+
   __getRedisTransactionKey (id) {
     return `${this.keyPrefix}/tx/${id}`
   }
