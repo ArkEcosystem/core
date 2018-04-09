@@ -54,14 +54,14 @@ exports.getRound = {
   }
 }
 
-exports.getUnconfirmedTransactions = {
+exports.getTransactionsForForging = {
   handler: async (request, h) => {
     const height = blockchain.getInstance().getState().lastBlock.data.height
     const blockSize = config.getConstants(height).block.maxTransactions
     try {
       return {
         success: true,
-        data: await blockchain.getInstance().getUnconfirmedTransactions(blockSize)
+        data: await blockchain.getInstance().getUnconfirmedTransactions(blockSize, true)
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()

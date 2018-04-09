@@ -430,6 +430,11 @@ module.exports = class SequelizeDB extends DBInterface {
     return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
   }
 
+  async getForgedTransactionsIds (txids) {
+    const rows = await this.db.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+    return rows.map(tx => tx.id)
+  }
+
   async getLastBlock () {
     const block = await this.models.block.findOne({order: [['height', 'DESC']]})
     if (!block) return null

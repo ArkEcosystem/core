@@ -87,7 +87,7 @@ module.exports = class BlockchainManager {
 
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
-    return this.transactionPool.addTransactions(transactions)
+    return this.transactionHandler.addTransactions(transactions)
   }
 
   postBlock (block) {
@@ -103,10 +103,10 @@ module.exports = class BlockchainManager {
       const lastBlock = stateMachine.state.lastBlock
       await this.db.undoBlock(lastBlock)
       await this.db.deleteBlock(lastBlock)
-      await this.transactionPool.undoBlock(lastBlock)
+      await this.transactionHandler.undoBlock(lastBlock)
       const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
-      return (stateMachine.state.lastDownloadedBlock = newLastBlock)
+      stateMachine.state.lastDownloadedBlock = newLastBlock
     }
     const __removeBlocks = async (nblocks) => {
       if (nblocks < 1) return
@@ -122,18 +122,18 @@ module.exports = class BlockchainManager {
     this.resumeQueues()
   }
 
-  async pauseQueues () {
+  pauseQueues () {
     this.rebuildQueue.pause()
     this.processQueue.pause()
   }
 
-  async clearQueues () {
+  clearQueues () {
     this.rebuildQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
   }
 
-  async resumeQueues () {
+  resumeQueues () {
     this.rebuildQueue.resume()
     this.processQueue.resume()
   }
@@ -186,7 +186,7 @@ module.exports = class BlockchainManager {
       state.lastBlock = block
       // broadcast only recent blocks
       if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
-      this.transactionPool.removeForgedBlock(block.transactions)
+      this.transactionHandler.removeForgedTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
@@ -206,11 +206,13 @@ module.exports = class BlockchainManager {
     }
   }
 
-  async getUnconfirmedTransactions (blockSize) {
-    let retItems = await this.transactionPool.getUnconfirmedTransactions(0, blockSize) // [0, 49] return max 50 tx for forging
+  async getUnconfirmedTransactions (blockSize, forForging = false) {
+    let retItems = forForging
+      ? await this.transactionHandler.getTransactionsForForging(0, blockSize)
+      : await this.transactionHandler.getUnconfirmedTransactions(0, blockSize)
     return {
       transactions: retItems,
-      poolSize: await this.transactionPool.getPoolSize(),
+      poolSize: await this.transactionHandler.getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
@@ -236,8 +238,8 @@ module.exports = class BlockchainManager {
     return this
   }
 
-  attachTransactionPool (txPool) {
-    this.transactionPool = txPool
+  attachTransactionHandler (txHandler) {
+    this.transactionHandler = txHandler
     return this
   }
 
@@ -253,7 +255,7 @@ module.exports = class BlockchainManager {
     return this.db
   }
 
-  getTxPool () {
-    return this.transactionPool
+  getTxHandler () {
+    return this.transactionHandler
   }
 }
