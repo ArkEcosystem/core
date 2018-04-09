@@ -4,7 +4,7 @@
 
 ## Use case 1 - run PostgreSQL and Redis Docker containers, use NodeJS from your local environment.
 
-> NOTE: _Redis and PostgreSQL ports are mapped to your `localhost`, so you should not have Redis or PostgreSQL installed locally.
+> NOTE: Redis and PostgreSQL ports are mapped to your `localhost`, so you should not have Redis or PostgreSQL installed locally.
 
 ```sh
 cd docker/$NETWORK (NETWORK = testnet || devnet)
@@ -22,7 +22,7 @@ docker-compose up -d postgres redis
 
 ## Use case 2 - run PostgreSQL and Redis Docker containers, build and run ARK-Core container.
 
-> NOTE: _Along with PostgreSQL and Redis containers, now you have also NodeJS container which mounts your local ark-core git folder inside the container and runs all npm prerequisites install.  
+> NOTE: Along with PostgreSQL and Redis containers, now you have also NodeJS container which mounts your local ark-core git folder inside the container and runs all npm prerequisites install.  
 
 ```sh
 cd docker/$NETWORK (NETWORK = testnet || devnet)
@@ -31,7 +31,7 @@ cd docker/$NETWORK (NETWORK = testnet || devnet)
 docker-compose up -d 
 ```
 
-_You can now enter your `ark-core` container and use nodejs in a Docker container (Linux environment). 
+You can now enter your `ark-core` container and use nodejs in a Docker container (Linux environment). 
 
 ```sh
 docker exec -it ark-core bash
