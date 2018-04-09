@@ -200,7 +200,7 @@ module.exports = class SequelizeDB extends DBInterface {
       })
 
       // Last block forged for each delegate
-      data = await this.db.query('select "id", "generatorPublicKey", max("timestamp") as timestamp from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.db.query('select "generatorPublicKey", max("timestamp") as timestamp from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
