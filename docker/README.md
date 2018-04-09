@@ -39,4 +39,4 @@ docker exec -it ark-core bash
 
 Need to start everything from scratch and make sure there aren't any cached containers, images or volumes left, just use `purge_all.sh` script.
 
-## Once again the current files/preset are not Production ready. Official Production ARK-Core Docker images will be released soon after ARK-Core v2 goes live.  
+### Once again the current files/preset are not Production ready. Official Production ARK-Core Docker images will be released soon after ARK-Core v2 goes live.  
