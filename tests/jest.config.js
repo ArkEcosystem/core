@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   rootDir: path.resolve(__dirname, '../'),
 
-  globalSetup: 'tests/support/tearup-full.js',
+  globalSetup: './tests/support/tearup-full.js',
   // globalTeardown: 'tests/support/teardown.js',
 
   testEnvironment: 'node',
@@ -22,5 +22,7 @@ module.exports = {
     'app/database/**/*.js',
     'app/model/**/*.js',
     'app/utils/**/*.js'
-  ]
+  ],
+
+  watchman: false
 }
