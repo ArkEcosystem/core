@@ -3,8 +3,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "test": "lerna run test",
-    "prepare": "lerna run prepare",
-    "clean": "rimraf packages/**/lib"
+    "prepare": "lerna run prepare"
   },
   "devDependencies": {
     "lerna": "^2.10.0",

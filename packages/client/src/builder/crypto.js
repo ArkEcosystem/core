@@ -1,7 +1,7 @@
 import bs58check from 'bs58check'
 import ByteBuffer from 'bytebuffer'
 import crypto from 'crypto'
-import { Buffer } from 'buffer/'
+// import { Buffer } from 'buffer/'
 
 import configManager from '@/managers/config'
 import cryptoUtils from '@/crypto'

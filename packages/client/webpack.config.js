@@ -15,7 +15,8 @@ module.exports = merge(require('./webpack.base'), {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     library: 'ark-javascript-client',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: 'this'
   },
 
   externals: ['axios']

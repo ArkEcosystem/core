@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "npmClient": "yarn",
+  "npmClientArgs": ["--production", "--no-optional"],
   "useWorkspaces": true,
   "version": "0.0.0"
 }
