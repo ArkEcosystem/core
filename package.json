@@ -2,9 +2,9 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
+    "clean": "lerna clean",
     "test": "lerna run test",
-    "prepare": "lerna run prepare",
-    "clean": "rm -rf **/node_modules"
+    "prepare": "lerna run prepare"
   },
   "devDependencies": {
     "lerna": "^2.10.0"
