@@ -1,4 +1,3 @@
-const Boom = require('boom')
 const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('../../../../../core/constants')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import deepmerge from 'deepmerge'
 import feeManager from '@/managers/fee'
-import { TRANSACTION_TYPES } from '@/constants'
+import { TRANSACTION_TYPES, CONFIGURATIONS } from '@/constants'
 
 class ConfigManager {
   /**
@@ -25,6 +25,14 @@ class ConfigManager {
    */
   setFromFile (path) {
     this.setConfig(require(path))
+  }
+
+  /**
+   * [setFromPreset description]
+   * @param {String} path [description]
+   */
+  setFromPreset (coin, network) {
+    this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()])
   }
 
   /**

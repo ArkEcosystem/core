@@ -115,7 +115,6 @@ exports.delegates = {
   }
 }
 
-
 exports.top = {
   config: {
     plugins: {

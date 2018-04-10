@@ -1,5 +1,9 @@
 const path = require('path')
 
+const configMainnet = require('./networks/ark/mainnet.js')
+const configDevnet = require('./networks/ark/devnet.js')
+const configTestnet = require('./networks/ark/testnet.js')
+
 /**
  * [ARKTOSHI description]
  * @type {[type]}
@@ -28,8 +32,8 @@ exports.TRANSACTION_TYPES = Object.freeze({
  */
 exports.CONFIGURATIONS = Object.freeze({
   ARK: {
-    MAINNET: path.resolve(__dirname, 'networks/ark/mainnet.js'),
-    DEVNET: path.resolve(__dirname, 'networks/ark/devnet.js'),
-    TESTNET: path.resolve(__dirname, 'networks/ark/testnet.js')
+    MAINNET: configMainnet,
+    DEVNET: configDevnet,
+    TESTNET: configTestnet
   }
 })
