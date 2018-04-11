@@ -46,7 +46,7 @@ module.exports = class WebhookManager {
             data: job.data.payload,
             type: job.data.webhook.event
           },
-          headers: { 'X-Hook-Token': job.data.webhook.token }
+          headers: { 'Authorization': job.data.webhook.token }
         })
 
         return {
