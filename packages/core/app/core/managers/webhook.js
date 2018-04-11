@@ -42,9 +42,9 @@ module.exports = class WebhookManager {
       try {
         const response = await axios.post(job.data.webhook.target, {
           formParams: {
-            created: +new Date(),
+            timestamp: +new Date(),
             data: job.data.payload,
-            type: job.data.webhook.event
+            event: job.data.webhook.event
           },
           headers: { 'Authorization': job.data.webhook.token }
         })
