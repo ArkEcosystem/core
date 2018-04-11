@@ -7,9 +7,9 @@ const config = require('../core/config')
 
 const applyV1Fix = (block) => {
   // START Fix for v1 api
-  block.data.totalAmount = parseInt(block.data.totalAmount)
-  block.data.totalFee = parseInt(block.data.totalFee)
-  block.data.reward = parseInt(block.data.reward)
+  block.totalAmount = parseInt(block.totalAmount)
+  block.totalFee = parseInt(block.totalFee)
+  block.reward = parseInt(block.reward)
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
@@ -22,16 +22,17 @@ const applyV1Fix = (block) => {
 
 module.exports = class Block {
   constructor (data) {
-    this.data = data
-    this.genesis = data.height === 1
+    this.serialized = Block.serializeFull(data).toString('hex')
+    this.data = Block.deserialize(this.serialized)
+    this.data.id = Block.getId(this.data)
+
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
       txx.blockId = data.id
       txx.timestamp = data.timestamp
       return txx
     })
-
-    applyV1Fix(this)
+    this.genesis = data.height === 1
     this.verification = this.verify()
   }
 
@@ -178,6 +179,47 @@ module.exports = class Block {
     return result
   }
 
+  static deserialize (hexString) {
+    const block = {}
+    const buf = ByteBuffer.fromHex(hexString, true)
+    block.version = buf.readUInt32(0)
+    block.timestamp = buf.readUInt32(4)
+    block.height = buf.readUInt32(8)
+    block.previousBlock = bignum.fromBuffer(buf.slice(12, 20).toBuffer()).toString()
+    block.numberOfTransactions = buf.readUInt32(20)
+    block.totalAmount = buf.readUInt64(24).toNumber()
+    block.totalFee = buf.readUInt64(32).toNumber()
+    block.reward = buf.readUInt64(40).toNumber()
+    block.payloadLength = buf.readUInt32(48)
+    block.payloadHash = hexString.substring(104, 104 + 64)
+    block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
+    const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
+    block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
+    let txoffset = (104 + 64 + 33 * 2 + length * 2) / 2
+    block.transactions = []
+    for (let i = 0; i < block.numberOfTransactions; i++) {
+      block.transactions.push(buf.readUint32(txoffset))
+      txoffset += 4
+    }
+    for (let i = 0; i < block.numberOfTransactions; i++) {
+      const ltx = block.transactions[i]
+      block.transactions[i] = Transaction.deserialize(buf.slice(txoffset, txoffset + ltx).toString('hex'))
+      txoffset += ltx
+    }
+    return block
+  }
+
+  static serializeFull (block) {
+    const buf = new ByteBuffer(1024, true)
+    applyV1Fix(block)
+    buf.append(Block.serialize(block, true))
+    const txser = block.transactions.map(tx => Transaction.serialize(tx))
+    txser.forEach(tx => buf.writeUInt32(tx.length))
+    txser.forEach(tx => buf.append(tx))
+    buf.flip()
+    return buf.toBuffer()
+  }
+
   static serialize (block, includeSignature) {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
@@ -193,9 +235,9 @@ module.exports = class Block {
 
     try {
       const bb = new ByteBuffer(size, true)
-      bb.writeInt(block.version)
-      bb.writeInt(block.timestamp)
-      bb.writeInt(block.height)
+      bb.writeUInt32(block.version)
+      bb.writeUInt32(block.timestamp)
+      bb.writeUInt32(block.height)
 
       if (block.previousBlock) {
         const pb = bignum(block.previousBlock).toBuffer({
@@ -211,12 +253,12 @@ module.exports = class Block {
         }
       }
 
-      bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(block.totalAmount)
-      bb.writeLong(block.totalFee)
-      bb.writeLong(block.reward)
+      bb.writeUInt32(block.numberOfTransactions)
+      bb.writeUInt64(block.totalAmount)
+      bb.writeUInt64(block.totalFee)
+      bb.writeUInt64(block.reward)
 
-      bb.writeInt(block.payloadLength)
+      bb.writeUInt32(block.payloadLength)
 
       const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
