@@ -348,7 +348,6 @@ module.exports = class SequelizeDB extends DBInterface {
   // to be used when node is in sync and committing newly received blocks
   async saveBlock (block) {
     let transaction
-
     try {
       transaction = await this.db.transaction()
       await this.models.block.create(block.data, {transaction})
@@ -439,11 +438,11 @@ module.exports = class SequelizeDB extends DBInterface {
   }
 
   async getLastBlock () {
-    const block = await this.models.block.findOne({order: [['height', 'DESC']]})
+    let block = await this.models.block.findOne({order: [['height', 'DESC']]})
     if (!block) return null
+    block = block.dataValues
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
-
     return new Block(block)
   }
 

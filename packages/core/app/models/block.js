@@ -5,11 +5,13 @@ const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const config = require('../core/config')
 
-const applyV1Fix = (block) => {
+const applyV1Fix = (data) => {
   // START Fix for v1 api
-  block.totalAmount = parseInt(block.totalAmount)
-  block.totalFee = parseInt(block.totalFee)
-  block.reward = parseInt(block.reward)
+  data.totalAmount = parseInt(data.totalAmount)
+  data.totalFee = parseInt(data.totalFee)
+  data.reward = parseInt(data.reward)
+  data.previousBlockHex = new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex')
+  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex')
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
@@ -24,6 +26,10 @@ module.exports = class Block {
   constructor (data) {
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
+
+    this.data.idHex = Block.getId(this.data)
+    this.data.id = bignum(this.data.idHex, 16).toString()
+
     // fix on issue of non homogeneus transaction type 1 payloads
     data.transactions.forEach((tx, i) => {
       const thistx = this.data.transactions[i]
@@ -33,19 +39,18 @@ module.exports = class Block {
       }
     })
 
-    this.data.id = Block.getId(this.data)
-
     // fix on real timestamp
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
-      txx.blockId = data.id
-      txx.timestamp = data.timestamp
+      txx.blockId = this.data.id
+      txx.timestamp = this.data.timestamp
       return txx
     })
     if (data.height === 1) {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
+      delete this.data.previousBlock
     }
     this.verification = this.verify()
     if (!this.verification.verified) {
@@ -79,7 +84,7 @@ module.exports = class Block {
       temp[i] = hash[7 - i]
     }
 
-    return bignum.fromBuffer(temp).toString()
+    return temp.toString('hex')
   }
 
   getHeader () {
@@ -107,93 +112,95 @@ module.exports = class Block {
       verified: false,
       errors: []
     }
+    try {
+      const constants = config.getConstants(block.height)
 
-    const constants = config.getConstants(block.height)
+      // let previousBlock = null
 
-    // let previousBlock = null
-
-    if (block.height !== 1) {
-      if (!block.previousBlock) {
-        result.errors.push('Invalid previous block')
+      if (block.height !== 1) {
+        if (!block.previousBlock) {
+          result.errors.push('Invalid previous block')
+        }
       }
-    }
 
-    if (constants.reward !== block.reward) {
-      result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
-    }
-
-    let valid = this.verifySignature(block)
-
-    if (!valid) {
-      result.errors.push('Failed to verify block signature')
-    }
-
-    if (block.version !== constants.block.version) {
-      result.errors.push('Invalid block version')
-    }
-
-    if (arkjs.slots.getSlotNumber(block.timestamp) > arkjs.slots.getSlotNumber()) {
-      result.errors.push('Invalid block timestamp')
-    }
-
-    // Disabling to allow orphanedBlocks?
-    // if(previousBlock){
-    //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
-    //   if(blockSlotNumber < lastBlockSlotNumber) {
-    //      result.errors.push('block timestamp is smaller than previous block timestamp')
-    //   }
-    // }
-
-    if (block.payloadLength > constants.maxPayloadLength) {
-      result.errors.push('Payload length is too high')
-    }
-
-    if (block.transactions.length !== block.numberOfTransactions) {
-      result.errors.push('Invalid number of transactions')
-    }
-
-    if (block.transactions.length > constants.block.maxTransactions) {
-      result.errors.push('Transactions length is too high')
-    }
-
-    // Checking if transactions of the block adds up to block values.
-    let totalAmount = 0
-    let totalFee = 0
-    let size = 0
-    let payloadHash = crypto.createHash('sha256')
-    let appliedTransactions = {}
-
-    block.transactions.forEach((transaction) => {
-      const bytes = Buffer.from(transaction.id, 'hex')
-
-      if (appliedTransactions[transaction.id]) {
-        result.errors.push('Encountered duplicate transaction: ' + transaction.id)
+      if (constants.reward !== block.reward) {
+        result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
-      appliedTransactions[transaction.id] = transaction
 
-      totalAmount += transaction.amount
-      totalFee += transaction.fee
-      size += bytes.length
+      let valid = this.verifySignature(block)
 
-      payloadHash.update(bytes)
-    })
+      if (!valid) {
+        result.errors.push('Failed to verify block signature')
+      }
 
-    if (size > constants.block.maxPayload) {
-      result.errors.push('Payload is too large')
+      if (block.version !== constants.block.version) {
+        result.errors.push('Invalid block version')
+      }
+
+      if (arkjs.slots.getSlotNumber(block.timestamp) > arkjs.slots.getSlotNumber()) {
+        result.errors.push('Invalid block timestamp')
+      }
+
+      // Disabling to allow orphanedBlocks?
+      // if(previousBlock){
+      //   const lastBlockSlotNumber = slots.getSlotNumber(previousBlock.timestamp)
+      //   if(blockSlotNumber < lastBlockSlotNumber) {
+      //      result.errors.push('block timestamp is smaller than previous block timestamp')
+      //   }
+      // }
+
+      if (block.payloadLength > constants.maxPayloadLength) {
+        result.errors.push('Payload length is too high')
+      }
+
+      if (block.transactions.length !== block.numberOfTransactions) {
+        result.errors.push('Invalid number of transactions')
+      }
+
+      if (block.transactions.length > constants.block.maxTransactions) {
+        result.errors.push('Transactions length is too high')
+      }
+
+      // Checking if transactions of the block adds up to block values.
+      let totalAmount = 0
+      let totalFee = 0
+      let size = 0
+      let payloadHash = crypto.createHash('sha256')
+      let appliedTransactions = {}
+
+      block.transactions.forEach((transaction) => {
+        const bytes = Buffer.from(transaction.id, 'hex')
+
+        if (appliedTransactions[transaction.id]) {
+          result.errors.push('Encountered duplicate transaction: ' + transaction.id)
+        }
+        appliedTransactions[transaction.id] = transaction
+
+        totalAmount += transaction.amount
+        totalFee += transaction.fee
+        size += bytes.length
+
+        payloadHash.update(bytes)
+      })
+
+      if (size > constants.block.maxPayload) {
+        result.errors.push('Payload is too large')
+      }
+
+      if (!this.genesis && payloadHash.digest().toString('hex') !== block.payloadHash) {
+        result.errors.push('Invalid payload hash')
+      }
+
+      if (totalAmount !== block.totalAmount) {
+        result.errors.push('Invalid total amount')
+      }
+
+      if (totalFee !== block.totalFee) {
+        result.errors.push('Invalid total fee')
+      }
+    } catch (error) {
+      result.errors.push(error)
     }
-
-    if (!this.genesis && payloadHash.digest().toString('hex') !== block.payloadHash) {
-      result.errors.push('Invalid payload hash')
-    }
-
-    if (totalAmount !== block.totalAmount) {
-      result.errors.push('Invalid total amount')
-    }
-
-    if (totalFee !== block.totalFee) {
-      result.errors.push('Invalid total fee')
-    }
-
     result.verified = result.errors.length === 0
     return result
   }
@@ -204,7 +211,8 @@ module.exports = class Block {
     block.version = buf.readUInt32(0)
     block.timestamp = buf.readUInt32(4)
     block.height = buf.readUInt32(8)
-    block.previousBlock = bignum.fromBuffer(buf.slice(12, 20).toBuffer()).toString()
+    block.previousBlockHex = buf.slice(12, 20).toString('hex')
+    block.previousBlock = bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
     block.totalAmount = buf.readUInt64(24).toNumber()
     block.totalFee = buf.readUInt64(32).toNumber()
@@ -243,64 +251,29 @@ module.exports = class Block {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
-    let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
-    let blockSignatureBuffer = null
 
-    if (includeSignature) {
-      blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
-      size += blockSignatureBuffer.length
-    }
-    let b, i
+    const bb = new ByteBuffer(256, true)
+    bb.writeUInt32(block.version)
+    bb.writeUInt32(block.timestamp)
+    bb.writeUInt32(block.height)
 
-    try {
-      const bb = new ByteBuffer(size, true)
-      bb.writeUInt32(block.version)
-      bb.writeUInt32(block.timestamp)
-      bb.writeUInt32(block.height)
-
-      if (block.previousBlock) {
-        const pb = bignum(block.previousBlock).toBuffer({
-          size: '8'
-        })
-
-        for (i = 0; i < 8; i++) {
-          bb.writeByte(pb[i])
-        }
-      } else {
-        for (i = 0; i < 8; i++) {
-          bb.writeByte(0)
-        }
-      }
-
-      bb.writeUInt32(block.numberOfTransactions)
-      bb.writeUInt64(block.totalAmount)
-      bb.writeUInt64(block.totalFee)
-      bb.writeUInt64(block.reward)
-
-      bb.writeUInt32(block.payloadLength)
-
-      const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
-      for (i = 0; i < payloadHashBuffer.length; i++) {
-        bb.writeByte(payloadHashBuffer[i])
-      }
-
-      const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
-      for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
-        bb.writeByte(generatorPublicKeyBuffer[i])
-      }
-
-      if (includeSignature) {
-        for (i = 0; i < blockSignatureBuffer.length; i++) {
-          bb.writeByte(blockSignatureBuffer[i])
-        }
-      }
-
-      bb.flip()
-      b = bb.toBuffer()
-    } catch (e) {
-      throw e
+    // TODO previousBlock can stay as 8byte hex, it will be simple to process
+    if (block.previousBlockHex) {
+      bb.append(block.previousBlockHex, 'hex')
+    } else {
+      bb.append('0000000000000000', 'hex')
     }
 
-    return b
+    bb.writeUInt32(block.numberOfTransactions)
+    bb.writeUInt64(block.totalAmount)
+    bb.writeUInt64(block.totalFee)
+    bb.writeUInt64(block.reward)
+    bb.writeUInt32(block.payloadLength)
+    bb.append(block.payloadHash, 'hex')
+    bb.append(block.generatorPublicKey, 'hex')
+    if (includeSignature) bb.append(block.blockSignature, 'hex')
+
+    bb.flip()
+    return bb.toBuffer()
   }
 }
