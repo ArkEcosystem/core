@@ -306,7 +306,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       try {
         state.rebuild = false
         await blockchainManager.db.saveBlockCommit()
-        await blockchainManager.db.buildWallets()
+        await blockchainManager.db.buildWallets(state.lastBlock.data.height)
         // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
         await blockchainManager.db.applyRound(state.lastBlock.data.height)
@@ -350,7 +350,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
-        await blockchainManager.db.buildWallets()
+        await blockchainManager.db.buildWallets(block.data.height)
         await blockchainManager.db.saveWallets(true)
         if (block.data.height === 1) {
           // remove round if it was stored in db already
