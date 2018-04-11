@@ -158,7 +158,7 @@ module.exports = class Block {
       result.errors.push('Invalid number of transactions')
     }
 
-    if (block.transactions.length > constants.block.maxTransactions) {
+    if (block.height !== 1 && block.transactions.length > constants.block.maxTransactions) {
       result.errors.push('Transactions length is too high')
     }
 
