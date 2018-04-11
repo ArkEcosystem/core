@@ -2,7 +2,7 @@ import BigInteger from 'bigi'
 
 import ECSignature from '../../src/crypto/ecsignature'
 import configManager from '../../src/managers/config'
-import network from '../../src/networks/ark/mainnet'
+import network from '../../src/networks/ark/mainnet.json'
 
 import fixtures from './fixtures/ecsignature.json'
 

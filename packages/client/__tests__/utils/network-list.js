@@ -1,7 +1,7 @@
 import fg from 'fast-glob'
 import path from 'path'
 
-const entries = fg.sync([path.resolve(__dirname, '../../src/networks/**/*.js')])
+const entries = fg.sync([path.resolve(__dirname, '../../src/networks/**/*.json')])
 
 let NETWORKS = {}
 entries.forEach(file => (NETWORKS[path.parse(file).name] = require(file)))

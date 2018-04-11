@@ -4,7 +4,7 @@ import cryptoBuilder from '../../src/builder/crypto'
 import txData from './fixtures/transaction'
 
 import configManager from '../../src/managers/config'
-import network from '../../src/networks/ark/devnet'
+import network from '../../src/networks/ark/devnet.json'
 
 const createRandomTx = type => {
   let tx
