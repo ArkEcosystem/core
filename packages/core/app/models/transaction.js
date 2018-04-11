@@ -204,9 +204,13 @@ module.exports = class Transaction {
         tx.signSignature = tx.secondSignature
       }
 
-      if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      if (tx.type === TRANSACTION_TYPES.VOTE) {
         tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
+
+      // if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      //   tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
+      // }
 
       if (tx.vendorFieldHex) {
         tx.vendorField = Buffer.from(tx.vendorFieldHex, 'hex').toString('utf8')
