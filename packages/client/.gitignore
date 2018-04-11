@@ -2,7 +2,6 @@
 logs
 *.log
 npm-debug.log*
-lerna-debug.log
 
 # Runtime data
 pids
@@ -17,9 +16,6 @@ lib-cov
 
 # nyc test coverage
 .nyc_output
-
-# vscode
-.vscode
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
