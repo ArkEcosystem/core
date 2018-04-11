@@ -1,14 +1,14 @@
-import bs58check from 'bs58check'
-import ByteBuffer from 'bytebuffer'
-import crypto from 'crypto'
-// import { Buffer } from 'buffer/'
+const bs58check = require('bs58check')
+const ByteBuffer = require('bytebuffer')
+const crypto = require('crypto')
+// const { Buffer } = require('buffer/')
 
-import configManager from '@/managers/config'
-import cryptoUtils from '@/crypto'
-import ECPair from '@/crypto/ecpair'
-import ECSignature from '@/crypto/ecsignature'
-import feeManager from '@/managers/fee'
-import { TRANSACTION_TYPES } from '@/constants'
+const configManager = require('../managers/config')
+const cryptoUtils = require('../crypto')
+const ECPair = require('../crypto/ecpair')
+const ECSignature = require('../crypto/ecsignature')
+const feeManager = require('../managers/fee')
+const { TRANSACTION_TYPES } = require('../constants')
 
 class CryptoBuilder {
   /**
@@ -368,4 +368,4 @@ class CryptoBuilder {
   }
 }
 
-export default new CryptoBuilder()
+module.exports = new CryptoBuilder()

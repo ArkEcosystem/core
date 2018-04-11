@@ -1,11 +1,11 @@
-import crypto from 'crypto'
-import bignum from 'bignum'
-import ByteBuffer from 'bytebuffer'
-import Transaction from '@/models/transaction'
-import configManager from '@/managers/config'
-import ECPair from '@/crypto/ecpair'
-import ECSignature from '@/crypto/ecsignature'
-import slots from '@/crypto/slots'
+const crypto = require('crypto')
+const bignum = require('bignum')
+const ByteBuffer = require('bytebuffer')
+const Transaction = require('./transaction')
+const configManager = require('../managers/config')
+const ECPair = require('../crypto/ecpair')
+const ECSignature = require('../crypto/ecsignature')
+const slots = require('../crypto/slots')
 
 /**
   * [description]
@@ -27,7 +27,7 @@ const applyV1Fix = data => {
   }
 }
 
-export default class Block {
+module.exports = class Block {
   /**
    * @constructor
    * @param  {[type]} data [description]

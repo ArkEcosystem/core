@@ -1,6 +1,6 @@
-import Ark from '@/'
-import network from '@/networks/ark/devnet'
-import ApiResource from '@/api/resources/v1/transactions'
+import Ark from '../../../../src'
+import network from '../../../../src/networks/ark/devnet'
+import ApiResource from '../../../../src/api/resources/v1/transactions'
 require('../../mocks/v1')
 
 let resource

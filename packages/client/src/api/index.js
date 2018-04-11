@@ -1,6 +1,6 @@
-import HttpClient from './http'
+const HttpClient = require('./http')
 
-export default class ApiClient {
+module.exports = class ApiClient {
   /**
    * @constructor
    * @param  {[type]} host [description]
@@ -45,8 +45,6 @@ export default class ApiClient {
    * @return {Resource}      [description]
    */
   resource (name) {
-    const Resource = require(`./resources/v${this.version}/${name}`).default
-
-    return new Resource(this.http)
+    return new (require(`./resources/v${this.version}/${name}`))(this.http)
   }
 }

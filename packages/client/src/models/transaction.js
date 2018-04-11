@@ -1,10 +1,10 @@
-import bs58check from 'bs58check'
-import ByteBuffer from 'bytebuffer'
-import configManager from '@/managers/config'
-import { TRANSACTION_TYPES } from '@/constants'
-import cryptoBuilder from '@/builder/crypto'
+const bs58check = require('bs58check')
+const ByteBuffer = require('bytebuffer')
+const configManager = require('../managers/config')
+const { TRANSACTION_TYPES } = require('../constants')
+const cryptoBuilder = require('../builder/crypto')
 
-export default class Transaction {
+module.exports = class Transaction {
   /**
    * @constructor
    * @param  {[type]} transaction [description]

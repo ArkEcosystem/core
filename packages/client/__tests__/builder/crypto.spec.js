@@ -1,13 +1,13 @@
 import { Buffer } from 'buffer/'
 import ecurve from 'ecurve'
 
-import ECPair from '@/crypto/ecpair'
-import ecdsa from '@/crypto/ecdsa'
-import cryptoBuilder from '@/builder/crypto'
-import configManager from '@/managers/config'
-import { TRANSACTION_TYPES, CONFIGURATIONS } from '@/constants'
+import ECPair from '../../src/crypto/ecpair'
+import ecdsa from '../../src/crypto/ecdsa'
+import cryptoBuilder from '../../src/builder/crypto'
+import configManager from '../../src/managers/config'
+import { TRANSACTION_TYPES, CONFIGURATIONS } from '../../src/constants'
 
-beforeEach(() => configManager.setFromFile(CONFIGURATIONS.ARK.DEVNET))
+beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET))
 
 describe('cryptoBuilder.js', () => {
   describe('getBytes', () => {
@@ -189,13 +189,13 @@ describe('cryptoBuilder.js', () => {
 
   describe('validate address on different networks', () => {
     it('should validate MAINNET addresses', () => {
-      configManager.setFromFile(CONFIGURATIONS.ARK.MAINNET)
+      configManager.setConfig(CONFIGURATIONS.ARK.MAINNET)
 
       expect(cryptoBuilder.validateAddress('AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX')).toBeTruthy()
     })
 
     it('should validate DEVNET addresses', () => {
-      configManager.setFromFile(CONFIGURATIONS.ARK.DEVNET)
+      configManager.setConfig(CONFIGURATIONS.ARK.DEVNET)
 
       expect(cryptoBuilder.validateAddress('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN')).toBeTruthy()
     })

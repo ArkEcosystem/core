@@ -77,8 +77,8 @@ class TransactionBuilder {
    * @return {Transaction}            [description]
    */
   __getTransaction (transactionType) {
-    return new (require(`./transactions/${transactionType}`).default)() // eslint-disable-line new-cap
+    return new (require(`./transactions/${transactionType}`))() // eslint-disable-line new-cap
   }
 }
 
-export default new TransactionBuilder()
+module.exports = new TransactionBuilder()

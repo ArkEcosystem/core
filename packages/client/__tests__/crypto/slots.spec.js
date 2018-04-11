@@ -1,6 +1,6 @@
-import configManager from '@/managers/config'
-import network from '@/networks/ark/devnet'
-import slots from '@/crypto/slots'
+import configManager from '../../src/managers/config'
+import network from '../../src/networks/ark/devnet'
+import slots from '../../src/crypto/slots'
 
 beforeEach(() => configManager.setConfig(network))
 

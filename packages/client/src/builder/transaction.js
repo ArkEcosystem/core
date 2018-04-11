@@ -1,9 +1,9 @@
-import Model from '@/models/transaction'
-import cryptoBuilder from '@/builder/crypto'
-import configManager from '@/managers/config'
-import slots from '@/crypto/slots'
+const Model = require('../models/transaction')
+const cryptoBuilder = require('./crypto')
+const configManager = require('../managers/config')
+const slots = require('../crypto/slots')
 
-export default class Transaction {
+module.exports = class Transaction {
   /**
    * @constructor
    */

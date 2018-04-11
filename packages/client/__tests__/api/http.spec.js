@@ -1,6 +1,6 @@
-import Ark from '@/'
-import network from '@/networks/ark/devnet'
-import HttpClient from '@/api/http'
+import Ark from '../../src'
+import network from '../../src/networks/ark/devnet'
+import HttpClient from '../../src/api/http'
 
 let client
 

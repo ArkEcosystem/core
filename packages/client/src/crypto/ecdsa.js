@@ -1,10 +1,10 @@
-import createHmac from 'create-hmac'
-import typeforce from 'typeforce'
-import ecurve from 'ecurve'
-import BigInteger from 'bigi'
+const createHmac = require('create-hmac')
+const typeforce = require('typeforce')
+const ecurve = require('ecurve')
+const BigInteger = require('bigi')
 
-import types from '@/crypto/types'
-import ECSignature from '@/crypto/ecsignature'
+const types = require('./types')
+const ECSignature = require('./ecsignature')
 
 const ZERO = Buffer.from([0])
 const ONE = Buffer.from([1])
@@ -184,4 +184,4 @@ class ECDSA {
   }
 }
 
-export default new ECDSA()
+module.exports = new ECDSA()

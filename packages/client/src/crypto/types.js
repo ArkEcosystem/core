@@ -1,6 +1,6 @@
 // TODO: REFACTOR THIS MADNESS
 
-import typeforce from 'typeforce'
+const typeforce = require('typeforce')
 
 /**
  * [UINT31_MAX description]
@@ -104,4 +104,4 @@ for (const typeName in typeforce) {
   types[typeName] = typeforce[typeName]
 }
 
-export default types
+module.exports = types

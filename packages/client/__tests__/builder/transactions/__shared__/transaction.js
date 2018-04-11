@@ -1,5 +1,5 @@
-import Transaction from '@/builder/transaction'
-import cryptoBuilder from '@/builder/crypto'
+import Transaction from '../../../../src/builder/transaction'
+import cryptoBuilder from '../../../../src/builder/crypto'
 
 export default () => {
   let tx

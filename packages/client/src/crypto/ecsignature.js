@@ -1,7 +1,7 @@
-import bip66 from 'bip66'
-import typeforce from 'typeforce'
-import types from '@/crypto/types'
-import BigInteger from 'bigi'
+const bip66 = require('bip66')
+const typeforce = require('typeforce')
+const types = require('./types')
+const BigInteger = require('bigi')
 
 /**
  * Creates a new ECSignature.
@@ -10,7 +10,7 @@ import BigInteger from 'bigi'
  * @param {BigInteger} r
  * @param {BigInteger} s
  */
-export default class ECSignature {
+module.exports = class ECSignature {
   /**
    * [constructor description]
    * @param  {[type]} r [description]

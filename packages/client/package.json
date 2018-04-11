@@ -2,9 +2,10 @@
   "name": "@arkecosystem/client",
   "version": "2.0.0",
   "description": "A JavaScript library to interact with the ARK Blockchain",
-  "main": "dist/index.min.js",
+  "main": "src/index.js",
   "browser": "dist/index.min.js",
   "files": [
+    "src/",
     "dist/"
   ],
   "scripts": {

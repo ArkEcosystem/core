@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Peers extends Base {
+module.exports = class Peers extends Base {
   /**
    * [all description]
    * @return {[type]} [description]

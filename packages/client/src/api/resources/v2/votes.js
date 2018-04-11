@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Votes extends Base {
+module.exports = class Votes extends Base {
   /**
    * [all description]
    * @return {[type]} [description]

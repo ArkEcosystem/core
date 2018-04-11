@@ -1,5 +1,5 @@
-import moment from 'moment'
-import configManager from '@/managers/config'
+const moment = require('moment')
+const configManager = require('../managers/config')
 
 class Slots {
   /**
@@ -92,4 +92,4 @@ class Slots {
   }
 }
 
-export default new Slots()
+module.exports = new Slots()

@@ -1,5 +1,5 @@
-import feeManager from '@/managers/fee'
-import { TRANSACTION_TYPES } from '@/constants'
+import feeManager from '../../src/managers/fee'
+import { TRANSACTION_TYPES } from '../../src/constants'
 
 describe('Fee Manager', () => {
   it('should be instantiated', () => {

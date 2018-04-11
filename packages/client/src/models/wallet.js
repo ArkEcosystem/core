@@ -1,10 +1,10 @@
-import config from '@/managers/config'
-import { ARKTOSHI, TRANSACTION_TYPES } from '@/constants'
-import ECPair from '@/crypto/ecpair'
-import ECSignature from '@/crypto/ecsignature'
-import cryptoBuilder from '@/builder/crypto'
+const config = require('../managers/config')
+const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
+const ECPair = require('../crypto/ecpair')
+const ECSignature = require('../crypto/ecsignature')
+const cryptoBuilder = require('../builder/crypto')
 
-export default class Wallet {
+module.exports = class Wallet {
   /**
    * @constructor
    * @param  {String} address [description]

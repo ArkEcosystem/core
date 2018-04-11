@@ -1,7 +1,7 @@
-import _ from 'lodash'
-import deepmerge from 'deepmerge'
-import feeManager from '@/managers/fee'
-import { TRANSACTION_TYPES, CONFIGURATIONS } from '@/constants'
+const _ = require('lodash')
+const deepmerge = require('deepmerge')
+const feeManager = require('./fee')
+const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../constants')
 
 class ConfigManager {
   /**
@@ -142,4 +142,4 @@ class ConfigManager {
   }
 }
 
-export default new ConfigManager()
+module.exports = new ConfigManager()

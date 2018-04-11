@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Delegates extends Base {
+module.exports = class Delegates extends Base {
   /**
    * [all description]
    * @param  {[type]} query [description]

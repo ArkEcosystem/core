@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Transactions extends Base {
+module.exports = class Transactions extends Base {
   /**
    * [all description]
    * @param  {[type]} query [description]

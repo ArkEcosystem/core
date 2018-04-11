@@ -1,5 +1,5 @@
 import sinon from 'sinon'
-import Block from '@/models/block'
+import Block from '../../src/models/block'
 
 describe('Models - Block', () => {
   const data = {

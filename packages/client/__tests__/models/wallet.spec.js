@@ -1,8 +1,8 @@
-import Wallet from '@/models/wallet'
+import Wallet from '../../src/models/wallet'
 import multiTx from './fixtures/multi-transaction'
 
-import configManager from '@/managers/config'
-import network from '@/networks/ark/devnet'
+import configManager from '../../src/managers/config'
+import network from '../../src/networks/ark/devnet'
 
 describe('Models - Wallet', () => {
   beforeEach(() => configManager.setConfig(network))

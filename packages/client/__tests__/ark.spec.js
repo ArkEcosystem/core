@@ -1,6 +1,6 @@
-import Ark from '@/'
-import ApiClient from '@/api'
-import network from '@/networks/ark/devnet'
+import Ark from '../src'
+import ApiClient from '../src/api'
+import network from '../src/networks/ark/devnet'
 
 let ark
 beforeEach(() => (ark = new Ark(network)))

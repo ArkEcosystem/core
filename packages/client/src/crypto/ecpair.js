@@ -1,16 +1,16 @@
-import configManager from '@/managers/config'
-import base58check from 'bs58check'
-import bcrypto from '@/crypto'
-import ECSignature from '@/crypto/ecsignature'
-import randomBytes from 'randombytes'
-import typeforce from 'typeforce'
-import types from '@/crypto/types'
-import wif from 'wif'
+const configManager = require('../managers/config')
+const base58check = require('bs58check')
+const bcrypto = require('../crypto')
+const ECSignature = require('./ecsignature')
+const randomBytes = require('randombytes')
+const typeforce = require('typeforce')
+const types = require('./types')
+const wif = require('wif')
 
-import BigInteger from 'bigi'
+const BigInteger = require('bigi')
 
-import ecurve from 'ecurve'
-import secp256k1native from 'secp256k1'
+const ecurve = require('ecurve')
+const secp256k1native = require('secp256k1')
 
 const secp256k1 = ecurve.getCurveByName('secp256k1')
 
@@ -24,7 +24,7 @@ const secp256k1 = ecurve.getCurveByName('secp256k1')
  * @param {boolean} [options.compressed=true]
  * @param {Network} [options.network=networks.mainnet]
  */
-export default class ECPair {
+module.exports = class ECPair {
   /**
    * [constructor description]
    * @param  {[type]} d       [description]

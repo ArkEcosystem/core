@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from '@/constants'
+const { TRANSACTION_TYPES } = require('../constants')
 
 class FeeManager {
   /**
@@ -42,4 +42,4 @@ class FeeManager {
   }
 }
 
-export default new FeeManager()
+module.exports = new FeeManager()

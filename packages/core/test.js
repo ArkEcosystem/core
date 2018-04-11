@@ -1,4 +1,4 @@
-const Ark = require('@arkecosystem/client').default
+const Ark = require('../client')
 
 const client = new Ark()
 client.getConfigManager().setFromPreset('ark', 'mainnet')

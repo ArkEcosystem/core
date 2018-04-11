@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Signatures extends Base {
+module.exports = class Signatures extends Base {
   /**
    * [fee description]
    * @return {[type]} [description]

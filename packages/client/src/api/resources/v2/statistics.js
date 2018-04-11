@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Statistics extends Base {
+module.exports = class Statistics extends Base {
   /**
    * [blockchain description]
    * @return {[type]} [description]

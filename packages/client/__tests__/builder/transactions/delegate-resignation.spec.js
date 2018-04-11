@@ -1,5 +1,5 @@
-import Ark from '@/'
-import network from '@/networks/ark/devnet'
+import Ark from '../../../src'
+import network from '../../../src/networks/ark/devnet'
 import transactionTests from './__shared__/transaction'
 
 let ark

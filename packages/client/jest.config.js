@@ -7,12 +7,12 @@ module.exports = {
     'js',
     'json'
   ],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  },
-  transform: {
-    '^.+\\.js$': '<rootDir>/node_modules/babel-jest'
-  },
+  // moduleNameMapper: {
+  //   '^@/(.*)$': '<rootDir>/src/$1'
+  // },
+  // transform: {
+  //   '^.+\\.js$': '<rootDir>/node_modules/babel-jest'
+  // },
   coverageDirectory: '<rootDir>/.coverage',
   collectCoverageFrom: [
     'src/**/*.js}',

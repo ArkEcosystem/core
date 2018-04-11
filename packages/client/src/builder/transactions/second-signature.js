@@ -1,8 +1,8 @@
-import feeManager from '@/managers/fee'
-import Transaction from '@/builder/transaction'
-import { TRANSACTION_TYPES } from '@/constants'
+const feeManager = require('../../managers/fee')
+const Transaction = require('../transaction')
+const { TRANSACTION_TYPES } = require('../../constants')
 
-export default class SecondSignature extends Transaction {
+module.exports = class SecondSignature extends Transaction {
   /**
    * @constructor
    * @return {[type]} [description]

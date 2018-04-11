@@ -1,4 +1,4 @@
-import constants from '@/constants'
+import constants from '../src/constants'
 
 describe('Constants', () => {
   it('arktoshi is valid', () => {
@@ -43,9 +43,9 @@ describe('Constants', () => {
     expect(constants.CONFIGURATIONS).toBeFrozen()
 
     expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeDefined()
-    expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeString()
+    expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeObject()
 
     expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeDefined()
-    expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeString()
+    expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeObject()
   })
 })

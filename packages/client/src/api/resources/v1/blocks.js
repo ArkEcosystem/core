@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Blocks extends Base {
+module.exports = class Blocks extends Base {
   /**
    * [all description]
    * @param  {[type]} query [description]

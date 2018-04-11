@@ -1,4 +1,4 @@
-import createHash from 'create-hash'
+const createHash = require('create-hash')
 
 class Crypto {
   /**
@@ -47,4 +47,4 @@ class Crypto {
   }
 }
 
-export default new Crypto()
+module.exports = new Crypto()

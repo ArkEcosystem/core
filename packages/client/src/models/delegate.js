@@ -1,15 +1,15 @@
-import bip38 from 'bip38'
-import wif from 'wif'
-import crypto from 'crypto'
-import otplib from 'otplib'
-import forge from 'node-forge'
+const bip38 = require('bip38')
+const wif = require('wif')
+const crypto = require('crypto')
+const otplib = require('otplib')
+const forge = require('node-forge')
 
-import Block from '@/models/block'
-import ECPair from '@/crypto/ecpair'
-import cryptoBuilder from '@/builder/crypto'
-import sortTransactions from '@/utils/sort-transactions'
+const Block = require('./block')
+const ECPair = require('../crypto/ecpair')
+const cryptoBuilder = require('../builder/crypto')
+const sortTransactions = require('../utils/sort-transactions')
 
-export default class Delegate {
+module.exports = class Delegate {
   /**
    * @constructor
    * @param  {String} passphrase [description]

@@ -1,10 +1,10 @@
-import ApiClient from '@/api'
-import transactionBuilder from '@/builder'
-import configManager from '@/managers/config'
-import feeManager from '@/managers/fee'
-import defaultConfig from '@/networks/ark/devnet'
+const ApiClient = require('./api')
+const transactionBuilder = require('./builder')
+const configManager = require('./managers/config')
+const feeManager = require('./managers/fee')
+const defaultConfig = require('./networks/ark/devnet')
 
-export default class Ark {
+module.exports = class Ark {
   /**
    * [constructor description]
    * @param  {[type]} config [description]

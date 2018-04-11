@@ -1,7 +1,7 @@
-import Ark from '@/'
-import network from '@/networks/ark/devnet'
-import feeManager from '@/managers/fee'
-import { TRANSACTION_TYPES } from '@/constants'
+import Ark from '../../../src'
+import network from '../../../src/networks/ark/devnet'
+import feeManager from '../../../src/managers/fee'
+import { TRANSACTION_TYPES } from '../../../src/constants'
 import transactionTests from './__shared__/transaction'
 
 let ark

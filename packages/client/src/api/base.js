@@ -1,4 +1,4 @@
-export default class Base {
+module.exports = class Base {
   /**
    * @constructor
    * @param  {[type]} http [description]

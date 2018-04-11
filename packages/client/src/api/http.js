@@ -1,7 +1,7 @@
-import configManager from '@/managers/config'
-import axios from 'axios'
+const configManager = require('../managers/config')
+const axios = require('axios')
 
-export default class HttpClient {
+module.exports = class HttpClient {
   /**
    * @constructor
    * @param  {String} host    [description]

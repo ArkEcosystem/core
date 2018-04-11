@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Node extends Base {
+module.exports = class Node extends Base {
   /**
    * [status description]
    * @return {[type]} [description]

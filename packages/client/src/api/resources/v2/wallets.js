@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Wallets extends Base {
+module.exports = class Wallets extends Base {
   /**
    * [all description]
    * @return {[type]} [description]

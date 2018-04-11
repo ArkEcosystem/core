@@ -1,6 +1,6 @@
-import Base from '@/api/base'
+const Base = require('../../base')
 
-export default class Webhooks extends Base {
+module.exports = class Webhooks extends Base {
   /**
    * [all description]
    * @return {[type]} [description]

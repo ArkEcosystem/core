@@ -3,7 +3,7 @@
  * @param  {[type]} transactions [description]
  * @return {[type]}              [description]
  */
-export default function (transactions) {
+module.exports = (transactions) => {
   // Map to create a new array (sort is done in place)
   // TODO does it matter modifying the order of the original array
   return transactions.map(t => t).sort((a, b) => {

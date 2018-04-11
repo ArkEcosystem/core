@@ -1,8 +1,8 @@
 import BigInteger from 'bigi'
 
-import ECSignature from '@/crypto/ecsignature'
-import configManager from '@/managers/config'
-import network from '@/networks/ark/mainnet'
+import ECSignature from '../../src/crypto/ecsignature'
+import configManager from '../../src/managers/config'
+import network from '../../src/networks/ark/mainnet'
 
 import fixtures from './fixtures/ecsignature.json'
 

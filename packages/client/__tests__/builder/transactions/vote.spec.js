@@ -1,6 +1,6 @@
-import Ark from '@/'
-import cryptoBuilder from '@/builder/crypto'
-import network from '@/networks/ark/devnet'
+import Ark from '../../../src'
+import cryptoBuilder from '../../../src/builder/crypto'
+import network from '../../../src/networks/ark/devnet'
 import transactionTests from './__shared__/transaction'
 
 let ark

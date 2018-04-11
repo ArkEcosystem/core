@@ -1,10 +1,10 @@
-import Transaction from '@/models/transaction'
-import builder from '@/builder'
-import cryptoBuilder from '@/builder/crypto'
+import Transaction from '../../src/models/transaction'
+import builder from '../../src/builder'
+import cryptoBuilder from '../../src/builder/crypto'
 import txData from './fixtures/transaction'
 
-import configManager from '@/managers/config'
-import network from '@/networks/ark/devnet'
+import configManager from '../../src/managers/config'
+import network from '../../src/networks/ark/devnet'
 
 const createRandomTx = type => {
   let tx
