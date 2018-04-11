@@ -10,7 +10,7 @@ const applyV1Fix = (data) => {
   data.totalAmount = parseInt(data.totalAmount)
   data.totalFee = parseInt(data.totalFee)
   data.reward = parseInt(data.reward)
-  data.previousBlockHex = new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex')
+  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000'
   data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex')
   // END Fix for v1 api
 
@@ -158,7 +158,7 @@ module.exports = class Block {
       }
 
       if (block.transactions.length > constants.block.maxTransactions) {
-        result.errors.push('Transactions length is too high')
+        if (block.height > 1) result.errors.push('Transactions length is too high')
       }
 
       // Checking if transactions of the block adds up to block values.
