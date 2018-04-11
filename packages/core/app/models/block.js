@@ -24,16 +24,35 @@ module.exports = class Block {
   constructor (data) {
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
+    // fix on issue of non homogeneus transaction type 1 payloads
+    data.transactions.forEach((tx, i) => {
+      const thistx = this.data.transactions[i]
+      if (thistx.type === 1 && thistx.version === 1 && tx.recipientId) {
+        thistx.recipientId = arkjs.crypto.getAddress(thistx.senderPublicKey, thistx.network)
+        thistx.id = arkjs.crypto.getId(thistx)
+      }
+    })
+
     this.data.id = Block.getId(this.data)
 
+    // fix on real timestamp
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
       txx.blockId = data.id
       txx.timestamp = data.timestamp
       return txx
     })
-    this.genesis = data.height === 1
+    if (data.height === 1) {
+      this.genesis = true
+      // TODO genesis block calculated id is wrong for some reason
+      this.data.id = data.id
+    }
     this.verification = this.verify()
+    if (!this.verification.verified) {
+      console.log(data)
+      console.log(this.data)
+      console.log(this.verification)
+    }
   }
 
   static create (data, keys) {

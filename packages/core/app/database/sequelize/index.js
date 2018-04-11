@@ -167,8 +167,9 @@ module.exports = class SequelizeDB extends DBInterface {
     return data
   }
 
-  async buildWallets () {
+  async buildWallets (height) {
     this.walletManager.reset()
+    const maxDelegates = config.getConstants(height).activeDelegates
 
     try {
       // Received TX
@@ -199,8 +200,8 @@ module.exports = class SequelizeDB extends DBInterface {
         wallet.balance += parseInt(row.reward)
       })
 
-      // Last block forged for each delegate
-      data = await this.db.query('select "generatorPublicKey", max("timestamp") as timestamp from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
+      // Last block forged for each active delegate
+      data = await this.db.query(`select  id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
@@ -298,27 +299,29 @@ module.exports = class SequelizeDB extends DBInterface {
     }
   }
 
-  // must be called before builddelegates for  new round
+  // must be called before saving new round of delegates
   async updateDelegateStats (block, delegates) {
     if (!delegates) {
       return
     }
 
     logger.debug('Calculating delegate statistics')
-
     try {
-      const activeDelegates = config.getConstants(block.data.height).activeDelegates
-      let lastBlockGenerators = await this.db.query(`SELECT id, "generatorPublicKey" FROM blocks WHERE height/${activeDelegates} = ${delegates[0].round}`, {type: Sequelize.QueryTypes.SELECT})
+      const maxDelegates = config.getConstants(block.data.height).activeDelegates
+      let lastBlockGenerators = await this.db.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
+      console.log(lastBlockGenerators)
 
       delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
-        const wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
-
+        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
         if (idx === -1) {
           wallet.missedBlocks++
+
           webhookManager.getInstance().emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
+          wallet.lastBlock = lastBlockGenerators[idx]
+
           webhookManager.getInstance().emit('block.forged', block)
         }
       })
