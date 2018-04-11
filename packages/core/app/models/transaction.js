@@ -1,6 +1,7 @@
 const arkjs = require('arkjs')
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
+const crypto = require('crypto')
 const config = require('../core/config')
 const { TRANSACTION_TYPES } = require('../core/constants')
 
@@ -67,7 +68,7 @@ module.exports = class Transaction {
         bb.append(voteBytes, 'hex')
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join(''), 'hex')
+        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -100,7 +101,10 @@ module.exports = class Transaction {
     if (transaction.signature) bb.append(transaction.signature, 'hex')
     if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')
     else if (transaction.signSignature) bb.append(transaction.signSignature, 'hex')
-    if (transaction.signatures) bb.append(transaction.signatures.join(''), 'hex')
+    if (transaction.signatures) {
+      bb.append('ff', 'hex')
+      bb.append(transaction.signatures.join(''), 'hex')
+    }
     bb.flip()
     return bb.toBuffer()
   }
@@ -200,7 +204,7 @@ module.exports = class Transaction {
         tx.signSignature = tx.secondSignature
       }
 
-      if (!tx.recipientId && tx.type === TRANSACTION_TYPES.VOTE) {
+      if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
         tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
 
@@ -208,14 +212,15 @@ module.exports = class Transaction {
         tx.vendorField = Buffer.from(tx.vendorFieldHex, 'hex').toString('utf8')
       }
 
-      if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map((k) => '+' + k)
-        tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
-      }
+      // if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      //   tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
+      // }
 
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)
       }
+    } else if (tx.version === 2) {
+      tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex');
     }
     return tx
   }
@@ -236,20 +241,23 @@ module.exports = class Transaction {
       if (tx.secondSignature.length === 0) {
         delete tx.secondSignature
       } else {
-        const length2 = parseInt('0x' + tx.secondSignature.substring(2, 4), 16) + 2
-        tx.secondSignature = tx.secondSignature.substring(0, length2 * 2)
-        multioffset += length2 * 2
-      }
-
-      if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        let signatures = hexString.substring(startOffset + multioffset)
-        tx.signatures = []
-
-        for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
-          const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
-          tx.signatures.push(signatures.substring(0, mlength * 2))
-          signatures = signatures.substring(mlength * 2)
+        if (tx.secondSignature.slice(0, 2) === 'ff') { // start of multisign
+          delete tx.secondSignature
+        } else {
+          const length2 = parseInt('0x' + tx.secondSignature.substring(2, 4), 16) + 2
+          tx.secondSignature = tx.secondSignature.substring(0, length2 * 2)
+          multioffset += length2 * 2
         }
+      }
+      let signatures = hexString.substring(startOffset + multioffset)
+      if (!signatures.length) return
+      if (signatures.slice(0, 2) !== 'ff') return
+      signatures = signatures.slice(2)
+      tx.signatures = []
+      for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
+        const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
+        if (mlength > 0) tx.signatures.push(signatures.substring(0, mlength * 2))
+        signatures = signatures.substring(mlength * 2)
       }
     }
   }
