@@ -11,6 +11,8 @@
   "author": "Brian Faust",
   "license": "MIT",
   "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "expand-home-dir": "^0.0.3",
     "fast-glob": "^2.2.0",
     "sequelize": "^4.37.6",
     "umzug": "^2.1.0"

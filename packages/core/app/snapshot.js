@@ -7,6 +7,7 @@ const DB = require('./core/dbinterface')
 const DependencyHandler = require('./core/dependency-handler')
 const config = require('./core/config')
 const logger = require('./core/logger')
+const expandHomeDir = require('expand-home-dir')
 
 commander
   .version(packageJson.version)
@@ -34,7 +35,7 @@ const start = async () => {
 
     await DependencyHandler.checkDatabaseLibraries(config)
     const db = await DB.create(config.server.database)
-    db.snapshot(`${__dirname}/storage/snapshot`)
+    db.snapshot(expandHomeDir("~/.ark/snapshots"))
 
     logger.info('Snapshot saved')
   } catch (error) {

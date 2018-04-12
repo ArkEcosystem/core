@@ -9,12 +9,17 @@ const DBInterface = require('../../core/app/core/dbinterface')
 const webhookManager = require('../../core/app/core/managers/webhook')
 const fg = require('fast-glob')
 const path = require('path')
-const { TRANSACTION_TYPES } = require('../../client/src/constants')
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const expandHomeDir = require('expand-home-dir')
 
 class SequelizeDB extends DBInterface {
   async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
+    }
+
+    if (config.options.dialect === 'sqlite') {
+        config.options.uri = 'sqlite:' + expandHomeDir(config.options.uri.substring(7))
     }
 
     this.db = new Sequelize(config.options.uri, {

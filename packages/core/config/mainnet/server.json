@@ -15,7 +15,7 @@
   "database": {
     "driver": "@arkecosystem/core-db-sequelize",
     "options": {
-      "uri": "sqlite:storage/database/mainnet.sqlite",
+      "uri": "sqlite:~/.ark/database/mainnet.sqlite",
       "dialect": "sqlite",
       "logging": false
     }

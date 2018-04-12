@@ -15,7 +15,7 @@
   "database": {
     "driver": "@arkecosystem/core-db-sequelize",
     "options": {
-      "uri": "sqlite:storage/database/testnet.sqlite",
+      "uri": "sqlite:~/.ark/database/testnet.sqlite",
       "uri1": "postgres://node:password@localhost:5432/ark_testnet",
       "dialect": "sqlite",
       "dialect1": "postgres",
