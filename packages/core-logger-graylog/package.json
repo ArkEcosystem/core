@@ -1,0 +1,23 @@
+{
+  "name": "@arkecosystem/core-logger-graylog",
+  "version": "1.0.0",
+  "description": "Graylog Logger for ARK Core",
+  "main": "src/index.js",
+  "keywords": ["ark", "blockchain", "cryptocurrency"],
+  "author": "Brian Faust",
+  "license": "MIT",
+  "dependencies": {
+    "graylog2": "^0.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.3.0",
+    "jest-extended": "^0.6.0",
+    "standard": "^10.0.3"
+  }
+}

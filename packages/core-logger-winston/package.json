@@ -1,0 +1,31 @@
+{
+  "name": "@arkecosystem/core-logger-winston",
+  "version": "1.0.0",
+  "description": "Winston Logger for ARK Core",
+  "main": "src/index.js",
+  "keywords": [
+    "ark",
+    "blockchain",
+    "cryptocurrency"
+  ],
+  "author": "Brian Faust",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "colors": "^1.2.1",
+    "moment": "^2.22.0",
+    "winston": "^2.4.1",
+    "winston-daily-rotate-file": "^3.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.3.0",
+    "jest-extended": "^0.6.0",
+    "standard": "^10.0.3"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@arkecosystem/core-commander",
+  "version": "1.0.0",
+  "description": "Commander for ARK Core",
+  "main": "src/index.js",
+  "keywords": [
+    "ark",
+    "blockchain",
+    "cryptocurrency"
+  ],
+  "author": "Brian Faust",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "clear": "^0.1.0",
+    "figlet": "^1.2.0",
+    "fs": "^0.0.1-security",
+    "os": "^0.1.1",
+    "pm2": "^2.10.2",
+    "prompts": "^0.1.8",
+    "sequelize": "^4.37.6",
+    "sleep": "^5.1.1",
+    "tail": "^1.2.3",
+    "umzug": "^2.1.0",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.3.0",
+    "jest-extended": "^0.6.0",
+    "standard": "^10.0.3"
+  }
+}
