@@ -1,5 +1,9 @@
 # ARK Core
 
+This repository is composed by 2 projects:
+ - [Core](https://github.com/fix/ark-core/tree/master/packages/core)
+ - [Client](https://github.com/fix/ark-core/tree/master/packages/client) (A.K.A `ark-js`)
+
 ## Development
 
 #### Setup
