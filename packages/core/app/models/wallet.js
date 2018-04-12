@@ -1,6 +1,6 @@
 const arkjs = require('arkjs')
 const config = require('../core/config')
-const { ARKTOSHI, TRANSACTION_TYPES } = require('../../../client/src/constants')
+const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class Wallet {
   constructor (address) {

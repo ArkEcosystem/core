@@ -1,7 +1,7 @@
 const prompts = require('prompts')
 const questions = require('./questions')
 const { onCancel, readConfig, writeConfig } = require('../../utils')
-const Delegate = require('../../../../core/app/models/delegate')
+const { Delegate } = require('@arkecosystem/client').models
 const { encrypt } = require('../../../../core/app/utils/forger-crypto')
 
 module.exports = async () => {

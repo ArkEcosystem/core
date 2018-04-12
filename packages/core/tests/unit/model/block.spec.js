@@ -1,6 +1,6 @@
 const sinon = require('sinon')
 
-const Block = require('../../../app/models/block')
+const { Block } = require('@arkecosystem/client').models
 
 describe('Model | Block', () => {
   const data = {

@@ -1,4 +1,4 @@
-const Wallet = require('../../../app/models/wallet')
+const { Wallet } = require('@arkecosystem/client').models
 const sortTransactions = require('../../../app/utils/sort-transactions')
 
 describe('Model | Delegate', () => {

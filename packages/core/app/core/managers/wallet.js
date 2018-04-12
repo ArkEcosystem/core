@@ -3,7 +3,7 @@ const config = require('../config')
 const logger = require('../logger')
 const arkjs = require('arkjs')
 const Promise = require('bluebird')
-const { TRANSACTION_TYPES } = require('../../../../client/src/constants')
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class WalletManager {
   constructor () {

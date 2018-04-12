@@ -1,8 +1,7 @@
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
 const Umzug = require('umzug')
-const Block = require('../../core/app/models/block')
-const Transaction = require('../../core/app/models/transaction')
+const { Block, Transaction } = require('@arkecosystem/client').models
 const config = require('../../core/app/core/config')
 const logger = require('../../core/app/core/logger')
 const DBInterface = require('../../core/app/core/dbinterface')

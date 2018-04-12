@@ -1,4 +1,4 @@
-const Transaction = require('../../../app/models/transaction')
+const { Transaction } = require('@arkecosystem/client').models
 const arkjs = require('arkjs')
 
 const txdata = {

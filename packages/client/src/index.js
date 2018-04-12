@@ -3,10 +3,12 @@ module.exports = {
   client: require('./client'),
 
   // Models...
-  BlockModel: require('./models/block'),
-  DelegateModel: require('./models/delegate'),
-  TransactionModel: require('./models/transaction'),
-  WalletModel: require('./models/wallet'),
+  models: {
+    Block: require('./models/block'),
+    Delegate: require('./models/delegate'),
+    Transaction: require('./models/transaction'),
+    Wallet: require('./models/wallet'),
+  },
 
   // Crypto...
   transactionBuilder: require('./builder'),

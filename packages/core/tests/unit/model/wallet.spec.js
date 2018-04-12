@@ -1,4 +1,4 @@
-const Wallet = require('../../../app/models/wallet')
+const { Wallet } = require('@arkecosystem/client').models
 
 const testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
 const data = {

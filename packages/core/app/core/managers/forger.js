@@ -2,7 +2,7 @@ const popsicle = require('popsicle')
 const arkjs = require('arkjs')
 const Delegate = require('../../models/delegate')
 const logger = require('../logger')
-const sleep = require('../../utils/sleep')
+const { msleep } = require('sleep')
 const Transaction = require('../../models/transaction')
 
 module.exports = class ForgerManager {
@@ -46,14 +46,14 @@ module.exports = class ForgerManager {
         round = await this.getRound()
         if (!round.canForge) {
           // logger.debug('Block already forged in current slot')
-          await sleep(100) // basically looping until we lock at beginning of next slot
+          await msleep(100) // basically looping until we lock at beginning of next slot
           return monitor()
         }
 
         const delegate = await this.pickForgingDelegate(round)
         if (!delegate) {
           // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-          await sleep(7900) // we will check at next slot
+          await msleep(7900) // we will check at next slot
           return monitor()
         }
 

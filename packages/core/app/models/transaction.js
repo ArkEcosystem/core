@@ -3,7 +3,7 @@ const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const config = require('../core/config')
-const { TRANSACTION_TYPES } = require('../../../client/src/constants')
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class Transaction {
   constructor (transaction) {
