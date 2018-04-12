@@ -35,7 +35,7 @@ const start = async () => {
 
     await DependencyHandler.checkDatabaseLibraries(config)
     const db = await DB.create(config.server.database)
-    db.snapshot(expandHomeDir("~/.ark/snapshots"))
+    db.snapshot(expandHomeDir(config.server.database.snapshots))
 
     logger.info('Snapshot saved')
   } catch (error) {

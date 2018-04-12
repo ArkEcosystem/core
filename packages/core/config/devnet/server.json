@@ -20,7 +20,8 @@
       "dialect": "sqlite",
       "dialect_1": "postgres",
       "logging": false
-    }
+    },
+    "snapshots": "~/.ark/snapshots"
   },
   "redis": {
     "host": "localhost",
