@@ -24,8 +24,6 @@
     "ark:snapshot:testnet": "bin/snapshot.js -c config/testnet"
   },
   "scripts": {
-    "commander": "node commander/index.js",
-    "deployer": "node deployer/index.js",
     "relay:mainnet": "node bin/start-relay.js -c config/mainnet",
     "relay:mainnet:watch": "nodemon bin/start-relay.js -c config/mainnet",
     "relay:devnet": "node bin/start-relay.js -c config/devnet",
@@ -52,8 +50,7 @@
     "test:unit:watch": "jest --no-cache --watch --projects tests/unit",
     "test:webhooks": "jest --no-cache --forceExit --projects tests/webhooks",
     "test:webhooks:watch": "jest --no-cache --watch --projects tests/webhooks",
-    "lint": "eslint ./ --fix",
-    "db": "node_modules/.bin/sequelize"
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
