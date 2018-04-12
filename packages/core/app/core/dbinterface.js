@@ -14,24 +14,24 @@ class DBInterface {
   }
 
   static async create (config) {
-    const db = new (require(config.driver))()
+    const driver = require(config.driver)
+
+    const db = driver.provider
     db.walletManager = new WalletManager()
 
     await db.init(config)
     instance = db
-    this.registerRepositories(config.driver)
+    this.registerRepositories(driver)
 
     return instance
   }
 
   static registerRepositories (driver) {
-    let directory = path.resolve(driver, 'repositories')
+    const repositories = driver.repositories()
 
-    fs.readdirSync(directory).forEach(file => {
-      if (file.indexOf('.js') !== -1) {
-        instance[file.slice(0, -3)] = new (require(directory + '/' + file))(instance)
-      }
-    })
+    for (const [key, value] of Object.entries(repositories)) {
+      instance[key] = new value(instance)
+    }
 
     // this is a special case repository and will be forced to be read from memory...
     instance['wallets'] = new (require('../database/repositories/wallets'))(instance)

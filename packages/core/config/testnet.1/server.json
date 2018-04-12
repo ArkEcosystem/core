@@ -5,8 +5,11 @@
   "logging": {
     "driver": "@arkecosystem/core-logger-winston",
     "options": {
-      "file": "debug",
-      "console": "debug"
+      "file": "~/.ark/logs/core/testnet",
+      "levels": {
+        "file": "debug",
+        "console": "debug"
+      }
     }
   },
   "database": {

@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('../../../../../../client/src/constants')
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schema/votes')

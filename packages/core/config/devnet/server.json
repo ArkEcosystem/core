@@ -1,12 +1,16 @@
 {
+  "test": true,
   "port": 4002,
   "version": "2.0.0",
   "fastRebuild": true,
   "logging": {
     "driver": "@arkecosystem/core-logger-winston",
     "options": {
-      "file": "debug",
-      "console": "debug"
+      "file": "~/.ark/logs/core/devnet",
+      "levels": {
+        "file": "debug",
+        "console": "debug"
+      }
     }
   },
   "database": {
@@ -27,7 +31,7 @@
     "enabled": false,
     "key": "ark/pool",
     "maxTransactionsPerSender": 5,
-    "whiteList" : []
+    "whiteList": []
   },
   "peers": {
     "minimumNetworkReach": 3,

@@ -1,24 +1,25 @@
+const path = require('path')
+const expandHomeDir = require('expand-home-dir')
 const winston = require('winston')
 const formatter = require('./formatter')
 require('winston-daily-rotate-file')
 require('colors')
 
-module.exports = class Logger {
+class Logger {
   init (config, network) {
     this.winston = new (winston.Logger)()
 
-    // `${__dirname}/../../../storage/logs/ark-node-${network}`
     this.winston.add(winston.transports.DailyRotateFile, {
-      filename: config.dailyRotateFile,
-      datePattern: '.yyyy-MM-dd.log',
-      level: config.options.file,
+      filename: expandHomeDir(config.options.file) + '.%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      level: config.options.levels.file,
       zippedArchive: true,
       formatter: (info) => formatter(info)
     })
 
     this.winston.add(winston.transports.Console, {
       colorize: true,
-      level: config.options.console,
+      level: config.options.levels.console,
       timestamp: () => Date.now(),
       formatter: (info) => formatter(info)
     })
@@ -76,3 +77,5 @@ module.exports = class Logger {
     this.tracker = null
   }
 }
+
+module.exports = new Logger()

@@ -85,7 +85,7 @@ exports.search = {
 exports.types = {
   handler: async (request, h) => {
     return {
-      data: require('../../../../../../client/src/constants').TRANSACTION_TYPES
+      data: require('@arkecosystem/client').constants.TRANSACTION_TYPES
     }
   }
 }

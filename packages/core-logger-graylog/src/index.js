@@ -1,6 +1,6 @@
 const graylog2 = require('graylog2')
 
-module.exports = class Logger {
+class Logger {
   init (config, network) {
     this.graylog = new graylog2.graylog(config.options) // eslint-disable-line new-cap
   }
@@ -24,3 +24,5 @@ module.exports = class Logger {
   printTracker (title, current, max, posttitle, figures = 0) {}
   stopTracker (title, current, max) {}
 }
+
+module.exports = new Logger()

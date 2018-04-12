@@ -1,7 +1,7 @@
 {
-  "name": "@arkecosystem/core-logger-winston",
+  "name": "@arkecosystem/core-deployer",
   "version": "1.0.0",
-  "description": "Winston Logger for ARK Core",
+  "description": "Sequelize ORM for ARK Core",
   "main": "src/index.js",
   "keywords": [
     "ark",
@@ -11,12 +11,9 @@
   "author": "Brian Faust",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.3.2",
-    "colors": "^1.2.1",
-    "expand-home-dir": "^0.0.3",
-    "moment": "^2.22.0",
-    "winston": "^2.4.1",
-    "winston-daily-rotate-file": "^3.0.2"
+    "assert-plus": "^1.0.0",
+    "commander": "^2.15.1",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
