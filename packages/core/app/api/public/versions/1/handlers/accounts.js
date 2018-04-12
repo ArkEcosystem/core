@@ -1,4 +1,4 @@
-const arkjs = require('arkjs')
+const { crypto } = require('@arkecosystem/client')
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('../../../../../core/config')
@@ -97,7 +97,7 @@ exports.delegates = {
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 
-    account = await db.wallets.findById(arkjs.crypto.getAddress(account.vote, config.network.pubKeyHash))
+    account = await db.wallets.findById(crypto.getAddress(account.vote, config.network.pubKeyHash))
 
     return utils.respondWith({
       delegates: [{

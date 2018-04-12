@@ -46,7 +46,6 @@
     "@arkecosystem/core-logger-winston": "^1.0.0",
     "ajv": "^5.5.2",
     "argon2": "^0.17.2",
-    "arkjs": "github:arkecosystem/ark-js#master",
     "assert-plus": "^1.0.0",
     "async": "^2.6.0",
     "axios": "^0.17.1",

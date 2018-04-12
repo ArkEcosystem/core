@@ -12,9 +12,9 @@ module.exports = {
 
   // Crypto...
   transactionBuilder: require('./builder'),
+  crypto: require('./builder/crypto'),
 
   // Crypto...
-  crypto: require('./crypto'),
   ecdsa: require('./crypto/ECDSA'),
   ECPair: require('./crypto/ecpair'),
   ECSignature: require('./crypto/ecsignature'),

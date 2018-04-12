@@ -1,7 +1,7 @@
 const Redis = require('ioredis')
 const logger = require('../logger')
-const Transaction = require('../../models/transaction')
-const arkjs = require('arkjs')
+const { Transaction } = require('@arkecosystem/client').models
+const { slots } = require('@arkecosystem/client')
 const blockchain = require('./blockchain')
 
 let instance = null
@@ -108,7 +108,7 @@ module.exports = class TransactionPoolManager {
           if (transaction[2]) { // timelock is defined
             const actions = {
               0: () => { // timestamp lock defined
-                if (parseInt(transaction[2]) <= arkjs.slots.getTime()) {
+                if (parseInt(transaction[2]) <= slots.getTime()) {
                   logger.debug(`Timelock for ${id} released timestamp=${transaction[2]}`)
                   retList.push(transaction[0])
                 }

@@ -1,6 +1,6 @@
 const logger = require('./logger')
-const Transaction = require('../models/transaction')
-const arkjs = require('arkjs')
+const { Transaction } = require('@arkecosystem/client').models
+const { crypto, slots } = require('@arkecosystem/client')
 const async = require('async')
 const BlockchainManager = require('./managers/blockchain')
 const TransactionPoolManager = require('./managers/transaction-pool')
@@ -47,7 +47,7 @@ module.exports = class TransactionHandler {
 
       // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
       if (this.config.server.test) {
-        const current = arkjs.slots.getTime()
+        const current = slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
         if (Math.round(Math.random() * Math.floor(1)) === 0) {
@@ -64,7 +64,7 @@ module.exports = class TransactionHandler {
 
   verify (transaction) {
     const wallet = this.db.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-    if (arkjs.crypto.verify(transaction) && wallet.canApply(transaction)) {
+    if (crypto.verify(transaction) && wallet.canApply(transaction)) {
       this.db.walletManager.applyTransaction(transaction)
       return true
     }

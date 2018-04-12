@@ -1,6 +1,6 @@
 const async = require('async')
-const arkjs = require('arkjs')
-const Block = require('../../models/block')
+const { slots } = require('@arkecosystem/client')
+const { Block } = require('@arkecosystem/client').models
 const logger = require('../logger')
 const stateMachine = require('../state-machine')
 const { sleep } = require('sleep')
@@ -185,7 +185,7 @@ module.exports = class BlockchainManager {
       await this.db.saveBlock(block)
       state.lastBlock = block
       // broadcast only recent blocks
-      if (arkjs.slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
+      if (slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
       this.transactionHandler.removeForgedTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
@@ -219,13 +219,13 @@ module.exports = class BlockchainManager {
 
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
-    return arkjs.slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
+    return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
   isBuildSynced (block) {
     block = block || stateMachine.state.lastBlock.data
-    logger.info(arkjs.slots.getTime() - block.timestamp)
-    return arkjs.slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
+    logger.info(slots.getTime() - block.timestamp)
+    return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
   attachNetworkInterface (networkInterface) {

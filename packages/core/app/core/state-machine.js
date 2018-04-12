@@ -1,7 +1,7 @@
 const Machine = require('xstate').Machine
-const arkjs = require('arkjs')
 const logger = require('./logger')
-const Block = require('../models/block')
+const { slots } = require('@arkecosystem/client')
+const { Block } = require('@arkecosystem/client').models
 const sleep = require('sleep')
 const human = require('interval-to-human')
 const config = require('./config')
@@ -16,13 +16,13 @@ const tickSyncTracker = (block) => {
       startdate: new Date().getTime()
     }
   }
-  const remainingtime = (arkjs.slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
+  const remainingtime = (slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
   const title = 'Fast Synchronisation'
-  if (block.data.timestamp - arkjs.slots.getTime() < 8) {
-    logger.printTracker(title, block.data.timestamp, arkjs.slots.getTime(), human(remainingtime), 3)
+  if (block.data.timestamp - slots.getTime() < 8) {
+    logger.printTracker(title, block.data.timestamp, slots.getTime(), human(remainingtime), 3)
   } else {
     synctracker = null
-    logger.stopTracker(title, arkjs.slots.getTime(), arkjs.slots.getTime())
+    logger.stopTracker(title, slots.getTime(), slots.getTime())
   }
 }
 
@@ -344,9 +344,9 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.lastBlock = block
         state.lastDownloadedBlock = block
         const constants = blockchainManager.config.getConstants(block.data.height)
-        state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
+        state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last round
-        state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')

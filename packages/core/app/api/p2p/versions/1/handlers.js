@@ -1,7 +1,7 @@
-const arkjs = require('arkjs')
+const { slots } = require('@arkecosystem/client')
 const logger = require('../../../../core/logger')
 const blockchain = require('../../../../core/managers/blockchain')
-const Transaction = require('../../../../models/transaction')
+const { Transaction } = require('@arkecosystem/client').models
 
 exports.getPeers = {
   handler: async (request, h) => {
@@ -78,8 +78,8 @@ exports.getStatus = {
       return {
         success: true,
         height: lastBlock.height,
-        forgingAllowed: arkjs.slots.getSlotNumber() === arkjs.slots.getSlotNumber(arkjs.slots.getTime() + arkjs.slots.interval / 2),
-        currentSlot: arkjs.slots.getSlotNumber(),
+        forgingAllowed: slots.getSlotNumber() === slots.getSlotNumber(slots.getTime() + slots.interval / 2),
+        currentSlot: slots.getSlotNumber(),
         header: lastBlock.getHeader()
       }
     }

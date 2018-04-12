@@ -1,4 +1,4 @@
-const arkjs = require('arkjs')
+const { crypto, slots } = require('@arkecosystem/client')
 const WalletManager = require('./managers/wallet')
 const config = require('./config')
 const logger = require('./logger')
@@ -120,7 +120,7 @@ class DBInterface {
 
   async validateDelegate (block) {
     const delegates = await this.getActiveDelegates(block.data.height)
-    const slot = arkjs.slots.getSlotNumber(block.data.timestamp)
+    const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
     if (!forgingDelegate) {
@@ -149,7 +149,7 @@ class DBInterface {
   }
 
   verifyTransaction (transaction) {
-    const senderId = arkjs.crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+    const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
     let sender = this.walletManager.getWalletByAddress[senderId] // should exist
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey

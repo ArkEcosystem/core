@@ -1,5 +1,6 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
+const crypto = require('crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
 const cryptoBuilder = require('../builder/crypto')
@@ -89,7 +90,7 @@ module.exports = class Transaction {
         bb.append(voteBytes, 'hex')
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join(''), 'hex')
+        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -122,7 +123,10 @@ module.exports = class Transaction {
     if (transaction.signature) bb.append(transaction.signature, 'hex')
     if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')
     else if (transaction.signSignature) bb.append(transaction.signSignature, 'hex')
-    if (transaction.signatures) bb.append(transaction.signatures.join(''), 'hex')
+    if (transaction.signatures) {
+      bb.append('ff', 'hex')
+      bb.append(transaction.signatures.join(''), 'hex')
+    }
     bb.flip()
     return bb.toBuffer()
   }
@@ -245,23 +249,29 @@ module.exports = class Transaction {
         transaction.signSignature = transaction.secondSignature
       }
 
-      if (!transaction.recipientId && transaction.type === TRANSACTION_TYPES.VOTE) {
+      if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
       }
+
+      // if (transaction.type === TRANSACTION_TYPES.VOTE || transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      //   transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
+      // }
 
       if (transaction.vendorFieldHex) {
         transaction.vendorField = Buffer.from(transaction.vendorFieldHex, 'hex').toString('utf8')
       }
 
-      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map((k) => '+' + k)
-        transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
-      }
+      // if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      //   transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
+      // }
 
       if (!transaction.id) {
-        transaction.id = cryptoBuilder.getId(transaction)
+        transaction.id = cryptoBuilder.getId(tx)
       }
+    } else if (transaction.version === 2) {
+      transaction.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex');
     }
+
     return transaction
   }
 
@@ -289,20 +299,23 @@ module.exports = class Transaction {
       if (transaction.secondSignature.length === 0) {
         delete transaction.secondSignature
       } else {
-        const length2 = parseInt('0x' + transaction.secondSignature.substring(2, 4), 16) + 2
-        transaction.secondSignature = transaction.secondSignature.substring(0, length2 * 2)
-        multioffset += length2 * 2
-      }
-
-      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        let signatures = hexString.substring(startOffset + multioffset)
-        transaction.signatures = []
-
-        for (let i = 0; i < transaction.asset.multisignature.keysgroup.length; i++) {
-          const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
-          transaction.signatures.push(signatures.substring(0, mlength * 2))
-          signatures = signatures.substring(mlength * 2)
+        if (transaction.secondSignature.slice(0, 2) === 'ff') { // start of multisign
+          delete transaction.secondSignature
+        } else {
+          const length2 = parseInt('0x' + transaction.secondSignature.substring(2, 4), 16) + 2
+          transaction.secondSignature = transaction.secondSignature.substring(0, length2 * 2)
+          multioffset += length2 * 2
         }
+      }
+      let signatures = hexString.substring(startOffset + multioffset)
+      if (!signatures.length) return
+      if (signatures.slice(0, 2) !== 'ff') return
+      signatures = signatures.slice(2)
+      transaction.signatures = []
+      for (let i = 0; i < transaction.asset.multisignature.keysgroup.length; i++) {
+        const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
+        if (mlength > 0) transaction.signatures.push(signatures.substring(0, mlength * 2))
+        signatures = signatures.substring(mlength * 2)
       }
     }
   }

@@ -1,9 +1,8 @@
 const popsicle = require('popsicle')
-const arkjs = require('arkjs')
-const Delegate = require('../../models/delegate')
+const { slots } = require('@arkecosystem/client')
+const { Delegate, Transaction } = require('@arkecosystem/client').models
 const logger = require('../logger')
 const { msleep } = require('sleep')
-const Transaction = require('../../models/transaction')
 
 module.exports = class ForgerManager {
   constructor (config) {
@@ -80,8 +79,8 @@ module.exports = class ForgerManager {
     }
 
     // TODO: assuming that blockTime = 8s
-    const slot = arkjs.slots.getSlotNumber()
-    while (arkjs.slots.getSlotNumber() === slot) {
+    const slot = slots.getSlotNumber()
+    while (slots.getSlotNumber() === slot) {
       await sleep(100)
     }
 

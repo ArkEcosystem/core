@@ -1,7 +1,7 @@
-const Wallet = require('../../models/wallet')
+const { Wallet } = require('@arkecosystem/client').models
 const config = require('../config')
 const logger = require('../logger')
-const arkjs = require('arkjs')
+const { crypto } = require('@arkecosystem/client')
 const Promise = require('bluebird')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
@@ -25,7 +25,7 @@ module.exports = class WalletManager {
   async applyBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
     if (!delegate) {
-      const generator = arkjs.crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+      const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
       if (block.data.height === 1) {
         delegate = new Wallet(generator)
         delegate.publicKey = block.data.generatorPublicKey
@@ -79,7 +79,7 @@ module.exports = class WalletManager {
     const datatx = transaction.data
     let sender = this.walletsByPublicKey[datatx.senderPublicKey]
     if (!sender) {
-      const senderId = arkjs.crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
+      const senderId = crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
       sender = this.walletsByAddress[senderId] // should exist
       if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
       this.walletsByPublicKey[datatx.senderPublicKey] = sender
@@ -114,7 +114,7 @@ module.exports = class WalletManager {
     if (datatx.type === TRANSACTION_TYPES.TRANSFER) recipient.applyTransactionToRecipient(datatx)
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
-    //   const delegateAdress = arkjs.crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
+    //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
     //   const delegate = this.localwallets[delegateAdress]
     //   delegate.applyVote(sender, transaction.data.asset.votes[0])
     // }
@@ -137,7 +137,7 @@ module.exports = class WalletManager {
     let wallet = this.walletsByAddress[address]
     if (wallet) return wallet
     else {
-      if (!arkjs.crypto.validateAddress(address, config.network.pubKeyHash)) {
+      if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
         return null
       }
       wallet = new Wallet(address)
@@ -150,7 +150,7 @@ module.exports = class WalletManager {
     let wallet = this.walletsByPublicKey[publicKey]
     if (wallet) return wallet
     else {
-      const address = arkjs.crypto.getAddress(publicKey, config.network.pubKeyHash)
+      const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
       wallet = this.getWalletByAddress(address)
       wallet.publicKey = publicKey
       this.walletsByPublicKey[publicKey] = wallet

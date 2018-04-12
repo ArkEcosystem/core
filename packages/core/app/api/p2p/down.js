@@ -1,6 +1,6 @@
 const Peer = require('./peer')
 const logger = require('../../core/logger')
-const arkjs = require('arkjs')
+const { slots } = require('@arkecosystem/client')
 const isLocalhost = require('../../utils/is-localhost')
 const webhookManager = require('../../core/managers/webhook')
 
@@ -153,7 +153,7 @@ module.exports = class Down {
 
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
-    const slot = arkjs.slots.getSlotNumber()
+    const slot = slots.getSlotNumber()
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
     const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length

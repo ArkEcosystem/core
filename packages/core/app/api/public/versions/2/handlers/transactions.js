@@ -3,7 +3,7 @@ const db = require('../../../../../core/dbinterface').getInstance()
 const config = require('../../../../../core/config')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const utils = require('../utils')
-const Transaction = require('../../../../../models/transaction')
+const { Transaction } = require('@arkecosystem/client').models
 const schema = require('../schema/transactions')
 
 exports.index = {

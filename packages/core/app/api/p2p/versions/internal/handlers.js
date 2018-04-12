@@ -1,7 +1,7 @@
-const arkjs = require('arkjs')
+const { slots } = require('@arkecosystem/client')
 const blockchain = require('../../../../core/managers/blockchain')
 const config = require('../../../../core/config')
-const Transaction = require('../../../../models/transaction')
+const { Transaction } = require('@arkecosystem/client').models
 
 exports.postVerifyTransaction = {
   handler: async (request, h) => {
@@ -30,7 +30,7 @@ exports.getRound = {
       const blockTime = config.getConstants(height).blocktime
       const reward = config.getConstants(height).reward
       const delegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
-      const timestamp = arkjs.slots.getTime()
+      const timestamp = slots.getTime()
 
       // console.log(delegates.length)
       // console.log(~~(timestamp / blockTime) % maxActive)

@@ -1,4 +1,4 @@
-const arkjs = require('arkjs')
+const { crypto } = require('@arkecosystem/client')
 const { matcherHint, printExpected, printReceived } = require('jest-matcher-utils')
 const getType = require('jest-get-type')
 
@@ -33,13 +33,13 @@ expect.extend({
   toBeAddress (received, argument) {
     return {
       message: () => 'Expected value to be a valid address',
-      pass: arkjs.crypto.validateAddress(received, argument)
+      pass: crypto.validateAddress(received, argument)
     }
   },
   toBePublicKey (received) {
     return {
       message: () => 'Expected value to be a valid public key',
-      pass: arkjs.crypto.getAddress(received).length === 34
+      pass: crypto.getAddress(received).length === 34
     }
   }
 })

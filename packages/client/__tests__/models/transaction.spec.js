@@ -1,6 +1,8 @@
 import Transaction from '../../src/models/transaction'
 import builder from '../../src/builder'
 import cryptoBuilder from '../../src/builder/crypto'
+import ECPair from '../../src/crypto/ecpair'
+import ECSignature from '../../src/crypto/ecsignature'
 import txData from './fixtures/transaction'
 
 import configManager from '../../src/managers/config'
@@ -54,26 +56,50 @@ const createRandomTx = type => {
   return tx
 }
 
+const verifyEcdsaNonMalleability = (transaction) => {
+  var ecurve = require('ecurve')
+  var secp256k1 = ecurve.getCurveByName('secp256k1')
+  var n = secp256k1.n
+  var hash = cryptoBuilder.getHash(transaction, true, true)
+
+  var signatureBuffer = Buffer.from(transaction.signature, 'hex')
+  var senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
+  var ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, transaction.network)
+  var ecsignature = ECSignature.fromDER(signatureBuffer)
+  var ecs2 = ECSignature.fromDER(signatureBuffer)
+  ecs2.s = n.subtract(ecs2.s)
+  var res = ecpair.verify(hash, ecsignature)
+  var res2 = ecpair.verify(hash, ecs2)
+  return res === true && res2 === false
+}
+
 describe('Models - Transaction', () => {
   beforeEach(() => configManager.setConfig(network))
 
   describe('static fromBytes', () => {
     it('returns a new transaction', () => {
-      // TODO the rest of transaction types
-      // ;[0, 1, 2, 3, 4]
-      ;[0]
-        .map(type => createRandomTx(type))
-        .map(tx => Transaction.serialise(tx).toString('hex'))
-        .map(serialised => Transaction.fromBytes(serialised))
-
-      const hex = Transaction.serialise(txData).toString('hex')
-      const tx = Transaction.fromBytes(hex)
-
+      [0, 1, 2, 3, 4].map(type => createRandomTx(type))
+        .map(tx => {
+          tx.network = 0x17
+          tx.version = 1
+          if (tx.vendorField) tx.vendorFieldHex = Buffer.from(tx.vendorField, 'utf8').toString('hex')
+          if (tx.asset.delegate) delete tx.asset.delegate.publicKey
+          if (tx.type === 0) {
+            delete tx.asset
+            tx.expiration = 0
+          }
+          if (tx.signSignature) tx.secondSignature = tx.signSignature
+          if (!tx.recipientId) delete tx.recipientId
+          return tx
+        })
+        .map(tx => {
+          const newtx = Transaction.fromBytes(Transaction.serialize(tx).toString('hex'))
+          expect(newtx.data).toEqual(tx)
+          expect(newtx.verified).toBeTruthy()
+        })
+      let hex = Transaction.serialize(txData).toString('hex')
+      let tx = Transaction.fromBytes(hex)
       expect(tx).toBeInstanceOf(Transaction)
-
-      expect(tx.data.id).not.toEqual(txData.id)
-      delete tx.data.id
-      delete txData.id
       expect(tx.data).toEqual(txData)
     })
   })
@@ -81,4 +107,11 @@ describe('Models - Transaction', () => {
   it('static deserialise', () => {})
 
   it('serialise', () => {})
+
+  it('Signatures are not malleable', () => {
+    [0, 1, 2, 3, 4]
+      .map(type => createRandomTx(type))
+      .map(tx => expect(verifyEcdsaNonMalleability(tx))
+      .toBeTruthy())
+  })
 })

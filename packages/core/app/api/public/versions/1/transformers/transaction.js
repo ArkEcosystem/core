@@ -1,8 +1,8 @@
-const arkjs = require('arkjs')
+const { crypto } = require('@arkecosystem/client')
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('../../../../../core/config')
-const Transaction = require('../../../../../models/transaction')
+const { Transaction } = require('@arkecosystem/client').models
 
 module.exports = (model) => {
   const lastBlock = state.lastBlock
@@ -16,7 +16,7 @@ module.exports = (model) => {
     amount: data.amount,
     fee: data.fee,
     recipientId: data.recipientId,
-    senderId: arkjs.crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
+    senderId: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     senderPublicKey: data.senderPublicKey,
     signature: data.signature,
     asset: data.asset,
