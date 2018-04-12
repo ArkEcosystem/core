@@ -1,57 +1,40 @@
-const ApiClient = require('./api')
-const transactionBuilder = require('./builder')
-const configManager = require('./managers/config')
-const feeManager = require('./managers/fee')
-const defaultConfig = require('./networks/ark/devnet.json')
+module.exports = {
+  // Client...
+  Client: require('./client'),
 
-module.exports = class Ark {
-  /**
-   * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
-   */
-  constructor (config) {
-    this.setConfig(config || defaultConfig)
-  }
+  // Models...
+  BlockModel: require('./models/block'),
+  DelegateModel: require('./models/delegate'),
+  TransactionModel: require('./models/transaction'),
+  WalletModel: require('./models/wallet'),
 
-  /**
-   * [setConfig description]
-   * @param {[type]} config [description]
-   */
-  setConfig (config) {
-    configManager.setConfig(config)
-  }
+  // Crypto...
+  transactionBuilder: require('./builder'),
 
-  /**
-   * [getFeeManager description]
-   * @return {[type]} [description]
-   */
-  getFeeManager () {
-    return feeManager
-  }
+  // Crypto...
+  crypto: require('./crypto'),
+  ecdsa: require('./crypto/ECDSA'),
+  ECPair: require('./crypto/ecpair'),
+  ECSignature: require('./crypto/ecsignature'),
+  HDNode: require('./crypto/hdnode'),
+  slots: require('./crypto/slots'),
 
-  /**
-   * [getConfigManager description]
-   * @return {[type]} [description]
-   */
-  getConfigManager () {
-    return configManager
-  }
+  // Managers...
+  configManager: require('./managers/config'),
+  feeManager: require('./managers/fee'),
 
-  /**
-   * [getBuilder description]
-   * @return {[type]} [description]
-   */
-  getBuilder () {
-    return transactionBuilder
-  }
+  // Networks...
+  networks: {
+    ark: {
+      mainnet: require('./networks/ark/mainnet.json'),
+      devnet: require('./networks/ark/devnet.json'),
+      testnet: require('./networks/ark/testnet.json')
+    }
+  },
 
-  /**
-   * [getClient description]
-   * @param  {[type]} host [description]
-   * @return {[type]}      [description]
-   */
-  getClient (host) {
-    return new ApiClient(host)
-  }
+  // Constants...
+  constants: require('./constants'),
+
+  // Utils...
+  sortTransactions: require('./utils/sort-transactions'),
 }
