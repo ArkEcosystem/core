@@ -27,9 +27,10 @@ class DependencyHandler {
 
     const promise = Promise.promisifyAll(require('child_process'))
 
-    return process.env.NODE_ENV === 'development'
-      ? promise.execAsync(`lerna add ${dependencies.join(' ')} --scope=@arkecosystem/core`)
-      : promise.execAsync(`npm install ${dependencies.join(' ')} --save`)
+    return promise.execAsync(`lerna add ${dependencies.join(' ')} --scope=@arkecosystem/core`)
+    // return process.env.NODE_ENV === 'development'
+    //   ? promise.execAsync(`lerna add ${dependencies.join(' ')} --scope=@arkecosystem/core`)
+    //   : promise.execAsync(`npm install ${dependencies.join(' ')} --save`)
   }
 
   _exists (dependency) {
