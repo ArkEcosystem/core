@@ -1,4 +1,4 @@
-const TransactionQueue = require('../../../app/core/transaction-queue')
+const TransactionQueue = require('../../../src/core/transaction-queue')
 
 describe('Core | TransactionQueue', () => {
   describe('new', () => {

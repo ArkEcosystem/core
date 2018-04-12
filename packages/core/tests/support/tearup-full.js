@@ -1,14 +1,14 @@
-const config = require('../../app/core/config')
-const logger = require('../../app/core/logger')
+const config = require('../../src/core/config')
+const logger = require('../../src/core/logger')
 
-const BlockchainManager = require('../../app/core/managers/blockchain')
-const QueueManager = require('../../app/core/managers/queue')
-const WebhookManager = require('../../app/core/managers/webhook')
-const P2PInterface = require('../../app/api/p2p/p2pinterface')
-const DB = require('../../app/core/dbinterface')
-const DependencyHandler = require('../../app/core/dependency-handler')
-const TransactionPool = require('../../app/core/transaction-pool')
-const PublicAPI = require('../../app/api/public')
+const BlockchainManager = require('../../src/core/managers/blockchain')
+const QueueManager = require('../../src/core/managers/queue')
+const WebhookManager = require('../../src/core/managers/webhook')
+const P2PInterface = require('../../src/api/p2p/p2pinterface')
+const DB = require('../../src/core/dbinterface')
+const DependencyHandler = require('../../src/core/dependency-handler')
+const TransactionPool = require('../../src/core/transaction-pool')
+const PublicAPI = require('../../src/api/public')
 
 module.exports = async function () {
   try {

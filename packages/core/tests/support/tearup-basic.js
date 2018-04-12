@@ -1,1 +1,1 @@
-module.exports = async () => require('../../app/core/config').init('config/devnet')
+module.exports = async () => require('../../src/core/config').init('config/devnet')

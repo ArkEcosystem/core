@@ -2,8 +2,8 @@
 
 const commander = require('commander')
 const packageJson = require('../package.json')
-const config = require('../app/core/config')
-const logger = require('../app/core/logger')
+const config = require('../src/core/config')
+const logger = require('../src/core/logger')
 
 commander
   .version(packageJson.version)
