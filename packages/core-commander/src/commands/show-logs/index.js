@@ -3,9 +3,10 @@ const fg = require('fast-glob')
 const Tail = require('tail').Tail
 const path = require('path')
 const { onCancel } = require('../../utils')
+const expandHomeDir = require('expand-home-dir')
 
 module.exports = async () => {
-  const choices = await fg(path.resolve(__dirname, '../../../storage/logs/*.log'))
+  const choices = await fg(expandHomeDir('~/.ark/logs/**/*.log'))
 
   const response = await prompts([{
     type: 'select',

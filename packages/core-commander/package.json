@@ -13,6 +13,7 @@
   "dependencies": {
     "chalk": "^2.3.2",
     "clear": "^0.1.0",
+    "expand-home-dir": "^0.0.3",
     "figlet": "^1.2.0",
     "fs": "^0.0.1-security",
     "os": "^0.1.1",
