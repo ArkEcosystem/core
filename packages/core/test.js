@@ -1,6 +1,7 @@
-const Ark = require('../client')
+const { client } = require('@arkecosystem/client')
 
-const client = new Ark()
 client.getConfigManager().setFromPreset('ark', 'mainnet')
 
 console.log(client.getConfigManager().get('pubKeyHash'))
+
+process.exit()

@@ -2,17 +2,8 @@ const ApiClient = require('./api')
 const transactionBuilder = require('./builder')
 const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
-const defaultConfig = require('./networks/ark/devnet.json')
 
 class Client {
-  /**
-   * [constructor description]
-   * @return {[type]} [description]
-   */
-  constructor () {
-    this.setConfig(defaultConfig)
-  }
-
   /**
    * [setConfig description]
    * @param {[type]} config [description]

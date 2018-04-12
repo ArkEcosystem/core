@@ -2,8 +2,17 @@ const _ = require('lodash')
 const deepmerge = require('deepmerge')
 const feeManager = require('./fee')
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../constants')
+const defaultConfig = require('../networks/ark/devnet.json')
 
 class ConfigManager {
+  /**
+   * [constructor description]
+   * @return {[type]} [description]
+   */
+  constructor () {
+    this.setConfig(defaultConfig)
+  }
+
   /**
    * [setConfig description]
    * @param {Object} config [description]
