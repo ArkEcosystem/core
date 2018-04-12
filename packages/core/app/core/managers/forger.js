@@ -67,13 +67,13 @@ module.exports = class ForgerManager {
         const block = await delegate.forge(transactions, data)
 
         this.send(block)
-        await sleep(7800) // we will check at next slot
+        msleep(7800) // we will check at next slot
         return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
-        await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
+        msleep(2000) // no idea when this will be ok, so waiting 2s before checking again
         return monitor()
       }
     }
@@ -81,7 +81,7 @@ module.exports = class ForgerManager {
     // TODO: assuming that blockTime = 8s
     const slot = slots.getSlotNumber()
     while (slots.getSlotNumber() === slot) {
-      await sleep(100)
+      msleep(100)
     }
 
     return monitor()

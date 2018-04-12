@@ -3,7 +3,7 @@ const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
 const logger = require('../logger')
 const stateMachine = require('../state-machine')
-const { sleep } = require('sleep')
+const { msleep } = require('sleep')
 
 let instance = null
 
@@ -53,7 +53,7 @@ module.exports = class BlockchainManager {
   }
 
   async isReady () {
-    while (!stateMachine.state.started) await sleep(1)
+    while (!stateMachine.state.started) msleep(1000)
     return true
   }
 
