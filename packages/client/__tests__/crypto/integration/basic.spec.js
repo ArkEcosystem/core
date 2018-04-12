@@ -3,7 +3,7 @@ import crypto from '../../../src/crypto'
 import ECPair from '../../../src/crypto/ecpair'
 
 import configManager from '../../../src/managers/config'
-import network from '../../../src/networks/ark/mainnet'
+import network from '../../../src/networks/ark/mainnet.json'
 
 beforeEach(() => configManager.setConfig(network))
 

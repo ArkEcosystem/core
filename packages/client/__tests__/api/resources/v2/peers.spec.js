@@ -1,5 +1,5 @@
 import Ark from '../../../../src'
-import network from '../../../../src/networks/ark/devnet'
+import network from '../../../../src/networks/ark/devnet.json'
 import ApiResource from '../../../../src/api/resources/v2/peers'
 require('../../mocks/v2')
 

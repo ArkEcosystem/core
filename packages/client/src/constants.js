@@ -1,6 +1,6 @@
-const configMainnet = require('./networks/ark/mainnet.js')
-const configDevnet = require('./networks/ark/devnet.js')
-const configTestnet = require('./networks/ark/testnet.js')
+const configMainnet = require('./networks/ark/mainnet.json')
+const configDevnet = require('./networks/ark/devnet.json')
+const configTestnet = require('./networks/ark/testnet.json')
 
 /**
  * [ARKTOSHI description]
