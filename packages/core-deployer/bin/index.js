@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 const commander = require('commander')
 const assert = require('assert-plus')
