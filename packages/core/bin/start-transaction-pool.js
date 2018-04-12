@@ -1,7 +1,9 @@
+#! /usr/bin/env node
+
 const commander = require('commander')
 const packageJson = require('../package.json')
-const config = require('./core/config')
-const logger = require('./core/logger')
+const config = require('../app/core/config')
+const logger = require('../app/core/logger')
 
 commander
   .version(packageJson.version)

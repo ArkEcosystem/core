@@ -1,7 +1,7 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { splash, getProcessStatus } = require('./utils')
+const { splash, getProcessStatus } = require('../utils')
 
 const start = async () => {
   splash()

@@ -1,15 +1,17 @@
+#! /usr/bin/env node
+
 const commander = require('commander')
 const packageJson = require('../package.json')
-const logger = require('./core/logger')
-const config = require('./core/config')
-const BlockchainManager = require('./core/managers/blockchain')
-const P2PInterface = require('./api/p2p/p2pinterface')
-const DB = require('./core/dbinterface')
-const QueueManager = require('./core/managers/queue')
-const WebhookManager = require('./core/managers/webhook')
-const DependencyHandler = require('./core/dependency-handler')
-const PublicAPI = require('./api/public')
-const TransactionHandler = require('./core/transaction-handler')
+const logger = require('../app/core/logger')
+const config = require('../app/core/config')
+const BlockchainManager = require('../app/core/managers/blockchain')
+const P2PInterface = require('../app/api/p2p/p2pinterface')
+const DB = require('../app/core/dbinterface')
+const QueueManager = require('../app/core/managers/queue')
+const WebhookManager = require('../app/core/managers/webhook')
+const DependencyHandler = require('../app/core/dependency-handler')
+const PublicAPI = require('../app/api/public')
+const TransactionHandler = require('../app/core/transaction-handler')
 
 commander
   .version(packageJson.version)

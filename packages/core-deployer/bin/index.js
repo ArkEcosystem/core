@@ -1,10 +1,12 @@
+#! /usr/bin/env node
+
 const commander = require('commander')
 const assert = require('assert-plus')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const packageJson = require('../package.json')
-const { updateConfig } = require('./utils')
+const { updateConfig } = require('../src/utils')
 
 commander
   .version(packageJson.version)

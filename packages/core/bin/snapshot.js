@@ -1,12 +1,14 @@
+#! /usr/bin/env node
+
 const fs = require('fs')
 const assert = require('assert-plus')
 const commander = require('commander')
 const packageJson = require('../package.json')
 const path = require('path')
-const DB = require('./core/dbinterface')
-const DependencyHandler = require('./core/dependency-handler')
-const config = require('./core/config')
-const logger = require('./core/logger')
+const DB = require('../app/core/dbinterface')
+const DependencyHandler = require('../app/core/dependency-handler')
+const config = require('../app/core/config')
+const logger = require('../app/core/logger')
 const expandHomeDir = require('expand-home-dir')
 
 commander

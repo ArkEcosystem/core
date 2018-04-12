@@ -1,7 +1,13 @@
 {
   "name": "@arkecosystem/core-deployer",
   "version": "1.0.0",
-  "description": "Sequelize ORM for ARK Core",
+  "description": "Deployer for ARK Core",
+  "bin": {
+    "ark:deployer": "bin/index.js"
+  },
+  "scripts": {
+    "ark:deployer": "bin/index.js"
+  },
   "main": "src/index.js",
   "keywords": [
     "ark",
