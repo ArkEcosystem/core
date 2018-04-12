@@ -17,9 +17,9 @@ services:
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
-     POSTGRES_PASSWORD: password  
+     POSTGRES_PASSWORD: password
      POSTGRES_DB: ark_devnet
-     POSTGRES_USER: node 
+     POSTGRES_USER: node
 
   ark-core:
     build: .
@@ -50,5 +50,5 @@ volumes:
   ark-core:
     driver_opts:
       type: none
-      device: $PWD/../../../../
+      device: $PWD/../../../
       o: bind

@@ -8,8 +8,6 @@ npm-debug.log
 package-lock.json
 storage/database/*
 !storage/database/.gitkeep
-storage/logs/*
-!storage/logs/.gitkeep
 storage/snapshot/*.data
 tests/coverage/*
 yarn.lock
