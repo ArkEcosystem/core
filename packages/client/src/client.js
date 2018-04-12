@@ -4,14 +4,13 @@ const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
 const defaultConfig = require('./networks/ark/devnet.json')
 
-module.exports = class Ark {
+class Client {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @return {[type]} [description]
    */
-  constructor (config) {
-    this.setConfig(config || defaultConfig)
+  constructor () {
+    this.setConfig(defaultConfig)
   }
 
   /**
@@ -55,3 +54,5 @@ module.exports = class Ark {
     return new ApiClient(host)
   }
 }
+
+module.exports = new Client()

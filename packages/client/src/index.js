@@ -1,6 +1,6 @@
 module.exports = {
   // Client...
-  Client: require('./client'),
+  client: require('./client'),
 
   // Models...
   BlockModel: require('./models/block'),
