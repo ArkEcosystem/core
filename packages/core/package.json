@@ -1,7 +1,14 @@
 {
+  "private": true,
   "name": "@arkecosystem/core",
-  "version": "2.0.0",
   "description": "Revamped ark-node",
+  "version": "2.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
   "bin": {
     "ark:full:mainnet": "bin/start-relay-and-forger.js -c config/mainnet",
     "ark:full:devnet": "bin/start-relay-and-forger.js -c config/devnet",
@@ -48,13 +55,6 @@
     "lint": "eslint ./ --fix",
     "db": "node_modules/.bin/sequelize"
   },
-  "keywords": [
-    "ark",
-    "blockchain",
-    "cryptocurrency"
-  ],
-  "author": "fx thoorens",
-  "license": "MIT",
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-commander": "^1.0.0",

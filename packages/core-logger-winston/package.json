@@ -1,15 +1,15 @@
 {
+  "private": true,
   "name": "@arkecosystem/core-logger-winston",
-  "version": "1.0.0",
   "description": "Winston Logger for ARK Core",
-  "main": "src/index.js",
-  "keywords": [
-    "ark",
-    "blockchain",
-    "cryptocurrency"
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
   ],
-  "author": "Brian Faust",
   "license": "MIT",
+  "main": "src/index.js",
   "dependencies": {
     "chalk": "^2.3.2",
     "colors": "^1.2.1",

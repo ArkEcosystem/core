@@ -1,13 +1,16 @@
 {
+  "private": true,
   "name": "@arkecosystem/client",
-  "version": "2.0.0",
   "description": "A JavaScript library to interact with the ARK Blockchain",
+  "version": "2.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
   "main": "src/index.js",
   "browser": "dist/index.min.js",
-  "files": [
-    "src/",
-    "dist/"
-  ],
   "scripts": {
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
     "build": "rm -rf dist && NODE_ENV=production webpack",
@@ -16,28 +19,6 @@
     "test:watch:all": "jest --watchAll",
     "lint": "eslint ./ --fix"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ArkEcosystem/ark-js.git"
-  },
-  "keywords": [
-    "ark",
-    "crypto",
-    "currency",
-    "blockchain"
-  ],
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Brian Faust <brian@ark.io>",
-    "Lúcio Rubens <lucio@ark.io>",
-    "Alex Barnsley <alex@ark.io>",
-    "Juan A. Martín <juan@ark.io>"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ArkEcosystem/ark-js/issues"
-  },
-  "homepage": "https://github.com/ArkEcosystem/ark-js",
   "dependencies": {
     "axios": "^0.17.1",
     "bigi": "^1.4.2",

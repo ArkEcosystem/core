@@ -1,21 +1,21 @@
 {
+  "private": true,
   "name": "@arkecosystem/core-deployer",
-  "version": "1.0.0",
   "description": "Deployer for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
   "bin": {
     "ark:deployer": "bin/index.js"
   },
   "scripts": {
     "ark:deployer": "bin/index.js"
   },
-  "main": "src/index.js",
-  "keywords": [
-    "ark",
-    "blockchain",
-    "cryptocurrency"
-  ],
-  "author": "Brian Faust",
-  "license": "MIT",
   "dependencies": {
     "assert-plus": "^1.0.0",
     "commander": "^2.15.1",

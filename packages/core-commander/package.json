@@ -1,21 +1,21 @@
 {
+  "private": true,
   "name": "@arkecosystem/core-commander",
-  "version": "1.0.0",
   "description": "Commander for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
   "bin": {
     "ark:commander": "bin/index.js"
   },
   "scripts": {
     "ark:commander": "bin/index.js"
   },
-  "main": "src/index.js",
-  "keywords": [
-    "ark",
-    "blockchain",
-    "cryptocurrency"
-  ],
-  "author": "Brian Faust",
-  "license": "MIT",
   "dependencies": {
     "chalk": "^2.3.2",
     "clear": "^0.1.0",
