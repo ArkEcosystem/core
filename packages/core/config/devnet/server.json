@@ -3,14 +3,14 @@
   "version": "2.0.0",
   "fastRebuild": true,
   "logging": {
-    "driver": "app/logging/winston",
+    "driver": "@arkecosystem/core-logger-winston",
     "options": {
       "file": "debug",
       "console": "debug"
     }
   },
   "database": {
-    "driver": "app/database/sequelize",
+    "driver": "@arkecosystem/core-db-sequelize",
     "options": {
       "uri": "sqlite:storage/database/devnet.sqlite",
       "uri_1": "postgres://node:password@localhost:5432/ark_devnet",

@@ -2,7 +2,7 @@ const path = require('path')
 
 class Logger {
   async init (config, network) {
-    this.logger = new (require(path.resolve(config.driver)))()
+    this.logger = new (require(config.driver))()
 
     return this.logger.init(config, network)
   }

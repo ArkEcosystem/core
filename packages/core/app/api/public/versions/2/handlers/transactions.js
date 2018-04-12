@@ -85,7 +85,7 @@ exports.search = {
 exports.types = {
   handler: async (request, h) => {
     return {
-      data: require('../../../../../core/constants').TRANSACTION_TYPES
+      data: require('../../../../../../client/src/constants').TRANSACTION_TYPES
     }
   }
 }

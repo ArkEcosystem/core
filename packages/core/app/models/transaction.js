@@ -3,7 +3,7 @@ const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const config = require('../core/config')
-const { TRANSACTION_TYPES } = require('../core/constants')
+const { TRANSACTION_TYPES } = require('../../../client/src/constants')
 
 module.exports = class Transaction {
   constructor (transaction) {

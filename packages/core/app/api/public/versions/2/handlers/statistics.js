@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const { TRANSACTION_TYPES } = require('../../../../../core/constants')
+const { TRANSACTION_TYPES } = require('../../../../../../client/src/constants')
 const chainInstance = require('../../../../../core/managers/blockchain').getInstance()
 const state = chainInstance.getState()
 const config = require('../../../../../core/config')

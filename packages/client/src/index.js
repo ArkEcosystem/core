@@ -2,7 +2,7 @@ const ApiClient = require('./api')
 const transactionBuilder = require('./builder')
 const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
-const defaultConfig = require('./networks/ark/devnet')
+const defaultConfig = require('./networks/ark/devnet.json')
 
 module.exports = class Ark {
   /**

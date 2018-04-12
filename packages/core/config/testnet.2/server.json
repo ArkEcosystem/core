@@ -3,14 +3,14 @@
   "port": 4102,
   "version": "2.0.0",
   "logging": {
-    "driver": "app/logging/winston",
+    "driver": "@arkecosystem/core-logger-winston",
     "options": {
       "file": "debug",
       "console": "debug"
     }
   },
   "database": {
-    "driver": "app/database/sequelize",
+    "driver": "@arkecosystem/core-db-sequelize",
     "options": {
       "uri": "sqlite:storage/database/testnet.2.sqlite",
       "uri1": "postgres://node:password@localhost:5432/ark_testnet",

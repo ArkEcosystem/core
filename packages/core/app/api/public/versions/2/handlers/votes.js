@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('../../../../../core/constants')
+const { TRANSACTION_TYPES } = require('../../../../../../client/src/constants')
 const db = require('../../../../../core/dbinterface').getInstance()
 const utils = require('../utils')
 const schema = require('../schema/votes')

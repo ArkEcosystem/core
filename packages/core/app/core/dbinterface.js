@@ -14,7 +14,7 @@ class DBInterface {
   }
 
   static async create (config) {
-    const db = new (require(path.resolve(config.driver)))()
+    const db = new (require(config.driver))()
     db.walletManager = new WalletManager()
 
     await db.init(config)

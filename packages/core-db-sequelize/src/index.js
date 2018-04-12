@@ -1,15 +1,15 @@
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
 const Umzug = require('umzug')
-const Block = require('../../models/block')
-const Transaction = require('../../models/transaction')
-const config = require('../../core/config')
-const logger = require('../../core/logger')
-const DBInterface = require('../../core/dbinterface')
-const webhookManager = require('../../core/managers/webhook')
+const Block = require('../../core/app/models/block')
+const Transaction = require('../../core/app/models/transaction')
+const config = require('../../core/app/core/config')
+const logger = require('../../core/app/core/logger')
+const DBInterface = require('../../core/app/core/dbinterface')
+const webhookManager = require('../../core/app/core/managers/webhook')
 const fg = require('fast-glob')
 const path = require('path')
-const { TRANSACTION_TYPES } = require('../../core/constants')
+const { TRANSACTION_TYPES } = require('../../client/src/constants')
 
 module.exports = class SequelizeDB extends DBInterface {
   async init (config) {
