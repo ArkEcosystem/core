@@ -104,9 +104,9 @@ describe('Models - Transaction', () => {
     })
   })
 
-  it('static deserialise', () => {})
+  it('static deserialize', () => {})
 
-  it('serialise', () => {})
+  it('serialize', () => {})
 
   it('Signatures are not malleable', () => {
     [0, 1, 2, 3, 4]

@@ -79,7 +79,7 @@ module.exports = class Block {
    * @return {[type]}      [description]
    */
   static create (data, keys) {
-    const payloadHash = Block.serialise(data)
+    const payloadHash = Block.serialize(data)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
     data.generatorPublicKey = keys.publicKey
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
@@ -93,7 +93,7 @@ module.exports = class Block {
    * @return {[type]}      [description]
    */
   static getId (data) {
-    const hash = crypto.createHash('sha256').update(Block.serialise(data, true)).digest()
+    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
     for (let i = 0; i < 8; i++) {
       temp[i] = hash[7 - i]
@@ -117,7 +117,7 @@ module.exports = class Block {
    * @return {[type]} [description]
    */
   verifySignature () {
-    let bytes = Block.serialise(this.data, false)
+    let bytes = Block.serialize(this.data, false)
     let hash = crypto.createHash('sha256').update(bytes).digest()
     let blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
     let generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
@@ -282,12 +282,12 @@ module.exports = class Block {
   }
 
   /**
-   * [serialise description]
+   * [serialize description]
    * @param  {[type]} block            [description]
    * @param  {[type]} includeSignature [description]
    * @return {[type]}                  [description]
    */
-  static serialise (block, includeSignature) {
+  static serialize (block, includeSignature) {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }

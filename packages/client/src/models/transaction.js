@@ -12,8 +12,8 @@ module.exports = class Transaction {
    * @return {[type]}             [description]
    */
   constructor (transaction) {
-    this.serialised = Transaction.serialise(transaction)
-    this.data = Transaction.deserialise(this.serialised.toString('hex'))
+    this.serialized = Transaction.serialize(transaction)
+    this.data = Transaction.deserialize(this.serialized.toString('hex'))
 
     if (this.data.version === 1) {
       this.verified = cryptoBuilder.verify(this.data)
@@ -33,7 +33,7 @@ module.exports = class Transaction {
    * @return {[type]}           [description]
    */
   static fromBytes (hexString) {
-    return new Transaction(Transaction.deserialise(hexString))
+    return new Transaction(Transaction.deserialize(hexString))
   }
 
   /**
@@ -46,11 +46,11 @@ module.exports = class Transaction {
   }
 
   /**
-   * [serialise description]
+   * [serialize description]
    * @param  {[type]} transaction [description]
    * @return {[type]}             [description]
    */
-  static serialise (transaction) {
+  static serialize (transaction) {
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
@@ -132,11 +132,11 @@ module.exports = class Transaction {
   }
 
   /**
-   * [deserialise description]
+   * [deserialize description]
    * @param  {String} hexString [description]
    * @return {[type]}           [description]
    */
-  static deserialise (hexString) {
+  static deserialize (hexString) {
     const transaction = {}
     const buf = ByteBuffer.fromHex(hexString, true)
     transaction.version = buf.readInt8(1)

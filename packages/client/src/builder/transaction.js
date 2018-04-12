@@ -69,11 +69,11 @@ module.exports = class Transaction {
   }
 
   /**
-   * [serialise description]
+   * [serialize description]
    * @return {[type]} [description]
    */
-  serialise () {
-    return this.model.serialise(this.getStruct())
+  serialize () {
+    return this.model.serialize(this.getStruct())
   }
 
   /**
