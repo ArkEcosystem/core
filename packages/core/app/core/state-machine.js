@@ -2,7 +2,7 @@ const Machine = require('xstate').Machine
 const logger = require('./logger')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
-const { msleep } = require('sleep')
+const sleep = require('../utils/sleep')
 const human = require('interval-to-human')
 const config = require('./config')
 
@@ -280,7 +280,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
   return {
     blockchainReady: () => (state.started = true),
     checkLater: async () => {
-      msleep(60000)
+      await sleep(60000)
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),

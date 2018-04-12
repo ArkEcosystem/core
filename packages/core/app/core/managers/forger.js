@@ -2,7 +2,7 @@ const popsicle = require('popsicle')
 const { slots } = require('@arkecosystem/client')
 const { Delegate, Transaction } = require('@arkecosystem/client').models
 const logger = require('../logger')
-const { msleep } = require('sleep')
+const sleep = require('../../utils/sleep')
 
 module.exports = class ForgerManager {
   constructor (config) {
@@ -45,14 +45,14 @@ module.exports = class ForgerManager {
         round = await this.getRound()
         if (!round.canForge) {
           // logger.debug('Block already forged in current slot')
-          await msleep(100) // basically looping until we lock at beginning of next slot
+          await sleep(100) // basically looping until we lock at beginning of next slot
           return monitor()
         }
 
         const delegate = await this.pickForgingDelegate(round)
         if (!delegate) {
           // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-          await msleep(7900) // we will check at next slot
+          await sleep(7900) // we will check at next slot
           return monitor()
         }
 
@@ -67,13 +67,13 @@ module.exports = class ForgerManager {
         const block = await delegate.forge(transactions, data)
 
         this.send(block)
-        msleep(7800) // we will check at next slot
+        await sleep(7800) // we will check at next slot
         return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
-        msleep(2000) // no idea when this will be ok, so waiting 2s before checking again
+        await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
         return monitor()
       }
     }
@@ -81,7 +81,7 @@ module.exports = class ForgerManager {
     // TODO: assuming that blockTime = 8s
     const slot = slots.getSlotNumber()
     while (slots.getSlotNumber() === slot) {
-      msleep(100)
+      await sleep(100)
     }
 
     return monitor()
