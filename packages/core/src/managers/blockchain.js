@@ -3,7 +3,7 @@ const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
 const logger = require('@arkecosystem/core-logger')
 const stateMachine = require('../state-machine')
-const sleep = require('../../utils/sleep')
+const sleep = require('../utils/sleep')
 
 let instance = null
 

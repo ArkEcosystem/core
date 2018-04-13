@@ -1,4 +1,4 @@
-const ForgerManager = require('../../../../src/core/managers/forger')
+const ForgerManager = require('../../../../src/managers/forger')
 const { Delegate } = require('@arkecosystem/client').models
 
 describe('Core | ForgerManager', () => {

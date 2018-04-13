@@ -1,13 +1,13 @@
 const config = require('@arkecosystem/core-config')
 const logger = require('@arkecosystem/core-logger')
 
-const BlockchainManager = require('../../src/core/managers/blockchain')
-const QueueManager = require('../../src/core/managers/queue')
-const WebhookManager = require('../../src/core/managers/webhook')
+const BlockchainManager = require('../../src/managers/blockchain')
+const QueueManager = require('../../src/managers/queue')
+const WebhookManager = require('../../src/managers/webhook')
 const P2PInterface = require('../../src/api/p2p/p2pinterface')
-const DB = require('../../src/core/dbinterface')
-const DependencyHandler = require('../../src/core/dependency-handler')
-const TransactionPool = require('../../src/core/transaction-pool')
+const DB = require('../../src/dbinterface')
+const DependencyHandler = require('../../src/dependency-handler')
+const TransactionPool = require('../../src/transaction-pool')
 const PublicAPI = require('../../src/api/public')
 
 module.exports = async function () {

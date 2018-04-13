@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 
 // FIXME: make this accessible through a package
-const WalletManager = require('../../core/src/core/managers/wallet')
+const WalletManager = require('../../core/src/managers/wallet')
 
 let instance
 

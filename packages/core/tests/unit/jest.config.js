@@ -6,7 +6,7 @@ module.exports = Object.assign(baseConfig, {
   coverageDirectory: 'tests/coverage/unit',
   collectCoverageFrom: [
     'src/config/**/*.js',
-    'src/core/**/*.js',
+    'src/**/*.js',
     'src/database/**/*.js',
     'src/utils/**/*.js'
   ]

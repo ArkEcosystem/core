@@ -12,7 +12,7 @@ const logger = require('@arkecosystem/core-logger')
 
 const packageJson = require('../package.json')
 
-const DependencyHandler = require('../src/core/dependency-handler')
+const DependencyHandler = require('../src/dependency-handler')
 
 commander
   .version(require('../package.json').version)

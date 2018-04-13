@@ -1,6 +1,6 @@
 const { slots } = require('@arkecosystem/client')
 const logger = require('@arkecosystem/core-logger')
-const blockchain = require('../../../../core/managers/blockchain')
+const blockchain = require('../../../../managers/blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 
 exports.getPeers = {

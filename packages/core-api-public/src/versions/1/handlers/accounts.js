@@ -1,7 +1,7 @@
 const { crypto } = require('@arkecosystem/client')
 
 // TODO: make this accessible through a module
-const blockchain = require('../../../../../core/src/core/managers/blockchain').getInstance()
+const blockchain = require('../../../../../core/src/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-config')
 const db = require('@arkecosystem/core-database').getInstance()

@@ -7,7 +7,7 @@ const config = require('@arkecosystem/core-config')
 
 const packageJson = require('../package.json')
 
-const ForgerManager = require('../src/core/managers/forger')
+const ForgerManager = require('../src/managers/forger')
 
 commander
   .version(require('../package.json').version)

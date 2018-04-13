@@ -2,7 +2,7 @@ const popsicle = require('popsicle')
 const { slots } = require('@arkecosystem/client')
 const { Delegate, Transaction } = require('@arkecosystem/client').models
 const logger = require('@arkecosystem/core-logger')
-const sleep = require('../../utils/sleep')
+const sleep = require('../utils/sleep')
 
 module.exports = class ForgerManager {
   constructor (config) {

@@ -18,7 +18,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/api/**/*.js',
     'src/config/**/*.js',
-    'src/core/**/*.js',
+    'src/**/*.js',
     'src/database/**/*.js',
     'src/utils/**/*.js'
   ]

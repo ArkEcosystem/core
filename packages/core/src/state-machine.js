@@ -4,7 +4,7 @@ const logger = require('@arkecosystem/core-logger')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
 const config = require('@arkecosystem/core-config')
-const sleep = require('../utils/sleep')
+const sleep = require('./utils/sleep')
 
 let synctracker = null
 

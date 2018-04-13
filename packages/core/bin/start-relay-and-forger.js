@@ -12,10 +12,10 @@ const packageJson = require('../package.json')
 // TODO: think about extracting this into @arkecosystem/core-api-p2p
 const P2PInterface = require('../src/api/p2p/p2pinterface')
 
-const BlockchainManager = require('../src/core/managers/blockchain')
-const DependencyHandler = require('../src/core/dependency-handler')
-const TransactionHandler = require('../src/core/transaction-handler')
-const ForgerManager = require('../src/core/managers/forger')
+const BlockchainManager = require('../src/managers/blockchain')
+const DependencyHandler = require('../src/dependency-handler')
+const TransactionHandler = require('../src/transaction-handler')
+const ForgerManager = require('../src/managers/forger')
 
 commander
   .version(require('../package.json').version)

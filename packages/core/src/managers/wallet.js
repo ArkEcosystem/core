@@ -1,8 +1,8 @@
+const Promise = require('bluebird')
 const { WalletModel } = require('@arkecosystem/client')
 const config = require('@arkecosystem/core-config')
 const logger = require('@arkecosystem/core-logger')
 const { crypto } = require('@arkecosystem/client')
-const Promise = require('bluebird')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class WalletManager {
