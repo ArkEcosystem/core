@@ -119,7 +119,7 @@ ajv@^4.7.0, ajv@^4.9.1:
     co "^4.6.0"
     json-stable-stringify "^1.0.1"
 
-ajv@^5.1.0, ajv@^5.2.3, ajv@^5.3.0, ajv@^5.5.2:
+ajv@^5.1.0, ajv@^5.2.3, ajv@^5.3.0:
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-5.5.2.tgz#73b5eeca3fab653e3d3f9422b341ad42205dc965"
   dependencies:
@@ -128,7 +128,7 @@ ajv@^5.1.0, ajv@^5.2.3, ajv@^5.3.0, ajv@^5.5.2:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
 
-ajv@^6.1.0:
+ajv@^6.1.0, ajv@^6.4.0:
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.4.0.tgz#d3aff78e9277549771daf0164cff48482b754fc6"
   dependencies:
@@ -235,7 +235,7 @@ are-we-there-yet@~1.1.2:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
 
-argon2@^0.17.2:
+argon2@^0.17.3:
   version "0.17.3"
   resolved "https://registry.yarnpkg.com/argon2/-/argon2-0.17.3.tgz#969ee3ed873489d96cec2a313029673d1e534f81"
   dependencies:
@@ -1578,7 +1578,7 @@ catbox-memory@3.x.x:
     boom "7.x.x"
     hoek "5.x.x"
 
-catbox-redis@^4.0.0:
+catbox-redis@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/catbox-redis/-/catbox-redis-4.1.0.tgz#e0927c00382353e71030f581a325f96d7bb470fb"
   dependencies:
@@ -2417,7 +2417,7 @@ deep-metrics@^0.0.1:
   dependencies:
     semver "^5.3.0"
 
-deepmerge@^2.0.1, deepmerge@^2.1.0:
+deepmerge@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.1.0.tgz#511a54fff405fc346f0240bb270a3e9533a31102"
 
@@ -2551,22 +2551,9 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-directory-tree@^2.0.0, directory-tree@^2.1.0:
+directory-tree@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/directory-tree/-/directory-tree-2.1.0.tgz#e0c1a66f625481aaf7d603741f0d3d93cdd4867a"
-
-dns-packet@^1.1.0:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/dns-packet/-/dns-packet-1.3.1.tgz#12aa426981075be500b910eedcd0b47dd7deda5a"
-  dependencies:
-    ip "^1.1.0"
-    safe-buffer "^5.0.1"
-
-dns-socket@^1.6.2:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/dns-socket/-/dns-socket-1.6.3.tgz#5268724fad4aa46ad9c5ca4ffcd16e1de5342aab"
-  dependencies:
-    dns-packet "^1.1.0"
 
 doctrine@1.5.0, doctrine@^1.2.2:
   version "1.5.0"
@@ -3304,7 +3291,7 @@ fast-deep-equal@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.1.0.tgz#c053477817c86b51daa853c81e059b733d023614"
 
-fast-glob@^2.1.0, fast-glob@^2.2.0:
+fast-glob@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-2.2.0.tgz#e9d032a69b86bef46fc03d935408f02fb211d9fc"
   dependencies:
@@ -3562,10 +3549,6 @@ fs-write-stream-atomic@^1.0.8:
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
-
-fs@^0.0.1-security:
-  version "0.0.1-security"
-  resolved "https://registry.yarnpkg.com/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
 
 fsevents@^1.0.0, fsevents@^1.1.1, fsevents@^1.1.2:
   version "1.1.3"
@@ -3850,7 +3833,7 @@ got@^7.0.0:
     url-parse-lax "^1.0.0"
     url-to-options "^1.0.1"
 
-got@^8.0.0, got@^8.2.0:
+got@^8.2.0:
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/got/-/got-8.3.0.tgz#6ba26e75f8a6cc4c6b3eb1fe7ce4fec7abac8533"
   dependencies:
@@ -3924,14 +3907,14 @@ handlebars@4.x.x, handlebars@^4.0.2, handlebars@^4.0.3:
     hoek "^5.0.2"
     joi "^13.0.2"
 
-hapi-rate-limit@^2.1.1:
+hapi-rate-limit@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-2.1.2.tgz#600544e294bbc5bd292a97cbe3227ae9839f10a6"
   dependencies:
     boom "^7.1.1"
     hoek "^5.0.3"
 
-hapi@^17.1.1, hapi@^17.2.3:
+hapi@^17.1.1, hapi@^17.3.1:
   version "17.3.1"
   resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.3.1.tgz#d99679d208389e12a13a91f55932b32ab7dceff1"
   dependencies:
@@ -4374,7 +4357,7 @@ ip-regex@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
 
-ip@^1.1.0, ip@^1.1.5:
+ip@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
 
@@ -6182,8 +6165,8 @@ node-pre-gyp@^0.6.39, node-pre-gyp@~0.6.28:
     tar-pack "^3.4.0"
 
 node-pre-gyp@~0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.9.0.tgz#bdd4c3afac9b1b1ebff0a9ff3362859eb6781bb8"
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.9.1.tgz#f11c07516dd92f87199dbc7e1838eab7cd56c9e0"
   dependencies:
     detect-libc "^1.0.2"
     mkdirp "^0.5.1"
@@ -6918,15 +6901,6 @@ public-encrypt@^4.0.0:
     parse-asn1 "^5.0.0"
     randombytes "^2.0.1"
 
-public-ip@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/public-ip/-/public-ip-2.4.0.tgz#f00c028a15366d8c798e47efab6acd09a17666da"
-  dependencies:
-    dns-socket "^1.6.2"
-    got "^8.0.0"
-    is-ip "^2.0.0"
-    pify "^3.0.0"
-
 pump@^2.0.0, pump@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/pump/-/pump-2.0.1.tgz#12399add6e4cf7526d973cbc8b5ce2e2908b3909"
@@ -7009,10 +6983,6 @@ randomfill@^1.0.3:
 range-parser@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.0.tgz#f49be6b487894ddc40dcc94a322f611092e00d5e"
-
-ratelimiter@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/ratelimiter/-/ratelimiter-3.0.3.tgz#6dbca58b05422f2a08e224d4ba3a0cfb86c30966"
 
 raw-body@2.3.2:
   version "2.3.2"

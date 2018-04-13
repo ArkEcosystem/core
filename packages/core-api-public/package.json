@@ -1,0 +1,44 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-api-public",
+  "description": "Public API for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.3.0",
+    "jest-extended": "^0.6.0",
+    "standard": "^10.0.3"
+  },
+  "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-logger": "^1.0.0",
+    "ajv": "^6.4.0",
+    "argon2": "^0.17.3",
+    "bignumber.js": "^6.0.0",
+    "boom": "^7.2.0",
+    "catbox-redis": "^4.1.0",
+    "hapi": "^17.3.1",
+    "hapi-api-version": "https://github.com/faustbrian/hapi-api-version",
+    "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
+    "hapi-rate-limit": "^2.1.2",
+    "hoek": "^5.0.3",
+    "inert": "^5.1.0",
+    "ip": "^1.1.5",
+    "joi": "^13.1.2",
+    "lout": "^11.0.0",
+    "vision": "^5.3.2"
+  }
+}

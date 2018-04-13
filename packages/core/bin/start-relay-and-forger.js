@@ -10,7 +10,7 @@ const DB = require('../src/core/dbinterface')
 const QueueManager = require('../src/core/managers/queue')
 const WebhookManager = require('../src/core/managers/webhook')
 const DependencyHandler = require('../src/core/dependency-handler')
-const PublicAPI = require('../src/api/public')
+const PublicAPI = require('@arkecosystem/core-api-public')
 const TransactionHandler = require('../src/core/transaction-handler')
 const ForgerManager = require('../src/core/managers/forger')
 

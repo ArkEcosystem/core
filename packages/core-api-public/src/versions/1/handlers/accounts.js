@@ -1,11 +1,15 @@
 const { crypto } = require('@arkecosystem/client')
-const blockchain = require('../../../../../core/managers/blockchain').getInstance()
+
+// TODO: make this accessible through a module
+const blockchain = require('../../../../../core/src/core/managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-config')
 const db = require('@arkecosystem/core-database').getInstance()
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
-const { calculateApproval, calculateProductivity } = require('../../../../../utils/delegate-calculator')
+
+// TODO: make this accessible through a module
+const { calculateApproval, calculateProductivity } = require('../../../../../core/src/utils/delegate-calculator')
 
 exports.index = {
   handler: async (request, h) => {

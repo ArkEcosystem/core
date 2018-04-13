@@ -1,4 +1,5 @@
-const { calculateApproval, calculateProductivity } = require('../../../../../utils/delegate-calculator')
+// TODO: make this accessible through a module
+const { calculateApproval, calculateProductivity } = require('../../../../../core/src/utils/delegate-calculator')
 const formatTimestamp = require('./utils/format-timestamp')
 
 module.exports = (delegate) => {

@@ -12,7 +12,7 @@ const DatabaseInterface = require('@arkecosystem/core-database')
 const BlockchainManager = require('../src/core/managers/blockchain')
 
 const P2PInterface = require('../src/api/p2p/p2pinterface')
-const PublicAPI = require('../src/api/public')
+const PublicAPI = require('@arkecosystem/core-api-public')
 
 const DependencyHandler = require('../src/core/dependency-handler')
 const TransactionHandler = require('../src/core/transaction-handler')

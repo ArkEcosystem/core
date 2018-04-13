@@ -11,7 +11,6 @@
   "license": "MIT",
   "main": "src/index.js",
   "dependencies": {
-    "@arkecosystem/core": "^2.0.0",
     "@arkecosystem/core-database": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",
     "async": "^2.6.0",

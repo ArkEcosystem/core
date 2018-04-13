@@ -21,7 +21,7 @@
     "clear": "^0.1.0",
     "expand-home-dir": "^0.0.3",
     "figlet": "^1.2.0",
-    "fs": "^0.0.1-security",
+    "fs-extra": "^5.0.0",
     "os": "^0.1.1",
     "pm2": "^2.10.2",
     "prompts": "^0.1.8",

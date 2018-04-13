@@ -4,7 +4,7 @@ const logger = require('@arkecosystem/core-logger')
 
 let instance
 
-module.exports = class Cache {
+module.exports = class CacheManager {
   constructor (config) {
     Promise.promisifyAll(redis.RedisClient.prototype)
 
