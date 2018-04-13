@@ -1,15 +1,13 @@
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
 const Umzug = require('umzug')
-const { Block, Transaction } = require('@arkecosystem/client').models
-const config = require('../../core/src/core/config')
-const logger = require('../../core/src/core/logger')
-const DBInterface = require('../../core/src/core/dbinterface')
-const webhookManager = require('../../core/src/core/managers/webhook')
 const fg = require('fast-glob')
 const path = require('path')
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const expandHomeDir = require('expand-home-dir')
+
+const { config, logger, DBInterface, webhookManager } = require('@arkecosystem/core')
+const { Block, Transaction } = require('@arkecosystem/client').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 class SequelizeDB extends DBInterface {
   async init (config) {

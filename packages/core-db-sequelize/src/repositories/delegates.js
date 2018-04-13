@@ -1,4 +1,4 @@
-const { calculateApproval, calculateProductivity } = require('../../../core/src/utils/delegate-calculator')
+const { calculateApproval, calculateProductivity } = require('@arkecosystem/core').utils.delegateCalculator
 
 module.exports = class DelegatesRepository {
   constructor (db) {

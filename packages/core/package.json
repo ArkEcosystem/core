@@ -9,6 +9,7 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
+  "main": "src/index.js",
   "bin": {
     "ark:full:mainnet": "bin/start-relay-and-forger.js -c config/mainnet",
     "ark:full:devnet": "bin/start-relay-and-forger.js -c config/devnet",

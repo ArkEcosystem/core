@@ -5,7 +5,7 @@ const chalk = require('chalk')
 const { sleep } = require('sleep')
 const questions = require('./questions')
 const { onCancel, readConfig, startProcess } = require('../../utils')
-const { decrypt } = require('../../../../core/src/utils/forger-crypto')
+const { decrypt } = require('@arkecosystem/core').utils.forgerCrypto
 
 module.exports = async () => {
   const identity = readConfig('delegates').identity
