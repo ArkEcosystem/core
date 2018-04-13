@@ -5,8 +5,8 @@ const fg = require('fast-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
-const config = require('@arkecosystem/core-config')
-const { logger, DBInterface, webhookManager } = require('@arkecosystem/core')
+// const config = require('@arkecosystem/core-config')
+const { config, logger, DBInterface, webhookManager } = require('@arkecosystem/core')
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
