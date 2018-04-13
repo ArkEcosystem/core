@@ -10,8 +10,8 @@ module.exports = {
   bail: true,
   verbose: false,
 
-  setupFiles: ['<rootDir>/tests/support/setup-files'],
-  setupTestFrameworkScriptFile: '<rootDir>/tests/support/setup-framework',
+  setupFiles: ['<rootDir>/__tests__/support/setup-files'],
+  setupTestFrameworkScriptFile: '<rootDir>/__tests__/support/setup-framework',
 
   collectCoverage: false,
   coverageDirectory: 'tests/coverage/all',
