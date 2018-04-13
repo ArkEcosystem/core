@@ -1,4 +1,4 @@
-const { Wallet } = require('@arkecosystem/client').models
+const { WalletModel } = require('@arkecosystem/client')
 const config = require('../config')
 const logger = require('../logger')
 const { crypto } = require('@arkecosystem/client')
@@ -27,7 +27,7 @@ module.exports = class WalletManager {
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
       if (block.data.height === 1) {
-        delegate = new Wallet(generator)
+        delegate = new WalletModel(generator)
         delegate.publicKey = block.data.generatorPublicKey
         this.walletsByAddress[generator] = delegate
         this.walletsByPublicKey[block.generatorPublicKey] = delegate
@@ -61,7 +61,7 @@ module.exports = class WalletManager {
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
 
-      delegate = new Wallet(generator)
+      delegate = new WalletModel(generator)
       delegate.publicKey = block.data.generatorPublicKey
       this.walletsByAddress[generator] = delegate
       this.walletsByPublicKey[block.generatorPublicKey] = delegate
@@ -97,7 +97,7 @@ module.exports = class WalletManager {
     const recipientId = datatx.recipientId // may not exist
     let recipient = this.walletsByAddress[recipientId]
     if (!recipient && recipientId) { // cold wallet
-      recipient = new Wallet(recipientId)
+      recipient = new WalletModel(recipientId)
       this.walletsByAddress[recipientId] = recipient
     }
 
@@ -149,7 +149,7 @@ module.exports = class WalletManager {
       if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
         return null
       }
-      wallet = new Wallet(address)
+      wallet = new WalletModel(address)
       this.walletsByAddress[address] = wallet
       return wallet
     }
