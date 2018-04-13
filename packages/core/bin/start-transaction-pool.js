@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const packageJson = require('../package.json')
 const config = require('@arkecosystem/core-config')
 const logger = require('@arkecosystem/core-logger')
 
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('-c, --config <path>', 'config files path')
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)

@@ -2,7 +2,7 @@ const Bull = require('bull')
 
 let instance
 
-module.exports = class QueueManager {
+module.exports = class Queue {
   constructor (config) {
     this.config = config
 

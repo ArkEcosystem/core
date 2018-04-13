@@ -1,24 +1,21 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const { WebhookManager, QueueManager } = require('@arkecosystem/core-webhooks')
-
-const packageJson = require('../package.json')
-
+const WebhookManager = require('@arkecosystem/core-webhooks')
 const logger = require('@arkecosystem/core-logger')
 const config = require('@arkecosystem/core-config')
 const DatabaseInterface = require('@arkecosystem/core-database')
-
-const BlockchainManager = require('../src/core/managers/blockchain')
-
-const P2PInterface = require('../src/api/p2p/p2pinterface')
 const PublicAPI = require('@arkecosystem/core-api-public')
 
+// TODO: think about extracting this into @arkecosystem/core-api-p2p
+const P2PInterface = require('../src/api/p2p/p2pinterface')
+
+const BlockchainManager = require('../src/core/managers/blockchain')
 const DependencyHandler = require('../src/core/dependency-handler')
 const TransactionHandler = require('../src/core/transaction-handler')
 
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('-c, --config <path>', 'config files path')
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)
@@ -36,11 +33,8 @@ const start = async () => {
     await DependencyHandler.checkDatabaseLibraries(config)
 
     // TODO: implement some system to see if webhooks are enabled and @arkecosystem/core-webhooks is installed
-    logger.info('Initialising Queue Manager...')
-    await new QueueManager(config.server.redis)
-
     logger.info('Initialising Webhook Manager...')
-    await new WebhookManager(config.webhooks).init()
+    await new WebhookManager().init()
 
     logger.info('Initialising Database Interface...')
     const db = await DatabaseInterface.create(config.server.database)
@@ -59,8 +53,9 @@ const start = async () => {
     await blockchainManager.start()
     await blockchainManager.isReady()
 
+    // TODO: implement some system to see if the public api is enabled and @arkecosystem/core-api-public is installed
     logger.info('Initialising Public API...')
-    await PublicAPI(config)
+    await PublicAPI()
   } catch (error) {
     console.error(error.stack)
     process.exit(1)

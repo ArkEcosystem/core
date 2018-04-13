@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const packageJson = require('../package.json')
 const logger = require('@arkecosystem/core-logger')
 const config = require('@arkecosystem/core-config')
-const BlockchainManager = require('../src/core/managers/blockchain')
-const P2PInterface = require('../src/api/p2p/p2pinterface')
-const DB = require('../src/core/dbinterface')
-const QueueManager = require('../src/core/managers/queue')
-const WebhookManager = require('../src/core/managers/webhook')
-const DependencyHandler = require('../src/core/dependency-handler')
+const DB = require('@arkecosystem/core-database')
 const PublicAPI = require('@arkecosystem/core-api-public')
+const WebhookManager = require('@arkecosystem/core-webhooks')
+
+const packageJson = require('../package.json')
+
+// TODO: think about extracting this into @arkecosystem/core-api-p2p
+const P2PInterface = require('../src/api/p2p/p2pinterface')
+
+const BlockchainManager = require('../src/core/managers/blockchain')
+const DependencyHandler = require('../src/core/dependency-handler')
 const TransactionHandler = require('../src/core/transaction-handler')
 const ForgerManager = require('../src/core/managers/forger')
 
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('-c, --config <path>', 'config files path')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-a, --address <address>', 'forger address')
@@ -36,9 +39,7 @@ const start = async () => {
     logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    logger.info('Initialising Queue Manager...')
-    await new QueueManager(config.server.queue)
-
+    // TODO: implement some system to see if webhooks are enabled and @arkecosystem/core-webhooks is installed
     logger.info('Initialising Webhook Manager...')
     await new WebhookManager(config.webhooks).init()
 

@@ -1,7 +1,8 @@
-const logger = require('@arkecosystem/core-logger')
 const Hapi = require('hapi')
+const config = require('@arkecosystem/core-config')
+const logger = require('@arkecosystem/core-logger')
 
-module.exports = async (config) => {
+module.exports = async () => {
   if (!config.api.public.enabled) {
     return logger.info('Oh snap! Public API not enabled...')
   }

@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const packageJson = require('../package.json')
+
 const logger = require('@arkecosystem/core-logger')
-const ForgerManager = require('../src/core/managers/forger')
 const config = require('@arkecosystem/core-config')
 
+const packageJson = require('../package.json')
+
+const ForgerManager = require('../src/core/managers/forger')
+
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('-c, --config <path>', 'config files path')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-a, --address <address>', 'forger address')

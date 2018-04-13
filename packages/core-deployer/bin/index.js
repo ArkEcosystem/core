@@ -5,11 +5,10 @@ const assert = require('assert-plus')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const packageJson = require('../package.json')
 const { updateConfig } = require('../src/utils')
 
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('--network <value>', 'Network')
   .option('--p2pPort <value>', 'P2P API Port')
   .option('--pubPort <value>', 'Public P2P Port')

@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
 const assert = require('assert-plus')
 const commander = require('commander')
-const packageJson = require('../package.json')
-const path = require('path')
-const DB = require('../src/core/dbinterface')
-const DependencyHandler = require('../src/core/dependency-handler')
-const config = require('@arkecosystem/core-config')
-const logger = require('@arkecosystem/core-logger')
 const expandHomeDir = require('expand-home-dir')
+const fs = require('fs')
+const path = require('path')
+
+const config = require('@arkecosystem/core-config')
+const DB = require('@arkecosystem/core-database')
+const logger = require('@arkecosystem/core-logger')
+
+const packageJson = require('../package.json')
+
+const DependencyHandler = require('../src/core/dependency-handler')
 
 commander
-  .version(packageJson.version)
+  .version(require('../package.json').version)
   .option('-c, --config <path>', 'config files path')
   .option('-i, --interactive', 'launch cli')
   .parse(process.argv)

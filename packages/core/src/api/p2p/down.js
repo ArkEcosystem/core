@@ -1,10 +1,10 @@
-const Peer = require('./peer')
-const logger = require('@arkecosystem/core-logger')
 const { slots } = require('@arkecosystem/client')
-const isLocalhost = require('./utils/is-localhost')
+const config = require('@arkecosystem/core-config')
+const logger = require('@arkecosystem/core-logger')
+const webhookManager = require('@arkecosystem/core-webhooks')
 
-// FIXME: make this accessible from @arkecosystem/core-webhooks
-const webhookManager = require('../../../../core-webhooks/src/manager')
+const Peer = require('./peer')
+const isLocalhost = require('./utils/is-localhost')
 
 module.exports = class Down {
   constructor (p2p, config) {
