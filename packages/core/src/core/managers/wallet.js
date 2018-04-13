@@ -55,22 +55,31 @@ module.exports = class WalletManager {
   }
 
   async undoBlock (block) {
-    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey] // FIXME: this is empty during fork recovery
 
-    const undoedTransactions = []
+    // README: temporary (?) fix for the above issue that the delegate is empty on fork recovery
+    if (!delegate) {
+      const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+
+      delegate = new Wallet(generator)
+      delegate.publicKey = block.data.generatorPublicKey
+      this.walletsByAddress[generator] = delegate
+      this.walletsByPublicKey[block.generatorPublicKey] = delegate
+    }
+    const undoneTransactions = []
     const that = this
 
     try {
       await Promise.each(block.transactions, async (tx) => {
         await that.undoTransaction(tx)
 
-        undoedTransactions.push(tx)
+        undoneTransactions.push(tx)
       })
 
       return delegate.undoBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
-      await Promise.each(undoedTransactions, async (tx) => that.applyTransaction(tx))
+      await Promise.each(undoneTransactions, async (tx) => that.applyTransaction(tx))
       throw error
     }
   }
