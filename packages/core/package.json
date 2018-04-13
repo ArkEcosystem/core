@@ -9,7 +9,6 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
-  "main": "src/index.js",
   "bin": {
     "ark:full:mainnet": "bin/start-relay-and-forger.js -c config/mainnet",
     "ark:full:devnet": "bin/start-relay-and-forger.js -c config/devnet",
@@ -57,7 +56,7 @@
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-commander": "^1.0.0",
     "@arkecosystem/core-config": "^1.0.0",
-    "@arkecosystem/core-db-sequelize": "^1.0.0",
+    "@arkecosystem/core-database-sequelize": "^1.0.0",
     "@arkecosystem/core-logger-graylog": "^1.0.0",
     "@arkecosystem/core-logger-winston": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",

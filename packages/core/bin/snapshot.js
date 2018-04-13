@@ -7,8 +7,8 @@ const packageJson = require('../package.json')
 const path = require('path')
 const DB = require('../src/core/dbinterface')
 const DependencyHandler = require('../src/core/dependency-handler')
-const config = require('../src/core/config')
-const logger = require('../src/core/logger')
+const config = require('@arkecosystem/core-config')
+const logger = require('@arkecosystem/core-logger')
 const expandHomeDir = require('expand-home-dir')
 
 commander

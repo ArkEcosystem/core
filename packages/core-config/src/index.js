@@ -3,7 +3,7 @@ const fs = require('fs')
 const dirTree = require('directory-tree')
 const deepmerge = require('deepmerge')
 const isString = require('lodash/isString')
-// const logger = require('./logger')
+const logger = require('@arkecosystem/core-logger')
 const assert = require('assert-plus')
 
 let instance = null
@@ -29,7 +29,7 @@ class ConfigManager {
         this[key] = value
       }
 
-      // await logger.init(this.server.logging, this.network.name)
+      await logger.init(this.server.logging, this.network.name)
 
       this.buildConstants()
 

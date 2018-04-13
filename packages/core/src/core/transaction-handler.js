@@ -1,4 +1,4 @@
-const logger = require('./logger')
+const logger = require('@arkecosystem/core-logger')
 const { Transaction } = require('@arkecosystem/client').models
 const { crypto, slots } = require('@arkecosystem/client')
 const async = require('async')

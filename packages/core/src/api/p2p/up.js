@@ -1,4 +1,4 @@
-const logger = require('../../core/logger')
+const logger = require('@arkecosystem/core-logger')
 const Hapi = require('hapi')
 
 module.exports = class Up {

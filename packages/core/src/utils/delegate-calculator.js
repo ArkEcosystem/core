@@ -1,6 +1,6 @@
 const blockchain = require('../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('../core/config')
+const config = require('@arkecosystem/core-config')
 
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data

@@ -2,9 +2,9 @@
 
 const commander = require('commander')
 const packageJson = require('../package.json')
-const logger = require('../src/core/logger')
+const logger = require('@arkecosystem/core-logger')
 const ForgerManager = require('../src/core/managers/forger')
-const config = require('../src/core/config')
+const config = require('@arkecosystem/core-config')
 
 commander
   .version(packageJson.version)

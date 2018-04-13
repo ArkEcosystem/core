@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const config = require('../../../../../core/config')
+const config = require('@arkecosystem/core-config')
 
 const events = config.webhooks.events.map(event => event.name)
 

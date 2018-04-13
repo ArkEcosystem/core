@@ -1,6 +1,6 @@
 const Down = require('./down')
 const Up = require('./up')
-const logger = require('../../core/logger')
+const logger = require('@arkecosystem/core-logger')
 const dns = require('dns')
 const Sntp = require('sntp')
 

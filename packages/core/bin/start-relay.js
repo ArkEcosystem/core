@@ -7,13 +7,13 @@ const packageJson = require('../package.json')
 
 const logger = require('@arkecosystem/core-logger')
 const config = require('@arkecosystem/core-config')
+const DatabaseInterface = require('@arkecosystem/core-database')
 
 const BlockchainManager = require('../src/core/managers/blockchain')
 
 const P2PInterface = require('../src/api/p2p/p2pinterface')
 const PublicAPI = require('../src/api/public')
 
-const DB = require('../src/core/dbinterface')
 const DependencyHandler = require('../src/core/dependency-handler')
 const TransactionHandler = require('../src/core/transaction-handler')
 
@@ -35,6 +35,7 @@ const start = async () => {
     logger.info('Initialising Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
 
+    // TODO: implement some system to see if webhooks are enabled and @arkecosystem/core-webhooks is installed
     logger.info('Initialising Queue Manager...')
     await new QueueManager(config.server.redis)
 
@@ -42,8 +43,8 @@ const start = async () => {
     await new WebhookManager(config.webhooks).init()
 
     logger.info('Initialising Database Interface...')
-    const db = await DB.create(config.server.database)
-    await blockchainManager.attachDBInterface(db)
+    const db = await DatabaseInterface.create(config.server.database)
+    await blockchainManager.attachDatabaseInterface(db)
 
     logger.info('Initialising P2P Interface...')
     const p2p = new P2PInterface(config)

@@ -1,5 +1,5 @@
 const Redis = require('ioredis')
-const logger = require('../logger')
+const logger = require('@arkecosystem/core-logger')
 const { Transaction } = require('@arkecosystem/client').models
 const { slots } = require('@arkecosystem/client')
 const blockchain = require('./blockchain')

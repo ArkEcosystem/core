@@ -1,7 +1,7 @@
 const { crypto } = require('@arkecosystem/client')
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('../../../../../core/config')
+const config = require('@arkecosystem/core-config')
 const { Transaction } = require('@arkecosystem/client').models
 const formatTimestamp = require('./utils/format-timestamp')
 

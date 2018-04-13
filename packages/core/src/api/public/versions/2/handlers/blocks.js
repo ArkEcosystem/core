@@ -1,4 +1,4 @@
-const db = require('../../../../../core/dbinterface').getInstance()
+const db = require('@arkecosystem/core-database').getInstance()
 const utils = require('../utils')
 const schema = require('../schema/blocks')
 

@@ -1,7 +1,7 @@
 const async = require('async')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
-const logger = require('../logger')
+const logger = require('@arkecosystem/core-logger')
 const stateMachine = require('../state-machine')
 const sleep = require('../../utils/sleep')
 
@@ -233,7 +233,7 @@ module.exports = class BlockchainManager {
     return this
   }
 
-  attachDBInterface (dbinterface) {
+  attachDatabaseInterface (dbinterface) {
     this.db = dbinterface
     return this
   }

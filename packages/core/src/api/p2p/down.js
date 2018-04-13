@@ -1,8 +1,10 @@
 const Peer = require('./peer')
-const logger = require('../../core/logger')
+const logger = require('@arkecosystem/core-logger')
 const { slots } = require('@arkecosystem/client')
 const isLocalhost = require('./utils/is-localhost')
-const webhookManager = require('../../core/managers/webhook')
+
+// FIXME: make this accessible from @arkecosystem/core-webhooks
+const webhookManager = require('../../../../core-webhooks/src/manager')
 
 module.exports = class Down {
   constructor (p2p, config) {
@@ -61,6 +63,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
+        // FIXME: webhookManager not available here
         webhookManager.getInstance().emit('peer.removed', this.peers[ip])
 
         return null
@@ -84,6 +87,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
+      // FIXME: webhookManager not available here
       webhookManager.getInstance().emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)

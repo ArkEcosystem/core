@@ -1,4 +1,4 @@
-const constants = require('../../../../../core/config').constants
+const constants = require('@arkecosystem/core-config').constants
 
 module.exports = {
   forgingStatus: {

@@ -1,5 +1,5 @@
 const { transformResource, transformCollection } = require('../../utils/transformer')
-const config = require('../../../../core/config')
+const config = require('@arkecosystem/core-config')
 
 const paginator = (request) => {
   return {

@@ -1,5 +1,5 @@
 const blockchain = require('../../../../../core/managers/blockchain').getInstance()
-const config = require('../../../../../core/config')
+const config = require('@arkecosystem/core-config')
 const utils = require('../utils')
 const schema = require('../schemas/peers')
 

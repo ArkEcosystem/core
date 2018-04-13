@@ -5,12 +5,16 @@ const fg = require('fast-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
-// FIXME: @arkecosystem/core is a circular dependency
-const { config, logger, DBInterface, webhookManager } = require('@arkecosystem/core')
+const DatabaseInterface = require('@arkecosystem/core-database')
+const { webhookManager } = require('@arkecosystem/core-webhooks')
+
+const config = require('@arkecosystem/core-config')
+const logger = require('@arkecosystem/core-logger')
+
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
-class SequelizeDB extends DBInterface {
+class SequelizeDB extends DatabaseInterface {
   async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
@@ -320,11 +324,13 @@ class SequelizeDB extends DBInterface {
         if (idx === -1) {
           wallet.missedBlocks++
 
+          // FIXME: webhookManager not available here
           webhookManager.getInstance().emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
+          // FIXME: webhookManager not available here
           webhookManager.getInstance().emit('block.forged', block)
         }
       })

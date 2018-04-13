@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-webhooks",
-  "description": "Webhooks for ARK Core",
+  "name": "@arkecosystem/core-database",
+  "description": "Database Interface for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -11,13 +11,9 @@
   "license": "MIT",
   "main": "src/index.js",
   "dependencies": {
-    "@arkecosystem/core": "^2.0.0",
-    "@arkecosystem/core-database": "^1.0.0",
-    "@arkecosystem/core-logger": "^1.0.0",
-    "async": "^2.6.0",
-    "axios": "^0.18.0",
-    "bull": "^3.3.10",
-    "lodash": "^4.17.5"
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-logger": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

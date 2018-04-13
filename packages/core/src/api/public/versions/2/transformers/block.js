@@ -1,4 +1,4 @@
-const db = require('../../../../../core/dbinterface').getInstance()
+const db = require('@arkecosystem/core-database').getInstance()
 const formatTimestamp = require('./utils/format-timestamp')
 
 module.exports = (model) => {

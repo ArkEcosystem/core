@@ -2,8 +2,8 @@
 
 const commander = require('commander')
 const packageJson = require('../package.json')
-const logger = require('../src/core/logger')
-const config = require('../src/core/config')
+const logger = require('@arkecosystem/core-logger')
+const config = require('@arkecosystem/core-config')
 const BlockchainManager = require('../src/core/managers/blockchain')
 const P2PInterface = require('../src/api/p2p/p2pinterface')
 const DB = require('../src/core/dbinterface')
@@ -44,7 +44,7 @@ const start = async () => {
 
     logger.info('Initialising Database Interface...')
     const db = await DB.create(config.server.database)
-    await blockchainManager.attachDBInterface(db)
+    await blockchainManager.attachDatabaseInterface(db)
 
     logger.info('Initialising P2P Interface...')
     const p2p = new P2PInterface(config)

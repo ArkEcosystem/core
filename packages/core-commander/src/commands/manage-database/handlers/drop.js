@@ -25,7 +25,7 @@ module.exports = async () => {
         db.getQueryInterface(),
         Sequelize
       ],
-      path: path.join(__dirname, '../../../../@arkecosystem/core-db-sequelize/migrations')
+      path: path.join(__dirname, '../../../../@arkecosystem/core-database-sequelize/migrations')
     }
   })
 

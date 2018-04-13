@@ -1,5 +1,5 @@
 const bs58check = require('bs58check')
-const config = require('../../../../../core/config')
+const config = require('@arkecosystem/core-config')
 
 module.exports = (ajv) => {
   ajv.addFormat('address', {

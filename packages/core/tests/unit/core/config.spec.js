@@ -1,5 +1,5 @@
 const path = require('path')
-const config = require('../../../src/core/config')
+const config = require('@arkecosystem/core-config')
 
 const stubConfigPath = 'config/devnet'
 const stubConfig = {

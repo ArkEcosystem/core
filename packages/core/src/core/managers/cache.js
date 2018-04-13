@@ -1,6 +1,6 @@
 const Promise = require('bluebird')
 const redis = require('redis')
-const logger = require('../logger')
+const logger = require('@arkecosystem/core-logger')
 
 let instance
 

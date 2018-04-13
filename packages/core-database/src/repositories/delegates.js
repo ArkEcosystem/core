@@ -1,4 +1,4 @@
-const { calculateApproval, calculateProductivity } = require('../../utils/delegate-calculator')
+const { calculateApproval, calculateProductivity } = require('../../../core/src/utils/delegate-calculator')
 
 module.exports = class DelegatesRepository {
   constructor (db) {

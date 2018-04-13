@@ -1,5 +1,5 @@
 const { slots } = require('@arkecosystem/client')
-const logger = require('../../../../core/logger')
+const logger = require('@arkecosystem/core-logger')
 const blockchain = require('../../../../core/managers/blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 

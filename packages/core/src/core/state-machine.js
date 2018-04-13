@@ -1,10 +1,10 @@
+const human = require('interval-to-human')
 const Machine = require('xstate').Machine
-const logger = require('./logger')
+const logger = require('@arkecosystem/core-logger')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
+const config = require('@arkecosystem/core-config')
 const sleep = require('../utils/sleep')
-const human = require('interval-to-human')
-const config = require('./config')
 
 let synctracker = null
 

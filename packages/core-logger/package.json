@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-config",
+  "name": "@arkecosystem/core-logger",
   "version": "1.0.0",
-  "description": "Configuration Manager for ARK Core",
+  "description": "Logger Manager for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",

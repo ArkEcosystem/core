@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-db-sequelize",
+  "name": "@arkecosystem/core-database-sequelize",
   "description": "Sequelize ORM for ARK Core",
   "version": "1.0.0",
   "contributors": [

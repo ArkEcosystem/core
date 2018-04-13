@@ -1,14 +1,16 @@
 const { crypto, slots } = require('@arkecosystem/client')
-const WalletManager = require('./managers/wallet')
-const config = require('./config')
-const logger = require('./logger')
+const config = require('@arkecosystem/core-config')
+const logger = require('@arkecosystem/core-logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
 
+// FIXME: make this accessible through a package
+const WalletManager = require('../../core/src/core/managers/wallet')
+
 let instance
 
-class DBInterface {
+module.exports = class DatabaseInterface {
   static getInstance () {
     return instance
   }
@@ -34,8 +36,8 @@ class DBInterface {
     }
 
     // those are special case repository and will overwrite...
-    instance['wallets'] = new (require('../database/repositories/wallets'))(instance)
-    instance['delegates'] = new (require('../database/repositories/delegates'))(instance)
+    instance['wallets'] = new (require('./repositories/wallets'))(instance)
+    instance['delegates'] = new (require('./repositories/delegates'))(instance)
   }
 
   getActiveDelegates (height) {
@@ -193,5 +195,3 @@ class DBInterface {
     }
   }
 }
-
-module.exports = DBInterface

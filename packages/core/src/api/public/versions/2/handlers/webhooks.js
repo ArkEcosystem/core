@@ -1,5 +1,5 @@
-const db = require('../../../../../core/dbinterface').getInstance()
-const config = require('../../../../../core/config')
+const db = require('@arkecosystem/core-database').getInstance()
+const config = require('@arkecosystem/core-config')
 const utils = require('../utils')
 const schema = require('../schema/webhooks')
 

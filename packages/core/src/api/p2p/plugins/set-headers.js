@@ -1,4 +1,4 @@
-const config = require('../../../core/config')
+const config = require('@arkecosystem/core-config')
 
 const register = async (server, options) => {
   const _headers = {

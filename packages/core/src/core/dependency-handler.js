@@ -3,7 +3,7 @@ const Promise = require('bluebird')
 class DependencyHandler {
   checkDatabaseLibraries (config) {
     let dependencies = {
-      '@arkecosystem/core-db-sequelize': {
+      '@arkecosystem/core-database-sequelize': {
         'mysql': ['mysql2'],
         'sqlite': ['sqlite3'],
         'postgres': ['pg', 'pg-hstore'],

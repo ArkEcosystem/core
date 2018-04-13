@@ -10,7 +10,7 @@
     }
   },
   "database": {
-    "driver": "@arkecosystem/core-db-sequelize",
+    "driver": "@arkecosystem/core-database-sequelize",
     "options": {
       "uri": "sqlite:~/.ark/database/testnet.sqlite",
       "uri1": "postgres://node:password@localhost:5432/ark_testnet",

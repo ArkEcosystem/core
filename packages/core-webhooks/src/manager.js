@@ -1,8 +1,8 @@
 const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
-// FIXME: @arkecosystem/core is a circular dependency
-const { logger, DBInterface } = require('@arkecosystem/core')
+const logger = require('@arkecosystem/core-logger')
+const database = require('@arkecosystem/core-database')
 const queue = require('./queue')
 
 let instance
@@ -30,7 +30,7 @@ module.exports = class WebhookManager {
 
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, async (payload) => {
-        const webhooks = await DBInterface.getInstance().webhooks.findByEvent(event)
+        const webhooks = await database.getInstance().webhooks.findByEvent(event)
 
         this
           .getMatchingWebhooks(webhooks, payload)
