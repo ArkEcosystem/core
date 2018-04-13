@@ -33,8 +33,9 @@ class DBInterface {
       instance[key] = new value(instance)
     }
 
-    // this is a special case repository and will be forced to be read from memory...
+    // those are special case repository and will overwrite...
     instance['wallets'] = new (require('../database/repositories/wallets'))(instance)
+    instance['delegates'] = new (require('../database/repositories/delegates'))(instance)
   }
 
   getActiveDelegates (height) {

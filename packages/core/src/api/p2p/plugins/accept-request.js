@@ -1,5 +1,5 @@
 const requestIp = require('request-ip')
-const isLocalhost = require('../../../utils/is-localhost')
+const isLocalhost = require('../utils/is-localhost')
 
 const register = async (server, options) => {
   const requiredHeaders = ['nethash', 'version', 'port', 'os']

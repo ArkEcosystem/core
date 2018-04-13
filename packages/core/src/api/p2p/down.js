@@ -1,7 +1,7 @@
 const Peer = require('./peer')
 const logger = require('../../core/logger')
 const { slots } = require('@arkecosystem/client')
-const isLocalhost = require('../../utils/is-localhost')
+const isLocalhost = require('./utils/is-localhost')
 const webhookManager = require('../../core/managers/webhook')
 
 module.exports = class Down {

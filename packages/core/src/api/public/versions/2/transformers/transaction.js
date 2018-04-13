@@ -3,7 +3,7 @@ const blockchain = require('../../../../../core/managers/blockchain').getInstanc
 const state = blockchain.getState()
 const config = require('../../../../../core/config')
 const { Transaction } = require('@arkecosystem/client').models
-const formatTimestamp = require('../../../../../utils/format-timestamp')
+const formatTimestamp = require('./utils/format-timestamp')
 
 module.exports = (model) => {
   const data = Transaction.deserialize(model.serialized.toString('hex'))
@@ -20,10 +20,6 @@ module.exports = (model) => {
     vendorField: data.vendorField,
     asset: data.asset,
     confirmations: state.lastBlock ? state.lastBlock.data.height - model.block.height : 0,
-    timestamp: {
-      epoch: data.timestamp,
-      unix: formatTimestamp(data.timestamp).unix(),
-      human: formatTimestamp(data.timestamp).format()
-    }
+    timestamp: formatTimestamp(data.timestamp)
   }
 }

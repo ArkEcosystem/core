@@ -12,7 +12,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core": "^2.0.0",
+    "@arkecosystem/core-config": "^1.0.0",
     "expand-home-dir": "^0.0.3",
     "fast-glob": "^2.2.0",
     "sequelize": "^4.37.6",

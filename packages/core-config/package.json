@@ -1,9 +1,8 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-logger-graylog",
+  "name": "@arkecosystem/core-config",
   "version": "1.0.0",
-  "description": "Graylog Logger for ARK Core",
-  "version": "1.0.0",
+  "description": "Configuration Manager for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -12,7 +11,10 @@
   "license": "MIT",
   "main": "src/index.js",
   "dependencies": {
-    "graylog2": "^0.2.1"
+    "assert-plus": "^1.0.0",
+    "deepmerge": "^2.1.0",
+    "directory-tree": "^2.1.0",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
