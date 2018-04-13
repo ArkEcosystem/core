@@ -6,7 +6,7 @@ const isString = require('lodash/isString')
 const logger = require('@arkecosystem/core-logger')
 const assert = require('assert-plus')
 
-let instance = null
+let instance
 
 class ConfigManager {
   constructor () {

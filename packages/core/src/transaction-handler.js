@@ -5,7 +5,7 @@ const async = require('async')
 const BlockchainManager = require('./managers/blockchain')
 const TransactionPoolManager = require('./managers/transaction-pool')
 
-let instance = null
+let instance
 
 module.exports = class TransactionHandler {
   static getInstance () {

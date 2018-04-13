@@ -4,7 +4,7 @@ const { Transaction } = require('@arkecosystem/client').models
 const { slots } = require('@arkecosystem/client')
 const blockchain = require('./blockchain')
 
-let instance = null
+let instance
 
 module.exports = class TransactionPoolManager {
   static getInstance () {

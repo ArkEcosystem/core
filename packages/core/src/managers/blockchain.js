@@ -5,7 +5,7 @@ const logger = require('@arkecosystem/core-logger')
 const stateMachine = require('../state-machine')
 const sleep = require('../utils/sleep')
 
-let instance = null
+let instance
 
 module.exports = class BlockchainManager {
   constructor (config, networkStart) {
