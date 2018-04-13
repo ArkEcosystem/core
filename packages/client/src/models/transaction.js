@@ -266,7 +266,7 @@ module.exports = class Transaction {
       // }
 
       if (!transaction.id) {
-        transaction.id = cryptoBuilder.getId(tx)
+        transaction.id = cryptoBuilder.getId(transaction)
       }
     } else if (transaction.version === 2) {
       transaction.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex');

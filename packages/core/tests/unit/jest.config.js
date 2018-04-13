@@ -5,10 +5,9 @@ module.exports = Object.assign(baseConfig, {
   testMatch: ['**/tests/unit/**/*.spec.js'],
   coverageDirectory: 'tests/coverage/unit',
   collectCoverageFrom: [
-    'app/config/**/*.js',
-    'app/core/**/*.js',
-    'app/database/**/*.js',
-    'app/model/**/*.js',
-    'app/utils/**/*.js'
+    'src/config/**/*.js',
+    'src/core/**/*.js',
+    'src/database/**/*.js',
+    'src/utils/**/*.js'
   ]
 })

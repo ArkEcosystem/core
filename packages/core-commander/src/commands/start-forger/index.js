@@ -5,7 +5,7 @@ const chalk = require('chalk')
 const { sleep } = require('sleep')
 const questions = require('./questions')
 const { onCancel, readConfig, startProcess } = require('../../utils')
-const { decrypt } = require('../../../../core/app/utils/forger-crypto')
+const { decrypt } = require('../../../../core/src/utils/forger-crypto')
 
 module.exports = async () => {
   const identity = readConfig('delegates').identity
@@ -21,7 +21,7 @@ module.exports = async () => {
       if (arkjs.crypto.validateAddress(address, readConfig('network').pubKeyHash)) {
         startProcess({
           name: 'ark-core:forger',
-          script: path.resolve(__dirname, '../../../app/start-forger.js'),
+          script: path.resolve(__dirname, '../../../src/start-forger.js'),
           args: [
             '--config', process.env.ARK_CONFIG,
             '--bip38', bip38,
