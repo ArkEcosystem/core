@@ -1,3 +1,5 @@
+// TODO: move this as it is only used by core-api-public and core-database
+
 const blockchain = require('../managers/blockchain').getInstance()
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-config')
