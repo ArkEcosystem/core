@@ -9,7 +9,7 @@ const RedisQueue = require('./queue')
 
 let instance
 
-class WebhookManager {
+module.exports = class Manager {
   static getInstance() {
     return instance
   }
@@ -22,13 +22,15 @@ class WebhookManager {
     return instance
   }
 
-  async boot(hook, config, app) {
-    if (!config.webhooks.enabled) return
+  async boot(config) {
+    this.config = config
+
+    if (!this.config.enabled) return
 
     this.__registerEventEmitter()
     await this.__registerQueueManager()
 
-    map(config.webhooks.events, 'name').forEach((event) => {
+    map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, async(payload) => {
         const webhooks = await database.getInstance().webhooks.findByEvent(event)
 
@@ -72,7 +74,7 @@ class WebhookManager {
   }
 
   emit(event, payload) {
-    if (!config.webhooks.enabled) return
+    if (!this.config.enabled) return
 
     this.emitter.emit(event, payload)
   }
@@ -105,5 +107,3 @@ class WebhookManager {
     this.queue = RedisQueue.getInstance().connection('webhooks')
   }
 }
-
-module.exports = new WebhookManager()

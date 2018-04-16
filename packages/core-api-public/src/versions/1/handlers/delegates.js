@@ -1,7 +1,7 @@
-const blockchain = require('../../../../../core/src/managers/blockchain').getInstance()
+const blockchain = require('@arkecosystem/core-module-loader').get('blockchain')
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-module-loader').get('config')
-const db = require('@arkecosystem/core-module-loader').get('database').getInstance()
+const db = require('@arkecosystem/core-module-loader').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/delegates')
 

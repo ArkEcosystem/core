@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - State Management
+# ARK Core - Blockchain Management
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-state-machine
+yarn add @arkecosystem/core-blockchain
 ```
 
 ## Security

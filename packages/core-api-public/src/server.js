@@ -2,13 +2,13 @@ const Hapi = require('hapi')
 const config = require('@arkecosystem/core-module-loader').get('config')
 const logger = require('@arkecosystem/core-module-loader').get('logger')
 
-module.exports = async () => {
-  if (!config.api.public.enabled) {
+module.exports = async (config) => {
+  if (!config.enabled) {
     return logger.info('Oh snap! Public API not enabled...')
   }
 
   const baseConfig = {
-    port: config.api.public.port,
+    port: config.port,
     routes: {
       cors: true,
       validate: {
@@ -17,8 +17,8 @@ module.exports = async () => {
     }
   }
 
-  if (config.api.public.cache.enabled) {
-    const cacheOptions = config.api.public.cache.options
+  if (config.cache.enabled) {
+    const cacheOptions = config.cache.options
     cacheOptions.engine = require(cacheOptions.engine)
     baseConfig.cache = [cacheOptions]
     baseConfig.routes.cache = { expiresIn: cacheOptions.expiresIn }
@@ -28,17 +28,18 @@ module.exports = async () => {
 
   await server.register([require('vision'), require('inert'), require('lout')])
 
+  // TODO: move this into the webhooks module as an extra webhooks API
   await server.register(require('./plugins/auth/webhooks'))
 
   await server.auth.strategy('webhooks', 'webhooks', {
-    token: config.webhooks.token
+    token: '$argon2id$v=19$m=4096,t=3,p=1$/sUhlZGQp/K+zGLlwWp5Kw$8aNVK5F6DU20zaA8WjBSge/xNf75793BcfBo/zj5Yxw', // config.webhooks.token
   })
 
   await server.register({
     plugin: require('hapi-api-version'),
     options: {
-      validVersions: config.api.public.versions.valid,
-      defaultVersion: config.api.public.versions.default,
+      validVersions: config.versions.valid,
+      defaultVersion: config.versions.default,
       basePath: '/api/',
       vendorName: 'ark-core-public-api'
     }
@@ -51,11 +52,11 @@ module.exports = async () => {
   await server.register({
     plugin: require('hapi-rate-limit'),
     options: {
-      enabled: config.api.public.rateLimit.enabled,
+      enabled: config.rateLimit.enabled,
       pathLimit: false,
-      userLimit: config.api.public.rateLimit.limit,
+      userLimit: config.rateLimit.limit,
       userCache: {
-        expiresIn: config.api.public.rateLimit.expires
+        expiresIn: config.rateLimit.expires
       }
     }
   })
@@ -68,14 +69,14 @@ module.exports = async () => {
       },
       query: {
         limit: {
-          default: config.api.public.pagination.limit
+          default: config.pagination.limit
         }
       },
       results: {
         name: 'data'
       },
       routes: {
-        include: config.api.public.pagination.include,
+        include: config.pagination.include,
         exclude: ['*']
       }
     }
@@ -88,7 +89,8 @@ module.exports = async () => {
 
   await server.register({
     plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' }
+    routes: { prefix: '/api/v2' },
+    options: config
   })
 
   try {

@@ -1,13 +1,19 @@
-const package = require('../package.json')
-const manager = require('./manager')
+const logger = require('@arkecosystem/core-module-loader').get('logger')
+const Manager = require('./manager')
 
-module.exports = {
-  name: package.name,
-  version: package.version,
+exports.plugin = {
+  pkg: require('../package.json'),
   alias: 'webhooks',
   register: async(hook, config, app) => {
-    console.log(hook, config, app)
-    process.exit()
-    await manager.boot(hook, config, app)
+    logger.info('Initialising Webhook Manager...')
+
+    const manager = new Manager(config)
+    await manager.boot(config)
+
+    // logger.info('Initialising Webhook API...')
+
+    // await Server(config)
+
+    return Manager.getInstance()
   }
 }

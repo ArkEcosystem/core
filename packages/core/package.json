@@ -62,7 +62,7 @@
     "@arkecosystem/core-database-sequelize": "^1.0.0",
     "@arkecosystem/core-forger": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",
-    "@arkecosystem/core-state-machine": "^1.0.0",
+    "@arkecosystem/core-blockchain": "^1.0.0",
     "@arkecosystem/core-logger-winston": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",

@@ -5,7 +5,7 @@ const fg = require('fast-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
-const { DatabaseInterface } = require('@arkecosystem/core-database').exports
+const { DatabaseInterface } = require('@arkecosystem/core-database')
 
 const moduleLoader = require('@arkecosystem/core-module-loader')
 const config = moduleLoader.get('config')

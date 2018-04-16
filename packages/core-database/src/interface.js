@@ -16,7 +16,7 @@ module.exports = class DatabaseInterface {
   static async boot (hook, config, app) {
     const driver = require(config.driver)
 
-    const db = driver.exports.provider
+    const db = driver.provider
     db.walletManager = new WalletManager()
 
     await db.boot(hook, app.config.modules[hook][config.driver], app)
@@ -27,7 +27,7 @@ module.exports = class DatabaseInterface {
   }
 
   static registerRepositories (driver) {
-    const repositories = driver.exports.repositories()
+    const repositories = driver.repositories()
 
     for (const [key, value] of Object.entries(repositories)) {
       instance[key] = new value(instance)
@@ -146,7 +146,7 @@ module.exports = class DatabaseInterface {
   async undoBlock (block) {
     await this.undoRound(block.data.height)
     await this.walletManager.undoBlock(block)
-    // webhookManager.getInstance().emit('block.removed', block)
+    // webhookManager.emit('block.removed', block)
   }
 
   verifyTransaction (transaction) {

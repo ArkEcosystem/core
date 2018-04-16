@@ -3,7 +3,6 @@ const { slots } = require('@arkecosystem/client')
 const moduleLoader = require('@arkecosystem/core-module-loader')
 const config = moduleLoader.get('config')
 const logger = moduleLoader.get('logger')
-const webhookManager = moduleLoader.get('webhooks')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
@@ -65,8 +64,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
-        // FIXME: webhookManager not available here
-        webhookManager.getInstance().emit('peer.removed', this.peers[ip])
+        moduleLoader.get('webhooks').emit('peer.removed', this.peers[ip])
 
         return null
       }
@@ -89,8 +87,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
-      // FIXME: webhookManager not available here
-      webhookManager.getInstance().emit('peer.added', npeer)
+      moduleLoader.get('webhooks').emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }

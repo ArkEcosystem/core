@@ -2,7 +2,7 @@ const async = require('async')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
 const logger = require('@arkecosystem/core-module-loader').get('logger')
-const stateMachine = require('@arkecosystem/core-module-loader').get('state-machine')
+const stateMachine = require('./state-machine')
 const sleep = require('./utils/sleep')
 
 let instance

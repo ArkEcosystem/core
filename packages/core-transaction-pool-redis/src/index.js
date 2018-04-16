@@ -1,10 +1,8 @@
 const logger = require('@arkecosystem/core-module-loader').get('logger')
-const package = require('../package.json')
 const TransactionHandler = require('./handler')
 
-module.exports = {
-  name: package.name,
-  version: package.version,
+exports.plugin = {
+  pkg: require('../package.json'),
   alias: 'transaction-pool',
   register: async(hook, config, app) => {
     logger.info('Initialising Transaction Pool...')

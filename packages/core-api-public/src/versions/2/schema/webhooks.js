@@ -1,7 +1,8 @@
 const Joi = require('joi')
 const config = require('@arkecosystem/core-module-loader').get('config')
 
-const events = config.webhooks.events.map(event => event.name)
+// FIXME: get this list from the modules.json config
+const events = [] // config.webhooks.events.map(event => event.name)
 
 const conditions = [
   'between', 'contains', 'eq', 'falsy', 'gt', 'gte',

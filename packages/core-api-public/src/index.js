@@ -1,11 +1,11 @@
-const package = require('../package.json')
-const server = require('./server')
+const logger = require('@arkecosystem/core-module-loader').get('logger')
+const Server = require('./server')
 
-module.exports = {
-  name: package.name,
-  version: package.version,
-  register: async(options) => {
-    // logger.info('Initialising Public API...')
-    await server()
+exports.plugin = {
+  pkg: require('../package.json'),
+  register: async(hook, config, app) => {
+    logger.info('Initialising Public API...')
+
+    await Server(config)
   }
 }

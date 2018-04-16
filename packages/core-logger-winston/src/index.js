@@ -1,8 +1,6 @@
-const package = require('../package.json')
 const logger = require('./logger')
 
-module.exports = {
-  name: package.name,
-  version: package.version,
+exports.plugin = {
+  pkg: require('../package.json'),
   boot: async(config) => logger.boot(config)
 }

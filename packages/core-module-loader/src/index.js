@@ -15,7 +15,7 @@ class ModuleLoader {
 
   async bind(hook, app = {}) {
     for (const [moduleName, moduleConfig] of Object.entries(this.modules[hook])) {
-      const module = require(moduleName)
+      const module = require(moduleName).plugin
 
       if (!module.hasOwnProperty('register')) continue
 

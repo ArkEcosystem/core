@@ -1,10 +1,8 @@
 const logger = require('@arkecosystem/core-module-loader').get('logger')
-const package = require('../package.json')
 const ForgerManager = require('./manager')
 
-module.exports = {
-  name: package.name,
-  version: package.version,
+exports.plugin = {
+  pkg: require('../package.json'),
   alias: 'forger',
   register: async(hook, config, app) => {
     const forgerManager = await new ForgerManager(app.config)

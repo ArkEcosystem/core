@@ -1,4 +1,3 @@
-const config = require('@arkecosystem/core-module-loader').get('config')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')
@@ -48,6 +47,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search },
 
+    // TODO: move this into the webhooks module as an extra webhooks API
     { method: 'GET', path: '/webhooks', ...webhooks.index },
     { method: 'POST', path: '/webhooks', ...webhooks.store },
     { method: 'GET', path: '/webhooks/{id}', ...webhooks.show },
@@ -56,7 +56,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/webhooks/events', ...webhooks.events }
   ]
 
-  if (config.api.public.statistics && config.api.public.statistics.enabled) {
+  if (options.statistics.enabled) {
     routes = [
       ...routes,
       ...[

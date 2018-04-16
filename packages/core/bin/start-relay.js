@@ -51,7 +51,11 @@ const start = async () => {
     await blockchainManager.isReady()
 
     // Blockchain has been mounted...
-    await moduleLoader.bind('mounted', { config, network: config.network.name })
+    await moduleLoader.bind('mounted', {
+      config,
+      blockchainManager,
+      network: config.network.name
+    })
   } catch (error) {
     console.error(error.stack)
     process.exit(1)
