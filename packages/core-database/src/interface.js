@@ -4,9 +4,7 @@ const logger = require('@arkecosystem/core-module-loader').get('logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
-
-// FIXME: make this accessible through a package
-const WalletManager = require('../../core/src/managers/wallet')
+const WalletManager = require('./wallet-manager')
 
 let instance
 
