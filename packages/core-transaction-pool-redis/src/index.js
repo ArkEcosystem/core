@@ -7,8 +7,8 @@ exports.plugin = {
   register: async(hook, config, app) => {
     logger.info('Initialising Transaction Pool...')
 
-    const txHandler = await new TransactionHandler(config)
+    const handler = await new TransactionHandler(config)
 
-    await app.blockchainManager.attachTransactionHandler(txHandler)
+    await app.blockchainManager.attachTransactionHandler(handler)
   }
 }

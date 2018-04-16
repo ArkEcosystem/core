@@ -11,15 +11,16 @@ class ModuleLoader {
 
     this.plugins = plugins
     this.instances = {}
+    this.state = {}
   }
 
-  async bind(hook, app = {}) {
+  async register(hook) {
     for (const [moduleName, moduleConfig] of Object.entries(this.plugins[hook])) {
       const module = require(moduleName).plugin
 
       if (!module.hasOwnProperty('register')) continue
 
-      this.instances[module.alias || module.name] = await module.register(hook, moduleConfig, app)
+      this.instances[module.alias || module.name] = await module.register(hook, moduleConfig, this.state)
 
       if (module.alias) {
         this.instances[module.name]
@@ -29,6 +30,10 @@ class ModuleLoader {
 
   get(name) {
     return this.instances[name]
+  }
+
+  setState(values, merge = true) {
+    this.state = merge ? Object.assign(values, this.state) : values
   }
 }
 
