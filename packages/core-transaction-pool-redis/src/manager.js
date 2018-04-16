@@ -1,10 +1,8 @@
 const Redis = require('ioredis')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
+const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 const { slots } = require('@arkecosystem/client')
-
-// FIXME: expose this via module loader
-const blockchain = require('../../core-blockchain/src/manager')
 
 let instance
 

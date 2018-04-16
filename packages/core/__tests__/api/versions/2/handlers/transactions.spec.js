@@ -41,7 +41,6 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  // @FIXME: TypeError: this.redis.getTransactionsForForger is not a function
   describe.skip('GET /transactions/unconfirmed', () => {
     it('should GET all the unconfirmed transactions', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')
@@ -50,7 +49,6 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  // @FIXME: TypeError: this.redis.getTransactionsForForger is not a function
   describe.skip('GET /transactions/unconfirmed/:id', () => {
     it('should GET an unconfirmed transaction by the given identifier', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed/:id')

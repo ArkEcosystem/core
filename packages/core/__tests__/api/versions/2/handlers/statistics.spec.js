@@ -29,7 +29,7 @@ describe.skip('API 2.0 - Statistics', () => {
     })
   })
 
-  // @TODO: big performance impact, think about storing them in memory on boot
+  // TODO: big performance impact, think about storing them in memory on boot
   describe.skip('GET /statistics/transactions', () => {
     it('should GET the transaction statistics', async () => {
       const res = await utils.request('GET', 'statistics/transactions')
@@ -42,7 +42,7 @@ describe.skip('API 2.0 - Statistics', () => {
     })
   })
 
-  // @TODO: big performance impact, think about storing them in memory on boot
+  // TODO: big performance impact, think about storing them in memory on boot
   describe.skip('GET /statistics/blocks', () => {
     it('should GET the block statistics', async () => {
       const res = await utils.request('GET', 'statistics/blocks')

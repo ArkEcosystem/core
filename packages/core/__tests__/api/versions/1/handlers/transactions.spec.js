@@ -163,7 +163,6 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  // @FIXME: TypeError: this.redis.getTransactionsForForger is not a function
   describe.skip('GET /transactions/unconfirmed/get?id=', () => {
     it('should be ok using valid id', async () => {
       let params = 'id=' + transactionList[transactionList.length - 1].id
@@ -180,7 +179,6 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  // @FIXME: TypeError: this.redis.getTransactionsForForger is not a function
   describe.skip('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'transactions/unconfirmed')

@@ -1,10 +1,8 @@
 const logger = require('@arkecosystem/core-pluggy').get('logger')
+const blockchainManager = require('@arkecosystem/core-pluggy').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 const { crypto, slots } = require('@arkecosystem/client')
 const async = require('async')
-
-// FIXME: expose this via module loader
-const BlockchainManager = require('../../core-blockchain/src/manager')
 const TransactionPoolManager = require('./manager')
 
 let instance
@@ -15,7 +13,7 @@ module.exports = class Handler {
   }
 
   constructor (config) {
-    this.db = BlockchainManager.getInstance().getDb()
+    this.db = blockchainManager.getDb()
     this.config = config
     this.poolManager = config.enabled ? new TransactionPoolManager(config) : false
 
@@ -57,7 +55,7 @@ module.exports = class Handler {
           transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
         } else {
           transaction.data.timelocktype = 1 // block
-          transaction.data.timelock = BlockchainManager.getInstance().getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
+          transaction.data.timelock = blockchainManager.getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
         }
       }
       return transaction

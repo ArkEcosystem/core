@@ -1,8 +1,6 @@
 // TODO: move this as it is only used by core-api-public and core-database
 
-// FIXME: expose this via module loader
-const blockchain = require('../../../core-blockchain/src/manager').getInstance()
-const state = blockchain.getState()
+const state = require('@arkecosystem/core-pluggy').get('blockchain').getState()
 const config = require('@arkecosystem/core-pluggy').get('config')
 
 exports.calculateApproval = (delegate) => {
