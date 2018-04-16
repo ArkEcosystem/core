@@ -1,5 +1,5 @@
 const popsicle = require('popsicle')
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 

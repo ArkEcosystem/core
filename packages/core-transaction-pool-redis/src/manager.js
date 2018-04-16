@@ -1,5 +1,5 @@
 const Redis = require('ioredis')
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const { Transaction } = require('@arkecosystem/client').models
 const { slots } = require('@arkecosystem/client')
 
@@ -15,12 +15,11 @@ module.exports = class Manager {
 
   constructor (config) {
     this.isConnected = false
-    this.keyPrefix = config.server.transactionPool.keyPrefix
-    this.config = config
+    this.keyPrefix = config.keyPrefix
     this.counters = {}
 
-    this.redis = this.config.server.transactionPool.enabled ? new Redis(this.config.server.redis) : null
-    this.redisSub = this.config.server.transactionPool.enabled ? new Redis(this.config.server.redis) : null
+    this.redis = config.enabled ? new Redis(config.redis) : null
+    this.redisSub = config.enabled ? new Redis(config.redis) : null
 
     const that = this
     if (this.redis) {

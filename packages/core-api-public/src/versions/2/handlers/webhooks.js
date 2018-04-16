@@ -1,5 +1,5 @@
-const db = require('@arkecosystem/core-module-loader').get('database')
-const config = require('@arkecosystem/core-module-loader').get('config')
+const db = require('@arkecosystem/core-pluggy').get('database')
+const config = require('@arkecosystem/core-pluggy').get('config')
 const utils = require('../utils')
 const schema = require('../schema/webhooks')
 

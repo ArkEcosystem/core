@@ -4,17 +4,17 @@ const expandHomeDir = require('expand-home-dir')
 const assert = require('assert-plus')
 
 class ModuleLoader {
-  boot(modules) {
-    if (isString(modules)) {
-      modules = require(path.resolve(expandHomeDir(`${modules}/modules.json`)))
+  boot(plugins) {
+    if (isString(plugins)) {
+      plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
     }
 
-    this.modules = modules
+    this.plugins = plugins
     this.instances = {}
   }
 
   async bind(hook, app = {}) {
-    for (const [moduleName, moduleConfig] of Object.entries(this.modules[hook])) {
+    for (const [moduleName, moduleConfig] of Object.entries(this.plugins[hook])) {
       const module = require(moduleName).plugin
 
       if (!module.hasOwnProperty('register')) continue

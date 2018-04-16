@@ -1,4 +1,4 @@
-const blockchain = require('@arkecosystem/core-module-loader').get('blockchain')
+const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
 const state = blockchain.getState()
 
 module.exports = (model) => {

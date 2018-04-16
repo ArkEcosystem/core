@@ -3,7 +3,7 @@ const flatMapDeep = require('lodash/flatMapDeep')
 
 class Logger {
   async boot (hook, driver, options) {
-    this.driver = await require(driver).plugin.boot(options.config.modules[hook][driver])
+    this.driver = await require(driver).plugin.boot(options.config.plugins[hook][driver])
 
     return this
   }

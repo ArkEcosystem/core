@@ -1,4 +1,4 @@
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const BlockchainManager = require('./manager')
 
 exports.plugin = {

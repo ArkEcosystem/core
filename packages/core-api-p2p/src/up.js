@@ -1,4 +1,4 @@
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const Hapi = require('hapi')
 
 module.exports = class Up {
@@ -8,7 +8,7 @@ module.exports = class Up {
   }
 
   async start () {
-    this.server = new Hapi.Server({ port: this.config.server.port })
+    this.server = new Hapi.Server({ port: this.config.port })
     this.server.app.p2p = this.p2p
 
     await this.server.register({
@@ -24,7 +24,7 @@ module.exports = class Up {
       routes: { prefix: '/internal' }
     })
 
-    if (this.config.api.p2p.remoteinterface) {
+    if (this.config.remoteinterface) {
       await this.server.register({
         plugin: require('./versions/remote'),
         routes: { prefix: '/remote' }

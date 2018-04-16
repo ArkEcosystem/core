@@ -1,9 +1,9 @@
 const human = require('interval-to-human')
 const Machine = require('xstate').Machine
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
-const config = require('@arkecosystem/core-module-loader').get('config')
+const config = require('@arkecosystem/core-pluggy').get('config')
 const sleep = require('./utils/sleep')
 
 let synctracker = null

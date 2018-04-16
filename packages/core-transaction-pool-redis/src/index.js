@@ -1,4 +1,4 @@
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const TransactionHandler = require('./handler')
 
 exports.plugin = {
@@ -7,7 +7,7 @@ exports.plugin = {
   register: async(hook, config, app) => {
     logger.info('Initialising Transaction Pool...')
 
-    const txHandler = await new TransactionHandler(app.config)
+    const txHandler = await new TransactionHandler(config)
 
     await app.blockchainManager.attachTransactionHandler(txHandler)
   }

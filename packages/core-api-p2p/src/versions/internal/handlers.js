@@ -1,6 +1,6 @@
 const { slots } = require('@arkecosystem/client')
-const blockchain = require('@arkecosystem/core-module-loader').get('blockchain')
-const config = require('@arkecosystem/core-module-loader').get('config')
+const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const config = require('@arkecosystem/core-pluggy').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 
 exports.postVerifyTransaction = {

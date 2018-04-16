@@ -1,6 +1,6 @@
 const { crypto, slots } = require('@arkecosystem/client')
-const config = require('@arkecosystem/core-module-loader').get('config')
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const config = require('@arkecosystem/core-pluggy').get('config')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const async = require('async')
 const fs = require('fs')
 const path = require('path')
@@ -19,7 +19,7 @@ module.exports = class DatabaseInterface {
     const db = driver.provider
     db.walletManager = new WalletManager()
 
-    await db.boot(hook, app.config.modules[hook][config.driver], app)
+    await db.boot(hook, app.config.plugins[hook][config.driver], app)
     instance = db
     this.registerRepositories(driver)
 

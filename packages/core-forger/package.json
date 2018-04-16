@@ -12,7 +12,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-module-loader": "^1.0.0",
+    "@arkecosystem/core-pluggy": "^1.0.0",
     "popsicle": "^9.2.0"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 const Boom = require('boom')
-const config = require('@arkecosystem/core-module-loader').get('config')
-const chainInstance = require('@arkecosystem/core-module-loader').get('blockchain')
-const db = require('@arkecosystem/core-module-loader').get('database')
+const config = require('@arkecosystem/core-pluggy').get('config')
+const chainInstance = require('@arkecosystem/core-pluggy').get('blockchain')
+const db = require('@arkecosystem/core-pluggy').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 

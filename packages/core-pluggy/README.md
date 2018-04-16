@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-module-loader
+yarn add @arkecosystem/core-pluggy
 ```
 
 ## Security

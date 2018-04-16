@@ -12,7 +12,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-module-loader": "^1.0.0",
+    "@arkecosystem/core-pluggy": "^1.0.0",
     "async": "^2.6.0",
     "interval-to-human": "^0.1.1",
     "xstate": "^3.1.1"

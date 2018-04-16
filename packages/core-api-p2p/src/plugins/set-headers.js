@@ -1,4 +1,4 @@
-const config = require('@arkecosystem/core-module-loader').get('config')
+const config = require('@arkecosystem/core-pluggy').get('config')
 
 const register = async (server, options) => {
   const _headers = {

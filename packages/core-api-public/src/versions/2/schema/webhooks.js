@@ -1,7 +1,7 @@
 const Joi = require('joi')
-const config = require('@arkecosystem/core-module-loader').get('config')
+const config = require('@arkecosystem/core-pluggy').get('config')
 
-// FIXME: get this list from the modules.json config
+// FIXME: get this list from the plugins.json config
 const events = [] // config.webhooks.events.map(event => event.name)
 
 const conditions = [

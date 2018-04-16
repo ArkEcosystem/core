@@ -3,7 +3,7 @@
 // FIXME: expose this via module loader
 const blockchain = require('../../../core-blockchain/src/manager').getInstance()
 const state = blockchain.getState()
-const config = require('@arkecosystem/core-module-loader').get('config')
+const config = require('@arkecosystem/core-pluggy').get('config')
 
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data

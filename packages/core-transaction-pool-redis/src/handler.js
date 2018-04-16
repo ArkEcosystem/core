@@ -1,4 +1,4 @@
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const { Transaction } = require('@arkecosystem/client').models
 const { crypto, slots } = require('@arkecosystem/client')
 const async = require('async')
@@ -17,7 +17,7 @@ module.exports = class Handler {
   constructor (config) {
     this.db = BlockchainManager.getInstance().getDb()
     this.config = config
-    this.poolManager = this.config.server.transactionPool.enabled ? new TransactionPoolManager(config) : false
+    this.poolManager = config.enabled ? new TransactionPoolManager(config) : false
 
     if (!instance) {
       instance = this
@@ -31,7 +31,7 @@ module.exports = class Handler {
       qcallback()
     }, 1)
 
-    if (!config.server.transactionPool.enabled) {
+    if (!config.enabled) {
       logger.warning('Transaction pool IS DISABLED')
     }
     return instance

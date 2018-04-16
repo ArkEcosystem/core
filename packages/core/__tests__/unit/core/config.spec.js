@@ -1,5 +1,5 @@
 const path = require('path')
-const config = require('@arkecosystem/core-module-loader').get('config')
+const config = require('@arkecosystem/core-pluggy').get('config')
 
 const stubConfigPath = 'config/devnet'
 const stubConfig = {

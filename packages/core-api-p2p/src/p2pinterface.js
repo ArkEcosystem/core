@@ -1,4 +1,4 @@
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const dns = require('dns')
 const Sntp = require('sntp')
 
@@ -8,9 +8,9 @@ const Up = require('./up')
 const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8.8', 53, (err, hostname, service) => resolve(!err)))
 
 module.exports = class P2PInterface {
-  constructor (config) {
-    this.down = new Down(this, config)
-    this.up = new Up(this, config)
+  constructor (upConfig, downConfig) {
+    this.down = new Down(this, downConfig)
+    this.up = new Up(this, upConfig)
   }
 
   async checkOnline () {

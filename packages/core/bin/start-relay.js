@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const moduleLoader = require('@arkecosystem/core-module-loader')
+const pluggy = require('@arkecosystem/core-pluggy')
 
 commander
   .version(require('../package.json').version)
@@ -14,32 +14,32 @@ commander
 const start = async () => {
   try {
     // Boot the module loader...
-    moduleLoader.boot(commander.config)
+    pluggy.boot(commander.config)
 
     // Module Loader has been mounted...
-    await moduleLoader.bind('init', { network: commander.config })
+    await pluggy.bind('init', { network: commander.config })
 
     // Store config in variable for re-use
-    const config = moduleLoader.get('config')
+    const config = pluggy.get('config')
 
     // Configuration has been mounted...
-    await moduleLoader.bind('beforeCreate', {
+    await pluggy.bind('beforeCreate', {
       config,
       network: config.network.name
     })
 
     // Create BlockchainManager
-    const blockchainManager = moduleLoader.get('blockchain')
+    const blockchainManager = pluggy.get('blockchain')
 
     // Logger has been mounted...
-    await moduleLoader.bind('beforeMount', {
+    await pluggy.bind('beforeMount', {
       config,
       blockchainManager,
       network: config.network.name
     })
 
     // Store logger in variable for re-use
-    const logger = moduleLoader.get('logger')
+    const logger = pluggy.get('logger')
 
     // FIXME: with the module approach we need to figure out a new
     // logger.info('Initialising Dependencies...')
@@ -51,7 +51,7 @@ const start = async () => {
     await blockchainManager.isReady()
 
     // Blockchain has been mounted...
-    await moduleLoader.bind('mounted', {
+    await pluggy.bind('mounted', {
       config,
       blockchainManager,
       network: config.network.name

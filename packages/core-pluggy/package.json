@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-module-loader",
+  "name": "@arkecosystem/core-pluggy",
   "description": "Module Loader for ARK Core",
   "version": "1.0.0",
   "contributors": [

@@ -1,4 +1,4 @@
-const db = require('@arkecosystem/core-module-loader').get('database')
+const db = require('@arkecosystem/core-pluggy').get('database')
 const utils = require('../utils')
 const schema = require('../schema/wallets')
 

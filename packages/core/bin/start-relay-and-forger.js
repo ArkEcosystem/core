@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const logger = require('@arkecosystem/core-module-loader').get('logger')
-const config = require('@arkecosystem/core-module-loader').get('config')
-const DB = require('@arkecosystem/core-module-loader').get('database')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
+const config = require('@arkecosystem/core-pluggy').get('config')
+const DB = require('@arkecosystem/core-pluggy').get('database')
 const PublicAPI = require('@arkecosystem/core-api-public')
-const WebhookManager = require('@arkecosystem/core-module-loader').get('webhooks')
+const WebhookManager = require('@arkecosystem/core-pluggy').get('webhooks')
 
 const packageJson = require('../package.json')
 

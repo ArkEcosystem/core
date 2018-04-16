@@ -6,9 +6,9 @@ const expandHomeDir = require('expand-home-dir')
 const fs = require('fs')
 const path = require('path')
 
-const config = require('@arkecosystem/core-module-loader').get('config')
-const DB = require('@arkecosystem/core-module-loader').get('database')
-const logger = require('@arkecosystem/core-module-loader').get('logger')
+const config = require('@arkecosystem/core-pluggy').get('config')
+const DB = require('@arkecosystem/core-pluggy').get('database')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 
 const packageJson = require('../package.json')
 

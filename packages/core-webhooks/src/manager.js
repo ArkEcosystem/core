@@ -1,10 +1,10 @@
 const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
-const moduleLoader = require('@arkecosystem/core-module-loader')
-const logger = moduleLoader.get('logger')
-const database = moduleLoader.get('database')
-const config = moduleLoader.get('config')
+const pluggy = require('@arkecosystem/core-pluggy')
+const logger = pluggy.get('logger')
+const database = pluggy.get('database')
+const config = pluggy.get('config')
 const RedisQueue = require('./queue')
 
 let instance
@@ -102,7 +102,7 @@ module.exports = class Manager {
   }
 
   async __registerQueueManager() {
-    await new RedisQueue(config.server.redis)
+    await new RedisQueue(this.config.redis)
 
     this.queue = RedisQueue.getInstance().connection('webhooks')
   }
