@@ -1,5 +1,5 @@
-const config = require('@arkecosystem/core-config')
-const logger = require('@arkecosystem/core-logger')
+const config = require('@arkecosystem/core-module-loader').get('config')
+const logger = require('@arkecosystem/core-module-loader').get('logger')
 
 const BlockchainManager = require('../../src/managers/blockchain')
 const QueueManager = require('../../src/managers/queue')

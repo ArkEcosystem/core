@@ -1,18 +1,7 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const WebhookManager = require('@arkecosystem/core-webhooks')
-const logger = require('@arkecosystem/core-logger')
-const config = require('@arkecosystem/core-config')
-const DatabaseInterface = require('@arkecosystem/core-database')
-const PublicAPI = require('@arkecosystem/core-api-public')
-
-// TODO: think about extracting this into @arkecosystem/core-api-p2p
-const P2PInterface = require('../src/api/p2p/p2pinterface')
-
-const BlockchainManager = require('../src/managers/blockchain')
-const DependencyHandler = require('../src/dependency-handler')
-const TransactionHandler = require('../src/transaction-handler')
+const moduleLoader = require('@arkecosystem/core-module-loader')
 
 commander
   .version(require('../package.json').version)
@@ -24,38 +13,45 @@ commander
 
 const start = async () => {
   try {
-    await config.init(commander.config)
-    await logger.init(config.server.logging, config.network.name)
+    // Boot the module loader...
+    moduleLoader.boot(commander.config)
 
-    const blockchainManager = await new BlockchainManager(config)
+    // Module Loader has been mounted...
+    await moduleLoader.bind('init', { network: commander.config })
 
-    logger.info('Initialising Dependencies...')
-    await DependencyHandler.checkDatabaseLibraries(config)
+    // Store config in variable for re-use
+    const config = moduleLoader.get('config')
 
-    // TODO: implement some system to see if webhooks are enabled and @arkecosystem/core-webhooks is installed
-    logger.info('Initialising Webhook Manager...')
-    await new WebhookManager().init()
+    // Configuration has been mounted...
+    await moduleLoader.bind('beforeCreate', {
+      config,
+      network: config.network.name
+    })
 
-    logger.info('Initialising Database Interface...')
-    const db = await DatabaseInterface.create(config.server.database)
-    await blockchainManager.attachDatabaseInterface(db)
+    // Create BlockchainManager
+    const blockchainManager = moduleLoader.get('blockchain')
 
-    logger.info('Initialising P2P Interface...')
-    const p2p = new P2PInterface(config)
-    await p2p.warmup()
-    await blockchainManager.attachNetworkInterface(p2p)
+    // Logger has been mounted...
+    await moduleLoader.bind('beforeMount', {
+      config,
+      blockchainManager,
+      network: config.network.name
+    })
 
-    logger.info('Initialising Transaction Pool...')
-    const txHandler = await new TransactionHandler(config)
-    await blockchainManager.attachTransactionHandler(txHandler)
+    // Store logger in variable for re-use
+    const logger = moduleLoader.get('logger')
+
+    // FIXME: with the module approach we need to figure out a new
+    // logger.info('Initialising Dependencies...')
+    // await require('../src/dependency-handler').checkDatabaseLibraries(config)
 
     logger.info('Initialising Blockchain Manager...')
+
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    // TODO: implement some system to see if the public api is enabled and @arkecosystem/core-api-public is installed
-    logger.info('Initialising Public API...')
-    await PublicAPI()
+    // Blockchain has been mounted...
+    await moduleLoader.bind('mounted', { config, network: config.network.name })
   } catch (error) {
     console.error(error.stack)
     process.exit(1)

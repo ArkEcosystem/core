@@ -5,28 +5,29 @@ const fg = require('fast-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
-const DatabaseInterface = require('@arkecosystem/core-database')
-const { webhookManager } = require('@arkecosystem/core-webhooks')
+const { DatabaseInterface } = require('@arkecosystem/core-database').exports
 
-const config = require('@arkecosystem/core-config')
-const logger = require('@arkecosystem/core-logger')
+const moduleLoader = require('@arkecosystem/core-module-loader')
+const config = moduleLoader.get('config')
+const logger = moduleLoader.get('logger')
 
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 class SequelizeDB extends DatabaseInterface {
-  async init (config) {
+  async boot (hook, config, app) {
     if (this.db) {
       throw new Error('Already initialised')
     }
 
-    if (config.options.dialect === 'sqlite') {
-        config.options.uri = 'sqlite:' + expandHomeDir(config.options.uri.substring(7))
+
+    if (config.dialect === 'sqlite') {
+        config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
     }
 
-    this.db = new Sequelize(config.options.uri, {
-      dialect: config.options.dialect,
-      logging: !!config.options.logging,
+    this.db = new Sequelize(config.uri, {
+      dialect: config.dialect,
+      logging: !!config.logging,
       operatorsAliases: Sequelize.Op
     })
 
@@ -324,14 +325,12 @@ class SequelizeDB extends DatabaseInterface {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          // FIXME: webhookManager not available here
-          webhookManager.getInstance().emit('forging.missing', block)
+          moduleLoader.get('webhooks').getInstance().emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          // FIXME: webhookManager not available here
-          webhookManager.getInstance().emit('block.forged', block)
+          moduleLoader.get('webhooks').getInstance().emit('block.forged', block)
         }
       })
     } catch (error) {

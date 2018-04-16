@@ -1,5 +1,5 @@
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
-const db = require('@arkecosystem/core-database').getInstance()
+const db = require('@arkecosystem/core-module-loader').get('database').getInstance()
 const utils = require('../utils')
 const schema = require('../schema/votes')
 

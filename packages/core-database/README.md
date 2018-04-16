@@ -1,6 +1,6 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Base Database Interface
+# ARK Core - Database Interface
 
 ## Installation
 

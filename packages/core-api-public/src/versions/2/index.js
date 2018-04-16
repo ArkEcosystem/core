@@ -1,4 +1,4 @@
-const config = require('@arkecosystem/core-config')
+const config = require('@arkecosystem/core-module-loader').get('config')
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')

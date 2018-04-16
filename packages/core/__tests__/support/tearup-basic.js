@@ -1,1 +1,1 @@
-module.exports = async () => require('@arkecosystem/core-config').init('config/devnet')
+module.exports = async () => require('@arkecosystem/core-module-loader').get('config').init('config/devnet')

@@ -17,7 +17,8 @@
     "fast-glob": "^2.2.0",
     "sequelize": "^4.37.6",
     "sequelize-cli": "^4.0.0",
-    "umzug": "^2.1.0"
+    "umzug": "^2.1.0",
+    "sqlite3": "^4.0.0"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

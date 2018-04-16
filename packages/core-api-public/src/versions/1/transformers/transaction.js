@@ -1,7 +1,7 @@
 const { crypto } = require('@arkecosystem/client')
 const blockchain = require('../../../../../core/src/managers/blockchain').getInstance()
 const state = blockchain.getState()
-const config = require('@arkecosystem/core-config')
+const config = require('@arkecosystem/core-module-loader').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 
 module.exports = (model) => {

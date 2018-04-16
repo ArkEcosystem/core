@@ -2197,13 +2197,23 @@ create-error-class@^3.0.0:
   dependencies:
     capture-stack-trace "^1.0.0"
 
-create-hash@^1.1.0, create-hash@^1.1.1, create-hash@^1.1.2, create-hash@^1.1.3:
+create-hash@^1.1.0, create-hash@^1.1.2, create-hash@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/create-hash/-/create-hash-1.1.3.tgz#606042ac8b9262750f483caddab0f5819172d8fd"
   dependencies:
     cipher-base "^1.0.1"
     inherits "^2.0.1"
     ripemd160 "^2.0.0"
+    sha.js "^2.4.0"
+
+create-hash@^1.1.1:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/create-hash/-/create-hash-1.2.0.tgz#889078af11a63756bcfb59bd221996be3a9ef196"
+  dependencies:
+    cipher-base "^1.0.1"
+    inherits "^2.0.1"
+    md5.js "^1.3.4"
+    ripemd160 "^2.0.1"
     sha.js "^2.4.0"
 
 create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4, create-hmac@^1.1.6:
@@ -2587,10 +2597,6 @@ dot-prop@^3.0.0:
 dottie@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dottie/-/dottie-2.0.0.tgz#da191981c8b8d713ca0115d5898cf397c2f0ddd0"
-
-double-ended-queue@^2.1.0-0:
-  version "2.1.0-0"
-  resolved "https://registry.yarnpkg.com/double-ended-queue/-/double-ended-queue-2.1.0-0.tgz#103d3527fd31528f40188130c841efdd78264e5c"
 
 drbg.js@^1.0.1:
   version "1.0.1"
@@ -6103,7 +6109,7 @@ node-dir@0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/node-dir/-/node-dir-0.1.8.tgz#55fb8deb699070707fb67f91a460f0448294c77d"
 
-node-forge@^0.7.1:
+node-forge@^0.7.5:
   version "0.7.5"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.5.tgz#6c152c345ce11c52f465c2abd957e8639cd674df"
 
@@ -6398,9 +6404,9 @@ osenv@^0.1.4:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
 
-otplib@^7.0.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/otplib/-/otplib-7.1.0.tgz#0ed5458f4381e9a528eee9d608202e2e2a505c32"
+otplib@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/otplib/-/otplib-8.0.1.tgz#ff770e689192c08d0ab068ca755d34e776baceb2"
   dependencies:
     thirty-two "1.0.2"
 
@@ -7144,17 +7150,9 @@ redis-commands@^1.2.0:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.3.5.tgz#4495889414f1e886261180b1442e7295602d83a2"
 
-redis-parser@^2.4.0, redis-parser@^2.6.0:
+redis-parser@^2.4.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/redis-parser/-/redis-parser-2.6.0.tgz#52ed09dacac108f1a631c07e9b69941e7a19504b"
-
-redis@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/redis/-/redis-2.8.0.tgz#202288e3f58c49f6079d97af7a10e1303ae14b02"
-  dependencies:
-    double-ended-queue "^2.1.0-0"
-    redis-commands "^1.2.0"
-    redis-parser "^2.6.0"
 
 regenerate@^1.2.1:
   version "1.3.3"
@@ -8358,10 +8356,6 @@ timers-ext@0.1, timers-ext@^0.1.2:
     es5-ext "~0.10.14"
     next-tick "1"
 
-tiny-worker@^2.1.1:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/tiny-worker/-/tiny-worker-2.1.2.tgz#6feb363b87885582fdc6d91b37fe00dd612b84f2"
-
 tmp@^0.0.33:
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.0.33.tgz#6d34335889768d21b2bcda0aa277ced3b1bfadf9"
@@ -9062,7 +9056,7 @@ xml-name-validator@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
 
-xstate@^3.0.4:
+xstate@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/xstate/-/xstate-3.1.1.tgz#7d6b5f77a35547ec21269ac8f67e4ad60fd25fbe"
 

@@ -2,8 +2,8 @@ const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const chainInstance = require('../../../../../core/src/managers/blockchain').getInstance()
 const state = chainInstance.getState()
-const config = require('@arkecosystem/core-config')
-const db = require('@arkecosystem/core-database').getInstance()
+const config = require('@arkecosystem/core-module-loader').get('config')
+const db = require('@arkecosystem/core-module-loader').get('database').getInstance()
 const schema = require('../schema/statistics')
 
 exports.blockchain = {

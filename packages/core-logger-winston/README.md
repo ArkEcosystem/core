@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-webhooks
+yarn add @arkecosystem/core-logger-winston
 ```
 
 ## Security

@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "setup": "lerna clean && lerna bootstrap",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "test": "lerna run test",

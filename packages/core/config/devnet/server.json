@@ -2,27 +2,6 @@
   "port": 4002,
   "version": "2.0.0",
   "fastRebuild": true,
-  "logging": {
-    "driver": "@arkecosystem/core-logger-winston",
-    "options": {
-      "file": "~/.ark/logs/core/devnet",
-      "levels": {
-        "file": "debug",
-        "console": "debug"
-      }
-    }
-  },
-  "database": {
-    "driver": "@arkecosystem/core-database-sequelize",
-    "options": {
-      "uri": "sqlite:~/.ark/database/devnet.sqlite",
-      "uri_1": "postgres://node:password@localhost:5432/ark_devnet",
-      "dialect": "sqlite",
-      "dialect_1": "postgres",
-      "logging": false
-    },
-    "snapshots": "~/.ark/snapshots"
-  },
   "redis": {
     "host": "localhost",
     "port": 6379

@@ -1,7 +1,6 @@
 {
   "private": true,
   "name": "@arkecosystem/core-logger-graylog",
-  "version": "1.0.0",
   "description": "Graylog Logger for ARK Core",
   "version": "1.0.0",
   "contributors": [

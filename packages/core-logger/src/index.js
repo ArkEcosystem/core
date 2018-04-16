@@ -1,35 +1,9 @@
-const path = require('path')
+const package = require('../package.json')
+const logger = require('./logger')
 
-class Logger {
-  async init (config, network) {
-    this.logger = require(config.driver)
-
-    return this.logger.init(config, network)
-  }
-
-  error (message) {
-    return this.logger.error(message)
-  }
-
-  warning (message) {
-    return this.logger.warning(message)
-  }
-
-  info (message) {
-    return this.logger.info(message)
-  }
-
-  debug (message) {
-    return this.logger.debug(message)
-  }
-
-  printTracker (title, current, max, posttitle, figures = 0) {
-    this.logger.printTracker(title, current, max, posttitle, figures)
-  }
-
-  stopTracker (title, current, max) {
-    this.logger.stopTracker(title, current, max)
-  }
+module.exports = {
+  name: package.name,
+  version: package.version,
+  alias: 'logger',
+  register: async(hook, config, app) => logger.boot(hook, config.driver, app)
 }
-
-module.exports = new Logger()
