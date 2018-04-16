@@ -1,3 +1,4 @@
+// TODO: make this accessible through a module
 const { calculateApproval, calculateProductivity } = require('../../../core/src/utils/delegate-calculator')
 
 module.exports = class DelegatesRepository {
