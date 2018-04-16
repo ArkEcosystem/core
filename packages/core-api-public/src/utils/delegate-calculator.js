@@ -1,5 +1,3 @@
-// TODO: move this as it is only used by core-api-public and core-database
-
 const state = require('@arkecosystem/core-pluggy').get('blockchain').getState()
 const config = require('@arkecosystem/core-pluggy').get('config')
 

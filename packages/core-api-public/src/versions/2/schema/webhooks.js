@@ -1,8 +1,9 @@
 const Joi = require('joi')
-const config = require('@arkecosystem/core-pluggy').get('config')
 
-// FIXME: get this list from the plugins.json config
-const events = [] // config.webhooks.events.map(event => event.name)
+const pluggy = require('@arkecosystem/core-pluggy')
+const config = pluggy.get('config')
+
+const events = pluggy.config('webhooks').events.map(event => event.name)
 
 const conditions = [
   'between', 'contains', 'eq', 'falsy', 'gt', 'gte',

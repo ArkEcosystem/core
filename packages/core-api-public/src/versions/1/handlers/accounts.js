@@ -9,7 +9,7 @@ const utils = require('../utils')
 const schema = require('../schemas/accounts')
 
 // TODO: make this accessible through a module
-const { calculateApproval, calculateProductivity } = require('../../../../../core/src/utils/delegate-calculator')
+const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 
 exports.index = {
   handler: async (request, h) => {

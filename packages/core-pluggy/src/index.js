@@ -10,26 +10,33 @@ class ModuleLoader {
     }
 
     this.plugins = plugins
-    this.instances = {}
     this.state = {}
+
+    this.registrations = {}
   }
 
   async register(hook) {
-    for (const [moduleName, moduleConfig] of Object.entries(this.plugins[hook])) {
-      const module = require(moduleName).plugin
+    for (const [pluginName, pluginConfig] of Object.entries(this.plugins[hook])) {
+      const plugin = require(pluginName).plugin
 
-      if (!module.hasOwnProperty('register')) continue
+      if (!plugin.hasOwnProperty('register')) continue
 
-      this.instances[module.alias || module.name] = await module.register(hook, moduleConfig, this.state)
+      const instance = await plugin.register(hook, pluginConfig, this.state)
+      this.registrations[plugin.pkg.name] = { plugin: instance, config: pluginConfig }
 
-      if (module.alias) {
-        this.instances[module.name]
+      if (plugin.alias) {
+        this.registrations[plugin.alias] = this.registrations[plugin.pkg.name]
+        delete this.registrations[plugin.pkg.name]
       }
     }
   }
 
-  get(name) {
-    return this.instances[name]
+  get(key) {
+    return this.registrations[key].plugin
+  }
+
+  config(key) {
+    return this.registrations[key].config
   }
 
   setState(values, merge = true) {
