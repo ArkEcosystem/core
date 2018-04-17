@@ -3,6 +3,7 @@ const TransactionHandler = require('./handler')
 
 exports.plugin = {
   pkg: require('../package.json'),
+  defaults: require('./defaults.json'),
   alias: 'transaction-pool',
   register: async (hook, config, app) => {
     logger.info('Initialising Transaction Pool...')

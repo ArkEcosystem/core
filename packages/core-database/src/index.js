@@ -2,13 +2,14 @@ const DatabaseInterface = require('./interface')
 
 exports.plugin = {
   pkg: require('../package.json'),
+  defaults: require('./defaults.json'),
   alias: 'database',
   register: async (hook, config, app) => {
-    const database = await DatabaseInterface.init(hook, config, app)
+    const database = await DatabaseInterface.init()
 
     await app.blockchainManager.attachDatabaseInterface(database)
 
-    return DatabaseInterface.getInstance()
+    return app.blockchainManager.getDb()
   }
 }
 

@@ -14,8 +14,8 @@ const logger = pluggy.get('logger')
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
-class SequelizeDB extends DatabaseInterface {
-  async init (hook, config, app) {
+class SequelizeProvider extends DatabaseInterface {
+  async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
     }
@@ -495,4 +495,4 @@ class SequelizeDB extends DatabaseInterface {
   }
 }
 
-module.exports = new SequelizeDB()
+module.exports = new SequelizeProvider()

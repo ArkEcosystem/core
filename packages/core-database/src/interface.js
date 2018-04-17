@@ -11,22 +11,23 @@ module.exports = class DatabaseInterface {
     return instance
   }
 
-  static async init (hook, config, app) {
-    const driver = require(config.driver)
+  static async setDriver (driver, repositories) {
+    driver.walletManager = new WalletManager()
 
-    const db = driver.provider
-    db.walletManager = new WalletManager()
+    instance = driver
 
-    await db.init(hook, app.config.plugins[hook][config.driver], app)
-    instance = db
-    this.registerRepositories(driver)
+    this.registerRepositories(repositories)
 
     return instance
   }
 
-  static registerRepositories (driver) {
-    const repositories = driver.repositories()
+  static init () {
+    if (!instance) instance = this
 
+    return instance
+  }
+
+  static registerRepositories (repositories) {
     for (const [key, value] of Object.entries(repositories)) {
       instance[key] = new value(instance) // eslint-disable-line new-cap
     }

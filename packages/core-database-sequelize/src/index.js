@@ -1,13 +1,9 @@
 const fs = require('fs')
 const path = require('path')
+const database = require('@arkecosystem/core-pluggy').get('database')
+const provider = require('./provider')
 
-exports.plugin = {
-  pkg: require('../package.json')
-}
-
-exports.provider = require('./provider')
-
-exports.repositories = () => {
+const listRepositories = () => {
   const repositories = {}
 
   let directory = path.resolve(__dirname, './repositories')
@@ -19,4 +15,16 @@ exports.repositories = () => {
   })
 
   return repositories
+}
+
+exports.plugin = {
+  pkg: require('../package.json'),
+  defaults: require('./defaults.json'),
+  register: async (hook, config, app) => {
+    await provider.init(config)
+
+    database.setDriver(provider, listRepositories())
+
+    return provider
+  }
 }

@@ -3,6 +3,7 @@ const P2PInterface = require('./p2pinterface')
 
 exports.plugin = {
   pkg: require('../package.json'),
+  defaults: require('./defaults.json'),
   register: async (hook, config, app) => {
     logger.info('Initialising P2P Interface...')
 

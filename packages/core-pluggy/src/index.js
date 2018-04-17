@@ -1,6 +1,7 @@
 const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
+const Hoek = require('hoek')
 
 class PluginLoader {
   init (config) {
@@ -31,6 +32,12 @@ class PluginLoader {
     if (!plugin.hasOwnProperty('register')) {
       return false
     }
+
+    if (plugin.hasOwnProperty('defaults')) {
+      config = Hoek.applyToDefaults(plugin.defaults, config)
+    }
+
+    console.log('REGISTER: ' + name)
 
     const instance = await plugin.register(hook, config, this.state)
 

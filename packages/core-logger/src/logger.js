@@ -1,6 +1,14 @@
 class Logger {
-  async init (hook, driver, app) {
-    this.driver = await require(driver).plugin.init(app.config.plugins[hook][driver])
+  async init () {
+    return this
+  }
+
+  async getDriver () {
+    return this.driver
+  }
+
+  async setDriver (instance) {
+    this.driver = instance
 
     return this
   }
