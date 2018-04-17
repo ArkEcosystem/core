@@ -3,7 +3,7 @@ const pluggy = require('@arkecosystem/core-pluggy')
 
 const config = require('./stubs/config')
 
-const setupPluggy = async() => {
+const setupPluggy = async () => {
   pluggy.init('../core/config/devnet')
 
   pluggy.setState({
@@ -25,12 +25,12 @@ const setupPluggy = async() => {
   await pluggy.hook('beforeMount')
 }
 
-module.exports = async() => {
+module.exports = async () => {
   await setupPluggy()
 
   await require('../src/database').init(config.database)
 
-  const manager = new(require('../src/manager'))(config)
+  const manager = new (require('../src/manager'))(config)
   await manager.init(config)
 
   await require('../src/api')(config)

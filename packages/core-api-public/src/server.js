@@ -1,5 +1,4 @@
 const Hapi = require('hapi')
-const config = require('@arkecosystem/core-pluggy').get('config')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 
 module.exports = async (config) => {

@@ -1,8 +1,7 @@
 const Joi = require('joi')
-const pluggy = require('@arkecosystem/core-pluggy')
 
 class Schema {
-  init(config) {
+  init (config) {
     this.events = config.events.map(event => event.name)
     this.conditions = [
       'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
@@ -10,7 +9,7 @@ class Schema {
     ]
   }
 
-  index() {
+  index () {
     return {
       query: {
         page: Joi.number().integer(),
@@ -19,7 +18,7 @@ class Schema {
     }
   }
 
-  show() {
+  show () {
     return {
       params: {
         id: Joi.string()
@@ -27,7 +26,7 @@ class Schema {
     }
   }
 
-  store() {
+  store () {
     return {
       payload: {
         event: Joi.string().valid(this.events).required(),
@@ -42,7 +41,7 @@ class Schema {
     }
   }
 
-  update() {
+  update () {
     return {
       payload: {
         event: Joi.string().valid(this.events),
@@ -57,7 +56,7 @@ class Schema {
     }
   }
 
-  destroy() {
+  destroy () {
     return {
       params: {
         id: Joi.string()

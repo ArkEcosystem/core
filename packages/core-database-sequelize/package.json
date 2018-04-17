@@ -12,17 +12,22 @@
   "main": "src/index.js",
   "scripts": {
     "test": "jest --forceExit --no-cache",
-    "test:watch": "jest --forceExit --no-cache --watch"
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-config": "^1.0.0",
     "expand-home-dir": "^0.0.3",
     "fast-glob": "^2.2.0",
+    "mysql2": "^1.5.3",
+    "pg": "^7.4.1",
+    "pg-hstore": "^2.3.2",
     "sequelize": "^4.37.6",
     "sequelize-cli": "^4.0.0",
-    "umzug": "^2.1.0",
-    "sqlite3": "^4.0.0"
+    "sqlite3": "^4.0.0",
+    "tedious": "^2.3.1",
+    "umzug": "^2.1.0"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

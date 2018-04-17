@@ -7,8 +7,6 @@ const DB = require('@arkecosystem/core-pluggy').get('database')
 const PublicAPI = require('@arkecosystem/core-api-public')
 const WebhookManager = require('@arkecosystem/core-pluggy').get('webhooks')
 
-const packageJson = require('../package.json')
-
 // TODO: think about extracting this into @arkecosystem/core-api-p2p
 const P2PInterface = require('../src/api/p2p/p2pinterface')
 

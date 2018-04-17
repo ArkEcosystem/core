@@ -6,7 +6,7 @@ const database = require('./database')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'webhooks',
-  register: async(hook, config, app) => {
+  register: async (hook, config, app) => {
     logger.info('Initialising Webhook DB...')
     await database.init(config.database)
 

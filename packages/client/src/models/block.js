@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const bignum = require('bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
+const cryptoBuilder = require('../builder/crypto')
 const configManager = require('../managers/config')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
@@ -17,8 +18,8 @@ const applyV1Fix = (data) => {
   data.totalAmount = parseInt(data.totalAmount)
   data.totalFee = parseInt(data.totalFee)
   data.reward = parseInt(data.reward)
-  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000'
-  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex')
+  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000' // eslint-disable-line new-cap
+  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
@@ -46,8 +47,8 @@ module.exports = class Block {
     data.transactions.forEach((tx, i) => {
       const thistx = this.data.transactions[i]
       if (thistx.type === 1 && thistx.version === 1 && tx.recipientId) {
-        thistx.recipientId = arkjs.crypto.getAddress(thistx.senderPublicKey, thistx.network)
-        thistx.id = arkjs.crypto.getId(thistx)
+        thistx.recipientId = cryptoBuilder.getAddress(thistx.senderPublicKey, thistx.network)
+        thistx.id = cryptoBuilder.getId(thistx)
       }
     })
 

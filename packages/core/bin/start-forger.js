@@ -5,8 +5,6 @@ const commander = require('commander')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const config = require('@arkecosystem/core-pluggy').get('config')
 
-const packageJson = require('../package.json')
-
 const ForgerManager = require('../src/managers/forger')
 
 commander

@@ -1,8 +1,6 @@
 const { slots } = require('@arkecosystem/client')
 
-const pluggy = require('@arkecosystem/core-pluggy')
-const config = pluggy.get('config')
-const logger = pluggy.get('logger')
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
@@ -64,7 +62,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
-        pluggy.get('webhooks').emit('peer.removed', this.peers[ip])
+        // pluggy.get('webhooks').emit('peer.removed', this.peers[ip])
 
         return null
       }
@@ -87,7 +85,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
-      pluggy.get('webhooks').emit('peer.added', npeer)
+      // pluggy.get('webhooks').emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }

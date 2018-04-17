@@ -16,7 +16,8 @@
   "scripts": {
     "ark:commander": "bin/index.js",
     "test": "jest --forceExit --no-cache",
-    "test:watch": "jest --forceExit --no-cache --watch"
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "chalk": "^2.3.2",

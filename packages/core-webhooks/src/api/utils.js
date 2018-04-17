@@ -1,4 +1,3 @@
-const path = require('path')
 const Boom = require('boom')
 
 const transformResource = (request, data, transformer) => {
@@ -49,5 +48,5 @@ module.exports = {
   respondWithCollection,
   toResource,
   toCollection,
-  toPagination,
+  toPagination
 }

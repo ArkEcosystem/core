@@ -10,8 +10,6 @@ const config = require('@arkecosystem/core-pluggy').get('config')
 const DB = require('@arkecosystem/core-pluggy').get('database')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 
-const packageJson = require('../package.json')
-
 const DependencyHandler = require('../src/dependency-handler')
 
 commander

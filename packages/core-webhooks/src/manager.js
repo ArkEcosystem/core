@@ -4,17 +4,16 @@ const EventEmitter = require('events').EventEmitter
 const pluggy = require('@arkecosystem/core-pluggy')
 const logger = pluggy.get('logger')
 const database = pluggy.get('database')
-const config = pluggy.get('config')
 const RedisQueue = require('./queue')
 
 let instance
 
 module.exports = class Manager {
-  static getInstance() {
+  static getInstance () {
     return instance
   }
 
-  constructor() {
+  constructor () {
     if (!instance) {
       instance = this
     }
@@ -22,7 +21,7 @@ module.exports = class Manager {
     return instance
   }
 
-  async init(config) {
+  async init (config) {
     this.config = config
 
     if (!this.config.enabled) return
@@ -31,7 +30,7 @@ module.exports = class Manager {
     await this.__registerQueueManager()
 
     map(this.config.events, 'name').forEach((event) => {
-      this.emitter.on(event, async(payload) => {
+      this.emitter.on(event, async (payload) => {
         const webhooks = await database.getInstance().webhooks.findByEvent(event)
 
         this
@@ -43,7 +42,7 @@ module.exports = class Manager {
       })
     })
 
-    this.queue.process(async(job) => {
+    this.queue.process(async (job) => {
       try {
         const response = await axios.post(job.data.webhook.target, {
           formParams: {
@@ -73,13 +72,13 @@ module.exports = class Manager {
     })
   }
 
-  emit(event, payload) {
+  emit (event, payload) {
     if (!this.config.enabled) return
 
     this.emitter.emit(event, payload)
   }
 
-  getMatchingWebhooks(webhooks, payload) {
+  getMatchingWebhooks (webhooks, payload) {
     const matches = []
 
     webhooks.forEach((webhook) => {
@@ -97,11 +96,11 @@ module.exports = class Manager {
     return matches
   }
 
-  __registerEventEmitter() {
+  __registerEventEmitter () {
     this.emitter = new EventEmitter()
   }
 
-  async __registerQueueManager() {
+  async __registerQueueManager () {
     await new RedisQueue(this.config.redis)
 
     this.queue = RedisQueue.getInstance().connection('webhooks')

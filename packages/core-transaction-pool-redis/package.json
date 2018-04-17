@@ -12,7 +12,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "jest --forceExit --no-cache",
-    "test:watch": "jest --forceExit --no-cache --watch"
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",

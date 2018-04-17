@@ -1,10 +1,9 @@
 const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
-const assert = require('assert-plus')
 
 class PluginLoader {
-  init(plugins) {
+  init (plugins) {
     if (isString(plugins)) {
       plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
     }
@@ -15,13 +14,13 @@ class PluginLoader {
     this.registrations = {}
   }
 
-  async hook(name) {
+  async hook (name) {
     for (const [pluginName, pluginConfig] of Object.entries(this.plugins[name])) {
       await this.register(pluginName, pluginConfig, name)
     }
   }
 
-  async register(name, config, hook = 'default') {
+  async register (name, config, hook = 'default') {
     if (!name.startsWith('@')) {
       name = path.resolve(name)
     }
@@ -45,23 +44,23 @@ class PluginLoader {
     }
   }
 
-  get(key) {
+  get (key) {
     return this.registrations[key].plugin
   }
 
-  has(key) {
+  has (key) {
     return !!this.registrations[key].plugin
   }
 
-  config(key) {
+  config (key) {
     return this.registrations[key].config
   }
 
-  hasConfig(key) {
+  hasConfig (key) {
     return !!this.registrations[key].config
   }
 
-  setState(values, merge = true) {
+  setState (values, merge = true) {
     this.state = merge ? Object.assign(values, this.state) : values
   }
 }

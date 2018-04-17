@@ -16,7 +16,8 @@
   "scripts": {
     "ark:deployer": "bin/index.js",
     "test": "jest --forceExit --no-cache",
-    "test:watch": "jest --forceExit --no-cache --watch"
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "assert-plus": "^1.0.0",

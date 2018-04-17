@@ -2,8 +2,6 @@ const { crypto, slots } = require('@arkecosystem/client')
 const config = require('@arkecosystem/core-pluggy').get('config')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const async = require('async')
-const fs = require('fs')
-const path = require('path')
 const WalletManager = require('./wallet-manager')
 
 let instance
@@ -30,7 +28,7 @@ module.exports = class DatabaseInterface {
     const repositories = driver.repositories()
 
     for (const [key, value] of Object.entries(repositories)) {
-      instance[key] = new value(instance)
+      instance[key] = new value(instance) // eslint-disable-line new-cap
     }
 
     // those are special case repository and will overwrite...

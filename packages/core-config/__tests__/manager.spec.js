@@ -10,7 +10,7 @@ const stubConfig = {
 }
 
 describe('Manager', () => {
-  it('should fail without a config', async() => {
+  it('should fail without a config', async () => {
     try {
       await config.init()
     } catch (error) {
@@ -18,7 +18,7 @@ describe('Manager', () => {
     }
   })
 
-  it('should succeed with a config from a string', async() => {
+  it('should succeed with a config from a string', async () => {
     const result = await config.init(stubConfigPath)
 
     await expect(result.delegates).toEqual(stubConfig.delegates)
@@ -26,7 +26,7 @@ describe('Manager', () => {
     await expect(result.network).toEqual(stubConfig.network)
   })
 
-  it('should succeed with a config from an object', async() => {
+  it('should succeed with a config from an object', async () => {
     const result = await config.init(stubConfig)
 
     await expect(result.delegates).toEqual(stubConfig.delegates)

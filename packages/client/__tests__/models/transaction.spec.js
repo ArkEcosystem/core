@@ -112,6 +112,6 @@ describe('Models - Transaction', () => {
     [0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
       .map(tx => expect(verifyEcdsaNonMalleability(tx))
-      .toBeTruthy())
+        .toBeTruthy())
   })
 })

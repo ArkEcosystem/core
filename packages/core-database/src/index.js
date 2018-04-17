@@ -1,13 +1,12 @@
 const DatabaseInterface = require('./interface')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
 
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'database',
-  register: async(hook, config, app) => {
-    const interface = await DatabaseInterface.init(hook, config, app)
+  register: async (hook, config, app) => {
+    const database = await DatabaseInterface.init(hook, config, app)
 
-    await app.blockchainManager.attachDatabaseInterface(interface)
+    await app.blockchainManager.attachDatabaseInterface(database)
 
     return DatabaseInterface.getInstance()
   }

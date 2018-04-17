@@ -7,7 +7,7 @@ module.exports = {
     Block: require('./models/block'),
     Delegate: require('./models/delegate'),
     Transaction: require('./models/transaction'),
-    Wallet: require('./models/wallet'),
+    Wallet: require('./models/wallet')
   },
 
   // Crypto...
@@ -38,5 +38,5 @@ module.exports = {
   constants: require('./constants'),
 
   // Utils...
-  sortTransactions: require('./utils/sort-transactions'),
+  sortTransactions: require('./utils/sort-transactions')
 }

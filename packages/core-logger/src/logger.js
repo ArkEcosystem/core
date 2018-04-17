@@ -1,6 +1,3 @@
-const path = require('path')
-const flatMapDeep = require('lodash/flatMapDeep')
-
 class Logger {
   async init (hook, driver, app) {
     this.driver = await require(driver).plugin.init(app.config.plugins[hook][driver])

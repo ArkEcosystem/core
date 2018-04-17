@@ -3,7 +3,7 @@ const Server = require('./server')
 
 exports.plugin = {
   pkg: require('../package.json'),
-  register: async(hook, config, app) => {
+  register: async (hook, config, app) => {
     logger.info('Initialising Public API...')
 
     await Server(config)
