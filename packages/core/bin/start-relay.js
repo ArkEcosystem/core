@@ -16,25 +16,25 @@ const start = async () => {
     pluggy.init(commander.config)
     pluggy.setState({ network: commander.config })
 
-    await pluggy.register('init')
+    await pluggy.hook('init')
 
     pluggy.setState({
       config: pluggy.get('config'),
       network: pluggy.get('config').network.name
     })
 
-    await pluggy.register('beforeCreate')
+    await pluggy.hook('beforeCreate')
 
     const blockchainManager = pluggy.get('blockchain')
     pluggy.setState({ blockchainManager })
 
-    await pluggy.register('beforeMount')
+    await pluggy.hook('beforeMount')
 
-    // pluggy.get('logger').info('Initialising Blockchain Manager...')
-    // await blockchainManager.start()
-    // await blockchainManager.isReady()
+    pluggy.get('logger').info('Initialising Blockchain Manager...')
+    await blockchainManager.start()
+    await blockchainManager.isReady()
 
-    await pluggy.register('mounted')
+    await pluggy.hook('mounted')
   } catch (error) {
     console.error(error.stack)
     process.exit(1)

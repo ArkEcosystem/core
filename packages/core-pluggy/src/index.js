@@ -15,13 +15,13 @@ class ModuleLoader {
     this.registrations = {}
   }
 
-  async register(hook) {
-    for (const [pluginName, pluginConfig] of Object.entries(this.plugins[hook])) {
-      this.bind(pluginName)
+  async hook(name) {
+    for (const [pluginName, pluginConfig] of Object.entries(this.plugins[name])) {
+      this.register(pluginName)
     }
   }
 
-  async bind(name, config) {
+  async register(name, config) {
     const plugin = require(name).plugin
 
     if (!plugin.hasOwnProperty('register')) continue
