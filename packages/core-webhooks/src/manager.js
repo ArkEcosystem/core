@@ -3,7 +3,7 @@ const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
 const pluggy = require('@arkecosystem/core-pluggy')
 const logger = pluggy.get('logger')
-const database = pluggy.get('database')
+const database = require('./database')
 const RedisQueue = require('./queue')
 
 let instance
@@ -31,7 +31,7 @@ module.exports = class Manager {
 
     map(this.config.events, 'name').forEach((event) => {
       this.emitter.on(event, async (payload) => {
-        const webhooks = await database.getInstance().webhooks.findByEvent(event)
+        const webhooks = await database.findByEvent(event)
 
         this
           .getMatchingWebhooks(webhooks, payload)
@@ -94,6 +94,10 @@ module.exports = class Manager {
     })
 
     return matches
+  }
+
+  getEvents () {
+    return this.config.events
   }
 
   __registerEventEmitter () {

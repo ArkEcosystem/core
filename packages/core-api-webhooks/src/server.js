@@ -7,7 +7,7 @@ module.exports = async (config) => {
   }
 
   const baseConfig = {
-    port: config.api.port,
+    port: config.port,
     routes: {
       auth: 'webhooks',
       cors: true,
@@ -19,7 +19,7 @@ module.exports = async (config) => {
 
   const server = new Hapi.Server(baseConfig)
   await server.register(require('./plugins/auth'))
-  await server.auth.strategy('webhooks', 'webhooks', { token: config.api.token })
+  await server.auth.strategy('webhooks', 'webhooks', { token: config.token })
 
   await server.register({
     plugin: require('hapi-pagination'),
@@ -29,14 +29,14 @@ module.exports = async (config) => {
       },
       query: {
         limit: {
-          default: config.api.pagination.limit
+          default: config.pagination.limit
         }
       },
       results: {
         name: 'data'
       },
       routes: {
-        include: config.api.pagination.include,
+        include: config.pagination.include,
         exclude: ['*']
       }
     }

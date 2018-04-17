@@ -1,4 +1,5 @@
-const database = require('../database')
+const pluggy = require('@arkecosystem/core-pluggy')
+const database = pluggy.binding('webhookDB')
 const utils = require('./utils')
 const schema = require('./schema')
 
@@ -67,7 +68,7 @@ exports.destroy = {
 exports.events = {
   handler: (request, h) => {
     return {
-      data: request.server.app.events
+      data: pluggy.get('webhooks').getEvents()
     }
   }
 }

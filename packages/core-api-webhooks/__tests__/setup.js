@@ -28,10 +28,5 @@ const setupPluggy = async () => {
 module.exports = async () => {
   await setupPluggy()
 
-  await require('../src/database').init(config.database)
-
-  const manager = new (require('../src/manager'))(config)
-  await manager.init(config)
-
-  await require('../src/api')(config)
+  await require('../src/server')(config)
 }

@@ -26,7 +26,7 @@
   "scripts": {
     "relay:mainnet": "node bin/start-relay.js -c ./config/mainnet",
     "relay:mainnet:watch": "nodemon bin/start-relay.js -c ./config/mainnet",
-    "relay:devnet": "node bin/start-relay.js -c ./config/devnet",
+    "relay:devnet": "node bin/start-relay.js -c ../core-config/src/networks/devnet",
     "relay:devnet:watch": "nodemon bin/start-relay.js -c ./config/devnet",
     "relay:testnet": "node bin/start-relay.js -c ./config/testnet",
     "relay:testnet:watch": "nodemon bin/start-relay.js -c ./config/testnet",

@@ -3,8 +3,6 @@ const register = async (server, options) => {
 
   const handler = require('./handler')
 
-  server.app.events = options.events
-
   server.route([{
     method: 'GET',
     path: '/webhooks',

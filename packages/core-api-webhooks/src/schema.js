@@ -1,8 +1,9 @@
+const webhookManager = require('@arkecosystem/core-pluggy').get('webhooks')
 const Joi = require('joi')
 
 class Schema {
   init (config) {
-    this.events = config.events.map(event => event.name)
+    this.events = webhookManager.getEvents().map(event => event.name)
     this.conditions = [
       'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
       'lt', 'lte', 'ne', 'not-between', 'regexp', 'truthy'
