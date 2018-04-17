@@ -35,8 +35,6 @@ const start = async () => {
     // await blockchainManager.isReady()
 
     await pluggy.hook('mounted')
-
-    process.exit()
   } catch (error) {
     console.error(error.stack)
     process.exit(1)

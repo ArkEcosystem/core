@@ -2,7 +2,13 @@ const pino = require('pino')
 
 class Logger {
   init (config) {
-    this.pino = pino(config)
+    const pretty = pino.pretty()
+    pretty.pipe(process.stdout)
+
+    this.pino = pino({
+      name: 'ark-core',
+      safe: true
+    }, pretty)
 
     return this
   }

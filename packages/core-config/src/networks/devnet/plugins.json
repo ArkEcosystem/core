@@ -4,7 +4,7 @@
   },
   "beforeCreate": {
     "@arkecosystem/core-logger": {},
-    "@arkecosystem/core-logger-winston": {},
+    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-webhooks": {},
     "@arkecosystem/core-blockchain": {}
   },
