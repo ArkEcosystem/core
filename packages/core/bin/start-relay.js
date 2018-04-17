@@ -30,9 +30,9 @@ const start = async () => {
 
     await pluggy.hook('beforeMount')
 
-    pluggy.get('logger').info('Initialising Blockchain Manager...')
-    await blockchainManager.start()
-    await blockchainManager.isReady()
+    // pluggy.get('logger').info('Initialising Blockchain Manager...')
+    // await blockchainManager.start()
+    // await blockchainManager.isReady()
 
     await pluggy.hook('mounted')
   } catch (error) {

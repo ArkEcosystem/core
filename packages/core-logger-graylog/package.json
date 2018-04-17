@@ -11,8 +11,8 @@
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest --no-cache",
-    "test:watch": "jest --no-cache --watch"
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch"
   },
   "dependencies": {
     "graylog2": "^0.2.1"

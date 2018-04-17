@@ -17,11 +17,11 @@ class PluginLoader {
 
   async hook(name) {
     for (const [pluginName, pluginConfig] of Object.entries(this.plugins[name])) {
-      await this.register(name, pluginName, pluginConfig)
+      await this.register(pluginName, pluginConfig, name)
     }
   }
 
-  async register(hook, name, config) {
+  async register(name, config, hook = 'default') {
     if (!name.startsWith('@')) {
       name = path.resolve(name)
     }

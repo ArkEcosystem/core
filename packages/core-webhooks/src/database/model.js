@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     event: DataTypes.STRING,
     target: DataTypes.STRING,
     conditions: DataTypes.JSON,
-    secret: {
+    token: {
       unique: true,
       type: DataTypes.STRING
     },

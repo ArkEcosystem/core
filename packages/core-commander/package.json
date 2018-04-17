@@ -15,8 +15,8 @@
   },
   "scripts": {
     "ark:commander": "bin/index.js",
-    "test": "jest --no-cache",
-    "test:watch": "jest --no-cache --watch"
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch"
   },
   "dependencies": {
     "chalk": "^2.3.2",

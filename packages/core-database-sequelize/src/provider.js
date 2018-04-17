@@ -20,9 +20,8 @@ class SequelizeDB extends DatabaseInterface {
       throw new Error('Already initialised')
     }
 
-
     if (config.dialect === 'sqlite') {
-        config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
+      config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
     }
 
     this.db = new Sequelize(config.uri, {

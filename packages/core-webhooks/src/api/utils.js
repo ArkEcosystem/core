@@ -2,7 +2,7 @@ const path = require('path')
 const Boom = require('boom')
 
 const transformResource = (request, data, transformer) => {
-  return require(path.resolve(__dirname, `../versions/${request.pre.apiVersion}/transformers/${transformer}`))(data)
+  return require('./transformer')(data)
 }
 
 const transformCollection = (request, data, transformer) => {

@@ -90,8 +90,7 @@
           "/api/v2/wallets/{id}/transactions/received",
           "/api/v2/wallets/{id}/transactions/sent",
           "/api/v2/wallets/{id}/votes",
-          "/api/v2/wallets/search",
-          "/api/v2/webhooks"
+          "/api/v2/wallets/search"
         ]
       },
       "statistics": {
@@ -100,19 +99,24 @@
     },
     "@arkecosystem/core-webhooks": {
       "enabled": true,
+      "database": {
+        "uri": "sqlite:~/.ark/database/webhooks.sqlite",
+        "dialect": "sqlite",
+        "logging": false
+      },
+      "redis": {
+        "host": "localhost",
+        "port": 6379
+      },
       "api": {
         "port": 4004,
         "token": "$argon2id$v=19$m=4096,t=3,p=1$/sUhlZGQp/K+zGLlwWp5Kw$8aNVK5F6DU20zaA8WjBSge/xNf75793BcfBo/zj5Yxw",
         "pagination": {
           "limit": 100,
           "include": [
-            "/api/v2/webhooks"
+            "/api/webhooks"
           ]
         }
-      },
-      "redis": {
-        "host": "localhost",
-        "port": 6379
       },
       "events": [{
         "name": "forging.started",

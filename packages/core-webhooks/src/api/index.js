@@ -3,7 +3,7 @@ const logger = require('@arkecosystem/core-pluggy').get('logger')
 
 module.exports = async (config) => {
   if (!config.enabled) {
-    return logger.info('Oh snap! Public API not enabled...')
+    return logger.info('Oh snap! Webhook API not enabled...')
   }
 
   const baseConfig = {
@@ -18,7 +18,7 @@ module.exports = async (config) => {
   }
 
   const server = new Hapi.Server(baseConfig)
-  await server.register(require('./plugins/auth/webhooks'))
+  await server.register(require('./plugins/auth'))
   await server.auth.strategy('webhooks', 'webhooks', { token: config.api.token })
 
   await server.register({

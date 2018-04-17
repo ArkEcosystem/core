@@ -3,7 +3,7 @@ module.exports = {
   bail: true,
   verbose: true,
   testMatch: [
-    '**/__tests__/**/*.spec.js'
+    '**/__tests__/**/*.specc.js'
   ],
   moduleFileExtensions: [
     'js',
