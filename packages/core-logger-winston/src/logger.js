@@ -6,7 +6,7 @@ require('winston-daily-rotate-file')
 require('colors')
 
 class Logger {
-  boot (config) {
+  init (config) {
     this.winston = new (winston.Logger)()
 
     this.winston.add(winston.transports.DailyRotateFile, {

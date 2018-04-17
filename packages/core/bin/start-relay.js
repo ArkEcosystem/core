@@ -13,7 +13,7 @@ commander
 
 const start = async () => {
   try {
-    pluggy.boot(commander.config)
+    pluggy.init(commander.config)
     pluggy.setState({ network: commander.config })
 
     await pluggy.register('init')

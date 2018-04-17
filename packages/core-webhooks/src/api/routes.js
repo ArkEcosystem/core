@@ -1,5 +1,5 @@
 const register = async(server, options) => {
-  require('./schema').boot(options)
+  require('./schema').init(options)
 
   const handler = require('./handler')
 

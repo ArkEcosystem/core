@@ -15,7 +15,7 @@ const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 class SequelizeDB extends DatabaseInterface {
-  async boot (hook, config, app) {
+  async init (hook, config, app) {
     if (this.db) {
       throw new Error('Already initialised')
     }

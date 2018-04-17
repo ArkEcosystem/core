@@ -2,7 +2,7 @@ const Joi = require('joi')
 const pluggy = require('@arkecosystem/core-pluggy')
 
 class Schema {
-  boot(config) {
+  init(config) {
     this.events = config.events.map(event => event.name)
     this.conditions = [
       'between', 'contains', 'eq', 'falsy', 'gt', 'gte',

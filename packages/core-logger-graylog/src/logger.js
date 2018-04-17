@@ -1,7 +1,7 @@
 const graylog2 = require('graylog2')
 
 class Logger {
-  boot (config) {
+  init (config) {
     this.graylog = new graylog2.graylog(config) // eslint-disable-line new-cap
   }
 

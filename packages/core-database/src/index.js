@@ -5,7 +5,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   alias: 'database',
   register: async(hook, config, app) => {
-    const interface = await DatabaseInterface.boot(hook, config, app)
+    const interface = await DatabaseInterface.init(hook, config, app)
 
     await app.blockchainManager.attachDatabaseInterface(interface)
 

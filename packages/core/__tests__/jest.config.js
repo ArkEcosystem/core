@@ -8,7 +8,7 @@ module.exports = {
 
   testEnvironment: 'node',
   bail: true,
-  verbose: false,
+  verbose: true,
 
   setupFiles: ['<rootDir>/__tests__/support/setup-files'],
   setupTestFrameworkScriptFile: '<rootDir>/__tests__/support/setup-framework',

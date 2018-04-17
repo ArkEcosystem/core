@@ -9,7 +9,7 @@ exports.plugin = {
     logger.info('Initialising Webhook Manager...')
 
     const manager = new Manager(config)
-    await manager.boot(config)
+    await manager.init(config)
 
     logger.info('Initialising Webhook API...')
     await Server(config)

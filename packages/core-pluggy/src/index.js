@@ -4,7 +4,7 @@ const expandHomeDir = require('expand-home-dir')
 const assert = require('assert-plus')
 
 class ModuleLoader {
-  boot(plugins) {
+  init(plugins) {
     if (isString(plugins)) {
       plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
     }
@@ -17,17 +17,25 @@ class ModuleLoader {
 
   async register(hook) {
     for (const [pluginName, pluginConfig] of Object.entries(this.plugins[hook])) {
-      const plugin = require(pluginName).plugin
+      this.bind(pluginName)
+    }
+  }
 
-      if (!plugin.hasOwnProperty('register')) continue
+  async bind(name, config) {
+    const plugin = require(name).plugin
 
-      const instance = await plugin.register(hook, pluginConfig, this.state)
-      this.registrations[plugin.pkg.name] = { plugin: instance, config: pluginConfig }
+    if (!plugin.hasOwnProperty('register')) continue
 
-      if (plugin.alias) {
-        this.registrations[plugin.alias] = this.registrations[plugin.pkg.name]
-        delete this.registrations[plugin.pkg.name]
-      }
+    const instance = await plugin.register(hook, config, this.state)
+
+    this.registrations[plugin.pkg.name] = {
+      plugin: instance,
+      config
+    }
+
+    if (plugin.alias) {
+      this.registrations[plugin.alias] = this.registrations[plugin.pkg.name]
+      delete this.registrations[plugin.pkg.name]
     }
   }
 

@@ -7,7 +7,7 @@ const assert = require('assert-plus')
 
 let instance
 
-class ConfigManager {
+class Manager {
   constructor () {
     if (!instance) {
       instance = this
@@ -16,24 +16,20 @@ class ConfigManager {
     return instance
   }
 
-  async boot (config) {
-    try {
-      if (isString(config)) {
-        config = this._loadFromFile(config)
-      }
-
-      assert.object(config)
-
-      for (const [key, value] of Object.entries(config)) {
-        this[key] = value
-      }
-
-      this.buildConstants()
-
-      return this
-    } catch (error) {
-      console.error(error.stack)
+  async init (config) {
+    if (isString(config)) {
+      config = this.__loadFromPath(config)
     }
+
+    assert.object(config)
+
+    for (const [key, value] of Object.entries(config)) {
+      this[key] = value
+    }
+
+    this.buildConstants()
+
+    return this
   }
 
   buildConstants () {
@@ -64,7 +60,7 @@ class ConfigManager {
     return this.constant.data
   }
 
-  _loadFromFile (network) {
+  __loadFromPath (network) {
     const basePath = path.resolve(network)
 
     if (!fs.existsSync(basePath)) {
@@ -90,4 +86,4 @@ class ConfigManager {
   }
 }
 
-module.exports = new ConfigManager()
+module.exports = new Manager()

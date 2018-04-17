@@ -13,13 +13,13 @@ module.exports = class DatabaseInterface {
     return instance
   }
 
-  static async boot (hook, config, app) {
+  static async init (hook, config, app) {
     const driver = require(config.driver)
 
     const db = driver.provider
     db.walletManager = new WalletManager()
 
-    await db.boot(hook, app.config.plugins[hook][config.driver], app)
+    await db.init(hook, app.config.plugins[hook][config.driver], app)
     instance = db
     this.registerRepositories(driver)
 

@@ -22,7 +22,7 @@ module.exports = class Manager {
     return instance
   }
 
-  async boot(config) {
+  async init(config) {
     this.config = config
 
     if (!this.config.enabled) return
