@@ -10,6 +10,10 @@
   ],
   "license": "MIT",
   "main": "src/index.js",
+  "scripts": {
+    "test": "jest --no-cache",
+    "test:watch": "jest --no-cache --watch"
+  },
   "dependencies": {
     "graylog2": "^0.2.1"
   },

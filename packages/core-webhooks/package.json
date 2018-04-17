@@ -10,6 +10,10 @@
   ],
   "license": "MIT",
   "main": "src/index.js",
+  "scripts": {
+    "test": "jest --no-cache",
+    "test:watch": "jest --no-cache --watch"
+  },
   "dependencies": {
     "@arkecosystem/core-database": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",

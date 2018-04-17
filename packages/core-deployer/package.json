@@ -14,7 +14,9 @@
     "ark:deployer": "bin/index.js"
   },
   "scripts": {
-    "ark:deployer": "bin/index.js"
+    "ark:deployer": "bin/index.js",
+    "test": "jest --no-cache",
+    "test:watch": "jest --no-cache --watch"
   },
   "dependencies": {
     "assert-plus": "^1.0.0",

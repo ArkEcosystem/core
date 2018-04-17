@@ -14,7 +14,9 @@
     "ark:commander": "bin/index.js"
   },
   "scripts": {
-    "ark:commander": "bin/index.js"
+    "ark:commander": "bin/index.js",
+    "test": "jest --no-cache",
+    "test:watch": "jest --no-cache --watch"
   },
   "dependencies": {
     "chalk": "^2.3.2",

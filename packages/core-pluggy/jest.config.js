@@ -15,7 +15,6 @@ module.exports = {
     '!**/node_modules/**'
   ],
   watchman: false,
-  globalSetup: '__tests__/setup.js',
-  setupFiles: ['<rootDir>/node_modules/regenerator-runtime/runtime'],
+  globalSetup: './__tests__/setup.js',
   setupTestFrameworkScriptFile: 'jest-extended'
 }
