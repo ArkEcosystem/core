@@ -37,8 +37,6 @@ class PluginLoader {
       config = Hoek.applyToDefaults(plugin.defaults, config)
     }
 
-    console.log('REGISTER: ' + name)
-
     const instance = await plugin.register(hook, config, this.state)
 
     this.plugins[plugin.pkg.name] = {
