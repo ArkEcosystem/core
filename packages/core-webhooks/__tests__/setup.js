@@ -4,10 +4,10 @@ const pluggy = require('@arkecosystem/core-pluggy')
 const config = require('./stubs/config')
 
 const setupPluggy = async () => {
-  pluggy.init('../core/config/devnet')
+  pluggy.init('../core-config/src/networks/devnet')
 
   pluggy.setState({
-    network: path.resolve(__dirname, '../../core/config/devnet')
+    network: path.resolve(__dirname, '../../core-config/src/networks/devnet')
   })
 
   await pluggy.hook('init')

@@ -18,5 +18,8 @@ exports.plugin = {
     await Server(config)
 
     return Manager.getInstance()
+  },
+  bindings: {
+    webhookDB: database
   }
 }

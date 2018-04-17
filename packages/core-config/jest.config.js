@@ -9,9 +9,10 @@ module.exports = {
     'js',
     'json'
   ],
+  collectCoverage: false,
   coverageDirectory: '<rootDir>/.coverage',
   collectCoverageFrom: [
-    'src/**/*.js}',
+    'src/**/*.js',
     '!**/node_modules/**'
   ],
   watchman: false,

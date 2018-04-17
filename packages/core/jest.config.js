@@ -1,10 +1,8 @@
 const path = require('path')
 
 module.exports = {
-  rootDir: path.resolve(__dirname, '../'),
-
-  globalSetup: 'tests/support/tearup-full.js',
-  // globalTeardown: 'tests/support/teardown.js',
+  globalSetup: './__tests__/support/tearup-full.js',
+  // globalTeardown: './__tests__/support/teardown.js',
 
   testEnvironment: 'node',
   bail: true,
@@ -14,7 +12,7 @@ module.exports = {
   setupTestFrameworkScriptFile: '<rootDir>/__tests__/support/setup-framework',
 
   collectCoverage: false,
-  coverageDirectory: 'tests/coverage/all',
+  coverageDirectory: './__tests__/coverage/all',
   collectCoverageFrom: [
     'src/api/**/*.js',
     'src/config/**/*.js',

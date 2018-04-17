@@ -3,19 +3,20 @@ const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 
 class PluginLoader {
-  init (plugins) {
-    if (isString(plugins)) {
-      plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
+  init (config) {
+    if (isString(config)) {
+      config = require(path.resolve(expandHomeDir(`${config}/plugins.json`)))
     }
 
-    this.plugins = plugins
+    this.config = config
     this.state = {}
 
-    this.registrations = {}
+    this.plugins = {}
+    this.bindings = {}
   }
 
   async hook (name) {
-    for (const [pluginName, pluginConfig] of Object.entries(this.plugins[name])) {
+    for (const [pluginName, pluginConfig] of Object.entries(this.config[name])) {
       await this.register(pluginName, pluginConfig, name)
     }
   }
@@ -33,31 +34,45 @@ class PluginLoader {
 
     const instance = await plugin.register(hook, config, this.state)
 
-    this.registrations[plugin.pkg.name] = {
+    this.plugins[plugin.pkg.name] = {
       plugin: instance,
       config
     }
 
-    if (plugin.alias) {
-      this.registrations[plugin.alias] = this.registrations[plugin.pkg.name]
-      delete this.registrations[plugin.pkg.name]
+    if (plugin.hasOwnProperty('alias')) {
+      this.plugins[plugin.alias] = this.plugins[plugin.pkg.name]
+      delete this.plugins[plugin.pkg.name]
+    }
+
+    if (plugin.hasOwnProperty('bindings')) {
+      for (const [bindingName, bindingValue] of Object.entries(plugin.bindings)) {
+        this.bindings[bindingName] = bindingValue
+      }
     }
   }
 
   get (key) {
-    return this.registrations[key].plugin
+    return this.plugins[key].plugin
   }
 
   has (key) {
-    return !!this.registrations[key].plugin
+    return this.plugins.hasOwnProperty(key)
   }
 
   config (key) {
-    return this.registrations[key].config
+    return this.plugins[key].config
   }
 
   hasConfig (key) {
-    return !!this.registrations[key].config
+    return this.plugins[key].hasOwnProperty('config')
+  }
+
+  binding (key) {
+    return this.bindings[key]
+  }
+
+  hasBinding (key) {
+    return this.bindings.hasOwnProperty(key)
   }
 
   setState (values, merge = true) {
