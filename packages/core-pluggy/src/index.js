@@ -3,7 +3,7 @@ const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const assert = require('assert-plus')
 
-class ModuleLoader {
+class PluginLoader {
   init(plugins) {
     if (isString(plugins)) {
       plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
@@ -17,14 +17,20 @@ class ModuleLoader {
 
   async hook(name) {
     for (const [pluginName, pluginConfig] of Object.entries(this.plugins[name])) {
-      this.register(pluginName)
+      await this.register(name, pluginName, pluginConfig)
     }
   }
 
-  async register(name, config) {
+  async register(hook, name, config) {
+    if (!name.startsWith('@')) {
+      name = path.resolve(name)
+    }
+
     const plugin = require(name).plugin
 
-    if (!plugin.hasOwnProperty('register')) continue
+    if (!plugin.hasOwnProperty('register')) {
+      return false
+    }
 
     const instance = await plugin.register(hook, config, this.state)
 
@@ -43,8 +49,16 @@ class ModuleLoader {
     return this.registrations[key].plugin
   }
 
+  has(key) {
+    return !!this.registrations[key].plugin
+  }
+
   config(key) {
     return this.registrations[key].config
+  }
+
+  hasConfig(key) {
+    return !!this.registrations[key].config
   }
 
   setState(values, merge = true) {
@@ -52,4 +66,4 @@ class ModuleLoader {
   }
 }
 
-module.exports = new ModuleLoader()
+module.exports = new PluginLoader()
