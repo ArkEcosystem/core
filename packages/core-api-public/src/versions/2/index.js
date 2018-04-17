@@ -3,7 +3,6 @@ const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')
 const peers = require('./handlers/peers')
 const statistics = require('./handlers/statistics')
-const webhooks = require('./handlers/webhooks')
 const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
@@ -45,15 +44,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent },
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
-    { method: 'POST', path: '/wallets/search', ...wallets.search },
-
-    // TODO: move this into the webhooks module as an extra webhooks API
-    { method: 'GET', path: '/webhooks', ...webhooks.index },
-    { method: 'POST', path: '/webhooks', ...webhooks.store },
-    { method: 'GET', path: '/webhooks/{id}', ...webhooks.show },
-    { method: 'PUT', path: '/webhooks/{id}', ...webhooks.update },
-    { method: 'DELETE', path: '/webhooks/{id}', ...webhooks.destroy },
-    { method: 'GET', path: '/webhooks/events', ...webhooks.events }
+    { method: 'POST', path: '/wallets/search', ...wallets.search }
   ]
 
   if (options.statistics.enabled) {
@@ -73,7 +64,7 @@ const register = async (server, options) => {
 }
 
 exports.plugin = {
-  name: 'ARK Public API - V2',
+  name: 'ARK Public API - v2',
   version: '2.0.0',
   register
 }

@@ -28,13 +28,6 @@ module.exports = async (config) => {
 
   await server.register([require('vision'), require('inert'), require('lout')])
 
-  // TODO: move this into the webhooks module as an extra webhooks API
-  await server.register(require('./plugins/auth/webhooks'))
-
-  await server.auth.strategy('webhooks', 'webhooks', {
-    token: '$argon2id$v=19$m=4096,t=3,p=1$/sUhlZGQp/K+zGLlwWp5Kw$8aNVK5F6DU20zaA8WjBSge/xNf75793BcfBo/zj5Yxw', // config.webhooks.token
-  })
-
   await server.register({
     plugin: require('hapi-api-version'),
     options: {
