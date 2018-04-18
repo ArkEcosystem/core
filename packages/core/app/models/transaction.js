@@ -68,7 +68,10 @@ module.exports = class Transaction {
         bb.append(voteBytes, 'hex')
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'hex')
+        let joined = null
+        if (!transaction.version || transaction.version === 1) joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('')
+        else joined = transaction.asset.multisignature.keysgroup.join('')
+        const keysgroupBuffer = Buffer.from(joined, 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -157,11 +160,10 @@ module.exports = class Transaction {
       }
       Transaction.parseSignatures(hexString, tx, assetOffset + 2 + votelength * 34 * 2)
     } else if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      tx.asset = { multisignature: {} }
+      tx.asset = { multisignature: { keysgroup: [] } }
       tx.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
       const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
       tx.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
-      tx.asset.multisignature.keysgroup = []
       for (let index = 0; index < num; index++) {
         const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66)
         tx.asset.multisignature.keysgroup.push(key)
@@ -216,9 +218,10 @@ module.exports = class Transaction {
         tx.vendorField = Buffer.from(tx.vendorFieldHex, 'hex').toString('utf8')
       }
 
-      // if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      //   tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
-      // }
+      if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        tx.recipientId = arkjs.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
+      }
 
       if (!tx.id) {
         tx.id = arkjs.crypto.getId(tx)
