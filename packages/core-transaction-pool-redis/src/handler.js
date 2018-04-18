@@ -1,10 +1,11 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const async = require('async')
 const { Transaction } = require('@arkecosystem/client').models
 const { crypto, slots } = require('@arkecosystem/client')
-const async = require('async')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const logger = pluginManager.get('logger')
+const blockchainManager = pluginManager.get('blockchain')
 const TransactionPoolManager = require('./manager')
 
 let instance
