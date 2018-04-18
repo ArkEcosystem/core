@@ -1,3 +1,5 @@
+'use strict';
+
 const Bull = require('bull')
 
 let instance

@@ -1,3 +1,5 @@
+'use strict';
+
 const Op = require('sequelize').Op
 const { Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants

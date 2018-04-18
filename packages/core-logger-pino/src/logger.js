@@ -1,3 +1,5 @@
+'use strict';
+
 const pino = require('pino')
 
 class Logger {

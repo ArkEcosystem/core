@@ -1,3 +1,5 @@
+'use strict';
+
 const crypto = require('crypto')
 
 exports.encrypt = (bip38, address, password) => {

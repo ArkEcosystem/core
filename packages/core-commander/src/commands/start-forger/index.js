@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path')
 const prompts = require('prompts')
 const arkjs = require('arkjs')

@@ -1,3 +1,5 @@
+'use strict';
+
 const popsicle = require('popsicle')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const threads = require('threads')

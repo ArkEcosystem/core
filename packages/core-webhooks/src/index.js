@@ -1,3 +1,5 @@
+'use strict';
+
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const Manager = require('./manager')
 const database = require('./database')
@@ -7,7 +9,7 @@ exports.plugin = {
   defaults: require('./defaults.json'),
   alias: 'webhooks',
   register: async (hook, config, app) => {
-    logger.info('Initialising Webhooks...')
+    logger.info('Starting Webhooks...')
 
     await database.init(config.database)
 

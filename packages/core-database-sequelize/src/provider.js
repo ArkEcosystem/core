@@ -1,3 +1,5 @@
+'use strict';
+
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
 const Umzug = require('umzug')
@@ -34,13 +36,9 @@ class SequelizeProvider extends DatabaseInterface {
 
     try {
       await this.db.authenticate()
-      logger.info('Database connection has been established.')
-
+      logger.info('Starting Sequelize Database...')
       await this.runMigrations()
-      logger.info('Database has been migrated.')
-
       await this.registerModels()
-      logger.info('Database models have been registered.')
     } catch (error) {
       logger.error('Unable to connect to the database:')
       logger.error(error.stack)

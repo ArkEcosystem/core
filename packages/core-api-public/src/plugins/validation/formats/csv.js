@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (ajv) => {
   ajv.addFormat('csv', {
     type: 'string',

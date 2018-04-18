@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (model) => {
   return {
     id: model.id,

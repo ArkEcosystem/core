@@ -1,3 +1,5 @@
+'use strict';
+
 const { slots } = require('@arkecosystem/client')
 
 const pluggy = require('@arkecosystem/core-pluggy')

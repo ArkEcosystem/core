@@ -1,3 +1,5 @@
+'use strict';
+
 const async = require('async')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models

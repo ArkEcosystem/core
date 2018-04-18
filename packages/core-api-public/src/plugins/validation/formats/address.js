@@ -1,3 +1,5 @@
+'use strict';
+
 const bs58check = require('bs58check')
 const config = require('@arkecosystem/core-pluggy').get('config')
 

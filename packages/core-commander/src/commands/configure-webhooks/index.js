@@ -1,3 +1,5 @@
+'use strict';
+
 const prompts = require('prompts')
 const argon2 = require('argon2')
 const questions = require('./questions')

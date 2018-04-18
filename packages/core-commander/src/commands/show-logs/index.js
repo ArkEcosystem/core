@@ -1,3 +1,5 @@
+'use strict';
+
 const prompts = require('prompts')
 const fg = require('fast-glob')
 const Tail = require('tail').Tail

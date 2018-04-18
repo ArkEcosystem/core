@@ -1,3 +1,5 @@
+'use strict';
+
 // TODO: make this accessible through a module
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 

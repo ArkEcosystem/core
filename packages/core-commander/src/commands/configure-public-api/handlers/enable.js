@@ -1,3 +1,5 @@
+'use strict';
+
 const { readConfig, writeConfig } = require('../../../utils')
 
 module.exports = async () => {

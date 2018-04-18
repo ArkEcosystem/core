@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const chainInstance = require('@arkecosystem/core-pluggy').get('blockchain')

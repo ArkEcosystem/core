@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
@@ -17,40 +19,55 @@ class PluginLoader {
   }
 
   async hook (name) {
-    for (const [pluginName, pluginConfig] of Object.entries(this.config[name])) {
-      await this.register(pluginName, pluginConfig, name)
+    for (const [pluginName, pluginOptions] of Object.entries(this.config[name])) {
+      await this.register(pluginName, pluginOptions, name)
     }
   }
 
-  async register (name, config, hook = 'default') {
-    if (!name.startsWith('@')) {
-      name = path.resolve(name)
+  async register (plugin, options = {}, hook = 'default') {
+    // Alias...
+    let item
+
+    // Make sure we have an instance...
+    if (isString(plugin)) {
+      if (!plugin.startsWith('@')) {
+        plugin = path.resolve(plugin)
+      }
+
+      item = require(plugin)
+
+      if (!item.plugin) {
+        item = { plugin: item }
+      }
     }
 
-    const plugin = require(name).plugin
+    // Variables...
+    const name = item.plugin.name || item.plugin.pkg.name
+    const version = item.plugin.version || item.plugin.pkg.version
+    const defaults = item.plugin.defaults || item.plugin.pkg.defaults
+    const alias = item.plugin.alias || item.plugin.pkg.alias
 
-    if (!plugin.hasOwnProperty('register')) {
+    // No registration, probably a sub-plugin...
+    if (!item.plugin.register) {
       return false
     }
 
-    if (plugin.hasOwnProperty('defaults')) {
-      config = Hoek.applyToDefaults(plugin.defaults, config)
+    // Merge default options...
+    if (defaults) {
+      options = Hoek.applyToDefaults(defaults, options)
     }
 
-    const instance = await plugin.register(hook, config, this.state)
+    // Register...
+    const instance = await item.plugin.register(hook, options || {}, this.state)
 
-    this.plugins[plugin.pkg.name] = {
-      plugin: instance,
-      config
+    this.plugins[name] = { name, version, plugin: instance, options }
+
+    if (alias) {
+      this.plugins[alias] = this.plugins[name]
     }
 
-    if (plugin.hasOwnProperty('alias')) {
-      this.plugins[plugin.alias] = this.plugins[plugin.pkg.name]
-      delete this.plugins[plugin.pkg.name]
-    }
-
-    if (plugin.hasOwnProperty('bindings')) {
-      for (const [bindingName, bindingValue] of Object.entries(plugin.bindings)) {
+    if (item.plugin.bindings) {
+      for (const [bindingName, bindingValue] of Object.entries(item.plugin.bindings)) {
         this.bindings[bindingName] = bindingValue
       }
     }
@@ -65,11 +82,11 @@ class PluginLoader {
   }
 
   config (key) {
-    return this.plugins[key].config
+    return this.plugins[key].options
   }
 
-  hasConfig (key) {
-    return this.plugins[key].hasOwnProperty('config')
+  hasOptions (key) {
+    return this.plugins[key].hasOwnProperty('options')
   }
 
   binding (key) {

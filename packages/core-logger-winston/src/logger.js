@@ -1,3 +1,5 @@
+'use strict';
+
 const expandHomeDir = require('expand-home-dir')
 const winston = require('winston')
 const formatter = require('./formatter')

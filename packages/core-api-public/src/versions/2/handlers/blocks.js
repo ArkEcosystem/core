@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require('@arkecosystem/core-pluggy').get('database')
 const utils = require('../utils')
 const schema = require('../schema/blocks')

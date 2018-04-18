@@ -1,3 +1,5 @@
+'use strict';
+
 const BlockchainManager = require('./manager')
 
 exports.plugin = {

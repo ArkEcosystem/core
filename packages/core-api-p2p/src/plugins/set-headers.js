@@ -1,3 +1,5 @@
+'use strict';
+
 const config = require('@arkecosystem/core-pluggy').get('config')
 
 const register = async (server, options) => {

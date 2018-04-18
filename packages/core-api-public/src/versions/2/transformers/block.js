@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require('@arkecosystem/core-pluggy').get('database')
 const formatTimestamp = require('./utils/format-timestamp')
 

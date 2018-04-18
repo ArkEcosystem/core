@@ -1,3 +1,5 @@
+'use strict';
+
 const { transformResource, transformCollection } = require('../../utils/transformer')
 const config = require('@arkecosystem/core-pluggy').get('config')
 

@@ -1,3 +1,5 @@
+'use strict';
+
 const PLUGIN_NAME = 'hapi-ajv'
 
 const fs = require('fs')

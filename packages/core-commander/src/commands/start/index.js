@@ -1,3 +1,5 @@
+'use strict';
+
 const prompts = require('prompts')
 const { splash } = require('../../utils')
 

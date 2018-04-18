@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs-extra')
 const prompts = require('prompts')
 const moment = require('moment')

@@ -1,3 +1,5 @@
+'use strict';
+
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const blockchainManager = require('@arkecosystem/core-pluggy').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
@@ -30,7 +32,7 @@ module.exports = class Handler {
     }, 1)
 
     if (!config.enabled) {
-      logger.warning('Transaction pool IS DISABLED')
+      logger.warning('Transaction Pool is disabled! If this node runs in production please enable it.')
     }
     return instance
   }

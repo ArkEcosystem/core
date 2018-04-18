@@ -1,3 +1,5 @@
+'use strict';
+
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const Hapi = require('hapi')
 

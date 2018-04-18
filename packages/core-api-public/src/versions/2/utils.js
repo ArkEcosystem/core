@@ -1,3 +1,5 @@
+'use strict';
+
 const Boom = require('boom')
 const { transformResource, transformCollection } = require('../../utils/transformer')
 

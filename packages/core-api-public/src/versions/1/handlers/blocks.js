@@ -1,3 +1,5 @@
+'use strict';
+
 const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
 const db = require('@arkecosystem/core-pluggy').get('database')
 const state = blockchain.getState()

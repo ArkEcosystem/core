@@ -1,3 +1,5 @@
+'use strict';
+
 const pluggy = require('@arkecosystem/core-pluggy')
 const database = pluggy.binding('webhookDB')
 const utils = require('./utils')

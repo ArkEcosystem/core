@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (sequelize, DataTypes) => {
   const Round = sequelize.define('round', {
     id: {

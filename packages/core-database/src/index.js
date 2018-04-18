@@ -1,3 +1,6 @@
+'use strict';
+
+const logger = require('@arkecosystem/core-pluggy').get('logger')
 const DatabaseInterface = require('./interface')
 
 exports.plugin = {
@@ -5,6 +8,8 @@ exports.plugin = {
   defaults: require('./defaults.json'),
   alias: 'database',
   register: async (hook, config, app) => {
+    logger.info('Starting Database Manager...')
+
     const database = await DatabaseInterface.init()
 
     await app.blockchainManager.attachDatabaseInterface(database)

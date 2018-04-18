@@ -1,3 +1,5 @@
+'use strict';
+
 const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')

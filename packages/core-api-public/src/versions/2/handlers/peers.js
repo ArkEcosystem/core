@@ -1,3 +1,5 @@
+'use strict';
+
 const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
 const utils = require('../utils')
 const schema = require('../schema/peers')

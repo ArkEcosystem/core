@@ -1,3 +1,5 @@
+'use strict';
+
 const handlers = require('./handlers')
 
 const register = async (server, options) => {

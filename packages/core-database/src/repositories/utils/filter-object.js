@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = async (object, params, filters) => {
   return object.filter(item => {
     if (filters.hasOwnProperty('exact')) {

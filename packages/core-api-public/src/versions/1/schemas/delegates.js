@@ -1,3 +1,5 @@
+'use strict';
+
 const constants = require('@arkecosystem/core-pluggy').get('config').constants
 
 module.exports = {

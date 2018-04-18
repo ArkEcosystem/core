@@ -1,3 +1,5 @@
+'use strict';
+
 const Op = require('sequelize').Op
 
 module.exports = (params, filters) => {

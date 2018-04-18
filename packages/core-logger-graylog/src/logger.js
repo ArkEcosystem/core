@@ -1,3 +1,5 @@
+'use strict';
+
 const graylog2 = require('graylog2')
 
 class Logger {

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (sequelize, DataTypes) => {
   const Transaction = sequelize.define('transaction', {
     id: {

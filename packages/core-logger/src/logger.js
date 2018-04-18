@@ -1,3 +1,5 @@
+'use strict';
+
 class Logger {
   async init () {
     return this

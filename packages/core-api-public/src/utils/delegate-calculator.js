@@ -1,3 +1,5 @@
+'use strict';
+
 const state = require('@arkecosystem/core-pluggy').get('blockchain').getState()
 const config = require('@arkecosystem/core-pluggy').get('config')
 

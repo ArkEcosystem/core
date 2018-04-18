@@ -1,3 +1,5 @@
+'use strict';
+
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
 const path = require('path')

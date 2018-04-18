@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = [{
   type: 'text',
   name: 'host',

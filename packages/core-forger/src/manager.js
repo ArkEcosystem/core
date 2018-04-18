@@ -1,3 +1,5 @@
+'use strict';
+
 const popsicle = require('popsicle')
 const { slots } = require('@arkecosystem/client')
 const { Delegate, Transaction } = require('@arkecosystem/client').models

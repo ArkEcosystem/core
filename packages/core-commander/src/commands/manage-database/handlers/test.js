@@ -1,3 +1,5 @@
+'use strict';
+
 const Sequelize = require('sequelize')
 const { onCancel, readConfig } = require('../../../utils')
 const { sleep } = require('sleep')

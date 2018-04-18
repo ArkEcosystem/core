@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path')
 
 const transformResource = (request, data, transformer) => require(path.resolve(__dirname, `../versions/${request.pre.apiVersion}/transformers/${transformer}`))(data)

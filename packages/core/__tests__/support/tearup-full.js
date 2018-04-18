@@ -17,33 +17,33 @@ module.exports = async function () {
 
     const blockchainManager = await new BlockchainManager(config)
 
-    logger.info('Initialising Dependencies...')
+    logger.info('Starting Dependencies...')
     await DependencyHandler.checkDatabaseLibraries(config)
 
-    logger.info('Initialising Queue Manager...')
+    logger.info('Starting Queue Manager...')
     await new QueueManager(config.server.redis)
 
-    logger.info('Initialising Webhook Manager...')
+    logger.info('Starting Webhook Manager...')
     await new WebhookManager(config.webhooks).init()
 
-    logger.info('Initialising Database Interface...')
+    logger.info('Starting Database Interface...')
     const db = await DB.create(config.server.database)
     await blockchainManager.attachDatabaseInterface(db)
 
-    logger.info('Initialising P2P Interface...')
+    logger.info('Starting P2P Interface...')
     const p2p = new P2PInterface(config)
     await p2p.warmup()
     await blockchainManager.attachNetworkInterface(p2p)
 
-    logger.info('Initialising Transaction Pool...')
+    logger.info('Starting Transaction Pool...')
     const txPool = await new TransactionPool(config)
     await blockchainManager.attachTransactionPool(txPool)
 
-    logger.info('Initialising Blockchain Manager...')
+    logger.info('Starting Blockchain Manager...')
     await blockchainManager.start()
     await blockchainManager.isReady()
 
-    logger.info('Initialising Public API...')
+    logger.info('Starting Public API...')
     await PublicAPI(config)
   } catch (error) {
     logger.error(error)

@@ -1,3 +1,5 @@
+'use strict';
+
 const moment = require('moment')
 const config = require('@arkecosystem/core-pluggy').get('config')
 

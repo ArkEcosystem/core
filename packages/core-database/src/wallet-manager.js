@@ -1,3 +1,5 @@
+'use strict';
+
 const Promise = require('bluebird')
 const { Wallet } = require('@arkecosystem/client').models
 const config = require('@arkecosystem/core-pluggy').get('config')

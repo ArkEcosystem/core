@@ -1,3 +1,5 @@
+'use strict';
+
 const popsicle = require('popsicle')
 
 module.exports = async (message, done) => {

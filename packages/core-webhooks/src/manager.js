@@ -1,3 +1,5 @@
+'use strict';
+
 const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter

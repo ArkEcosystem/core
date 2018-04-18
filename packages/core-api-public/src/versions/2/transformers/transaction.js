@@ -1,3 +1,5 @@
+'use strict';
+
 const { crypto } = require('@arkecosystem/client')
 const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
 const state = blockchain.getState()

@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-disable */
 
 const BigNumber = require('bignumber.js')

@@ -1,3 +1,5 @@
+'use strict';
+
 const register = async (server, options) => {
   require('./schema').init(options)
 

@@ -1,3 +1,5 @@
+'use strict';
+
 const Redis = require('ioredis')
 const { onCancel, readConfig } = require('../../../utils')
 const { sleep } = require('sleep')

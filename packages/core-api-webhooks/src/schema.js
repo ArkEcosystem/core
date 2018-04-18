@@ -1,3 +1,5 @@
+'use strict';
+
 const webhookManager = require('@arkecosystem/core-pluggy').get('webhooks')
 const Joi = require('joi')
 

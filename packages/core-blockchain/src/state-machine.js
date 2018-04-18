@@ -1,3 +1,5 @@
+'use strict';
+
 const human = require('interval-to-human')
 const Machine = require('xstate').Machine
 const logger = require('@arkecosystem/core-pluggy').get('logger')

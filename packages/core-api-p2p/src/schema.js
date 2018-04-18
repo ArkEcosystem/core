@@ -1,3 +1,5 @@
+'use strict';
+
 const ajv = new (require('ajv'))()
 
 module.exports = {

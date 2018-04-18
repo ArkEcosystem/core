@@ -1,3 +1,5 @@
+'use strict';
+
 const Boom = require('boom')
 const config = require('@arkecosystem/core-pluggy').get('config')
 const chainInstance = require('@arkecosystem/core-pluggy').get('blockchain')

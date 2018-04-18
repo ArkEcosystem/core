@@ -30,7 +30,7 @@ const start = async () => {
 
     await pluggy.hook('beforeMount')
 
-    // pluggy.get('logger').info('Initialising Blockchain Manager...')
+    // pluggy.get('logger').info('Starting Blockchain Manager...')
     // await blockchainManager.start()
     // await blockchainManager.isReady()
 
@@ -44,5 +44,5 @@ const start = async () => {
 start()
 
 // FIXME: with the module approach we need to figure out a new
-// logger.info('Initialising Dependencies...')
+// logger.info('Starting Dependencies...')
 // await require('../src/dependency-handler').checkDatabaseLibraries(config)

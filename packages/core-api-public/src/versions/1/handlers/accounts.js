@@ -1,3 +1,5 @@
+'use strict';
+
 const { crypto } = require('@arkecosystem/client')
 
 // TODO: make this accessible through a module

@@ -1,3 +1,5 @@
+'use strict';
+
 const { slots } = require('@arkecosystem/client')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')

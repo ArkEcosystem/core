@@ -1,3 +1,5 @@
+'use strict';
+
 const Redis = require('ioredis')
 const logger = require('@arkecosystem/core-pluggy').get('logger')
 const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')

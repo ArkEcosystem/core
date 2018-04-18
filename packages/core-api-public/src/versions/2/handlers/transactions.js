@@ -1,3 +1,5 @@
+'use strict';
+
 const Boom = require('boom')
 const db = require('@arkecosystem/core-pluggy').get('database')
 const config = require('@arkecosystem/core-pluggy').get('config')
