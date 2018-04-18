@@ -10,5 +10,5 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'logger',
-  register: async (manager, hook, options) => logger.init()
+  register: async (manager, options) => logger.init()
 }

@@ -29,9 +29,7 @@ class PluginManager {
    */
   async hook (name, options = {}) {
     for (let [pluginName, pluginOptions] of Object.entries(this.config[name])) {
-      pluginOptions = Hoek.applyToDefaults(pluginOptions, options)
-
-      await this.register(pluginName, pluginOptions, name)
+      await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
     }
   }
 
@@ -42,7 +40,7 @@ class PluginManager {
    * @param  {String} hook    [description]
    * @return {[type]}         [description]
    */
-  async register (plugin, options = {}, hook = 'default') {
+  async register (plugin, options = {}) {
     // Alias...
     let item
 
@@ -76,7 +74,7 @@ class PluginManager {
     }
 
     // Register...
-    const instance = await item.plugin.register(this, hook, options || {})
+    const instance = await item.plugin.register(this, options || {})
     this.plugins[name] = { name, version, plugin: instance, options }
 
     // Register with alias...

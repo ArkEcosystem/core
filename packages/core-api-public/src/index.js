@@ -9,7 +9,7 @@ const Server = require('./server')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     manager.get('logger').info('Starting Public API...')
 
     return await Server(options)

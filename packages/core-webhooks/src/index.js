@@ -11,7 +11,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'webhooks',
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     manager.get('logger').info('Starting Webhooks...')
 
     await database.init(options.database)

@@ -11,7 +11,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'database',
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     const database = await DatabaseInterface.init()
 
     const blockchainManager = manager.get('blockchain')

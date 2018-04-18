@@ -10,7 +10,7 @@ const ForgerManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'forger',
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     const forgerManager = await new ForgerManager(manager.get('config'))
 
     const forgers = await forgerManager.loadDelegates(

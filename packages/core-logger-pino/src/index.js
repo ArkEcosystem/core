@@ -8,7 +8,7 @@ const pino = require('./logger')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     const instance = await pino.init(options)
 
     await manager.get('logger').setDriver(instance)

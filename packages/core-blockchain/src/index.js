@@ -9,7 +9,7 @@ const BlockchainManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'blockchain',
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     await new BlockchainManager(manager.get('config'))
 
     return BlockchainManager.getInstance()

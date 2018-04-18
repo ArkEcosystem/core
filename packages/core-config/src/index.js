@@ -9,5 +9,5 @@ const configManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
-  register: async (manager, hook, options) => configManager.init(options.network)
+  register: async (manager, options) => configManager.init(options.network)
 }

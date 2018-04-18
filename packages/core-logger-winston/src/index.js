@@ -9,7 +9,7 @@ const winston = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  register: async (manager, hook, options) => {
+  register: async (manager, options) => {
     const instance = await winston.init(options)
 
     await manager.get('logger').setDriver(instance)
