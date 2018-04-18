@@ -14,5 +14,7 @@ exports.plugin = {
     )
 
     logger.info(`ForgerManager started with ${forgers.length} forgers`)
+
+    return forgerManager
   }
 }

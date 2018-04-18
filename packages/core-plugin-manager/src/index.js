@@ -5,7 +5,7 @@ const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
 
-class PluginLoader {
+class PluginManager {
   init (config) {
     if (isString(config)) {
       config = require(path.resolve(expandHomeDir(`${config}/plugins.json`)))
@@ -102,4 +102,4 @@ class PluginLoader {
   }
 }
 
-module.exports = new PluginLoader()
+module.exports = new PluginManager()
