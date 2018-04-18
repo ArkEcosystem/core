@@ -15,6 +15,6 @@ exports.plugin = {
     const p2p = new P2PInterface(options, manager.get('config'))
     await p2p.warmup()
 
-    await manager.get('blockchain').attachNetworkInterface(p2p)
+    await manager.get('blockchain').setNetworkInterface(p2p)
   }
 }

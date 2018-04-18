@@ -5,7 +5,7 @@ const { slots } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
-const blockchain = pluginManager.get('blockchain')
+const blockchainManager = pluginManager.get('blockchain')
 
 let instance
 
@@ -160,7 +160,7 @@ module.exports = class Manager {
                 }
               },
               1: () => { // block height time lock
-                if (parseInt(transaction[2]) <= blockchain.getInstance().getState().lastBlock.data.height) {
+                if (parseInt(transaction[2]) <= blockchainManager.getState().lastBlock.data.height) {
                   logger.debug(`Timelock for ${id} released block height=${transaction[2]}`)
                   retList.push(transaction[0])
                 }
@@ -203,7 +203,7 @@ module.exports = class Manager {
    * @return {[type]}                [description]
    */
   async __checkIfForged (transactionIds) {
-    const forgedIds = await blockchain.getInstance().getDatabaseConnection().getForgedTransactionsIds(transactionIds)
+    const forgedIds = await blockchainManager.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }

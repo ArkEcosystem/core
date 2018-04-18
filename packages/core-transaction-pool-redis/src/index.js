@@ -15,6 +15,6 @@ exports.plugin = {
 
     const handler = await new TransactionHandler(options)
 
-    await manager.get('blockchain').attachTransactionHandler(handler)
+    await manager.get('blockchain').setTransactionHandler(handler)
   }
 }

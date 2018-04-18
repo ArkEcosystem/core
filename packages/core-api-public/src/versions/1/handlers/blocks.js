@@ -1,8 +1,8 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const db = require('@arkecosystem/core-plugin-manager').get('database')
-const state = blockchain.getState()
+const state = blockchainManager.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 const schema = require('../schemas/blocks')

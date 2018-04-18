@@ -1,6 +1,6 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -18,7 +18,7 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const peers = await blockchain.networkInterface.getPeers()
+    const peers = await blockchainManager.getNetworkInterface().getPeers()
 
     if (!peers) return utils.respondWith('No peers found', true)
 
@@ -59,7 +59,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const peers = await blockchain.networkInterface.getPeers()
+    const peers = await blockchainManager.getNetworkInterface().getPeers()
 
     if (!peers) return utils.respondWith('No peers found', true)
 

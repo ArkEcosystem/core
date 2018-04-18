@@ -343,12 +343,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          pluginManager.get('webhooks').getInstance().emit('forging.missing', block)
+          pluginManager.get('webhooks').emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          pluginManager.get('webhooks').getInstance().emit('block.forged', block)
+          pluginManager.get('webhooks').emit('block.forged', block)
         }
       })
     } catch (error) {

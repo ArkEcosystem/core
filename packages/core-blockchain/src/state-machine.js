@@ -406,7 +406,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
       tickSyncTracker(block)
-      const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
+      const blocks = await blockchainManager.getNetworkInterface().downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
@@ -426,7 +426,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     downloadBlocks: async () => {
       const block = state.lastDownloadedBlock || state.lastBlock
 
-      const blocks = await blockchainManager.networkInterface.downloadBlocks(block.data.height)
+      const blocks = await blockchainManager.getNetworkInterface().downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')

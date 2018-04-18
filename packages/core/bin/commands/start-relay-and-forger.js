@@ -39,11 +39,11 @@ module.exports = async (config, options) => {
   logger.info('Starting P2P Interface...')
   const p2p = new P2PInterface(config)
   await p2p.warmup(options.networkStart)
-  await blockchainManager.attachNetworkInterface(p2p)
+  await blockchainManager.setNetworkInterface(p2p)
 
   logger.info('Starting Transaction Pool...')
   const txHandler = await new TransactionHandler(config)
-  await blockchainManager.attachTransactionHandler(txHandler)
+  await blockchainManager.setTransactionHandler(txHandler)
 
   logger.info('Starting Blockchain Manager...')
   await blockchainManager.start()

@@ -1,8 +1,8 @@
 'use strict';
 
 const { crypto } = require('@arkecosystem/client')
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchain.getState()
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const state = blockchainManager.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 

@@ -1,7 +1,7 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchain.getState()
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const state = blockchainManager.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
@@ -11,11 +11,11 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 exports.status = {
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
-    const networkHeight = await blockchain.networkInterface.getNetworkHeight()
+    const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
 
     return {
       data: {
-        synced: blockchain.isSynced(),
+        synced: blockchainManager.isSynced(),
         now: lastBlock ? lastBlock.data.height : 0,
         blocksCount: networkHeight - lastBlock.data.height || 0
       }
@@ -30,11 +30,11 @@ exports.status = {
 exports.syncing = {
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
-    const networkHeight = await blockchain.networkInterface.getNetworkHeight()
+    const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
 
     return {
       data: {
-        syncing: !blockchain.isSynced(),
+        syncing: !blockchainManager.isSynced(),
         blocks: networkHeight - lastBlock.data.height || 0,
         height: lastBlock.data.height,
         id: lastBlock.data.id
@@ -56,7 +56,7 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
-        constants: config.getConstants(blockchain.getState().lastBlock.data.height)
+        constants: config.getConstants(blockchainManager.getState().lastBlock.data.height)
       }
     }
   }

@@ -2,7 +2,7 @@
 
 const { slots } = require('@arkecosystem/client')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 
 /**
@@ -33,8 +33,8 @@ exports.getHeight = {
   handler: (request, h) => {
     return {
       success: true,
-      height: blockchain.getInstance().getState().lastBlock.data.height,
-      id: blockchain.getInstance().getState().lastBlock.data.id
+      height: blockchainManager.getState().lastBlock.data.height,
+      id: blockchainManager.getState().lastBlock.data.id
     }
   }
 }
@@ -48,12 +48,12 @@ exports.getCommonBlock = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.getInstance().getDatabaseConnection().getCommonBlock(ids)
+      const commonBlock = await blockchainManager.getDatabaseConnection().getCommonBlock(ids)
 
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getInstance().getState().lastBlock.data.height
+        lastBlockHeight: blockchainManager.getState().lastBlock.data.height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
@@ -70,7 +70,7 @@ exports.getTransactionsFromIds = {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await blockchain.getInstance().getDatabaseConnection().getTransactionsFromIds(txids)
+      const transactions = await blockchainManager.getDatabaseConnection().getTransactionsFromIds(txids)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -95,7 +95,7 @@ exports.getTransactions = {
  */
 exports.getStatus = {
   handler: (request, h) => {
-    const lastBlock = blockchain.getInstance().getState().lastBlock
+    const lastBlock = blockchainManager.getState().lastBlock
     if (!lastBlock) {
       return {
         success: false
@@ -121,7 +121,7 @@ exports.postBlock = {
     // console.log(request.payload)
     if (!request.payload.block) return { success: false }
 
-    blockchain.getInstance().postBlock(request.payload.block)
+    blockchainManager.postBlock(request.payload.block)
     return { success: true }
   }
 }
@@ -135,7 +135,7 @@ exports.postTransactions = {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
 
-    blockchain.getInstance().postTransactions(transactions)
+    blockchainManager.postTransactions(transactions)
 
     return { success: true, transactionIds: [] }
   }
@@ -148,7 +148,7 @@ exports.postTransactions = {
 exports.getBlocks = {
   handler: async (request, h) => {
     try {
-      const blocks = await blockchain.getInstance().getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await blockchainManager.getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

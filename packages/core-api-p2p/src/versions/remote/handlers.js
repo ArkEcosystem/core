@@ -1,6 +1,6 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 
 /**
  * [sendBlockchainEvent description]
@@ -8,7 +8,7 @@ const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain'
  */
 exports.sendBlockchainEvent = {
   handler: (request, h) => {
-    const bm = blockchain.getInstance()
+    const bm = blockchainManager
 
     if (!bm[request.params.event]) {
       return h.response({

@@ -1,7 +1,7 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchain.getState()
+const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const state = blockchainManager.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 
@@ -12,9 +12,9 @@ const utils = require('../utils')
 exports.status = {
   handler: (request, h) => {
     return utils.respondWith({
-      loaded: blockchain.isSynced(),
+      loaded: blockchainManager.isSynced(),
       now: state.lastBlock ? state.lastBlock.data.height : 0,
-      blocksCount: blockchain.networkInterface.getNetworkHeight() - state.lastBlock.data.height
+      blocksCount: blockchainManager.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height
     })
   }
 }
@@ -26,8 +26,8 @@ exports.status = {
 exports.syncing = {
   handler: (request, h) => {
     return utils.respondWith({
-      syncing: !blockchain.isSynced(),
-      blocks: blockchain.networkInterface.getNetworkHeight() - state.lastBlock.data.height,
+      syncing: !blockchainManager.isSynced(),
+      blocks: blockchainManager.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height,
       height: state.lastBlock.data.height,
       id: state.lastBlock.data.id
     })

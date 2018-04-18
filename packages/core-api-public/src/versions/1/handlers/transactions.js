@@ -62,7 +62,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await chainInstance.getTxHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await chainInstance.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -81,7 +81,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await chainInstance.getTxHandler().getUnconfirmedTransaction(request.param.id)
+    const transaction = await chainInstance.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

@@ -1,8 +1,9 @@
 'use strict';
 
 const { slots } = require('@arkecosystem/client')
-const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const blockchainManager = pluginManager.get('blockchain')
+const config = pluginManager.get('config')
 const { Transaction } = require('@arkecosystem/client').models
 
 /**
@@ -12,7 +13,7 @@ const { Transaction } = require('@arkecosystem/client').models
 exports.postVerifyTransaction = {
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await blockchain.getInstance().getDatabaseConnection().verifyTransaction(transaction)
+    const result = await blockchainManager.getDatabaseConnection().verifyTransaction(transaction)
 
     return { success: result }
   }
@@ -25,7 +26,7 @@ exports.postVerifyTransaction = {
 exports.postInternalBlock = {
   handler: (request, h) => {
     // console.log(request.payload)
-    blockchain.getInstance().postBlock(request.payload)
+    blockchainManager.postBlock(request.payload)
 
     return { success: true }
   }
@@ -37,13 +38,13 @@ exports.postInternalBlock = {
  */
 exports.getRound = {
   handler: async (request, h) => {
-    const lastBlock = blockchain.getInstance().getState().lastBlock
+    const lastBlock = blockchainManager.getState().lastBlock
     try {
       const height = lastBlock.data.height + 1
       const maxActive = config.getConstants(height).activeDelegates
       const blockTime = config.getConstants(height).blocktime
       const reward = config.getConstants(height).reward
-      const delegates = await blockchain.getInstance().getDatabaseConnection().getActiveDelegates(height)
+      const delegates = await blockchainManager.getDatabaseConnection().getActiveDelegates(height)
       const timestamp = slots.getTime()
 
       // console.log(delegates.length)
@@ -74,12 +75,12 @@ exports.getRound = {
  */
 exports.getTransactionsForForging = {
   handler: async (request, h) => {
-    const height = blockchain.getInstance().getState().lastBlock.data.height
+    const height = blockchainManager.getState().lastBlock.data.height
     const blockSize = config.getConstants(height).block.maxTransactions
     try {
       return {
         success: true,
-        data: await blockchain.getInstance().getUnconfirmedTransactions(blockSize, true)
+        data: await blockchainManager.getUnconfirmedTransactions(blockSize, true)
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()

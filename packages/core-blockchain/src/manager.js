@@ -351,26 +351,6 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [attachNetworkInterface description]
-   * @param  {[type]} networkInterface [description]
-   * @return {[type]}                  [description]
-   */
-  attachNetworkInterface (networkInterface) {
-    this.networkInterface = networkInterface
-    return this
-  }
-
-  /**
-   * [attachTransactionHandler description]
-   * @param  {[type]} txHandler [description]
-   * @return {[type]}           [description]
-   */
-  attachTransactionHandler (txHandler) {
-    this.transactionHandler = txHandler
-    return this
-  }
-
-  /**
    * [getState description]
    * @return {[type]} [description]
    */
@@ -387,10 +367,20 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getTxHandler description]
+   * [setNetworkInterface description]
+   * @param  {[type]} networkInterface [description]
+   * @return {[type]}                  [description]
+   */
+  setNetworkInterface (networkInterface) {
+    this.networkInterface = networkInterface
+    return this
+  }
+
+  /**
+   * [getTransactionHandler description]
    * @return {[type]} [description]
    */
-  getTxHandler () {
+  getTransactionHandler () {
     return this.transactionHandler
   }
 
@@ -400,6 +390,16 @@ module.exports = class BlockchainManager {
    */
   getDatabaseManager () {
     return this.databaseManager
+  }
+
+  /**
+   * [setTransactionHandler description]
+   * @param  {[type]} txHandler [description]
+   * @return {[type]}           [description]
+   */
+  setTransactionHandler (txHandler) {
+    this.transactionHandler = txHandler
+    return this
   }
 
   /**
