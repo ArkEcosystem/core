@@ -1,6 +1,6 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const state = blockchain.getState()
 
 module.exports = (model) => {

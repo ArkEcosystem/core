@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Module Loader
+# ARK Core - Plugin Manager
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-pluggy
+yarn add @arkecosystem/core-plugin-manager
 ```
 
 ## Security

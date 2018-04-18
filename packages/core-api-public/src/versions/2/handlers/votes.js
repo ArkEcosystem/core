@@ -1,7 +1,7 @@
 'use strict';
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
-const db = require('@arkecosystem/core-pluggy').get('database')
+const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/votes')
 

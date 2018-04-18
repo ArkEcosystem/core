@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('@arkecosystem/core-pluggy').get('database')
+const db = require('@arkecosystem/core-plugin-manager').get('database')
 const formatTimestamp = require('./utils/format-timestamp')
 
 module.exports = (model) => {

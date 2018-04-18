@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-pluggy",
-  "description": "Module Loader for ARK Core",
+  "name": "@arkecosystem/core-plugin-manager",
+  "description": "Plugin Manager for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",

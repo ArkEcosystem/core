@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const pluggy = require('@arkecosystem/core-pluggy')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 commander
   .version(require('../package.json').version)
@@ -13,28 +13,28 @@ commander
 
 const start = async () => {
   try {
-    pluggy.init(commander.config)
-    pluggy.setState({ network: commander.config })
+    pluginManager.init(commander.config)
+    pluginManager.setState({ network: commander.config })
 
-    await pluggy.hook('init')
+    await pluginManager.hook('init')
 
-    pluggy.setState({
-      config: pluggy.get('config'),
-      network: pluggy.get('config').network.name
+    pluginManager.setState({
+      config: pluginManager.get('config'),
+      network: pluginManager.get('config').network.name
     })
 
-    await pluggy.hook('beforeCreate')
+    await pluginManager.hook('beforeCreate')
 
-    const blockchainManager = pluggy.get('blockchain')
-    pluggy.setState({ blockchainManager })
+    const blockchainManager = pluginManager.get('blockchain')
+    pluginManager.setState({ blockchainManager })
 
-    await pluggy.hook('beforeMount')
+    await pluginManager.hook('beforeMount')
 
-    // pluggy.get('logger').info('Starting Blockchain Manager...')
+    // pluginManager.get('logger').info('Starting Blockchain Manager...')
     // await blockchainManager.start()
     // await blockchainManager.isReady()
 
-    await pluggy.hook('mounted')
+    await pluginManager.hook('mounted')
   } catch (error) {
     console.error(error.stack)
     process.exit(1)

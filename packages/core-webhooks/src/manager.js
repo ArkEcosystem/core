@@ -3,8 +3,8 @@
 const axios = require('axios')
 const map = require('lodash/map')
 const EventEmitter = require('events').EventEmitter
-const pluggy = require('@arkecosystem/core-pluggy')
-const logger = pluggy.get('logger')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const logger = pluginManager.get('logger')
 const database = require('./database')
 const RedisQueue = require('./queue')
 

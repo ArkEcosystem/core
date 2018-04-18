@@ -1,8 +1,8 @@
 'use strict';
 
 const Redis = require('ioredis')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 const { slots } = require('@arkecosystem/client')
 

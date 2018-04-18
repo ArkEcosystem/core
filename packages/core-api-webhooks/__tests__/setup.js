@@ -1,28 +1,28 @@
 const path = require('path')
-const pluggy = require('@arkecosystem/core-pluggy')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 const config = require('./stubs/config')
 
 const setupPluggy = async () => {
-  pluggy.init('../core-config/src/networks/devnet')
+  pluginManager.init('../core-config/src/networks/devnet')
 
-  pluggy.setState({
+  pluginManager.setState({
     network: path.resolve(__dirname, '../../core-config/src/networks/devnet')
   })
 
-  await pluggy.hook('init')
+  await pluginManager.hook('init')
 
-  pluggy.setState({
-    config: pluggy.get('config'),
-    network: pluggy.get('config').network.name
+  pluginManager.setState({
+    config: pluginManager.get('config'),
+    network: pluginManager.get('config').network.name
   })
 
-  await pluggy.hook('beforeCreate')
+  await pluginManager.hook('beforeCreate')
 
-  const blockchainManager = pluggy.get('blockchain')
-  pluggy.setState({ blockchainManager })
+  const blockchainManager = pluginManager.get('blockchain')
+  pluginManager.setState({ blockchainManager })
 
-  await pluggy.hook('beforeMount')
+  await pluginManager.hook('beforeMount')
 }
 
 module.exports = async () => {

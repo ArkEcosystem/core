@@ -1,8 +1,8 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const state = blockchain.getState()
-const config = require('@arkecosystem/core-pluggy').get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 
 exports.fee = {

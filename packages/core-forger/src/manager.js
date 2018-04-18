@@ -3,7 +3,7 @@
 const popsicle = require('popsicle')
 const { slots } = require('@arkecosystem/client')
 const { Delegate, Transaction } = require('@arkecosystem/client').models
-const logger = require('@arkecosystem/core-pluggy').get('logger')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const sleep = require('./utils/sleep')
 
 module.exports = class ForgerManager {

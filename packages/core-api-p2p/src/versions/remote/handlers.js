@@ -1,6 +1,6 @@
 'use strict';
 
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 
 exports.sendBlockchainEvent = {
   handler: (request, h) => {

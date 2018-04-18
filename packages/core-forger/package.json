@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-pluggy": "^1.0.0",
+    "@arkecosystem/core-plugin-manager": "^1.0.0",
     "popsicle": "^9.2.0"
   },
   "devDependencies": {

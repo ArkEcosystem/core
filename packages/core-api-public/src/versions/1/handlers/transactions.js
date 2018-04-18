@@ -1,9 +1,9 @@
 'use strict';
 
 const Boom = require('boom')
-const config = require('@arkecosystem/core-pluggy').get('config')
-const chainInstance = require('@arkecosystem/core-pluggy').get('blockchain')
-const db = require('@arkecosystem/core-pluggy').get('database')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
+const chainInstance = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 

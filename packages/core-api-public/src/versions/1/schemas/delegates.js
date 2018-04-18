@@ -1,6 +1,6 @@
 'use strict';
 
-const constants = require('@arkecosystem/core-pluggy').get('config').constants
+const constants = require('@arkecosystem/core-plugin-manager').get('config').constants
 
 module.exports = {
   forgingStatus: {

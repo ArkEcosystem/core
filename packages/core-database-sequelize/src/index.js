@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const database = require('@arkecosystem/core-pluggy').get('database')
+const database = require('@arkecosystem/core-plugin-manager').get('database')
 const provider = require('./provider')
 
 const listRepositories = () => {

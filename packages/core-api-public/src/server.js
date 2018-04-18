@@ -1,7 +1,7 @@
 'use strict';
 
 const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 module.exports = async (config) => {
   if (!config.enabled) {

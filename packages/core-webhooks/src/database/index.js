@@ -4,7 +4,7 @@ const Sequelize = require('sequelize')
 const Umzug = require('umzug')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 class Database {
   async init (config) {

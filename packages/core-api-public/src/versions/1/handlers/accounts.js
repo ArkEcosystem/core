@@ -3,10 +3,10 @@
 const { crypto } = require('@arkecosystem/client')
 
 // TODO: make this accessible through a module
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const state = blockchain.getState()
-const config = require('@arkecosystem/core-pluggy').get('config')
-const db = require('@arkecosystem/core-pluggy').get('database')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
+const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
 

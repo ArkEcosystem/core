@@ -1,8 +1,8 @@
 'use strict';
 
 const { slots } = require('@arkecosystem/client')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
-const blockchain = require('@arkecosystem/core-pluggy').get('blockchain')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const { Transaction } = require('@arkecosystem/client').models
 
 exports.getPeers = {

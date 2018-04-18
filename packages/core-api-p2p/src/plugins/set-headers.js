@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('@arkecosystem/core-pluggy').get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 const register = async (server, options) => {
   const _headers = {

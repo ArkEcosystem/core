@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const config = require('@arkecosystem/core-pluggy').get('config')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 commander
   .version(require('../package.json').version)

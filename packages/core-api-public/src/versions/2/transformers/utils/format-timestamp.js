@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment')
-const config = require('@arkecosystem/core-pluggy').get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 module.exports = (epochStamp) => {
   const timestamp = moment(config.getConstants(1).epoch).utc().add(epochStamp, 'seconds')

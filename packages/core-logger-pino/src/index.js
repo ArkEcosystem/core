@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-pluggy').get('logger')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const pino = require('./logger')
 
 exports.plugin = {

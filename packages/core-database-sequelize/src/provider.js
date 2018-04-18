@@ -9,9 +9,9 @@ const expandHomeDir = require('expand-home-dir')
 
 const { DatabaseInterface } = require('@arkecosystem/core-database')
 
-const pluggy = require('@arkecosystem/core-pluggy')
-const config = pluggy.get('config')
-const logger = pluggy.get('logger')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const logger = pluginManager.get('logger')
 
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
@@ -322,12 +322,12 @@ class SequelizeProvider extends DatabaseInterface {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          pluggy.get('webhooks').getInstance().emit('forging.missing', block)
+          pluginManager.get('webhooks').getInstance().emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          pluggy.get('webhooks').getInstance().emit('block.forged', block)
+          pluginManager.get('webhooks').getInstance().emit('block.forged', block)
         }
       })
     } catch (error) {

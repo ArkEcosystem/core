@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const commander = require('commander')
-const logger = require('@arkecosystem/core-pluggy').get('logger')
-const config = require('@arkecosystem/core-pluggy').get('config')
-const DB = require('@arkecosystem/core-pluggy').get('database')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
+const DB = require('@arkecosystem/core-plugin-manager').get('database')
 const PublicAPI = require('@arkecosystem/core-api-public')
-const WebhookManager = require('@arkecosystem/core-pluggy').get('webhooks')
+const WebhookManager = require('@arkecosystem/core-plugin-manager').get('webhooks')
 
 // TODO: think about extracting this into @arkecosystem/core-api-p2p
 const P2PInterface = require('../src/api/p2p/p2pinterface')

@@ -1,7 +1,7 @@
 'use strict';
 
 const { transformResource, transformCollection } = require('../../utils/transformer')
-const config = require('@arkecosystem/core-pluggy').get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 const paginator = (request) => {
   return {

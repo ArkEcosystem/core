@@ -1,7 +1,7 @@
 'use strict';
 
-const state = require('@arkecosystem/core-pluggy').get('blockchain').getState()
-const config = require('@arkecosystem/core-pluggy').get('config')
+const state = require('@arkecosystem/core-plugin-manager').get('blockchain').getState()
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data
