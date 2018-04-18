@@ -1,6 +1,5 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const pino = require('./logger')
 
 /**
@@ -9,9 +8,9 @@ const pino = require('./logger')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  register: async (hook, config, app) => {
-    const instance = await pino.init(config)
+  register: async (manager, hook, options) => {
+    const instance = await pino.init(options)
 
-    await logger.setDriver(instance)
+    await manager.get('logger').setDriver(instance)
   }
 }

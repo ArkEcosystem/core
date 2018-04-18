@@ -1,6 +1,6 @@
 'use strict';
 
-const manager = require('./manager')
+const configManager = require('./manager')
 
 /**
  * [plugin description]
@@ -9,5 +9,5 @@ const manager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
-  register: async (hook, config, app) => manager.init(app.network)
+  register: async (manager, hook, options) => configManager.init(options.network)
 }

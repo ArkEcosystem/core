@@ -11,12 +11,13 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'database',
-  register: async (hook, config, app) => {
+  register: async (manager, hook, options) => {
     const database = await DatabaseInterface.init()
 
-    await app.blockchainManager.attachDatabaseInterface(database)
+    const blockchainManager = manager.get('blockchain')
+    await blockchainManager.attachDatabaseInterface(database)
 
-    return app.blockchainManager.getDb()
+    return blockchainManager.getDb()
   }
 }
 

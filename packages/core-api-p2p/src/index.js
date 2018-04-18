@@ -1,6 +1,5 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const P2PInterface = require('./p2pinterface')
 
 /**
@@ -10,12 +9,12 @@ const P2PInterface = require('./p2pinterface')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  register: async (hook, config, app) => {
-    logger.info('Starting P2P Interface...')
+  register: async (manager, hook, options) => {
+    manager.get('logger').info('Starting P2P Interface...')
 
-    const p2p = new P2PInterface(config, app.config)
+    const p2p = new P2PInterface(options, manager.get('config'))
     await p2p.warmup()
 
-    await app.blockchainManager.attachNetworkInterface(p2p)
+    await manager.get('blockchain').attachNetworkInterface(p2p)
   }
 }

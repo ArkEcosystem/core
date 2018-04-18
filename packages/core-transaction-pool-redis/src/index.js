@@ -1,6 +1,5 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const TransactionHandler = require('./handler')
 
 /**
@@ -11,11 +10,11 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'transaction-pool',
-  register: async (hook, config, app) => {
-    logger.info('Starting Transaction Pool...')
+  register: async (manager, hook, options) => {
+    manager.get('logger').info('Starting Transaction Pool...')
 
-    const handler = await new TransactionHandler(config)
+    const handler = await new TransactionHandler(options)
 
-    await app.blockchainManager.attachTransactionHandler(handler)
+    await manager.get('blockchain').attachTransactionHandler(handler)
   }
 }

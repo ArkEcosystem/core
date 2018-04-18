@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const path = require('path')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const provider = require('./provider')
 
 /**
@@ -32,15 +31,16 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
   alias: 'database',
-  register: async (hook, config, app) => {
-    logger.info('Starting Database Interface...')
+  register: async (manager, hook, options) => {
+    manager.get('logger').info('Starting Database Interface...')
 
-    let database = app.blockchainManager.getDb()
+    const blockchainManager = manager.get('blockchain')
+    let database = blockchainManager.getDb()
 
-    await provider.init(config)
+    await provider.init(options)
     database = await database.setDriver(provider, listRepositories())
 
-    await app.blockchainManager.attachDatabaseInterface(database)
+    await blockchainManager.attachDatabaseInterface(database)
 
     return database
   }

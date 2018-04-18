@@ -17,7 +17,6 @@ class PluginManager {
     }
 
     this.config = config
-    this.state = {}
 
     this.plugins = {}
     this.bindings = {}
@@ -28,8 +27,10 @@ class PluginManager {
    * @param  {[type]} name [description]
    * @return {[type]}      [description]
    */
-  async hook (name) {
-    for (const [pluginName, pluginOptions] of Object.entries(this.config[name])) {
+  async hook (name, options = {}) {
+    for (let [pluginName, pluginOptions] of Object.entries(this.config[name])) {
+      pluginOptions = Hoek.applyToDefaults(pluginOptions, options)
+
       await this.register(pluginName, pluginOptions, name)
     }
   }
@@ -75,14 +76,16 @@ class PluginManager {
     }
 
     // Register...
-    const instance = await item.plugin.register(hook, options || {}, this.state)
-
+    const instance = await item.plugin.register(this, hook, options || {})
     this.plugins[name] = { name, version, plugin: instance, options }
 
+    // Register with alias...
     if (alias) {
       this.plugins[alias] = this.plugins[name]
+      delete this.plugins[name]
     }
 
+    // Register bindings...
     if (item.plugin.bindings) {
       for (const [bindingName, bindingValue] of Object.entries(item.plugin.bindings)) {
         this.bindings[bindingName] = bindingValue
@@ -142,15 +145,6 @@ class PluginManager {
    */
   hasBinding (key) {
     return this.bindings.hasOwnProperty(key)
-  }
-
-  /**
-   * [setState description]
-   * @param {[type]}  values [description]
-   * @param {Boolean} merge  [description]
-   */
-  setState (values, merge = true) {
-    this.state = merge ? Object.assign(values, this.state) : values
   }
 }
 

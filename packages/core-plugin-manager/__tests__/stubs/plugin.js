@@ -6,11 +6,11 @@ exports.plugin = {
     version: '1.0.0'
   },
   alias: 'stub-plugin',
-  register: (hook, config, app) => {
+  register: (manager, hook, options) => {
     return {
+      manager,
       hook,
-      config,
-      app
+      options
     }
   }
 }

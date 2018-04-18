@@ -1,6 +1,5 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const winston = require('./logger')
 
 /**
@@ -10,9 +9,9 @@ const winston = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  register: async (hook, config, app) => {
-    const instance = await winston.init(config)
+  register: async (manager, hook, options) => {
+    const instance = await winston.init(options)
 
-    await logger.setDriver(instance)
+    await manager.get('logger').setDriver(instance)
   }
 }
