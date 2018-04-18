@@ -5,7 +5,7 @@ class Logger {
    * [init description]
    * @return {[type]} [description]
    */
-  async init () {
+  init () {
     return this
   }
 
@@ -13,7 +13,7 @@ class Logger {
    * [getDriver description]
    * @return {[type]} [description]
    */
-  async getDriver () {
+  getDriver () {
     return this.driver
   }
 
