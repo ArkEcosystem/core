@@ -6,10 +6,10 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = require('./stubs/config')
 
 const setupPluggy = async () => {
-  pluginManager.init('../core-config/src/networks/devnet')
+  pluginManager.init('../core-config/lib/networks/devnet')
 
   await pluginManager.hook('init', {
-    network: path.resolve(__dirname, '../../core-config/src/networks/devnet')
+    network: path.resolve(__dirname, '../../core-config/lib/networks/devnet')
   })
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
@@ -18,5 +18,5 @@ const setupPluggy = async () => {
 module.exports = async () => {
   await setupPluggy()
 
-  await require('../src/server')(config)
+  await require('../lib/server')(config)
 }

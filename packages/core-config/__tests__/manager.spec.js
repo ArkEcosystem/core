@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path')
-const config = require('../src/manager')
+const config = require('../lib/manager')
 
 const stubConfigPath = path.resolve(__dirname, './stubs')
 

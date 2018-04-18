@@ -1,6 +1,6 @@
 'use strict';
 
-const ForgerManager = require('../src/manager')
+const ForgerManager = require('../lib/manager')
 const { Delegate } = require('@arkecosystem/client').models
 
 describe('Core | ForgerManager', () => {

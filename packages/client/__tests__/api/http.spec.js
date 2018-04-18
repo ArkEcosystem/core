@@ -1,5 +1,5 @@
-import ark from '../../src/client'
-import HttpClient from '../../src/api/http'
+import ark from '../../lib/client'
+import HttpClient from '../../lib/api/http'
 
 let client
 

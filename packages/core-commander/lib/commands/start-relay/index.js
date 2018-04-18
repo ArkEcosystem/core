@@ -13,7 +13,7 @@ const { onCancel } = require('../../utils')
 module.exports = async () => {
   startProcess({
     name: 'ark-core:relay',
-    script: path.resolve(__dirname, '../../../src/start-relay.js'),
+    script: path.resolve(__dirname, '../../../lib/start-relay.js'),
     args: [
       '--config', process.env.ARK_CONFIG
     ]

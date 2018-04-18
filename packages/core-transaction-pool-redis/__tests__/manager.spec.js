@@ -1,7 +1,7 @@
 'use strict';
 
-const Manager = require('../src/manager')
-const transactionManager = new Manager(require('../src/defaults.json'))
+const Manager = require('../lib/manager')
+const transactionManager = new Manager(require('../lib/defaults.json'))
 
 describe('Transaction Manager', () => {
   it('should be an object', async () => {

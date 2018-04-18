@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path')
-const pluginManager = require('../src')
+const pluginManager = require('../lib')
 
 const stubPlugins = require('./stubs/plugins.json')
 const stubPluginFile = path.resolve(__dirname, './stubs')

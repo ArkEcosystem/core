@@ -26,8 +26,8 @@ module.exports = async () => {
 
       if (arkjs.crypto.validateAddress(address, readConfig('network').pubKeyHash)) {
         startProcess({
-          name: 'ark-core:relay-and-forger',
-          script: path.resolve(__dirname, '../../../src/start-relay-and-forger.js'),
+          name: 'ark-core:forger',
+          script: path.resolve(__dirname, '../../../lib/start-forger.js'),
           args: [
             '--config', process.env.ARK_CONFIG,
             '--bip38', bip38,
@@ -35,7 +35,7 @@ module.exports = async () => {
             '--password', response.password
           ]
         }, () => {
-          console.log(chalk.green('The relay node and forger have been started.'))
+          console.log(chalk.green('The forger has been started.'))
 
           sleep(1)
 

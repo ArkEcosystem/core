@@ -1,5 +1,5 @@
-import ark from '../../../../src/client'
-import ApiResource from '../../../../src/api/resources/v1/accounts'
+import ark from '../../../../lib/client'
+import ApiResource from '../../../../lib/api/resources/v1/accounts'
 require('../../mocks/v1')
 
 let resource

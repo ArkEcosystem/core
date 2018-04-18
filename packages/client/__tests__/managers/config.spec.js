@@ -1,8 +1,8 @@
-import configManager from '../../src/managers/config'
-import feeManager from '../../src/managers/fee'
-import network from '../../src/networks/ark/devnet.json'
-import networkMainnet from '../../src/networks/ark/mainnet.json'
-import { TRANSACTION_TYPES } from '../../src/constants'
+import configManager from '../../lib/managers/config'
+import feeManager from '../../lib/managers/fee'
+import network from '../../lib/networks/ark/devnet.json'
+import networkMainnet from '../../lib/networks/ark/mainnet.json'
+import { TRANSACTION_TYPES } from '../../lib/constants'
 
 beforeEach(() => configManager.setConfig(network))
 

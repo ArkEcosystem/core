@@ -1,12 +1,12 @@
-import Transaction from '../../src/models/transaction'
-import builder from '../../src/builder'
-import cryptoBuilder from '../../src/builder/crypto'
-import ECPair from '../../src/crypto/ecpair'
-import ECSignature from '../../src/crypto/ecsignature'
+import Transaction from '../../lib/models/transaction'
+import builder from '../../lib/builder'
+import cryptoBuilder from '../../lib/builder/crypto'
+import ECPair from '../../lib/crypto/ecpair'
+import ECSignature from '../../lib/crypto/ecsignature'
 import txData from './fixtures/transaction'
 
-import configManager from '../../src/managers/config'
-import network from '../../src/networks/ark/devnet.json'
+import configManager from '../../lib/managers/config'
+import network from '../../lib/networks/ark/devnet.json'
 
 const createRandomTx = type => {
   let tx

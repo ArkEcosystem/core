@@ -3,7 +3,7 @@
 const {
   calculateApproval,
   calculateProductivity
-} = require('../../../src/repositories/utils/delegate-calculator')
+} = require('../../../lib/repositories/utils/delegate-calculator')
 
 const delegate = {
  balance: 1000 * Math.pow(10, 8),

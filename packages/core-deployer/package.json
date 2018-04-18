@@ -9,7 +9,7 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "bin": {
     "ark:deployer": "./bin/deployer"
   },

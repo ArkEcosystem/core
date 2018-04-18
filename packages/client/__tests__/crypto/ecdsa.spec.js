@@ -2,9 +2,9 @@ import sinon from 'sinon'
 import sinonTestFactory from 'sinon-test'
 import BigInteger from 'bigi'
 
-import ecdsa from '../../src/crypto/ecdsa'
-import bcrypto from '../../src/crypto'
-import ECSignature from '../../src/crypto/ecsignature'
+import ecdsa from '../../lib/crypto/ecdsa'
+import bcrypto from '../../lib/crypto'
+import ECSignature from '../../lib/crypto/ecsignature'
 
 import fixtures from './fixtures/ecdsa.json'
 

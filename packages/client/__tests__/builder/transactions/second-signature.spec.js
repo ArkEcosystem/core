@@ -1,5 +1,5 @@
-import ark from '../../../src/client'
-import cryptoBuilder from '../../../src/builder/crypto'
+import ark from '../../../lib/client'
+import cryptoBuilder from '../../../lib/builder/crypto'
 import transactionTests from './__shared__/transaction'
 
 let tx

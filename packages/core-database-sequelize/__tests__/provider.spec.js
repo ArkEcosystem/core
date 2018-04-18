@@ -1,6 +1,6 @@
 'use strict';
 
-const BlockRepository = require('../src/provider')
+const BlockRepository = require('../lib/provider')
 const repository = new BlockRepository()
 
 describe('Sequelize Provider', () => {

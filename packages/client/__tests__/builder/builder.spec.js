@@ -1,4 +1,4 @@
-import transactionBuilder from '../../src/builder'
+import transactionBuilder from '../../lib/builder'
 
 describe('Builder', () => {
   it('should be instantiated', () => {

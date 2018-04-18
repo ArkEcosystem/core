@@ -1,6 +1,6 @@
 'use strict';
 
-const dbinterface = require('../src/interface')
+const dbinterface = require('../lib/interface')
 
 describe('Database Interface', () => {
   it('should be an object', async () => {

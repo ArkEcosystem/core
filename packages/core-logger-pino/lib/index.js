@@ -8,7 +8,7 @@ const pino = require('./logger')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('../defaults.json'),
+  defaults: require('./defaults.json'),
   register: async (manager, options) => {
     const instance = await pino.init(options)
 

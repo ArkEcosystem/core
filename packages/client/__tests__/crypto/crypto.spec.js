@@ -1,4 +1,4 @@
-import crypto from '../../src/crypto'
+import crypto from '../../lib/crypto'
 import fixtures from './fixtures/crypto.json'
 
 const buffer = Buffer.from('Hello World')

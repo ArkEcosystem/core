@@ -3,11 +3,11 @@ import bigi from 'bigi'
 import ecurve from 'ecurve'
 import crypto from 'crypto'
 
-import HDNode from '../../../src/crypto/hdnode'
-import { HIGHEST_BIT } from '../../../src/crypto/hdnode/constants'
-import ECPair from '../../../src/crypto/ecpair'
-import configManager from '../../../src/managers/config'
-import network from '../../../src/networks/ark/mainnet.json'
+import HDNode from '../../../lib/crypto/hdnode'
+import { HIGHEST_BIT } from '../../../lib/crypto/hdnode/constants'
+import ECPair from '../../../lib/crypto/ecpair'
+import configManager from '../../../lib/managers/config'
+import network from '../../../lib/networks/ark/mainnet.json'
 
 beforeEach(() => configManager.setConfig(network))
 

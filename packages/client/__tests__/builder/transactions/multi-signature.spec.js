@@ -1,6 +1,6 @@
-import ark from '../../../src/client'
-import feeManager from '../../../src/managers/fee'
-import { TRANSACTION_TYPES } from '../../../src/constants'
+import ark from '../../../lib/client'
+import feeManager from '../../../lib/managers/fee'
+import { TRANSACTION_TYPES } from '../../../lib/constants'
 import transactionTests from './__shared__/transaction'
 
 let tx

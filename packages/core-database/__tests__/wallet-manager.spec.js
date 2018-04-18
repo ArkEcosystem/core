@@ -1,6 +1,6 @@
 'use strict';
 
-const walletManager = require('../src/wallet-manager')
+const walletManager = require('../lib/wallet-manager')
 
 describe('Wallet Manager', () => {
   it('should be an object', async () => {

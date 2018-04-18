@@ -1,6 +1,6 @@
 'use strict';
 
-const objectFilter = require('../../../src/repositories/utils/filter-object')
+const objectFilter = require('../../../lib/repositories/utils/filter-object')
 
 describe('Object Filter', () => {
   it('should be a function', async () => {

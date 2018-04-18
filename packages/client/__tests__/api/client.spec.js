@@ -1,7 +1,7 @@
-import ark from '../../src/client'
-import ApiClient from '../../src/api'
-import HttpClient from '../../src/api/http'
-import ApiResource from '../../src/api/resources/v1/transactions'
+import ark from '../../lib/client'
+import ApiClient from '../../lib/api'
+import HttpClient from '../../lib/api/http'
+import ApiResource from '../../lib/api/resources/v1/transactions'
 
 let client
 

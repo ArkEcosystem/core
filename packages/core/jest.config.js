@@ -14,10 +14,10 @@ module.exports = {
   collectCoverage: false,
   coverageDirectory: './__tests__/coverage/all',
   collectCoverageFrom: [
-    'src/api/**/*.js',
-    'src/config/**/*.js',
-    'src/**/*.js',
-    'src/database/**/*.js',
-    'src/utils/**/*.js'
+    'lib/api/**/*.js',
+    'lib/config/**/*.js',
+    'lib/**/*.js',
+    'lib/database/**/*.js',
+    'lib/utils/**/*.js'
   ]
 }

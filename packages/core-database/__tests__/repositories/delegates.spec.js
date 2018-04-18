@@ -1,6 +1,6 @@
 'use strict';
 
-const DelegateRepository = require('../../src/repositories/delegates')
+const DelegateRepository = require('../../lib/repositories/delegates')
 const repository = new DelegateRepository()
 
 describe('Delegate Repository', () => {

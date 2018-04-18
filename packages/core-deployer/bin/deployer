@@ -7,7 +7,7 @@ const assert = require('assert-plus')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { updateConfig } = require('../src/utils')
+const { updateConfig } = require('../lib/utils')
 
 commander
   .version(require('../package.json').version)

@@ -8,14 +8,14 @@ module.exports = {
     'json'
   ],
   // moduleNameMapper: {
-  //   '^@/(.*)$': '<rootDir>/src/$1'
+  //   '^@/(.*)$': '<rootDir>/lib/$1'
   // },
   // transform: {
   //   '^.+\\.js$': '<rootDir>/node_modules/babel-jest'
   // },
   coverageDirectory: '<rootDir>/.coverage',
   collectCoverageFrom: [
-    'src/**/*.js',
+    'lib/**/*.js',
     '!**/node_modules/**'
   ],
   watchman: false,

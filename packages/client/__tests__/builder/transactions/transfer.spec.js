@@ -1,4 +1,4 @@
-import ark from '../../../src/client'
+import ark from '../../../lib/client'
 import transactionTests from './__shared__/transaction'
 
 let tx

@@ -1,6 +1,6 @@
 'use strict';
 
-const TransactionRepository = require('../../src/repositories/transactions')
+const TransactionRepository = require('../../lib/repositories/transactions')
 const repository = new TransactionRepository()
 
 describe('Transaction Repository', () => {

@@ -1,5 +1,5 @@
-import ark from '../src/client'
-import ApiClient from '../src/api'
+import ark from '../lib/client'
+import ApiClient from '../lib/api'
 
 describe('Client', () => {
   it('should be instantiated', () => {

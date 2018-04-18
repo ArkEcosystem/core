@@ -1,11 +1,11 @@
 import { Buffer } from 'buffer/'
 import ecurve from 'ecurve'
 
-import ECPair from '../../src/crypto/ecpair'
-import ecdsa from '../../src/crypto/ecdsa'
-import cryptoBuilder from '../../src/builder/crypto'
-import configManager from '../../src/managers/config'
-import { TRANSACTION_TYPES, CONFIGURATIONS } from '../../src/constants'
+import ECPair from '../../lib/crypto/ecpair'
+import ecdsa from '../../lib/crypto/ecdsa'
+import cryptoBuilder from '../../lib/builder/crypto'
+import configManager from '../../lib/managers/config'
+import { TRANSACTION_TYPES, CONFIGURATIONS } from '../../lib/constants'
 
 beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET))
 

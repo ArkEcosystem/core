@@ -1,6 +1,6 @@
 'use strict';
 
-const WalletRepository = require('../../src/repositories/wallets')
+const WalletRepository = require('../../lib/repositories/wallets')
 const repository = new WalletRepository()
 
 describe('Wallet Repository', () => {

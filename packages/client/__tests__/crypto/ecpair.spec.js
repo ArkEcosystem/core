@@ -3,9 +3,9 @@ import sinon from 'sinon'
 import sinonTestFactory from 'sinon-test'
 import BigInteger from 'bigi'
 
-import ECPair from '../../src/crypto/ecpair'
-import ecdsa from '../../src/crypto/ecdsa'
-import configManager from '../../src/managers/config'
+import ECPair from '../../lib/crypto/ecpair'
+import ecdsa from '../../lib/crypto/ecdsa'
+import configManager from '../../lib/managers/config'
 
 import fixtures from './fixtures/ecpair.json'
 import { NETWORKS, NETWORKS_LIST } from '../utils/network-list'

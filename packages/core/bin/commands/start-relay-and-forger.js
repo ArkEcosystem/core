@@ -12,7 +12,7 @@ const WebhookManager = require('@arkecosystem/core-plugin-manager').get('webhook
 const BlockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const ForgerManager = require('@arkecosystem/core-plugin-manager').get('forger')
 
-const TransactionHandler = require('../src/transaction-handler')
+const TransactionHandler = require('../lib/transaction-handler')
 
 /**
  * [description]

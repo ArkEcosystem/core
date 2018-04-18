@@ -4,10 +4,10 @@ const path = require('path')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 module.exports = async () => {
-  pluginManager.init('../core-config/src/networks/devnet')
+  pluginManager.init('../core-config/lib/networks/devnet')
 
   await pluginManager.hook('init', {
-    network: path.resolve(__dirname, '../../core-config/src/networks/devnet')
+    network: path.resolve(__dirname, '../../core-config/lib/networks/devnet')
   })
 
   await pluginManager.hook('beforeCreate')

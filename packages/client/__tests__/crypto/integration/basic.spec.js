@@ -1,9 +1,9 @@
 import bigi from 'bigi'
-import crypto from '../../../src/crypto'
-import ECPair from '../../../src/crypto/ecpair'
+import crypto from '../../../lib/crypto'
+import ECPair from '../../../lib/crypto/ecpair'
 
-import configManager from '../../../src/managers/config'
-import network from '../../../src/networks/ark/mainnet.json'
+import configManager from '../../../lib/managers/config'
+import network from '../../../lib/networks/ark/mainnet.json'
 
 beforeEach(() => configManager.setConfig(network))
 

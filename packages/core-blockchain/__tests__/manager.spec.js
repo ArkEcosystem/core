@@ -1,6 +1,6 @@
 'use strict';
 
-const BlockchainManager = require('../../../src/managers/blockchain')
+const BlockchainManager = require('../../../lib/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const BlockRepository = require('../../src/repositories/blocks')
+const BlockRepository = require('../../lib/repositories/blocks')
 const repository = new BlockRepository()
 
 describe('Block Repository', () => {

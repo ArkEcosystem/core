@@ -9,7 +9,7 @@
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "browser": "dist/index.min.js",
   "scripts": {
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
