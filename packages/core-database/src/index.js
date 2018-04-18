@@ -3,8 +3,7 @@
 const databaseManager = require('./manager')
 
 /**
- * This plugin is only an interface and will be overwritten by a concrete implementation.
- *
+ * [plugin description]
  * @type {Object}
  */
 exports.plugin = {

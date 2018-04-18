@@ -1,5 +1,4 @@
 import ark from '../../src/client'
-import network from '../../src/networks/ark/devnet.json'
 import ApiClient from '../../src/api'
 import HttpClient from '../../src/api/http'
 import ApiResource from '../../src/api/resources/v1/transactions'

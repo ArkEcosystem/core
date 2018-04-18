@@ -1,5 +1,4 @@
 import ark from '../../../src/client'
-import network from '../../../src/networks/ark/devnet.json'
 import feeManager from '../../../src/managers/fee'
 import { TRANSACTION_TYPES } from '../../../src/constants'
 import transactionTests from './__shared__/transaction'

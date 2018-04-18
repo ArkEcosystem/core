@@ -11,9 +11,9 @@ class PluginManager {
    * @param  {[type]} config [description]
    * @return {[type]}        [description]
    */
-  init (config) {
+  init (config, index = 'plugins.json') {
     if (isString(config)) {
-      config = require(path.resolve(expandHomeDir(`${config}/plugins.json`)))
+      config = require(path.resolve(expandHomeDir(`${config}/${index}`)))
     }
 
     this.config = config

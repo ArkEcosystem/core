@@ -1,5 +1,4 @@
 import ark from '../../src/client'
-import network from '../../src/networks/ark/devnet.json'
 import HttpClient from '../../src/api/http'
 
 let client

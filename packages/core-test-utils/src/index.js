@@ -7,6 +7,6 @@ if (jestExpect !== undefined) {
   jestExpect.extend(matchers)
 } else {
   /* eslint-disable no-console */
-  console.error(red("Unable to find Jest's global expect."))
+  console.error(red('Unable to find Jest\'s global expect.'))
     /* eslint-enable no-console */
 }

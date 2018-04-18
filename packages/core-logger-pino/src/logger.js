@@ -5,17 +5,14 @@ const pino = require('pino')
 class Logger {
   /**
    * [init description]
-   * @param  {[type]} config [description]
+   * @param  {[type]} options [description]
    * @return {[type]}        [description]
    */
-  init (config) {
+  init (options) {
     const pretty = pino.pretty()
     pretty.pipe(process.stdout)
 
-    this.pino = pino({
-      name: 'ark-core',
-      safe: true
-    }, pretty)
+    this.pino = pino(options, pretty)
 
     return this
   }

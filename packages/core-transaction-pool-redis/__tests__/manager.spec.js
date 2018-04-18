@@ -10,67 +10,67 @@ describe('Transaction Manager', () => {
 
   describe('getInstance', async () => {
     it('should be a function', async () => {
-      await expect(repository.getInstance).toBeFunction()
+      await expect(transactionManager.getInstance).toBeFunction()
     })
   })
 
   describe('getPoolSize', async () => {
     it('should be a function', async () => {
-      await expect(repository.getPoolSize).toBeFunction()
+      await expect(transactionManager.getPoolSize).toBeFunction()
     })
   })
 
   describe('addTransaction', async () => {
     it('should be a function', async () => {
-      await expect(repository.addTransaction).toBeFunction()
+      await expect(transactionManager.addTransaction).toBeFunction()
     })
   })
 
   describe('removeTransaction', async () => {
     it('should be a function', async () => {
-      await expect(repository.removeTransaction).toBeFunction()
+      await expect(transactionManager.removeTransaction).toBeFunction()
     })
   })
 
   describe('removeTransactions', async () => {
     it('should be a function', async () => {
-      await expect(repository.removeTransactions).toBeFunction()
+      await expect(transactionManager.removeTransactions).toBeFunction()
     })
   })
 
   describe('getTransactions', async () => {
     it('should be a function', async () => {
-      await expect(repository.getTransactions).toBeFunction()
+      await expect(transactionManager.getTransactions).toBeFunction()
     })
   })
 
   describe('getTransactionsForForging', async () => {
     it('should be a function', async () => {
-      await expect(repository.getTransactionsForForging).toBeFunction()
+      await expect(transactionManager.getTransactionsForForging).toBeFunction()
     })
   })
 
   describe('getTransaction', async () => {
     it('should be a function', async () => {
-      await expect(repository.getTransaction).toBeFunction()
+      await expect(transactionManager.getTransaction).toBeFunction()
     })
   })
 
   describe('__checkIfForged', async () => {
     it('should be a function', async () => {
-      await expect(repository.__checkIfForged).toBeFunction()
+      await expect(transactionManager.__checkIfForged).toBeFunction()
     })
   })
 
   describe('__getRedisTransactionKey', async () => {
     it('should be a function', async () => {
-      await expect(repository.__getRedisTransactionKey).toBeFunction()
+      await expect(transactionManager.__getRedisTransactionKey).toBeFunction()
     })
   })
 
   describe('__getRedisOrderKey', async () => {
     it('should be a function', async () => {
-      await expect(repository.__getRedisOrderKey).toBeFunction()
+      await expect(transactionManager.__getRedisOrderKey).toBeFunction()
     })
   })
 })

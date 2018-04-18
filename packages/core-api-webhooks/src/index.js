@@ -12,6 +12,6 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Starting Webhook API...')
 
-    return await Server(config)
+    await Server(options)
   }
 }

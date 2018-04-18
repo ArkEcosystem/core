@@ -1,7 +1,7 @@
 'use strict';
 
 const Handler = require('../src/handler')
-const transactionHandler = new Hander(require('../src/defaults.json'))
+const transactionHandler = new Handler(require('../src/defaults.json'))
 
 describe('Transaction Handler', () => {
   it('should be an object', async () => {
@@ -10,67 +10,67 @@ describe('Transaction Handler', () => {
 
   describe('getInstance', async () => {
     it('should be a function', async () => {
-      await expect(repository.getInstance).toBeFunction()
+      await expect(transactionHandler.getInstance).toBeFunction()
     })
   })
 
   describe('addTransaction', async () => {
     it('should be a function', async () => {
-      await expect(repository.addTransaction).toBeFunction()
+      await expect(transactionHandler.addTransaction).toBeFunction()
     })
   })
 
   describe('addTransactions', async () => {
     it('should be a function', async () => {
-      await expect(repository.addTransactions).toBeFunction()
+      await expect(transactionHandler.addTransactions).toBeFunction()
     })
   })
 
   describe('verify', async () => {
     it('should be a function', async () => {
-      await expect(repository.verify).toBeFunction()
+      await expect(transactionHandler.verify).toBeFunction()
     })
   })
 
   describe('undoBlock', async () => {
     it('should be a function', async () => {
-      await expect(repository.undoBlock).toBeFunction()
+      await expect(transactionHandler.undoBlock).toBeFunction()
     })
   })
 
   describe('addTransactionToRedis', async () => {
     it('should be a function', async () => {
-      await expect(repository.addTransactionToRedis).toBeFunction()
+      await expect(transactionHandler.addTransactionToRedis).toBeFunction()
     })
   })
 
   describe('removeForgedTransactions', async () => {
     it('should be a function', async () => {
-      await expect(repository.removeForgedTransactions).toBeFunction()
+      await expect(transactionHandler.removeForgedTransactions).toBeFunction()
     })
   })
 
   describe('getUnconfirmedTransactions', async () => {
     it('should be a function', async () => {
-      await expect(repository.getUnconfirmedTransactions).toBeFunction()
+      await expect(transactionHandler.getUnconfirmedTransactions).toBeFunction()
     })
   })
 
   describe('getTransactionsForForging', async () => {
     it('should be a function', async () => {
-      await expect(repository.getTransactionsForForging).toBeFunction()
+      await expect(transactionHandler.getTransactionsForForging).toBeFunction()
     })
   })
 
   describe('getUnconfirmedTransaction', async () => {
     it('should be a function', async () => {
-      await expect(repository.getUnconfirmedTransaction).toBeFunction()
+      await expect(transactionHandler.getUnconfirmedTransaction).toBeFunction()
     })
   })
 
   describe('getPoolSize', async () => {
     it('should be a function', async () => {
-      await expect(repository.getPoolSize).toBeFunction()
+      await expect(transactionHandler.getPoolSize).toBeFunction()
     })
   })
 })

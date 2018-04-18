@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path')
 const logger = require('../src/logger')
 
 describe('Logger', () => {

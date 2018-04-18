@@ -628,7 +628,7 @@ module.exports = class SequelizeConnection extends Connection {
   async __registerRepositories () {
     const repositories = {
       blocks: require('./repositories/blocks'),
-      transactions: require('./repositories/transactions'),
+      transactions: require('./repositories/transactions')
     }
 
     for (const [key, value] of Object.entries(repositories)) {

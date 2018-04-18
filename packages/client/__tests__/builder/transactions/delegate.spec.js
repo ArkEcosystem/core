@@ -1,5 +1,4 @@
 import ark from '../../../src/client'
-import network from '../../../src/networks/ark/devnet.json'
 import cryptoBuilder from '../../../src/builder/crypto'
 import transactionTests from './__shared__/transaction'
 

@@ -1,6 +1,5 @@
 'use strict';
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const ForgerManager = require('./manager')
 
 /**
@@ -13,9 +12,8 @@ exports.plugin = {
   register: async (manager, options) => {
     const forgerManager = await new ForgerManager(manager.get('config'))
 
-    const forgers = await forgerManager.loadDelegates(
-      app.credentials.bip38, app.credentials.address, app.credentials.password
-    )
+    // TODO: pass in credentials via options
+    const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)
 
     manager.get('logger').info(`ForgerManager started with ${forgers.length} forgers`)
 

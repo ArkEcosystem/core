@@ -17,7 +17,7 @@ module.exports = class Connection {
    * @param  {[type]} config [description]
    * @return {[type]}        [description]
    */
-  constructor(config) {
+  constructor (config) {
     this.config = config
     this.connection = null
   }

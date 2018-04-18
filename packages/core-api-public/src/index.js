@@ -12,6 +12,6 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Starting Public API...')
 
-    return await Server(options)
+    await Server(options)
   }
 }

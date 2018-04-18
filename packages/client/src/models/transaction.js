@@ -266,7 +266,7 @@ module.exports = class Transaction {
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.recipientId = arkjs.crypto.getAddress(transaction.senderPublicKey, transaction.network)
+        transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
         transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 

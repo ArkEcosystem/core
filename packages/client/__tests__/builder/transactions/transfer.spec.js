@@ -1,5 +1,4 @@
 import ark from '../../../src/client'
-import network from '../../../src/networks/ark/devnet.json'
 import transactionTests from './__shared__/transaction'
 
 let tx

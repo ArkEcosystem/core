@@ -56,7 +56,7 @@ module.exports = class Block {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
-      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex')
+      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
       delete this.data.previousBlock
     }
 

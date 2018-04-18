@@ -1,5 +1,4 @@
 import ark from '../../../../src/client'
-import network from '../../../../src/networks/ark/devnet.json'
 import ApiResource from '../../../../src/api/resources/v2/statistics'
 require('../../mocks/v2')
 

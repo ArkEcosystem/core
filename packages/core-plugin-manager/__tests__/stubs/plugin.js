@@ -9,7 +9,6 @@ exports.plugin = {
   register: (manager, options) => {
     return {
       manager,
-      hook,
       options
     }
   }

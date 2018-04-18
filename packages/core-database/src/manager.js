@@ -1,15 +1,15 @@
 'use strict';
 
 class DatabaseManager {
-  constructor() {
+  constructor () {
     this.connections = {}
   }
 
-  connection(name = 'default') {
+  connection (name = 'default') {
     return this.connections[name];
   }
 
-  async makeConnection(connection, name = 'default') {
+  async makeConnection (connection, name = 'default') {
     this.connections[name] = await connection.make()
   }
 }
