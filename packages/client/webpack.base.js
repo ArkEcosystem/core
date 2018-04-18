@@ -1,4 +1,4 @@
-const path = require('path')
+// const path = require('path')
 
 // function resolve (dir) {
 //   return path.join(__dirname, dir)
@@ -7,7 +7,7 @@ const path = require('path')
 module.exports = {
   module: {
     rules: [{
-      test: /\.js/,
+      test: /\.js$/,
       loaders: ['babel-loader'],
       exclude: /node_modules/
     }]
@@ -17,6 +17,6 @@ module.exports = {
     // alias: {
     //   '@': resolve('src')
     // },
-    extensions: ['.js']
+    extensions: ['.js', '.json']
   }
 }
