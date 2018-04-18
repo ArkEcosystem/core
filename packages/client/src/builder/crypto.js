@@ -28,6 +28,7 @@ class CryptoBuilder {
     bb.writeByte(transaction.network) // ark = 0x17, devnet = 0x30
     bb.writeByte(transaction.type)
     bb.writeInt(transaction.timestamp)
+    // FIXME: TypeError: Illegal buffer
     bb.append(transaction.senderPublicKey, 'hex')
     bb.writeLong(transaction.fee)
     if (transaction.vendorFieldHex) {

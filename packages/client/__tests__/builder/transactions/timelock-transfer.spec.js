@@ -1,12 +1,10 @@
-import Ark from '../../../src'
+import ark from '../../../src/client'
 import network from '../../../src/networks/ark/devnet.json'
 import transactionTests from './__shared__/transaction'
 
-let ark
 let tx
 
 beforeEach(() => {
-  ark = new Ark(network)
   tx = ark.getBuilder().timelockTransfer()
 
   global.tx = tx

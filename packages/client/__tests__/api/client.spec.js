@@ -1,4 +1,4 @@
-import Ark from '../../src'
+import ark from '../../src/client'
 import network from '../../src/networks/ark/devnet.json'
 import ApiClient from '../../src/api'
 import HttpClient from '../../src/api/http'
@@ -7,7 +7,6 @@ import ApiResource from '../../src/api/resources/v1/transactions'
 let client
 
 beforeEach(() => {
-  const ark = new Ark(network)
   client = ark.getClient('https://localhost:4003')
 })
 

@@ -39,7 +39,7 @@ const createRandomTx = type => {
         return cryptoBuilder.getKeys(Math.random().toString(36))
       })
 
-      tx = builder.multisignature(Math.random().toString(36), '', ECkeys.map(k => k.Q), 48, 2)
+      tx = builder.multiSignature(Math.random().toString(36), '', ECkeys.map(k => k.Q), 48, 2)
       const hash = cryptoBuilder.getHash(tx, true, true)
       tx.signatures = ECkeys.slice(1).map(k => {
         k

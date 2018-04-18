@@ -1,11 +1,10 @@
-import Ark from '../../src'
+import ark from '../../src/client'
 import network from '../../src/networks/ark/devnet.json'
 import HttpClient from '../../src/api/http'
 
 let client
 
 beforeEach(() => {
-  const ark = new Ark(network)
   client = ark.getClient('http://httpbin.org').getConnection()
 })
 

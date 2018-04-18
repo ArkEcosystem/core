@@ -296,6 +296,7 @@ module.exports = class Block {
     let blockSignatureBuffer = null
 
     if (includeSignature) {
+      // FIXME: TypeError [ERR_INVALID_ARG_TYPE]: The first argument must be one of type string, Buffer, ArrayBuffer, Array, or Array-like Object. Received type undefined
       blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }

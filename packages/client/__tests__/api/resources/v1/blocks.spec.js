@@ -1,4 +1,4 @@
-import Ark from '../../../../src'
+import ark from '../../../../src/client'
 import network from '../../../../src/networks/ark/devnet.json'
 import ApiResource from '../../../../src/api/resources/v1/blocks'
 require('../../mocks/v1')
@@ -6,7 +6,6 @@ require('../../mocks/v1')
 let resource
 
 beforeEach(() => {
-  const ark = new Ark(network)
   resource = ark.getClient('https://localhost:4003').setVersion(1).resource('blocks')
 })
 
