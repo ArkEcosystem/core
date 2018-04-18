@@ -14,13 +14,13 @@ describe('PluginLoader', () => {
   it('should register plugin list from object', async () => {
     await pluginManager.init(stubPlugins)
 
-    await expect(pluginManager.plugins).toEqual(stubPlugins)
+    await expect(pluginManager.config).toEqual(stubPlugins)
   })
 
   it('should register plugin list from file', async () => {
     await pluginManager.init(stubPluginFile)
 
-    await expect(pluginManager.plugins).toEqual(stubPlugins)
+    await expect(pluginManager.config).toEqual(stubPlugins)
   })
 
   it('should register a hook', async () => {
@@ -35,7 +35,7 @@ describe('PluginLoader', () => {
     const pluginConfig = stubPlugins.init[pluginName]
 
     await pluginManager.init(stubPlugins)
-    await pluginManager.register('init', pluginName, pluginConfig)
+    await pluginManager.register(pluginName, pluginConfig)
 
     await expect(pluginManager.has('stub-plugin')).toBeTruthy()
   })

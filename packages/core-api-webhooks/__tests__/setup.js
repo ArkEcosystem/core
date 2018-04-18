@@ -8,22 +8,10 @@ const config = require('./stubs/config')
 const setupPluggy = async () => {
   pluginManager.init('../core-config/src/networks/devnet')
 
-  pluginManager.setState({
+  await pluginManager.hook('init', {
     network: path.resolve(__dirname, '../../core-config/src/networks/devnet')
   })
-
-  await pluginManager.hook('init')
-
-  pluginManager.setState({
-    config: pluginManager.get('config'),
-    network: pluginManager.get('config').network.name
-  })
-
   await pluginManager.hook('beforeCreate')
-
-  const blockchainManager = pluginManager.get('blockchain')
-  pluginManager.setState({ blockchainManager })
-
   await pluginManager.hook('beforeMount')
 }
 
