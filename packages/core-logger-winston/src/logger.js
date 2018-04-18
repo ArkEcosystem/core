@@ -7,6 +7,11 @@ require('winston-daily-rotate-file')
 require('colors')
 
 class Logger {
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   init (config) {
     this.winston = new (winston.Logger)()
 
@@ -37,22 +42,51 @@ class Logger {
     return this
   }
 
+  /**
+   * [error description]
+   * @param  {[type]} message [description]
+   * @return {[type]}         [description]
+   */
   error (message) {
     return this.winston.error(message)
   }
 
+  /**
+   * [warning description]
+   * @param  {[type]} message [description]
+   * @return {[type]}         [description]
+   */
   warning (message) {
     return this.winston.warn(message)
   }
 
+  /**
+   * [info description]
+   * @param  {[type]} message [description]
+   * @return {[type]}         [description]
+   */
   info (message) {
     return this.winston.info(message)
   }
 
+  /**
+   * [debug description]
+   * @param  {[type]} message [description]
+   * @return {[type]}         [description]
+   */
   debug (message) {
     return this.winston.debug(message)
   }
 
+  /**
+   * [printTracker description]
+   * @param  {[type]} title     [description]
+   * @param  {[type]} current   [description]
+   * @param  {[type]} max       [description]
+   * @param  {[type]} posttitle [description]
+   * @param  {Number} figures   [description]
+   * @return {[type]}           [description]
+   */
   printTracker (title, current, max, posttitle, figures = 0) {
     const progress = 100 * current / max
     let line = '\u{1b}[0G  '
@@ -66,6 +100,13 @@ class Logger {
     this.tracker = line
   }
 
+  /**
+   * [stopTracker description]
+   * @param  {[type]} title   [description]
+   * @param  {[type]} current [description]
+   * @param  {[type]} max     [description]
+   * @return {[type]}         [description]
+   */
   stopTracker (title, current, max) {
     const progress = 100 * current / max
     let line = '\u{1b}[0G  '
@@ -81,4 +122,8 @@ class Logger {
   }
 }
 
+/**
+ * [exports description]
+ * @type {Logger}
+ */
 module.exports = new Logger()

@@ -1,3 +1,5 @@
+'use strict';
+
 const utils = require('../utils')
 
 const peerIp = '167.114.29.55'

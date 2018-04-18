@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * [exports description]
+ * @type {Object}
+ */
 module.exports = {
   loadSignatures: {
     type: 'object',

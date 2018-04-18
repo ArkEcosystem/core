@@ -17,6 +17,11 @@ const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 class SequelizeProvider extends DatabaseInterface {
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
@@ -36,7 +41,6 @@ class SequelizeProvider extends DatabaseInterface {
 
     try {
       await this.db.authenticate()
-      logger.info('Starting Sequelize Database...')
       await this.runMigrations()
       await this.registerModels()
     } catch (error) {
@@ -45,6 +49,10 @@ class SequelizeProvider extends DatabaseInterface {
     }
   }
 
+  /**
+   * [runMigrations description]
+   * @return {[type]} [description]
+   */
   runMigrations () {
     const umzug = new Umzug({
       storage: 'sequelize',
@@ -63,6 +71,10 @@ class SequelizeProvider extends DatabaseInterface {
     return umzug.up()
   }
 
+  /**
+   * [registerModels description]
+   * @return {[type]} [description]
+   */
   async registerModels () {
     this.models = {}
 
@@ -80,6 +92,11 @@ class SequelizeProvider extends DatabaseInterface {
     })
   }
 
+  /**
+   * [getActiveDelegates description]
+   * @param  {[type]} height [description]
+   * @return {[type]}        [description]
+   */
   async getActiveDelegates (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
@@ -113,15 +130,31 @@ class SequelizeProvider extends DatabaseInterface {
     return this.activedelegates
   }
 
+  /**
+   * [saveRounds description]
+   * @param  {[type]} activeDelegates [description]
+   * @return {[type]}                 [description]
+   */
   saveRounds (activeDelegates) {
     logger.info(`saving round ${activeDelegates[0].round}`)
     return this.models.round.bulkCreate(activeDelegates)
   }
 
+  /**
+   * [deleteRound description]
+   * @param  {[type]} round [description]
+   * @return {[type]}       [description]
+   */
   deleteRound (round) {
     return this.models.round.destroy({where: {round}})
   }
 
+  /**
+   * [buildDelegates description]
+   * @param  {[type]} maxDelegates [description]
+   * @param  {[type]} height       [description]
+   * @return {[type]}              [description]
+   */
   async buildDelegates (maxDelegates, height) {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
@@ -172,6 +205,11 @@ class SequelizeProvider extends DatabaseInterface {
     return data
   }
 
+  /**
+   * [buildWallets description]
+   * @param  {[type]} height [description]
+   * @return {[type]}        [description]
+   */
   async buildWallets (height) {
     this.walletManager.reset()
     const maxDelegates = config.getConstants(height).activeDelegates
@@ -305,6 +343,12 @@ class SequelizeProvider extends DatabaseInterface {
   }
 
   // must be called before saving new round of delegates
+  /**
+   * [updateDelegateStats description]
+   * @param  {[type]} block     [description]
+   * @param  {[type]} delegates [description]
+   * @return {[type]}           [description]
+   */
   async updateDelegateStats (block, delegates) {
     if (!delegates) {
       return
@@ -335,6 +379,11 @@ class SequelizeProvider extends DatabaseInterface {
     }
   }
 
+  /**
+   * [saveWallets description]
+   * @param  {[type]} force [description]
+   * @return {[type]}       [description]
+   */
   async saveWallets (force) {
     await this.db.transaction(t =>
       Promise.all(
@@ -351,6 +400,11 @@ class SequelizeProvider extends DatabaseInterface {
   }
 
   // to be used when node is in sync and committing newly received blocks
+  /**
+   * [saveBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async saveBlock (block) {
     let transaction
     try {
@@ -365,6 +419,11 @@ class SequelizeProvider extends DatabaseInterface {
   }
 
   // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+  /**
+   * [saveBlockAsync description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async saveBlockAsync (block) {
     if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
@@ -372,6 +431,10 @@ class SequelizeProvider extends DatabaseInterface {
   }
 
   // to be used in combination with saveBlockAsync
+  /**
+   * [saveBlockCommit description]
+   * @return {[type]} [description]
+   */
   async saveBlockCommit () {
     if (!this.asyncTransaction) return
     logger.debug('Committing DB transaction')
@@ -387,6 +450,11 @@ class SequelizeProvider extends DatabaseInterface {
     this.asyncTransaction = null
   }
 
+  /**
+   * [deleteBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async deleteBlock (block) {
     let transaction
 
@@ -401,6 +469,11 @@ class SequelizeProvider extends DatabaseInterface {
     }
   }
 
+  /**
+   * [getBlock description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   async getBlock (id) {
     // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
     const block = await this.models.block.findOne({
@@ -422,14 +495,29 @@ class SequelizeProvider extends DatabaseInterface {
     return new Block(block)
   }
 
+  /**
+   * [getTransaction description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   getTransaction (id) {
     return this.db.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
   }
 
+  /**
+   * [getCommonBlock description]
+   * @param  {[type]} ids [description]
+   * @return {[type]}     [description]
+   */
   getCommonBlock (ids) {
     return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
 
+  /**
+   * [getTransactionsFromIds description]
+   * @param  {[type]} txids [description]
+   * @return {[type]}       [description]
+   */
   async getTransactionsFromIds (txids) {
     const rows = await this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
@@ -437,11 +525,20 @@ class SequelizeProvider extends DatabaseInterface {
     return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
   }
 
+  /**
+   * [getForgedTransactionsIds description]
+   * @param  {[type]} txids [description]
+   * @return {[type]}       [description]
+   */
   async getForgedTransactionsIds (txids) {
     const rows = await this.db.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     return rows.map(tx => tx.id)
   }
 
+  /**
+   * [getLastBlock description]
+   * @return {[type]} [description]
+   */
   async getLastBlock () {
     let block = await this.models.block.findOne({order: [['height', 'DESC']]})
     if (!block) return null
@@ -451,6 +548,12 @@ class SequelizeProvider extends DatabaseInterface {
     return new Block(block)
   }
 
+  /**
+   * [getBlocks description]
+   * @param  {[type]} offset [description]
+   * @param  {[type]} limit  [description]
+   * @return {[type]}        [description]
+   */
   async getBlocks (offset, limit) {
     const last = offset + limit
     const blocks = await this.models.block.findAll({
@@ -476,6 +579,12 @@ class SequelizeProvider extends DatabaseInterface {
     return nblocks
   }
 
+  /**
+   * [getBlockHeaders description]
+   * @param  {[type]} offset [description]
+   * @param  {[type]} limit  [description]
+   * @return {[type]}        [description]
+   */
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
     const blocks = await this.models.block.findAll({
@@ -493,4 +602,8 @@ class SequelizeProvider extends DatabaseInterface {
   }
 }
 
+/**
+ * [exports description]
+ * @type {SequelizeProvider}
+ */
 module.exports = new SequelizeProvider()

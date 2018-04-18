@@ -8,6 +8,10 @@ const utils = require('../utils')
 const { Transaction } = require('@arkecosystem/client').models
 const schema = require('../schema/transactions')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const transactions = await db.transactions.findAll(utils.paginate(request))
@@ -16,6 +20,10 @@ exports.index = {
   }
 }
 
+/**
+ * [store description]
+ * @type {Object}
+ */
 exports.store = {
   handler: async (request, h) => {
     const transactions = request.payload.transactions
@@ -30,6 +38,10 @@ exports.store = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const transaction = await db.transactions.findById(request.params.id)
@@ -41,6 +53,10 @@ exports.show = {
   }
 }
 
+/**
+ * [unconfirmed description]
+ * @type {Object}
+ */
 exports.unconfirmed = {
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
@@ -57,6 +73,10 @@ exports.unconfirmed = {
   }
 }
 
+/**
+ * [showUnconfirmed description]
+ * @type {Object}
+ */
 exports.showUnconfirmed = {
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
@@ -69,6 +89,10 @@ exports.showUnconfirmed = {
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   handler: async (request, h) => {
     const transactions = await db.transactions.search({
@@ -84,6 +108,10 @@ exports.search = {
   }
 }
 
+/**
+ * [types description]
+ * @type {Object}
+ */
 exports.types = {
   handler: async (request, h) => {
     return {

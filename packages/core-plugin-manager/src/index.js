@@ -6,6 +6,11 @@ const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
 
 class PluginManager {
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   init (config) {
     if (isString(config)) {
       config = require(path.resolve(expandHomeDir(`${config}/plugins.json`)))
@@ -18,12 +23,24 @@ class PluginManager {
     this.bindings = {}
   }
 
+  /**
+   * [hook description]
+   * @param  {[type]} name [description]
+   * @return {[type]}      [description]
+   */
   async hook (name) {
     for (const [pluginName, pluginOptions] of Object.entries(this.config[name])) {
       await this.register(pluginName, pluginOptions, name)
     }
   }
 
+  /**
+   * [register description]
+   * @param  {[type]} plugin  [description]
+   * @param  {Object} options [description]
+   * @param  {String} hook    [description]
+   * @return {[type]}         [description]
+   */
   async register (plugin, options = {}, hook = 'default') {
     // Alias...
     let item
@@ -73,33 +90,72 @@ class PluginManager {
     }
   }
 
+  /**
+   * [get description]
+   * @param  {[type]} key [description]
+   * @return {[type]}     [description]
+   */
   get (key) {
     return this.plugins[key].plugin
   }
 
+  /**
+   * [has description]
+   * @param  {[type]}  key [description]
+   * @return {Boolean}     [description]
+   */
   has (key) {
     return this.plugins.hasOwnProperty(key)
   }
 
+  /**
+   * [config description]
+   * @param  {[type]} key [description]
+   * @return {[type]}     [description]
+   */
   config (key) {
     return this.plugins[key].options
   }
 
+  /**
+   * [hasOptions description]
+   * @param  {[type]}  key [description]
+   * @return {Boolean}     [description]
+   */
   hasOptions (key) {
     return this.plugins[key].hasOwnProperty('options')
   }
 
+  /**
+   * [binding description]
+   * @param  {[type]} key [description]
+   * @return {[type]}     [description]
+   */
   binding (key) {
     return this.bindings[key]
   }
 
+  /**
+   * [hasBinding description]
+   * @param  {[type]}  key [description]
+   * @return {Boolean}     [description]
+   */
   hasBinding (key) {
     return this.bindings.hasOwnProperty(key)
   }
 
+  /**
+   * [setState description]
+   * @param {[type]}  values [description]
+   * @param {Boolean} merge  [description]
+   */
   setState (values, merge = true) {
     this.state = merge ? Object.assign(values, this.state) : values
   }
 }
 
+/**
+ * [exports description]
+ * @type {PluginManager}
+ */
 module.exports = new PluginManager()

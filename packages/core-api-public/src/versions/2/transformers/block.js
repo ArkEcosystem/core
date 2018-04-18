@@ -3,6 +3,11 @@
 const db = require('@arkecosystem/core-plugin-manager').get('database')
 const formatTimestamp = require('./utils/format-timestamp')
 
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 module.exports = (model) => {
   const generator = db.walletManager.getWalletByPublicKey(model.generatorPublicKey)
 

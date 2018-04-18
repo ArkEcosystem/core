@@ -7,6 +7,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/delegates')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   config: {
     plugins: {
@@ -24,6 +28,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   config: {
     plugins: {
@@ -41,6 +49,10 @@ exports.show = {
   }
 }
 
+/**
+ * [count description]
+ * @type {Object}
+ */
 exports.count = {
   handler: async (request, h) => {
     const delegates = await db.delegates.findAll()
@@ -49,6 +61,10 @@ exports.count = {
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   config: {
     plugins: {
@@ -66,6 +82,10 @@ exports.search = {
   }
 }
 
+/**
+ * [voters description]
+ * @type {Object}
+ */
 exports.voters = {
   handler: async (request, h) => {
     const delegate = await db.delegates.findById(request.query.publicKey)
@@ -77,6 +97,10 @@ exports.voters = {
   }
 }
 
+/**
+ * [fee description]
+ * @type {Object}
+ */
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -85,6 +109,10 @@ exports.fee = {
   }
 }
 
+/**
+ * [forged description]
+ * @type {Object}
+ */
 exports.forged = {
   config: {
     plugins: {

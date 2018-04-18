@@ -1,3 +1,5 @@
+'use strict';
+
 const ForgerManager = require('../../../../src/managers/forger')
 const { Delegate } = require('@arkecosystem/client').models
 

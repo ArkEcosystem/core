@@ -6,6 +6,11 @@ const state = blockchain.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 module.exports = (model) => {
   const lastBlock = state.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))

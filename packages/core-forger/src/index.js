@@ -3,6 +3,10 @@
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const ForgerManager = require('./manager')
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'forger',

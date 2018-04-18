@@ -1,3 +1,5 @@
+'use strict';
+
 const { crypto } = require('@arkecosystem/client')
 const { matcherHint, printExpected, printReceived } = require('jest-matcher-utils')
 const getType = require('jest-get-type')

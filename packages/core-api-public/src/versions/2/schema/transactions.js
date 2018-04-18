@@ -2,6 +2,10 @@
 
 const Joi = require('joi')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   query: {
     page: Joi.number().integer(),
@@ -10,16 +14,28 @@ exports.index = {
 }
 
 // TODO: validate transaction payload?
+/**
+ * [store description]
+ * @type {Object}
+ */
 exports.store = {
   payload: {}
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   params: {
     id: Joi.string()
   }
 }
 
+/**
+ * [unconfirmed description]
+ * @type {Object}
+ */
 exports.unconfirmed = {
   query: {
     offset: Joi.number().integer(),
@@ -27,12 +43,20 @@ exports.unconfirmed = {
   }
 }
 
+/**
+ * [showUnconfirmed description]
+ * @type {Object}
+ */
 exports.showUnconfirmed = {
   params: {
     id: Joi.string()
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   query: {
     page: Joi.number().integer(),

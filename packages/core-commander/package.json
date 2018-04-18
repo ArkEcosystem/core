@@ -11,10 +11,10 @@
   "license": "MIT",
   "main": "src/index.js",
   "bin": {
-    "ark:commander": "bin/index.js"
+    "ark:commander": "./bin/commander"
   },
   "scripts": {
-    "ark:commander": "bin/index.js",
+    "ark:commander": "./bin/commander",
     "test": "jest --forceExit --no-cache",
     "test:watch": "jest --forceExit --no-cache --watch",
     "lint": "eslint ./ --fix"

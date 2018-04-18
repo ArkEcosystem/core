@@ -9,16 +9,33 @@ const AJV = require('ajv')
 
 const ajv = new AJV()
 
+/**
+ * [validate description]
+ * @param  {[type]} schema [description]
+ * @param  {[type]} data   [description]
+ * @return {[type]}        [description]
+ */
 function validate (schema, data) {
   return ajv.validate(schema, data) ? null : ajv.errors
 }
 
+/**
+ * [createErrorResponse description]
+ * @param  {[type]} request [description]
+ * @param  {[type]} h       [description]
+ * @param  {[type]} errors  [description]
+ * @return {[type]}         [description]
+ */
 function createErrorResponse (request, h, errors) {
   return request.pre.apiVersion === 1
     ? h.response({ path: errors[0].dataPath, error: errors[0].message, success: false }).takeover()
     : Boom.badData(errors)
 }
 
+/**
+ * [registerCustomFormats description]
+ * @return {[type]} [description]
+ */
 function registerCustomFormats () {
   let directory = path.resolve(__dirname, 'formats')
 
@@ -29,6 +46,12 @@ function registerCustomFormats () {
   })
 }
 
+/**
+ * [description]
+ * @param  {[type]} server  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 const register = async (server, options) => {
   registerCustomFormats()
 
@@ -54,6 +77,10 @@ const register = async (server, options) => {
   })
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: PLUGIN_NAME,
   version: '1.0.0',

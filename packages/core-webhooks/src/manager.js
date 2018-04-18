@@ -11,10 +11,18 @@ const RedisQueue = require('./queue')
 let instance
 
 module.exports = class Manager {
+  /**
+   * [getInstance description]
+   * @return {[type]} [description]
+   */
   static getInstance () {
     return instance
   }
 
+  /**
+   * [constructor description]
+   * @return {[type]} [description]
+   */
   constructor () {
     if (!instance) {
       instance = this
@@ -23,6 +31,11 @@ module.exports = class Manager {
     return instance
   }
 
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   async init (config) {
     this.config = config
 
@@ -74,12 +87,24 @@ module.exports = class Manager {
     })
   }
 
+  /**
+   * [emit description]
+   * @param  {[type]} event   [description]
+   * @param  {[type]} payload [description]
+   * @return {[type]}         [description]
+   */
   emit (event, payload) {
     if (!this.config.enabled) return
 
     this.emitter.emit(event, payload)
   }
 
+  /**
+   * [getMatchingWebhooks description]
+   * @param  {[type]} webhooks [description]
+   * @param  {[type]} payload  [description]
+   * @return {[type]}          [description]
+   */
   getMatchingWebhooks (webhooks, payload) {
     const matches = []
 
@@ -98,14 +123,26 @@ module.exports = class Manager {
     return matches
   }
 
+  /**
+   * [getEvents description]
+   * @return {[type]} [description]
+   */
   getEvents () {
     return this.config.events
   }
 
+  /**
+   * [__registerEventEmitter description]
+   * @return {[type]} [description]
+   */
   __registerEventEmitter () {
     this.emitter = new EventEmitter()
   }
 
+  /**
+   * [__registerQueueManager description]
+   * @return {[type]} [description]
+   */
   async __registerQueueManager () {
     await new RedisQueue(this.config.redis)
 

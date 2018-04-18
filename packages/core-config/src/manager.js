@@ -10,6 +10,10 @@ const assert = require('assert-plus')
 let instance
 
 class Manager {
+  /**
+   * [constructor description]
+   * @return {[type]} [description]
+   */
   constructor () {
     if (!instance) {
       instance = this
@@ -18,6 +22,11 @@ class Manager {
     return instance
   }
 
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   async init (config) {
     if (isString(config)) {
       config = this.__loadFromPath(config)
@@ -34,6 +43,10 @@ class Manager {
     return this
   }
 
+  /**
+   * [buildConstants description]
+   * @return {[type]} [description]
+   */
   buildConstants () {
     this.constants = this.network.constants.sort((a, b) => a.height - b.height)
     this.constant = {
@@ -49,6 +62,11 @@ class Manager {
     }
   }
 
+  /**
+   * [getConstants description]
+   * @param  {[type]} height [description]
+   * @return {[type]}        [description]
+   */
   getConstants (height) {
     while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
       this.constant.index++
@@ -62,6 +80,11 @@ class Manager {
     return this.constant.data
   }
 
+  /**
+   * [__loadFromPath description]
+   * @param  {[type]} network [description]
+   * @return {[type]}         [description]
+   */
   __loadFromPath (network) {
     const basePath = path.resolve(network)
 
@@ -88,4 +111,8 @@ class Manager {
   }
 }
 
+/**
+ * [exports description]
+ * @type {Manager}
+ */
 module.exports = new Manager()

@@ -4,6 +4,10 @@ const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain'
 const utils = require('../utils')
 const schema = require('../schema/peers')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const peers = await blockchain.networkInterface.getPeers()
@@ -32,6 +36,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const peers = await blockchain.networkInterface.getPeers()

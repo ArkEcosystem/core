@@ -1,3 +1,5 @@
+'use strict';
+
 const TransactionQueue = require('../../../src/transaction-queue')
 
 describe('Core | TransactionQueue', () => {

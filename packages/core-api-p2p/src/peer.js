@@ -5,7 +5,18 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class Peer {
+  /**
+   * [constructor description]
+   * @param  {[type]} ip     [description]
+   * @param  {[type]} port   [description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   constructor (ip, port, config) {
     this.ip = ip
     this.port = port
@@ -19,6 +30,10 @@ module.exports = class Peer {
     }
   }
 
+  /**
+   * [toBroadcastInfo description]
+   * @return {[type]} [description]
+   */
   toBroadcastInfo () {
     return {
       ip: this.ip,
@@ -31,6 +46,12 @@ module.exports = class Peer {
     }
   }
 
+  /**
+   * [get description]
+   * @param  {[type]} api     [description]
+   * @param  {[type]} timeout [description]
+   * @return {[type]}         [description]
+   */
   async get (api, timeout) {
     const temp = new Date().getTime()
     const that = this
@@ -55,6 +76,11 @@ module.exports = class Peer {
     }
   }
 
+  /**
+   * [postBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async postBlock (block) {
     // console.log(block)
     // console.log(this)
@@ -77,6 +103,11 @@ module.exports = class Peer {
     }
   }
 
+  /**
+   * [parseHeaders description]
+   * @param  {[type]} res [description]
+   * @return {[type]}     [description]
+   */
   parseHeaders (res) {
     ['nethash', 'os', 'version'].forEach(key => (this[key] = res.headers[key]))
     this.status = 'OK'
@@ -84,6 +115,11 @@ module.exports = class Peer {
     return res
   }
 
+  /**
+   * [downloadBlocks description]
+   * @param  {[type]} fromBlockHeight [description]
+   * @return {[type]}                 [description]
+   */
   async downloadBlocks (fromBlockHeight) {
     const message = {
       height: fromBlockHeight,
@@ -108,6 +144,11 @@ module.exports = class Peer {
     }
   }
 
+  /**
+   * [ping description]
+   * @param  {[type]} delay [description]
+   * @return {[type]}       [description]
+   */
   async ping (delay) {
     const body = await this.get('/peer/status', delay || 5000)
     if (body) {
@@ -118,6 +159,10 @@ module.exports = class Peer {
     throw new Error('Peer unreachable')
   }
 
+  /**
+   * [getPeers description]
+   * @return {[type]} [description]
+   */
   async getPeers () {
     logger.info(`Getting fresh peer list from ${this.url}`)
     await this.ping(5000)

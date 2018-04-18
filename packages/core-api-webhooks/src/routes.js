@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * [description]
+ * @param  {[type]} server  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 const register = async (server, options) => {
   require('./schema').init(options)
 
@@ -32,6 +38,10 @@ const register = async (server, options) => {
   }])
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: 'ARK Webhooks API',
   version: '1.0.0',

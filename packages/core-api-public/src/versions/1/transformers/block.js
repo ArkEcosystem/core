@@ -3,6 +3,11 @@
 const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const state = blockchain.getState()
 
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 module.exports = (model) => {
   const lastBlock = state.lastBlock
 

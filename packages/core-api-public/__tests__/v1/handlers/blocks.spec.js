@@ -1,3 +1,5 @@
+'use strict';
+
 const utils = require('../utils')
 
 describe('API 1.0 - Blocks', () => {

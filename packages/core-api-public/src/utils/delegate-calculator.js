@@ -3,6 +3,11 @@
 const state = require('@arkecosystem/core-plugin-manager').get('blockchain').getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
+/**
+ * [description]
+ * @param  {[type]} delegate [description]
+ * @return {[type]}          [description]
+ */
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data
   const constants = config.getConstants(lastBlock.height)
@@ -11,6 +16,11 @@ exports.calculateApproval = (delegate) => {
   return ((delegate.balance / totalSupply) * 100).toFixed(2)
 }
 
+/**
+ * [description]
+ * @param  {[type]} delegate [description]
+ * @return {[type]}          [description]
+ */
 exports.calculateProductivity = (delegate) => {
   if (!delegate.missedBlocks && !delegate.producedBlocks) {
     return (0).toFixed(2)

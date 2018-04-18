@@ -7,6 +7,10 @@ const path = require('path')
 const { onCancel } = require('../../utils')
 const expandHomeDir = require('expand-home-dir')
 
+/**
+ * [description]
+ * @return {[type]} [description]
+ */
 module.exports = async () => {
   const choices = await fg(expandHomeDir('~/.ark/logs/**/*.log'))
 

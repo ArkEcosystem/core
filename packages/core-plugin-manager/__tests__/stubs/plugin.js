@@ -1,3 +1,5 @@
+'use strict';
+
 exports.plugin = {
   pkg: {
     name: 'stub/plugin',

@@ -2,6 +2,12 @@
 
 const popsicle = require('popsicle')
 
+/**
+ * [description]
+ * @param  {[type]}   message [description]
+ * @param  {Function} done    [description]
+ * @return {[type]}           [description]
+ */
 module.exports = async (message, done) => {
   if (message.height) {
     const response = await popsicle

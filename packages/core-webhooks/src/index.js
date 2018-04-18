@@ -4,6 +4,10 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const Manager = require('./manager')
 const database = require('./database')
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),

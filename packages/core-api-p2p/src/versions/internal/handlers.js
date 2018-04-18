@@ -5,6 +5,10 @@ const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain'
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 
+/**
+ * [postVerifyTransaction description]
+ * @type {Object}
+ */
 exports.postVerifyTransaction = {
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
@@ -14,6 +18,10 @@ exports.postVerifyTransaction = {
   }
 }
 
+/**
+ * [postInternalBlock description]
+ * @type {Object}
+ */
 exports.postInternalBlock = {
   handler: (request, h) => {
     // console.log(request.payload)
@@ -23,6 +31,10 @@ exports.postInternalBlock = {
   }
 }
 
+/**
+ * [getRound description]
+ * @type {Object}
+ */
 exports.getRound = {
   handler: async (request, h) => {
     const lastBlock = blockchain.getInstance().getState().lastBlock
@@ -56,6 +68,10 @@ exports.getRound = {
   }
 }
 
+/**
+ * [getTransactionsForForging description]
+ * @type {Object}
+ */
 exports.getTransactionsForForging = {
   handler: async (request, h) => {
     const height = blockchain.getInstance().getState().lastBlock.data.height

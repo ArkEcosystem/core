@@ -1,3 +1,5 @@
+'use strict';
+
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
@@ -10,7 +12,7 @@ const DependencyHandler = require('../../src/dependency-handler')
 const TransactionPool = require('../../src/transaction-pool')
 const PublicAPI = require('../../src/api/public')
 
-module.exports = async function () {
+module.exports = async () => {
   try {
     await config.init('config/devnet')
     await logger.init(config.server.logging, config.network.name)

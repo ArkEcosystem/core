@@ -7,6 +7,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   config: {
     plugins: {
@@ -26,6 +30,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   config: {
     plugins: {
@@ -43,6 +51,10 @@ exports.show = {
   }
 }
 
+/**
+ * [unconfirmed description]
+ * @type {Object}
+ */
 exports.unconfirmed = {
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
@@ -59,6 +71,10 @@ exports.unconfirmed = {
   }
 }
 
+/**
+ * [showUnconfirmed description]
+ * @type {Object}
+ */
 exports.showUnconfirmed = {
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {

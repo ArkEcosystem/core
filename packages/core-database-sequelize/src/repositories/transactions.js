@@ -5,11 +5,25 @@ const { Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const buildFilterQuery = require('../utils/filter-query')
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class TransactionsRepository {
+  /**
+   * [constructor description]
+   * @param  {[type]} db [description]
+   * @return {[type]}    [description]
+   */
   constructor (db) {
     this.db = db
   }
 
+  /**
+   * [findAll description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   findAll (params) {
     let whereStatement = {}
     let orderBy = []
@@ -42,6 +56,12 @@ module.exports = class TransactionsRepository {
     })
   }
 
+  /**
+   * [findAllByWallet description]
+   * @param  {[type]} wallet    [description]
+   * @param  {[type]} paginator [description]
+   * @return {[type]}           [description]
+   */
   findAllByWallet (wallet, paginator) {
     return this.findAll({
       ...{
@@ -55,26 +75,61 @@ module.exports = class TransactionsRepository {
     })
   }
 
+  /**
+   * [findAllBySender description]
+   * @param  {[type]} senderPublicKey [description]
+   * @param  {[type]} paginator       [description]
+   * @return {[type]}                 [description]
+   */
   findAllBySender (senderPublicKey, paginator) {
     return this.findAll({...{senderPublicKey}, ...paginator})
   }
 
+  /**
+   * [findAllByRecipient description]
+   * @param  {[type]} recipientId [description]
+   * @param  {[type]} paginator   [description]
+   * @return {[type]}             [description]
+   */
   findAllByRecipient (recipientId, paginator) {
     return this.findAll({...{recipientId}, ...paginator})
   }
 
+  /**
+   * [allVotesBySender description]
+   * @param  {[type]} senderPublicKey [description]
+   * @param  {[type]} paginator       [description]
+   * @return {[type]}                 [description]
+   */
   allVotesBySender (senderPublicKey, paginator) {
     return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...paginator})
   }
 
+  /**
+   * [findAllByBlock description]
+   * @param  {[type]} blockId   [description]
+   * @param  {[type]} paginator [description]
+   * @return {[type]}           [description]
+   */
   findAllByBlock (blockId, paginator) {
     return this.findAll({...{blockId}, ...paginator})
   }
 
+  /**
+   * [findAllByType description]
+   * @param  {[type]} type      [description]
+   * @param  {[type]} paginator [description]
+   * @return {[type]}           [description]
+   */
   findAllByType (type, paginator) {
     return this.findAll({...{type}, ...paginator})
   }
 
+  /**
+   * [findById description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   findById (id) {
     return this.db.models.transaction.findById(id, {
       include: {
@@ -84,6 +139,12 @@ module.exports = class TransactionsRepository {
     })
   }
 
+  /**
+   * [findByTypeAndId description]
+   * @param  {[type]} type [description]
+   * @param  {[type]} id   [description]
+   * @return {[type]}      [description]
+   */
   findByTypeAndId (type, id) {
     return this.db.models.transaction.findOne({
       where: {id, type},
@@ -94,6 +155,13 @@ module.exports = class TransactionsRepository {
     })
   }
 
+  /**
+   * [findAllByDateAndType description]
+   * @param  {[type]} type [description]
+   * @param  {[type]} from [description]
+   * @param  {[type]} to   [description]
+   * @return {[type]}      [description]
+   */
   async findAllByDateAndType (type, from, to) {
     let where = { type, timestamp: {} }
 
@@ -113,6 +181,11 @@ module.exports = class TransactionsRepository {
     return results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
   }
 
+  /**
+   * [search description]
+   * @param  {[type]} payload [description]
+   * @return {[type]}         [description]
+   */
   search (payload) {
     let orderBy = []
 

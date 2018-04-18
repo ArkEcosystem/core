@@ -8,7 +8,17 @@ const logger = pluginManager.get('logger')
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class Down {
+  /**
+   * [constructor description]
+   * @param  {[type]} p2p    [description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   constructor (p2p, config) {
     this.p2p = p2p
     this.config = config
@@ -19,12 +29,21 @@ module.exports = class Down {
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
 
+  /**
+   * [start description]
+   * @param  {Boolean} networkStart [description]
+   * @return {[type]}               [description]
+   */
   async start (networkStart = false) {
     if (!networkStart) {
       await this.updateNetworkStatus()
     }
   }
 
+  /**
+   * [updateNetworkStatus description]
+   * @return {[type]} [description]
+   */
   async updateNetworkStatus () {
     try {
       if (!this.config.server.test) await this.discoverPeers()
@@ -45,10 +64,19 @@ module.exports = class Down {
     }
   }
 
+  /**
+   * [stop description]
+   * @return {[type]} [description]
+   */
   stop () {
     // Noop
   }
 
+  /**
+   * [cleanPeers description]
+   * @param  {Boolean} fast [description]
+   * @return {[type]}       [description]
+   */
   async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
     let count = 0
@@ -77,6 +105,11 @@ module.exports = class Down {
     logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
   }
 
+  /**
+   * [acceptNewPeer description]
+   * @param  {[type]} peer [description]
+   * @return {[type]}      [description]
+   */
   async acceptNewPeer (peer) {
     if (this.peers[peer.ip] || this.config.server.test) return
     if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
@@ -94,10 +127,19 @@ module.exports = class Down {
     }
   }
 
+  /**
+   * [getPeers description]
+   * @return {[type]} [description]
+   */
   async getPeers () {
     return Object.values(this.peers)
   }
 
+  /**
+   * [getRandomPeer description]
+   * @param  {[type]} delay [description]
+   * @return {[type]}       [description]
+   */
   getRandomPeer (delay) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
@@ -113,6 +155,10 @@ module.exports = class Down {
     return randomPeer
   }
 
+  /**
+   * [getRandomDownloadBlocksPeer description]
+   * @return {[type]} [description]
+   */
   getRandomDownloadBlocksPeer () {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
@@ -127,6 +173,10 @@ module.exports = class Down {
     return randomPeer
   }
 
+  /**
+   * [discoverPeers description]
+   * @return {[type]} [description]
+   */
   async discoverPeers () {
     try {
       const list = await this.getRandomPeer().getPeers()
@@ -143,10 +193,20 @@ module.exports = class Down {
     }
   }
 
+  /**
+   * [later description]
+   * @param  {[type]} delay [description]
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
   later (delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value))
   }
 
+  /**
+   * [getNetworkHeight description]
+   * @return {[type]} [description]
+   */
   getNetworkHeight () {
     const median = Object.values(this.peers)
       .filter(peer => peer.state.height)
@@ -155,6 +215,10 @@ module.exports = class Down {
     return median[~~(median.length / 2)]
   }
 
+  /**
+   * [getPBFTForgingStatus description]
+   * @return {[type]} [description]
+   */
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
@@ -164,6 +228,11 @@ module.exports = class Down {
     return ratio
   }
 
+  /**
+   * [downloadBlocks description]
+   * @param  {[type]} fromBlockHeight [description]
+   * @return {[type]}                 [description]
+   */
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
 
@@ -176,6 +245,11 @@ module.exports = class Down {
     }
   }
 
+  /**
+   * [broadcastBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   broadcastBlock (block) {
     const bpeers = Object.values(this.peers)
     // console.log(Object.values(this.peers))
@@ -183,6 +257,11 @@ module.exports = class Down {
     return Promise.all(bpeers.map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
 
+  /**
+   * [broadcastTransactions description]
+   * @param  {[type]} transactions [description]
+   * @return {[type]}              [description]
+   */
   broadcastTransactions (transactions) {
 
   }

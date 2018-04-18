@@ -2,6 +2,10 @@
 
 const Joi = require('joi')
 
+/**
+ * [transactions description]
+ * @type {Object}
+ */
 exports.transactions = {
   query: {
     from: Joi.date().timestamp('unix'),
@@ -9,6 +13,10 @@ exports.transactions = {
   }
 }
 
+/**
+ * [blocks description]
+ * @type {Object}
+ */
 exports.blocks = {
   query: {
     from: Joi.date().timestamp('unix'),
@@ -16,6 +24,10 @@ exports.blocks = {
   }
 }
 
+/**
+ * [votes description]
+ * @type {Object}
+ */
 exports.votes = {
   query: {
     from: Joi.date().timestamp('unix'),
@@ -23,6 +35,10 @@ exports.votes = {
   }
 }
 
+/**
+ * [unvotes description]
+ * @type {Object}
+ */
 exports.unvotes = {
   query: {
     from: Joi.date().timestamp('unix'),

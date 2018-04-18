@@ -3,6 +3,11 @@
 const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
+/**
+ * [description]
+ * @param  {[type]} config [description]
+ * @return {[type]}        [description]
+ */
 module.exports = async (config) => {
   if (!config.enabled) {
     return logger.info('Oh snap! Webhook API not enabled...')

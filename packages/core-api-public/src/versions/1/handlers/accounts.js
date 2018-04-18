@@ -2,17 +2,18 @@
 
 const { crypto } = require('@arkecosystem/client')
 
-// TODO: make this accessible through a module
 const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
-
-// TODO: make this accessible through a module
 const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const wallets = await db.wallets.findAll({...request.query, ...utils.paginator(request)})
@@ -23,6 +24,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   config: {
     plugins: {
@@ -40,6 +45,10 @@ exports.show = {
   }
 }
 
+/**
+ * [balance description]
+ * @type {Object}
+ */
 exports.balance = {
   config: {
     plugins: {
@@ -60,6 +69,10 @@ exports.balance = {
   }
 }
 
+/**
+ * [publicKey description]
+ * @type {Object}
+ */
 exports.publicKey = {
   config: {
     plugins: {
@@ -77,6 +90,10 @@ exports.publicKey = {
   }
 }
 
+/**
+ * [fee description]
+ * @type {Object}
+ */
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -85,6 +102,10 @@ exports.fee = {
   }
 }
 
+/**
+ * [delegates description]
+ * @type {Object}
+ */
 exports.delegates = {
   config: {
     plugins: {
@@ -121,6 +142,10 @@ exports.delegates = {
   }
 }
 
+/**
+ * [top description]
+ * @type {Object}
+ */
 exports.top = {
   config: {
     plugins: {
@@ -142,6 +167,10 @@ exports.top = {
   }
 }
 
+/**
+ * [count description]
+ * @type {Object}
+ */
 exports.count = {
   handler: async (request, h) => {
     const accounts = await db.wallets.findAll()

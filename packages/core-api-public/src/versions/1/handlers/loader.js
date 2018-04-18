@@ -5,6 +5,10 @@ const state = blockchain.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 
+/**
+ * [status description]
+ * @type {Object}
+ */
 exports.status = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -15,6 +19,10 @@ exports.status = {
   }
 }
 
+/**
+ * [syncing description]
+ * @type {Object}
+ */
 exports.syncing = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -26,6 +34,10 @@ exports.syncing = {
   }
 }
 
+/**
+ * [autoconfigure description]
+ * @type {Object}
+ */
 exports.autoconfigure = {
   handler: (request, h) => {
     return utils.respondWith({

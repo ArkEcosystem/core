@@ -7,23 +7,45 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const { crypto } = require('@arkecosystem/client')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class WalletManager {
+  /**
+   * [constructor description]
+   * @return {[type]} [description]
+   */
   constructor () {
     this.reset()
   }
 
+  /**
+   * [reset description]
+   * @return {[type]} [description]
+   */
   reset () {
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
     this.delegatesByUsername = {}
   }
 
+  /**
+   * [reindex description]
+   * @param  {[type]} wallet [description]
+   * @return {[type]}        [description]
+   */
   reindex (wallet) {
     if (wallet.address) this.walletsByAddress[wallet.address] = wallet
     if (wallet.publicKey) this.walletsByPublicKey[wallet.publicKey] = wallet
     if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
   }
 
+  /**
+   * [applyBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async applyBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
     if (!delegate) {
@@ -56,6 +78,11 @@ module.exports = class WalletManager {
     }
   }
 
+  /**
+   * [undoBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async undoBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey] // FIXME: this is empty during fork recovery
 
@@ -86,6 +113,11 @@ module.exports = class WalletManager {
     }
   }
 
+  /**
+   * [applyTransaction description]
+   * @param  {[type]} transaction [description]
+   * @return {[type]}             [description]
+   */
   async applyTransaction (transaction) {
     const datatx = transaction.data
     let sender = this.walletsByPublicKey[datatx.senderPublicKey]
@@ -132,6 +164,11 @@ module.exports = class WalletManager {
     return transaction
   }
 
+  /**
+   * [undoTransaction description]
+   * @param  {[type]} transaction [description]
+   * @return {[type]}             [description]
+   */
   async undoTransaction (transaction) {
     let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
     let recipient = this.walletsByAddress[transaction.data.recipientId]
@@ -144,6 +181,11 @@ module.exports = class WalletManager {
     return transaction.data
   }
 
+  /**
+   * [getWalletByAddress description]
+   * @param  {[type]} address [description]
+   * @return {[type]}         [description]
+   */
   getWalletByAddress (address) {
     let wallet = this.walletsByAddress[address]
     if (wallet) return wallet
@@ -157,6 +199,11 @@ module.exports = class WalletManager {
     }
   }
 
+  /**
+   * [getWalletByPublicKey description]
+   * @param  {[type]} publicKey [description]
+   * @return {[type]}           [description]
+   */
   getWalletByPublicKey (publicKey) {
     let wallet = this.walletsByPublicKey[publicKey]
     if (wallet) return wallet
@@ -169,10 +216,19 @@ module.exports = class WalletManager {
     }
   }
 
+  /**
+   * [getDelegate description]
+   * @param  {[type]} username [description]
+   * @return {[type]}          [description]
+   */
   getDelegate (username) {
     return this.delegatesByUsername[username]
   }
 
+  /**
+   * [getLocalWallets description]
+   * @return {[type]} [description]
+   */
   getLocalWallets () { // for compatibility with API
     return Object.values(this.walletsByAddress)
   }

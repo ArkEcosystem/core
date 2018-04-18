@@ -1,3 +1,5 @@
+'use strict';
+
 const utils = require('../utils')
 
 describe.skip('API 2.0 - Statistics', () => {

@@ -4,6 +4,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/delegates')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const delegates = await db.delegates.paginate(utils.paginate(request))
@@ -15,6 +19,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const delegate = await db.delegates.findById(request.params.id)
@@ -26,6 +34,10 @@ exports.show = {
   }
 }
 
+/**
+ * [blocks description]
+ * @type {Object}
+ */
 exports.blocks = {
   handler: async (request, h) => {
     const delegate = await db.delegates.findById(request.params.id)
@@ -38,6 +50,10 @@ exports.blocks = {
   }
 }
 
+/**
+ * [voters description]
+ * @type {Object}
+ */
 exports.voters = {
   handler: async (request, h) => {
     const delegate = await db.delegates.findById(request.params.id)

@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 

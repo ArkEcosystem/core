@@ -2,6 +2,10 @@
 
 const constants = require('@arkecosystem/core-plugin-manager').get('config').constants
 
+/**
+ * [exports description]
+ * @type {Object}
+ */
 module.exports = {
   forgingStatus: {
     type: 'object',

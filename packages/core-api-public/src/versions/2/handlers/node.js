@@ -4,6 +4,10 @@ const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain'
 const state = blockchain.getState()
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
+/**
+ * [status description]
+ * @type {Object}
+ */
 exports.status = {
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
@@ -19,6 +23,10 @@ exports.status = {
   }
 }
 
+/**
+ * [syncing description]
+ * @type {Object}
+ */
 exports.syncing = {
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
@@ -35,6 +43,10 @@ exports.syncing = {
   }
 }
 
+/**
+ * [configuration description]
+ * @type {Object}
+ */
 exports.configuration = {
   handler: (request, h) => {
     return {

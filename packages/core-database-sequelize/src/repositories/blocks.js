@@ -4,11 +4,25 @@ const Op = require('sequelize').Op
 const buildFilterQuery = require('../utils/filter-query')
 const Sequelize = require('sequelize')
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class BlocksRepository {
+  /**
+   * [constructor description]
+   * @param  {[type]} db [description]
+   * @return {[type]}    [description]
+   */
   constructor (db) {
     this.db = db
   }
 
+  /**
+   * [findAll description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   findAll (params) {
     let whereStatement = {}
     let orderBy = []
@@ -30,14 +44,30 @@ module.exports = class BlocksRepository {
     })
   }
 
+  /**
+   * [findAllByGenerator description]
+   * @param  {[type]} generatorPublicKey [description]
+   * @param  {[type]} paginator          [description]
+   * @return {[type]}                    [description]
+   */
   findAllByGenerator (generatorPublicKey, paginator) {
     return this.findAll({...{generatorPublicKey}, ...paginator})
   }
 
+  /**
+   * [findById description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   findById (id) {
     return this.db.models.block.findById(id)
   }
 
+  /**
+   * [findLastByPublicKey description]
+   * @param  {[type]} generatorPublicKey [description]
+   * @return {[type]}                    [description]
+   */
   findLastByPublicKey (generatorPublicKey) {
     return this.db.models.block.findOne({
       limit: 1,
@@ -47,6 +77,12 @@ module.exports = class BlocksRepository {
     })
   }
 
+  /**
+   * [findAllByDateTimeRange description]
+   * @param  {[type]} from [description]
+   * @param  {[type]} to   [description]
+   * @return {[type]}      [description]
+   */
   findAllByDateTimeRange (from, to) {
     let where = { timestamp: {} }
 
@@ -59,6 +95,11 @@ module.exports = class BlocksRepository {
     })
   }
 
+  /**
+   * [search description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   search (params) {
     return this.db.models.block.findAndCountAll({
       where: buildFilterQuery(params, {
@@ -68,6 +109,11 @@ module.exports = class BlocksRepository {
     })
   }
 
+  /**
+   * [totalsByGenerator description]
+   * @param  {[type]} generatorPublicKey [description]
+   * @return {[type]}                    [description]
+   */
   totalsByGenerator (generatorPublicKey) {
     return this.db.db.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {
       type: Sequelize.QueryTypes.SELECT

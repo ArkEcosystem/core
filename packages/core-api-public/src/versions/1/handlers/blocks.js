@@ -7,6 +7,10 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   config: {
     plugins: {
@@ -24,6 +28,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   config: {
     plugins: {
@@ -41,6 +49,10 @@ exports.show = {
   }
 }
 
+/**
+ * [epoch description]
+ * @type {Object}
+ */
 exports.epoch = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -49,6 +61,10 @@ exports.epoch = {
   }
 }
 
+/**
+ * [height description]
+ * @type {Object}
+ */
 exports.height = {
   handler: (request, h) => {
     const block = state.lastBlock.data
@@ -57,12 +73,20 @@ exports.height = {
   }
 }
 
+/**
+ * [nethash description]
+ * @type {Object}
+ */
 exports.nethash = {
   handler: (request, h) => {
     return utils.respondWith({ nethash: config.network.nethash })
   }
 }
 
+/**
+ * [fee description]
+ * @type {Object}
+ */
 exports.fee = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -71,6 +95,10 @@ exports.fee = {
   }
 }
 
+/**
+ * [fees description]
+ * @type {Object}
+ */
 exports.fees = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -79,6 +107,10 @@ exports.fees = {
   }
 }
 
+/**
+ * [milestone description]
+ * @type {Object}
+ */
 exports.milestone = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -87,6 +119,10 @@ exports.milestone = {
   }
 }
 
+/**
+ * [reward description]
+ * @type {Object}
+ */
 exports.reward = {
   handler: (request, h) => {
     return utils.respondWith({
@@ -95,6 +131,10 @@ exports.reward = {
   }
 }
 
+/**
+ * [supply description]
+ * @type {Object}
+ */
 exports.supply = {
   handler: (request, h) => {
     const lastBlock = state.lastBlock.data
@@ -105,6 +145,10 @@ exports.supply = {
   }
 }
 
+/**
+ * [status description]
+ * @type {Object}
+ */
 exports.status = {
   handler: (request, h) => {
     const lastBlock = state.lastBlock.data

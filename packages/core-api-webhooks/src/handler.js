@@ -5,6 +5,10 @@ const database = pluginManager.binding('webhookDB')
 const utils = require('./utils')
 const schema = require('./schema')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const webhooks = await database.paginate(utils.paginate(request))
@@ -13,6 +17,10 @@ exports.index = {
   }
 }
 
+/**
+ * [store description]
+ * @type {Object}
+ */
 exports.store = {
   handler: async (request, h) => {
     const token = require('crypto').randomBytes(32).toString('hex')
@@ -33,6 +41,10 @@ exports.store = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const webhook = await database.findById(request.params.id)
@@ -45,6 +57,10 @@ exports.show = {
   }
 }
 
+/**
+ * [update description]
+ * @type {Object}
+ */
 exports.update = {
   handler: async (request, h) => {
     await database.update(request.params.id, request.payload)
@@ -56,6 +72,10 @@ exports.update = {
   }
 }
 
+/**
+ * [destroy description]
+ * @type {Object}
+ */
 exports.destroy = {
   handler: async (request, h) => {
     await database.destroy(request.params.id, request.payload)
@@ -67,6 +87,10 @@ exports.destroy = {
   }
 }
 
+/**
+ * [events description]
+ * @type {Object}
+ */
 exports.events = {
   handler: (request, h) => {
     return {

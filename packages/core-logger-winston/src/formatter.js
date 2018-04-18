@@ -3,6 +3,11 @@
 const chalk = require('chalk')
 const moment = require('moment')
 
+/**
+ * [description]
+ * @param  {[type]} info [description]
+ * @return {[type]}      [description]
+ */
 module.exports = (info) => {
   let level = info.level.toUpperCase()
   level = {

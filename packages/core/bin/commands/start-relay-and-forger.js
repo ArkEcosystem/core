@@ -1,4 +1,8 @@
+'use strict';
+
 // TODO: ADJUST TO NEW PLUGIN SYSTEM
+
+/* eslint-disable */
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const config = require('@arkecosystem/core-plugin-manager').get('config')
@@ -10,6 +14,12 @@ const ForgerManager = require('@arkecosystem/core-plugin-manager').get('forger')
 
 const TransactionHandler = require('../src/transaction-handler')
 
+/**
+ * [description]
+ * @param  {[type]} config  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 module.exports = async (config, options) => {
   await config.init(config)
   await logger.init(config.server.logging, config.network.name)

@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * [description]
+ * @param  {[type]} object  [description]
+ * @param  {[type]} params  [description]
+ * @param  {[type]} filters [description]
+ * @return {[type]}         [description]
+ */
 module.exports = async (object, params, filters) => {
   return object.filter(item => {
     if (filters.hasOwnProperty('exact')) {

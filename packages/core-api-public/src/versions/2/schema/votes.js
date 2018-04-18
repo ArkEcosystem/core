@@ -2,6 +2,10 @@
 
 const Joi = require('joi')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   query: {
     page: Joi.number().integer(),
@@ -9,6 +13,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   params: {
     id: Joi.string()

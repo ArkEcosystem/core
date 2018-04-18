@@ -2,6 +2,11 @@
 
 const ip = require('ip')
 
+/**
+ * [description]
+ * @param  {[type]} ajv [description]
+ * @return {[type]}     [description]
+ */
 module.exports = (ajv) => {
   ajv.addFormat('ip', {
     type: 'string',

@@ -4,6 +4,11 @@
 const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 const formatTimestamp = require('./utils/format-timestamp')
 
+/**
+ * [description]
+ * @param  {[type]} delegate [description]
+ * @return {[type]}          [description]
+ */
 module.exports = (delegate) => {
   const data = {
     username: delegate.username,

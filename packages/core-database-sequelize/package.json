@@ -18,6 +18,7 @@
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-database": "^1.0.0",
     "expand-home-dir": "^0.0.3",
     "fast-glob": "^2.2.0",
     "mysql2": "^1.5.3",

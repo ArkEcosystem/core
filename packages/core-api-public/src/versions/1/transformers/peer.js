@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 module.exports = (model) => {
   return {
     ip: model.ip,

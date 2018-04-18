@@ -2,9 +2,13 @@
 
 const fs = require('fs')
 const path = require('path')
-const database = require('@arkecosystem/core-plugin-manager').get('database')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const provider = require('./provider')
 
+/**
+ * [description]
+ * @return {[type]} [description]
+ */
 const listRepositories = () => {
   const repositories = {}
 
@@ -19,14 +23,25 @@ const listRepositories = () => {
   return repositories
 }
 
+/**
+ * This plugin is a concrete implementation of the @arkecosystem/core-database interface.
+ *
+ * @type {Object}
+ */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
+  alias: 'database',
   register: async (hook, config, app) => {
+    logger.info('Starting Database Interface...')
+
+    let database = app.blockchainManager.getDb()
+
     await provider.init(config)
+    database = await database.setDriver(provider, listRepositories())
 
-    database.setDriver(provider, listRepositories())
+    await app.blockchainManager.attachDatabaseInterface(database)
 
-    return provider
+    return database
   }
 }

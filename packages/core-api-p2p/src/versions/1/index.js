@@ -2,6 +2,12 @@
 
 const handlers = require('./handlers')
 
+/**
+ * [description]
+ * @param  {[type]} server  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 const register = async (server, options) => {
   server.route([
     { method: 'GET', path: '/peer/list', ...handlers.getPeers },
@@ -16,6 +22,10 @@ const register = async (server, options) => {
   ])
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: 'ARK P2P API - v1',
   version: '1.0.0',

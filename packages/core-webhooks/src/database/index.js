@@ -7,6 +7,11 @@ const expandHomeDir = require('expand-home-dir')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 class Database {
+  /**
+   * [init description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   async init (config) {
     if (this.db) {
       throw new Error('Already initialised')
@@ -32,6 +37,10 @@ class Database {
     }
   }
 
+  /**
+   * [runMigrations description]
+   * @return {[type]} [description]
+   */
   runMigrations () {
     const umzug = new Umzug({
       storage: 'sequelize',
@@ -50,26 +59,56 @@ class Database {
     return umzug.up()
   }
 
+  /**
+   * [registerModels description]
+   * @return {[type]} [description]
+   */
   registerModels () {
     this.model = this.db['import']('./model')
   }
 
+  /**
+   * [paginate description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   paginate (params) {
     return this.model.findAndCountAll(params)
   }
 
+  /**
+   * [findById description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   findById (id) {
     return this.model.findById(id)
   }
 
+  /**
+   * [findByEvent description]
+   * @param  {[type]} event [description]
+   * @return {[type]}       [description]
+   */
   findByEvent (event) {
     return this.model.findAll({ where: {event} })
   }
 
+  /**
+   * [create description]
+   * @param  {[type]} data [description]
+   * @return {[type]}      [description]
+   */
   create (data) {
     return this.model.create(data)
   }
 
+  /**
+   * [update description]
+   * @param  {[type]} id   [description]
+   * @param  {[type]} data [description]
+   * @return {[type]}      [description]
+   */
   async update (id, data) {
     try {
       const webhook = await this.model.findById(id)
@@ -80,6 +119,11 @@ class Database {
     }
   }
 
+  /**
+   * [destroy description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   async destroy (id) {
     try {
       const webhook = this.model.findById(id)
@@ -91,4 +135,8 @@ class Database {
   }
 }
 
+/**
+ * [exports description]
+ * @type {Database}
+ */
 module.exports = new Database()

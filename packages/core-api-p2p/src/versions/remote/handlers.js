@@ -2,6 +2,10 @@
 
 const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 
+/**
+ * [sendBlockchainEvent description]
+ * @type {Object}
+ */
 exports.sendBlockchainEvent = {
   handler: (request, h) => {
     const bm = blockchain.getInstance()

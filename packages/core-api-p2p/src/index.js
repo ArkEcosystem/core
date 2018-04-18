@@ -3,6 +3,10 @@
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const P2PInterface = require('./p2pinterface')
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),

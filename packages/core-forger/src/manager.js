@@ -6,7 +6,16 @@ const { Delegate, Transaction } = require('@arkecosystem/client').models
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const sleep = require('./utils/sleep')
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class ForgerManager {
+  /**
+   * [constructor description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   constructor (config) {
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
@@ -17,6 +26,13 @@ module.exports = class ForgerManager {
     }
   }
 
+  /**
+   * [loadDelegates description]
+   * @param  {[type]} bip38    [description]
+   * @param  {[type]} address  [description]
+   * @param  {[type]} password [description]
+   * @return {[type]}          [description]
+   */
   async loadDelegates (bip38, address, password) {
     if (!bip38 && !this.secrets) {
       throw new Error('No delegate found')
@@ -36,6 +52,11 @@ module.exports = class ForgerManager {
     return this.delegates
   }
 
+  /**
+   * [startForging description]
+   * @param  {[type]} proxy [description]
+   * @return {[type]}       [description]
+   */
   async startForging (proxy) {
     this.proxy = proxy
     let round = null
@@ -89,6 +110,11 @@ module.exports = class ForgerManager {
     return monitor()
   }
 
+  /**
+   * [send description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   async send (block) {
     logger.info(`Sending forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions to relay node`)
     const result = await popsicle.request({
@@ -102,10 +128,19 @@ module.exports = class ForgerManager {
     return result.success
   }
 
+  /**
+   * [pickForgingDelegate description]
+   * @param  {[type]} round [description]
+   * @return {[type]}       [description]
+   */
   async pickForgingDelegate (round) {
     return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
   }
 
+  /**
+   * [getRound description]
+   * @return {[type]} [description]
+   */
   async getRound () {
     const result = await popsicle.request({
       method: 'GET',
@@ -116,6 +151,10 @@ module.exports = class ForgerManager {
     return result.body.round
   }
 
+  /**
+   * [getTransactions description]
+   * @return {[type]} [description]
+   */
   async getTransactions () {
     const result = await popsicle.request({
       method: 'GET',

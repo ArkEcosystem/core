@@ -2,6 +2,12 @@
 
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
+/**
+ * [description]
+ * @param  {[type]} server  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 const register = async (server, options) => {
   const _headers = {
     nethash: config.network.nethash,
@@ -26,6 +32,10 @@ const register = async (server, options) => {
   })
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: 'hapi-p2p-set-headers',
   version: '1.0.0',

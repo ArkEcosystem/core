@@ -20,18 +20,7 @@ app
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start')
-  .option('-v, --verbose', 'give verbose error messages')
-  .action(async(config, options) => {
-    try {
-      await require('./commands/start-relay-and-forger')(config, options)
-    } catch (err) {
-      if (options.verbose) {
-        throw err
-      } else {
-        crit(err.toString())
-      }
-    }
-  })
+  .action(async(config, options) => require('./commands/start-relay-and-forger')(config, options))
 
 /**
  * START A RELAY NODE
@@ -39,37 +28,7 @@ app
 app
   .command('relay [config]')
   .description('start a relay node')
-  .option('-v, --verbose', 'give verbose error messages')
-  .action(async(config, options) => {
-    try {
-      await require('./commands/start-relay')(config, options)
-    } catch (err) {
-      if (options.verbose) {
-        throw err
-      } else {
-        crit(err.toString())
-      }
-    }
-  })
-
-/**
- * TAKE A SNAPSHOT
- */
-app
-  .command('snapshot [config]')
-  .description('take a snapshot of the database')
-  .option('-v, --verbose', 'give verbose error messages')
-  .action(async(config, options) => {
-    try {
-      await require('./commands/snapshot')(config, options)
-    } catch (err) {
-      if (options.verbose) {
-        throw err
-      } else {
-        crit(err.toString())
-      }
-    }
-  })
+  .action(async(config, options) => require('./commands/start-relay')(config, options))
 
 /**
  * START A FORGER NODE
@@ -81,18 +40,15 @@ app
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start')
-  .option('-v, --verbose', 'give verbose error messages')
-  .action(async(config, options) => {
-    try {
-      await require('./commands/start-forger')(config, options)
-    } catch (err) {
-      if (options.verbose) {
-        throw err
-      } else {
-        crit(err.toString())
-      }
-    }
-  })
+  .action(async(config, options) => require('./commands/start-forger')(config, options))
+
+/**
+ * TAKE A SNAPSHOT
+ */
+app
+  .command('snapshot [config]')
+  .description('take a snapshot of the database')
+  .action(async(config, options) => require('./commands/snapshot')(config, options))
 
 /**
  * FALLBACK

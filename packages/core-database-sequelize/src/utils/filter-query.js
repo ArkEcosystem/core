@@ -2,6 +2,12 @@
 
 const Op = require('sequelize').Op
 
+/**
+ * [description]
+ * @param  {[type]} params  [description]
+ * @param  {[type]} filters [description]
+ * @return {[type]}         [description]
+ */
 module.exports = (params, filters) => {
   let where = {}
 

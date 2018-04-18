@@ -2,6 +2,10 @@
 
 const Joi = require('joi')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   query: {
     page: Joi.number().integer(),
@@ -9,12 +13,20 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   params: {
     id: Joi.string()
   }
 }
 
+/**
+ * [transactions description]
+ * @type {Object}
+ */
 exports.transactions = {
   params: {
     id: Joi.string()
@@ -25,6 +37,10 @@ exports.transactions = {
   }
 }
 
+/**
+ * [transactionsSent description]
+ * @type {Object}
+ */
 exports.transactionsSent = {
   params: {
     id: Joi.string()
@@ -35,6 +51,10 @@ exports.transactionsSent = {
   }
 }
 
+/**
+ * [transactionsReceived description]
+ * @type {Object}
+ */
 exports.transactionsReceived = {
   params: {
     id: Joi.string()
@@ -45,6 +65,10 @@ exports.transactionsReceived = {
   }
 }
 
+/**
+ * [votes description]
+ * @type {Object}
+ */
 exports.votes = {
   params: {
     id: Joi.string()
@@ -55,6 +79,10 @@ exports.votes = {
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   query: {
     page: Joi.number().integer(),

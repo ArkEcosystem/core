@@ -1,17 +1,35 @@
 'use strict';
 
-// TODO: make this accessible through a module
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class DelegatesRepository {
+  /**
+   * [constructor description]
+   * @param  {[type]} db [description]
+   * @return {[type]}    [description]
+   */
   constructor (db) {
     this.db = db
   }
 
+  /**
+   * [findAll description]
+   * @param  {Object} params [description]
+   * @return {[type]}        [description]
+   */
   async findAll (params = {}) {
     return this.db.walletManager.getLocalWallets().filter(a => !!a.username)
   }
 
+  /**
+   * [paginate description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   async paginate (params) {
     const delegates = await this.findAll()
 
@@ -21,6 +39,11 @@ module.exports = class DelegatesRepository {
     }
   }
 
+  /**
+   * [search description]
+   * @param  {[type]} params [description]
+   * @return {[type]}        [description]
+   */
   async search (params) {
     let delegates = await this.findAll()
     delegates = delegates.filter((delegate) => delegate.username.indexOf(params.q) > -1)
@@ -43,12 +66,23 @@ module.exports = class DelegatesRepository {
     }
   }
 
+  /**
+   * [findById description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   async findById (id) {
     const delegates = await this.findAll()
 
     return delegates.find(a => (a.address === id || a.publicKey === id || a.username === id))
   }
 
+  /**
+   * [active description]
+   * @param  {[type]} height      [description]
+   * @param  {[type]} totalSupply [description]
+   * @return {[type]}             [description]
+   */
   async active (height, totalSupply) {
     const delegates = await this.db.getActiveDelegates(height)
 

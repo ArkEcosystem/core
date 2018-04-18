@@ -8,6 +8,12 @@ const signatures = require('./handlers/signatures')
 const transactions = require('./handlers/transactions')
 const accounts = require('./handlers/accounts')
 
+/**
+ * [description]
+ * @param  {[type]} server  [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 const register = async (server, options) => {
   server.route([
     { method: 'GET', path: '/blocks', ...blocks.index },
@@ -56,6 +62,10 @@ const register = async (server, options) => {
   ])
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: 'ARK Public API - v1',
   version: '1.0.0',

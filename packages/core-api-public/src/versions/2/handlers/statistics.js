@@ -8,6 +8,10 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 const db = require('@arkecosystem/core-plugin-manager').get('database')
 const schema = require('../schema/statistics')
 
+/**
+ * [blockchain description]
+ * @type {Object}
+ */
 exports.blockchain = {
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
@@ -46,6 +50,10 @@ exports.blockchain = {
   }
 }
 
+/**
+ * [transactions description]
+ * @type {Object}
+ */
 exports.transactions = {
   handler: async (request, h) => {
     const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
@@ -63,6 +71,10 @@ exports.transactions = {
   }
 }
 
+/**
+ * [blocks description]
+ * @type {Object}
+ */
 exports.blocks = {
   handler: async (request, h) => {
     const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
@@ -80,6 +92,10 @@ exports.blocks = {
   }
 }
 
+/**
+ * [votes description]
+ * @type {Object}
+ */
 exports.votes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
@@ -98,6 +114,10 @@ exports.votes = {
   }
 }
 
+/**
+ * [unvotes description]
+ * @type {Object}
+ */
 exports.unvotes = {
   handler: async (request, h) => {
     let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)

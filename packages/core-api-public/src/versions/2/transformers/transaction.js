@@ -7,6 +7,11 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 const { Transaction } = require('@arkecosystem/client').models
 const formatTimestamp = require('./utils/format-timestamp')
 
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 module.exports = (model) => {
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 

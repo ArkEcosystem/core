@@ -4,6 +4,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/blocks')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const blocks = await db.blocks.findAll(utils.paginate(request))
@@ -15,6 +19,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const block = await db.blocks.findById(request.params.id)
@@ -26,6 +34,10 @@ exports.show = {
   }
 }
 
+/**
+ * [transactions description]
+ * @type {Object}
+ */
 exports.transactions = {
   handler: async (request, h) => {
     const block = await db.blocks.findById(request.params.id)
@@ -38,6 +50,10 @@ exports.transactions = {
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   handler: async (request, h) => {
     const blocks = await db.blocks.search({

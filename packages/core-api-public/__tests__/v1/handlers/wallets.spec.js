@@ -1,3 +1,5 @@
+'use strict';
+
 const utils = require('../utils')
 
 const AddressActive = 'DRac35wghMcmUSe5jDMLBDLWkVVjyKZFxK'

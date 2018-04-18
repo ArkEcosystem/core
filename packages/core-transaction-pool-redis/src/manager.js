@@ -8,11 +8,24 @@ const { slots } = require('@arkecosystem/client')
 
 let instance
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class Manager {
+  /**
+   * [getInstance description]
+   * @return {[type]} [description]
+   */
   static getInstance () {
     return instance
   }
 
+  /**
+   * [constructor description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
   constructor (config) {
     this.isConnected = false
     this.keyPrefix = config.keyPrefix
@@ -44,10 +57,18 @@ module.exports = class Manager {
     return instance
   }
 
+  /**
+   * [getPoolSize description]
+   * @return {[type]} [description]
+   */
   async getPoolSize () {
     return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
   }
 
+  /**
+   * [addTransaction description]
+   * @param {[type]} object [description]
+   */
   async addTransaction (object) {
     if (this.isConnected && object instanceof Transaction) {
       try {
@@ -63,11 +84,21 @@ module.exports = class Manager {
     }
   }
 
+  /**
+   * [removeTransaction description]
+   * @param  {[type]} txID [description]
+   * @return {[type]}      [description]
+   */
   async removeTransaction (txID) {
     await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
     await this.redis.del(this.__getRedisTransactionKey(txID))
   }
 
+  /**
+   * [removeTransactions description]
+   * @param  {[type]} transactions [description]
+   * @return {[type]}              [description]
+   */
   async removeTransactions (transactions) {
     try {
       for (let transaction of transactions) {
@@ -78,6 +109,12 @@ module.exports = class Manager {
     }
   }
 
+  /**
+   * [getTransactions description]
+   * @param  {[type]} start [description]
+   * @param  {[type]} size  [description]
+   * @return {[type]}       [description]
+   */
   async getTransactions (start, size) {
     if (this.isConnected) {
       try {
@@ -95,6 +132,12 @@ module.exports = class Manager {
     }
   }
 
+  /**
+   * [getTransactionsForForging description]
+   * @param  {[type]} start [description]
+   * @param  {[type]} size  [description]
+   * @return {[type]}       [description]
+   */
   async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
@@ -135,6 +178,11 @@ module.exports = class Manager {
     }
   }
 
+  /**
+   * [getTransaction description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   async getTransaction (id) {
     if (this.isConnected) {
       const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
@@ -148,16 +196,30 @@ module.exports = class Manager {
 
   // Checks if any of transactions for forging from pool was already forged and removes them from pool
   // It returns only the ids of transactions that have yet to be forged
+  /**
+   * [__checkIfForged description]
+   * @param  {[type]} transactionIds [description]
+   * @return {[type]}                [description]
+   */
   async __checkIfForged (transactionIds) {
     const forgedIds = await blockchain.getInstance().getDb().getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 
+  /**
+   * [__getRedisTransactionKey description]
+   * @param  {[type]} id [description]
+   * @return {[type]}    [description]
+   */
   __getRedisTransactionKey (id) {
     return `${this.keyPrefix}/tx/${id}`
   }
 
+  /**
+   * [__getRedisOrderKey description]
+   * @return {[type]} [description]
+   */
   __getRedisOrderKey () {
     return `${this.keyPrefix}/order`
   }

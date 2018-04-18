@@ -5,6 +5,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/votes')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const transactions = await db.transactions.findAllByType(TRANSACTION_TYPES.VOTE, utils.paginate(request))
@@ -16,6 +20,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const transaction = await db.transactions.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id)

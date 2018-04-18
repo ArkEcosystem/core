@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * [description]
+ * @param  {[type]} ajv [description]
+ * @return {[type]}     [description]
+ */
 module.exports = (ajv) => {
   ajv.addFormat('publicKey', {
     type: 'string',

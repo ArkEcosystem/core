@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 const commander = require('commander')
 const assert = require('assert-plus')
 const fs = require('fs')

@@ -10,6 +10,11 @@ const sleep = require('./utils/sleep')
 
 let synctracker = null
 
+/**
+ * [description]
+ * @param  {[type]} block [description]
+ * @return {[type]}       [description]
+ */
 const tickSyncTracker = (block) => {
   const constants = config.getConstants(block.data.height)
   if (!synctracker) {
@@ -57,6 +62,10 @@ const tickSyncTracker = (block) => {
 //   }
 // })
 
+/**
+ * [syncWithNetwork description]
+ * @type {Object}
+ */
 const syncWithNetwork = {
   initial: 'syncing',
   states: {
@@ -105,6 +114,10 @@ const syncWithNetwork = {
   }
 }
 
+/**
+ * [rebuildFromNetwork description]
+ * @type {Object}
+ */
 const rebuildFromNetwork = {
   initial: 'rebuilding',
   states: {
@@ -155,6 +168,10 @@ const rebuildFromNetwork = {
   }
 }
 
+/**
+ * [fork description]
+ * @type {Object}
+ */
 const fork = {
   initial: 'undoBlocks',
   states: {
@@ -206,6 +223,10 @@ const fork = {
 //   }
 // }
 
+/**
+ * [blockchainMachine description]
+ * @type {[type]}
+ */
 const blockchainMachine = Machine({
   key: 'blockchain',
   initial: 'uninitialised',
@@ -267,6 +288,10 @@ const blockchainMachine = Machine({
   }
 })
 
+/**
+ * [state description]
+ * @type {Object}
+ */
 const state = {
   blockchain: blockchainMachine.initialState,
   lastDownloadedBlock: null,
@@ -276,8 +301,17 @@ const state = {
   fastRebuild: true
 }
 
+/**
+ * [state description]
+ * @type {[type]}
+ */
 blockchainMachine.state = state
 
+/**
+ * [description]
+ * @param  {[type]} blockchainManager [description]
+ * @return {[type]}                   [description]
+ */
 blockchainMachine.actionMap = (blockchainManager) => {
   return {
     blockchainReady: () => (state.started = true),

@@ -5,6 +5,10 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 const utils = require('../utils')
 const schema = require('../schemas/peers')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   config: {
     plugins: {
@@ -42,6 +46,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   config: {
     plugins: {
@@ -63,6 +71,10 @@ exports.show = {
   }
 }
 
+/**
+ * [version description]
+ * @type {Object}
+ */
 exports.version = {
   handler: (request, h) => {
     return utils.respondWith({ version: config.server.version })

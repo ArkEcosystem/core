@@ -4,6 +4,10 @@ const Sequelize = require('sequelize')
 const { onCancel, readConfig } = require('../../../utils')
 const { sleep } = require('sleep')
 
+/**
+ * [description]
+ * @return {[type]} [description]
+ */
 module.exports = async () => {
   const config = readConfig('server').database
 

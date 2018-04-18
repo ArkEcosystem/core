@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * [exports description]
+ * @type {Array}
+ */
 module.exports = [{
   type: 'text',
   name: 'address',

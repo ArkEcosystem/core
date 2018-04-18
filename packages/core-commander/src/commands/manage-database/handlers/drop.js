@@ -5,6 +5,10 @@ const Umzug = require('umzug')
 const path = require('path')
 const { readConfig } = require('../../../utils')
 
+/**
+ * [description]
+ * @return {[type]} [description]
+ */
 module.exports = async () => {
   const config = readConfig('server').database
 

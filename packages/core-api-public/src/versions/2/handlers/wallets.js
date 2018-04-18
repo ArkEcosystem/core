@@ -4,6 +4,10 @@ const db = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/wallets')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   handler: async (request, h) => {
     const wallets = await db.wallets.paginate(utils.paginate(request))
@@ -15,6 +19,10 @@ exports.index = {
   }
 }
 
+/**
+ * [top description]
+ * @type {Object}
+ */
 exports.top = {
   handler: async (request, h) => {
     const wallets = await db.wallets.top(utils.paginate(request))
@@ -23,6 +31,10 @@ exports.top = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
@@ -34,6 +46,10 @@ exports.show = {
   }
 }
 
+/**
+ * [transactions description]
+ * @type {Object}
+ */
 exports.transactions = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
@@ -46,6 +62,10 @@ exports.transactions = {
   }
 }
 
+/**
+ * [transactionsSent description]
+ * @type {Object}
+ */
 exports.transactionsSent = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
@@ -58,6 +78,10 @@ exports.transactionsSent = {
   }
 }
 
+/**
+ * [transactionsReceived description]
+ * @type {Object}
+ */
 exports.transactionsReceived = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
@@ -70,6 +94,10 @@ exports.transactionsReceived = {
   }
 }
 
+/**
+ * [votes description]
+ * @type {Object}
+ */
 exports.votes = {
   handler: async (request, h) => {
     const wallet = await db.wallets.findById(request.params.id)
@@ -82,6 +110,10 @@ exports.votes = {
   }
 }
 
+/**
+ * [search description]
+ * @type {Object}
+ */
 exports.search = {
   handler: async (request, h) => {
     const wallets = await db.wallets.search({

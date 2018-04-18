@@ -4,6 +4,11 @@
 
 const BigNumber = require('bignumber.js')
 
+/**
+ * [isBoolean description]
+ * @param  {[type]}  value [description]
+ * @return {Boolean}       [description]
+ */
 function isBoolean (value) {
   try {
     return (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
@@ -12,6 +17,11 @@ function isBoolean (value) {
   }
 }
 
+/**
+ * [isNumber description]
+ * @param  {[type]}  value [description]
+ * @return {Boolean}       [description]
+ */
 function isNumber (value) {
   return !isNaN(value)
 }
@@ -53,6 +63,10 @@ const register = async (server, options) => {
   })
 }
 
+/**
+ * [plugin description]
+ * @type {Object}
+ */
 exports.plugin = {
   name: 'hapi-caster',
   version: '1.0.0',

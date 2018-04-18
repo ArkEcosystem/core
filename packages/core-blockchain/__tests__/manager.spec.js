@@ -1,3 +1,5 @@
+'use strict';
+
 const BlockchainManager = require('../../../src/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {

@@ -9,7 +9,17 @@ const sleep = require('./utils/sleep')
 
 let instance
 
+/**
+ * [exports description]
+ * @type {[type]}
+ */
 module.exports = class BlockchainManager {
+  /**
+   * [constructor description]
+   * @param  {[type]} config       [description]
+   * @param  {[type]} networkStart [description]
+   * @return {[type]}              [description]
+   */
   constructor (config, networkStart) {
     if (!instance) instance = this
     else throw new Error('Can\'t initialise 2 blockchains!')
@@ -39,6 +49,11 @@ module.exports = class BlockchainManager {
     this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
   }
 
+  /**
+   * [dispatch description]
+   * @param  {[type]} event [description]
+   * @return {[type]}       [description]
+   */
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
     logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
@@ -50,25 +65,50 @@ module.exports = class BlockchainManager {
     })
   }
 
+  /**
+   * [start description]
+   * @return {[type]} [description]
+   */
   start () {
     this.dispatch('START')
   }
 
+  /**
+   * [isReady description]
+   * @return {Boolean} [description]
+   */
   async isReady () {
     while (!stateMachine.state.started) await sleep(1000)
     return true
   }
 
+  /**
+   * [getInstance description]
+   * @return {[type]} [description]
+   */
   static getInstance () {
     return instance
   }
 
+  /**
+   * [checkNetwork description]
+   * @return {[type]} [description]
+   */
   checkNetwork () {
   }
 
+  /**
+   * [updateNetworkStatus description]
+   * @return {[type]} [description]
+   */
   updateNetworkStatus () {
   }
 
+  /**
+   * [rebuild description]
+   * @param  {[type]} nblocks [description]
+   * @return {[type]}         [description]
+   */
   rebuild (nblocks) {
   }
 
@@ -87,11 +127,21 @@ module.exports = class BlockchainManager {
     return this.start()
   }
 
+  /**
+   * [postTransactions description]
+   * @param  {[type]} transactions [description]
+   * @return {[type]}              [description]
+   */
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
     return this.transactionHandler.addTransactions(transactions)
   }
 
+  /**
+   * [postBlock description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
   postBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
     if (stateMachine.state.started) {
@@ -100,6 +150,11 @@ module.exports = class BlockchainManager {
     } else logger.info('Block disregarded because blockchain is not ready')
   }
 
+  /**
+   * [removeBlocks description]
+   * @param  {[type]} nblocks [description]
+   * @return {[type]}         [description]
+   */
   async removeBlocks (nblocks) {
     const undoLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
@@ -124,26 +179,51 @@ module.exports = class BlockchainManager {
     this.resumeQueues()
   }
 
+  /**
+   * [pauseQueues description]
+   * @return {[type]} [description]
+   */
   pauseQueues () {
     this.rebuildQueue.pause()
     this.processQueue.pause()
   }
 
+  /**
+   * [clearQueues description]
+   * @return {[type]} [description]
+   */
   clearQueues () {
     this.rebuildQueue.remove(() => true)
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     this.processQueue.remove(() => true)
   }
 
+  /**
+   * [resumeQueues description]
+   * @return {[type]} [description]
+   */
   resumeQueues () {
     this.rebuildQueue.resume()
     this.processQueue.resume()
   }
 
+  /**
+   * [isChained description]
+   * @param  {[type]}  block     [description]
+   * @param  {[type]}  nextBlock [description]
+   * @return {Boolean}           [description]
+   */
   isChained (block, nextBlock) {
     return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
   }
 
+  /**
+   * [rebuildBlock description]
+   * @param  {[type]} block     [description]
+   * @param  {[type]} state     [description]
+   * @param  {[type]} qcallback [description]
+   * @return {[type]}           [description]
+   */
   async rebuildBlock (block, state, qcallback) {
     if (block.verification.verified) {
       if (this.isChained(state.lastBlock, block)) {
@@ -171,6 +251,13 @@ module.exports = class BlockchainManager {
     }
   }
 
+  /**
+   * [processBlock description]
+   * @param  {[type]} block     [description]
+   * @param  {[type]} state     [description]
+   * @param  {[type]} qcallback [description]
+   * @return {[type]}           [description]
+   */
   async processBlock (block, state, qcallback) {
     if (!block.verification.verified) {
       logger.warning('Block disregarded because verification failed. Tentative to hack the network 💣')
@@ -181,6 +268,12 @@ module.exports = class BlockchainManager {
     qcallback()
   }
 
+  /**
+   * [acceptChainedBlock description]
+   * @param  {[type]} block [description]
+   * @param  {[type]} state [description]
+   * @return {[type]}       [description]
+   */
   async acceptChainedBlock (block, state) {
     try {
       await this.db.applyBlock(block)
@@ -197,6 +290,12 @@ module.exports = class BlockchainManager {
     state.lastDownloadedBlock = state.lastBlock
   }
 
+  /**
+   * [manageUnchainedBlock description]
+   * @param  {[type]} block [description]
+   * @param  {[type]} state [description]
+   * @return {[type]}       [description]
+   */
   async manageUnchainedBlock (block, state) {
     if (block.data.height > state.lastBlock.data.height + 1) logger.info(`blockchain not ready to accept new block at height ${block.data.height}, lastBlock ${state.lastBlock.data.height}`)
     else if (block.data.height < state.lastBlock.data.height) logger.debug('Block disregarded because already in blockchain')
@@ -208,6 +307,12 @@ module.exports = class BlockchainManager {
     }
   }
 
+  /**
+   * [getUnconfirmedTransactions description]
+   * @param  {[type]}  blockSize  [description]
+   * @param  {Boolean} forForging [description]
+   * @return {[type]}             [description]
+   */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     let retItems = forForging
       ? await this.transactionHandler.getTransactionsForForging(0, blockSize)
@@ -219,44 +324,85 @@ module.exports = class BlockchainManager {
     }
   }
 
+  /**
+   * [isSynced description]
+   * @param  {[type]}  block [description]
+   * @return {Boolean}       [description]
+   */
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
     return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
+  /**
+   * [isBuildSynced description]
+   * @param  {[type]}  block [description]
+   * @return {Boolean}       [description]
+   */
   isBuildSynced (block) {
     block = block || stateMachine.state.lastBlock.data
     logger.info(slots.getTime() - block.timestamp)
     return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
+  /**
+   * [attachNetworkInterface description]
+   * @param  {[type]} networkInterface [description]
+   * @return {[type]}                  [description]
+   */
   attachNetworkInterface (networkInterface) {
     this.networkInterface = networkInterface
     return this
   }
 
+  /**
+   * [attachDatabaseInterface description]
+   * @param  {[type]} dbinterface [description]
+   * @return {[type]}             [description]
+   */
   attachDatabaseInterface (dbinterface) {
     this.db = dbinterface
     return this
   }
 
+  /**
+   * [attachTransactionHandler description]
+   * @param  {[type]} txHandler [description]
+   * @return {[type]}           [description]
+   */
   attachTransactionHandler (txHandler) {
     this.transactionHandler = txHandler
     return this
   }
 
+  /**
+   * [getState description]
+   * @return {[type]} [description]
+   */
   getState () {
     return stateMachine.state
   }
 
+  /**
+   * [getNetworkInterface description]
+   * @return {[type]} [description]
+   */
   getNetworkInterface () {
     return this.networkInterface
   }
 
+  /**
+   * [getDb description]
+   * @return {[type]} [description]
+   */
   getDb () {
     return this.db
   }
 
+  /**
+   * [getTxHandler description]
+   * @return {[type]} [description]
+   */
   getTxHandler () {
     return this.transactionHandler
   }

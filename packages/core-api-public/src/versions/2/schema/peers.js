@@ -2,6 +2,10 @@
 
 const Joi = require('joi')
 
+/**
+ * [index description]
+ * @type {Object}
+ */
 exports.index = {
   query: {
     os: Joi.string(),
@@ -14,6 +18,10 @@ exports.index = {
   }
 }
 
+/**
+ * [show description]
+ * @type {Object}
+ */
 exports.show = {
   params: {
     ip: Joi.string().ip()
