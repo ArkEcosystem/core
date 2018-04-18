@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO: find a better name then DatabaseInterface
+
 const { crypto, slots } = require('@arkecosystem/client')
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')

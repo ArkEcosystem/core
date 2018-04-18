@@ -8,10 +8,6 @@ describe('Logger', () => {
     await expect(logger).toBeObject()
   })
 
-  it('[init] should be a function', async () => {
-    await expect(logger.init).toBeFunction()
-  })
-
   describe('init', async () => {
     it('should be a function', async () => {
       await expect(logger.init).toBeFunction()
@@ -46,27 +42,39 @@ describe('Logger', () => {
     })
   })
 
-  it('[error] should be a function', async () => {
-    await expect(logger.error).toBeFunction()
+  describe('error', async () => {
+    it('should be a function', async () => {
+      await expect(logger.error).toBeFunction()
+    })
   })
 
-  it('[warning] should be a function', async () => {
-    await expect(logger.warning).toBeFunction()
+  describe('warning', async () => {
+    it('should be a function', async () => {
+      await expect(logger.warning).toBeFunction()
+    })
   })
 
-  it('[info] should be a function', async () => {
-    await expect(logger.info).toBeFunction()
+  describe('info', async () => {
+    it('should be a function', async () => {
+      await expect(logger.info).toBeFunction()
+    })
   })
 
-  it('[debug] should be a function', async () => {
-    await expect(logger.debug).toBeFunction()
+  describe('debug', async () => {
+    it('should be a function', async () => {
+      await expect(logger.debug).toBeFunction()
+    })
   })
 
-  it('[printTracker] should be a function', async () => {
-    await expect(logger.printTracker).toBeFunction()
+  describe('printTracker', async () => {
+    it('should be a function', async () => {
+      await expect(logger.printTracker).toBeFunction()
+    })
   })
 
-  it('[stopTracker] should be a function', async () => {
-    await expect(logger.stopTracker).toBeFunction()
+  describe('stopTracker', async () => {
+    it('should be a function', async () => {
+      await expect(logger.stopTracker).toBeFunction()
+    })
   })
 })

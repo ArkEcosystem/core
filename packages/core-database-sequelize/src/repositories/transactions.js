@@ -3,7 +3,7 @@
 const Op = require('sequelize').Op
 const { Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
-const buildFilterQuery = require('../utils/filter-query')
+const buildFilterQuery = require('./utils/filter-query')
 
 /**
  * [exports description]

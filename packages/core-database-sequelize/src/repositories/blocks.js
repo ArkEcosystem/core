@@ -1,7 +1,7 @@
 'use strict';
 
 const Op = require('sequelize').Op
-const buildFilterQuery = require('../utils/filter-query')
+const buildFilterQuery = require('./utils/filter-query')
 const Sequelize = require('sequelize')
 
 /**

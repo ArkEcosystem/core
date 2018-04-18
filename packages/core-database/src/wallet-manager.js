@@ -36,9 +36,17 @@ module.exports = class WalletManager {
    * @return {[type]}        [description]
    */
   reindex (wallet) {
-    if (wallet.address) this.walletsByAddress[wallet.address] = wallet
-    if (wallet.publicKey) this.walletsByPublicKey[wallet.publicKey] = wallet
-    if (wallet.username) this.delegatesByUsername[wallet.username] = wallet
+    if (wallet.address) {
+      this.walletsByAddress[wallet.address] = wallet
+    }
+
+    if (wallet.publicKey) {
+      this.walletsByPublicKey[wallet.publicKey] = wallet
+    }
+
+    if (wallet.username) {
+      this.delegatesByUsername[wallet.username] = wallet
+    }
   }
 
   /**
