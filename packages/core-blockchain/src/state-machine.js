@@ -419,6 +419,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.rebuildQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
+          logger.warning('Block Downloaded not accepted')
+          console.log(blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }
@@ -438,6 +440,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.processQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
+          logger.warning('Block Downloaded not accepted')
+          console.log(blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }

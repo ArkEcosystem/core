@@ -335,7 +335,7 @@ module.exports = class SequelizeConnection extends Connection {
     try {
       const maxDelegates = config.getConstants(block.data.height).activeDelegates
       let lastBlockGenerators = await this.connection.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
-      console.log(lastBlockGenerators)
+      // console.log(lastBlockGenerators)
 
       delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)

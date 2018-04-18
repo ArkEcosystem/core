@@ -90,7 +90,13 @@ module.exports = class Transaction {
         bb.append(voteBytes, 'hex')
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        const keysgroupBuffer = Buffer.from(transaction.asset.multisignature.keysgroup.join(''), 'hex')
+        let joined = null
+        if (!transaction.version || transaction.version === 1) {
+          joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('')
+        } else {
+          joined = transaction.asset.multisignature.keysgroup.join('')
+        }
+        const keysgroupBuffer = Buffer.from(joined, 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.keysgroup.length)
         bb.writeByte(transaction.asset.multisignature.lifetime)
@@ -191,9 +197,7 @@ module.exports = class Transaction {
         Transaction.parseSignatures(hexString, transaction, assetOffset + 2 + votelength * 34 * 2)
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        transaction.asset = {
-          multisignature: {}
-        }
+        transaction.asset = { multisignature: { keysgroup: [] } }
         transaction.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
         const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
         transaction.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
@@ -261,9 +265,10 @@ module.exports = class Transaction {
         transaction.vendorField = Buffer.from(transaction.vendorFieldHex, 'hex').toString('utf8')
       }
 
-      // if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      //   transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
-      // }
+      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        transaction.recipientId = arkjs.crypto.getAddress(transaction.senderPublicKey, transaction.network)
+        transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
+      }
 
       if (!transaction.id) {
         transaction.id = cryptoBuilder.getId(transaction)

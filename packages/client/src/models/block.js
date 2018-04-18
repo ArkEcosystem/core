@@ -52,6 +52,14 @@ module.exports = class Block {
       }
     })
 
+    if (data.height === 1) {
+      this.genesis = true
+      // TODO genesis block calculated id is wrong for some reason
+      this.data.id = data.id
+      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex')
+      delete this.data.previousBlock
+    }
+
     // fix on real timestamp
     this.transactions = data.transactions.map(tx => {
       let txx = new Transaction(tx)
@@ -68,8 +76,8 @@ module.exports = class Block {
     this.verification = this.verify()
     if (!this.verification.verified) {
       console.log(data)
-      console.log(this.data)
-      console.log(this.verification)
+      console.log(JSON.stringify(this.data, null, 2))
+      console.log(JSON.stringify(data, null, 2))
     }
   }
 
@@ -80,7 +88,7 @@ module.exports = class Block {
    * @return {[type]}      [description]
    */
   static create (data, keys) {
-    const payloadHash = Block.serialize(data)
+    const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
     data.generatorPublicKey = keys.publicKey
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
@@ -195,7 +203,8 @@ module.exports = class Block {
     let payloadHash = crypto.createHash('sha256')
     let appliedTransactions = {}
 
-    block.transactions.forEach((transaction) => {
+    // console.log(block.transactions)
+    block.transactions.forEach(transaction => {
       const bytes = Buffer.from(transaction.id, 'hex')
 
       if (appliedTransactions[transaction.id]) {
