@@ -13,7 +13,7 @@ class Database {
    * @return {[type]}        [description]
    */
   async init (config) {
-    if (this.db) {
+    if (this.connection) {
       throw new Error('Already initialised')
     }
 
@@ -21,14 +21,14 @@ class Database {
       config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
     }
 
-    this.db = new Sequelize(config.uri, {
+    this.connection = new Sequelize(config.uri, {
       dialect: config.dialect,
       logging: !!config.logging,
       operatorsAliases: Sequelize.Op
     })
 
     try {
-      await this.db.authenticate()
+      await this.connection.authenticate()
       await this.runMigrations()
       await this.registerModels()
     } catch (error) {
@@ -45,11 +45,11 @@ class Database {
     const umzug = new Umzug({
       storage: 'sequelize',
       storageOptions: {
-        sequelize: this.db
+        sequelize: this.connection
       },
       migrations: {
         params: [
-          this.db.getQueryInterface(),
+          this.connection.getQueryInterface(),
           Sequelize
         ],
         path: path.join(__dirname, 'migrations')
@@ -64,7 +64,7 @@ class Database {
    * @return {[type]} [description]
    */
   registerModels () {
-    this.model = this.db['import']('./model')
+    this.model = this.connection['import']('./model')
   }
 
   /**

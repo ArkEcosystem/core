@@ -14,8 +14,8 @@ module.exports = class BlocksRepository {
    * @param  {[type]} db [description]
    * @return {[type]}    [description]
    */
-  constructor (db) {
-    this.db = db
+  constructor (connection) {
+    this.connection = connection
   }
 
   /**
@@ -36,7 +36,7 @@ module.exports = class BlocksRepository {
       ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([[ 'height', 'DESC' ]])
 
-    return this.db.models.block.findAndCountAll({
+    return this.connection.models.block.findAndCountAll({
       where: whereStatement,
       order: orderBy,
       offset: params.offset,
@@ -60,7 +60,7 @@ module.exports = class BlocksRepository {
    * @return {[type]}    [description]
    */
   findById (id) {
-    return this.db.models.block.findById(id)
+    return this.connection.models.block.findById(id)
   }
 
   /**
@@ -69,7 +69,7 @@ module.exports = class BlocksRepository {
    * @return {[type]}                    [description]
    */
   findLastByPublicKey (generatorPublicKey) {
-    return this.db.models.block.findOne({
+    return this.connection.models.block.findOne({
       limit: 1,
       where: { generatorPublicKey },
       order: [[ 'createdAt', 'DESC' ]],
@@ -90,7 +90,7 @@ module.exports = class BlocksRepository {
     if (to) where.timestamp[Op.gte] = from
     if (!where.timestamp.length) delete where.timestamp
 
-    return this.db.models.block.findAll({
+    return this.connection.models.block.findAll({
       attributes: ['totalFee', 'reward'], where
     })
   }
@@ -101,7 +101,7 @@ module.exports = class BlocksRepository {
    * @return {[type]}        [description]
    */
   search (params) {
-    return this.db.models.block.findAndCountAll({
+    return this.connection.models.block.findAndCountAll({
       where: buildFilterQuery(params, {
         exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
         between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
@@ -115,7 +115,7 @@ module.exports = class BlocksRepository {
    * @return {[type]}                    [description]
    */
   totalsByGenerator (generatorPublicKey) {
-    return this.db.db.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {
+    return this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {
       type: Sequelize.QueryTypes.SELECT
     })
   }

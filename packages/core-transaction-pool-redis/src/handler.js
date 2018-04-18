@@ -29,7 +29,7 @@ module.exports = class Handler {
    * @return {[type]}        [description]
    */
   constructor (config) {
-    this.db = blockchainManager.getDb()
+    this.walletManager = blockchainManager.getDatabaseConnection().walletManager
     this.config = config
     this.poolManager = config.enabled ? new TransactionPoolManager(config) : false
 
@@ -92,9 +92,9 @@ module.exports = class Handler {
    * @return {[type]}             [description]
    */
   verify (transaction) {
-    const wallet = this.db.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
     if (crypto.verify(transaction) && wallet.canApply(transaction)) {
-      this.db.walletManager.applyTransaction(transaction)
+      this.walletManager.applyTransaction(transaction)
       return true
     }
   }

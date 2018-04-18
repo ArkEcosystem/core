@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const provider = require('./provider')
+const SequelizeConnection = require('./connection')
 
 /**
  * [description]
@@ -30,18 +30,13 @@ const listRepositories = () => {
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  alias: 'database',
   register: async (manager, options) => {
-    manager.get('logger').info('Starting Database Interface...')
+    manager.get('logger').info('Establishing Database Connection...')
 
-    const blockchainManager = manager.get('blockchain')
-    let database = blockchainManager.getDb()
+    const databaseManager = manager.get('blockchain').getDatabaseManager()
 
-    await provider.init(options)
-    database = await database.setDriver(provider, listRepositories())
+    const sequelize = new SequelizeConnection(options)
 
-    await blockchainManager.attachDatabaseInterface(database)
-
-    return database
+    await databaseManager.makeConnection(sequelize)
   }
 }

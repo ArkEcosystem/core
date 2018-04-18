@@ -1,66 +1,49 @@
 'use strict';
 
-// TODO: find a better name then DatabaseInterface
-
-const { crypto, slots } = require('@arkecosystem/client')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const async = require('async')
+const { crypto, slots } = require('@arkecosystem/client')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const logger = pluginManager.get('logger')
 const WalletManager = require('./wallet-manager')
-
-let instance
 
 /**
  * [exports description]
  * @type {[type]}
  */
-module.exports = class DatabaseInterface {
+module.exports = class Connection {
   /**
-   * [getInstance description]
+   * [constructor description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
+  constructor(config) {
+    this.config = config
+    this.connection = null
+  }
+
+  /**
+   * [getConnection description]
    * @return {[type]} [description]
    */
-  static getInstance () {
-    return instance
+  getConnection () {
+    return this.connection
   }
 
   /**
-   * [setDriver description]
-   * @param {[type]} driver       [description]
-   * @param {[type]} repositories [description]
-   */
-  static async setDriver (driver, repositories) {
-    driver.walletManager = new WalletManager()
-
-    instance = driver
-
-    this.registerRepositories(repositories)
-
-    return instance
-  }
-
-  /**
-   * [init description]
+   * [connect description]
    * @return {[type]} [description]
    */
-  static init () {
-    if (!instance) instance = this
-
-    return instance
+  async connect () {
+    throw new Error('Method [connect] not implemented!')
   }
 
   /**
-   * [registerRepositories description]
-   * @param  {[type]} repositories [description]
-   * @return {[type]}              [description]
+   * [disconnect description]
+   * @return {[type]} [description]
    */
-  static registerRepositories (repositories) {
-    for (const [key, value] of Object.entries(repositories)) {
-      instance[key] = new value(instance) // eslint-disable-line new-cap
-    }
-
-    // those are special case repository and will overwrite...
-    instance['wallets'] = new (require('./repositories/wallets'))(instance)
-    instance['delegates'] = new (require('./repositories/delegates'))(instance)
+  async disconnect () {
+    throw new Error('Method [disconnect] not implemented!')
   }
 
   /**
@@ -327,5 +310,22 @@ module.exports = class DatabaseInterface {
       offset += 100000
       console.log(offset)
     }
+  }
+
+  /**
+   * [__registerWalletManager description]
+   * @return {[type]} [description]
+   */
+  async __registerWalletManager () {
+    this.walletManager = new WalletManager()
+  }
+
+  /**
+   * [__registerRepositories description]
+   * @return {[type]} [description]
+   */
+  async __registerRepositories () {
+    this['wallets'] = new (require('./repositories/wallets'))(this)
+    this['delegates'] = new (require('./repositories/delegates'))(this)
   }
 }

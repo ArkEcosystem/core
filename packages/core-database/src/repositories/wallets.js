@@ -13,8 +13,8 @@ module.exports = class WalletsRepository {
    * @param  {[type]} db [description]
    * @return {[type]}    [description]
    */
-  constructor (db) {
-    this.db = db
+  constructor (connection) {
+    this.connection = connection
   }
 
 /**
@@ -23,7 +23,7 @@ module.exports = class WalletsRepository {
  * @return {[type]}        [description]
  */
   async findAll (params = {}) {
-    const wallets = this.db.walletManager.getLocalWallets()
+    const wallets = this.connection.walletManager.getLocalWallets()
 
     return Object.keys(params).length ? {
       rows: wallets.slice(params.offset, params.offset + params.limit),

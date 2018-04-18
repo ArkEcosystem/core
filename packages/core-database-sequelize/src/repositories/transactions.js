@@ -15,8 +15,8 @@ module.exports = class TransactionsRepository {
    * @param  {[type]} db [description]
    * @return {[type]}    [description]
    */
-  constructor (db) {
-    this.db = db
+  constructor (connection) {
+    this.connection = connection
   }
 
   /**
@@ -34,7 +34,7 @@ module.exports = class TransactionsRepository {
     }
 
     if (params['senderId']) {
-      let wallet = this.db.walletManager.getWalletByAddress([params['senderId']])
+      let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
 
       if (wallet) whereStatement['senderPublicKey'] = wallet.publicKey
     }
@@ -43,14 +43,14 @@ module.exports = class TransactionsRepository {
       ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([['timestamp', 'DESC']])
 
-    return this.db.models.transaction.findAndCountAll({
+    return this.connection.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,
       offset: params.offset,
       limit: params.limit,
       include: {
-        model: this.db.models.block,
+        model: this.connection.models.block,
         attributes: ['height']
       }
     })
@@ -131,9 +131,9 @@ module.exports = class TransactionsRepository {
    * @return {[type]}    [description]
    */
   findById (id) {
-    return this.db.models.transaction.findById(id, {
+    return this.connection.models.transaction.findById(id, {
       include: {
-        model: this.db.models.block,
+        model: this.connection.models.block,
         attributes: ['height']
       }
     })
@@ -146,10 +146,10 @@ module.exports = class TransactionsRepository {
    * @return {[type]}      [description]
    */
   findByTypeAndId (type, id) {
-    return this.db.models.transaction.findOne({
+    return this.connection.models.transaction.findOne({
       where: {id, type},
       include: {
-        model: this.db.models.block,
+        model: this.connection.models.block,
         attributes: ['height']
       }
     })
@@ -169,11 +169,11 @@ module.exports = class TransactionsRepository {
     if (to) where.timestamp[Op.gte] = from
     if (!where.timestamp.length) delete where.timestamp
 
-    const results = await this.db.models.transaction.findAll({
+    const results = await this.connection.models.transaction.findAll({
       attributes: ['serialized'],
       where,
       include: {
-        model: this.db.models.block,
+        model: this.connection.models.block,
         attributes: ['height']
       }
     })
@@ -193,7 +193,7 @@ module.exports = class TransactionsRepository {
       ? orderBy.push([payload.orderBy.split(':')])
       : orderBy.push([['timestamp', 'DESC']])
 
-    return this.db.models.transaction.findAndCountAll({
+    return this.connection.models.transaction.findAndCountAll({
       attributes: ['blockId', 'serialized'],
       where: buildFilterQuery(
         payload,
@@ -207,7 +207,7 @@ module.exports = class TransactionsRepository {
       offset: payload.offset,
       limit: payload.limit,
       include: {
-        model: this.db.models.block,
+        model: this.connection.models.block,
         attributes: ['height']
       }
     })

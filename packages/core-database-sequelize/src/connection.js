@@ -7,7 +7,7 @@ const fg = require('fast-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
-const { DatabaseInterface } = require('@arkecosystem/core-database')
+const { Connection } = require('@arkecosystem/core-database')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
@@ -16,80 +16,57 @@ const logger = pluginManager.get('logger')
 const { Block, Transaction } = require('@arkecosystem/client').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
-class SequelizeProvider extends DatabaseInterface {
+module.exports = class SequelizeConnection extends Connection {
   /**
-   * [init description]
+   * [connect description]
+   * @return {[type]} [description]
+   */
+  async connect () {
+    return this.connection.authenticate()
+  }
+
+  /**
+   * [disconnect description]
+   * @return {[type]} [description]
+   */
+  async disconnect () {
+    return this.connection.close()
+  }
+
+  /**
+   * [make description]
    * @param  {[type]} config [description]
    * @return {[type]}        [description]
    */
-  async init (config) {
-    if (this.db) {
+  async make () {
+    if (this.connection) {
       throw new Error('Already initialised')
     }
 
-    if (config.dialect === 'sqlite') {
-      config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
+    if (this.config.dialect === 'sqlite') {
+      this.config.uri = 'sqlite:' + expandHomeDir(this.config.uri.substring(7))
     }
 
-    this.db = new Sequelize(config.uri, {
-      dialect: config.dialect,
-      logging: !!config.logging,
+    this.connection = new Sequelize(this.config.uri, {
+      dialect: this.config.dialect,
+      logging: !!this.config.logging,
       operatorsAliases: Sequelize.Op
     })
 
     this.asyncTransaction = null
 
     try {
-      await this.db.authenticate()
-      await this.runMigrations()
-      await this.registerModels()
+      await this.connect()
+      await this.__runMigrations()
+      await this.__registerModels()
+      await this.__registerRepositories()
+      await super.__registerWalletManager()
+
+      return this
     } catch (error) {
       logger.error('Unable to connect to the database:')
       logger.error(error.stack)
     }
-  }
-
-  /**
-   * [runMigrations description]
-   * @return {[type]} [description]
-   */
-  runMigrations () {
-    const umzug = new Umzug({
-      storage: 'sequelize',
-      storageOptions: {
-        sequelize: this.db
-      },
-      migrations: {
-        params: [
-          this.db.getQueryInterface(),
-          Sequelize
-        ],
-        path: path.join(__dirname, 'migrations')
-      }
-    })
-
-    return umzug.up()
-  }
-
-  /**
-   * [registerModels description]
-   * @return {[type]} [description]
-   */
-  async registerModels () {
-    this.models = {}
-
-    const entries = await fg(path.resolve(__dirname, 'models/**/*.js'))
-
-    entries.forEach(file => {
-      const model = this.db['import'](file)
-      this.models[model.name] = model
-    })
-
-    Object.keys(this.models).forEach(modelName => {
-      if (this.models[modelName].associate) {
-        this.models[modelName].associate(this.models)
-      }
-    })
   }
 
   /**
@@ -237,14 +214,14 @@ class SequelizeProvider extends DatabaseInterface {
 
       // Block Rewards
       logger.printTracker('SPV Building', 2, 7, 'block rewards')
-      data = await this.db.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
+      data = await this.connection.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.balance += parseInt(row.reward)
       })
 
       // Last block forged for each active delegate
-      data = await this.db.query(`select  id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
+      data = await this.connection.query(`select  id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
         wallet.lastBlock = row
@@ -357,7 +334,7 @@ class SequelizeProvider extends DatabaseInterface {
     logger.debug('Calculating delegate statistics')
     try {
       const maxDelegates = config.getConstants(block.data.height).activeDelegates
-      let lastBlockGenerators = await this.db.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
+      let lastBlockGenerators = await this.connection.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
       console.log(lastBlockGenerators)
 
       delegates.forEach(delegate => {
@@ -385,7 +362,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}       [description]
    */
   async saveWallets (force) {
-    await this.db.transaction(t =>
+    await this.connection.transaction(t =>
       Promise.all(
         Object.values(this.walletManager.walletsByPublicKey || {})
           // cold addresses are not saved on database
@@ -408,7 +385,7 @@ class SequelizeProvider extends DatabaseInterface {
   async saveBlock (block) {
     let transaction
     try {
-      transaction = await this.db.transaction()
+      transaction = await this.connection.transaction()
       await this.models.block.create(block.data, {transaction})
       await this.models.transaction.bulkCreate(block.transactions || [], {transaction})
       await transaction.commit()
@@ -425,7 +402,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}       [description]
    */
   async saveBlockAsync (block) {
-    if (!this.asyncTransaction) this.asyncTransaction = await this.db.transaction()
+    if (!this.asyncTransaction) this.asyncTransaction = await this.connection.transaction()
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
     await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
@@ -459,7 +436,7 @@ class SequelizeProvider extends DatabaseInterface {
     let transaction
 
     try {
-      transaction = await this.db.transaction()
+      transaction = await this.connection.transaction()
       await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction})
       await this.models.block.destroy({where: {id: block.data.id}}, {transaction})
       await transaction.commit()
@@ -501,7 +478,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}    [description]
    */
   getTransaction (id) {
-    return this.db.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
+    return this.connection.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
@@ -510,7 +487,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}     [description]
    */
   getCommonBlock (ids) {
-    return this.db.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
+    return this.connection.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
@@ -519,7 +496,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}       [description]
    */
   async getTransactionsFromIds (txids) {
-    const rows = await this.db.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
 
     return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
@@ -531,7 +508,7 @@ class SequelizeProvider extends DatabaseInterface {
    * @return {[type]}       [description]
    */
   async getForgedTransactionsIds (txids) {
-    const rows = await this.db.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+    const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     return rows.map(tx => tx.id)
   }
 
@@ -600,10 +577,64 @@ class SequelizeProvider extends DatabaseInterface {
 
     return blocks.map(block => Block.serialize(block))
   }
-}
 
-/**
- * [exports description]
- * @type {SequelizeProvider}
- */
-module.exports = new SequelizeProvider()
+  /**
+   * [runMigrations description]
+   * @return {[type]} [description]
+   */
+  __runMigrations () {
+    const umzug = new Umzug({
+      storage: 'sequelize',
+      storageOptions: {
+        sequelize: this.connection
+      },
+      migrations: {
+        params: [
+          this.connection.getQueryInterface(),
+          Sequelize
+        ],
+        path: path.join(__dirname, 'migrations')
+      }
+    })
+
+    return umzug.up()
+  }
+
+  /**
+   * [registerModels description]
+   * @return {[type]} [description]
+   */
+  async __registerModels () {
+    this.models = {}
+
+    const entries = await fg(path.resolve(__dirname, 'models/**/*.js'))
+
+    entries.forEach(file => {
+      const model = this.connection['import'](file)
+      this.models[model.name] = model
+    })
+
+    Object.keys(this.models).forEach(modelName => {
+      if (this.models[modelName].associate) {
+        this.models[modelName].associate(this.models)
+      }
+    })
+  }
+
+  /**
+   * [registerRepositories description]
+   * @return {[type]} [description]
+   */
+  async __registerRepositories () {
+    const repositories = {
+      blocks: require('./repositories/blocks'),
+      transactions: require('./repositories/transactions'),
+    }
+
+    for (const [key, value] of Object.entries(repositories)) {
+      this[key] = new value(this) // eslint-disable-line new-cap
+    }
+
+    await super.__registerRepositories()
+  }
+}

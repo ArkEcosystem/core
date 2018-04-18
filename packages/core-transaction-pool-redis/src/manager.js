@@ -203,7 +203,7 @@ module.exports = class Manager {
    * @return {[type]}                [description]
    */
   async __checkIfForged (transactionIds) {
-    const forgedIds = await blockchain.getInstance().getDb().getForgedTransactionsIds(transactionIds)
+    const forgedIds = await blockchain.getInstance().getDatabaseConnection().getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }

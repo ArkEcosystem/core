@@ -48,7 +48,7 @@ exports.getCommonBlock = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.getInstance().getDb().getCommonBlock(ids)
+      const commonBlock = await blockchain.getInstance().getDatabaseConnection().getCommonBlock(ids)
 
       return {
         success: true,
@@ -70,7 +70,7 @@ exports.getTransactionsFromIds = {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await blockchain.getInstance().getDb().getTransactionsFromIds(txids)
+      const transactions = await blockchain.getInstance().getDatabaseConnection().getTransactionsFromIds(txids)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -148,7 +148,7 @@ exports.postTransactions = {
 exports.getBlocks = {
   handler: async (request, h) => {
     try {
-      const blocks = await blockchain.getInstance().getDb().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await blockchain.getInstance().getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

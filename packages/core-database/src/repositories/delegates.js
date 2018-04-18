@@ -12,8 +12,8 @@ module.exports = class DelegatesRepository {
    * @param  {[type]} db [description]
    * @return {[type]}    [description]
    */
-  constructor (db) {
-    this.db = db
+  constructor (connection) {
+    this.connection = connection
   }
 
   /**
@@ -22,7 +22,7 @@ module.exports = class DelegatesRepository {
    * @return {[type]}        [description]
    */
   async findAll (params = {}) {
-    return this.db.walletManager.getLocalWallets().filter(a => !!a.username)
+    return this.connection.walletManager.getLocalWallets().filter(a => !!a.username)
   }
 
   /**
@@ -84,10 +84,10 @@ module.exports = class DelegatesRepository {
    * @return {[type]}             [description]
    */
   async active (height, totalSupply) {
-    const delegates = await this.db.getActiveDelegates(height)
+    const delegates = await this.connection.getActiveDelegates(height)
 
     return Promise.all(delegates.map(async delegate => {
-      const wallet = await this.db.wallets.findById(delegate.publicKey)
+      const wallet = await this.connection.wallets.findById(delegate.publicKey)
 
       return {
         username: wallet.username,

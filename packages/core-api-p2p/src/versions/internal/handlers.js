@@ -12,7 +12,7 @@ const { Transaction } = require('@arkecosystem/client').models
 exports.postVerifyTransaction = {
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await blockchain.getInstance().getDb().verifyTransaction(transaction)
+    const result = await blockchain.getInstance().getDatabaseConnection().verifyTransaction(transaction)
 
     return { success: result }
   }
@@ -43,7 +43,7 @@ exports.getRound = {
       const maxActive = config.getConstants(height).activeDelegates
       const blockTime = config.getConstants(height).blocktime
       const reward = config.getConstants(height).reward
-      const delegates = await blockchain.getInstance().getDb().getActiveDelegates(height)
+      const delegates = await blockchain.getInstance().getDatabaseConnection().getActiveDelegates(height)
       const timestamp = slots.getTime()
 
       // console.log(delegates.length)

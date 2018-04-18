@@ -34,7 +34,7 @@ module.exports = async (config, options) => {
 
   logger.info('Starting Database Interface...')
   const db = await DB.create(config.server.database)
-  await blockchainManager.attachDatabaseInterface(db)
+  await blockchainManager.setDatabaseManager(db)
 
   logger.info('Starting P2P Interface...')
   const p2p = new P2PInterface(config)

@@ -21,8 +21,11 @@ module.exports = class BlockchainManager {
    * @return {[type]}              [description]
    */
   constructor (config, networkStart) {
-    if (!instance) instance = this
-    else throw new Error('Can\'t initialise 2 blockchains!')
+    if (!instance) {
+      instance = this
+    } else {
+      throw new Error('Can\'t initialise 2 blockchains!')
+    }
 
     this.config = config
 
@@ -60,7 +63,9 @@ module.exports = class BlockchainManager {
     stateMachine.state.blockchain = nextState
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
-      if (action) return setTimeout(() => action.call(this, event), 0)
+      if (action) {
+        return setTimeout(() => action.call(this, event), 0)
+      }
       logger.error(`No action ${actionKey} found`)
     })
   }
@@ -158,10 +163,10 @@ module.exports = class BlockchainManager {
   async removeBlocks (nblocks) {
     const undoLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
-      await this.db.undoBlock(lastBlock)
-      await this.db.deleteBlock(lastBlock)
+      await this.getDatabaseConnection().undoBlock(lastBlock)
+      await this.getDatabaseConnection().deleteBlock(lastBlock)
       await this.transactionHandler.undoBlock(lastBlock)
-      const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+      const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
@@ -228,9 +233,9 @@ module.exports = class BlockchainManager {
     if (block.verification.verified) {
       if (this.isChained(state.lastBlock, block)) {
         // save block on database
-        await this.db.saveBlockAsync(block)
+        await this.getDatabaseConnection().saveBlockAsync(block)
         // committing to db every 10,000 blocks
-        if (block.data.height % 10000 === 0) await this.db.saveBlockCommit()
+        if (block.data.height % 10000 === 0) await this.getDatabaseConnection().saveBlockCommit()
         state.lastBlock = block
         qcallback()
       } else if (block.data.height > state.lastBlock.data.height + 1) {
@@ -276,8 +281,8 @@ module.exports = class BlockchainManager {
    */
   async acceptChainedBlock (block, state) {
     try {
-      await this.db.applyBlock(block)
-      await this.db.saveBlock(block)
+      await this.getDatabaseConnection().applyBlock(block)
+      await this.getDatabaseConnection().saveBlock(block)
       state.lastBlock = block
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
@@ -301,7 +306,7 @@ module.exports = class BlockchainManager {
     else if (block.data.height < state.lastBlock.data.height) logger.debug('Block disregarded because already in blockchain')
     else if (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id) logger.debug('Block just received')
     else {
-      const isValid = await this.db.validateForkedBlock(block)
+      const isValid = await this.getDatabaseConnection().validateForkedBlock(block)
       if (isValid) this.dispatch('FORK')
       else logger.info(`Forked block disregarded because it is not allowed to forge, looks like an attack by delegate ${block.data.generatorPublicKey} 💣`)
     }
@@ -356,16 +361,6 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [attachDatabaseInterface description]
-   * @param  {[type]} dbinterface [description]
-   * @return {[type]}             [description]
-   */
-  attachDatabaseInterface (dbinterface) {
-    this.db = dbinterface
-    return this
-  }
-
-  /**
    * [attachTransactionHandler description]
    * @param  {[type]} txHandler [description]
    * @return {[type]}           [description]
@@ -392,18 +387,35 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getDb description]
-   * @return {[type]} [description]
-   */
-  getDb () {
-    return this.db
-  }
-
-  /**
    * [getTxHandler description]
    * @return {[type]} [description]
    */
   getTxHandler () {
     return this.transactionHandler
+  }
+
+  /**
+   * [getDatabaseManager description]
+   * @return {[type]} [description]
+   */
+  getDatabaseManager () {
+    return this.databaseManager
+  }
+
+  /**
+   * [setDatabaseManager description]
+   * @param  {[type]} manager [description]
+   * @return {[type]}         [description]
+   */
+  setDatabaseManager (manager) {
+    this.databaseManager = manager
+  }
+
+  /**
+   * [getDatabaseConnection description]
+   * @return {[type]} [description]
+   */
+  getDatabaseConnection () {
+    return this.databaseManager.connection()
   }
 }

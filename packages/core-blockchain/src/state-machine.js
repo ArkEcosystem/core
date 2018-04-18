@@ -341,11 +341,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
     rebuildFinished: async () => {
       try {
         state.rebuild = false
-        await blockchainManager.db.saveBlockCommit()
-        await blockchainManager.db.buildWallets(state.lastBlock.data.height)
-        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
-        await blockchainManager.db.saveWallets(true)
-        await blockchainManager.db.applyRound(state.lastBlock.data.height)
+        await blockchainManager.getDatabaseConnection().saveBlockCommit()
+        await blockchainManager.getDatabaseConnection().buildWallets(state.lastBlock.data.height)
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.getDatabaseConnection().walletManager.getLocalWallets())
+        await blockchainManager.getDatabaseConnection().saveWallets(true)
+        await blockchainManager.getDatabaseConnection().applyRound(state.lastBlock.data.height)
         return blockchainManager.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -367,7 +367,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     init: async () => {
       try {
-        let block = await blockchainManager.db.getLastBlock()
+        let block = await blockchainManager.getDatabaseConnection().getLastBlock()
         if (!block) {
           logger.warning('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
@@ -375,7 +375,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
             logger.error('FATAL: The genesis block payload hash is different from configured nethash')
             return blockchainManager.dispatch('FAILURE')
           }
-          await blockchainManager.db.saveBlock(block)
+          await blockchainManager.getDatabaseConnection().saveBlock(block)
         }
         state.lastBlock = block
         state.lastDownloadedBlock = block
@@ -386,12 +386,12 @@ blockchainMachine.actionMap = (blockchainManager) => {
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
-        await blockchainManager.db.buildWallets(block.data.height)
-        await blockchainManager.db.saveWallets(true)
+        await blockchainManager.getDatabaseConnection().buildWallets(block.data.height)
+        await blockchainManager.getDatabaseConnection().saveWallets(true)
         if (block.data.height === 1) {
           // remove round if it was stored in db already
-          await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
-          await blockchainManager.db.applyRound(block.data.height)
+          await blockchainManager.getDatabaseConnection().deleteRound(block.data.height / constants.activeDelegates)
+          await blockchainManager.getDatabaseConnection().applyRound(block.data.height)
         }
         // if (block.data.height === 1 && state.networkStart) {
         //   return blockchainManager.dispatch('NETWORKSTART')
