@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-test-utils",
+  "description": "Test Utilities for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "chalk": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.3.0",
+    "jest-extended": "^0.6.0",
+    "standard": "^10.0.3"
+  }
+}
