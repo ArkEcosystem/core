@@ -4,7 +4,9 @@
     "node": true,
     "jest": true
   },
-  "extends": "standard",
+  "extends": [
+    "standard"
+  ],
   "parserOptions": {
     "sourceType": "module"
   },
