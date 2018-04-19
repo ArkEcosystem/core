@@ -1,6 +1,7 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
+const arkjsv1 = require('arkjs')
 // const { Buffer } = require('buffer/')
 
 const configManager = require('../managers/config')
@@ -226,7 +227,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   getId (transaction) {
-    return crypto.createHash("sha256").update(this.getBytes(transaction)).digest().toString('hex')
+    return arkjsv1.crypto.getId(transaction)
   }
 
   /**
@@ -288,14 +289,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   verify (transaction, network) {
-    const hash = this.getHash(transaction)
-
-    const signatureBuffer = Buffer.from(transaction.signature, 'hex')
-    const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, network)
-    const ecsignature = ECSignature.fromDER(signatureBuffer)
-
-    return ecpair.verify(hash, ecsignature)
+    return arkjsv1.crypto.verify(transaction, network)
   }
 
   /**
