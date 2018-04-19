@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
 const path = require('path')
+const fs = require('fs')
 const expandHomeDir = require('expand-home-dir')
 
 const { Connection } = require('@arkecosystem/core-database')
@@ -44,7 +45,13 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     if (this.config.dialect === 'sqlite') {
-      this.config.uri = 'sqlite:' + expandHomeDir(this.config.uri.substring(7))
+      const databasePath = expandHomeDir(this.config.uri.substring(7))
+
+      this.config.uri = `sqlite:${databasePath}`
+
+      if (!fs.existsSync(databasePath)) {
+        fs.closeSync(fs.openSync(databasePath, 'w'))
+      }
     }
 
     this.connection = new Sequelize(this.config.uri, {
