@@ -4,7 +4,7 @@ const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
-const { createContainer, asValue } = require('awilix')
+const { createContainer } = require('awilix')
 
 class PluginManager {
   /**
@@ -56,12 +56,6 @@ class PluginManager {
 
     const instance = await item.plugin.register(this, options || {})
     this.container.register(alias || name, asValue({ name, version, plugin: instance, options }))
-
-    if (item.plugin.bindings) {
-      for (const [bindingName, bindingValue] of Object.entries(item.plugin.bindings)) {
-        this.container.register(bindingName, asValue(bindingValue))
-      }
-    }
   }
 
   /**
