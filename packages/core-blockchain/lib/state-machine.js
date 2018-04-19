@@ -1,37 +1,11 @@
 'use strict';
 
-const human = require('interval-to-human')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
-const config = require('@arkecosystem/core-plugin-manager').get('config')
 const sleep = require('./utils/sleep')
+const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
-
-let synctracker = null
-
-/**
- * [description]
- * @param  {[type]} block [description]
- * @return {[type]}       [description]
- */
-const tickSyncTracker = (block) => {
-  const constants = config.getConstants(block.data.height)
-  if (!synctracker) {
-    synctracker = {
-      starttimestamp: block.data.timestamp,
-      startdate: new Date().getTime()
-    }
-  }
-  const remainingtime = (slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
-  const title = 'Fast Synchronisation'
-  if (block.data.timestamp - slots.getTime() < 8) {
-    logger.printTracker(title, block.data.timestamp, slots.getTime(), human(remainingtime), 3)
-  } else {
-    synctracker = null
-    logger.stopTracker(title, slots.getTime(), slots.getTime())
-  }
-}
 
 /**
  * [state description]

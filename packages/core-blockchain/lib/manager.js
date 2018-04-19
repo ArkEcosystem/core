@@ -50,8 +50,11 @@ module.exports = class BlockchainManager {
    */
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
+
     logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
+
     stateMachine.state.blockchain = nextState
+
     nextState.actions.forEach(actionKey => {
       const action = this.actions[actionKey]
       if (action) {
@@ -143,7 +146,9 @@ module.exports = class BlockchainManager {
     if (stateMachine.state.started) {
       this.processQueue.push(block)
       stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
-    } else logger.info('Block disregarded because blockchain is not ready')
+    } else {
+      logger.info('Block disregarded because blockchain is not ready')
+    }
   }
 
   /**
@@ -154,13 +159,16 @@ module.exports = class BlockchainManager {
   async removeBlocks (nblocks) {
     const undoLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
+
       await this.getDatabaseConnection().undoBlock(lastBlock)
       await this.getDatabaseConnection().deleteBlock(lastBlock)
       await this.getTransactionHandler().undoBlock(lastBlock)
+
       const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
+
     const __removeBlocks = async (nblocks) => {
       if (nblocks < 1) return
       logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
@@ -257,10 +265,16 @@ module.exports = class BlockchainManager {
   async processBlock (block, state, qcallback) {
     if (!block.verification.verified) {
       logger.warning('Block disregarded because verification failed. Tentative to hack the network 💣')
+
       return qcallback()
     }
-    if (this.isChained(state.lastBlock, block)) await this.acceptChainedBlock(block, state)
-    else await this.manageUnchainedBlock(block, state)
+
+    if (this.isChained(state.lastBlock, block)) {
+      await this.acceptChainedBlock(block, state)
+    } else {
+      await this.manageUnchainedBlock(block, state)
+    }
+
     qcallback()
   }
 
@@ -275,14 +289,20 @@ module.exports = class BlockchainManager {
       await this.getDatabaseConnection().applyBlock(block)
       await this.getDatabaseConnection().saveBlock(block)
       state.lastBlock = block
+
       // broadcast only recent blocks
-      if (slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
+      if (slots.getTime() - block.data.timestamp < 10) {
+        this.networkInterface.broadcastBlock(block)
+      }
+
       this.getTransactionHandler().removeForgedTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
+
       this.dispatch('FORK')
     }
+
     state.lastDownloadedBlock = state.lastBlock
   }
 
@@ -293,13 +313,20 @@ module.exports = class BlockchainManager {
    * @return {[type]}       [description]
    */
   async manageUnchainedBlock (block, state) {
-    if (block.data.height > state.lastBlock.data.height + 1) logger.info(`blockchain not ready to accept new block at height ${block.data.height}, lastBlock ${state.lastBlock.data.height}`)
-    else if (block.data.height < state.lastBlock.data.height) logger.debug('Block disregarded because already in blockchain')
-    else if (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id) logger.debug('Block just received')
-    else {
+    if (block.data.height > state.lastBlock.data.height + 1) {
+      logger.info(`blockchain not ready to accept new block at height ${block.data.height}, lastBlock ${state.lastBlock.data.height}`)
+    } else if (block.data.height < state.lastBlock.data.height) {
+      logger.debug('Block disregarded because already in blockchain')
+    } else if (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id) {
+      logger.debug('Block just received')
+    } else {
       const isValid = await this.getDatabaseConnection().validateForkedBlock(block)
-      if (isValid) this.dispatch('FORK')
-      else logger.info(`Forked block disregarded because it is not allowed to forge, looks like an attack by delegate ${block.data.generatorPublicKey} 💣`)
+
+      if (isValid) {
+        this.dispatch('FORK')
+      } else {
+        logger.info(`Forked block disregarded because it is not allowed to forge, looks like an attack by delegate ${block.data.generatorPublicKey} 💣`)
+      }
     }
   }
 
@@ -313,6 +340,7 @@ module.exports = class BlockchainManager {
     let retItems = forForging
       ? await this.getTransactionHandler().getTransactionsForForging(0, blockSize)
       : await this.getTransactionHandler().getUnconfirmedTransactions(0, blockSize)
+
     return {
       transactions: retItems,
       poolSize: await this.getTransactionHandler().getPoolSize(),
@@ -327,6 +355,7 @@ module.exports = class BlockchainManager {
    */
   isSynced (block) {
     block = block || stateMachine.state.lastBlock.data
+
     return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
@@ -337,7 +366,9 @@ module.exports = class BlockchainManager {
    */
   isBuildSynced (block) {
     block = block || stateMachine.state.lastBlock.data
+
     logger.info(slots.getTime() - block.timestamp)
+
     return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 

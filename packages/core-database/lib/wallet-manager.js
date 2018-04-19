@@ -56,19 +56,27 @@ module.exports = class WalletManager {
    */
   async applyBlock (block) {
     let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+
       if (block.data.height === 1) {
         delegate = new Wallet(generator)
         delegate.publicKey = block.data.generatorPublicKey
+
         this.walletsByAddress[generator] = delegate
         this.walletsByPublicKey[block.generatorPublicKey] = delegate
       } else {
         logger.debug('delegate by address', this.walletsByAddress[generator])
-        if (this.walletsByAddress[generator]) logger.info('Oops ! this look like a bug, please report 🐛')
+
+        if (this.walletsByAddress[generator]) {
+          logger.info('Oops ! this look like a bug, please report 🐛')
+        }
+
         throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
       }
     }
+
     const appliedTransactions = []
 
     try {
@@ -81,7 +89,9 @@ module.exports = class WalletManager {
       return delegate.applyBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
+
       await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
+
       throw error
     }
   }
@@ -103,6 +113,7 @@ module.exports = class WalletManager {
       this.walletsByAddress[generator] = delegate
       this.walletsByPublicKey[block.generatorPublicKey] = delegate
     }
+
     const undoneTransactions = []
     const that = this
 
@@ -116,7 +127,9 @@ module.exports = class WalletManager {
       return delegate.undoBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
+
       await Promise.each(undoneTransactions, async (tx) => that.applyTransaction(tx))
+
       throw error
     }
   }
@@ -129,15 +142,21 @@ module.exports = class WalletManager {
   async applyTransaction (transaction) {
     const datatx = transaction.data
     let sender = this.walletsByPublicKey[datatx.senderPublicKey]
+
     if (!sender) {
       const senderId = crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
       sender = this.walletsByAddress[senderId] // should exist
-      if (!sender.publicKey) sender.publicKey = datatx.senderPublicKey
+
+      if (!sender.publicKey) {
+        sender.publicKey = datatx.senderPublicKey
+      }
+
       this.walletsByPublicKey[datatx.senderPublicKey] = sender
     }
 
     const recipientId = datatx.recipientId // may not exist
     let recipient = this.walletsByAddress[recipientId]
+
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
@@ -145,9 +164,11 @@ module.exports = class WalletManager {
 
     if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
       logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
+
       throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
     } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
       logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
+
       throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
     }
 
@@ -157,12 +178,15 @@ module.exports = class WalletManager {
     } else if (!sender.canApply(datatx)) {
       logger.info(JSON.stringify(sender))
       logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
+
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }
 
     sender.applyTransactionToSender(datatx)
 
-    if (datatx.type === TRANSACTION_TYPES.TRANSFER) recipient.applyTransactionToRecipient(datatx)
+    if (datatx.type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(datatx)
+    }
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
@@ -196,13 +220,17 @@ module.exports = class WalletManager {
    */
   getWalletByAddress (address) {
     let wallet = this.walletsByAddress[address]
-    if (wallet) return wallet
-    else {
+
+    if (wallet) {
+      return wallet
+    } else {
       if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
         return null
       }
+
       wallet = new Wallet(address)
       this.walletsByAddress[address] = wallet
+
       return wallet
     }
   }
@@ -214,8 +242,9 @@ module.exports = class WalletManager {
    */
   getWalletByPublicKey (publicKey) {
     let wallet = this.walletsByPublicKey[publicKey]
-    if (wallet) return wallet
-    else {
+    if (wallet) {
+      return wallet
+    } else {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
       wallet = this.getWalletByAddress(address)
       wallet.publicKey = publicKey

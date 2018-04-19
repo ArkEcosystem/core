@@ -61,7 +61,7 @@ module.exports = class ForgerManager {
     this.proxy = proxy
     let round = null
     let forgingData = null
-    const data = {}
+    let data = {}
 
     const monitor = async () => {
       try {
@@ -148,6 +148,7 @@ module.exports = class ForgerManager {
       headers: this.headers,
       timeout: 2000
     }).use(popsicle.plugins.parse('json'))
+
     return result.body.round
   }
 

@@ -67,13 +67,16 @@ module.exports = class Block {
       txx.timestamp = this.data.timestamp
       return txx
     })
+
     if (data.height === 1) {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
       delete this.data.previousBlock
     }
+
     this.verification = this.verify()
+
     if (!this.verification.verified) {
       console.log(data)
       console.log(JSON.stringify(this.data, null, 2))
