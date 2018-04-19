@@ -401,7 +401,7 @@ module.exports = class BlockchainManager {
    * @return {[type]} [description]
    */
   getDatabaseConnection () {
-    return pluginManager.get('database').connection()
+    return pluginManager.get('database')
   }
 
   /**

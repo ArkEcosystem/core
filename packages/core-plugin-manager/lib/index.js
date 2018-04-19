@@ -4,7 +4,7 @@ const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
-const { createContainer } = require('awilix')
+const { createContainer, asValue } = require('awilix')
 
 class PluginManager {
   /**

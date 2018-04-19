@@ -9,7 +9,7 @@ const databaseManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  alias: 'database',
+  alias: 'databaseManager',
   register: async (manager, options) => {
     manager.get('logger').info('Starting Database Manager...')
 
