@@ -1,10 +1,15 @@
 'use strict';
 
-const logger = require('../lib/logger')
+const PinoDriver = require('../lib/driver')
+
+let logger
+beforeAll(() => {
+  logger = new PinoDriver(require('../lib/defaults.json'))
+})
 
 describe('Logger', () => {
   it('should be an object', async () => {
-    await expect(logger).toBeObject()
+    await expect(logger).toBeInstanceOf(PinoDriver)
   })
 
   describe('error', async () => {

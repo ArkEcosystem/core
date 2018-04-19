@@ -1,10 +1,15 @@
 'use strict';
 
-const logger = require('../lib/logger')
+const GraylogDriver = require('../lib/driver')
+
+let logger
+beforeAll(() => {
+  logger = new GraylogDriver()
+})
 
 describe('Logger', () => {
   it('should be an object', async () => {
-    await expect(logger).toBeObject()
+    await expect(logger).toBeInstanceOf(GraylogDriver)
   })
 
   describe('error', async () => {

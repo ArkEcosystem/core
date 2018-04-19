@@ -87,7 +87,7 @@ class PluginManager {
    * @param  {[type]} plugin [description]
    * @return {[type]}        [description]
    */
-  __resolvePlugin(plugin) {
+  __resolvePlugin (plugin) {
     let item
 
     if (isString(plugin)) {

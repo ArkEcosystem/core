@@ -1,10 +1,15 @@
 'use strict';
 
-const logger = require('../lib/logger')
+const WinstonDriver = require('../lib/driver')
+
+let logger
+beforeAll(() => {
+  logger = new WinstonDriver(require('../lib/defaults.json'))
+})
 
 describe('Logger', () => {
   it('should be an object', async () => {
-    await expect(logger).toBeObject()
+    await expect(logger).toBeInstanceOf(WinstonDriver)
   })
 
   describe('error', async () => {
