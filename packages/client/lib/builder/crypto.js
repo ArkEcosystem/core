@@ -226,7 +226,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   getId (transaction) {
-    return crypto.createHash("sha256").update(this.(transaction)).digest().toString('hex')
+    return crypto.createHash("sha256").update(this.getBytes(transaction)).digest().toString('hex')
   }
 
   /**
