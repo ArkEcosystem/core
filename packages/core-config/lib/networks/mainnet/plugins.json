@@ -16,6 +16,7 @@
   },
   "mounted": {
     "@arkecosystem/core-api-public": {},
-    "@arkecosystem/core-api-webhooks": {}
+    "@arkecosystem/core-api-webhooks": {},
+    "@arkecosystem/core-forger": {}
   }
 }

@@ -139,7 +139,7 @@ module.exports = class BlockchainManager {
    */
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
-    return this.transactionHandler.addTransactions(transactions)
+    return this.getTransactionHandler().addTransactions(transactions)
   }
 
   /**
@@ -165,7 +165,7 @@ module.exports = class BlockchainManager {
       const lastBlock = stateMachine.state.lastBlock
       await this.getDatabaseConnection().undoBlock(lastBlock)
       await this.getDatabaseConnection().deleteBlock(lastBlock)
-      await this.transactionHandler.undoBlock(lastBlock)
+      await this.getTransactionHandler().undoBlock(lastBlock)
       const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
@@ -286,7 +286,7 @@ module.exports = class BlockchainManager {
       state.lastBlock = block
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) this.networkInterface.broadcastBlock(block)
-      this.transactionHandler.removeForgedTransactions(block.transactions)
+      this.getTransactionHandler().removeForgedTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
@@ -320,11 +320,11 @@ module.exports = class BlockchainManager {
    */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     let retItems = forForging
-      ? await this.transactionHandler.getTransactionsForForging(0, blockSize)
-      : await this.transactionHandler.getUnconfirmedTransactions(0, blockSize)
+      ? await this.getTransactionHandler().getTransactionsForForging(0, blockSize)
+      : await this.getTransactionHandler().getUnconfirmedTransactions(0, blockSize)
     return {
       transactions: retItems,
-      poolSize: await this.transactionHandler.getPoolSize(),
+      poolSize: await this.getTransactionHandler().getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
@@ -373,7 +373,6 @@ module.exports = class BlockchainManager {
    */
   setNetworkInterface (networkInterface) {
     this.networkInterface = networkInterface
-    return this
   }
 
   /**
@@ -394,12 +393,11 @@ module.exports = class BlockchainManager {
 
   /**
    * [setTransactionHandler description]
-   * @param  {[type]} txHandler [description]
-   * @return {[type]}           [description]
+   * @param  {[type]} handler [description]
+   * @return {[type]}         [description]
    */
-  setTransactionHandler (txHandler) {
-    this.transactionHandler = txHandler
-    return this
+  setTransactionHandler (handler) {
+    this.transactionHandler = handler
   }
 
   /**

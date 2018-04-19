@@ -8,15 +8,18 @@ const Hoek = require('hoek')
 class PluginManager {
   /**
    * [init description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {[type]} plugins [description]
+   * @param  {Object} options [description]
+   * @return {[type]}         [description]
    */
-  init (config, index = 'plugins.json') {
-    if (isString(config)) {
-      config = require(path.resolve(expandHomeDir(`${config}/${index}`)))
+  init (plugins, options = {}) {
+    // A path was passed in for plugins
+    if (isString(plugins)) {
+      plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
     }
 
-    this.config = config
+    this.availablePlugins = plugins
+    this.options = options
 
     this.plugins = {}
     this.bindings = {}
@@ -28,8 +31,10 @@ class PluginManager {
    * @return {[type]}      [description]
    */
   async hook (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.config[name])) {
-      await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
+    for (let [pluginName, pluginOptions] of Object.entries(this.availablePlugins[name])) {
+      if (this.__shouldBeRegistered(pluginName)) {
+        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
+      }
     }
   }
 
@@ -143,6 +148,25 @@ class PluginManager {
    */
   hasBinding (key) {
     return this.bindings.hasOwnProperty(key)
+  }
+
+  /**
+   * [__shouldBeRegistered description]
+   * @param  {[type]} name [description]
+   * @return {[type]}      [description]
+   */
+  __shouldBeRegistered (name) {
+    let register = true
+
+    if (this.options.include) {
+      register = this.options.include.includes(name)
+    }
+
+    if (this.options.exclude) {
+      register = !this.options.exclude.includes(name)
+    }
+
+    return register
   }
 }
 

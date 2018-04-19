@@ -12,7 +12,6 @@ exports.plugin = {
   register: async (manager, options) => {
     const forgerManager = await new ForgerManager(manager.get('config'))
 
-    // TODO: pass in credentials via options
     const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)
 
     manager.get('logger').info(`ForgerManager started with ${forgers.length} forgers`)

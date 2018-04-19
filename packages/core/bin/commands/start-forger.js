@@ -1,12 +1,6 @@
 'use strict';
 
-// TODO: ADJUST TO NEW PLUGIN SYSTEM
-
-/* eslint-disable */
-
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const ForgerManager = require('@arkecosystem/core-plugin-manager').get('forger')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 /**
  * [description]
@@ -15,13 +9,24 @@ const ForgerManager = require('@arkecosystem/core-plugin-manager').get('forger')
  * @return {[type]}         [description]
  */
 module.exports = async (config, options) => {
-  await config.init(config)
-  await logger.init(config.server.logging, config.network.name + '-forger')
+  pluginManager.init(config, {
+    include: [
+      '@arkecosystem/core-config',
+      '@arkecosystem/core-logger',
+      '@arkecosystem/core-logger-pino',
+      '@arkecosystem/core-forger'
+    ],
+    options: {
+      '@arkecosystem/core-forger': {
+        bip38: options.bip38,
+        address: options.address,
+        password: options.password
+      }
+    }
+  })
 
-  const forgerManager = await new ForgerManager(config)
-  const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)
-
-  logger.info(`ForgerManager started with ${forgers.length} forgers`)
-
-  forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
+  await pluginManager.hook('init', {network: config})
+  await pluginManager.hook('beforeCreate')
+  await pluginManager.hook('beforeMount')
+  await pluginManager.hook('mounted')
 }
