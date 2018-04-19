@@ -1,7 +1,7 @@
 module.exports = {
   verbose: true,
   testMatch: [
-    '**/__tests__/**/*.specc.js'
+    '**/__tests__/**/*.spec.js'
   ],
   moduleFileExtensions: [
     'js',

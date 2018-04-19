@@ -1,5 +1,5 @@
-import NetworkManager from '@/managers/network'
-import networkMainnet from '@/networks/ark/mainnet'
+import NetworkManager from '../../lib/managers/network'
+import networkMainnet from '../../lib/networks/ark/mainnet.json'
 
 describe('Network Manager', () => {
   it('should be instantiated', () => {
