@@ -13,7 +13,7 @@ module.exports = class Logger extends LoggerInterface {
     const pretty = pino.pretty()
     pretty.pipe(process.stdout)
 
-    this.pino = pino(options, pretty)
+    this.driver = pino(options, pretty)
 
     return this
   }
@@ -24,7 +24,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   error (message) {
-    return this.pino.error(message)
+    return this.driver.error(message)
   }
 
   /**
@@ -33,7 +33,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   warning (message) {
-    return this.pino.warn(message)
+    return this.driver.warn(message)
   }
 
   /**
@@ -42,7 +42,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   info (message) {
-    return this.pino.info(message)
+    return this.driver.info(message)
   }
 
   /**
@@ -51,7 +51,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   debug (message) {
-    return this.pino.debug(message)
+    return this.driver.debug(message)
   }
 
   /**

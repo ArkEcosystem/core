@@ -15,6 +15,14 @@ module.exports = class LoggerInterface {
   }
 
   /**
+   * [driver description]
+   * @return {[type]} [description]
+   */
+  driver () {
+    return this.driver
+  }
+
+  /**
    * [error description]
    * @param  {[type]} message [description]
    * @return {[type]}         [description]

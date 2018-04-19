@@ -10,7 +10,9 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   make (options) {
-    this.graylog = new graylog2.graylog(options) // eslint-disable-line new-cap
+    this.driver = new graylog2.graylog(options) // eslint-disable-line new-cap
+
+    return this
   }
 
   /**
@@ -19,7 +21,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   error (message) {
-    return this.graylog.error(message)
+    return this.driver.error(message)
   }
 
   /**
@@ -28,7 +30,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   warning (message) {
-    return this.graylog.warning(message)
+    return this.driver.warning(message)
   }
 
   /**
@@ -37,7 +39,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   info (message) {
-    return this.graylog.info(message)
+    return this.driver.info(message)
   }
 
   /**
@@ -46,7 +48,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   debug (message) {
-    return this.graylog.debug(message)
+    return this.driver.debug(message)
   }
 
   /**

@@ -14,9 +14,9 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   make (options) {
-    this.winston = new (winston.Logger)()
+    this.driver = new (winston.Logger)()
 
-    this.winston.add(winston.transports.DailyRotateFile, {
+    this.driver.add(winston.transports.DailyRotateFile, {
       filename: expandHomeDir(options.file) + '.%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       level: options.levels.file,
@@ -24,14 +24,14 @@ module.exports = class Logger extends LoggerInterface {
       formatter: (info) => formatter(info)
     })
 
-    this.winston.add(winston.transports.Console, {
+    this.driver.add(winston.transports.Console, {
       colorize: true,
       level: options.levels.console,
       timestamp: () => Date.now(),
       formatter: (info) => formatter(info)
     })
 
-    this.winston.filters.push((level, message, meta) => {
+    this.driver.filters.push((level, message, meta) => {
       if (this.tracker) {
         process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
         this.tracker = null
@@ -49,7 +49,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   error (message) {
-    return this.winston.error(message)
+    return this.driver.error(message)
   }
 
   /**
@@ -58,7 +58,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   warning (message) {
-    return this.winston.warn(message)
+    return this.driver.warn(message)
   }
 
   /**
@@ -67,7 +67,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   info (message) {
-    return this.winston.info(message)
+    return this.driver.info(message)
   }
 
   /**
@@ -76,7 +76,7 @@ module.exports = class Logger extends LoggerInterface {
    * @return {[type]}         [description]
    */
   debug (message) {
-    return this.winston.debug(message)
+    return this.driver.debug(message)
   }
 
   /**
