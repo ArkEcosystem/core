@@ -2,37 +2,6 @@
   "test": true,
   "port": 4000,
   "version": "2.0.0",
-  "logging": {
-    "driver": "@arkecosystem/core-logger-winston",
-    "options": {
-      "file": "~/.ark/logs/core/testnet",
-      "levels": {
-        "file": "debug",
-        "console": "debug"
-      }
-    }
-  },
-  "database": {
-    "driver": "@arkecosystem/core-database-sequelize",
-    "options": {
-      "uri": "sqlite:~/.ark/database/testnet.sqlite",
-      "uri1": "postgres://node:password@localhost:5432/ark_testnet",
-      "dialect": "sqlite",
-      "dialect1": "postgres",
-      "logging": false
-    },
-    "snapshots": "~/.ark/snapshots"
-  },
-  "redis": {
-    "host": "localhost",
-    "port": 6379
-  },
-  "transactionPool": {
-    "enabled": true,
-    "keyPrefix": "ark/pool",
-    "maxTransactionsPerSender": 5,
-    "whiteList" : []
-  },
   "peers": {
     "blackList": [],
     "list": [{

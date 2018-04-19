@@ -15,7 +15,7 @@ class FeeManager {
    * @param {[type]} value [description]
    */
   set (type, value) {
-    if (!this._validType(type)) {
+    if (!this.__validType(type)) {
       throw new Error('Invalid transaction type.')
     }
 
@@ -33,11 +33,11 @@ class FeeManager {
   }
 
   /**
-   * [_validType description]
+   * [__validType description]
    * @param  {[type]} type [description]
    * @return {[type]}      [description]
    */
-  _validType (type) {
+  __validType (type) {
     return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
   }
 }

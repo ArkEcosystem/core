@@ -24,6 +24,7 @@ module.exports = {
   // Managers...
   configManager: require('./managers/config'),
   feeManager: require('./managers/fee'),
+  NetworkManager: require('./managers/network'),
 
   // Networks...
   networks: {

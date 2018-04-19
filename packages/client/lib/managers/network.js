@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const networks = require('../networks/ark')
+const networks = require('../networks')
 
 module.exports = class NetworkManager {
   /**
@@ -12,9 +12,11 @@ module.exports = class NetworkManager {
 
   /**
    * [findByName description]
-   * @param {String} name [description]
+   * @param  {[type]} name [description]
+   * @param  {String} coin [description]
+   * @return {[type]}      [description]
    */
-  static findByName (name) {
-    return _.find(networks, { name })
+  static findByName (name, coin = 'ark') {
+    return _.get(networks, `${coin}.${name}`)
   }
 }
