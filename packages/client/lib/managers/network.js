@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const networks = require('../networks/ark')
 
-export default class NetworkManager {
+module.exports = class NetworkManager {
   /**
    * [getAll description]
    * @return {[type]} [description]
