@@ -13,7 +13,7 @@
   "browser": "dist/index.min.js",
   "scripts": {
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
-    "build": "rm -rf dist && NODE_ENV=production webpack",
+    "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
     "test": "jest --no-cache --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",

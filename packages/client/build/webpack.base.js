@@ -15,7 +15,7 @@ module.exports = {
 
   resolve: {
     // alias: {
-    //   '@': resolve('lib')
+    //   '@': resolve('../lib')
     // },
     extensions: ['.js', '.json']
   }
