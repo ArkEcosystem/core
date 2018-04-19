@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('./logger')
+const logManager = require('./manager')
 
 /**
  * [plugin description]
@@ -9,6 +9,8 @@ const logger = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  alias: 'logger',
-  register: async (manager, options) => logger.init()
+  alias: 'logManager',
+  register: async (manager, options) => logManager
 }
+
+exports.LoggerInterface = require('./interface')

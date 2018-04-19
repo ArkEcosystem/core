@@ -1,20 +1,16 @@
 'use strict';
 
-const pino = require('pino')
+const graylog2 = require('graylog2')
+const { LoggerInterface } = require('@arkecosystem/core-logger')
 
-class Logger {
+module.exports = class Logger extends LoggerInterface {
   /**
-   * [init description]
+   * [constructor description]
    * @param  {[type]} options [description]
-   * @return {[type]}        [description]
+   * @return {[type]}         [description]
    */
-  init (options) {
-    const pretty = pino.pretty()
-    pretty.pipe(process.stdout)
-
-    this.pino = pino(options, pretty)
-
-    return this
+  make (options) {
+    this.graylog = new graylog2.graylog(options) // eslint-disable-line new-cap
   }
 
   /**
@@ -23,7 +19,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   error (message) {
-    return this.pino.error(message)
+    return this.graylog.error(message)
   }
 
   /**
@@ -32,7 +28,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   warning (message) {
-    return this.pino.warn(message)
+    return this.graylog.warning(message)
   }
 
   /**
@@ -41,7 +37,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   info (message) {
-    return this.pino.info(message)
+    return this.graylog.info(message)
   }
 
   /**
@@ -50,7 +46,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   debug (message) {
-    return this.pino.debug(message)
+    return this.graylog.debug(message)
   }
 
   /**
@@ -73,9 +69,3 @@ class Logger {
    */
   stopTracker (title, current, max) {}
 }
-
-/**
- * [exports description]
- * @type {Logger}
- */
-module.exports = new Logger()

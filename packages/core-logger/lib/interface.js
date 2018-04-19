@@ -1,30 +1,17 @@
 'use strict';
 
-class Logger {
+/**
+ * [exports description]
+ * @type {[type]}
+ */
+module.exports = class LoggerInterface {
   /**
-   * [init description]
-   * @return {[type]} [description]
+   * [constructor description]
+   * @param  {[type]} options [description]
+   * @return {[type]}         [description]
    */
-  init () {
-    return this
-  }
-
-  /**
-   * [getDriver description]
-   * @return {[type]} [description]
-   */
-  getDriver () {
-    return this.driver
-  }
-
-  /**
-   * [setDriver description]
-   * @param {[type]} instance [description]
-   */
-  async setDriver (instance) {
-    this.driver = instance
-
-    return this
+  constructor (options) {
+    this.options = options
   }
 
   /**
@@ -33,7 +20,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   error (message) {
-    return this.driver.error(message)
+    throw new Error('Method [error] not implemented!')
   }
 
   /**
@@ -42,7 +29,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   warning (message) {
-    return this.driver.warning(message)
+    throw new Error('Method [warning] not implemented!')
   }
 
   /**
@@ -51,7 +38,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   info (message) {
-    return this.driver.info(message)
+    throw new Error('Method [info] not implemented!')
   }
 
   /**
@@ -60,7 +47,7 @@ class Logger {
    * @return {[type]}         [description]
    */
   debug (message) {
-    return this.driver.debug(message)
+    throw new Error('Method [debug] not implemented!')
   }
 
   /**
@@ -73,7 +60,7 @@ class Logger {
    * @return {[type]}           [description]
    */
   printTracker (title, current, max, posttitle, figures = 0) {
-    this.driver.printTracker(title, current, max, posttitle, figures)
+    throw new Error('Method [printTracker] not implemented!')
   }
 
   /**
@@ -84,12 +71,6 @@ class Logger {
    * @return {[type]}         [description]
    */
   stopTracker (title, current, max) {
-    this.driver.stopTracker(title, current, max)
+    throw new Error('Method [stopTracker] not implemented!')
   }
 }
-
-/**
- * [exports description]
- * @type {Logger}
- */
-module.exports = new Logger()

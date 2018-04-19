@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('./logger')
+const WinstonDriver = require('./driver')
 
 /**
  * [plugin description]
@@ -9,9 +9,11 @@ const winston = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
+  alias: 'logger',
   register: async (manager, options) => {
-    const instance = await winston.init(options)
+    const logManager = manager.get('logManager')
+    await logManager.makeDriver(new WinstonDriver(options))
 
-    await manager.get('logger').setDriver(instance)
+    return logManager.driver()
   }
 }

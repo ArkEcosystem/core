@@ -1,6 +1,6 @@
 'use strict';
 
-const graylog = require('./logger')
+const GraylogDriver = require('./driver')
 
 /**
  * [plugin description]
@@ -9,9 +9,11 @@ const graylog = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
+  alias: 'logger',
   register: async (manager, options) => {
-    const instance = await graylog.init(options)
+    const logManager = manager.get('logManager')
+    await logManager.makeDriver(new GraylogDriver(options))
 
-    await manager.get('logger').setDriver(instance)
+    return logManager.driver()
   }
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-const pino = require('./logger')
+const PinoDriver = require('./driver')
 
 /**
  * [plugin description]
@@ -9,9 +9,11 @@ const pino = require('./logger')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
+  alias: 'logger',
   register: async (manager, options) => {
-    const instance = await pino.init(options)
+    const logManager = manager.get('logManager')
+    await logManager.makeDriver(new PinoDriver(options))
 
-    await manager.get('logger').setDriver(instance)
+    return logManager.driver()
   }
 }

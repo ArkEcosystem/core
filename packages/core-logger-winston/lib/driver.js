@@ -2,30 +2,31 @@
 
 const expandHomeDir = require('expand-home-dir')
 const winston = require('winston')
+const { LoggerInterface } = require('@arkecosystem/core-logger')
 const formatter = require('./formatter')
 require('winston-daily-rotate-file')
 require('colors')
 
-class Logger {
+module.exports = class Logger extends LoggerInterface {
   /**
-   * [init description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * [make description]
+   * @param  {[type]} options [description]
+   * @return {[type]}         [description]
    */
-  init (config) {
+  make (options) {
     this.winston = new (winston.Logger)()
 
     this.winston.add(winston.transports.DailyRotateFile, {
-      filename: expandHomeDir(config.file) + '.%DATE%.log',
+      filename: expandHomeDir(options.file) + '.%DATE%.log',
       datePattern: 'YYYY-MM-DD',
-      level: config.levels.file,
+      level: options.levels.file,
       zippedArchive: true,
       formatter: (info) => formatter(info)
     })
 
     this.winston.add(winston.transports.Console, {
       colorize: true,
-      level: config.levels.console,
+      level: options.levels.console,
       timestamp: () => Date.now(),
       formatter: (info) => formatter(info)
     })
@@ -121,9 +122,3 @@ class Logger {
     this.tracker = null
   }
 }
-
-/**
- * [exports description]
- * @type {Logger}
- */
-module.exports = new Logger()
