@@ -15,7 +15,7 @@ module.exports = class Config extends ConfigInterface {
   async make () {
     let options = this.options
 
-    if (isString(options.network)) {
+    if (isString(options)) {
       options = this.__loadFromPath()
     }
 
@@ -35,7 +35,7 @@ module.exports = class Config extends ConfigInterface {
    * @return {[type]} [description]
    */
   __loadFromPath () {
-    const basePath = path.resolve(this.options.network)
+    const basePath = path.resolve(this.options)
 
     if (!fs.existsSync(basePath)) {
       throw new Error('The directory does not exist or is not accessible because of security settings.')

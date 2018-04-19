@@ -18,7 +18,7 @@ module.exports = async (config, options) => {
     }
   })
 
-  await pluginManager.hook('init', {network: config})
+  await pluginManager.hook('init', {config})
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 

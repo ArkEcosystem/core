@@ -1,38 +1,35 @@
 'use strict';
 
 const path = require('path')
-const config = require('../lib/manager')
+const configManager = require('../lib/manager')
 
-const stubConfigPath = path.resolve(__dirname, './stubs')
-
-const stubConfig = {
-  delegates: require('./stubs/delegates'),
-  genesisBlock: require('./stubs/genesisBlock'),
-  network: require('./stubs/network')
+class FakeDriver {
+  make() {
+    return this
+  }
 }
 
-describe('Manager', () => {
-  it('should fail without a config', async () => {
-    try {
-      await config.init()
-    } catch (error) {
-      await expect(error.message).toEqual('undefined (object) is required')
-    }
+describe('Config Manager', () => {
+  it('should be an object', async() => {
+    expect(configManager).toBeObject()
+    expect(configManager.drivers).toBeDefined()
   })
 
-  it('should succeed with a config from a string', async () => {
-    const result = await config.init(stubConfigPath)
+  describe('driver', async() => {
+    it('should be a function', async() => {
+      expect(configManager.driver).toBeFunction()
+    })
 
-    await expect(result.delegates).toEqual(stubConfig.delegates)
-    await expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)
-    await expect(result.network).toEqual(stubConfig.network)
+    it('should return the driver', async() => {
+      await configManager.makeDriver(new FakeDriver())
+
+      expect(configManager.driver()).toBeInstanceOf(FakeDriver)
+    })
   })
 
-  it('should succeed with a config from an object', async () => {
-    const result = await config.init(stubConfig)
-
-    await expect(result.delegates).toEqual(stubConfig.delegates)
-    await expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)
-    await expect(result.network).toEqual(stubConfig.network)
+  describe('makeDriver', async() => {
+    it('should be a function', async() => {
+      expect(configManager.makeDriver).toBeFunction()
+    })
   })
 })

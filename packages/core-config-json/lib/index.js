@@ -11,7 +11,7 @@ exports.plugin = {
   alias: 'config',
   register: async (manager, options) => {
     const configManager = manager.get('configManager')
-    await configManager.makeDriver(new JsonDriver(options))
+    await configManager.makeDriver(new JsonDriver(options.config || options))
 
     return configManager.driver()
   }
