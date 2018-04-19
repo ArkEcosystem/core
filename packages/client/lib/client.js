@@ -1,9 +1,19 @@
 const ApiClient = require('./api')
+const NetworkManager = require('./managers/network')
 const transactionBuilder = require('./builder')
 const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
 
 class Client {
+  /**
+   * [constructor description]
+   * @param  {[type]} config [description]
+   * @return {[type]}        [description]
+   */
+  constructor (config) {
+    this.setConfig(config || NetworkManager.findByName('devnet'))
+  }
+
   /**
    * [setConfig description]
    * @param {[type]} config [description]
@@ -43,6 +53,14 @@ class Client {
    */
   getClient (host) {
     return new ApiClient(host)
+  }
+
+  /**
+   * [getNetworkManger description]
+   * @return {[type]} [description]
+   */
+  static getNetworkManager () {
+    return NetworkManager
   }
 }
 

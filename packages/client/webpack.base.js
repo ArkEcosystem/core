@@ -7,7 +7,7 @@
 module.exports = {
   module: {
     rules: [{
-      test: /\.js/,
+      test: /\.js$/,
       loaders: ['babel-loader'],
       exclude: /node_modules/
     }]
@@ -17,6 +17,6 @@ module.exports = {
     // alias: {
     //   '@': resolve('lib')
     // },
-    extensions: ['.js']
+    extensions: ['.js', '.json']
   }
 }
