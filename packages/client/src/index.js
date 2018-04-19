@@ -1,8 +1,8 @@
 const ApiClient = require('./api')
+const NetworkManager = require('./managers/config')
 const transactionBuilder = require('./builder')
 const configManager = require('./managers/config')
 const feeManager = require('./managers/fee')
-const defaultConfig = require('./networks/ark/devnet')
 
 module.exports = class Ark {
   /**
@@ -11,7 +11,7 @@ module.exports = class Ark {
    * @return {[type]}        [description]
    */
   constructor (config) {
-    this.setConfig(config || defaultConfig)
+    this.setConfig(config || NetworkManager.findByName('devnet'))
   }
 
   /**
@@ -53,5 +53,13 @@ module.exports = class Ark {
    */
   getClient (host) {
     return new ApiClient(host)
+  }
+
+  /**
+   * [getNetworkManger description]
+   * @return {[type]} [description]
+   */
+  static getNetworkManager () {
+    return NetworkManager
   }
 }

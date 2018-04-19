@@ -14,7 +14,12 @@ module.exports = merge(require('./webpack.base'), {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
-    library: 'ark-javascript-client',
+    library: {
+      root: 'ArkClient',
+      amd: 'ark-javascript-client',
+      commonjs: 'ark-javascript-client'
+    },
+    libraryExport: 'default',
     libraryTarget: 'umd',
     globalObject: 'this'
   },
