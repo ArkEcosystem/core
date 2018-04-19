@@ -20,8 +20,7 @@ exports.plugin = {
     await webhookManager.init(options)
 
     return WebhookManager.getInstance()
-  },
-  bindings: {
-    webhookDB: database
   }
 }
+
+exports.database = database
