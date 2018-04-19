@@ -9,7 +9,7 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
  * @return {[type]}         [description]
  */
 const register = async (server, options) => {
-  const _headers = {
+  const headers = {
     nethash: config.network.nethash,
     version: config.server.version,
     port: config.server.port,
@@ -22,9 +22,9 @@ const register = async (server, options) => {
     type: 'onPreResponse',
     method: async (request, h) => {
       if (request.response.isBoom) {
-        requiredHeaders.forEach((key) => (request.response.output.headers[key] = _headers[key]))
+        requiredHeaders.forEach((key) => (request.response.output.headers[key] = headers[key]))
       } else {
-        requiredHeaders.forEach((key) => request.response.header(key, _headers[key]))
+        requiredHeaders.forEach((key) => request.response.header(key, headers[key]))
       }
 
       return h.continue
