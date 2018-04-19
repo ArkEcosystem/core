@@ -38,18 +38,8 @@ module.exports = class BlockchainManager {
 
     this.actions = stateMachine.actionMap(this)
 
-    this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), stateMachine.state, qcallback),
-      1
-    )
-
-    this.rebuildQueue = async.queue(
-      (block, qcallback) => this.rebuildQueue.paused ? qcallback() : this.rebuildBlock(new Block(block), stateMachine.state, qcallback),
-      1
-    )
-
-    this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
-    this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
+    this.__setupProcessQueue()
+    this.__setupRebuildQueue()
   }
 
   /**
@@ -415,5 +405,31 @@ module.exports = class BlockchainManager {
    */
   getDatabaseConnection () {
     return this.databaseManager.connection()
+  }
+
+  /**
+   * [__setupProcessQueue description]
+   * @return {[type]} [description]
+   */
+  __setupProcessQueue () {
+    this.processQueue = async.queue(
+      (block, qcallback) => this.processBlock(new Block(block), stateMachine.state, qcallback),
+      1
+    )
+
+    this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
+  }
+
+  /**
+   * [__setupRebuildQueue description]
+   * @return {[type]} [description]
+   */
+  __setupRebuildQueue () {
+    this.rebuildQueue = async.queue(
+      (block, qcallback) => this.rebuildQueue.paused ? qcallback() : this.rebuildBlock(new Block(block), stateMachine.state, qcallback),
+      1
+    )
+
+    this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
   }
 }

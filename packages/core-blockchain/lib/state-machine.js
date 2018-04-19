@@ -8,6 +8,13 @@ const { Block } = require('@arkecosystem/client').models
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 const sleep = require('./utils/sleep')
 
+/**
+ * State Machine actions.
+ */
+const syncWithNetwork = require('./actions/sync-with-networks')
+const rebuildFromNetwork = require('./actions/rebuild-from-network')
+const fork = require('./actions/fork')
+
 let synctracker = null
 
 /**
@@ -61,167 +68,6 @@ const tickSyncTracker = (block) => {
 //     }
 //   }
 // })
-
-/**
- * [syncWithNetwork description]
- * @type {Object}
- */
-const syncWithNetwork = {
-  initial: 'syncing',
-  states: {
-    syncing: {
-      onEntry: ['checkLastDownloadedBlockSynced'],
-      on: {
-        SYNCED: 'downloadfinished',
-        NOTSYNCED: 'downloadBlocks',
-        PAUSED: 'downloadpaused'
-      }
-    },
-    idle: {
-      on: {
-        DOWNLOADED: 'downloadBlocks'
-      }
-    },
-    downloadBlocks: {
-      onEntry: ['downloadBlocks'],
-      on: {
-        DOWNLOADED: 'syncing',
-        NOBLOCK: 'syncing'
-      }
-    },
-    downloadfinished: {
-      onEntry: ['downloadFinished'],
-      on: {
-        PROCESSFINISHED: 'processfinished'
-      }
-    },
-    downloadpaused: {
-      onEntry: ['downloadPaused'],
-      on: {
-        PROCESSFINISHED: 'processfinished'
-      }
-    },
-    processfinished: {
-      onEntry: ['checkLastBlockSynced'],
-      on: {
-        SYNCED: 'end',
-        NOTSYNCED: 'downloadBlocks'
-      }
-    },
-    end: {
-      onEntry: ['syncingFinished']
-    }
-  }
-}
-
-/**
- * [rebuildFromNetwork description]
- * @type {Object}
- */
-const rebuildFromNetwork = {
-  initial: 'rebuilding',
-  states: {
-    rebuilding: {
-      onEntry: ['checkLastDownloadedBlockSynced'],
-      on: {
-        SYNCED: 'waitingfinished',
-        NOTSYNCED: 'rebuildBlocks',
-        PAUSED: 'rebuildpaused'
-      }
-    },
-    idle: {
-      on: {
-        DOWNLOADED: 'rebuildBlocks'
-      }
-    },
-    rebuildBlocks: {
-      onEntry: ['rebuildBlocks'],
-      on: {
-        DOWNLOADED: 'rebuilding',
-        NOBLOCK: 'rebuilding'
-      }
-    },
-    waitingfinished: {
-      on: {
-        REBUILDFINISHED: 'rebuildfinished'
-      }
-    },
-    rebuildfinished: {
-      onEntry: ['rebuildFinished']
-    },
-    rebuildpaused: {
-      onEntry: ['downloadPaused'],
-      on: {
-        REBUILDFINISHED: 'processfinished'
-      }
-    },
-    processfinished: {
-      onEntry: ['checkRebuildBlockSynced'],
-      on: {
-        SYNCED: 'end',
-        NOTSYNCED: 'rebuildBlocks'
-      }
-    },
-    end: {
-      onEntry: ['rebuildingFinished']
-    }
-  }
-}
-
-/**
- * [fork description]
- * @type {Object}
- */
-const fork = {
-  initial: 'undoBlocks',
-  states: {
-    network: {
-      onEntry: ['checkNetwork'],
-      on: {
-        SUCCESS: 'blockchain',
-        FAILURE: 'reset'
-      }
-    },
-    undoBlocks: {
-    }
-  }
-}
-
-// const fork = {
-//   initial: 'network',
-//   states: {
-//     network: {
-//       onEntry: ['checkNetwork'],
-//       on: {
-//         SUCCESS: 'blockchain',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     blockchain: {
-//       onEntry: ['removeBlocks'],
-//       on: {
-//         SUCCESS: 'wallets',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     wallets: {
-//       onEntry: ['rebuildWallets'],
-//       on: {
-//         SUCCESS: 'success',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     reset: {
-//       onEntry: ['resetNode'],
-//       on: {
-//         RESET: 'success',
-//         FAILURE: 'reset'
-//       }
-//     },
-//     success: {
-//     }
-//   }
-// }
 
 /**
  * [blockchainMachine description]
