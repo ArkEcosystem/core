@@ -24,8 +24,8 @@ class ConfigManager {
       this.config[key] = value
     }
 
-    this._buildConstants()
-    this._buildFees()
+    this.__buildConstants()
+    this.__buildFees()
   }
 
   /**
@@ -122,10 +122,10 @@ class ConfigManager {
   }
 
   /**
-   * [_buildConstants description]
+   * [__buildConstants description]
    * @return {[type]} [description]
    */
-  _buildConstants () {
+  __buildConstants () {
     this.constants = this.config.constants.sort((a, b) => a.height - b.height)
     this.current = {
       index: 0,
@@ -141,10 +141,10 @@ class ConfigManager {
   }
 
   /**
-   * [_buildFees description]
+   * [__buildFees description]
    * @return {[type]} [description]
    */
-  _buildFees () {
+  __buildFees () {
     Object
       .keys(TRANSACTION_TYPES)
       .forEach(type => feeManager.set(TRANSACTION_TYPES[type], this.getConstant('fees')[_.camelCase(type)]))

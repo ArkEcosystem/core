@@ -1,6 +1,7 @@
 {
   "init": {
-    "@arkecosystem/core-config": {}
+    "@arkecosystem/core-config": {},
+    "@arkecosystem/core-config-json": {}
   },
   "beforeCreate": {
     "@arkecosystem/core-logger": {},

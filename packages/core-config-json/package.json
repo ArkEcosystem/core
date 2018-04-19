@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-config",
+  "name": "@arkecosystem/core-config-json",
+  "description": "JSON Configuration Loader for ARK Core",
   "version": "1.0.0",
-  "description": "Configuration Manager for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -16,7 +16,9 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "deepmerge": "^2.1.0"
+    "assert-plus": "^1.0.0",
+    "directory-tree": "^2.1.0",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

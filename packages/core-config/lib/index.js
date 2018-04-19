@@ -8,6 +8,8 @@ const configManager = require('./manager')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  alias: 'config',
-  register: async (manager, options) => configManager.init(options.network)
+  alias: 'configManager',
+  register: async (manager, options) => configManager
 }
+
+exports.ConfigInterface = require('./interface')
