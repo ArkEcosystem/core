@@ -9,12 +9,10 @@ const TransactionHandler = require('./handler')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults.json'),
-  alias: 'transaction-pool',
+  alias: 'transaction-handler',
   register: async (manager, options) => {
     manager.get('logger').info('Starting Transaction Pool...')
 
-    const handler = await new TransactionHandler(options)
-
-    await manager.get('blockchain').setTransactionHandler(handler)
+    return new TransactionHandler(options)
   }
 }

@@ -4,6 +4,7 @@ const path = require('path')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
+const { createContainer, asValue } = require('awilix')
 
 class PluginManager {
   /**
@@ -13,16 +14,13 @@ class PluginManager {
    * @return {[type]}         [description]
    */
   init (plugins, options = {}) {
-    // A path was passed in for plugins
     if (isString(plugins)) {
       plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
     }
 
-    this.availablePlugins = plugins
+    this.plugins = plugins
     this.options = options
-
-    this.plugins = {}
-    this.bindings = {}
+    this.container = createContainer()
   }
 
   /**
@@ -31,7 +29,7 @@ class PluginManager {
    * @return {[type]}      [description]
    */
   async hook (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.availablePlugins[name])) {
+    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
       if (this.__shouldBeRegistered(pluginName)) {
         await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
       }
@@ -42,14 +40,56 @@ class PluginManager {
    * [register description]
    * @param  {[type]} plugin  [description]
    * @param  {Object} options [description]
-   * @param  {String} hook    [description]
    * @return {[type]}         [description]
    */
   async register (plugin, options = {}) {
-    // Alias...
+    let item = this.__resolvePlugin(plugin)
+
+    if (!item.plugin.register) return
+
+    const name = item.plugin.name || item.plugin.pkg.name
+    const version = item.plugin.version || item.plugin.pkg.version
+    const defaults = item.plugin.defaults || item.plugin.pkg.defaults
+    const alias = item.plugin.alias || item.plugin.pkg.alias
+
+    if (defaults) options = Hoek.applyToDefaults(defaults, options)
+
+    const instance = await item.plugin.register(this, options || {})
+    this.container.register(alias || name, asValue({ name, version, plugin: instance, options }))
+
+    if (item.plugin.bindings) {
+      for (const [bindingName, bindingValue] of Object.entries(item.plugin.bindings)) {
+        this.container.register(bindingName, asValue(bindingValue))
+      }
+    }
+  }
+
+  /**
+   * [get description]
+   * @param  {[type]} key [description]
+   * @return {[type]}     [description]
+   */
+  get (key) {
+    return this.container.resolve(key).plugin
+  }
+
+  /**
+   * [config description]
+   * @param  {[type]} key [description]
+   * @return {[type]}     [description]
+   */
+  config (key) {
+    return this.container.resolve(key).options
+  }
+
+  /**
+   * [__resolvePlugin description]
+   * @param  {[type]} plugin [description]
+   * @return {[type]}        [description]
+   */
+  __resolvePlugin(plugin) {
     let item
 
-    // Make sure we have an instance...
     if (isString(plugin)) {
       if (!plugin.startsWith('@')) {
         plugin = path.resolve(plugin)
@@ -62,92 +102,7 @@ class PluginManager {
       }
     }
 
-    // Variables...
-    const name = item.plugin.name || item.plugin.pkg.name
-    const version = item.plugin.version || item.plugin.pkg.version
-    const defaults = item.plugin.defaults || item.plugin.pkg.defaults
-    const alias = item.plugin.alias || item.plugin.pkg.alias
-
-    // No registration, probably a sub-plugin...
-    if (!item.plugin.register) {
-      return false
-    }
-
-    // Merge default options...
-    if (defaults) {
-      options = Hoek.applyToDefaults(defaults, options)
-    }
-
-    // Register...
-    const instance = await item.plugin.register(this, options || {})
-    this.plugins[name] = { name, version, plugin: instance, options }
-
-    // Register with alias...
-    if (alias) {
-      this.plugins[alias] = this.plugins[name]
-      delete this.plugins[name]
-    }
-
-    // Register bindings...
-    if (item.plugin.bindings) {
-      for (const [bindingName, bindingValue] of Object.entries(item.plugin.bindings)) {
-        this.bindings[bindingName] = bindingValue
-      }
-    }
-  }
-
-  /**
-   * [get description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
-   */
-  get (key) {
-    return this.plugins[key].plugin
-  }
-
-  /**
-   * [has description]
-   * @param  {[type]}  key [description]
-   * @return {Boolean}     [description]
-   */
-  has (key) {
-    return this.plugins.hasOwnProperty(key)
-  }
-
-  /**
-   * [config description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
-   */
-  config (key) {
-    return this.plugins[key].options
-  }
-
-  /**
-   * [hasOptions description]
-   * @param  {[type]}  key [description]
-   * @return {Boolean}     [description]
-   */
-  hasOptions (key) {
-    return this.plugins[key].hasOwnProperty('options')
-  }
-
-  /**
-   * [binding description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
-   */
-  binding (key) {
-    return this.bindings[key]
-  }
-
-  /**
-   * [hasBinding description]
-   * @param  {[type]}  key [description]
-   * @return {Boolean}     [description]
-   */
-  hasBinding (key) {
-    return this.bindings.hasOwnProperty(key)
+    return item
   }
 
   /**

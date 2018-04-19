@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "assert-plus": "^1.0.0",
+    "awilix": "^3.0.7",
     "expand-home-dir": "^0.0.3",
     "hoek": "^5.0.3",
     "lodash": "^4.17.5"

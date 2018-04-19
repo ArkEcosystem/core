@@ -1,7 +1,7 @@
 'use strict';
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
-const database = pluginManager.binding('webhookDB')
+const database = pluginManager.get('webhookDB')
 const utils = require('./utils')
 const schema = require('./schema')
 

@@ -13,11 +13,7 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Starting Database Manager...')
 
-    const blockchainManager = manager.get('blockchain')
-
-    await blockchainManager.setDatabaseManager(databaseManager)
-
-    return blockchainManager.getDatabaseManager()
+    return databaseManager
   }
 }
 

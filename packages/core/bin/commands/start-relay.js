@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
  */
 module.exports = async (config, options) => {
   pluginManager.init(config, {
-    exclude: ['@arkecosystem/core-forger']
+    exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-api-p2p': {
         networkStart: options.networkStart

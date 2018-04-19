@@ -12,10 +12,8 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Establishing Database Connection...')
 
-    const databaseManager = manager.get('blockchain').getDatabaseManager()
-
     const sequelize = new SequelizeConnection(options)
 
-    await databaseManager.makeConnection(sequelize)
+    await manager.get('database').makeConnection(sequelize)
   }
 }

@@ -6,7 +6,7 @@ class DatabaseManager {
   }
 
   connection (name = 'default') {
-    return this.connections[name];
+    return this.connections[name]
   }
 
   async makeConnection (connection, name = 'default') {

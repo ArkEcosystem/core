@@ -3,7 +3,8 @@
 const async = require('async')
 const { slots } = require('@arkecosystem/client')
 const { Block } = require('@arkecosystem/client').models
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const logger = pluginManager.get('logger')
 const stateMachine = require('./state-machine')
 const sleep = require('./utils/sleep')
 
@@ -353,16 +354,7 @@ module.exports = class BlockchainManager {
    * @return {[type]} [description]
    */
   getNetworkInterface () {
-    return this.networkInterface
-  }
-
-  /**
-   * [setNetworkInterface description]
-   * @param  {[type]} networkInterface [description]
-   * @return {[type]}                  [description]
-   */
-  setNetworkInterface (networkInterface) {
-    this.networkInterface = networkInterface
+    return pluginManager.get('p2p')
   }
 
   /**
@@ -370,33 +362,7 @@ module.exports = class BlockchainManager {
    * @return {[type]} [description]
    */
   getTransactionHandler () {
-    return this.transactionHandler
-  }
-
-  /**
-   * [getDatabaseManager description]
-   * @return {[type]} [description]
-   */
-  getDatabaseManager () {
-    return this.databaseManager
-  }
-
-  /**
-   * [setTransactionHandler description]
-   * @param  {[type]} handler [description]
-   * @return {[type]}         [description]
-   */
-  setTransactionHandler (handler) {
-    this.transactionHandler = handler
-  }
-
-  /**
-   * [setDatabaseManager description]
-   * @param  {[type]} manager [description]
-   * @return {[type]}         [description]
-   */
-  setDatabaseManager (manager) {
-    this.databaseManager = manager
+    return pluginManager.get('transaction-handler')
   }
 
   /**
@@ -404,7 +370,7 @@ module.exports = class BlockchainManager {
    * @return {[type]} [description]
    */
   getDatabaseConnection () {
-    return this.databaseManager.connection()
+    return pluginManager.get('database').connection()
   }
 
   /**
