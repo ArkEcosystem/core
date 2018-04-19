@@ -1,3 +1,4 @@
+// TODO: replace fast-glob with tiny-glob
 import fg from 'fast-glob'
 import path from 'path'
 

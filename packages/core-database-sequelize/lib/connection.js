@@ -3,7 +3,7 @@
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
 const Umzug = require('umzug')
-const fg = require('fast-glob')
+const glob = require('tiny-glob')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 
@@ -607,7 +607,9 @@ module.exports = class SequelizeConnection extends Connection {
   async __registerModels () {
     this.models = {}
 
-    const entries = await fg(path.resolve(__dirname, 'models/**/*.js'))
+    const entries = await glob('models/**/*.js', {
+      cwd: __dirname, absolute: true, filesOnly: true
+    })
 
     entries.forEach(file => {
       const model = this.connection['import'](file)

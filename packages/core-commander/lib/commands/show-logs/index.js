@@ -1,7 +1,7 @@
 'use strict';
 
 const prompts = require('prompts')
-const fg = require('fast-glob')
+const glob = require('tiny-glob')
 const Tail = require('tail').Tail
 const path = require('path')
 const { onCancel } = require('../../utils')
@@ -12,7 +12,9 @@ const expandHomeDir = require('expand-home-dir')
  * @return {[type]} [description]
  */
 module.exports = async () => {
-  const choices = await fg(expandHomeDir('~/.ark/logs/**/*.log'))
+  const choices = await glob('logs/**/*.log', {
+    cwd: expandHomeDir('~/.ark'), absolute: true, filesOnly: true
+  })
 
   const response = await prompts([{
     type: 'select',
