@@ -1,4 +1,0 @@
-{
-  "driver": "@arkecosystem/core-database-sequelize",
-  "snapshots": "~/.ark/snapshots"
-}

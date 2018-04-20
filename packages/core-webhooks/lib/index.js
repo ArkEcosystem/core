@@ -9,7 +9,7 @@ const database = require('./database')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults.json'),
+  defaults: require('./defaults'),
   alias: 'webhooks',
   register: async (manager, options) => {
     manager.get('logger').info('Starting Webhooks...')

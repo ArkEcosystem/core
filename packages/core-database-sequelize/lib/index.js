@@ -8,7 +8,7 @@ const SequelizeConnection = require('./connection')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults.json'),
+  defaults: require('./defaults'),
   alias: 'database',
   register: async (manager, options) => {
     manager.get('logger').info('Establishing Database Connection...')

@@ -8,7 +8,7 @@ const P2PInterface = require('./p2pinterface')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults.json'),
+  defaults: require('./defaults'),
   alias: 'p2p',
   register: async (manager, options) => {
     manager.get('logger').info('Starting P2P Interface...')

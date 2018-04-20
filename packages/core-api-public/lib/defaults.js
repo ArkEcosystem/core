@@ -1,32 +1,29 @@
-{
-  "enabled": true,
-  "port": 4003,
-  "versions": {
-    "default": 1,
-    "valid": [
-      1,
-      2
-    ]
+module.exports = {
+  enabled: true,
+  port: 4003,
+  versions: {
+    default: 1,
+    valid: [1, 2]
   },
-  "cache": {
-    "enabled": false,
-    "options": {
-      "name": "redisCache",
-      "engine": "catbox-redis",
-      "host": "localhost",
-      "port": 6379,
-      "partition": "cache",
-      "expiresIn": 60000
+  cache: {
+    enabled: false,
+    options: {
+      name: "redisCache",
+      engine: "catbox-redis",
+      host: "localhost",
+      port: 6379,
+      partition: "cache",
+      expiresIn: 60000
     }
   },
-  "rateLimit": {
-    "enabled": false,
-    "limit": 300,
-    "expires": 60000
+  rateLimit: {
+    enabled: false,
+    limit: 300,
+    expires: 60000
   },
-  "pagination": {
-    "limit": 100,
-    "include": [
+  pagination: {
+    limit: 100,
+    include: [
       "/api/v2/blocks",
       "/api/v2/blocks/{id}/transactions",
       "/api/v2/blocks/search",
@@ -48,7 +45,7 @@
       "/api/v2/wallets/search"
     ]
   },
-  "statistics": {
-    "enabled": false
+  statistics: {
+    enabled: false
   }
 }
