@@ -1,7 +1,0 @@
-{
-  "file": "~/.ark/logs/core/devnet",
-  "levels": {
-    "file": "debug",
-    "console": "debug"
-  }
-}

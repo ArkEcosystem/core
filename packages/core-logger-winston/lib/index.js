@@ -8,7 +8,7 @@ const WinstonDriver = require('./driver')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults.json'),
+  defaults: require('./defaults'),
   alias: 'logger',
   register: async (manager, options) => {
     const logManager = manager.get('logManager')

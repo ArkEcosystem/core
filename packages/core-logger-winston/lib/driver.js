@@ -1,9 +1,7 @@
 'use strict';
 
-const expandHomeDir = require('expand-home-dir')
 const winston = require('winston')
 const { LoggerInterface } = require('@arkecosystem/core-logger')
-const formatter = require('./formatter')
 require('winston-daily-rotate-file')
 require('colors')
 
@@ -15,29 +13,9 @@ module.exports = class Logger extends LoggerInterface {
   make () {
     this.driver = new (winston.Logger)()
 
-    this.driver.add(winston.transports.DailyRotateFile, {
-      filename: expandHomeDir(this.options.file) + '.%DATE%.log',
-      datePattern: 'YYYY-MM-DD',
-      level: this.options.levels.file,
-      zippedArchive: true,
-      formatter: (info) => formatter(info)
-    })
+    this.__registerTransports()
 
-    this.driver.add(winston.transports.Console, {
-      colorize: true,
-      level: this.options.levels.console,
-      timestamp: () => Date.now(),
-      formatter: (info) => formatter(info)
-    })
-
-    this.driver.filters.push((level, message, meta) => {
-      if (this.tracker) {
-        process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
-        this.tracker = null
-      }
-
-      return message
-    })
+    this.__registerFilters()
 
     return this
   }
@@ -119,5 +97,34 @@ module.exports = class Logger extends LoggerInterface {
     line += '                              \n'
     process.stdout.write(line)
     this.tracker = null
+  }
+
+  /**
+   * [__registerTransports description]
+   * @return {[type]} [description]
+   */
+  __registerTransports () {
+    Object.values(this.options.transports).forEach(transport => {
+      if (transport.package) {
+        require(transport.package)
+      }
+
+      this.driver.add(transport.constructor, transport.options)
+    })
+  }
+
+  /**
+   * [__registerFilters description]
+   * @return {[type]} [description]
+   */
+  __registerFilters () {
+    this.driver.filters.push((level, message, meta) => {
+      if (this.tracker) {
+        process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
+        this.tracker = null
+      }
+
+      return message
+    })
   }
 }
