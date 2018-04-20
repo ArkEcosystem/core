@@ -3,11 +3,7 @@ const bignum = require('bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const arkjsv1 = require('arkjs')
-const cryptoBuilder = require('../builder/crypto')
 const configManager = require('../managers/config')
-const ECPair = require('../crypto/ecpair')
-const ECSignature = require('../crypto/ecsignature')
-const slots = require('../crypto/slots')
 
 /**
   * [description]
@@ -15,13 +11,13 @@ const slots = require('../crypto/slots')
   * @return {[type]}      [description]
   */
 
- const applyV1Fix = (data) => {
+const applyV1Fix = (data) => {
   // START Fix for v1 api
   data.totalAmount = parseInt(data.totalAmount)
   data.totalFee = parseInt(data.totalFee)
   data.reward = parseInt(data.reward)
-  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000'
-  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex')
+  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000' // eslint-disable-line new-cap
+  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
@@ -53,7 +49,7 @@ module.exports = class Block {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
-      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex')
+      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
       delete this.data.previousBlock
     }
 
@@ -83,7 +79,7 @@ module.exports = class Block {
   }
 
   toString () {
-    return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}`
+    return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
   }
 
   toBroadcastV1 () {

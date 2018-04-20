@@ -13,7 +13,7 @@ module.exports = class Transaction {
       this.verified = arkjsv1.crypto.verify(this.data)
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
-    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature'].forEach((key) => {
+    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature'].forEach((key) => { // eslint-disable-line max-len
       this[key] = this.data[key]
     }, this)
   }
@@ -69,7 +69,7 @@ module.exports = class Transaction {
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
         let joined = null
-        if (!transaction.version || transaction.version === 1) joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('')
+        if (!transaction.version || transaction.version === 1) joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('') // eslint-disable-line max-len
         else joined = transaction.asset.multisignature.keysgroup.join('')
         const keysgroupBuffer = Buffer.from(joined, 'hex')
         bb.writeByte(transaction.asset.multisignature.min)
@@ -128,74 +128,86 @@ module.exports = class Transaction {
 
     const assetOffset = (41 + 8 + 1) * 2 + vflength * 2
 
-    if (tx.type === TRANSACTION_TYPES.TRANSFER) {
-      tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
-      tx.expiration = buf.readUInt32(assetOffset / 2 + 8)
-      tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21))
-      Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 12) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      tx.asset = {
-        signature: {
-          publicKey: hexString.substring(assetOffset, assetOffset + 66)
+    const actions = {
+      [TRANSACTION_TYPES.TRANSFER]: () => {
+        tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
+        tx.expiration = buf.readUInt32(assetOffset / 2 + 8)
+        tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21))
+        Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 12) * 2)
+      },
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
+        tx.asset = {
+          signature: {
+            publicKey: hexString.substring(assetOffset, assetOffset + 66)
+          }
         }
-      }
-      Transaction.parseSignatures(hexString, tx, assetOffset + 66)
-    } else if (tx.type === TRANSACTION_TYPES.DELEGATE) {
-      const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
+        Transaction.parseSignatures(hexString, tx, assetOffset + 66)
+      },
+      [TRANSACTION_TYPES.DELEGATE]: () => {
+        const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
 
-      tx.asset = {
-        delegate: {
-          username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString('utf8')
+        tx.asset = {
+          delegate: {
+            username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString('utf8')
+          }
         }
+        Transaction.parseSignatures(hexString, tx, assetOffset + (usernamelength + 1) * 2)
+      },
+      [TRANSACTION_TYPES.VOTE]: () => {
+        const votelength = buf.readInt8(assetOffset / 2) & 0xff
+        tx.asset = { votes: [] }
+        let vote
+        for (let i = 0; i < votelength; i++) {
+          vote = hexString.substring(assetOffset + 2 + i * 2 * 34, assetOffset + 2 + (i + 1) * 2 * 34)
+          vote = (vote[1] === '1' ? '+' : '-') + vote.slice(2)
+          tx.asset.votes.push(vote)
+        }
+        Transaction.parseSignatures(hexString, tx, assetOffset + 2 + votelength * 34 * 2)
+      },
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
+        tx.asset = { multisignature: { keysgroup: [] } }
+        tx.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
+        const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
+        tx.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
+        for (let index = 0; index < num; index++) {
+          const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66)
+          tx.asset.multisignature.keysgroup.push(key)
+        }
+        Transaction.parseSignatures(hexString, tx, assetOffset + 6 + num * 66)
+      },
+      [TRANSACTION_TYPES.IPFS]: () => {
+        tx.asset = {}
+        const l = buf.readInt8(assetOffset / 2) & 0xff
+        tx.asset.dag = hexString.substring(assetOffset + 2, assetOffset + 2 + l * 2)
+        Transaction.parseSignatures(hexString, tx, assetOffset + 2 + l * 2)
+      },
+      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => {
+        tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
+        tx.timelocktype = buf.readInt8(assetOffset / 2 + 8) & 0xff
+        tx.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
+        tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
+        Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 13) * 2)
+      },
+      [TRANSACTION_TYPES.MULTI_PAYMENT]: () => {
+        tx.asset = { payments: [] }
+        const total = buf.readInt8(assetOffset / 2) & 0xff
+        let offset = assetOffset / 2 + 1
+        for (let j = 0; j < total; j++) {
+          const payment = {}
+          payment.amount = buf.readUInt64(offset).toNumber()
+          payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21))
+          tx.asset.payments.push(payment)
+          offset += 22
+        }
+        tx.amount = tx.asset.payments.reduce((a, p) => (a += p.amount), 0)
+        Transaction.parseSignatures(hexString, tx, offset * 2)
+      },
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: () => {
+        Transaction.parseSignatures(hexString, tx, assetOffset)
       }
-      Transaction.parseSignatures(hexString, tx, assetOffset + (usernamelength + 1) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.VOTE) {
-      const votelength = buf.readInt8(assetOffset / 2) & 0xff
-      tx.asset = { votes: [] }
-      let vote
-      for (let i = 0; i < votelength; i++) {
-        vote = hexString.substring(assetOffset + 2 + i * 2 * 34, assetOffset + 2 + (i + 1) * 2 * 34)
-        vote = (vote[1] === '1' ? '+' : '-') + vote.slice(2)
-        tx.asset.votes.push(vote)
-      }
-      Transaction.parseSignatures(hexString, tx, assetOffset + 2 + votelength * 34 * 2)
-    } else if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      tx.asset = { multisignature: { keysgroup: [] } }
-      tx.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
-      const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
-      tx.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
-      for (let index = 0; index < num; index++) {
-        const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66)
-        tx.asset.multisignature.keysgroup.push(key)
-      }
-      Transaction.parseSignatures(hexString, tx, assetOffset + 6 + num * 66)
-    } else if (tx.type === TRANSACTION_TYPES.IPFS) {
-      tx.asset = {}
-      const l = buf.readInt8(assetOffset / 2) & 0xff
-      tx.asset.dag = hexString.substring(assetOffset + 2, assetOffset + 2 + l * 2)
-      Transaction.parseSignatures(hexString, tx, assetOffset + 2 + l * 2)
-    } else if (tx.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
-      tx.timelocktype = buf.readInt8(assetOffset / 2 + 8) & 0xff
-      tx.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
-      tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
-      Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 13) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
-      tx.asset = { payments: [] }
-      const total = buf.readInt8(assetOffset / 2) & 0xff
-      let offset = assetOffset / 2 + 1
-      for (let j = 0; j < total; j++) {
-        const payment = {}
-        payment.amount = buf.readUInt64(offset).toNumber()
-        payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21))
-        tx.asset.payments.push(payment)
-        offset += 22
-      }
-      tx.amount = tx.asset.payments.reduce((a, p) => (a += p.amount), 0)
-      Transaction.parseSignatures(hexString, tx, offset * 2)
-    } else if (tx.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      Transaction.parseSignatures(hexString, tx, assetOffset)
     }
+
+    actions[transaction.type]()
 
     if (!tx.amount) {
       tx.amount = 0
@@ -227,7 +239,7 @@ module.exports = class Transaction {
         tx.id = arkjsv1.crypto.getId(tx)
       }
     } else if (tx.version === 2) {
-      tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex');
+      tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')
     }
     return tx
   }

@@ -6,7 +6,6 @@ const { crypto, slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const blockchainManager = pluginManager.get('blockchain')
-const config = pluginManager.get('config')
 const TransactionPoolManager = require('./manager')
 
 let instance
