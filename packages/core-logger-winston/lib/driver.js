@@ -10,23 +10,22 @@ require('colors')
 module.exports = class Logger extends LoggerInterface {
   /**
    * [make description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @return {[type]} [description]
    */
-  make (options) {
+  make () {
     this.driver = new (winston.Logger)()
 
     this.driver.add(winston.transports.DailyRotateFile, {
-      filename: expandHomeDir(options.file) + '.%DATE%.log',
+      filename: expandHomeDir(this.options.file) + '.%DATE%.log',
       datePattern: 'YYYY-MM-DD',
-      level: options.levels.file,
+      level: this.options.levels.file,
       zippedArchive: true,
       formatter: (info) => formatter(info)
     })
 
     this.driver.add(winston.transports.Console, {
       colorize: true,
-      level: options.levels.console,
+      level: this.options.levels.console,
       timestamp: () => Date.now(),
       formatter: (info) => formatter(info)
     })

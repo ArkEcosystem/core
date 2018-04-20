@@ -5,12 +5,11 @@ const { LoggerInterface } = require('@arkecosystem/core-logger')
 
 module.exports = class Logger extends LoggerInterface {
   /**
-   * [constructor description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * [make description]
+   * @return {[type]} [description]
    */
-  make (options) {
-    this.driver = new graylog2.graylog(options) // eslint-disable-line new-cap
+  make () {
+    this.driver = new graylog2.graylog(this.options) // eslint-disable-line new-cap
 
     return this
   }
