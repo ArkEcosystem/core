@@ -2,7 +2,6 @@
 
 const winston = require('winston')
 const { LoggerInterface } = require('@arkecosystem/core-logger')
-require('winston-daily-rotate-file')
 require('colors')
 
 module.exports = class Logger extends LoggerInterface {
@@ -109,7 +108,7 @@ module.exports = class Logger extends LoggerInterface {
         require(transport.package)
       }
 
-      this.driver.add(transport.constructor, transport.options)
+      this.driver.add(winston.transports[transport.constructor], transport.options)
     })
   }
 

@@ -4,7 +4,7 @@ const formatter = require('./formatter')
 
 module.exports = {
   transports: [{
-    constructor: winston.transports.Console,
+    constructor: 'Console',
     options: {
       colorize: true,
       level: 'debug',
@@ -13,7 +13,7 @@ module.exports = {
     }
   }, {
     package: 'winston-daily-rotate-file',
-    constructor: winston.transports.DailyRotateFile,
+    constructor: 'DailyRotateFile',
     options: {
       filename: expandHomeDir('~/.ark/logs/core/devnet') + '.%DATE%.log',
       datePattern: 'YYYY-MM-DD',
