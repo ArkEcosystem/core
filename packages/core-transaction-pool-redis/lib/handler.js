@@ -6,6 +6,7 @@ const { crypto, slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const blockchainManager = pluginManager.get('blockchain')
+const config = pluginManager.get('config')
 const TransactionPoolManager = require('./manager')
 
 let instance
@@ -70,7 +71,7 @@ module.exports = class Handler {
       let transaction = new Transaction(tx)
 
       // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      if (this.config.server.test) {
+      if (config.server.test) {
         const current = slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
