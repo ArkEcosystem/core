@@ -1,4 +1,4 @@
-import constants from '../lib/constants'
+const constants = require('../lib/constants')
 
 describe('Constants', () => {
   it('arktoshi is valid', () => {

@@ -1,5 +1,5 @@
-import sinon from 'sinon'
-import Block from '../../lib/models/block'
+const sinon = require('sinon')
+const Block = require('../../lib/models/block')
 
 describe('Models - Block', () => {
   const data = {

@@ -1,14 +1,14 @@
-import ecurve from 'ecurve'
-import sinon from 'sinon'
-import sinonTestFactory from 'sinon-test'
-import BigInteger from 'bigi'
+const ecurve = require('ecurve')
+const sinon = require('sinon')
+const sinonTestFactory = require('sinon-test')
+const BigInteger = require('bigi')
 
-import ECPair from '../../lib/crypto/ecpair'
-import ecdsa from '../../lib/crypto/ecdsa'
-import configManager from '../../lib/managers/config'
+const ECPair = require('../../lib/crypto/ecpair')
+const ecdsa = require('../../lib/crypto/ecdsa')
+const configManager = require('../../lib/managers/config')
 
-import fixtures from './fixtures/ecpair.json'
-import { NETWORKS, NETWORKS_LIST } from '../utils/network-list'
+const fixtures = require('./fixtures/ecpair.json')
+const { NETWORKS, NETWORKS_LIST } = require('../utils/network-list')
 
 const curve = ecdsa.__curve
 const sinonTest = sinonTestFactory(sinon)

@@ -1,10 +1,10 @@
-import BigInteger from 'bigi'
+const BigInteger = require('bigi')
 
-import ECSignature from '../../lib/crypto/ecsignature'
-import configManager from '../../lib/managers/config'
-import network from '../../lib/networks/ark/mainnet.json'
+const ECSignature = require('../../lib/crypto/ecsignature')
+const configManager = require('../../lib/managers/config')
+const network = require('../../lib/networks/ark/mainnet.json')
 
-import fixtures from './fixtures/ecsignature.json'
+const fixtures = require('./fixtures/ecsignature.json')
 
 beforeEach(() => configManager.setConfig(network))
 

@@ -1,6 +1,6 @@
-import ark from '../../../lib/client'
-import cryptoBuilder from '../../../lib/builder/crypto'
-import transactionTests from './__shared__/transaction'
+const ark = require('../../../lib/client')
+const cryptoBuilder = require('../../../lib/builder/crypto')
+const transactionTests = require('./__shared__/transaction')
 
 let tx
 

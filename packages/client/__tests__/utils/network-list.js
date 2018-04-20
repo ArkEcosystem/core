@@ -1,6 +1,6 @@
 // TODO: replace fast-glob with tiny-glob
-import fg from 'fast-glob'
-import path from 'path'
+const fg = require('fast-glob')
+const path = require('path')
 
 const entries = fg.sync([path.resolve(__dirname, '../../lib/networks/**/*.json')])
 

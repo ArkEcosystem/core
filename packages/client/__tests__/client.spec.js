@@ -1,5 +1,5 @@
-import ark from '../lib/client'
-import ApiClient from '../lib/api'
+const ark = require('../lib/client')
+const ApiClient = require('../lib/api')
 
 describe('Client', () => {
   it('should be instantiated', () => {

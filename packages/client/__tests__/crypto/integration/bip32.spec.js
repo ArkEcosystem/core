@@ -1,13 +1,13 @@
-import assert from 'assert'
-import bigi from 'bigi'
-import ecurve from 'ecurve'
-import crypto from 'crypto'
+const assert = require('assert')
+const bigi = require('bigi')
+const ecurve = require('ecurve')
+const crypto = require('crypto')
 
-import HDNode from '../../../lib/crypto/hdnode'
-import { HIGHEST_BIT } from '../../../lib/crypto/hdnode/constants'
-import ECPair from '../../../lib/crypto/ecpair'
-import configManager from '../../../lib/managers/config'
-import network from '../../../lib/networks/ark/mainnet.json'
+const HDNode = require('../../../lib/crypto/hdnode')
+const { HIGHEST_BIT } = require('../../../lib/crypto/hdnode/constants')
+const ECPair = require('../../../lib/crypto/ecpair')
+const configManager = require('../../../lib/managers/config')
+const network = require('../../../lib/networks/ark/mainnet.json')
 
 beforeEach(() => configManager.setConfig(network))
 
@@ -42,7 +42,7 @@ describe('ark-js (BIP32)', () => {
     expect(child2.getAddress()).toBe('AVbXc2KyxtXeAP9zQpp7ixsnaxEEQ6wZbq')
   })
 
-  it('can recover a BIP32 parent private key from the parent public key, and a derived, non-hardened child private key', () => {
+  it('can recover a BIP32 parent private key = require(the parent public key, and a derived, non-hardened child private key', () => {
     function recoverParent (master, child) {
       assert(!master.keyPair.d, 'You already have the parent private key')
       assert(child.keyPair.d, 'Missing child private key')

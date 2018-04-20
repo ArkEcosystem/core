@@ -1,5 +1,5 @@
-import ark from '../../../lib/client'
-import transactionTests from './__shared__/transaction'
+const ark = require('../../../lib/client')
+const transactionTests = require('./__shared__/transaction')
 
 let tx
 

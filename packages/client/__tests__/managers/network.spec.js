@@ -1,5 +1,5 @@
-import NetworkManager from '../../lib/managers/network'
-import networkMainnet from '../../lib/networks/ark/mainnet.json'
+const NetworkManager = require('../../lib/managers/network')
+const networkMainnet = require('../../lib/networks/ark/mainnet.json')
 
 describe('Network Manager', () => {
   it('should be instantiated', () => {

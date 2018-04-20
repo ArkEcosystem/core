@@ -1,5 +1,5 @@
-import ark from '../../../../lib/client'
-import ApiResource from '../../../../lib/api/resources/v1/blocks'
+const ark = require('../../../../lib/client')
+const ApiResource = require('../../../../lib/api/resources/v1/blocks')
 require('../../mocks/v1')
 
 let resource

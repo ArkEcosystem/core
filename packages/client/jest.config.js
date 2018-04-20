@@ -7,12 +7,6 @@ module.exports = {
     'js',
     'json'
   ],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/lib/$1'
-  },
-  transform: {
-    '^.+\\.js$': '<rootDir>/../../node_modules/babel-jest'
-  },
   coverageDirectory: '<rootDir>/.coverage',
   collectCoverageFrom: [
     'lib/**/*.js',

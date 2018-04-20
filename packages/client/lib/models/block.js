@@ -64,7 +64,7 @@ module.exports = class Block {
       txx.timestamp = this.data.timestamp
       return txx
     })
-    
+
     this.verification = this.verify()
     if (!this.verification.verified) {
       console.log(JSON.stringify(this.data, null, 2))
@@ -266,11 +266,12 @@ module.exports = class Block {
     }
 
     const bb = new ByteBuffer(256, true)
+    // FIXME: TypeError: Illegal value: undefined (not an integer)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
     bb.writeUInt32(block.height)
 
-    // TODO previousBlock can stay as 8byte hex, it will be simple to process
+    // TODO: previousBlock can stay as 8byte hex, it will be simple to process
     if (block.previousBlockHex) {
       bb.append(block.previousBlockHex, 'hex')
     } else {

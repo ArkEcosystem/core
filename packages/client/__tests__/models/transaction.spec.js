@@ -1,12 +1,12 @@
-import Transaction from '../../lib/models/transaction'
-import builder from '../../lib/builder'
-import cryptoBuilder from '../../lib/builder/crypto'
-import ECPair from '../../lib/crypto/ecpair'
-import ECSignature from '../../lib/crypto/ecsignature'
-import txData from './fixtures/transaction'
+const Transaction = require('../../lib/models/transaction')
+const builder = require('../../lib/builder')
+const cryptoBuilder = require('../../lib/builder/crypto')
+const ECPair = require('../../lib/crypto/ecpair')
+const ECSignature = require('../../lib/crypto/ecsignature')
+const txData = require('./fixtures/transaction')
 
-import configManager from '../../lib/managers/config'
-import network from '../../lib/networks/ark/devnet.json'
+const configManager = require('../../lib/managers/config')
+const network = require('../../lib/networks/ark/devnet.json')
 
 const createRandomTx = type => {
   let tx

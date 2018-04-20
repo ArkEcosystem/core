@@ -1,7 +1,7 @@
-import ark from '../../../lib/client'
-import feeManager from '../../../lib/managers/fee'
-import { TRANSACTION_TYPES } from '../../../lib/constants'
-import transactionTests from './__shared__/transaction'
+const ark = require('../../../lib/client')
+const feeManager = require('../../../lib/managers/fee')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const transactionTests = require('./__shared__/transaction')
 
 let tx
 

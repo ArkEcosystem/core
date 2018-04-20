@@ -1,9 +1,9 @@
-import bigi from 'bigi'
-import crypto from '../../../lib/crypto'
-import ECPair from '../../../lib/crypto/ecpair'
+const bigi = require('bigi')
+const crypto = require('../../../lib/crypto')
+const ECPair = require('../../../lib/crypto/ecpair')
 
-import configManager from '../../../lib/managers/config'
-import network from '../../../lib/networks/ark/mainnet.json'
+const configManager = require('../../../lib/managers/config')
+const network = require('../../../lib/networks/ark/mainnet.json')
 
 beforeEach(() => configManager.setConfig(network))
 
@@ -16,7 +16,7 @@ describe('Basic Crypto', () => {
     expect(keyPair.getAddress()).toBe('ANoMWEJ9jSdE2FgohBLLXeLzci59BDFsP4')
   })
 
-  it('can generate an address from a SHA256 hash', () => {
+  it('can generate an address = require(a SHA256 hash', () => {
     const hash = crypto.sha256('correct horse battery staple')
     const keyPair = new ECPair(bigi.fromBuffer(hash))
 
@@ -33,7 +33,7 @@ describe('Basic Crypto', () => {
     expect(keyPair.toWIF()).toBe('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
   })
 
-  it('can import an address via WIF', () => {
+  it('can const an address via WIF', () => {
     const keyPair = ECPair.fromWIF('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
 
     expect(keyPair.getAddress()).toBe('ANoMWEJ9jSdE2FgohBLLXeLzci59BDFsP4')

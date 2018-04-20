@@ -1,7 +1,7 @@
-import ark from '../../lib/client'
-import ApiClient from '../../lib/api'
-import HttpClient from '../../lib/api/http'
-import ApiResource from '../../lib/api/resources/v1/transactions'
+const ark = require('../../lib/client')
+const ApiClient = require('../../lib/api')
+const HttpClient = require('../../lib/api/http')
+const ApiResource = require('../../lib/api/resources/v1/transactions')
 
 let client
 

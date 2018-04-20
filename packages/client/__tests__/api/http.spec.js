@@ -1,5 +1,5 @@
-import ark from '../../lib/client'
-import HttpClient from '../../lib/api/http'
+const ark = require('../../lib/client')
+const HttpClient = require('../../lib/api/http')
 
 let client
 

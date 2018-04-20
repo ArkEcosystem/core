@@ -1,13 +1,13 @@
-import axios from 'axios'
-import MockAdapter from 'axios-mock-adapter'
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
 
-import Accounts from './accounts'
-import Blocks from './blocks'
-import Delegates from './delegates'
-import Loader from './loader'
-import Peers from './peers'
-import Signatures from './signatures'
-import Transactions from './transactions'
+const Accounts = require('./accounts')
+const Blocks = require('./blocks')
+const Delegates = require('./delegates')
+const Loader = require('./loader')
+const Peers = require('./peers')
+const Signatures = require('./signatures')
+const Transactions = require('./transactions')
 
 const mock = new MockAdapter(axios)
 

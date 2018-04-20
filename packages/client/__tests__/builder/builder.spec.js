@@ -1,4 +1,4 @@
-import transactionBuilder from '../../lib/builder'
+const transactionBuilder = require('../../lib/builder')
 
 describe('Builder', () => {
   it('should be instantiated', () => {

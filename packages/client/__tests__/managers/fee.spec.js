@@ -1,5 +1,5 @@
-import feeManager from '../../lib/managers/fee'
-import { TRANSACTION_TYPES } from '../../lib/constants'
+const feeManager = require('../../lib/managers/fee')
+const { TRANSACTION_TYPES } = require('../../lib/constants')
 
 describe('Fee Manager', () => {
   it('should be instantiated', () => {

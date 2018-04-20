@@ -1,15 +1,15 @@
-import assert from 'assert'
-import sinon from 'sinon'
-import sinonTestFactory from 'sinon-test'
-import BigInteger from 'bigi'
+const assert = require('assert')
+const sinon = require('sinon')
+const sinonTestFactory = require('sinon-test')
+const BigInteger = require('bigi')
 
-import configManager from '../../lib/managers/config'
-import ecdsa from '../../lib/crypto/ecdsa'
-import ECPair from '../../lib/crypto/ecpair'
-import HDNode from '../../lib/crypto/hdnode'
-import { NETWORKS, NETWORKS_LIST } from '../utils/network-list'
+const configManager = require('../../lib/managers/config')
+const ecdsa = require('../../lib/crypto/ecdsa')
+const ECPair = require('../../lib/crypto/ecpair')
+const HDNode = require('../../lib/crypto/hdnode')
+const { NETWORKS, NETWORKS_LIST } = require('../utils/network-list')
 
-import fixtures from './fixtures/hdnode.json'
+const fixtures = require('./fixtures/hdnode.json')
 
 const sinonTest = sinonTestFactory(sinon)
 
@@ -287,9 +287,9 @@ describe('HDNode', () => {
       let hd = HDNode.fromSeedHex(f.master.seed, network)
       const master = hd
 
-      // testing deriving path from master
+      // testing deriving path = require(master
       f.children.forEach((c) => {
-        it(`${c.path} from ${f.master.fingerprint} by path`, () => {
+        it(`${c.path} = require(${f.master.fingerprint} by path`, () => {
           const child = master.derivePath(c.path)
           const childNoM = master.derivePath(c.path.slice(2)) // no m/ on path
 
@@ -298,12 +298,12 @@ describe('HDNode', () => {
         })
       })
 
-      // testing deriving path from children
+      // testing deriving path = require(children
       f.children.forEach((c, i) => {
         const cn = master.derivePath(c.path)
 
         f.children.slice(i + 1).forEach(function (cc) {
-          it(`${cc.path} from ${f.fingerprint} by path`, () => {
+          it(`${cc.path} = require(${f.fingerprint} by path`, () => {
             const ipath = cc.path.slice(2).split('/').slice(i + 1).join('/')
             const child = cn.derivePath(ipath)
             verifyVector(child, cc)
@@ -319,7 +319,7 @@ describe('HDNode', () => {
       f.children.forEach((c, i) => {
         if (c.m === undefined) return
 
-        it(`${c.path} from ${f.master.fingerprint}`, () => {
+        it(`${c.path} = require(${f.master.fingerprint}`, () => {
           if (c.hardened) {
             hd = hd.deriveHardened(c.m)
           } else {
