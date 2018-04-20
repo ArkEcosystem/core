@@ -16,7 +16,6 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "assert-plus": "^1.0.0",
     "directory-tree": "^2.1.0",
     "lodash": "^4.17.5"
   },

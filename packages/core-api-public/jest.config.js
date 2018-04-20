@@ -2,7 +2,7 @@
 
 module.exports = {
   testEnvironment: 'node',
-  bail: false,
+  bail: true,
   verbose: true,
   testMatch: [
     '**/__tests__/**/*.spec.js'

@@ -1,11 +1,10 @@
 'use strict';
 
-const { ConfigInterface } = require('@arkecosystem/core-config')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const dirTree = require('directory-tree')
 const isString = require('lodash/isString')
-const assert = require('assert-plus')
+const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-config')
 
 module.exports = class Config extends ConfigInterface {
   /**
@@ -13,17 +12,7 @@ module.exports = class Config extends ConfigInterface {
    * @return {[type]} [description]
    */
   async make () {
-    let options = this.options
-
-    if (isString(options)) {
-      options = this.__loadFromPath()
-    }
-
-    assert.object(options)
-
-    for (const [key, value] of Object.entries(options)) {
-      this[key] = value
-    }
+    await this.__createFromDirectory()
 
     this.__buildConstants()
 
@@ -31,11 +20,34 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__loadFromPath description]
+   * [__createFromDirectory description]
    * @return {[type]} [description]
    */
-  __loadFromPath () {
-    const basePath = path.resolve(this.options)
+  async __createFromDirectory () {
+    const files = this.__getFiles()
+
+    await this.__copyFiles(files)
+
+    this.__createBindings(files)
+  }
+
+  /**
+   * [__createBindings description]
+   * @param  {[type]} files [description]
+   * @return {[type]}       [description]
+   */
+  __createBindings (files) {
+    for (const [key, value] of Object.entries(files)) {
+      this[key] = require(value)
+    }
+  }
+
+  /**
+   * [__getFiles description]
+   * @return {[type]} [description]
+   */
+  __getFiles () {
+    const basePath = path.resolve(this.options.config)
 
     if (!fs.existsSync(basePath)) {
       throw new Error('The directory does not exist or is not accessible because of security settings.')
@@ -46,16 +58,21 @@ module.exports = class Config extends ConfigInterface {
     let configTree = {}
 
     dirTree(basePath, { extensions: /\.js/ }).children.forEach(entry => {
-      let name = formatName(entry)
-
-      if (entry.type === 'directory') {
-        configTree[name] = {}
-        entry.children.forEach(e => (configTree[name][formatName(e)] = require(e.path)))
-      } else {
-        configTree[name] = require(entry.path)
+      if (entry.type === 'file') {
+        configTree[formatName(entry)] = entry.path
       }
     })
 
     return configTree
+  }
+
+  /**
+   * [__copyFiles description]
+   * @return {[type]} [description]
+   */
+  async __copyFiles () {
+    await fs.ensureDir(this.options.config)
+
+    return fs.copy(this.options.config, getTargetDirectory('config'))
   }
 }

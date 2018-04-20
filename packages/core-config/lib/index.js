@@ -12,4 +12,15 @@ exports.plugin = {
   register: async (manager, options) => configManager
 }
 
+/**
+ * [ConfigInterface description]
+ * @type {[type]}
+ */
 exports.ConfigInterface = require('./interface')
+
+/**
+ * [description]
+ * @param  {[type]} name [description]
+ * @return {[type]}      [description]
+ */
+exports.getTargetDirectory = (name) => require('expand-home-dir')(`~/.ark/${name}`)

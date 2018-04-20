@@ -26,15 +26,6 @@ module.exports = {
   feeManager: require('./managers/fee'),
   NetworkManager: require('./managers/network'),
 
-  // Networks...
-  networks: {
-    ark: {
-      mainnet: require('./networks/ark/mainnet.json'),
-      devnet: require('./networks/ark/devnet.json'),
-      testnet: require('./networks/ark/testnet.json')
-    }
-  },
-
   // Constants...
   constants: require('./constants'),
 
