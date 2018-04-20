@@ -46,6 +46,8 @@ module.exports = class Down {
    */
   async updateNetworkStatus () {
     try {
+      // TODO: this means peer recovery is disabled in testnet but also during the test suite,
+      // which is an issue as this one specific functionality has to be available during API tests
       if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
