@@ -71,7 +71,7 @@ module.exports = class Handler {
       let transaction = new Transaction(tx)
 
       // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      if (config.server.test) {
+      if (process.env.ARK_ENV === 'test') {
         const current = slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 

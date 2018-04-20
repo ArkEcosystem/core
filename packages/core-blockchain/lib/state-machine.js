@@ -46,7 +46,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       if (blockchainManager.rebuildQueue.length() > 100000) event = 'PAUSED'
       if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
       if (state.networkStart) event = 'SYNCED'
-      if (blockchainManager.config.server.test) event = 'TEST'
+      if (process.env.ARK_ENV === 'test') event = 'TEST'
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => {

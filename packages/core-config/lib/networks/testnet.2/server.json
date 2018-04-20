@@ -1,5 +1,4 @@
 {
-  "test": false,
   "port": 4102,
   "version": "2.0.0",
   "peers": {
