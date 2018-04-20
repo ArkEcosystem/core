@@ -173,8 +173,8 @@ module.exports = class WalletManager {
     }
 
     if (config.network.exceptions[datatx.id]) {
-      logger.warning('Transaction is forced to be applied because it has been added as an exception:')
-      logger.warning(datatx)
+      logger.warn('Transaction is forced to be applied because it has been added as an exception:')
+      logger.warn(datatx)
     } else if (!sender.canApply(datatx)) {
       logger.info(JSON.stringify(sender))
       logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))

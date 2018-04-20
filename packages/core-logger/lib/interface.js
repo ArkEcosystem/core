@@ -32,12 +32,12 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [warning description]
+   * [warn description]
    * @param  {[type]} message [description]
    * @return {[type]}         [description]
    */
-  warning (message) {
-    throw new Error('Method [warning] not implemented!')
+  warn (message) {
+    throw new Error('Method [warn] not implemented!')
   }
 
   /**

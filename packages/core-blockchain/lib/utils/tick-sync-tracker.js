@@ -5,8 +5,9 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const config = pluginManager.get('config')
 
+let synctracker = null
+
 module.exports = (block) => {
-  let synctracker = null
 
   const constants = config.getConstants(block.data.height)
 

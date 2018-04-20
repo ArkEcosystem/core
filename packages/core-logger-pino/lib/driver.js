@@ -14,44 +14,10 @@ module.exports = class Logger extends LoggerInterface {
     pretty.pipe(process.stdout)
 
     this.driver = pino(options, pretty)
+    this.driver.printTracker = this.printTracker
+    this.driver.stopTracker = this.stopTracker
 
-    return this
-  }
-
-  /**
-   * [error description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  error (message) {
-    return this.driver.error(message)
-  }
-
-  /**
-   * [warning description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  warning (message) {
-    return this.driver.warn(message)
-  }
-
-  /**
-   * [info description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  info (message) {
-    return this.driver.info(message)
-  }
-
-  /**
-   * [debug description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  debug (message) {
-    return this.driver.debug(message)
+    return this.driver
   }
 
   /**

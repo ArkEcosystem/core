@@ -49,7 +49,7 @@ describe('Logger', () => {
 
   describe('warning', async () => {
     it('should be a function', async () => {
-      await expect(logger.warning).toBeFunction()
+      await expect(logger.warn).toBeFunction()
     })
   })
 

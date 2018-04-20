@@ -215,7 +215,7 @@ module.exports = class SequelizeConnection extends Connection {
         if (wallet) {
           wallet.balance = parseInt(row.amount)
         } else {
-          logger.warning(`lost cold wallet: ${row.recipientId} ${row.amount}`)
+          logger.warn(`lost cold wallet: ${row.recipientId} ${row.amount}`)
         }
       })
 
@@ -248,7 +248,7 @@ module.exports = class SequelizeConnection extends Connection {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
         if (wallet.balance < 0) {
-          logger.warning(`Negative balance should never happen except from premining address: ${wallet}`)
+          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
         }
       })
 

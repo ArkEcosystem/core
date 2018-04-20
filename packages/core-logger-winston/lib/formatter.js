@@ -19,7 +19,7 @@ module.exports = (info) => {
     'silly': chalk.bold.white(level)
   }[info.level]
 
-  let message = info.message
+  let message = info.message || JSON.stringify(info.meta)
   message = {
     'error': chalk.bold.bgRed(message),
     'warn': chalk.bold.black.bgYellow(message),

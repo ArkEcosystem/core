@@ -16,43 +16,10 @@ module.exports = class Logger extends LoggerInterface {
 
     this.__registerFilters()
 
-    return this
-  }
+    this.driver.printTracker = this.printTracker
+    this.driver.stopTracker = this.stopTracker
 
-  /**
-   * [error description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  error (message) {
-    return this.driver.error(message)
-  }
-
-  /**
-   * [warning description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  warning (message) {
-    return this.driver.warn(message)
-  }
-
-  /**
-   * [info description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  info (message) {
-    return this.driver.info(message)
-  }
-
-  /**
-   * [debug description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
-   */
-  debug (message) {
-    return this.driver.debug(message)
+    return this.driver
   }
 
   /**
@@ -72,7 +39,7 @@ module.exports = class Logger extends LoggerInterface {
     line += ('='.repeat(progress / 2)).green
     line += ' '.repeat(50 - progress / 2) + '] '
     line += progress.toFixed(figures) + '% '
-    if (posttitle) line += posttitle + '                     '
+    if (posttitle) line += posttitle + '                              \n'
     process.stdout.write(line)
     this.tracker = line
   }
