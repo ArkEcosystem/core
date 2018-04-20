@@ -9,9 +9,9 @@ describe('API 2.0 - Loader', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.loaded).toBeBoolean()
+      await expect(res.body.data.synced).toBeBoolean()
       await expect(res.body.data.now).toBeNumber()
-      // await expect(res.body.data.blocksCount).toBeNumber()
+      await expect(res.body.data.blocksCount).toBeNumber()
     })
   })
 

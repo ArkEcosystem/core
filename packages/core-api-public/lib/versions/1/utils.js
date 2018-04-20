@@ -1,7 +1,6 @@
 'use strict';
 
 const { transformResource, transformCollection } = require('../../utils/transformer')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
@@ -11,7 +10,7 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 const paginator = (request) => {
   return {
     offset: request.query.offset || 0,
-    limit: request.query.limit || config.api.public.pagination.limit
+    limit: request.query.limit || 100
   }
 }
 
