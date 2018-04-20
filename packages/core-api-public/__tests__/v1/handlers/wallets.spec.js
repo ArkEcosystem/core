@@ -14,11 +14,11 @@ describe('API 1.0 - Wallets', () => {
       const expected = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance']
       await expect(Object.keys(res.body.account)).toEqual(expect.arrayContaining(expected))
 
-      await expect(res.body.account.vote).toBeType('string')
-      await expect(res.body.account.balance).toBeType('number')
-      await expect(res.body.account.votebalance).toBeType('number')
-      await expect(res.body.account.address).toBeType('string')
-      await expect(res.body.account.publicKey).toBeType('string')
+      await expect(res.body.account.vote).toBeString()
+      await expect(res.body.account.balance).toBeNumber()
+      await expect(res.body.account.votebalance).toBeNumber()
+      await expect(res.body.account.address).toBeString()
+      await expect(res.body.account.publicKey).toBeString()
     })
 
     it('should return error with Not Found', async () => {
@@ -34,8 +34,8 @@ describe('API 1.0 - Wallets', () => {
       const res = await utils.request('GET', 'accounts/getBalance', { address: AddressActive })
       await utils.assertSuccessful(res)
 
-      await expect(res.body.balance).toBeType('number')
-      await expect(res.body.unconfirmedBalance).toBeType('number')
+      await expect(res.body.balance).toBeNumber()
+      await expect(res.body.unconfirmedBalance).toBeNumber()
     })
 
     it('should return info not existing address', async () => {
@@ -51,7 +51,7 @@ describe('API 1.0 - Wallets', () => {
       const res = await utils.request('GET', 'accounts/getPublicKey', { address: AddressActive })
       await utils.assertSuccessful(res)
 
-      await expect(res.body.publicKey).toBeType('string')
+      await expect(res.body.publicKey).toBeString()
     })
 
     it('should return info not existing address', async () => {
@@ -68,7 +68,7 @@ describe('API 1.0 - Wallets', () => {
       await utils.assertSuccessful(res)
 
       await expect(Array.isArray(res.body.delegates)).toBe(true)
-      await expect(res.body.delegates[0].producedblocks).toBeType('number')
+      await expect(res.body.delegates[0].producedblocks).toBeNumber()
     })
 
     it('should return info that the address is not found', async () => {

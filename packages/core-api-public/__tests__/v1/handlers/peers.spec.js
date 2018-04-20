@@ -11,7 +11,7 @@ describe('API 1.0 - Peers', () => {
       const res = await utils.request('GET', 'peers/version')
       await utils.assertSuccessful(res)
 
-      await expect(res.body.version).toBeType('string')
+      await expect(res.body.version).toBeString()
     })
   })
 
@@ -73,7 +73,7 @@ describe('API 1.0 - Peers', () => {
       const res = await utils.request('GET', 'peers/get', { ip: peerIp, port: peerPort })
       await utils.assertSuccessful(res)
 
-      await expect(res.body.peer).toBeType('object')
+      await expect(res.body.peer).toBeObject()
     })
 
     it('should fail using unknown ip address and port', async () => {

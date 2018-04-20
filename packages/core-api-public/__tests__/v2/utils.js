@@ -16,7 +16,7 @@ class Helpers {
   }
 
   assertJson (data) {
-    expect(data.body).toBeType('object')
+    expect(data.body).toBeObject()
   }
 
   assertStatus (data, code) {
@@ -24,12 +24,12 @@ class Helpers {
   }
 
   assertVersion (data, version) {
-    expect(data.headers).toBeType('object')
+    expect(data.headers).toBeObject()
     expect(data.headers).toHaveProperty('api-version', version)
   }
 
   assertResource (data) {
-    expect(data.body.data).toBeType('object')
+    expect(data.body.data).toBeObject()
   }
 
   assertCollection (data) {
@@ -37,7 +37,7 @@ class Helpers {
   }
 
   assertPaginator (data, firstPage = true) {
-    expect(data.body.meta).toBeType('object')
+    expect(data.body.meta).toBeObject()
     expect(data.body.meta).toHaveProperty('count')
     expect(data.body.meta).toHaveProperty('pageCount')
     expect(data.body.meta).toHaveProperty('totalCount')
@@ -57,55 +57,55 @@ class Helpers {
   assertError (res, statusCode = 404) {
     this.assertStatus(res, statusCode)
     this.assertJson(res)
-    expect(res.body.statusCode).toBeType('number')
-    expect(res.body.error).toBeType('string')
-    expect(res.body.message).toBeType('string')
+    expect(res.body.statusCode).toBeNumber()
+    expect(res.body.error).toBeString()
+    expect(res.body.message).toBeString()
   }
 
   assertTransaction (transaction) {
-    expect(transaction).toBeType('object')
-    expect(transaction.id).toBeType('string')
-    expect(transaction.blockId).toBeType('string')
-    expect(transaction.type).toBeType('number')
-    expect(transaction.amount).toBeType('number')
-    expect(transaction.fee).toBeType('number')
-    expect(transaction.sender).toBeType('string')
+    expect(transaction).toBeObject()
+    expect(transaction.id).toBeString()
+    expect(transaction.blockId).toBeString()
+    expect(transaction.type).toBeNumber()
+    expect(transaction.amount).toBeNumber()
+    expect(transaction.fee).toBeNumber()
+    expect(transaction.sender).toBeString()
 
     if ([1, 2].indexOf(transaction.type) === -1) {
-      expect(transaction.recipient).toBeType('string')
+      expect(transaction.recipient).toBeString()
     }
 
-    expect(transaction.signature).toBeType('string')
-    expect(transaction.confirmations).toBeType('number')
+    expect(transaction.signature).toBeString()
+    expect(transaction.confirmations).toBeNumber()
   }
 
   assertBlock (block) {
-    expect(block).toBeType('object')
-    expect(block.id).toBeType('string')
-    expect(block.version).toBeType('number')
-    expect(block.height).toBeType('number')
-    // expect(block.previous).toBeType('string')
+    expect(block).toBeObject()
+    expect(block.id).toBeString()
+    expect(block.version).toBeNumber()
+    expect(block.height).toBeNumber()
+    // expect(block.previous).toBeString()
 
-    expect(block.forged).toBeType('object')
-    expect(block.forged.reward).toBeType('number')
-    expect(block.forged.fee).toBeType('number')
+    expect(block.forged).toBeObject()
+    expect(block.forged.reward).toBeNumber()
+    expect(block.forged.fee).toBeNumber()
 
-    expect(block.payload).toBeType('object')
-    expect(block.payload.length).toBeType('number')
-    expect(block.payload.hash).toBeType('string')
+    expect(block.payload).toBeObject()
+    expect(block.payload.length).toBeNumber()
+    expect(block.payload.hash).toBeString()
 
-    expect(block.generator).toBeType('object')
-    expect(block.generator.publicKey).toBeType('string')
+    expect(block.generator).toBeObject()
+    expect(block.generator.publicKey).toBeString()
 
-    expect(block.signature).toBeType('string')
-    expect(block.transactions).toBeType('number')
+    expect(block.signature).toBeString()
+    expect(block.transactions).toBeNumber()
   }
 
   assertWallet (wallet) {
-    expect(wallet.address).toBeType('string')
-    expect(wallet.publicKey).toBeType('string')
-    expect(wallet.balance).toBeType('number')
-    expect(wallet.isDelegate).toBeType('boolean')
+    expect(wallet.address).toBeString()
+    expect(wallet.publicKey).toBeString()
+    expect(wallet.balance).toBeNumber()
+    expect(wallet.isDelegate).toBeBoolean()
   }
 }
 

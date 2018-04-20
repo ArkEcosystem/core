@@ -207,7 +207,7 @@ module.exports = class Transaction {
       }
     }
 
-    actions[transaction.type]()
+    actions[tx.type]()
 
     if (!tx.amount) {
       tx.amount = 0

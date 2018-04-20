@@ -59,7 +59,7 @@ describe('API 1.0 - Transactions', () => {
       await expect(Array.isArray(res.body.transactions)).toBe(true)
 
       for (let i = 0; i < res.body.transactions.length - 1; i++) {
-      await expect(res.body.transactions[i].amount).toBeType('number')
+      await expect(res.body.transactions[i].amount).toBeNumber()
       }
     })
 
@@ -73,7 +73,7 @@ describe('API 1.0 - Transactions', () => {
       const res = await utils.request('GET', 'transactions?' + params)
       await utils.assertError(res)
 
-      await expect(res.body.error).toBeType('string')
+      await expect(res.body.error).toBeString()
     })
 
     it('should be ok ordered by ascending timestamp', async () => {
@@ -107,7 +107,7 @@ describe('API 1.0 - Transactions', () => {
       const res = await utils.request('GET', 'transactions', { offset: 'one' })
       await utils.assertError(res)
 
-      await expect(res.body.error).toBeType('string')
+      await expect(res.body.error).toBeString()
     })
 
     it('should fail using completely invalid fields', async () => {
@@ -121,7 +121,7 @@ describe('API 1.0 - Transactions', () => {
       })
       await utils.assertError(res)
 
-      await expect(res.body.error).toBeType('string')
+      await expect(res.body.error).toBeString()
     })
 
     it('should fail using partially invalid fields', async () => {
@@ -135,7 +135,7 @@ describe('API 1.0 - Transactions', () => {
       })
       await utils.assertError(res)
 
-      await expect(res.body.error).toBeType('string')
+      await expect(res.body.error).toBeString()
     })
   })
 
@@ -146,7 +146,7 @@ describe('API 1.0 - Transactions', () => {
       const res = await utils.request('GET', `transactions/get?id=${transactionInCheck.id}`)
       await utils.assertSuccessful(res)
 
-      await expect(res.body.transaction).toBeType('object')
+      await expect(res.body.transaction).toBeObject()
       await expect(res.body.transaction).toHaveProperty('id', transactionInCheck.id)
         // expect(res.body.transaction).toHaveProperty('amount', transactionInCheck.netSent)
         // expect(res.body.transaction).toHaveProperty('fee', transactionInCheck.fee)
@@ -161,7 +161,7 @@ describe('API 1.0 - Transactions', () => {
       const res = await utils.request('GET', 'transactions/get?' + params)
       await utils.assertError(res)
 
-      await expect(res.body.error).toBeType('string')
+      await expect(res.body.error).toBeString()
     })
   })
 
@@ -173,10 +173,10 @@ describe('API 1.0 - Transactions', () => {
       await utils.assertSuccessful(res)
 
       if (res.body.success && res.body.transaction != null) {
-        await expect(res.body.transaction).toBeType('object')
+        await expect(res.body.transaction).toBeObject()
         await expect(res.body.transaction).toHaveProperty('id', transactionList[transactionList.length - 1].id)
       } else {
-        await expect(res.body.error).toBeType('string')
+        await expect(res.body.error).toBeString()
       }
     })
   })

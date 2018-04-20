@@ -14,9 +14,9 @@ describe('API 2.0 - Delegates', () => {
       await utils.assertCollection(res)
 
       const delegate = res.body.data[0]
-      await expect(delegate.username).toBeType('string')
-      await expect(delegate.address).toBeType('string')
-      await expect(delegate.publicKey).toBeType('string')
+      await expect(delegate.username).toBeString()
+      await expect(delegate.address).toBeString()
+      await expect(delegate.publicKey).toBeString()
     })
   })
 
@@ -59,24 +59,24 @@ describe('API 2.0 - Delegates', () => {
       await utils.assertCollection(res)
 
       const block = res.body.data[1]
-      await expect(block.id).toBeType('string')
-      await expect(block.version).toBeType('number')
-      await expect(block.height).toBeType('number')
-      // await expect(block.previous).toBeType('string')
+      await expect(block.id).toBeString()
+      await expect(block.version).toBeNumber()
+      await expect(block.height).toBeNumber()
+      // await expect(block.previous).toBeString()
 
-      await expect(block.forged).toBeType('object')
-      await expect(block.forged.reward).toBeType('number')
-      await expect(block.forged.fee).toBeType('number')
+      await expect(block.forged).toBeObject()
+      await expect(block.forged.reward).toBeNumber()
+      await expect(block.forged.fee).toBeNumber()
 
-      await expect(block.payload).toBeType('object')
-      await expect(block.payload.length).toBeType('number')
-      await expect(block.payload.hash).toBeType('string')
+      await expect(block.payload).toBeObject()
+      await expect(block.payload.length).toBeNumber()
+      await expect(block.payload.hash).toBeString()
 
-      await expect(block.generator).toBeType('object')
-      await expect(block.generator.publicKey).toBeType('string')
+      await expect(block.generator).toBeObject()
+      await expect(block.generator.publicKey).toBeString()
 
-      await expect(block.signature).toBeType('string')
-      await expect(block.transactions).toBeType('number')
+      await expect(block.signature).toBeString()
+      await expect(block.transactions).toBeNumber()
     })
   })
 
@@ -87,10 +87,10 @@ describe('API 2.0 - Delegates', () => {
       await utils.assertCollection(res)
 
       const voter = res.body.data[0]
-      await expect(voter.address).toBeType('string')
-      await expect(voter.publicKey).toBeType('string')
-      await expect(voter.balance).toBeType('number')
-      await expect(voter.isDelegate).toBeType('boolean')
+      await expect(voter.address).toBeString()
+      await expect(voter.publicKey).toBeString()
+      await expect(voter.balance).toBeNumber()
+      await expect(voter.isDelegate).toBeBoolean()
     })
   })
 })

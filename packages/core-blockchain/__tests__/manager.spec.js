@@ -4,13 +4,13 @@ const BlockchainManager = require('../../../lib/managers/blockchain')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {
-    expect(BlockchainManager).toBeType('function')
+    expect(BlockchainManager).toBeFunction()
   })
 
   it('works with sinons', () => {
       const f = jest.fn()
 
-      expect(f).toBeType('function')
+      expect(f).toBeFunction()
 
       f('Hello World')
 

@@ -9,25 +9,25 @@ describe.skip('API 2.0 - Statistics', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.supply).toBeType('object')
-      await expect(res.body.data.supply.initial).toBeType('number')
-      await expect(res.body.data.supply.current).toBeType('number')
+      await expect(res.body.data.supply).toBeObject()
+      await expect(res.body.data.supply.initial).toBeNumber()
+      await expect(res.body.data.supply.current).toBeNumber()
 
-      await expect(res.body.data.blocks).toBeType('object')
-      await expect(res.body.data.blocks.forged).toBeType('number')
-      await expect(res.body.data.blocks.rewards).toBeType('number')
+      await expect(res.body.data.blocks).toBeObject()
+      await expect(res.body.data.blocks.forged).toBeNumber()
+      await expect(res.body.data.blocks.rewards).toBeNumber()
 
-      await expect(res.body.data.rewards).toBeType('object')
-      await expect(res.body.data.rewards.start).toBeType('number')
-      await expect(res.body.data.rewards.total).toBeType('number')
+      await expect(res.body.data.rewards).toBeObject()
+      await expect(res.body.data.rewards.start).toBeNumber()
+      await expect(res.body.data.rewards.total).toBeNumber()
 
-      await expect(res.body.data.productivity).toBeType('object')
-      await expect(res.body.data.productivity.best.username).toBeType('string')
-      await expect(res.body.data.productivity.best.productivity).toBeType('string')
+      await expect(res.body.data.productivity).toBeObject()
+      await expect(res.body.data.productivity.best.username).toBeString()
+      await expect(res.body.data.productivity.best.productivity).toBeString()
 
-      await expect(res.body.data.productivity.worst).toBeType('object')
-      await expect(res.body.data.productivity.worst.username).toBeType('string')
-      await expect(res.body.data.productivity.worst.productivity).toBeType('string')
+      await expect(res.body.data.productivity.worst).toBeObject()
+      await expect(res.body.data.productivity.worst.username).toBeString()
+      await expect(res.body.data.productivity.worst.productivity).toBeString()
     })
   })
 
@@ -38,9 +38,9 @@ describe.skip('API 2.0 - Statistics', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.count).toBeType('number')
-      await expect(res.body.data.amount).toBeType('number')
-      await expect(res.body.data.fees).toBeType('number')
+      await expect(res.body.data.count).toBeNumber()
+      await expect(res.body.data.amount).toBeNumber()
+      await expect(res.body.data.fees).toBeNumber()
     })
   })
 
@@ -51,9 +51,9 @@ describe.skip('API 2.0 - Statistics', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.count).toBeType('number')
-      await expect(res.body.data.rewards).toBeType('number')
-      await expect(res.body.data.fees).toBeType('number')
+      await expect(res.body.data.count).toBeNumber()
+      await expect(res.body.data.rewards).toBeNumber()
+      await expect(res.body.data.fees).toBeNumber()
     })
   })
 
@@ -63,9 +63,9 @@ describe.skip('API 2.0 - Statistics', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.count).toBeType('number')
-      await expect(res.body.data.amount).toBeType('number')
-      await expect(res.body.data.fees).toBeType('number')
+      await expect(res.body.data.count).toBeNumber()
+      await expect(res.body.data.amount).toBeNumber()
+      await expect(res.body.data.fees).toBeNumber()
     })
   })
 
@@ -75,9 +75,9 @@ describe.skip('API 2.0 - Statistics', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.count).toBeType('number')
-      await expect(res.body.data.amount).toBeType('number')
-      await expect(res.body.data.fees).toBeType('number')
+      await expect(res.body.data.count).toBeNumber()
+      await expect(res.body.data.amount).toBeNumber()
+      await expect(res.body.data.fees).toBeNumber()
     })
   })
 })

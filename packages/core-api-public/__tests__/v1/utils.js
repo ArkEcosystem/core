@@ -16,7 +16,7 @@ class Helpers {
   }
 
   assertJson (data) {
-    expect(data.body).toBeType('object')
+    expect(data.body).toBeObject()
   }
 
   assertStatus (data, code) {
@@ -24,7 +24,7 @@ class Helpers {
   }
 
   assertVersion (data, version) {
-    expect(data.headers).toBeType('object')
+    expect(data.headers).toBeObject()
     expect(data.headers).toHaveProperty('api-version', version)
   }
 

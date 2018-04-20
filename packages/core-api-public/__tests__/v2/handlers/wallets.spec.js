@@ -94,15 +94,15 @@ describe('API 2.0 - Wallets', () => {
       await utils.assertCollection(res)
 
       const vote = res.body.data[0]
-      await expect(vote.id).toBeType('string')
-      await expect(vote.type).toBeType('number')
-      await expect(vote.amount).toBeType('number')
-      await expect(vote.fee).toBeType('number')
+      await expect(vote.id).toBeString()
+      await expect(vote.type).toBeNumber()
+      await expect(vote.amount).toBeNumber()
+      await expect(vote.fee).toBeNumber()
       await expect(vote.sender).toBe(addressActive)
-      await expect(vote.recipient).toBeType('string')
-      await expect(vote.signature).toBeType('string')
-      await expect(vote.asset).toBeType('object')
-      await expect(vote.asset.votes).toBeType('array')
+      await expect(vote.recipient).toBeString()
+      await expect(vote.signature).toBeString()
+      await expect(vote.asset).toBeObject()
+      await expect(vote.asset.votes).toBeArray()
     })
   })
 

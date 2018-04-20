@@ -44,7 +44,7 @@ describe('Core | ForgerManager', () => {
         try {
           const delegates = await forger.loadDelegates()
 
-          await expect(delegates).toBeType('array')
+          await expect(delegates).toBeArray()
 
           delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
         } catch (error) {
