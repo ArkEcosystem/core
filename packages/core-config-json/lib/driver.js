@@ -26,7 +26,7 @@ module.exports = class Config extends ConfigInterface {
   async __createFromDirectory () {
     const files = this.__getFiles()
 
-    await this.__copyFiles(files)
+    // await this.__copyFiles(files)
 
     this.__createBindings(files)
   }
