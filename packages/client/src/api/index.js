@@ -1,4 +1,5 @@
 const HttpClient = require('./http')
+const resources = require('./resources')
 
 module.exports = class ApiClient {
   /**
@@ -45,6 +46,6 @@ module.exports = class ApiClient {
    * @return {Resource}      [description]
    */
   resource (name) {
-    return new (require(`./resources/v${this.version}/${name}`))(this.http)
+    return new resources[`v${this.version}`][name](this.http)
   }
 }
