@@ -10,6 +10,7 @@ module.exports = class Transaction {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
     if (this.data.version === 1) {
+      // FIXME: @fix added this and this currently doesn't use the network the configManager uses
       this.verified = arkjsv1.crypto.verify(this.data)
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
@@ -219,10 +220,12 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.VOTE) {
+        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
 
       // if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      //   // FIXME: @fix added this and this currently doesn't use the network the configManager uses
       //   tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
       // }
 
@@ -231,11 +234,13 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!tx.id) {
+        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.id = arkjsv1.crypto.getId(tx)
       }
     } else if (tx.version === 2) {

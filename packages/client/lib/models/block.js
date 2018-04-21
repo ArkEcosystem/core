@@ -40,7 +40,9 @@ module.exports = class Block {
     data.transactions.forEach((tx, i) => {
       const thistx = this.data.transactions[i]
       if (thistx.type === 1 && thistx.version === 1 && tx.recipientId) {
+        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         thistx.recipientId = arkjsv1.crypto.getAddress(thistx.senderPublicKey, thistx.network)
+        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         thistx.id = arkjsv1.crypto.getId(thistx)
       }
     })
@@ -108,7 +110,9 @@ module.exports = class Block {
     let hash = crypto.createHash('sha256').update(bytes).digest()
     let blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
     let generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
+    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
     let ecpair = arkjsv1.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
+    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
     let ecsignature = arkjsv1.ECSignature.fromDER(blockSignatureBuffer)
     let res = ecpair.verify(hash, ecsignature)
 

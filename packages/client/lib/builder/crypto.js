@@ -227,6 +227,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   getId (transaction) {
+    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
     return arkjsv1.crypto.getId(transaction)
   }
 
@@ -289,6 +290,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   verify (transaction, network) {
+    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
     return arkjsv1.crypto.verify(transaction, network)
   }
 
