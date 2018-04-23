@@ -54,25 +54,23 @@ class LegacyCryptoBuilder {
     let assetSize = 0
     let assetBytes = null
 
-    switch (transaction.type) {
-      case 1: // Signature
+    const actions = {
+      'default': () => (false),
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
         assetBytes = getSignatureBytes(transaction.asset.signature)
         assetSize = assetBytes.length
-        break
-
-      case 2: // Delegate
+      },
+      [TRANSACTION_TYPES.DELEGATE]: () => {
         assetBytes = new Buffer(transaction.asset.delegate.username, "utf8")
         assetSize = assetBytes.length
-        break
-
-      case 3: // Vote
+      },
+      [TRANSACTION_TYPES.VOTE]: () => {
         if (transaction.asset.votes !== null) {
           assetBytes = new Buffer(transaction.asset.votes.join(""), "utf8")
           assetSize = assetBytes.length
         }
-        break
-
-      case 4: // Multi-Signature
+      },
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
         const keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.join(""), "utf8")
         const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
 
@@ -87,9 +85,10 @@ class LegacyCryptoBuilder {
 
         assetBytes = bb.toBuffer()
         assetSize  = assetBytes.length
-        break
-
+      }
     }
+
+    (actions[transaction.type] || actions['default'])()
 
     const bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
     bb.writeByte(transaction.type)
@@ -186,57 +185,63 @@ class LegacyCryptoBuilder {
     tx.fee = buf.readUInt32LE(38+21+64+8)
     tx.vendorFieldHex = hexString.substring(76+42,76+42+128)
     tx.recipientId = bs58check.encode(buf.slice(38,38+21))
-    if (tx.type == 0) { // transfer
-      parseSignatures(hexString, tx, 76+42+128+32)
-    }
-    else if (tx.type == 1) { // second signature registration
-      delete tx.recipientId
-      tx.asset = {
-        signature : {
-          publicKey : hexString.substring(76+42+128+32,76+42+128+32+66)
-        }
-      }
-      parseSignatures(hexString, tx, 76+42+128+32+66)
-    }
-    else if (tx.type == 2) { // delegate registration
-      delete tx.recipientId
-      // Impossible to assess size of delegate asset, trying to grab signature and derive delegate asset
-      const offset = findAndParseSignatures(hexString, tx)
 
-      tx.asset = {
-        delegate: {
-          username: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8")
+    const actions = {
+      'default': () => (false),
+      [TRANSACTION_TYPES.TRANSFER]: () => {
+        parseSignatures(hexString, tx, 76+42+128+32)
+      },
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
+        delete tx.recipientId
+        tx.asset = {
+          signature : {
+            publicKey : hexString.substring(76+42+128+32,76+42+128+32+66)
+          }
         }
-      }
+        parseSignatures(hexString, tx, 76+42+128+32+66)
+      },
+      [TRANSACTION_TYPES.DELEGATE]: () => {
+        delete tx.recipientId
+        // Impossible to assess size of delegate asset, trying to grab signature and derive delegate asset
+        const offset = findAndParseSignatures(hexString, tx)
+
+        tx.asset = {
+          delegate: {
+            username: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8")
+          }
+        }
+      },
+      [TRANSACTION_TYPES.VOTE]: () => {
+        // Impossible to assess size of vote asset, trying to grab signature and derive vote asset
+        const offset = findAndParseSignatures(hexString, tx)
+        tx.asset = {
+          votes: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8").split(",")
+        }
+      },
+      [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
+        delete tx.recipientId
+        const offset = findAndParseSignatures(hexString, tx)
+        const buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
+        tx.asset = {
+          multisignature: {}
+        }
+        tx.asset.multisignature.min = buffer.readInt8(0) & 0xff
+        tx.asset.multisignature.lifetime = buffer.readInt8(1) & 0xff
+        tx.asset.multisignature.keysgroup = []
+        let index = 0
+        while (index + 2 < buffer.length) {
+          const key = buffer.slice(index+2,index+67+2).toString("utf8")
+          tx.asset.multisignature.keysgroup.push(key)
+          index = index + 67
+        }
+      },
+      [TRANSACTION_TYPES.IPFS]: () => {
+        delete tx.recipientId
+        parseSignatures(hexString, tx, 76+42+128+32)
+      },
     }
-    else if (tx.type == 3) { // vote
-      // Impossible to assess size of vote asset, trying to grab signature and derive vote asset
-      const offset = findAndParseSignatures(hexString, tx)
-      tx.asset = {
-        votes: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8").split(",")
-      }
-    }
-    else if (tx.type == 4) { // multisignature creation
-      delete tx.recipientId
-      const offset = findAndParseSignatures(hexString, tx)
-      const buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
-      tx.asset = {
-        multisignature: {}
-      }
-      tx.asset.multisignature.min = buffer.readInt8(0) & 0xff
-      tx.asset.multisignature.lifetime = buffer.readInt8(1) & 0xff
-      tx.asset.multisignature.keysgroup = []
-      let index = 0
-      while (index + 2 < buffer.length) {
-        const key = buffer.slice(index+2,index+67+2).toString("utf8")
-        tx.asset.multisignature.keysgroup.push(key)
-        index = index + 67
-      }
-    }
-    else if (tx.type == 5) { // ipfs
-      delete tx.recipientId
-      parseSignatures(hexString, tx, 76+42+128+32)
-    }
+
+    (actions[transaction.type] || actions['default'])()
 
     return tx
   }
@@ -340,23 +345,23 @@ class LegacyCryptoBuilder {
    * @return {Number}
    */
   getFee (transaction) {
-    switch (transaction.type) {
-      case 0: // Normal
+    const actions = {
+      'default': () => (false),
+      [TRANSACTION_TYPES.TRANSFER]: () => {
         return 0.1 * fixedPoint
-        break
-
-      case 1: // Signature
+      },
+      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
         return 100 * fixedPoint
-        break
-
-      case 2: // Delegate
+      },
+      [TRANSACTION_TYPES.DELEGATE]: () => {
         return 10000 * fixedPoint
-        break
-
-      case 3: // Vote
+      },
+      [TRANSACTION_TYPES.VOTE]: () => {
         return 1 * fixedPoint
-        break
+      }
     }
+
+    return (actions[transaction.type] || actions['default'])()
   }
 
   /**
