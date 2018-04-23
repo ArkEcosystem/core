@@ -5,6 +5,8 @@ const Transaction = require('./transaction')
 const legacyCryptoBuilder = require('../builder/legacy-crypto')
 const configManager = require('../managers/config')
 const slots = require('../crypto/slots')
+const ECPair = require('../crypto/ecpair')
+const ECSignature = require('../crypto/ecsignature')
 
 /**
   * [description]
