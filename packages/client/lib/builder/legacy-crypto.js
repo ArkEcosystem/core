@@ -29,7 +29,7 @@ class LegacyCryptoBuilder {
     const bb = new ByteBuffer(33, true)
     const publicKeyBuffer = new Buffer(signature.publicKey, "hex")
 
-    for (const i = 0; i < publicKeyBuffer.length; i++) {
+    for (let i = 0; i < publicKeyBuffer.length; i++) {
       bb.writeByte(publicKeyBuffer[i])
     }
 
@@ -73,13 +73,13 @@ class LegacyCryptoBuilder {
         break
 
       case 4: // Multi-Signature
-        var keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.join(""), "utf8")
-        var bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
+        const keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.join(""), "utf8")
+        const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
 
         bb.writeByte(transaction.asset.multisignature.min)
         bb.writeByte(transaction.asset.multisignature.lifetime)
 
-        for (var i = 0; i < keysgroupBuffer.length; i++) {
+        for (let i = 0; i < keysgroupBuffer.length; i++) {
           bb.writeByte(keysgroupBuffer[i])
         }
 
@@ -91,29 +91,29 @@ class LegacyCryptoBuilder {
 
     }
 
-    var bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
+    const bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
     bb.writeByte(transaction.type)
     bb.writeInt(transaction.timestamp)
 
-    var senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
-    for (var i = 0; i < senderPublicKeyBuffer.length; i++) {
+    const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
+    for (let i = 0; i < senderPublicKeyBuffer.length; i++) {
       bb.writeByte(senderPublicKeyBuffer[i])
     }
 
     if (transaction.recipientId) {
-      var recipient = bs58check.decode(transaction.recipientId)
-      for (var i = 0; i < recipient.length; i++) {
+      const recipient = bs58check.decode(transaction.recipientId)
+      for (let i = 0; i < recipient.length; i++) {
         bb.writeByte(recipient[i])
       }
     } else {
-      for (var i = 0; i < 21; i++) {
+      for (let i = 0; i < 21; i++) {
         bb.writeByte(0)
       }
     }
 
     if (transaction.vendorFieldHex) {
-      var vf = new Buffer(transaction.vendorFieldHex,"hex")
-      var fillstart=vf.length
+      const vf = new Buffer(transaction.vendorFieldHex,"hex")
+      const fillstart=vf.length
       for (i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
@@ -122,8 +122,8 @@ class LegacyCryptoBuilder {
       }
     }
     else if (transaction.vendorField) {
-      var vf = new Buffer(transaction.vendorField)
-      var fillstart=vf.length
+      const vf = new Buffer(transaction.vendorField)
+      const fillstart=vf.length
       for (i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
@@ -141,30 +141,30 @@ class LegacyCryptoBuilder {
     bb.writeLong(transaction.fee)
 
     if (assetSize > 0) {
-      for (var i = 0; i < assetSize; i++) {
+      for (let i = 0; i < assetSize; i++) {
         bb.writeByte(assetBytes[i])
       }
     }
 
     if (!skipSignature && transaction.signature) {
-      var signatureBuffer = new Buffer(transaction.signature, "hex")
-      for (var i = 0; i < signatureBuffer.length; i++) {
+      const signatureBuffer = new Buffer(transaction.signature, "hex")
+      for (let i = 0; i < signatureBuffer.length; i++) {
         bb.writeByte(signatureBuffer[i])
       }
     }
 
     if (!skipSecondSignature && transaction.signSignature) {
-      var signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
-      for (var i = 0; i < signSignatureBuffer.length; i++) {
+      const signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
+      for (let i = 0; i < signSignatureBuffer.length; i++) {
         bb.writeByte(signSignatureBuffer[i])
       }
     }
 
     bb.flip()
-    var arrayBuffer = new Uint8Array(bb.toArrayBuffer())
-    var buffer = []
+    const arrayBuffer = new Uint8Array(bb.toArrayBuffer())
+    const buffer = []
 
-    for (var i = 0; i < arrayBuffer.length; i++) {
+    for (let i = 0; i < arrayBuffer.length; i++) {
       buffer[i] = arrayBuffer[i]
     }
 
@@ -177,8 +177,8 @@ class LegacyCryptoBuilder {
    * @return {Transaction}
    */
   fromBytes (hexString) {
-    var tx={}
-    var buf = new Buffer(hexString, "hex")
+    const tx = {}
+    const buf = new Buffer(hexString, "hex")
     tx.type = buf.readInt8(0) & 0xff
     tx.timestamp = buf.readUInt32LE(1)
     tx.senderPublicKey = hexString.substring(10,10+33*2)
@@ -201,7 +201,7 @@ class LegacyCryptoBuilder {
     else if (tx.type == 2) { // delegate registration
       delete tx.recipientId
       // Impossible to assess size of delegate asset, trying to grab signature and derive delegate asset
-      var offset = findAndParseSignatures(hexString, tx)
+      const offset = findAndParseSignatures(hexString, tx)
 
       tx.asset = {
         delegate: {
@@ -211,24 +211,24 @@ class LegacyCryptoBuilder {
     }
     else if (tx.type == 3) { // vote
       // Impossible to assess size of vote asset, trying to grab signature and derive vote asset
-      var offset = findAndParseSignatures(hexString, tx)
+      const offset = findAndParseSignatures(hexString, tx)
       tx.asset = {
         votes: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8").split(",")
       }
     }
     else if (tx.type == 4) { // multisignature creation
       delete tx.recipientId
-      var offset = findAndParseSignatures(hexString, tx)
-      var buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
+      const offset = findAndParseSignatures(hexString, tx)
+      const buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
       tx.asset = {
         multisignature: {}
       }
       tx.asset.multisignature.min = buffer.readInt8(0) & 0xff
       tx.asset.multisignature.lifetime = buffer.readInt8(1) & 0xff
       tx.asset.multisignature.keysgroup = []
-      var index = 0
+      let index = 0
       while (index + 2 < buffer.length) {
-        var key = buffer.slice(index+2,index+67+2).toString("utf8")
+        const key = buffer.slice(index+2,index+67+2).toString("utf8")
         tx.asset.multisignature.keysgroup.push(key)
         index = index + 67
       }
@@ -237,7 +237,7 @@ class LegacyCryptoBuilder {
       delete tx.recipientId
       parseSignatures(hexString, tx, 76+42+128+32)
     }
-    console.log(tx)
+
     return tx
   }
 
@@ -248,7 +248,7 @@ class LegacyCryptoBuilder {
    * @return {number}
    */
   findAndParseSignatures (hexString, tx) {
-    const signature1 = new Buffer(hexString.substring(hexString.length-146), "hex")
+    let signature1 = new Buffer(hexString.substring(hexString.length-146), "hex")
     let found      = false
     let offset     = 0
 
@@ -270,7 +270,7 @@ class LegacyCryptoBuilder {
     } else {
       found = false
       offset = signature1.length*2
-      const signature2 = new Buffer(hexString.substring(hexString.length-offset-146, hexString.length-offset), "hex")
+      let signature2 = new Buffer(hexString.substring(hexString.length-offset-146, hexString.length-offset), "hex")
       while (!found && signature2.length > 8) {
         if (signature2[0] != 0x30) {
           signature2 = signature2.slice(1)
@@ -462,7 +462,7 @@ class LegacyCryptoBuilder {
    */
   validateAddress(address, version) {
     try {
-      var decode = bs58check.decode(address)
+      const decode = bs58check.decode(address)
       return decode[0] == configManager.get('pubKeyHash')
     } catch (e) {
       return false
