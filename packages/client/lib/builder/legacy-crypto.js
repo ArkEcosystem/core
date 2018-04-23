@@ -400,14 +400,15 @@ class LegacyCryptoBuilder {
 
   /**
    * [verify description]
-   * @param  {Transaction} transaction [description]
-   * @return {ECPair}
+   * @param  {[type]} transaction [description]
+   * @param  {[type]} network     [description]
+   * @return {[type]}             [description]
    */
-  verify (transaction) {
+  verify (transaction, network) {
     const hash = getHash(transaction, true, true)
     const signatureBuffer = new Buffer(transaction.signature, "hex")
     const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
-    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, configManager.get('pubKeyHash'))
+    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, network)
     const ecsignature = ECSignature.fromDER(signatureBuffer)
     const res = ecpair.verify(hash, ecsignature)
 
@@ -416,15 +417,16 @@ class LegacyCryptoBuilder {
 
   /**
    * [verifySecondSignature description]
-   * @param  {Transaction} transaction [description]
-   * @param  {String}      publicKey   [description]
-   * @return {ECPair}
+   * @param  {[type]} transaction [description]
+   * @param  {[type]} publicKey   [description]
+   * @param  {[type]} network     [description]
+   * @return {[type]}             [description]
    */
-  verifySecondSignature (transaction, publicKey) {
+  verifySecondSignature (transaction, publicKey, network) {
     const hash = getHash(transaction, false, true)
     const signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
     const publicKeyBuffer = new Buffer(publicKey, "hex")
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.get('pubKeyHash'))
+    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
     const ecsignature = ECSignature.fromDER(signSignatureBuffer)
     const res = ecpair.verify(hash, ecsignature)
 
@@ -433,11 +435,12 @@ class LegacyCryptoBuilder {
 
   /**
    * [getKeys description]
-   * @param  {String} secret [description]
-   * @return {ECPair}
+   * @param  {[type]} secret  [description]
+   * @param  {[type]} options [description]
+   * @return {[type]}         [description]
    */
-  getKeys (secret) {
-    const ecpair = ECPair.fromSeed(secret, configManager.get('pubKeyHash'))
+  getKeys (secret, options) {
+    const ecpair = ECPair.fromSeed(secret, options)
 
     ecpair.publicKey = ecpair.getPublicKeyBuffer().toString("hex")
     ecpair.privateKey = ''
@@ -447,14 +450,19 @@ class LegacyCryptoBuilder {
 
   /**
    * [getAddress description]
-   * @param  {String} publicKey [description]
-   * @return {String}
+   * @param  {[type]} publicKey [description]
+   * @param  {[type]} version   [description]
+   * @return {[type]}           [description]
    */
-  getAddress (publicKey) {
+  getAddress (publicKey, version) {
+    if (!version) {
+      version = configManager.get('pubKeyHash')
+    }
+
     const buffer = cryptoUtils.ripemd160(new Buffer(publicKey,'hex'))
 
     const payload = new Buffer(21)
-    payload.writeUInt8(configManager.get('pubKeyHash'), 0)
+    payload.writeUInt8(version, 0)
     buffer.copy(payload, 1)
 
     return bs58check.encode(payload)
@@ -462,13 +470,17 @@ class LegacyCryptoBuilder {
 
   /**
    * [validateAddress description]
-   * @param  {String} address [description]
-   * @return {Boolean}
+   * @param  {[type]} address [description]
+   * @param  {[type]} version [description]
+   * @return {[type]}         [description]
    */
   validateAddress(address, version) {
+    if (!version) {
+      version = configManager.get('pubKeyHash')
+    }
     try {
       const decode = bs58check.decode(address)
-      return decode[0] == configManager.get('pubKeyHash')
+      return decode[0] == version
     } catch (e) {
       return false
     }

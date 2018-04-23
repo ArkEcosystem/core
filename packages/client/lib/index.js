@@ -15,7 +15,7 @@ module.exports = {
   crypto: require('./builder/crypto'),
 
   // Crypto...
-  ecdsa: require('./crypto/ECDSA'),
+  ecdsa: require('./crypto/ecdsa'),
   ECPair: require('./crypto/ecpair'),
   ECSignature: require('./crypto/ecsignature'),
   HDNode: require('./crypto/hdnode'),
