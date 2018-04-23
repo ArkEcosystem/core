@@ -57,7 +57,6 @@
     "@arkecosystem/core-logger-winston": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",
-    "arkjs": "github:arkecosystem/ark-js#master",
     "commander": "^2.14.0"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
-const arkjsv1 = require('./legacy-crypto')
+const legacyCryptoBuilder = require('./legacy-crypto')
 // const { Buffer } = require('buffer/')
 
 const configManager = require('../managers/config')
@@ -227,7 +227,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   getId (transaction) {
-    return arkjsv1.getId(transaction)
+    return legacyCryptoBuilder.getId(transaction)
   }
 
   /**
@@ -289,7 +289,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   verify (transaction, network) {
-    return arkjsv1.verify(transaction, network)
+    return legacyCryptoBuilder.verify(transaction, network)
   }
 
   /**

@@ -3,7 +3,7 @@ const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
-const arkjsv1 = require('arkjs')
+const legacyCryptoBuilder = require('../builder/legacy-crypto')
 
 module.exports = class Transaction {
   constructor (transaction) {
@@ -11,7 +11,7 @@ module.exports = class Transaction {
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
     if (this.data.version === 1) {
       // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-      this.verified = arkjsv1.crypto.verify(this.data)
+      this.verified = legacyCryptoBuilder.verify(this.data)
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature'].forEach((key) => { // eslint-disable-line max-len
@@ -221,12 +221,12 @@ module.exports = class Transaction {
 
       if (tx.type === TRANSACTION_TYPES.VOTE) {
         // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       }
 
       // if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       //   // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-      //   tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+      //   tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       // }
 
       if (tx.vendorFieldHex) {
@@ -235,13 +235,13 @@ module.exports = class Transaction {
 
       if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!tx.id) {
         // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        tx.id = arkjsv1.crypto.getId(tx)
+        tx.id = legacyCryptoBuilder.getId(tx)
       }
     } else if (tx.version === 2) {
       tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')

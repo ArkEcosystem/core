@@ -2,8 +2,9 @@ const crypto = require('crypto')
 const bignum = require('bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
-const arkjsv1 = require('arkjs')
+const legacyCryptoBuilder = require('../builder/legacy-crypto')
 const configManager = require('../managers/config')
+const slots = require('../crypto/slots')
 
 /**
   * [description]
@@ -41,9 +42,9 @@ module.exports = class Block {
       const thistx = this.data.transactions[i]
       if (thistx.type === 1 && thistx.version === 1 && tx.recipientId) {
         // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        thistx.recipientId = arkjsv1.crypto.getAddress(thistx.senderPublicKey, thistx.network)
+        thistx.recipientId = legacyCryptoBuilder.getAddress(thistx.senderPublicKey, thistx.network)
         // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        thistx.id = arkjsv1.crypto.getId(thistx)
+        thistx.id = legacyCryptoBuilder.getId(thistx)
       }
     })
 
@@ -110,10 +111,8 @@ module.exports = class Block {
     let hash = crypto.createHash('sha256').update(bytes).digest()
     let blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
     let generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
-    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-    let ecpair = arkjsv1.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
-    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-    let ecsignature = arkjsv1.ECSignature.fromDER(blockSignatureBuffer)
+    let ecpair = ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
+    let ecsignature = ECSignature.fromDER(blockSignatureBuffer)
     let res = ecpair.verify(hash, ecsignature)
 
     return res
@@ -150,7 +149,7 @@ module.exports = class Block {
         result.errors.push('Invalid block version')
       }
 
-      if (arkjsv1.slots.getSlotNumber(block.timestamp) > arkjsv1.slots.getSlotNumber()) {
+      if (slots.getSlotNumber(block.timestamp) > slots.getSlotNumber()) {
         result.errors.push('Invalid block timestamp')
       }
 
