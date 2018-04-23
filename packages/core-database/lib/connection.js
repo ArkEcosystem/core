@@ -92,6 +92,25 @@ module.exports = class Connection {
     throw new Error('Method [saveBlock] not implemented!')
   }
 
+  //Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
+  /**
+   * [saveBlockAsync description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
+  async saveBlockAsync (block) {
+    throw new Error('Method [saveBlockAsync] not implemented!')
+  }
+
+  // To be used in combination with saveBlockAsync
+  /**
+   * [saveBlockCommit description]
+   * @return {[type]} [description]
+   */
+  async saveBlockCommit () {
+    throw new Error('Method [saveBlockCommit] not implemented!')
+  }
+
   /**
    * [deleteBlock description]
    * @param  {[type]} block [description]
