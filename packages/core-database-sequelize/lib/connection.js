@@ -369,14 +369,14 @@ module.exports = class SequelizeConnection extends Connection {
    * @return {[type]}       [description]
    */
   async saveWallets (force) {
-    await this.connection.transaction(t =>
-      Promise.all(
-        Object.values(this.walletManager.walletsByPublicKey || {})
-          // cold addresses are not saved on database
-          .filter(acc => acc.publicKey && (force || acc.dirty))
-          .map(acc => this.models.wallet.upsert(acc, {transaction: t}))
+    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
+    const chunk = 5000
+    // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
+    for (let i = 0, j = wallets.length; i < j; i += chunk) {
+      await this.connection.transaction(t =>
+        Promise.all(wallets.slice(i, i + chunk).map(acc => this.models.wallet.upsert(acc, {transaction: t})))
       )
-    )
+    }
 
     logger.info('Rebuilt wallets saved')
 
