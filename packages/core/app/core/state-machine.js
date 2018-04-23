@@ -304,12 +304,15 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     rebuildFinished: async () => {
       try {
+        logger.info('Blockchain rebuild complete! ⛓')
         state.rebuild = false
         await blockchainManager.db.saveBlockCommit()
+
+        await blockchainManager.deleteBlocksToLastRound()
         await blockchainManager.db.buildWallets(state.lastBlock.data.height)
-        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         await blockchainManager.db.saveWallets(true)
-        await blockchainManager.db.applyRound(state.lastBlock.data.height)
+        // await blockchainManager.db.applyRound(state.lastBlock.data.height)
+        // blockchainManager.transactionPool.initialiseWallets(blockchainManager.db.walletManager.getLocalWallets())
         return blockchainManager.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -332,6 +335,8 @@ blockchainMachine.actionMap = (blockchainManager) => {
     init: async () => {
       try {
         let block = await blockchainManager.db.getLastBlock()
+        const constants = blockchainManager.config.getConstants(block.data.height)
+        // No block found? we start from scratch
         if (!block) {
           logger.warning('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
@@ -341,25 +346,32 @@ blockchainMachine.actionMap = (blockchainManager) => {
           }
           await blockchainManager.db.saveBlock(block)
         }
+
+        // only genesis block? special case of first round needs to be dealt with
+        if (block.data.height === 1) await blockchainManager.db.deleteRound(1)
+
+        /*********************************
+         *  state machine data init      *
+         ********************************/
         state.lastBlock = block
         state.lastDownloadedBlock = block
-        const constants = blockchainManager.config.getConstants(block.data.height)
         state.rebuild = (arkjs.slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
-        // no fast rebuild if in last round
+        // no fast rebuild if in 10 last round
         state.fastRebuild = (arkjs.slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
         if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
+
+        // removing blocks up to the last round to compute active delegate list later if needed
+        if (!blockchainManager.db.getActiveDelegates(block.data.height)) await blockchainManager.deleteBlocksToLastRound()
+
+        /*********************************
+         * database init                 *
+         ********************************/
+        // SPV rebuild
         await blockchainManager.db.buildWallets(block.data.height)
         await blockchainManager.db.saveWallets(true)
-        if (block.data.height === 1) {
-          // remove round if it was stored in db already
-          await blockchainManager.db.deleteRound(block.data.height / constants.activeDelegates)
-          await blockchainManager.db.applyRound(block.data.height)
-        }
-        // if (block.data.height === 1 && state.networkStart) {
-        //   return blockchainManager.dispatch('NETWORKSTART')
-        // }
+        await blockchainManager.db.applyRound(block.data.height)
         return blockchainManager.dispatch('STARTED')
       } catch (error) {
         logger.error(error.stack)

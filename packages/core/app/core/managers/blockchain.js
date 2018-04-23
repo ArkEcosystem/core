@@ -98,6 +98,26 @@ module.exports = class BlockchainManager {
     } else logger.info('Block disregarded because blockchain is not ready')
   }
 
+  async deleteBlocksToLastRound () {
+    const deleteLastBlock = async () => {
+      const lastBlock = stateMachine.state.lastBlock
+      await this.db.deleteBlock(lastBlock)
+      const newLastBlock = await this.db.getBlock(lastBlock.data.previousBlock)
+      stateMachine.state.lastBlock = newLastBlock
+      stateMachine.state.lastDownloadedBlock = newLastBlock
+    }
+
+    const height = stateMachine.state.lastBlock.data.height
+    const maxDelegates = this.config.getConstants(height).activeDelegates
+    const previousRound = Math.floor((height - 1) / maxDelegates)
+    if (previousRound < 2) return
+    const newHeigth = previousRound * maxDelegates
+    logger.info('Removing ' + (height - newHeigth) + ' blocks to start from current round')
+    while (stateMachine.state.lastBlock.data.height >= newHeigth) await deleteLastBlock()
+    logger.info('Blocks removed')
+    await this.db.deleteRound(previousRound + 1)
+  }
+
   async removeBlocks (nblocks) {
     const undoLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
@@ -224,7 +244,7 @@ module.exports = class BlockchainManager {
 
   isBuildSynced (block) {
     block = block || stateMachine.state.lastBlock.data
-    logger.info(arkjs.slots.getTime() - block.timestamp)
+    logger.info('Remaining block timestamp', arkjs.slots.getTime() - block.timestamp)
     return arkjs.slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 

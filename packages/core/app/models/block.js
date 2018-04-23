@@ -98,20 +98,20 @@ module.exports = class Block {
 
   verifySignature () {
     // console.log(this.data)
-    let bytes = Block.serialize(this.data, false)
-    let hash = crypto.createHash('sha256').update(bytes).digest()
-    let blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
-    let generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
-    let ecpair = arkjs.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
-    let ecsignature = arkjs.ECSignature.fromDER(blockSignatureBuffer)
-    let res = ecpair.verify(hash, ecsignature)
+    const bytes = Block.serialize(this.data, false)
+    const hash = crypto.createHash('sha256').update(bytes).digest()
+    const blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
+    const generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
+    const ecpair = arkjs.ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
+    const ecsignature = arkjs.ECSignature.fromDER(blockSignatureBuffer)
+    const res = ecpair.verify(hash, ecsignature)
 
     return res
   }
 
   verify () {
-    let block = this.data
-    let result = {
+    const block = this.data
+    const result = {
       verified: false,
       errors: []
     }
