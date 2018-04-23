@@ -19,7 +19,7 @@ lerna bootstrap
 
 ```sh
 cd packages/core
-yarn start:devnet
+yarn relay:devnet
 ```
 
 #### Adding a dependency

@@ -1,4 +1,4 @@
-export default function (mock) {
+module.exports = (mock) => {
   mock.onGet('webhooks').reply(200, { data: [] })
   mock.onPost('webhooks').reply(200, { data: [] })
   mock.onGet('webhooks/123').reply(200, { data: [] })

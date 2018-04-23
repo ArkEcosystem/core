@@ -1,4 +1,4 @@
-export default function (mock) {
+module.exports = (mock) => {
   mock.onGet('wallets').reply(200, { data: [] })
   mock.onGet('wallets/top').reply(200, { data: [] })
   mock.onGet('wallets/123').reply(200, { data: [] })

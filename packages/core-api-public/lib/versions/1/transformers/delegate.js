@@ -1,0 +1,20 @@
+'use strict';
+
+/**
+ * [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+module.exports = (model) => {
+  return {
+    username: model.username,
+    address: model.address,
+    publicKey: model.publicKey,
+    vote: model.vote,
+    producedblocks: model.producedblocks,
+    missedblocks: model.missedblocks,
+    rate: model.rate,
+    approval: model.approval,
+    productivity: model.productivity
+  }
+}

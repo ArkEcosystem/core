@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-logger-winston",
+  "description": "Winston Logger for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "colors": "^1.2.1",
+    "expand-home-dir": "^0.0.3",
+    "moment": "^2.22.0",
+    "winston": "^2.4.1",
+    "winston-daily-rotate-file": "^3.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.3",
+    "jest-extended": "^0.6.0",
+    "standard": "^11.0.1"
+  }
+}

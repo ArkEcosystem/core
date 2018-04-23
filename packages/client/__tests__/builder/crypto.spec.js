@@ -1,11 +1,11 @@
-import { Buffer } from 'buffer/'
-import ecurve from 'ecurve'
+const { Buffer } = require('buffer/')
+const ecurve = require('ecurve')
 
-import ECPair from '../../src/crypto/ecpair'
-import ecdsa from '../../src/crypto/ecdsa'
-import cryptoBuilder from '../../src/builder/crypto'
-import configManager from '../../src/managers/config'
-import { TRANSACTION_TYPES, CONFIGURATIONS } from '../../src/constants'
+const ECPair = require('../../lib/crypto/ecpair')
+const ecdsa = require('../../lib/crypto/ecdsa')
+const cryptoBuilder = require('../../lib/builder/crypto')
+const configManager = require('../../lib/managers/config')
+const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../../lib/constants')
 
 beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET))
 

@@ -1,12 +1,10 @@
-import Ark from '../../../../src'
-import network from '../../../../src/networks/ark/devnet.json'
-import ApiResource from '../../../../src/api/resources/v2/votes'
+const ark = require('../../../../lib/client')
+const ApiResource = require('../../../../lib/api/resources/v2/votes')
 require('../../mocks/v2')
 
 let resource
 
 beforeEach(() => {
-  const ark = new Ark(network)
   resource = ark.getClient('https://localhost:4003/api/').setVersion(2).resource('votes')
 })
 

@@ -1,0 +1,19 @@
+'use strict';
+
+/**
+ * [description]
+ * @param  {[type]} ajv [description]
+ * @return {[type]}     [description]
+ */
+module.exports = (ajv) => {
+  ajv.addFormat('signature', {
+    type: 'string',
+    validate: (value) => {
+      try {
+        return Buffer.from(value, 'hex').length < 73
+      } catch (e) {
+        return false
+      }
+    }
+  })
+}
