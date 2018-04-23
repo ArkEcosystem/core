@@ -1,15 +1,15 @@
-import axios from 'axios'
-import MockAdapter from 'axios-mock-adapter'
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
 
-import Blocks from './blocks'
-import Delegates from './delegates'
-import Node from './node'
-import Peers from './peers'
-import Statistics from './statistics'
-import Transactions from './transactions'
-import Votes from './votes'
-import Wallets from './wallets'
-import Webhooks from './webhooks'
+const Blocks = require('./blocks')
+const Delegates = require('./delegates')
+const Node = require('./node')
+const Peers = require('./peers')
+const Statistics = require('./statistics')
+const Transactions = require('./transactions')
+const Votes = require('./votes')
+const Wallets = require('./wallets')
+const Webhooks = require('./webhooks')
 
 const mock = new MockAdapter(axios)
 

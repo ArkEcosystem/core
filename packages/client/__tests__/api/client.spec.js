@@ -1,13 +1,11 @@
-import Ark from '../../src'
-import network from '../../src/networks/ark/devnet.json'
-import ApiClient from '../../src/api'
-import HttpClient from '../../src/api/http'
-import ApiResource from '../../src/api/resources/v1/transactions'
+const ark = require('../../lib/client')
+const ApiClient = require('../../lib/api')
+const HttpClient = require('../../lib/api/http')
+const ApiResource = require('../../lib/api/resources/v1/transactions')
 
 let client
 
 beforeEach(() => {
-  const ark = new Ark(network)
   client = ark.getClient('https://localhost:4003')
 })
 

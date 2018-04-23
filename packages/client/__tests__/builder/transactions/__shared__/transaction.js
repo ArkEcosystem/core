@@ -1,14 +1,14 @@
-import Transaction from '../../../../src/builder/transaction'
-import cryptoBuilder from '../../../../src/builder/crypto'
+const Transaction = require('../../../../lib/builder/transaction')
+const cryptoBuilder = require('../../../../lib/builder/crypto')
 
-export default () => {
+module.exports = () => {
   let tx
 
   beforeEach(() => {
     tx = global.tx
   })
 
-  describe('inherits from Transaction', () => {
+  describe('inherits = require(Transaction', () => {
     it('as an instance', () => {
       expect(tx).toBeInstanceOf(Transaction)
     })

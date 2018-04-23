@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-api-webhooks",
+  "description": "Webhooks API for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "@arkecosystem/core-database": "^1.0.0",
+    "@arkecosystem/core-logger": "^1.0.0",
+    "async": "^2.6.0",
+    "axios": "^0.18.0",
+    "bull": "^3.3.10",
+    "lodash": "^4.17.5"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.3",
+    "jest-extended": "^0.6.0",
+    "standard": "^11.0.1"
+  }
+}

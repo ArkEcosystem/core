@@ -1,12 +1,12 @@
-import sinon from 'sinon'
-import sinonTestFactory from 'sinon-test'
-import BigInteger from 'bigi'
+const sinon = require('sinon')
+const sinonTestFactory = require('sinon-test')
+const BigInteger = require('bigi')
 
-import ecdsa from '../../src/crypto/ecdsa'
-import bcrypto from '../../src/crypto'
-import ECSignature from '../../src/crypto/ecsignature'
+const ecdsa = require('../../lib/crypto/ecdsa')
+const bcrypto = require('../../lib/crypto')
+const ECSignature = require('../../lib/crypto/ecsignature')
 
-import fixtures from './fixtures/ecdsa.json'
+const fixtures = require('./fixtures/ecdsa.json')
 
 const curve = ecdsa.__curve
 const sinonTest = sinonTestFactory(sinon)

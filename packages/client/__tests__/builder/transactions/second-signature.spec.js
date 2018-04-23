@@ -1,13 +1,10 @@
-import Ark from '../../../src'
-import cryptoBuilder from '../../../src/builder/crypto'
-import network from '../../../src/networks/ark/devnet.json'
-import transactionTests from './__shared__/transaction'
+const ark = require('../../../lib/client')
+const cryptoBuilder = require('../../../lib/builder/crypto')
+const transactionTests = require('./__shared__/transaction')
 
-let ark
 let tx
 
 beforeEach(() => {
-  ark = new Ark(network)
   tx = ark.getBuilder().secondSignature()
 
   global.tx = tx

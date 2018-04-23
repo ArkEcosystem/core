@@ -1,12 +1,10 @@
-import Ark from '../../../../src'
-import network from '../../../../src/networks/ark/devnet.json'
-import ApiResource from '../../../../src/api/resources/v2/transactions'
+const ark = require('../../../../lib/client')
+const ApiResource = require('../../../../lib/api/resources/v2/transactions')
 require('../../mocks/v2')
 
 let resource
 
 beforeEach(() => {
-  const ark = new Ark(network)
   resource = ark.getClient('https://localhost:4003').setVersion(2).resource('transactions')
 })
 

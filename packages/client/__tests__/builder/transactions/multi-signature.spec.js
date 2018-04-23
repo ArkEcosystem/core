@@ -1,14 +1,11 @@
-import Ark from '../../../src'
-import network from '../../../src/networks/ark/devnet.json'
-import feeManager from '../../../src/managers/fee'
-import { TRANSACTION_TYPES } from '../../../src/constants'
-import transactionTests from './__shared__/transaction'
+const ark = require('../../../lib/client')
+const feeManager = require('../../../lib/managers/fee')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const transactionTests = require('./__shared__/transaction')
 
-let ark
 let tx
 
 beforeEach(() => {
-  ark = new Ark(network)
   tx = ark.getBuilder().multiSignature()
 
   global.tx = tx

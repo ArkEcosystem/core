@@ -1,10 +1,12 @@
 {
   "private": true,
   "scripts": {
+    "setup": "lerna clean && lerna bootstrap",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "test": "lerna run test",
-    "prepare": "lerna run prepare"
+    "prepare": "lerna run prepare",
+    "lint": "lerna run lint"
   },
   "devDependencies": {
     "lerna": "^2.10.0"

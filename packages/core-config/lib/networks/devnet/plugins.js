@@ -1,0 +1,28 @@
+module.exports = {
+  init: {
+    '@arkecosystem/core-config': {},
+    '@arkecosystem/core-config-json': {}
+  },
+  beforeCreate: {
+    '@arkecosystem/core-logger': {},
+    '@arkecosystem/core-logger-winston': {},
+    '@arkecosystem/core-webhooks': {},
+    '@arkecosystem/core-blockchain': {}
+  },
+  beforeMount: {
+    '@arkecosystem/core-database': {},
+    '@arkecosystem/core-database-sequelize': {
+      'uri': 'sqlite:~/.ark/database/devnet2.sqlite',
+      'uri_1': 'postgres://node:password@localhost:5432/ark_devnet',
+      'dialect': 'sqlite',
+      'dialect_1': 'postgres'
+    },
+    '@arkecosystem/core-api-p2p': {},
+    '@arkecosystem/core-transaction-pool-redis': {}
+  },
+  mounted: {
+    '@arkecosystem/core-api-public': {},
+    '@arkecosystem/core-api-webhooks': {},
+    '@arkecosystem/core-forger': {}
+  }
+}

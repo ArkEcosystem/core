@@ -1,0 +1,44 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-database-sequelize",
+  "description": "Sequelize ORM for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-database": "^1.0.0",
+    "expand-home-dir": "^0.0.3",
+    "mysql2": "^1.5.3",
+    "pg": "^7.4.1",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.37.6",
+    "sequelize-cli": "^4.0.0",
+    "sqlite3": "^4.0.0",
+    "tedious": "^2.3.1",
+    "tiny-glob": "^0.2.0",
+    "umzug": "^2.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.3",
+    "jest-extended": "^0.6.0",
+    "standard": "^11.0.1"
+  }
+}

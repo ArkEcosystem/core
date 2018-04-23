@@ -1,0 +1,49 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-commander",
+  "description": "Commander for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "bin": {
+    "ark:commander": "./bin/commander"
+  },
+  "scripts": {
+    "ark:commander": "./bin/commander",
+    "test": "jest --forceExit --no-cache",
+    "test:watch": "jest --forceExit --no-cache --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "clear": "^0.1.0",
+    "expand-home-dir": "^0.0.3",
+    "figlet": "^1.2.0",
+    "fs-extra": "^5.0.0",
+    "os": "^0.1.1",
+    "pm2": "^2.10.2",
+    "prompts": "^0.1.8",
+    "sequelize": "^4.37.6",
+    "sleep": "^5.1.1",
+    "tail": "^1.2.3",
+    "tiny-glob": "^0.2.0",
+    "umzug": "^2.1.0",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.3",
+    "jest-extended": "^0.6.0",
+    "standard": "^11.0.1"
+  }
+}

@@ -1,6 +1,6 @@
-import configManager from '../../src/managers/config'
-import network from '../../src/networks/ark/devnet.json'
-import slots from '../../src/crypto/slots'
+const configManager = require('../../lib/managers/config')
+const network = require('../../lib/networks/ark/devnet.json')
+const slots = require('../../lib/crypto/slots')
 
 beforeEach(() => configManager.setConfig(network))
 
