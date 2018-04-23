@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path')
+const fs = require('fs')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
@@ -9,16 +10,19 @@ const { createContainer, asValue } = require('awilix')
 class PluginManager {
   /**
    * [init description]
-   * @param  {[type]} plugins [description]
+   * @param  {[type]} config  [description]
    * @param  {Object} options [description]
    * @return {[type]}         [description]
    */
-  init (plugins, options = {}) {
-    if (isString(plugins)) {
-      plugins = require(path.resolve(expandHomeDir(`${plugins}/plugins.json`)))
+  init (config, options = {}) {
+    const plugins = path.resolve(expandHomeDir(`${config}/plugins.js`))
+
+    if (!fs.existsSync(plugins)) {
+      throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+      process.exit(1) // eslint-disable-line no-unreachable
     }
 
-    this.plugins = plugins
+    this.plugins = require(plugins)
     this.options = options
     this.container = createContainer()
   }

@@ -1,10 +1,10 @@
 module.exports = {
   enabled: false,
-  key: "ark/pool",
+  key: 'ark/pool',
   maxTransactionsPerSender: 5,
   whiteList: [],
   redis: {
-    host: "localhost",
+    host: 'localhost',
     port: 6379
   }
 }

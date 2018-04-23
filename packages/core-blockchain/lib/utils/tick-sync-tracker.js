@@ -8,7 +8,6 @@ const config = pluginManager.get('config')
 let synctracker = null
 
 module.exports = (block) => {
-
   const constants = config.getConstants(block.data.height)
 
   if (!synctracker) {

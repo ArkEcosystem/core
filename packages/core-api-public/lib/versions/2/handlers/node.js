@@ -1,8 +1,8 @@
 'use strict';
 
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchainManager.getState()
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const blockchainManager = pluginManager.get('blockchain')
+const config = pluginManager.get('config')
 
 /**
  * [status description]
@@ -10,7 +10,7 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
  */
 exports.status = {
   handler: async (request, h) => {
-    const lastBlock = state.lastBlock
+    const lastBlock = blockchainManager.getState().lastBlock
     const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
 
     return {
@@ -29,7 +29,7 @@ exports.status = {
  */
 exports.syncing = {
   handler: async (request, h) => {
-    const lastBlock = state.lastBlock
+    const lastBlock = blockchainManager.getState().lastBlock
     const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
 
     return {

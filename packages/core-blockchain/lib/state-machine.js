@@ -43,10 +43,23 @@ blockchainMachine.actionMap = (blockchainManager) => {
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
-      if (blockchainManager.rebuildQueue.length() > 100000) event = 'PAUSED'
-      if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) event = 'SYNCED'
-      if (state.networkStart) event = 'SYNCED'
-      if (process.env.ARK_ENV === 'test') event = 'TEST'
+
+      if (blockchainManager.rebuildQueue.length() > 100000) {
+        event = 'PAUSED'
+      }
+
+      if (blockchainManager.isSynced(state.lastDownloadedBlock.data)) {
+        event = 'SYNCED'
+      }
+
+      if (state.networkStart) {
+        event = 'SYNCED'
+      }
+
+      if (process.env.ARK_ENV === 'test') {
+        event = 'TEST'
+      }
+
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => {
@@ -87,15 +100,19 @@ blockchainMachine.actionMap = (blockchainManager) => {
     init: async () => {
       try {
         let block = await blockchainManager.getDatabaseConnection().getLastBlock()
+
         if (!block) {
           logger.warn('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
+
           if (block.data.payloadHash !== blockchainManager.config.network.nethash) {
             logger.error('FATAL: The genesis block payload hash is different from configured nethash')
             return blockchainManager.dispatch('FAILURE')
           }
+
           await blockchainManager.getDatabaseConnection().saveBlock(block)
         }
+
         state.lastBlock = block
         state.lastDownloadedBlock = block
         const constants = blockchainManager.config.getConstants(block.data.height)
@@ -104,9 +121,14 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
-        if (state.fastRebuild) return blockchainManager.dispatch('REBUILD')
+
+        if (state.fastRebuild) {
+          return blockchainManager.dispatch('REBUILD')
+        }
+
         await blockchainManager.getDatabaseConnection().buildWallets(block.data.height)
         await blockchainManager.getDatabaseConnection().saveWallets(true)
+
         if (block.data.height === 1) {
           // remove round if it was stored in db already
           await blockchainManager.getDatabaseConnection().deleteRound(block.data.height / constants.activeDelegates)
@@ -154,6 +176,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         blockchainManager.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
+
         if (blocks.length && blocks[0].previousBlock === block.data.id) {
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
           blockchainManager.processQueue.push(blocks)

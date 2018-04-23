@@ -61,7 +61,5 @@ module.exports = async (config) => {
     logger.info(`Oh hapi day! Webhook API is listening on ${server.info.uri}`)
   } catch (error) {
     logger.error(error.stack)
-
-    process.exit(1)
   }
 }

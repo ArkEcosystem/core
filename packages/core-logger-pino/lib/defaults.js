@@ -1,4 +1,4 @@
 module.exports = {
-  name: "ark-core",
+  name: 'ark-core',
   safe: true
 }

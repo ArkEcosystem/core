@@ -1,3 +1,3 @@
 module.exports = {
-  driver: "@arkecosystem/core-logger-winston"
+  driver: '@arkecosystem/core-logger-winston'
 }

@@ -12,12 +12,11 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
  * [description]
- * @param  {[type]} config  [description]
  * @param  {[type]} options [description]
  * @return {[type]}         [description]
  */
-module.exports = async (config, options) => {
-  await config.init(conig)
+module.exports = async (options) => {
+  await config.init(options.conig)
 
   logger.init(config.server.logging, config.network.name)
 

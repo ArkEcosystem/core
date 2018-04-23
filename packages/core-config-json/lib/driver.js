@@ -3,7 +3,6 @@
 const path = require('path')
 const fs = require('fs-extra')
 const dirTree = require('directory-tree')
-const isString = require('lodash/isString')
 const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-config')
 
 module.exports = class Config extends ConfigInterface {
@@ -50,7 +49,8 @@ module.exports = class Config extends ConfigInterface {
     const basePath = path.resolve(this.options.config)
 
     if (!fs.existsSync(basePath)) {
-      throw new Error('The directory does not exist or is not accessible because of security settings.')
+      throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+      process.exit(1) // eslint-disable-line no-unreachable
     }
 
     const formatName = (file) => path.basename(file.name, path.extname(file.name))

@@ -1,4 +1,4 @@
 module.exports = {
-  driver: "@arkecosystem/core-database-sequelize",
-  snapshots: "~/.ark/snapshots"
+  driver: '@arkecosystem/core-database-sequelize',
+  snapshots: '~/.ark/snapshots'
 }
