@@ -11,21 +11,9 @@
   "license": "MIT",
   "bin": {
     "ark:start": "./bin/ark start",
-    "ark:start:mainnet": "./bin/ark start ../core-config/lib/networks/mainnet",
-    "ark:start:devnet": "./bin/ark start ../core-config/lib/networks/devnet",
-    "ark:start:testnet": "ARK_ENV=test ./bin/ark start ../core-config/lib/networks/testnet",
     "ark:relay": "./bin/ark relay",
-    "ark:relay:mainnet": "./bin/ark relay ../core-config/lib/networks/mainnet",
-    "ark:relay:devnet": "./bin/ark relay ../core-config/lib/networks/devnet",
-    "ark:relay:testnet": "ARK_ENV=test ./bin/ark relay ../core-config/lib/networks/testnet",
     "ark:forge": "./bin/ark forge",
-    "ark:forge:mainnet": "./bin/ark forge ../core-config/lib/networks/mainnet",
-    "ark:forge:devnet": "./bin/ark forge ../core-config/lib/networks/devnet",
-    "ark:forge:testnet": "ARK_ENV=test ./bin/ark forge ../core-config/lib/networks/testnet",
-    "ark:snapshot": "./bin/ark snapshot",
-    "ark:snapshot:mainnet": "./bin/ark snapshot ../core-config/lib/networks/mainnet",
-    "ark:snapshot:devnet": "./bin/ark snapshot ../core-config/lib/networks/devnet",
-    "ark:snapshot:testnet": "./bin/ark snapshot ../core-config/lib/networks/testnet"
+    "ark:snapshot": "./bin/ark snapshot"
   },
   "scripts": {
     "start": "./bin/ark start",
