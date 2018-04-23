@@ -1,6 +1,6 @@
 'use strict';
 
-const BlockchainManager = require('../../../lib/managers/blockchain')
+const BlockchainManager = require('../lib/manager')
 
 describe('Core | BlockchainManager', () => {
   it('exists', () => {
@@ -8,12 +8,12 @@ describe('Core | BlockchainManager', () => {
   })
 
   it('works with sinons', () => {
-      const f = jest.fn()
+      const fn = jest.fn()
 
-      expect(f).toBeFunction()
+      expect(fn).toBeFunction()
 
-      f('Hello World')
+      fn('Hello World')
 
-      expect(f).toHaveBeenCalledWith('Hello World')
+      expect(fn).toHaveBeenCalledWith('Hello World')
   })
 })
