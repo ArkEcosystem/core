@@ -57,6 +57,16 @@ class DBInterface {
     throw new Error('Method [saveBlock] not implemented!')
   }
 
+  // Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
+  async saveBlockAsync (block) {
+    throw new Error('Method [saveBlockAsync] not implemented!')
+  }
+
+  // To be used in combination with saveBlockAsync
+  async saveBlockCommit () {
+    throw new Error('Method [saveBlockCommit] not implemented!')
+  }
+
   deleteBlock (block) {
     throw new Error('Method [deleteBlock] not implemented!')
   }
