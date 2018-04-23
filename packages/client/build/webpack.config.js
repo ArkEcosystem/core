@@ -7,7 +7,6 @@ module.exports = merge(require('./webpack.base'), {
   context: __dirname,
 
   entry: {
-    'index': '../lib/index.js',
     'index.min': '../lib/index.js'
   },
 
