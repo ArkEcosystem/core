@@ -1,12 +1,13 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
+const { Buffer } = require('buffer/')
 
 const configManager = require('../managers/config')
 const cryptoUtils = require('../crypto')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
-const { Buffer } = require('buffer/')
+const { TRANSACTION_TYPES } = require('../constants')
 
 const fixedPoint = Math.pow(10, 8)
 
@@ -55,7 +56,6 @@ class LegacyCryptoBuilder {
     let assetBytes = null
 
     const actions = {
-      'default': () => (false),
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
         assetBytes = getSignatureBytes(transaction.asset.signature)
         assetSize = assetBytes.length
@@ -85,10 +85,11 @@ class LegacyCryptoBuilder {
 
         assetBytes = bb.toBuffer()
         assetSize  = assetBytes.length
-      }
+      },
+      'default': () => (false)
     }
 
-    (actions[transaction.type] || actions['default'])()
+    actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
     const bb = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true)
     bb.writeByte(transaction.type)
@@ -113,24 +114,24 @@ class LegacyCryptoBuilder {
     if (transaction.vendorFieldHex) {
       const vf = new Buffer(transaction.vendorFieldHex,"hex")
       const fillstart=vf.length
-      for (i = 0; i < fillstart; i++) {
+      for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
-      for (i = fillstart; i < 64; i++) {
+      for (let i = fillstart; i < 64; i++) {
         bb.writeByte(0)
       }
     }
     else if (transaction.vendorField) {
       const vf = new Buffer(transaction.vendorField)
       const fillstart=vf.length
-      for (i = 0; i < fillstart; i++) {
+      for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
-      for (i = fillstart; i < 64; i++) {
+      for (let i = fillstart; i < 64; i++) {
         bb.writeByte(0)
       }
     } else {
-      for (i = 0; i < 64; i++) {
+      for (let i = 0; i < 64; i++) {
         bb.writeByte(0)
       }
     }
@@ -325,7 +326,7 @@ class LegacyCryptoBuilder {
    * @return {String}
    */
   getId (transaction) {
-    return crypto.createHash("sha256").update(getBytes(transaction)).digest().toString("hex")
+    return crypto.createHash("sha256").update(this.getBytes(transaction)).digest().toString("hex")
   }
 
   /**
@@ -336,7 +337,7 @@ class LegacyCryptoBuilder {
    * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
-    return crypto.createHash("sha256").update(getBytes(transaction, skipSignature, skipSecondSignature)).digest()
+    return crypto.createHash("sha256").update(this.getBytes(transaction, skipSignature, skipSecondSignature)).digest()
   }
 
   /**
@@ -371,7 +372,7 @@ class LegacyCryptoBuilder {
    * @return {ECSignature}
    */
   sign (transaction, keys) {
-    const hash = getHash(transaction, true, true)
+    const hash = this.getHash(transaction, true, true)
     const signature = keys.sign(hash).toDER().toString("hex")
 
     if (!transaction.signature) {
@@ -388,7 +389,7 @@ class LegacyCryptoBuilder {
    * @return {ECPair}
    */
   secondSign (transaction, keys) {
-    const hash = getHash(transaction, false, true)
+    const hash = this.getHash(transaction, false, true)
     const signature = keys.sign(hash).toDER().toString("hex")
 
     if (!transaction.signSignature) {
@@ -405,7 +406,7 @@ class LegacyCryptoBuilder {
    * @return {[type]}             [description]
    */
   verify (transaction, network) {
-    const hash = getHash(transaction, true, true)
+    const hash = this.getHash(transaction, true, true)
     const signatureBuffer = new Buffer(transaction.signature, "hex")
     const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
     const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, network)
@@ -423,7 +424,7 @@ class LegacyCryptoBuilder {
    * @return {[type]}             [description]
    */
   verifySecondSignature (transaction, publicKey, network) {
-    const hash = getHash(transaction, false, true)
+    const hash = this.getHash(transaction, false, true)
     const signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
     const publicKeyBuffer = new Buffer(publicKey, "hex")
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
