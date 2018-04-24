@@ -1,7 +1,7 @@
 'use strict';
 
 const Handler = require('../lib/handler')
-const transactionHandler = new Handler(require('../lib/defaults.json'))
+const transactionHandler = new Handler(require('../lib/defaults.js'))
 
 describe('Transaction Handler', () => {
   it('should be an object', async () => {

@@ -1,43 +1,17 @@
 'use strict';
 
-const logger = require('../lib/logger')
+const LoggerInterface = require('../lib/interface')
 
-describe('Logger', () => {
+const logger = new LoggerInterface()
+
+describe('Logger Interface', () => {
   it('should be an object', async () => {
     await expect(logger).toBeObject()
   })
 
-  describe('init', async () => {
+  describe('driver', async () => {
     it('should be a function', async () => {
-      await expect(logger.init).toBeFunction()
-    })
-
-    it('should return the logger', async () => {
-      await expect(logger.init()).toBe(logger)
-    })
-  })
-
-  describe('getDriver', async () => {
-    it('should be a function', async () => {
-      await expect(logger.getDriver).toBeFunction()
-    })
-
-    it('should return the driver', async () => {
-      logger.setDriver('fake-driver')
-
-      await expect(logger.getDriver()).toBe('fake-driver')
-    })
-  })
-
-  describe('setDriver', async () => {
-    it('should be a function', async () => {
-      await expect(logger.setDriver).toBeFunction()
-    })
-
-    it('should set the driver', async () => {
-      logger.setDriver('fake-driver')
-
-      await expect(logger.driver).toBe('fake-driver')
+      await expect(logger.driver).toBeFunction()
     })
   })
 

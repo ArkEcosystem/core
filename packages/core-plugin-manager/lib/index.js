@@ -68,7 +68,24 @@ class PluginManager {
    * @return {[type]}     [description]
    */
   get (key) {
-    return this.container.resolve(key).plugin
+    try {
+      return this.container.resolve(key).plugin
+    } catch (err) {
+      throw new Error(`The service "${key}" is not available.`)
+    }
+  }
+
+  /**
+   * [has description]
+   * @param  {[type]}  key [description]
+   * @return {Boolean}     [description]
+   */
+  has (key) {
+    try {
+      return this.container.resolve(key)
+    } catch (err) {
+      return false
+    }
   }
 
   /**
@@ -77,7 +94,11 @@ class PluginManager {
    * @return {[type]}     [description]
    */
   config (key) {
-    return this.container.resolve(key).options
+    try {
+      return this.container.resolve(key).options
+    } catch (err) {
+      throw new Error(`The service "${key}" is not available.`)
+    }
   }
 
   /**

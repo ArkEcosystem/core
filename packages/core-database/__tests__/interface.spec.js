@@ -1,15 +1,15 @@
 'use strict';
 
-const dbinterface = require('../lib/interface')
+const ConnectionInterface = require('../lib/interface')
 
-describe('Database Interface', () => {
+describe('Connection Interface', () => {
   it('should be an object', async () => {
-    await expect(dbinterface).toBeObject()
+    await expect(ConnectionInterface).toBeObject()
   })
 
   describe('init', async () => {
     it('should be a function', async () => {
-      await expect(dbinterface.init).toBeFunction()
+      await expect(ConnectionInterface.init).toBeFunction()
     })
   })
 })
