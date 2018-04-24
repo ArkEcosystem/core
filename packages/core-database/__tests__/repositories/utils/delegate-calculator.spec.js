@@ -17,8 +17,8 @@ describe('Delegate Calculator', () => {
       await expect(calculateApproval).toBeFunction()
     })
 
-    it.skip('should calculate the approval', async () => {
-      await expect(calculateApproval(delegate)).toBeFunction()
+    it('should calculate the approval', async () => {
+      await expect(calculateApproval(delegate)).toBeTruthy()
     })
   })
 
@@ -28,7 +28,7 @@ describe('Delegate Calculator', () => {
     })
 
     it('should calculate the productivity', async () => {
-      await expect(calculateProductivity(delegate)).toBeFunction()
+      await expect(calculateProductivity(delegate)).toBe('90.91')
     })
   })
 })
