@@ -9,15 +9,21 @@
     "lint": "lerna run lint"
   },
   "devDependencies": {
+    "body-parser": "^1.18.2",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
+    "express": "^4.16.2",
     "jest": "^22.4.3",
     "jest-extended": "^0.6.0",
     "lerna": "^2.10.0",
+    "request-promise": "^4.2.2",
+    "sinon": "^4.4.2",
     "standard": "^11.0.1"
   },
   "workspaces": [
