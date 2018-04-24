@@ -11,8 +11,9 @@ module.exports = async (options) => {
   pluginManager.init(options.config, {
     include: [
       '@arkecosystem/core-config',
+      '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',
-      '@arkecosystem/core-logger-pino',
+      '@arkecosystem/core-logger-winston',
       '@arkecosystem/core-forger'
     ],
     options: {
