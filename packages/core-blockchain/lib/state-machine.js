@@ -102,7 +102,6 @@ blockchainMachine.actionMap = (blockchainManager) => {
     init: async () => {
       try {
         let block = await blockchainManager.getDatabaseConnection().getLastBlock()
-        const constants = blockchainManager.config.getConstants(block.data.height)
         if (!block) {
           logger.warn('No block found in database')
           block = new Block(blockchainManager.config.genesisBlock)
@@ -112,13 +111,13 @@ blockchainMachine.actionMap = (blockchainManager) => {
           }
           await blockchainManager.getDatabaseConnection().saveBlock(block)
         }
-
         // only genesis block? special case of first round needs to be dealt with
         if (block.data.height === 1) await blockchainManager.getDatabaseConnection().deleteRound(1)
 
         /*********************************
          *  state machine data init      *
          ********************************/
+        const constants = blockchainManager.config.getConstants(block.data.height)
         state.lastBlock = block
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
