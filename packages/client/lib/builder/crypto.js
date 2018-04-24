@@ -205,18 +205,18 @@ class CryptoBuilder {
 
   /**
    * Parse signatures from transaction bytes.
-   * @param  {String} hexString   [description]
-   * @param  {Object} transaction          [description]
-   * @param  {Number} startOffset [description]
+   * @param {String} transactionBytes
+   * @param {Object} transaction
+   * @param {Number} startOffset
    */
-  parseSignatures (hexString, transaction, startOffset) {
-    transaction.signature = hexString.substring(startOffset)
+  parseSignatures (transactionBytes, transaction, startOffset) {
+    transaction.signature = transactionBytes.substring(startOffset)
     if (transaction.signature.length === 0) {
       delete transaction.signature
     } else {
       const length = parseInt('0x' + transaction.signature.substring(2, 4), 16) + 2
-      transaction.signature = hexString.substring(startOffset, startOffset + length * 2)
-      transaction.secondSignature = hexString.substring(startOffset + length * 2)
+      transaction.signature = transactionBytes.substring(startOffset, startOffset + length * 2)
+      transaction.secondSignature = transactionBytes.substring(startOffset + length * 2)
       if (transaction.secondSignature.length === 0) {
         delete transaction.secondSignature
       }
