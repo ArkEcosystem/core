@@ -14,7 +14,7 @@ const { TRANSACTION_TYPES } = require('../constants')
 class CryptoBuilder {
   /**
    * Get transaction as bytes.
-   * @param  {Object} transaction
+   * @param  {Transaction} transaction
    * @return {Buffer}
    */
   getBytes (transaction) {
@@ -205,9 +205,9 @@ class CryptoBuilder {
 
   /**
    * Parse signatures from transaction bytes.
-   * @param {String} transactionBytes
-   * @param {Object} transaction
-   * @param {Number} startOffset
+   * @param {String}      transactionBytes
+   * @param {Transaction} transaction
+   * @param {Number}      startOffset
    */
   parseSignatures (transactionBytes, transaction, startOffset) {
     transaction.signature = transactionBytes.substring(startOffset)
@@ -225,7 +225,7 @@ class CryptoBuilder {
 
   /**
    * Get transaction id.
-   * @param  {Object} transaction
+   * @param  {Transaction} transaction
    * @return {String}
    */
   getId (transaction) {
@@ -234,8 +234,8 @@ class CryptoBuilder {
 
   /**
    * Get transaction hash.
-   * @param  {Object} transaction
-   * @return {String}
+   * @param  {Transaction} transaction
+   * @return {Buffer}
    */
   getHash (transaction) {
     return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
@@ -243,7 +243,7 @@ class CryptoBuilder {
 
   /**
    * Get transaction fee.
-   * @param  {Object} transaction
+   * @param  {Transaction} transaction
    * @return {Number}
    */
   getFee (transaction) {
@@ -252,8 +252,8 @@ class CryptoBuilder {
 
   /**
    * Sign transaction.
-   * @param  {Object} transaction
-   * @param  {Object} keys
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
    * @return {Object}
    */
   sign (transaction, keys) {
@@ -269,8 +269,8 @@ class CryptoBuilder {
 
   /**
    * Sign transaction with second signature.
-   * @param  {Object} transaction
-   * @param  {Object} keys
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
    * @return {Object}
    */
   secondSign (transaction, keys) {
@@ -286,7 +286,7 @@ class CryptoBuilder {
 
   /**
    * Verify transaction on the network.
-   * @param  {Object} transaction
+   * @param  {Transaction}      transaction
    * @param  {Number|undefined} networkVersion
    * @return {Boolean}
    */
@@ -296,8 +296,8 @@ class CryptoBuilder {
 
   /**
    * Verify second signature for transaction.
-   * @param  {Object} transaction
-   * @param  {String} publicKey
+   * @param  {Transaction}      transaction
+   * @param  {String}           publicKey
    * @param  {Number|undefined} networkVersion
    * @return {Boolean}
    */
@@ -328,7 +328,7 @@ class CryptoBuilder {
 
   /**
    * Get address from public key.
-   * @param  {String} publicKey
+   * @param  {String}           publicKey
    * @param  {Number|undefined} networkVersion
    * @return {String}
    */
@@ -348,7 +348,7 @@ class CryptoBuilder {
 
   /**
    * Validate address.
-   * @param  {String} address
+   * @param  {String}           address
    * @param  {Number|undefined} networkVersion
    * @return {Boolean}
    */
@@ -366,7 +366,7 @@ class CryptoBuilder {
 
   /**
    * Validate public key.
-   * @param  {String} address
+   * @param  {String}           address
    * @param  {Number|undefined} networkVersion
    * @return {Boolean}
    */
