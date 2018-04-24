@@ -57,7 +57,7 @@ class LegacyCryptoBuilder {
 
     const actions = {
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
-        assetBytes = getSignatureBytes(transaction.asset.signature)
+        assetBytes = this.getSignatureBytes(transaction.asset.signature)
         assetSize = assetBytes.length
       },
       [TRANSACTION_TYPES.DELEGATE]: () => {
@@ -190,7 +190,7 @@ class LegacyCryptoBuilder {
     const actions = {
       'default': () => (false),
       [TRANSACTION_TYPES.TRANSFER]: () => {
-        parseSignatures(hexString, tx, 76+42+128+32)
+        this.parseSignatures(hexString, tx, 76+42+128+32)
       },
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
         delete tx.recipientId
@@ -199,12 +199,12 @@ class LegacyCryptoBuilder {
             publicKey : hexString.substring(76+42+128+32,76+42+128+32+66)
           }
         }
-        parseSignatures(hexString, tx, 76+42+128+32+66)
+        this.parseSignatures(hexString, tx, 76+42+128+32+66)
       },
       [TRANSACTION_TYPES.DELEGATE]: () => {
         delete tx.recipientId
         // Impossible to assess size of delegate asset, trying to grab signature and derive delegate asset
-        const offset = findAndParseSignatures(hexString, tx)
+        const offset = this.findAndParseSignatures(hexString, tx)
 
         tx.asset = {
           delegate: {
@@ -214,14 +214,14 @@ class LegacyCryptoBuilder {
       },
       [TRANSACTION_TYPES.VOTE]: () => {
         // Impossible to assess size of vote asset, trying to grab signature and derive vote asset
-        const offset = findAndParseSignatures(hexString, tx)
+        const offset = this.findAndParseSignatures(hexString, tx)
         tx.asset = {
           votes: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8").split(",")
         }
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
         delete tx.recipientId
-        const offset = findAndParseSignatures(hexString, tx)
+        const offset = this.findAndParseSignatures(hexString, tx)
         const buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
         tx.asset = {
           multisignature: {}
@@ -238,7 +238,7 @@ class LegacyCryptoBuilder {
       },
       [TRANSACTION_TYPES.IPFS]: () => {
         delete tx.recipientId
-        parseSignatures(hexString, tx, 76+42+128+32)
+        this.parseSignatures(hexString, tx, 76+42+128+32)
       },
     }
 
