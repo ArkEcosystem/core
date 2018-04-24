@@ -17,7 +17,8 @@ If you discover a security vulnerability within this package, please send an e-m
 - [François-Xavier Thoorens](https://github.com/fix)
 - [Kristjan Košič](https://github.com/kristjank)
 - [Brian Faust](https://github.com/faustbrian)
-- [All Contributors](../../contributors)
+- [Alex Barnsley](https://github.com/alexbarnsley)
+- [All Contributors](../../../../contributors)
 
 ## License
 
