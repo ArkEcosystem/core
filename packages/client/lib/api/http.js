@@ -4,78 +4,79 @@ const axios = require('axios')
 module.exports = class HttpClient {
   /**
    * @constructor
-   * @param  {String} host    [description]
-   * @param  {[type]} version [description]
+   * @param  {String} host
+   * @param  {Number} apiVersion
    */
-  constructor (host, version) {
+  constructor (host, apiVersion) {
     this.host = host.endsWith('/') ? host.slice(0, -1) : host
-    this.version = version
+    this.version = apiVersion
   }
 
   /**
-   * [setVersion description]
-   * @param {[type]} version [description]
+   * Used to specify the API Version.
+   * @param {Number} version
    */
   setVersion (version) {
     this.version = version
   }
 
   /**
-   * [get description]
-   * @param  {String} path   [description]
-   * @param  {Object} params [description]
-   * @return {[type]}        [description]
+   * Perform a HTTP GET request.
+   * @param  {String} path
+   * @param  {Object} params
+   * @return {Promise}
    */
   get (path, params = {}) {
     return this.sendRequest('get', path, params)
   }
 
   /**
-   * [post description]
-   * @param  {String} path [description]
-   * @param  {Object} data [description]
-   * @return {[type]}      [description]
+   * Perform a HTTP POST request.
+   * @param  {String} path
+   * @param  {Object} data
+   * @return {Promise}
    */
   post (path, data = {}) {
     return this.sendRequest('post', path, data)
   }
 
   /**
-   * [put description]
-   * @param  {String} path [description]
-   * @param  {Object} data [description]
-   * @return {[type]}      [description]
+   * Perform a HTTP PUT request.
+   * @param  {String} path
+   * @param  {Object} data
+   * @return {Promise}
    */
   put (path, data = {}) {
     return this.sendRequest('put', path, data)
   }
 
   /**
-   * [patch description]
-   * @param  {String} path [description]
-   * @param  {Object} data [description]
-   * @return {[type]}      [description]
+   * Perform a HTTP PATCH request.
+   * @param  {String} path
+   * @param  {Object} data
+   * @return {Promise}
    */
   patch (path, data = {}) {
     return this.sendRequest('patch', path, data)
   }
 
   /**
-   * [delete description]
-   * @param  {String} path   [description]
-   * @param  {Object} params [description]
-   * @return {[type]}        [description]
+   * Perform a HTTP DELETE request.
+   * @param  {String} path
+   * @param  {Object} params
+   * @return {Promise}
    */
   delete (path, params = {}) {
     return this.sendRequest('delete', path, params)
   }
 
   /**
-   * Performs a request, using the headers that are expected by the network
-   * @param  {String} method  [description]
-   * @param  {String} path    [description]
-   * @param  {[type]} payload [description]
-   * @return {[type]}         [description]
+   * Performs a request using the headers that are expected by the network.
+   * @param  {String} method
+   * @param  {String} path
+   * @param  {Object} payload
+   * @return {Promise}
+   * @throws Will throw an error if the HTTP request fails.
    */
   sendRequest (method, path, payload) {
     const client = axios.create({
