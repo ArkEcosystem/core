@@ -20,10 +20,11 @@ module.exports = class BlocksRepository {
 
   /**
    * [findAll description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {[type]}  params [description]
+   * @param  {Boolean} count  [description]
+   * @return {[type]}         [description]
    */
-  findAll (params) {
+  findAll (params, count = true) {
     let whereStatement = {}
     let orderBy = []
 
@@ -36,7 +37,7 @@ module.exports = class BlocksRepository {
       ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([[ 'height', 'DESC' ]])
 
-    return this.connection.models.block.findAndCountAll({
+    return this.connection.models.block[count ? 'findAndCountAll' : 'findAll']({
       where: whereStatement,
       order: orderBy,
       offset: params.offset,

@@ -20,10 +20,14 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const blocks = await db.blocks.findAll({...request.query, ...utils.paginator(request)})
+    const blocks = await db.blocks.findAll({
+      ...request.query, ...utils.paginator(request)
+    }, false)
+
+    if (!blocks) return utils.respondWith('No blocks found', true)
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks.rows, 'block')
+      blocks: utils.toCollection(request, blocks, 'block')
     })
   }
 }

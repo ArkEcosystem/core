@@ -21,10 +21,11 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAll description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {[type]}  params [description]
+   * @param  {Boolean} count  [description]
+   * @return {[type]}         [description]
    */
-  findAll (params) {
+  findAll (params, count = true) {
     let whereStatement = {}
     let orderBy = []
 
@@ -43,7 +44,7 @@ module.exports = class TransactionsRepository {
       ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([['timestamp', 'DESC']])
 
-    return this.connection.models.transaction.findAndCountAll({
+    return this.connection.models.transaction[count ? 'findAndCountAll' : 'findAll']({
       attributes: ['blockId', 'serialized'],
       where: whereStatement,
       order: orderBy,

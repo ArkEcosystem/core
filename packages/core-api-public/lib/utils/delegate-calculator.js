@@ -1,7 +1,8 @@
 'use strict';
 
-const state = require('@arkecosystem/core-plugin-manager').get('blockchain').getState()
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const state = pluginManager.get('blockchain').getState()
+const config = pluginManager.get('config')
 
 /**
  * [description]

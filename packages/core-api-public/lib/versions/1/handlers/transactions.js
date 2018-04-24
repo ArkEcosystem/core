@@ -20,12 +20,14 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAll({...request.query, ...utils.paginator(request)})
+    const transactions = await db.transactions.findAll({
+      ...request.query, ...utils.paginator(request)
+    }, false)
 
     if (!transactions) return utils.respondWith('No transactions found', true)
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions.rows, 'transaction')
+      transactions: utils.toCollection(request, transactions, 'transaction')
     })
   }
 }
