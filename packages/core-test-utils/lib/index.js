@@ -10,3 +10,7 @@ if (jestExpect !== undefined) {
   console.error(red('Unable to find Jest\'s global expect.'))
     /* eslint-enable no-console */
 }
+
+module.exports = {
+  generateTransactions: require('./generators/transactions')
+}
