@@ -4,7 +4,7 @@ const WinstonDriver = require('../lib/driver')
 
 let logger
 beforeAll(() => {
-  logger = new WinstonDriver(require('../lib/defaults.json'))
+  logger = new WinstonDriver(require('../lib/defaults.js'))
 })
 
 describe('Logger', () => {

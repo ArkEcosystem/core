@@ -9,6 +9,14 @@ const { createContainer, asValue } = require('awilix')
 
 class PluginManager {
   /**
+   * [constructor description]
+   * @return {[type]} [description]
+   */
+  constructor () {
+    this.container = createContainer()
+  }
+
+  /**
    * [init description]
    * @param  {[type]} config  [description]
    * @param  {Object} options [description]
@@ -24,7 +32,6 @@ class PluginManager {
 
     this.plugins = require(plugins)
     this.options = options
-    this.container = createContainer()
   }
 
   /**
@@ -68,7 +75,24 @@ class PluginManager {
    * @return {[type]}     [description]
    */
   get (key) {
-    return this.container.resolve(key).plugin
+    try {
+      return this.container.resolve(key).plugin
+    } catch (err) {
+      throw new Error(err.message)
+    }
+  }
+
+  /**
+   * [has description]
+   * @param  {[type]}  key [description]
+   * @return {Boolean}     [description]
+   */
+  has (key) {
+    try {
+      return this.container.resolve(key)
+    } catch (err) {
+      return false
+    }
   }
 
   /**
@@ -77,7 +101,11 @@ class PluginManager {
    * @return {[type]}     [description]
    */
   config (key) {
-    return this.container.resolve(key).options
+    try {
+      return this.container.resolve(key).options
+    } catch (err) {
+      throw new Error(`The service "${key}" is not available.`)
+    }
   }
 
   /**

@@ -14,7 +14,8 @@ const stubConfig = {
 describe('JSON Driver', () => {
   it('should fail without a config', async () => {
     try {
-      const driver = new JsonDriver(stubConfigPath)
+      console.log(stubConfigPath)
+      const driver = new JsonDriver({ config: stubConfigPath })
       await driver.make()
     } catch (error) {
       await expect(error.message).toEqual('undefined (object) is required')
@@ -22,7 +23,7 @@ describe('JSON Driver', () => {
   })
 
   it('should succeed with a config from a string', async () => {
-    const driver = new JsonDriver(stubConfigPath)
+    const driver = new JsonDriver({ config: stubConfigPath })
     const result = await driver.make()
 
     await expect(result.delegates).toEqual(stubConfig.delegates)
@@ -31,7 +32,7 @@ describe('JSON Driver', () => {
   })
 
   it('should succeed with a config from an object', async () => {
-    const driver = new JsonDriver(stubConfig)
+    const driver = new JsonDriver({ config: stubConfigPath })
     const result = await driver.make()
 
     await expect(result.delegates).toEqual(stubConfig.delegates)

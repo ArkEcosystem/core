@@ -4,7 +4,7 @@ const PinoDriver = require('../lib/driver')
 
 let logger
 beforeAll(() => {
-  logger = new PinoDriver(require('../lib/defaults.json'))
+  logger = new PinoDriver(require('../lib/defaults.js'))
 })
 
 describe('Logger', () => {
