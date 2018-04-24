@@ -9,7 +9,6 @@ module.exports = class Transaction {
   constructor (transaction) {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
-    console.log(configManager)
     if (this.data.version === 1) {
       // FIXME: @fix added this and this currently doesn't use the network the configManager uses
       this.verified = legacyCryptoBuilder.verify(this.data)
