@@ -2,36 +2,36 @@ const Base = require('../../base')
 
 module.exports = class Transactions extends Base {
   /**
-   * [all description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all transactions.
+   * @param  {Object} query
+   * @return {Promise}
    */
   all (query) {
     return this.http.get('transactions', query)
   }
 
   /**
-   * [get description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get transaction by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   get (id) {
     return this.http.get('transactions/get', {id})
   }
 
   /**
-   * [allUnconfirmed description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all unconfirmed transactions.
+   * @param  {Object} query
+   * @return {Promise}
    */
   allUnconfirmed (query) {
     return this.http.get('transactions/unconfirmed', query)
   }
 
   /**
-   * [getUnconfirmed description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get unconfirmed transaction by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   getUnconfirmed (id) {
     return this.http.get('transactions/unconfirmed/get', {id})
