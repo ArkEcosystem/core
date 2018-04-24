@@ -3,6 +3,7 @@
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
 const path = require('path')
+const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
@@ -18,7 +19,11 @@ class Database {
     }
 
     if (config.dialect === 'sqlite') {
-      config.uri = 'sqlite:' + expandHomeDir(config.uri.substring(7))
+      const databasePath = expandHomeDir(config.uri.substring(7))
+
+      config.uri = `sqlite:${databasePath}`
+
+      await fs.ensureFile(databasePath)
     }
 
     this.connection = new Sequelize(config.uri, {
