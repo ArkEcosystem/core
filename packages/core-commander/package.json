@@ -15,8 +15,8 @@
   },
   "scripts": {
     "ark:commander": "./bin/commander",
-    "test": "jest --forceExit --no-cache",
-    "test:watch": "jest --forceExit --no-cache --watch",
+    "test": "ARK_ENV=test jest --forceExit --no-cache",
+    "test:watch": "ARK_ENV=test jest --forceExit --no-cache --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {

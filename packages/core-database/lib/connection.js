@@ -11,7 +11,7 @@ const WalletManager = require('./wallet-manager')
  * [exports description]
  * @type {[type]}
  */
-module.exports = class Connection {
+module.exports = class ConnectionInterface {
   /**
    * [constructor description]
    * @param  {[type]} config [description]

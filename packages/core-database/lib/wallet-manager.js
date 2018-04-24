@@ -1,11 +1,15 @@
 'use strict';
 
 const Promise = require('bluebird')
-const { Wallet } = require('@arkecosystem/client').models
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const { crypto } = require('@arkecosystem/client')
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+
+const client = require('@arkecosystem/client')
+const { crypto } = client
+const { Wallet } = client.models
+const { TRANSACTION_TYPES } = client.constants
+
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const logger = pluginManager.get('logger')
 
 /**
  * [exports description]

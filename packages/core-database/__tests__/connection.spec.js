@@ -1,6 +1,6 @@
 'use strict';
 
-const ConnectionInterface = require('../lib/interface')
+const ConnectionInterface = require('../lib/connection')
 
 describe('Connection Interface', () => {
   it('should be an object', async () => {
