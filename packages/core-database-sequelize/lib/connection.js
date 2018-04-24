@@ -5,7 +5,7 @@ const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 
 const { Connection } = require('@arkecosystem/core-database')
@@ -49,9 +49,7 @@ module.exports = class SequelizeConnection extends Connection {
 
       this.config.uri = `sqlite:${databasePath}`
 
-      if (!fs.existsSync(databasePath)) {
-        fs.closeSync(fs.openSync(databasePath, 'w'))
-      }
+      await fs.ensureFile(databasePath)
     }
 
     this.connection = new Sequelize(this.config.uri, {
@@ -73,6 +71,7 @@ module.exports = class SequelizeConnection extends Connection {
     } catch (error) {
       logger.error('Unable to connect to the database:')
       logger.error(error.stack)
+      process.exit(1)
     }
   }
 
