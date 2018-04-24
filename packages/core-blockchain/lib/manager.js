@@ -292,7 +292,7 @@ module.exports = class BlockchainManager {
 
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) {
-        this.networkInterface.broadcastBlock(block)
+        this.getNetworkInterface().broadcastBlock(block)
       }
 
       this.getTransactionHandler().removeForgedTransactions(block.transactions)

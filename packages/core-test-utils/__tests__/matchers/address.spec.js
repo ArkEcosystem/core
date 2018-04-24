@@ -1,11 +1,13 @@
-expect.extend(require('../../lib/matchers/address'))
+expect.extend({
+  toBeArkAddress: require('../../lib/matchers/address')
+})
 
 describe('.toBeArkAddress', () => {
-  test('passes when given an address', () => {
+  test('passes when given a valid address', () => {
     expect('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN').toBeArkAddress()
   })
 
-  test('fails when not given an address', () => {
-    expect('invalid-address').toBeArkAddress()
+  test('fails when not given a valid address', () => {
+    expect('invalid-address').not.toBeArkAddress()
   })
 })

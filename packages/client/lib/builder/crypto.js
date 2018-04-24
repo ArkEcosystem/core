@@ -361,6 +361,24 @@ class CryptoBuilder {
       return false
     }
   }
+
+  /**
+   * [validatePublicKey description]
+   * @param  {[type]} address [description]
+   * @param  {[type]} version [description]
+   * @return {[type]}         [description]
+   */
+  validatePublicKey (address, version) {
+    if (!version) {
+      version = configManager.get('pubKeyHash')
+    }
+
+    try {
+      return this.getAddress(address, version).length === 34
+    } catch (e) {
+      return false
+    }
+  }
 }
 
 module.exports = new CryptoBuilder()
