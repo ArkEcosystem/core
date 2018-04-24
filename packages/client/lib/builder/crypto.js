@@ -1,7 +1,7 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
-const arkjsv1 = require('arkjs')
+const legacyCryptoBuilder = require('./legacy-crypto')
 // const { Buffer } = require('buffer/')
 
 const configManager = require('../managers/config')
@@ -227,8 +227,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   getId (transaction) {
-    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-    return arkjsv1.crypto.getId(transaction)
+    return legacyCryptoBuilder.getId(transaction)
   }
 
   /**
@@ -290,8 +289,7 @@ class CryptoBuilder {
    * @return {[type]}             [description]
    */
   verify (transaction, network) {
-    // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-    return arkjsv1.crypto.verify(transaction, network)
+    return legacyCryptoBuilder.verify(transaction, network)
   }
 
   /**

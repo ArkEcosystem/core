@@ -82,7 +82,7 @@ module.exports = class HttpClient {
       baseURL: this.host,
       headers: {
         nethash: configManager.get('nethash'),
-        version: configManager.get('version'),
+        version: configManager.get('pubKeyHash'),
         port: '1',
         'API-Version': this.version
       }

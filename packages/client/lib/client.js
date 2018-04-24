@@ -54,14 +54,6 @@ class Client {
   getClient (host) {
     return new ApiClient(host)
   }
-
-  /**
-   * [getNetworkManger description]
-   * @return {[type]} [description]
-   */
-  static getNetworkManager () {
-    return NetworkManager
-  }
 }
 
 module.exports = new Client()
