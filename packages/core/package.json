@@ -50,22 +50,5 @@
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",
     "commander": "^2.14.0"
-  },
-  "devDependencies": {
-    "body-parser": "^1.18.2",
-    "chai": "^4.1.2",
-    "chai-http": "^4.0.0",
-    "eslint": "^4.16.0",
-    "eslint-config-standard": "^11.0.0-beta.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "express": "^4.16.2",
-    "jest": "^22.3.0",
-    "jest-extended": "^0.6.0",
-    "request-promise": "^4.2.2",
-    "sinon": "^4.4.2",
-    "standard": "^10.0.3"
   }
 }
