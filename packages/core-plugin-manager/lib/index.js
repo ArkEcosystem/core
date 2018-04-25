@@ -2,6 +2,7 @@
 
 const path = require('path')
 const fs = require('fs')
+const semver = require('semver')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
@@ -62,6 +63,10 @@ class PluginManager {
     const version = item.plugin.version || item.plugin.pkg.version
     const defaults = item.plugin.defaults || item.plugin.pkg.defaults
     const alias = item.plugin.alias || item.plugin.pkg.alias
+
+    if (!semver.valid(version)) {
+      throw new Error(`The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`)
+    }
 
     if (defaults) options = Hoek.applyToDefaults(defaults, options)
 
