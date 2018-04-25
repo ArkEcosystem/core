@@ -65,8 +65,8 @@ class PluginManager {
 
     if (defaults) options = Hoek.applyToDefaults(defaults, options)
 
-    const instance = await item.plugin.register(this, options || {})
-    this.container.register(alias || name, asValue({ name, version, plugin: instance, options }))
+    const plugin = await item.plugin.register(this, options || {})
+    this.container.register(alias || name, asValue({ name, version, plugin, options }))
   }
 
   /**
