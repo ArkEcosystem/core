@@ -31,7 +31,33 @@ const applyV1Fix = (data) => {
   // }
 }
 
+/**
+ * @classdesc This model holds the block data, its verification and serialization
+ *
+ * A Block object contains:
+ *   - id
+ *   - version (the version of the `ark-core` project)
+ *   - timestamp (related to the genesis block)
+ *   - previousBlock (id of the previous block)
+ *   - height
+ *   - transactions
+ *   - numberOfTransactions
+ *   - totalAmount (in arktoshi)
+ *   - totalFee (in arktoshi)
+ *   - reward (in arktoshi)
+ *   - payloadHash (hash of the transactions)
+ *   - payloadLength (TODO)
+ *   - generatorPublicKey (public key of the delegate that forged this block)
+ *   - blockSignature
+ *
+ * In the future the IDs could be changed to use the hexadecimal version of them,
+ * which would be more efficient for performance, disk usage and bandwidth reasons.
+ * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
+ */
 module.exports = class Block {
+  /**
+   * @param {Object} data - The data of the block
+   */
   constructor (data) {
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
