@@ -4,9 +4,9 @@ const popsicle = require('popsicle')
 
 /**
  * [description]
- * @param  {[type]}   message [description]
- * @param  {Function} done    [description]
- * @return {[type]}           [description]
+ * @param  {Object}   message
+ * @param  {Function} done
+ * @return {*}
  */
 module.exports = async (message, done) => {
   if (message.height) {

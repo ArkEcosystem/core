@@ -14,10 +14,10 @@ const isLocalhost = require('./utils/is-localhost')
  */
 module.exports = class Down {
   /**
-   * [constructor description]
-   * @param  {[type]} p2p    [description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @constructor
+   * @param  {P2PInterface} p2p
+   * @param  {Object}       config
+   * @throws {Error} If no seed peers
    */
   constructor (p2p, config) {
     this.p2p = p2p
@@ -30,9 +30,8 @@ module.exports = class Down {
   }
 
   /**
-   * [start description]
-   * @param  {Boolean} networkStart [description]
-   * @return {[type]}               [description]
+   * Method to run on startup.
+   * @param {Boolean} networkStart
    */
   async start (networkStart = false) {
     if (!networkStart) {
@@ -41,8 +40,8 @@ module.exports = class Down {
   }
 
   /**
-   * [updateNetworkStatus description]
-   * @return {[type]} [description]
+   * Update network status (currently only peers are updated).
+   * @return {Promise}
    */
   async updateNetworkStatus () {
     try {
@@ -69,17 +68,15 @@ module.exports = class Down {
   }
 
   /**
-   * [stop description]
-   * @return {[type]} [description]
+   * Stop method placeholder.
    */
   stop () {
     // Noop
   }
 
   /**
-   * [cleanPeers description]
-   * @param  {Boolean} fast [description]
-   * @return {[type]}       [description]
+   * Clear peers which aren't responding.
+   * @param {Boolean} fast
    */
   async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
@@ -110,9 +107,9 @@ module.exports = class Down {
   }
 
   /**
-   * [acceptNewPeer description]
-   * @param  {[type]} peer [description]
-   * @return {[type]}      [description]
+   * Accept and store a valid peer.
+   * @param  {Peer} peer
+   * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
     if (this.peers[peer.ip] || process.env.ARK_ENV === 'test') return
@@ -132,22 +129,22 @@ module.exports = class Down {
   }
 
   /**
-   * [getPeers description]
-   * @return {[type]} [description]
+   * Get all available peers.
+   * @return {Peer[]}
    */
   async getPeers () {
     return Object.values(this.peers)
   }
 
   /**
-   * [getRandomPeer description]
-   * @param  {[type]} delay [description]
-   * @return {[type]}       [description]
+   * Get a random, available peer.
+   * @param  {(Number|undefined)} acceptableDelay
+   * @return {Peer}
    */
-  getRandomPeer (delay) {
+  getRandomPeer (acceptableDelay) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
-    if (delay) keys = keys.filter((key) => this.peers[key].delay < delay)
+    if (acceptableDelay) keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
     if (!randomPeer) {
@@ -156,12 +153,13 @@ module.exports = class Down {
       this.p2p.checkOnline()
       return this.getRandomPeer()
     }
+
     return randomPeer
   }
 
   /**
-   * [getRandomDownloadBlocksPeer description]
-   * @return {[type]} [description]
+   * Get a random, available peer which can be used for downloading blocks.
+   * @return {Peer}
    */
   getRandomDownloadBlocksPeer () {
     let keys = Object.keys(this.peers)
@@ -174,12 +172,13 @@ module.exports = class Down {
       delete this.peers[random]
       return this.getRandomPeer()
     }
+
     return randomPeer
   }
 
   /**
-   * [discoverPeers description]
-   * @return {[type]} [description]
+   * Populate list of available peers from random peers.
+   * @return {Peer[]}
    */
   async discoverPeers () {
     try {
@@ -198,30 +197,31 @@ module.exports = class Down {
   }
 
   /**
-   * [later description]
-   * @param  {[type]} delay [description]
-   * @param  {[type]} value [description]
-   * @return {[type]}       [description]
+   * Resolve value at a later time.
+   * @param  {Number}  delay
+   * @param  {*}       value
+   * @return {Promise}
    */
   later (delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value))
   }
 
   /**
-   * [getNetworkHeight description]
-   * @return {[type]} [description]
+   * Get the median network height.
+   * @return {Number}
    */
   getNetworkHeight () {
     const median = Object.values(this.peers)
       .filter(peer => peer.state.height)
       .map(peer => peer.state.height)
       .sort()
+
     return median[~~(median.length / 2)]
   }
 
   /**
-   * [getPBFTForgingStatus description]
-   * @return {[type]} [description]
+   * Get the PBFT Forging status.
+   * @return {Number}
    */
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
@@ -229,13 +229,14 @@ module.exports = class Down {
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
     const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
+
     return ratio
   }
 
   /**
-   * [downloadBlocks description]
-   * @param  {[type]} fromBlockHeight [description]
-   * @return {[type]}                 [description]
+   * Download blocks from a random peer.
+   * @param  {Number}   fromBlockHeight
+   * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
     const randomPeer = this.getRandomDownloadBlocksPeer()
@@ -250,9 +251,9 @@ module.exports = class Down {
   }
 
   /**
-   * [broadcastBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Broadcast block to all peers.
+   * @param  {Block}   block
+   * @return {Promise}
    */
   broadcastBlock (block) {
     const bpeers = Object.values(this.peers)
@@ -262,9 +263,8 @@ module.exports = class Down {
   }
 
   /**
-   * [broadcastTransactions description]
-   * @param  {[type]} transactions [description]
-   * @return {[type]}              [description]
+   * Placeholder method to broadcast transactions to peers.
+   * @param {Transaction[]} transactions
    */
   broadcastTransactions (transactions) {
 

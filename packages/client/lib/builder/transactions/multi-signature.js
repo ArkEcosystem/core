@@ -34,7 +34,7 @@ module.exports = class MultiSignature extends Transaction {
 
   /**
    * Overrides the inherited method to return the additional required by this.
-   * @return {Object} [description]
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()
