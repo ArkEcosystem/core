@@ -17,7 +17,9 @@ module.exports = {
       dialect: 'sqlite',
       dialect_1: 'postgres'
     },
-    '@arkecosystem/core-api-p2p': {},
+    '@arkecosystem/core-api-p2p': {
+      port: 4000
+    },
     '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
