@@ -77,7 +77,7 @@ module.exports = class BlockchainManager {
    * @return {Boolean} [description]
    */
   async isReady () {
-    while (!stateMachine.state.started) await sleep(1000)
+    // while (!stateMachine.state.started) await sleep(1000)
     return true
   }
 

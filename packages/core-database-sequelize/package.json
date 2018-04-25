@@ -11,8 +11,8 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "ARK_ENV=test jest --forceExit --no-cache",
-    "test:watch": "ARK_ENV=test jest --forceExit --no-cache --watch",
+    "test": "ARK_ENV=test jest --forceExit",
+    "test:watch": "ARK_ENV=test jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
