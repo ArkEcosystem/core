@@ -2,7 +2,7 @@
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 const state = blockchainManager.getState()
 
@@ -22,7 +22,7 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const blocks = await db.blocks.findAll({
+    const blocks = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
     }, false)
 
@@ -47,7 +47,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const block = await db.blocks.findById(request.query.id)
+    const block = await database.blocks.findById(request.query.id)
 
     if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
 

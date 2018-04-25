@@ -2,7 +2,7 @@
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 const state = blockchainManager.getState()
 
@@ -22,7 +22,7 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const delegates = await db.delegates.findAll()
+    const delegates = await database.delegates.findAll()
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates, 'delegate')
@@ -43,7 +43,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const delegate = await db.delegates.findById(request.query.id)
+    const delegate = await database.delegates.findById(request.query.id)
 
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
@@ -57,7 +57,7 @@ exports.show = {
  */
 exports.count = {
   handler: async (request, h) => {
-    const delegates = await db.delegates.findAll()
+    const delegates = await database.delegates.findAll()
 
     return utils.respondWith({ count: delegates.length })
   }
@@ -76,7 +76,7 @@ exports.search = {
     }
   },
   handler: async (request, h) => {
-    const delegates = await db.delegates.search({...request.query, ...utils.paginator(request)})
+    const delegates = await database.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates.rows, 'delegate')
@@ -90,8 +90,8 @@ exports.search = {
  */
 exports.voters = {
   handler: async (request, h) => {
-    const delegate = await db.delegates.findById(request.query.publicKey)
-    const accounts = await db.wallets.findAllByVote(delegate.publicKey)
+    const delegate = await database.delegates.findById(request.query.publicKey)
+    const accounts = await database.wallets.findAllByVote(delegate.publicKey)
 
     return utils.respondWith({
       accounts: utils.toCollection(request, accounts, 'voter')
@@ -124,7 +124,7 @@ exports.forged = {
     }
   },
   handler: async (request, h) => {
-    const totals = await db.blocks.totalsByGenerator(request.query.generatorPublicKey)
+    const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
 
     return utils.respondWith(totals[0])
   }

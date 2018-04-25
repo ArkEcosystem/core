@@ -4,8 +4,9 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const state = pluginManager.get('blockchain').getState()
 
-const { crypto } = require('@arkecosystem/client')
-const { Transaction } = require('@arkecosystem/client').models
+const client = require('@arkecosystem/client')
+const { crypto } = client
+const { Transaction } = client.models
 
 const formatTimestamp = require('./utils/format-timestamp')
 

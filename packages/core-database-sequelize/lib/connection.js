@@ -14,8 +14,9 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
-const { Block, Transaction } = require('@arkecosystem/client').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const client = require('@arkecosystem/client')
+const { Block, Transaction } = client.models
+const { TRANSACTION_TYPES } = client.constants
 
 module.exports = class SequelizeConnection extends Connection {
   /**

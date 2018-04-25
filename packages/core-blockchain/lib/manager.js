@@ -1,10 +1,14 @@
 'use strict';
 
 const async = require('async')
-const { slots } = require('@arkecosystem/client')
-const { Block } = require('@arkecosystem/client').models
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Block } = client.models
+
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
+
 const stateMachine = require('./state-machine')
 const sleep = require('./utils/sleep')
 

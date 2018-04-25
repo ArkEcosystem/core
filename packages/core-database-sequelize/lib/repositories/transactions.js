@@ -1,8 +1,11 @@
 'use strict';
 
 const Op = require('sequelize').Op
-const { Transaction } = require('@arkecosystem/client').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+
+const client = require('@arkecosystem/client')
+const { Transaction } = client.models
+const { TRANSACTION_TYPES } = client.constants
+
 const buildFilterQuery = require('./utils/filter-query')
 
 /**

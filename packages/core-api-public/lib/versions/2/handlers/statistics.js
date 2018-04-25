@@ -5,7 +5,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 const state = blockchainManager.getState()
 
@@ -27,7 +27,7 @@ exports.blockchain = {
 
     const totalSupply = config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
 
-    let delegates = await db.delegates.active(height, totalSupply)
+    let delegates = await database.delegates.active(height, totalSupply)
     delegates = _.sortBy(delegates, 'productivity')
 
     return h.response({
@@ -59,7 +59,7 @@ exports.blockchain = {
  */
 exports.transactions = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
+    const transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
 
     return {
       data: {
@@ -80,7 +80,7 @@ exports.transactions = {
  */
 exports.blocks = {
   handler: async (request, h) => {
-    const blocks = await db.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
+    const blocks = await database.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
     return {
       data: {
@@ -101,7 +101,7 @@ exports.blocks = {
  */
 exports.votes = {
   handler: async (request, h) => {
-    let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
+    let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
 
     return {
@@ -123,7 +123,7 @@ exports.votes = {
  */
 exports.unvotes = {
   handler: async (request, h) => {
-    let transactions = await db.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
+    let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))
 
     return {

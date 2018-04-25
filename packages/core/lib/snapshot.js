@@ -21,8 +21,8 @@ module.exports = async (options) => {
 
   logger.init(config.server.logging, config.network.name)
 
-  const db = await DB.create(config.server.database)
-  db.snapshot(expandHomeDir(config.server.database.snapshots))
+  const database = await DB.create(config.server.database)
+  database.snapshot(expandHomeDir(config.server.database.snapshots))
 
   logger.info('Snapshot saved')
 }

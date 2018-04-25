@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('@arkecosystem/core-plugin-manager').get('database')
+const database = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/blocks')
 
@@ -10,7 +10,7 @@ const schema = require('../schema/blocks')
  */
 exports.index = {
   handler: async (request, h) => {
-    const blocks = await db.blocks.findAll(utils.paginate(request))
+    const blocks = await database.blocks.findAll(utils.paginate(request))
 
     return utils.toPagination(request, blocks, 'block')
   },
@@ -25,7 +25,7 @@ exports.index = {
  */
 exports.show = {
   handler: async (request, h) => {
-    const block = await db.blocks.findById(request.params.id)
+    const block = await database.blocks.findById(request.params.id)
 
     return utils.respondWithResource(request, block, 'block')
   },
@@ -40,8 +40,8 @@ exports.show = {
  */
 exports.transactions = {
   handler: async (request, h) => {
-    const block = await db.blocks.findById(request.params.id)
-    const transactions = await db.transactions.findAllByBlock(block.id, utils.paginate(request))
+    const block = await database.blocks.findById(request.params.id)
+    const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -56,7 +56,7 @@ exports.transactions = {
  */
 exports.search = {
   handler: async (request, h) => {
-    const blocks = await db.blocks.search({
+    const blocks = await database.blocks.search({
       ...request.payload,
       ...request.query,
       ...utils.paginate(request)
