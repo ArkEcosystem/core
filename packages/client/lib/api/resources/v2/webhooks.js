@@ -11,10 +11,11 @@ module.exports = class Webhooks extends Base {
 
   /**
    * Create webhooks.
+   * @param  {Object} payload
    * @return {Promise}
    */
-  create () {
-    return this.http.post('webhooks')
+  create (payload) {
+    return this.http.post('webhooks', payload)
   }
 
   /**
