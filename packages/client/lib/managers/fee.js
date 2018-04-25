@@ -3,16 +3,15 @@ const { TRANSACTION_TYPES } = require('../constants')
 class FeeManager {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     this.fees = {}
   }
 
   /**
-   * [set description]
-   * @param {[type]} type  [description]
-   * @param {[type]} value [description]
+   * Set fee value based on type.
+   * @param {Number} type
+   * @param {Number} value
    */
   set (type, value) {
     if (!this.__validType(type)) {
@@ -23,19 +22,18 @@ class FeeManager {
   }
 
   /**
-   * [get description]
-   * @param  {[type]} type  [description]
-   * @param  {[type]} value [description]
-   * @return {[type]}       [description]
+   * Get fee value based on type.
+   * @param  {Number} type
+   * @return {Number}
    */
-  get (type, value) {
+  get (type) {
     return this.fees[type]
   }
 
   /**
-   * [__validType description]
-   * @param  {[type]} type [description]
-   * @return {[type]}      [description]
+   * Ensure fee type is valid.
+   * @param  {Number} type
+   * @return {Boolean}
    */
   __validType (type) {
     return Object.values(TRANSACTION_TYPES).indexOf(type) > -1

@@ -404,8 +404,8 @@ class LegacyCryptoBuilder {
 
   /**
    * Verify transaction
-   * @param  {Transaction}      transaction
-   * @param  {Number|undefined} networkVersion
+   * @param  {Transaction}        transaction
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   verify (transaction, networkVersion) {
@@ -421,9 +421,9 @@ class LegacyCryptoBuilder {
 
   /**
    * Verify second signature for transaction.
-   * @param  {Transaction}      transaction
-   * @param  {String}           publicKey
-   * @param  {Number|undefined} networkVersion
+   * @param  {Transaction}        transaction
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, networkVersion) {
@@ -454,8 +454,8 @@ class LegacyCryptoBuilder {
 
   /**
    * Get address from public key.
-   * @param  {String}           publicKey
-   * @param  {Number|undefined} networkVersion
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
    * @return {String}
    */
   getAddress (publicKey, networkVersion) {
@@ -474,8 +474,8 @@ class LegacyCryptoBuilder {
 
   /**
    * Validate address.
-   * @param  {String}           address
-   * @param  {Number|undefined} networkVersion
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   validateAddress(address, networkVersion) {

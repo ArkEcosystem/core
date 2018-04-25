@@ -286,8 +286,8 @@ class CryptoBuilder {
 
   /**
    * Verify transaction on the network.
-   * @param  {Transaction}      transaction
-   * @param  {Number|undefined} networkVersion
+   * @param  {Transaction}        transaction
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   verify (transaction, networkVersion) {
@@ -296,9 +296,9 @@ class CryptoBuilder {
 
   /**
    * Verify second signature for transaction.
-   * @param  {Transaction}      transaction
-   * @param  {String}           publicKey
-   * @param  {Number|undefined} networkVersion
+   * @param  {Transaction}        transaction
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, networkVersion) {
@@ -328,8 +328,8 @@ class CryptoBuilder {
 
   /**
    * Get address from public key.
-   * @param  {String}           publicKey
-   * @param  {Number|undefined} networkVersion
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
    * @return {String}
    */
   getAddress (publicKey, networkVersion) {
@@ -348,8 +348,8 @@ class CryptoBuilder {
 
   /**
    * Validate address.
-   * @param  {String}           address
-   * @param  {Number|undefined} networkVersion
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   validateAddress (address, networkVersion) {
@@ -366,8 +366,8 @@ class CryptoBuilder {
 
   /**
    * Validate public key.
-   * @param  {String}           address
-   * @param  {Number|undefined} networkVersion
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
    * @return {Boolean}
    */
   validatePublicKey (address, networkVersion) {

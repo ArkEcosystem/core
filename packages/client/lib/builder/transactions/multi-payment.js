@@ -5,7 +5,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class MultiPayment extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -17,9 +16,10 @@ module.exports = class MultiPayment extends Transaction {
   }
 
   /**
-   * [setVendorField description]
-   * @param {[type]} data [description]
-   * @param {[type]} type [description]
+   * Set vendor field from data.
+   * @param  {(String|undefined)} data
+   * @param  {Number}             type
+   * @return {MultiPayment}
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
@@ -27,9 +27,10 @@ module.exports = class MultiPayment extends Transaction {
   }
 
   /**
-   * [addPayment description]
-   * @param {[type]} address [description]
-   * @param {[type]} amount  [description]
+   * Add payment to the multipayment collection.
+   * @param {String} address
+   * @param {Number} amount
+   * @return {MultiPayment}
    */
   addPayment (address, amount) {
     const paymentsCount = Object.keys(this.payments).length / 2
@@ -45,9 +46,8 @@ module.exports = class MultiPayment extends Transaction {
   }
 
   /**
-   * [getStruct description]
-   * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * Overrides the inherited method to return the additional required by this.
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()
