@@ -32,6 +32,7 @@ const applyV1Fix = (data) => {
 }
 
 /**
+ * TODO move to ArkDocs
  * @classdesc This model holds the block data, its verification and serialization
  *
  * A Block model stores on the db:

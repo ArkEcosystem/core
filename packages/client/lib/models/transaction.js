@@ -6,6 +6,7 @@ const { TRANSACTION_TYPES } = require('../constants')
 const legacyCryptoBuilder = require('../builder/legacy-crypto')
 
 /**
+ * TODO move to ArkDocs
  * @classdesc This model holds the transaction data and its serialization
  *
  * A Transaction stores on the db:

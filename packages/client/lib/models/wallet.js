@@ -5,6 +5,7 @@ const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
 
 /**
+ * TODO move to ArkDocs
  * @classdesc This class holds the wallet data, verifies it and applies the
  * transaction and blocks to it
  *

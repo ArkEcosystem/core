@@ -10,6 +10,7 @@ const cryptoBuilder = require('../builder/crypto')
 const sortTransactions = require('../utils/sort-transactions')
 
 /**
+ * TODO move to ArkDocs
  * @classdesc The delegate model
  *
  * The Delegate model does not store anything on db, but the object contains:
