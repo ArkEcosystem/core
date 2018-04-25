@@ -1,10 +1,12 @@
 'use strict';
 
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const state = pluginManager.get('blockchain').getState()
+
 const { crypto } = require('@arkecosystem/client')
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchainManager.getState()
-const config = require('@arkecosystem/core-plugin-manager').get('config')
 const { Transaction } = require('@arkecosystem/client').models
+
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**

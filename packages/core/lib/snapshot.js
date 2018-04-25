@@ -6,9 +6,10 @@
 
 const expandHomeDir = require('expand-home-dir')
 
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const DB = require('@arkecosystem/core-plugin-manager').get('database')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const DB = pluginManager.get('database')
+const logger = pluginManager.get('logger')
 
 /**
  * [description]

@@ -1,9 +1,12 @@
 'use strict';
 
-const { slots } = require('@arkecosystem/client')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const { Transaction } = require('@arkecosystem/client').models
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const logger = pluginManager.get('logger')
+const blockchainManager = pluginManager.get('blockchain')
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Transaction } = client.models
 
 /**
  * [getPeers description]

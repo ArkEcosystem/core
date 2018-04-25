@@ -1,7 +1,9 @@
 'use strict';
 
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const blockchainManager = pluginManager.get('blockchain')
+
 const utils = require('../utils')
 const schema = require('../schemas/peers')
 
