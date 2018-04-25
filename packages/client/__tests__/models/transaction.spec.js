@@ -57,19 +57,19 @@ const createRandomTx = type => {
 }
 
 const verifyEcdsaNonMalleability = (transaction) => {
-  var ecurve = require('ecurve')
-  var secp256k1 = ecurve.getCurveByName('secp256k1')
-  var n = secp256k1.n
-  var hash = cryptoBuilder.getHash(transaction, true, true)
+  const ecurve = require('ecurve')
+  const secp256k1 = ecurve.getCurveByName('secp256k1')
+  const n = secp256k1.n
+  const hash = cryptoBuilder.getHash(transaction, true, true)
 
-  var signatureBuffer = Buffer.from(transaction.signature, 'hex')
-  var senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-  var ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, transaction.network)
-  var ecsignature = ECSignature.fromDER(signatureBuffer)
-  var ecs2 = ECSignature.fromDER(signatureBuffer)
+  const signatureBuffer = Buffer.from(transaction.signature, 'hex')
+  const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
+  const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, transaction.network)
+  const ecsignature = ECSignature.fromDER(signatureBuffer)
+  const ecs2 = ECSignature.fromDER(signatureBuffer)
   ecs2.s = n.subtract(ecs2.s)
-  var res = ecpair.verify(hash, ecsignature)
-  var res2 = ecpair.verify(hash, ecs2)
+  const res = ecpair.verify(hash, ecsignature)
+  const res2 = ecpair.verify(hash, ecs2)
   return res === true && res2 === false
 }
 
@@ -97,8 +97,8 @@ describe('Models - Transaction', () => {
           expect(newtx.data).toEqual(tx)
           expect(newtx.verified).toBeTruthy()
         })
-      let hex = Transaction.serialize(txData).toString('hex')
-      let tx = Transaction.fromBytes(hex)
+      const hex = Transaction.serialize(txData).toString('hex')
+      const tx = Transaction.fromBytes(hex)
       expect(tx).toBeInstanceOf(Transaction)
       expect(tx.data).toEqual(txData)
     })
