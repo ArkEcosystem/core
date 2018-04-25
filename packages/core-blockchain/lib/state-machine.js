@@ -1,8 +1,11 @@
 'use strict';
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const { slots } = require('@arkecosystem/client')
-const { Block } = require('@arkecosystem/client').models
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Block } = client.models
+
 const sleep = require('./utils/sleep')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')

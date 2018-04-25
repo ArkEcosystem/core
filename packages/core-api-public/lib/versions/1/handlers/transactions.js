@@ -4,7 +4,7 @@ const Boom = require('boom')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 
 const utils = require('../utils')
@@ -23,7 +23,7 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAll({
+    const transactions = await database.transactions.findAll({
       ...request.query, ...utils.paginator(request)
     }, false)
 
@@ -48,7 +48,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const result = await db.transactions.findById(request.query.id)
+    const result = await database.transactions.findById(request.query.id)
 
     if (!result) return utils.respondWith('No transactions found', true)
 

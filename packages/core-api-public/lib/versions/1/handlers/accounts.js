@@ -4,7 +4,7 @@ const { crypto } = require('@arkecosystem/client')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 const state = blockchainManager.getState()
 
@@ -18,7 +18,7 @@ const { calculateApproval, calculateProductivity } = require('../../../utils/del
  */
 exports.index = {
   handler: async (request, h) => {
-    const wallets = await db.wallets.findAll({...request.query, ...utils.paginator(request)})
+    const wallets = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
       wallets: utils.toCollection(request, wallets.rows, 'wallet')
@@ -39,7 +39,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const account = await db.wallets.findById(request.query.address)
+    const account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Not found', true)
 
@@ -60,7 +60,7 @@ exports.balance = {
     }
   },
   handler: async (request, h) => {
-    const account = await db.wallets.findById(request.query.address)
+    const account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Not found', true)
 
@@ -84,7 +84,7 @@ exports.publicKey = {
     }
   },
   handler: async (request, h) => {
-    const account = await db.wallets.findById(request.query.address)
+    const account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Not found', true)
 
@@ -117,16 +117,16 @@ exports.delegates = {
     }
   },
   handler: async (request, h) => {
-    let account = await db.wallets.findById(request.query.address)
+    let account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Address not found.', true)
     if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
 
-    const delegates = await db.getActiveDelegates(state.lastBlock.data.height)
+    const delegates = await database.getActiveDelegates(state.lastBlock.data.height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 
-    account = await db.wallets.findById(crypto.getAddress(account.vote, config.network.pubKeyHash))
+    account = await database.wallets.findById(crypto.getAddress(account.vote, config.network.pubKeyHash))
 
     return utils.respondWith({
       delegates: [{
@@ -157,7 +157,7 @@ exports.top = {
     }
   },
   handler: async (request, h) => {
-    let accounts = await db.wallets.top(utils.paginator(request), true)
+    let accounts = await database.wallets.top(utils.paginator(request), true)
 
     accounts = accounts.map((a) => ({
       address: a.address,
@@ -175,7 +175,7 @@ exports.top = {
  */
 exports.count = {
   handler: async (request, h) => {
-    const accounts = await db.wallets.findAll()
+    const accounts = await database.wallets.findAll()
 
     return utils.respondWith({ count: accounts.length })
   }

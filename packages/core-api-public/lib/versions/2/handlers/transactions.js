@@ -4,10 +4,12 @@ const Boom = require('boom')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const db = pluginManager.get('database')
+const database = pluginManager.get('database')
 const blockchainManager = pluginManager.get('blockchain')
 
-const { Transaction } = require('@arkecosystem/client').models
+const client = require('@arkecosystem/client')
+const { Transaction } = client.models
+const { TRANSACTION_TYPES } = client.constants
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -18,7 +20,7 @@ const schema = require('../schema/transactions')
  */
 exports.index = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAll(utils.paginate(request))
+    const transactions = await database.transactions.findAll(utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   }
@@ -48,7 +50,7 @@ exports.store = {
  */
 exports.show = {
   handler: async (request, h) => {
-    const transaction = await db.transactions.findById(request.params.id)
+    const transaction = await database.transactions.findById(request.params.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   },
@@ -99,7 +101,7 @@ exports.showUnconfirmed = {
  */
 exports.search = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.search({
+    const transactions = await database.transactions.search({
       ...request.query,
       ...request.payload,
       ...utils.paginate(request)
@@ -119,7 +121,7 @@ exports.search = {
 exports.types = {
   handler: async (request, h) => {
     return {
-      data: require('@arkecosystem/client').constants.TRANSACTION_TYPES
+      data: TRANSACTION_TYPES
     }
   }
 }

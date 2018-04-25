@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('@arkecosystem/core-plugin-manager').get('database')
+const database = require('@arkecosystem/core-plugin-manager').get('database')
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**
@@ -9,7 +9,7 @@ const formatTimestamp = require('./utils/format-timestamp')
  * @return {[type]}       [description]
  */
 module.exports = (model) => {
-  const generator = db.walletManager.getWalletByPublicKey(model.generatorPublicKey)
+  const generator = database.walletManager.getWalletByPublicKey(model.generatorPublicKey)
 
   return {
     id: model.id,

@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('@arkecosystem/core-plugin-manager').get('database')
+const database = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')
 const schema = require('../schema/wallets')
 
@@ -10,7 +10,7 @@ const schema = require('../schema/wallets')
  */
 exports.index = {
   handler: async (request, h) => {
-    const wallets = await db.wallets.paginate(utils.paginate(request))
+    const wallets = await database.wallets.paginate(utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
   },
@@ -25,7 +25,7 @@ exports.index = {
  */
 exports.top = {
   handler: async (request, h) => {
-    const wallets = await db.wallets.top(utils.paginate(request))
+    const wallets = await database.wallets.top(utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
   }
@@ -37,7 +37,7 @@ exports.top = {
  */
 exports.show = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.findById(request.params.id)
+    const wallet = await database.wallets.findById(request.params.id)
 
     return utils.respondWithResource(request, wallet, 'wallet')
   },
@@ -52,8 +52,8 @@ exports.show = {
  */
 exports.transactions = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.findById(request.params.id)
-    const transactions = await db.transactions.findAllByWallet(wallet, utils.paginate(request))
+    const wallet = await database.wallets.findById(request.params.id)
+    const transactions = await database.transactions.findAllByWallet(wallet, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -68,8 +68,8 @@ exports.transactions = {
  */
 exports.transactionsSent = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.findById(request.params.id)
-    const transactions = await db.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
+    const wallet = await database.wallets.findById(request.params.id)
+    const transactions = await database.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -84,8 +84,8 @@ exports.transactionsSent = {
  */
 exports.transactionsReceived = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.findById(request.params.id)
-    const transactions = await db.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
+    const wallet = await database.wallets.findById(request.params.id)
+    const transactions = await database.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -100,8 +100,8 @@ exports.transactionsReceived = {
  */
 exports.votes = {
   handler: async (request, h) => {
-    const wallet = await db.wallets.findById(request.params.id)
-    const transactions = await db.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
+    const wallet = await database.wallets.findById(request.params.id)
+    const transactions = await database.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -116,7 +116,7 @@ exports.votes = {
  */
 exports.search = {
   handler: async (request, h) => {
-    const wallets = await db.wallets.search({
+    const wallets = await database.wallets.search({
       ...request.payload,
       ...request.query,
       ...utils.paginate(request)

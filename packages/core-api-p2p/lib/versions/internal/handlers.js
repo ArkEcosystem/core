@@ -1,10 +1,12 @@
 'use strict';
 
-const { slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const blockchainManager = pluginManager.get('blockchain')
 const config = pluginManager.get('config')
-const { Transaction } = require('@arkecosystem/client').models
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Transaction } = client.models
 
 /**
  * [postVerifyTransaction description]
