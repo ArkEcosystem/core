@@ -34,21 +34,25 @@ const applyV1Fix = (data) => {
 /**
  * @classdesc This model holds the block data, its verification and serialization
  *
- * A Block object contains:
+ * A Block model stores on the db:
  *   - id
- *   - version (the version of the `ark-core` project)
+ *   - version (version of the network? TODO)
  *   - timestamp (related to the genesis block)
  *   - previousBlock (id of the previous block)
  *   - height
- *   - transactions
  *   - numberOfTransactions
  *   - totalAmount (in arktoshi)
  *   - totalFee (in arktoshi)
  *   - reward (in arktoshi)
  *   - payloadHash (hash of the transactions)
- *   - payloadLength (TODO)
+ *   - payloadLength (total length in bytes of the IDs of the transactions)
  *   - generatorPublicKey (public key of the delegate that forged this block)
  *   - blockSignature
+ *
+ * The `transactions` are stored too, but in a different table.
+ *
+ * These data is exposed through the `data` attributed as a plain object and
+ * serialized through the `serialized` attribute.
  *
  * In the future the IDs could be changed to use the hexadecimal version of them,
  * which would be more efficient for performance, disk usage and bandwidth reasons.
@@ -127,6 +131,9 @@ module.exports = class Block {
     return temp.toString('hex')
   }
 
+  /**
+   * @return {Object} The block data, without the transactions
+   */
   getHeader () {
     const header = {...{}, ...this.data}
     delete header.transactions

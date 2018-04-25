@@ -9,6 +9,19 @@ const ECPair = require('../crypto/ecpair')
 const cryptoBuilder = require('../builder/crypto')
 const sortTransactions = require('../utils/sort-transactions')
 
+/**
+ * @classdesc The delegate model
+ *
+ * The Delegate model does not store anything on db, but the object contains:
+ *   - network
+ *   - keySize
+ *   - iterations (used for generating the cypher)
+ *   - publicKey
+ *   - address
+ *   - keys
+ *   - otpSecret
+ *   - bip38
+ */
 module.exports = class Delegate {
   /**
    * @constructor

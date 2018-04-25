@@ -5,6 +5,30 @@ const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
 const legacyCryptoBuilder = require('../builder/legacy-crypto')
 
+/**
+ * @classdesc This model holds the transaction data and its serialization
+ *
+ * A Transaction stores on the db:
+ *   - id
+ *   - version (version of the transaction generation process, ie: serialization)
+ *   - blockId (id of the block that contains the transaction)
+ *   - timestamp (related to the genesis block)
+ *   - senderPublicKey (public key of the sender)
+ *   - recipientId (address of the recipient)
+ *   - type
+ *   - vendorFieldHex (hexadecimal version of the vendorField)
+ *   - amount (in arktoshi)
+ *   - fee (in arktoshi)
+ *   - serialized
+ *
+ * Apart, the Model includes other fields:
+ *   - signature
+ *   - secondSignature
+ *   - vendorField
+ *
+ *   - assets
+ *   - network
+ */
 module.exports = class Transaction {
   constructor (transaction) {
     this.serialized = Transaction.serialize(transaction)

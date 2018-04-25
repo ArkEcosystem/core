@@ -4,6 +4,26 @@ const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
 
+/**
+ * @classdesc This class holds the wallet data, verifies it and applies the
+ * transaction and blocks to it
+ *
+ * Wallet attributes that are stored on the db:
+ *   - address
+ *   - publicKey
+ *   - secondPublicKey
+ *   - balance
+ *   - vote
+ *   - username (name, if the wallet is a delegate)
+ *   - voteBalance (TODO)
+ *   - producedBlocks
+ *   - missedBlocks
+ *
+ * This other attributes are not stored on the db:
+ *   - multisignature
+ *   - lastBlock (last block applied or `null``)
+ *   - dirty
+ */
 module.exports = class Wallet {
   /**
    * @constructor
