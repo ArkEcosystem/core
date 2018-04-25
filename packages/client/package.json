@@ -14,7 +14,7 @@
   "scripts": {
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
     "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
-    "test": "jest --no-cache --forceExit",
+    "test": "jest --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "lint": "eslint ./ --fix"

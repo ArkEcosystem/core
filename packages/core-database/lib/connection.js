@@ -92,7 +92,7 @@ module.exports = class ConnectionInterface {
     throw new Error('Method [saveBlock] not implemented!')
   }
 
-  //Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
+  // Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
   /**
    * [saveBlockAsync description]
    * @param  {[type]} block [description]
