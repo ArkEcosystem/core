@@ -15,10 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     secondPublicKey: DataTypes.STRING(66),
     vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
-    balance: DataTypes.BIGINT,
-    votebalance: DataTypes.BIGINT,
-    producedBlocks: DataTypes.BIGINT,
-    missedBlocks: DataTypes.BIGINT
+    balance: DataTypes.BIGINT.UNSIGNED,
+    votebalance: DataTypes.BIGINT.UNSIGNED,
+    producedBlocks: DataTypes.INTEGER.UNSIGNED,
+    missedBlocks: DataTypes.INTEGER.UNSIGNED
   }, {})
 
   // Wallet.associate = (models) => {
