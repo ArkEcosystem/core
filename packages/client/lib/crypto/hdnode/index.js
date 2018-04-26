@@ -82,7 +82,7 @@ module.exports = class HDNode {
   /**
    * [fromBase58 description]
    * @param  {String} string
-   * @param  {(String|Array)} networks
+   * @param  {(Object|Array)} networks
    * @return {HDNode}
    */
   static fromBase58 (string, networks) {
