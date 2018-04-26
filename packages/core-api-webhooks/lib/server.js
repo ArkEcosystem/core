@@ -5,8 +5,8 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
  * [description]
- * @param  {[type]} config [description]
- * @return {[type]}        [description]
+ * @param  {Object} config
+ * @return {Hapi.Server}
  */
 module.exports = async (config) => {
   if (!config.enabled) {
