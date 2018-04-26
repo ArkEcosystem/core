@@ -119,6 +119,7 @@ module.exports = class Delegate {
         generatorPublicKey: this.publicKey,
         timestamp: options.timestamp,
         previousBlock: options.previousBlock.id,
+        previousBlockHex: options.previousBlock.idHex,
         height: options.previousBlock.height + 1,
         numberOfTransactions: txs.length,
         totalAmount: txstats.amount,

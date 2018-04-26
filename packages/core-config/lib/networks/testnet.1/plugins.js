@@ -12,22 +12,22 @@ module.exports = {
   beforeMount: {
     '@arkecosystem/core-database': {},
     '@arkecosystem/core-database-sequelize': {
-      uri: 'sqlite:~/.ark/database/testnet.sqlite',
+      uri: 'sqlite:~/.ark/database/testnet.1.sqlite',
       uri_1: 'postgres://node:password@localhost:5432/ark_testnet',
       dialect: 'sqlite',
       dialect_1: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {
-      port: 4102
+      port: 4101
     },
     '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
     '@arkecosystem/core-api-public': {
-      port: 4103
+      port: 4102
     },
     '@arkecosystem/core-api-webhooks': {
-      port: 4104
+      port: 4103
     },
     '@arkecosystem/core-forger': {}
   }

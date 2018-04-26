@@ -33,6 +33,7 @@ module.exports = class Block {
    * @constructor
    */
   constructor (data) {
+    if (!data.transactions) data.transactions = []
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
 
@@ -58,7 +59,7 @@ module.exports = class Block {
     delete this.data.transactions
 
     this.verification = this.verify()
-    if (!this.verification.verified) {
+    if (!this.verification.verified && this.data.height !== 1) {
       console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
       console.log(this.verification)
@@ -73,12 +74,13 @@ module.exports = class Block {
    * @static
    */
   static create (data, keys) {
+    data.generatorPublicKey = keys.publicKey
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
-    data.generatorPublicKey = keys.publicKey
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
     data.id = Block.getId(data)
-    return new Block(data)
+    const block = new Block(data)
+    return block
   }
 
   /*
@@ -336,6 +338,69 @@ module.exports = class Block {
 
     bb.flip()
     return bb.toBuffer()
+  }
+
+  static getBytesV1 (block, includeSignature) {
+    if (includeSignature === undefined) {
+      includeSignature = block.blockSignature !== undefined
+    }
+    var size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
+    var blockSignatureBuffer = null
+
+    if (includeSignature) {
+      blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
+      size += blockSignatureBuffer.length
+    }
+    var b, i
+
+    try {
+      var bb = new ByteBuffer(size, true)
+      bb.writeInt(block.version)
+      bb.writeInt(block.timestamp)
+      bb.writeInt(block.height)
+
+      if (block.previousBlock) {
+        var pb = Bignum(block.previousBlock).toBuffer({size: '8'})
+
+        for (i = 0; i < 8; i++) {
+          bb.writeByte(pb[i])
+        }
+      } else {
+        for (i = 0; i < 8; i++) {
+          bb.writeByte(0)
+        }
+      }
+
+      bb.writeInt(block.numberOfTransactions)
+      bb.writeLong(block.totalAmount)
+      bb.writeLong(block.totalFee)
+      bb.writeLong(block.reward)
+
+      bb.writeInt(block.payloadLength)
+
+      var payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      for (i = 0; i < payloadHashBuffer.length; i++) {
+        bb.writeByte(payloadHashBuffer[i])
+      }
+
+      var generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
+        bb.writeByte(generatorPublicKeyBuffer[i])
+      }
+
+      if (includeSignature) {
+        for (i = 0; i < blockSignatureBuffer.length; i++) {
+          bb.writeByte(blockSignatureBuffer[i])
+        }
+      }
+
+      bb.flip()
+      b = bb.toBuffer()
+    } catch (e) {
+      throw e
+    }
+
+    return b
   }
 
   toRawJson () {

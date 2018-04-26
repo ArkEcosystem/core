@@ -251,6 +251,7 @@ module.exports = class ConnectionInterface {
     } else {
       logger.debug('Delegate ' + block.data.generatorPublicKey + ' allowed to forge block ' + block.data.height)
     }
+    return true
   }
 
   /**
