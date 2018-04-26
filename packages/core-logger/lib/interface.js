@@ -8,7 +8,6 @@ module.exports = class LoggerInterface {
   /**
    * [constructor description]
    * @param  {Object} options
-   * @return {void}
    */
   constructor (options) {
     this.options = options

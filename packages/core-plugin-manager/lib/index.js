@@ -11,7 +11,6 @@ const { createContainer, asValue } = require('awilix')
 class PluginManager {
   /**
    * [constructor description]
-   * @return {void}
    */
   constructor () {
     this.container = createContainer()

@@ -3,7 +3,6 @@
 class DatabaseManager {
   /**
    * [constructor description]
-   * @return {void}
    */
   constructor () {
     this.connections = {}
