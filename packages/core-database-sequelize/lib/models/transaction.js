@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.STRING(64)
     },
-    version: DataTypes.SMALLINT,
+    version: DataTypes.TINYINT.UNSIGNED, // TODO
     blockId: {
       type: DataTypes.STRING(64),
       // very bad practice to disable references, easy to corrupt database...
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
-    timestamp: DataTypes.INTEGER,
+    timestamp: DataTypes.INTEGER.UNSIGNED,
     senderPublicKey: {
       type: DataTypes.STRING(66)
       // very bad practice to disable references, easy to corrupt database...
@@ -34,8 +34,8 @@ module.exports = (sequelize, DataTypes) => {
       //   key: 'address'
       // }
     },
-    type: DataTypes.SMALLINT,
-    vendorFieldHex: DataTypes.BLOB,
+    type: DataTypes.TINYINT.UNSIGNED,
+    vendorFieldHex: DataTypes.BLOB('tiny'),
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
     serialized: DataTypes.BLOB
