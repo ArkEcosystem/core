@@ -3,7 +3,7 @@
 let calculatorModule
 
 beforeAll(async (done) => {
-  await require('../../setup')()
+  await require('../../__support__/setup')()
 
   calculatorModule = require('../../../lib/repositories/utils/delegate-calculator')
 
