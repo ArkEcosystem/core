@@ -20,6 +20,21 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
+   * [copyFiles description]
+   * @param  {[type]} dest [description]
+   * @return {[type]}      [description]
+   */
+  async copyFiles (dest) {
+    if (!dest) {
+      dest = getTargetDirectory('config')
+    }
+
+    await fs.ensureDir(this.options.config)
+
+    return fs.copy(this.options.config, dest)
+  }
+
+  /**
    * [__createFromDirectory description]
    * @return {[type]} [description]
    */
@@ -29,8 +44,6 @@ module.exports = class Config extends ConfigInterface {
     this.__createBindings(files)
 
     await this.__buildPeers(files.peers)
-
-    await this.__copyFiles(files)
   }
 
   /**
@@ -67,16 +80,6 @@ module.exports = class Config extends ConfigInterface {
     })
 
     return configTree
-  }
-
-  /**
-   * [__copyFiles description]
-   * @return {[type]} [description]
-   */
-  async __copyFiles () {
-    await fs.ensureDir(this.options.config)
-
-    return fs.copy(this.options.config, getTargetDirectory('config'))
   }
 
   /**
