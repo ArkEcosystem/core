@@ -4,7 +4,7 @@ const WinstonDriver = require('./driver')
 
 /**
  * The struct used by the plugin manager.
- * @type {Object}
+ * @type {WinstonDriver}
  */
 exports.plugin = {
   pkg: require('../package.json'),

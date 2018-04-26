@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   database: {
     uri: 'sqlite:~/.ark/database/webhooks.sqlite',

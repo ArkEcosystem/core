@@ -15,8 +15,8 @@ const buildFilterQuery = require('./utils/filter-query')
 module.exports = class TransactionsRepository {
   /**
    * [constructor description]
-   * @param  {[type]} db [description]
-   * @return {[type]}    [description]
+   * @param  {ConnectionInterface} connection
+   * @return {void}
    */
   constructor (connection) {
     this.connection = connection
@@ -24,9 +24,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAll description]
-   * @param  {[type]}  params [description]
-   * @param  {Boolean} count  [description]
-   * @return {[type]}         [description]
+   * @param  {Object}  params
+   * @param  {Boolean} count
+   * @return {Object}
    */
   findAll (params, count = true) {
     let whereStatement = {}
@@ -62,9 +62,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByWallet description]
-   * @param  {[type]} wallet    [description]
-   * @param  {[type]} paginator [description]
-   * @return {[type]}           [description]
+   * @param  {[type]} wallet
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllByWallet (wallet, paginator) {
     return this.findAll({
@@ -81,9 +81,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllBySender description]
-   * @param  {[type]} senderPublicKey [description]
-   * @param  {[type]} paginator       [description]
-   * @return {[type]}                 [description]
+   * @param  {String} senderPublicKey
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllBySender (senderPublicKey, paginator) {
     return this.findAll({...{senderPublicKey}, ...paginator})
@@ -91,9 +91,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByRecipient description]
-   * @param  {[type]} recipientId [description]
-   * @param  {[type]} paginator   [description]
-   * @return {[type]}             [description]
+   * @param  {String} recipientId
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllByRecipient (recipientId, paginator) {
     return this.findAll({...{recipientId}, ...paginator})
@@ -101,9 +101,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [allVotesBySender description]
-   * @param  {[type]} senderPublicKey [description]
-   * @param  {[type]} paginator       [description]
-   * @return {[type]}                 [description]
+   * @param  {String} senderPublicKey
+   * @param  {Object} paginator
+   * @return {Object}
    */
   allVotesBySender (senderPublicKey, paginator) {
     return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...paginator})
@@ -111,9 +111,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByBlock description]
-   * @param  {[type]} blockId   [description]
-   * @param  {[type]} paginator [description]
-   * @return {[type]}           [description]
+   * @param  {Number} blockId
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllByBlock (blockId, paginator) {
     return this.findAll({...{blockId}, ...paginator})
@@ -121,9 +121,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByType description]
-   * @param  {[type]} type      [description]
-   * @param  {[type]} paginator [description]
-   * @return {[type]}           [description]
+   * @param  {Number} type
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllByType (type, paginator) {
     return this.findAll({...{type}, ...paginator})
@@ -131,8 +131,8 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findById description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Object}
    */
   findById (id) {
     return this.connection.models.transaction.findById(id, {
@@ -145,9 +145,9 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findByTypeAndId description]
-   * @param  {[type]} type [description]
-   * @param  {[type]} id   [description]
-   * @return {[type]}      [description]
+   * @param  {Number} type
+   * @param  {Number} id
+   * @return {Object}
    */
   findByTypeAndId (type, id) {
     return this.connection.models.transaction.findOne({
@@ -161,10 +161,10 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByDateAndType description]
-   * @param  {[type]} type [description]
-   * @param  {[type]} from [description]
-   * @param  {[type]} to   [description]
-   * @return {[type]}      [description]
+   * @param  {Number} type
+   * @param  {Number} from
+   * @param  {Number} to
+   * @return {Array}
    */
   async findAllByDateAndType (type, from, to) {
     let where = { type, timestamp: {} }
@@ -187,8 +187,8 @@ module.exports = class TransactionsRepository {
 
   /**
    * [search description]
-   * @param  {[type]} payload [description]
-   * @return {[type]}         [description]
+   * @param  {Object} payload
+   * @return {Object}
    */
   search (payload) {
     let orderBy = []
