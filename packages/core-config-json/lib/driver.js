@@ -81,25 +81,25 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__buildPeers description]
-   * @param  {[type]} filePath [description]
-   * @return {[type]}          [description]
+   * @param  {[type]} configFile [description]
+   * @return {[type]}            [description]
    */
-  async __buildPeers (filePath) {
+  async __buildPeers (configFile) {
     if (!this.peers.sources) {
       return false
     }
 
+    let output = require(configFile)
+
     for (let i = this.peers.sources.length - 1; i >= 0; i--) {
       const source = this.peers.sources[i]
-
-      let output = require(filePath)
 
       // Local File...
       if (source.startsWith('/')) {
         output.list = require(source)
 
         // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
-        fs.writeFileSync(filePath, JSON.stringify(output, null, 2))
+        fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
 
         break
       }
@@ -111,7 +111,7 @@ module.exports = class Config extends ConfigInterface {
         output.list = response.data
 
         // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
-        fs.writeFileSync(filePath, JSON.stringify(output, null, 2))
+        fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
 
         break
       } catch (error) {
