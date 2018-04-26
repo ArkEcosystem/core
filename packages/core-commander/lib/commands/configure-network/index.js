@@ -17,7 +17,7 @@ module.exports = async () => {
   }
 
   await fs.remove(process.env.ARK_CONFIG)
-  await fs.copy(`./config/${response.network}`, process.env.ARK_CONFIG)
+  await fs.copy(`../core-config/lib/networks/${response.network}`, process.env.ARK_CONFIG)
 
   return response.network
 }
