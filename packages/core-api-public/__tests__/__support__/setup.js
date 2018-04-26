@@ -8,6 +8,7 @@ module.exports = async () => {
 
   pluginManager.init(config, {
     exclude: [
+      '@arkecosystem/core-api-p2p',
       '@arkecosystem/core-api-webhooks',
       '@arkecosystem/core-forger'
     ]
