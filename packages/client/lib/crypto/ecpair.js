@@ -14,7 +14,7 @@ const secp256k1native = require('secp256k1')
 
 const secp256k1 = ecurve.getCurveByName('secp256k1')
 
-module.exports = class ECPair {
+class ECPair {
   /**
    * @param {BigInteger} [d] Private key.
    * @param {Point} [Q] Public key.
@@ -199,3 +199,5 @@ module.exports = class ECPair {
     return secp256k1native.verify(hash, signature.toNativeSecp256k1(), this.Q.getEncoded(this.compressed))
   }
 }
+
+module.exports = ECPair
