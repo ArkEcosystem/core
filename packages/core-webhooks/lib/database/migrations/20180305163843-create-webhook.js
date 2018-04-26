@@ -1,10 +1,12 @@
 'use strict';
 
-/**
- * [exports description]
- * @type {Object}
- */
 module.exports = {
+  /**
+   * [description]
+   * @param  {[type]} queryInterface
+   * @param  {[type]} Sequelize
+   * @return {[type]}
+   */
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('webhooks', {
       id: {
@@ -33,5 +35,12 @@ module.exports = {
 
     queryInterface.addIndex('webhooks', ['event'])
   },
+
+  /**
+   * [description]
+   * @param  {[type]} queryInterface
+   * @param  {[type]} Sequelize
+   * @return {[type]}
+   */
   down: (queryInterface, Sequelize) => queryInterface.dropTable('webhooks')
 }

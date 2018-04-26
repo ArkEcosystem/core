@@ -5,9 +5,9 @@ const argon2 = require('argon2')
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {[type]} server
+ * @param  {Object} options
+ * @return {Object}
  */
 const implementation = (server, options) => {
   const scheme = {
@@ -34,7 +34,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

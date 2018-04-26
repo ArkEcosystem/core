@@ -2,9 +2,9 @@
 
 /**
  * [description]
- * @param  {[type]} sequelize [description]
- * @param  {[type]} DataTypes [description]
- * @return {[type]}           [description]
+ * @param  {[type]} sequelize
+ * @param  {[type]} DataTypes
+ * @return {Object}
  */
 module.exports = (sequelize, DataTypes) => {
   const Webhook = sequelize.define('webhook', {
