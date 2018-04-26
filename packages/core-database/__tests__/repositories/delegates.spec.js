@@ -1,7 +1,14 @@
 'use strict';
 
-const DelegateRepository = require('../../lib/repositories/delegates')
-const repository = new DelegateRepository()
+let repository
+
+beforeAll(async (done) => {
+  await require('../__support__/setup')()
+
+  repository = new (require('../../lib/repositories/delegates'))()
+
+  done()
+})
 
 describe('Delegate Repository', () => {
   it('should be an object', async () => {
