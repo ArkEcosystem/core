@@ -1,8 +1,6 @@
 'use strict';
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const state = pluginManager.get('blockchain').getState()
-const config = pluginManager.get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
@@ -10,9 +8,7 @@ const config = pluginManager.get('config')
  * @param  {Number} height   [description]
  * @return {[type]}          [description]
  */
-exports.calculateApproval = (delegate, height = 0) => {
-  height = height ? height : state.lastBlock.data.height
-
+exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
   const totalSupply = config.genesisBlock.totalAmount + (height - constants.height) * constants.reward
 

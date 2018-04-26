@@ -1,7 +1,14 @@
 'use strict';
 
-const WalletRepository = require('../../lib/repositories/wallets')
-const repository = new WalletRepository()
+let repository
+
+beforeAll(async (done) => {
+  await require('../__support__/setup')()
+
+  repository = new (require('../../lib/repositories/wallets'))()
+
+  done()
+})
 
 describe('Wallet Repository', () => {
   it('should be an object', async () => {
