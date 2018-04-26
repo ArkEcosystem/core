@@ -1,8 +1,11 @@
 'use strict';
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const { slots } = require('@arkecosystem/client')
-const { Block } = require('@arkecosystem/client').models
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Block } = client.models
+
 const sleep = require('./utils/sleep')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
@@ -56,7 +59,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         event = 'SYNCED'
       }
 
-      if (process.env.ARK_ENV === 'test') {
+      if (process.env.ARK_ENV === 'testnet') {
         event = 'TEST'
       }
 
@@ -123,6 +126,12 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in 10 last round
         state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
+
+        // NODE_ENV=test >>> Jest Test-Suite
+        if (process.env.NODE_ENV === 'test') {
+          return blockchainManager.dispatch('STARTED')
+        }
+
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
 

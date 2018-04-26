@@ -2,10 +2,10 @@
 
 /**
  * [description]
- * @param  {[type]} object  [description]
- * @param  {[type]} params  [description]
- * @param  {[type]} filters [description]
- * @return {[type]}         [description]
+ * @param  {Object} object
+ * @param  {Object} params
+ * @param  {Object} filters
+ * @return {Object}
  */
 module.exports = async (object, params, filters) => {
   return object.filter(item => {

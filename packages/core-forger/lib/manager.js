@@ -1,9 +1,13 @@
 'use strict';
 
 const popsicle = require('popsicle')
-const { slots } = require('@arkecosystem/client')
-const { Delegate, Transaction } = require('@arkecosystem/client').models
+
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Delegate, Transaction } = client.models
+
 const sleep = require('./utils/sleep')
 
 /**

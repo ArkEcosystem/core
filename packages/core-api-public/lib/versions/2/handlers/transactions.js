@@ -1,11 +1,17 @@
 'use strict';
 
 const Boom = require('boom')
-const db = require('@arkecosystem/core-plugin-manager').get('database')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const chainInstance = require('@arkecosystem/core-plugin-manager').get('blockchain')
+
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const database = pluginManager.get('database')
+const blockchainManager = pluginManager.get('blockchain')
+
+const client = require('@arkecosystem/client')
+const { Transaction } = client.models
+const { TRANSACTION_TYPES } = client.constants
+
 const utils = require('../utils')
-const { Transaction } = require('@arkecosystem/client').models
 const schema = require('../schema/transactions')
 
 /**
@@ -14,7 +20,7 @@ const schema = require('../schema/transactions')
  */
 exports.index = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAll(utils.paginate(request))
+    const transactions = await database.transactions.findAll(utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   }
@@ -29,7 +35,7 @@ exports.store = {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
 
-    chainInstance.postTransactions(transactions)
+    blockchainManager.postTransactions(transactions)
 
     return { transactionIds: [] }
   },
@@ -44,7 +50,7 @@ exports.store = {
  */
 exports.show = {
   handler: async (request, h) => {
-    const transaction = await db.transactions.findById(request.params.id)
+    const transaction = await database.transactions.findById(request.params.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   },
@@ -64,7 +70,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await chainInstance.getTxPool().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await blockchainManager.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -83,7 +89,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await chainInstance.getTxPool().getUnconfirmedTransaction(request.param.id)
+    const transaction = await blockchainManager.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }
@@ -95,7 +101,7 @@ exports.showUnconfirmed = {
  */
 exports.search = {
   handler: async (request, h) => {
-    const transactions = await db.transactions.search({
+    const transactions = await database.transactions.search({
       ...request.query,
       ...request.payload,
       ...utils.paginate(request)
@@ -115,7 +121,7 @@ exports.search = {
 exports.types = {
   handler: async (request, h) => {
     return {
-      data: require('@arkecosystem/client').constants.TRANSACTION_TYPES
+      data: TRANSACTION_TYPES
     }
   }
 }

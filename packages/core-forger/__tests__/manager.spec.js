@@ -1,9 +1,18 @@
 'use strict';
 
-const ForgerManager = require('../lib/manager')
 const { Delegate } = require('@arkecosystem/client').models
 
-describe('Core | ForgerManager', () => {
+let ForgerManager
+
+beforeAll(async (done) => {
+  await require('./__support__/setup')()
+
+  ForgerManager = require('../lib/manager')
+
+  done()
+})
+
+describe('Forger Manager', () => {
   const config = {
     server: { version: '0.0.1', port: 9999 },
     network: { nethash: 'lol-hash' }

@@ -6,8 +6,8 @@ const { LoggerInterface } = require('@arkecosystem/core-logger')
 module.exports = class Logger extends LoggerInterface {
   /**
    * [make description]
-   * @param  {[type]} options [description]
-   * @return {[type]}        [description]
+   * @param  {Object} options
+   * @return {Pino}
    */
   make (options) {
     const pretty = pino.pretty()
@@ -22,21 +22,21 @@ module.exports = class Logger extends LoggerInterface {
 
   /**
    * [printTracker description]
-   * @param  {[type]} title     [description]
-   * @param  {[type]} current   [description]
-   * @param  {[type]} max       [description]
-   * @param  {[type]} posttitle [description]
-   * @param  {Number} figures   [description]
-   * @return {[type]}           [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @param  {String} posttitle
+   * @param  {Number} figures
+   * @return {void}
    */
   printTracker (title, current, max, posttitle, figures = 0) {}
 
   /**
    * [stopTracker description]
-   * @param  {[type]} title   [description]
-   * @param  {[type]} current [description]
-   * @param  {[type]} max     [description]
-   * @return {[type]}         [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @return {void}
    */
   stopTracker (title, current, max) {}
 }

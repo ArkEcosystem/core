@@ -23,8 +23,12 @@ module.exports = class Down {
     this.p2p = p2p
     this.config = config
     this.peers = {}
-    if (!config.server.peers.list) throw new Error('No seed peers defined in config/server.json')
-    config.server.peers.list
+
+    if (!config.peers.list) {
+      throw new Error('No seed peers defined in config/peers.json')
+    }
+
+    config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
@@ -47,13 +51,13 @@ module.exports = class Down {
     try {
       // TODO: this means peer recovery is disabled in testnet but also during the test suite,
       // which is an issue as this one specific functionality has to be available during API tests
-      if (process.env.ARK_ENV !== 'test') {
+      if (process.env.ARK_ENV !== 'testnet') {
         await this.discoverPeers()
         await this.cleanPeers()
       }
 
-      if (Object.keys(this.peers).length < this.config.server.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
-        this.config.server.peers.list
+      if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'testnet') {
+        this.config.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
         return this.updateNetworkStatus()
@@ -61,7 +65,7 @@ module.exports = class Down {
     } catch (error) {
       logger.error(error.stack)
 
-      this.config.server.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
       return this.updateNetworkStatus()
     }
@@ -94,7 +98,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
-        pluginManager.get('webhooks').emit('peer.removed', this.peers[ip])
+        // pluginManager.get('webhooks').emit('peer.removed', this.peers[ip])
 
         return null
       }
@@ -112,7 +116,7 @@ module.exports = class Down {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip] || process.env.ARK_ENV === 'test') return
+    if (this.peers[peer.ip] || process.env.ARK_ENV === 'testnet') return
     if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
     if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') throw new Error('Localhost peer not accepted')
 
@@ -122,7 +126,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
-      pluginManager.get('webhooks').emit('peer.added', npeer)
+      // pluginManager.get('webhooks').emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }

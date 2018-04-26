@@ -10,7 +10,6 @@ module.exports = class Transaction {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
     if (this.data.version === 1) {
-      // FIXME: @fix added this and this currently doesn't use the network the configManager uses
       this.verified = legacyCryptoBuilder.verify(this.data)
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
@@ -220,12 +219,10 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.VOTE) {
-        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       }
 
       // if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      //   // FIXME: @fix added this and this currently doesn't use the network the configManager uses
       //   tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       // }
 
@@ -234,13 +231,11 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!tx.id) {
-        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
         tx.id = legacyCryptoBuilder.getId(tx)
       }
     } else if (tx.version === 2) {

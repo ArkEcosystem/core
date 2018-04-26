@@ -1,0 +1,5 @@
+{
+  "minimumNetworkReach": 20,
+  "list": ["https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"],
+  "blackList": []
+}

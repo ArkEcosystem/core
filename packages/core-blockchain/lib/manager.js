@@ -1,10 +1,14 @@
 'use strict';
 
 const async = require('async')
-const { slots } = require('@arkecosystem/client')
-const { Block } = require('@arkecosystem/client').models
+
+const client = require('@arkecosystem/client')
+const { slots } = client
+const { Block } = client.models
+
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
+
 const stateMachine = require('./state-machine')
 const sleep = require('./utils/sleep')
 
@@ -77,6 +81,9 @@ module.exports = class BlockchainManager {
    * @return {Boolean} [description]
    */
   async isReady () {
+    /**
+     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
+     */
     while (!stateMachine.state.started) await sleep(1000)
     return true
   }

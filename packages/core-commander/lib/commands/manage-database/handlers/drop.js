@@ -12,23 +12,23 @@ const { readConfig } = require('../../../utils')
 module.exports = async () => {
   const config = readConfig('server').database
 
-  const db = new Sequelize(config.options.uri, {
+  const database = new Sequelize(config.options.uri, {
     dialect: config.options.dialect,
     logging: config.options.logging,
     operatorsAliases: Sequelize.Op
   })
 
-  await db.authenticate()
+  await database.authenticate()
 
   const umzug = new Umzug({
     storage: 'sequelize',
     logging: console.log,
     storageOptions: {
-      sequelize: db
+      sequelize: database
     },
     migrations: {
       params: [
-        db.getQueryInterface(),
+        database.getQueryInterface(),
         Sequelize
       ],
       path: path.join(__dirname, '../../../../@arkecosystem/core-database-sequelize/migrations')

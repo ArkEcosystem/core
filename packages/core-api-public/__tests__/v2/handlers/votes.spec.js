@@ -1,5 +1,11 @@
 'use strict';
 
+beforeAll(async (done) => {
+  await require('../../__support__/setup')()
+
+  done()
+})
+
 const utils = require('../utils')
 
 const voteId = '663d7e247c8876f1431ebac93bbbc9031fcbc804954a7133c451bce6edd5aee0'

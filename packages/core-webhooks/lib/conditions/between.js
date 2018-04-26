@@ -2,9 +2,9 @@
 
 /**
  * [description]
- * @param  {[type]} input [description]
- * @param  {[type]} min   [description]
- * @param  {[type]} max   [description]
- * @return {[type]}       [description]
+ * @param  {Number} input
+ * @param  {Number} min
+ * @param  {Number} max
+ * @return {Boolean}
  */
 module.exports = (input, min, max) => (input > min && input < max)

@@ -1,0 +1,6 @@
+{
+  "minimumNetworkReach": 3,
+  "list": [],
+  "blackList": [],
+  "sources": ["https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"]
+}

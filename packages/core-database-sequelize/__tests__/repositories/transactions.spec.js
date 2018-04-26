@@ -1,10 +1,18 @@
 'use strict';
 
-const TransactionRepository = require('../../lib/repositories/transactions')
-const repository = new TransactionRepository()
+let repository
+
+beforeAll(async (done) => {
+  await require('../__support__/setup')()
+
+  repository = new (require('../../lib/repositories/transactions'))()
+
+  done()
+})
 
 describe('Transaction Repository', () => {
   it('should be an object', async () => {
+    console.log(repository)
     await expect(repository).toBeObject()
   })
 
@@ -14,9 +22,39 @@ describe('Transaction Repository', () => {
     })
   })
 
-  describe('findAllByGenerator', async () => {
+  describe('findAllByWallet', async () => {
     it('should be a function', async () => {
-      await expect(repository.findAllByGenerator).toBeFunction()
+      await expect(repository.findAllByWallet).toBeFunction()
+    })
+  })
+
+  describe('findAllBySender', async () => {
+    it('should be a function', async () => {
+      await expect(repository.findAllBySender).toBeFunction()
+    })
+  })
+
+  describe('findAllByRecipient', async () => {
+    it('should be a function', async () => {
+      await expect(repository.findAllByRecipient).toBeFunction()
+    })
+  })
+
+  describe('allVotesBySender', async () => {
+    it('should be a function', async () => {
+      await expect(repository.allVotesBySender).toBeFunction()
+    })
+  })
+
+  describe('findAllByBlock', async () => {
+    it('should be a function', async () => {
+      await expect(repository.findAllByBlock).toBeFunction()
+    })
+  })
+
+  describe('findAllByType', async () => {
+    it('should be a function', async () => {
+      await expect(repository.findAllByType).toBeFunction()
     })
   })
 
@@ -26,27 +64,21 @@ describe('Transaction Repository', () => {
     })
   })
 
-  describe('findLastByPublicKey', async () => {
+  describe('findByTypeAndId', async () => {
     it('should be a function', async () => {
-      await expect(repository.findLastByPublicKey).toBeFunction()
+      await expect(repository.findByTypeAndId).toBeFunction()
     })
   })
 
-  describe('findAllByDateTimeRange', async () => {
+  describe('findAllByDateAndType', async () => {
     it('should be a function', async () => {
-      await expect(repository.findAllByDateTimeRange).toBeFunction()
+      await expect(repository.findAllByDateAndType).toBeFunction()
     })
   })
 
   describe('search', async () => {
     it('should be a function', async () => {
       await expect(repository.search).toBeFunction()
-    })
-  })
-
-  describe('totalsByGenerator', async () => {
-    it('should be a function', async () => {
-      await expect(repository.totalsByGenerator).toBeFunction()
     })
   })
 })

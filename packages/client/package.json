@@ -15,7 +15,7 @@
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
     "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
     "build:docs": "./node_modules/.bin/esdoc",
-    "test": "jest --no-cache --forceExit",
+    "test": "jest --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "lint": "eslint ./ --fix"
@@ -63,7 +63,6 @@
     "jest": "^22.4.2",
     "jest-extended": "^0.6.0",
     "regenerator-runtime": "^0.11.1",
-    "sinon": "^4.4.10",
     "sinon-test": "^2.1.3",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9",

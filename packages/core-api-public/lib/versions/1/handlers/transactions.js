@@ -1,9 +1,12 @@
 'use strict';
 
 const Boom = require('boom')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
-const chainInstance = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const db = require('@arkecosystem/core-plugin-manager').get('database')
+
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const config = pluginManager.get('config')
+const database = pluginManager.get('database')
+const blockchainManager = pluginManager.get('blockchain')
+
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
 
@@ -20,7 +23,7 @@ exports.index = {
     }
   },
   handler: async (request, h) => {
-    const transactions = await db.transactions.findAll({
+    const transactions = await database.transactions.findAll({
       ...request.query, ...utils.paginator(request)
     }, false)
 
@@ -45,7 +48,7 @@ exports.show = {
     }
   },
   handler: async (request, h) => {
-    const result = await db.transactions.findById(request.query.id)
+    const result = await database.transactions.findById(request.query.id)
 
     if (!result) return utils.respondWith('No transactions found', true)
 
@@ -64,7 +67,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await chainInstance.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await blockchainManager.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -83,7 +86,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await chainInstance.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
+    const transaction = await blockchainManager.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

@@ -1,5 +1,11 @@
 'use strict';
 
+beforeAll(async (done) => {
+  await require('../../__support__/setup')()
+
+  done()
+})
+
 const utils = require('../utils')
 
 const delegateUsername = 'dark_jmc'

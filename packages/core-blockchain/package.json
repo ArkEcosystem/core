@@ -11,8 +11,8 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "ARK_ENV=test jest --forceExit --no-cache",
-    "test:watch": "ARK_ENV=test jest --forceExit --no-cache --watch",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
@@ -21,16 +21,5 @@
     "async": "^2.6.0",
     "interval-to-human": "^0.1.1",
     "xstate": "^3.1.1"
-  },
-  "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "jest": "^22.4.3",
-    "jest-extended": "^0.6.0",
-    "standard": "^11.0.1"
   }
 }

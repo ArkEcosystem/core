@@ -1,11 +1,15 @@
 'use strict';
 
 const async = require('async')
-const { Transaction } = require('@arkecosystem/client').models
-const { crypto, slots } = require('@arkecosystem/client')
+
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const blockchainManager = pluginManager.get('blockchain')
+
+const client = require('@arkecosystem/client')
+const { Transaction } = client.models
+const { crypto, slots } = client
+
 const TransactionPoolManager = require('./manager')
 
 let instance
@@ -70,7 +74,7 @@ module.exports = class Handler {
       let transaction = new Transaction(tx)
 
       // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      if (process.env.ARK_ENV === 'test') {
+      if (process.env.ARK_ENV === 'testnet') {
         const current = slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 

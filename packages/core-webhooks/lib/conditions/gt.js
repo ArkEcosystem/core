@@ -2,8 +2,8 @@
 
 /**
  * [description]
- * @param  {[type]} a [description]
- * @param  {[type]} b [description]
- * @return {[type]}   [description]
+ * @param  {Number} a
+ * @param  {Number} b
+ * @return {Boolean}
  */
 module.exports = (a, b) => (a > b)

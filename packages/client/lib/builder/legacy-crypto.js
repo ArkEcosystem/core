@@ -28,7 +28,7 @@ class LegacyCryptoBuilder {
    */
   getSignatureBytes (signature) {
     const bb = new ByteBuffer(33, true)
-    const publicKeyBuffer = new Buffer(signature.publicKey, "hex")
+    const publicKeyBuffer = new Buffer(signature.publicKey, 'hex')
 
     for (let i = 0; i < publicKeyBuffer.length; i++) {
       bb.writeByte(publicKeyBuffer[i])
@@ -61,17 +61,17 @@ class LegacyCryptoBuilder {
         assetSize = assetBytes.length
       },
       [TRANSACTION_TYPES.DELEGATE]: () => {
-        assetBytes = new Buffer(transaction.asset.delegate.username, "utf8")
+        assetBytes = new Buffer(transaction.asset.delegate.username, 'utf8')
         assetSize = assetBytes.length
       },
       [TRANSACTION_TYPES.VOTE]: () => {
         if (transaction.asset.votes !== null) {
-          assetBytes = new Buffer(transaction.asset.votes.join(""), "utf8")
+          assetBytes = new Buffer(transaction.asset.votes.join(''), 'utf8')
           assetSize = assetBytes.length
         }
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
-        const keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.join(""), "utf8")
+        const keysgroupBuffer = new Buffer(transaction.asset.multisignature.keysgroup.join(''), 'utf8')
         const bb = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true)
 
         bb.writeByte(transaction.asset.multisignature.min)
@@ -84,7 +84,7 @@ class LegacyCryptoBuilder {
         bb.flip()
 
         assetBytes = bb.toBuffer()
-        assetSize  = assetBytes.length
+        assetSize = assetBytes.length
       },
       'default': () => (false)
     }
@@ -95,7 +95,7 @@ class LegacyCryptoBuilder {
     bb.writeByte(transaction.type)
     bb.writeInt(transaction.timestamp)
 
-    const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
+    const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, 'hex')
     for (let i = 0; i < senderPublicKeyBuffer.length; i++) {
       bb.writeByte(senderPublicKeyBuffer[i])
     }
@@ -112,18 +112,17 @@ class LegacyCryptoBuilder {
     }
 
     if (transaction.vendorFieldHex) {
-      const vf = new Buffer(transaction.vendorFieldHex,"hex")
-      const fillstart=vf.length
+      const vf = new Buffer(transaction.vendorFieldHex, 'hex')
+      const fillstart = vf.length
       for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
       for (let i = fillstart; i < 64; i++) {
         bb.writeByte(0)
       }
-    }
-    else if (transaction.vendorField) {
+    } else if (transaction.vendorField) {
       const vf = new Buffer(transaction.vendorField)
-      const fillstart=vf.length
+      const fillstart = vf.length
       for (let i = 0; i < fillstart; i++) {
         bb.writeByte(vf[i])
       }
@@ -147,14 +146,14 @@ class LegacyCryptoBuilder {
     }
 
     if (!skipSignature && transaction.signature) {
-      const signatureBuffer = new Buffer(transaction.signature, "hex")
+      const signatureBuffer = new Buffer(transaction.signature, 'hex')
       for (let i = 0; i < signatureBuffer.length; i++) {
         bb.writeByte(signatureBuffer[i])
       }
     }
 
     if (!skipSecondSignature && transaction.signSignature) {
-      const signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
+      const signSignatureBuffer = new Buffer(transaction.signSignature, 'hex')
       for (let i = 0; i < signSignatureBuffer.length; i++) {
         bb.writeByte(signSignatureBuffer[i])
       }
@@ -178,28 +177,28 @@ class LegacyCryptoBuilder {
    */
   fromBytes (hexString) {
     const tx = {}
-    const buf = new Buffer(hexString, "hex")
+    const buf = new Buffer(hexString, 'hex')
     tx.type = buf.readInt8(0) & 0xff
     tx.timestamp = buf.readUInt32LE(1)
-    tx.senderPublicKey = hexString.substring(10,10+33*2)
-    tx.amount = buf.readUInt32LE(38+21+64)
-    tx.fee = buf.readUInt32LE(38+21+64+8)
-    tx.vendorFieldHex = hexString.substring(76+42,76+42+128)
-    tx.recipientId = bs58check.encode(buf.slice(38,38+21))
+    tx.senderPublicKey = hexString.substring(10, 10 + 33 * 2)
+    tx.amount = buf.readUInt32LE(38 + 21 + 64)
+    tx.fee = buf.readUInt32LE(38 + 21 + 64 + 8)
+    tx.vendorFieldHex = hexString.substring(76 + 42, 76 + 42 + 128)
+    tx.recipientId = bs58check.encode(buf.slice(38, 38 + 21))
 
     const actions = {
       'default': () => (false),
       [TRANSACTION_TYPES.TRANSFER]: () => {
-        this.parseSignatures(hexString, tx, 76+42+128+32)
+        this.parseSignatures(hexString, tx, 76 + 42 + 128 + 32)
       },
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => {
         delete tx.recipientId
         tx.asset = {
-          signature : {
-            publicKey : hexString.substring(76+42+128+32,76+42+128+32+66)
+          signature: {
+            publicKey: hexString.substring(76 + 42 + 128 + 32, 76 + 42 + 128 + 32 + 66)
           }
         }
-        this.parseSignatures(hexString, tx, 76+42+128+32+66)
+        this.parseSignatures(hexString, tx, 76 + 42 + 128 + 32 + 66)
       },
       [TRANSACTION_TYPES.DELEGATE]: () => {
         delete tx.recipientId
@@ -208,7 +207,7 @@ class LegacyCryptoBuilder {
 
         tx.asset = {
           delegate: {
-            username: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8")
+            username: new Buffer(hexString.substring(76 + 42 + 128 + 32, hexString.length - offset), 'hex').toString('utf8')
           }
         }
       },
@@ -216,13 +215,13 @@ class LegacyCryptoBuilder {
         // Impossible to assess size of vote asset, trying to grab signature and derive vote asset
         const offset = this.findAndParseSignatures(hexString, tx)
         tx.asset = {
-          votes: new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex").toString("utf8").split(",")
+          votes: new Buffer(hexString.substring(76 + 42 + 128 + 32, hexString.length - offset), 'hex').toString('utf8').split(',')
         }
       },
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => {
         delete tx.recipientId
         const offset = this.findAndParseSignatures(hexString, tx)
-        const buffer = new Buffer(hexString.substring(76+42+128+32,hexString.length-offset),"hex")
+        const buffer = new Buffer(hexString.substring(76 + 42 + 128 + 32, hexString.length - offset), 'hex')
         tx.asset = {
           multisignature: {}
         }
@@ -231,18 +230,18 @@ class LegacyCryptoBuilder {
         tx.asset.multisignature.keysgroup = []
         let index = 0
         while (index + 2 < buffer.length) {
-          const key = buffer.slice(index+2,index+67+2).toString("utf8")
+          const key = buffer.slice(index + 2, index + 67 + 2).toString('utf8')
           tx.asset.multisignature.keysgroup.push(key)
           index = index + 67
         }
       },
       [TRANSACTION_TYPES.IPFS]: () => {
         delete tx.recipientId
-        this.parseSignatures(hexString, tx, 76+42+128+32)
-      },
+        this.parseSignatures(hexString, tx, 76 + 42 + 128 + 32)
+      }
     }
 
-    (actions[transaction.type] || actions['default'])()
+    actions[tx.type] ? actions[tx.type]() : actions['default']()
 
     return tx
   }
@@ -259,14 +258,15 @@ class LegacyCryptoBuilder {
     let offset     = 0
 
     while (!found && signature1.length > 8) {
-      if (signature1[0] != 0x30) {
+      if (signature1[0] !== 0x30) {
         signature1 = signature1.slice(1)
-      }
-      else try {
-        ECSignature.fromDER(signature1,"hex")
-        found = true
-      } catch (error) {
-        signature1 = signature1.slice(1)
+      } else {
+        try {
+          ECSignature.fromDER(signature1, 'hex')
+          found = true
+        } catch (error) {
+          signature1 = signature1.slice(1)
+        }
       }
     }
 
@@ -277,23 +277,24 @@ class LegacyCryptoBuilder {
       found = false
       offset = signature1.length*2
       let signature2 = new Buffer(transactionBytes.substring(transactionBytes.length-offset-146, transactionBytes.length-offset), "hex")
+
       while (!found && signature2.length > 8) {
-        if (signature2[0] != 0x30) {
+        if (signature2[0] !== 0x30) {
           signature2 = signature2.slice(1)
-        }
-        else try {
-          ECSignature.fromDER(signature2,"hex")
-          found = true
-        } catch (error) {
-          signature2 = signature2.slice(1)
+        } else {
+          try {
+            ECSignature.fromDER(signature2, 'hex')
+            found = true
+          } catch (error) {
+            signature2 = signature2.slice(1)
+          }
         }
       }
       if (!found) {
         signature2 = null
         transaction.signature = signature1.toString("hex")
         offset = transaction.signature.length
-      }
-      else if (signature2) {
+      } else if (signature2) {
         transaction.signSignature = signature1.toString("hex")
         transaction.signature = signature2.toString("hex")
         offset = transaction.signature.length+transaction.signSignature.length
@@ -329,7 +330,7 @@ class LegacyCryptoBuilder {
    * @return {String}
    */
   getId (transaction) {
-    return crypto.createHash("sha256").update(this.getBytes(transaction)).digest().toString("hex")
+    return crypto.createHash('sha256').update(this.getBytes(transaction)).digest().toString('hex')
   }
 
   /**
@@ -340,7 +341,7 @@ class LegacyCryptoBuilder {
    * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
-    return crypto.createHash("sha256").update(this.getBytes(transaction, skipSignature, skipSecondSignature)).digest()
+    return crypto.createHash('sha256').update(this.getBytes(transaction, skipSignature, skipSecondSignature)).digest()
   }
 
   /**
@@ -365,7 +366,7 @@ class LegacyCryptoBuilder {
       }
     }
 
-    return (actions[transaction.type] || actions['default'])()
+    return actions[transaction.type] ? actions[transaction.type]() : actions['default']()
   }
 
   /**
@@ -376,7 +377,7 @@ class LegacyCryptoBuilder {
    */
   sign (transaction, keys) {
     const hash = this.getHash(transaction, true, true)
-    const signature = keys.sign(hash).toDER().toString("hex")
+    const signature = keys.sign(hash).toDER().toString('hex')
 
     if (!transaction.signature) {
       transaction.signature = signature
@@ -393,7 +394,7 @@ class LegacyCryptoBuilder {
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
-    const signature = keys.sign(hash).toDER().toString("hex")
+    const signature = keys.sign(hash).toDER().toString('hex')
 
     if (!transaction.signSignature) {
       transaction.signSignature = signature
@@ -446,7 +447,7 @@ class LegacyCryptoBuilder {
   getKeys (secret, options) {
     const ecpair = ECPair.fromSeed(secret, options)
 
-    ecpair.publicKey = ecpair.getPublicKeyBuffer().toString("hex")
+    ecpair.publicKey = ecpair.getPublicKeyBuffer().toString('hex')
     ecpair.privateKey = ''
 
     return ecpair
@@ -463,7 +464,7 @@ class LegacyCryptoBuilder {
       networkVersion = configManager.get('pubKeyHash')
     }
 
-    const buffer = cryptoUtils.ripemd160(new Buffer(publicKey,'hex'))
+    const buffer = cryptoUtils.ripemd160(new Buffer(publicKey, 'hex'))
 
     const payload = new Buffer(21)
     payload.writeUInt8(networkVersion, 0)

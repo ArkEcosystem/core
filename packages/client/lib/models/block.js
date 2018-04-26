@@ -320,7 +320,6 @@ module.exports = class Block {
     }
 
     const bb = new ByteBuffer(256, true)
-    // FIXME: TypeError: Illegal value: undefined (not an integer)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
     bb.writeUInt32(block.height)

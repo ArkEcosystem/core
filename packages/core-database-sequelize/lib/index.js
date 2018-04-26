@@ -3,7 +3,7 @@
 const SequelizeConnection = require('./connection')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {

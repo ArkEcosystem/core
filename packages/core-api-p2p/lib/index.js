@@ -3,7 +3,7 @@
 const P2PInterface = require('./p2pinterface')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {

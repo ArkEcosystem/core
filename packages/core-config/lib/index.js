@@ -3,7 +3,7 @@
 const configManager = require('./manager')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {
@@ -14,13 +14,13 @@ exports.plugin = {
 
 /**
  * [ConfigInterface description]
- * @type {[type]}
+ * @type {ConfigInterface}
  */
 exports.ConfigInterface = require('./interface')
 
 /**
  * [description]
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
+ * @param  {String} name
+ * @return {String}
  */
 exports.getTargetDirectory = (name) => require('expand-home-dir')(`~/.ark/${name}`)

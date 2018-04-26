@@ -5,7 +5,7 @@ const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 
 const { Connection } = require('@arkecosystem/core-database')
@@ -14,13 +14,14 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
-const { Block, Transaction } = require('@arkecosystem/client').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const client = require('@arkecosystem/client')
+const { Block, Transaction } = client.models
+const { TRANSACTION_TYPES } = client.constants
 
 module.exports = class SequelizeConnection extends Connection {
   /**
    * [connect description]
-   * @return {[type]} [description]
+   * @return {Boolean}
    */
   async connect () {
     return this.connection.authenticate()
@@ -28,7 +29,7 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [disconnect description]
-   * @return {[type]} [description]
+   * @return {Boolean}
    */
   async disconnect () {
     return this.connection.close()
@@ -36,8 +37,7 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [make description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @return {SequelizeConnection}
    */
   async make () {
     if (this.connection) {
@@ -49,9 +49,7 @@ module.exports = class SequelizeConnection extends Connection {
 
       this.config.uri = `sqlite:${databasePath}`
 
-      if (!fs.existsSync(databasePath)) {
-        fs.closeSync(fs.openSync(databasePath, 'w'))
-      }
+      await fs.ensureFile(databasePath)
     }
 
     this.connection = new Sequelize(this.config.uri, {
@@ -73,13 +71,14 @@ module.exports = class SequelizeConnection extends Connection {
     } catch (error) {
       logger.error('Unable to connect to the database:')
       logger.error(error.stack)
+      process.exit(1)
     }
   }
 
   /**
    * [getActiveDelegates description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {Array}
    */
   async getActiveDelegates (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
@@ -116,8 +115,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [saveRounds description]
-   * @param  {[type]} activeDelegates [description]
-   * @return {[type]}                 [description]
+   * @param  {Array} activeDelegates
+   * @return {Array}
    */
   saveRounds (activeDelegates) {
     logger.info(`saving round ${activeDelegates[0].round}`)
@@ -126,8 +125,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [deleteRound description]
-   * @param  {[type]} round [description]
-   * @return {[type]}       [description]
+   * @param  {Number} round
+   * @return {Boolean}
    */
   deleteRound (round) {
     return this.models.round.destroy({where: {round}})
@@ -135,9 +134,9 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [buildDelegates description]
-   * @param  {[type]} maxDelegates [description]
-   * @param  {[type]} height       [description]
-   * @return {[type]}              [description]
+   * @param  {Number} maxDelegates
+   * @param  {Number} height
+   * @return {Array}
    */
   async buildDelegates (maxDelegates, height) {
     if (height > 1 && height % maxDelegates !== 1) {
@@ -191,8 +190,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [buildWallets description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {Array}
    */
   async buildWallets (height) {
     this.walletManager.reset()
@@ -329,9 +328,9 @@ module.exports = class SequelizeConnection extends Connection {
   // must be called before saving new round of delegates
   /**
    * [updateDelegateStats description]
-   * @param  {[type]} block     [description]
-   * @param  {[type]} delegates [description]
-   * @return {[type]}           [description]
+   * @param  {Block} block
+   * @param  {Array} delegates
+   * @return {void}
    */
   async updateDelegateStats (block, delegates) {
     if (!delegates) {
@@ -365,8 +364,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [saveWallets description]
-   * @param  {[type]} force [description]
-   * @return {[type]}       [description]
+   * @param  {Boolean} force
+   * @return {Object}
    */
   async saveWallets (force) {
     const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
@@ -386,8 +385,8 @@ module.exports = class SequelizeConnection extends Connection {
   // to be used when node is in sync and committing newly received blocks
   /**
    * [saveBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {Object}
    */
   async saveBlock (block) {
     let transaction
@@ -405,8 +404,8 @@ module.exports = class SequelizeConnection extends Connection {
   // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
   /**
    * [saveBlockAsync description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async saveBlockAsync (block) {
     if (!this.asyncTransaction) this.asyncTransaction = await this.connection.transaction()
@@ -417,7 +416,7 @@ module.exports = class SequelizeConnection extends Connection {
   // to be used in combination with saveBlockAsync
   /**
    * [saveBlockCommit description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async saveBlockCommit () {
     if (!this.asyncTransaction) return
@@ -436,8 +435,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [deleteBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async deleteBlock (block) {
     let transaction
@@ -455,8 +454,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getBlock description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Block}
    */
   async getBlock (id) {
     // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
@@ -481,8 +480,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getTransaction description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {[type]}
    */
   getTransaction (id) {
     return this.connection.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
@@ -490,8 +489,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getCommonBlock description]
-   * @param  {[type]} ids [description]
-   * @return {[type]}     [description]
+   * @param  {Array} ids
+   * @return {[type]}
    */
   getCommonBlock (ids) {
     return this.connection.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
@@ -499,8 +498,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getTransactionsFromIds description]
-   * @param  {[type]} txids [description]
-   * @return {[type]}       [description]
+   * @param  {Array} txids
+   * @return {Array}
    */
   async getTransactionsFromIds (txids) {
     const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
@@ -511,8 +510,8 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getForgedTransactionsIds description]
-   * @param  {[type]} txids [description]
-   * @return {[type]}       [description]
+   * @param  {Array} txids
+   * @return {Array}
    */
   async getForgedTransactionsIds (txids) {
     const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
@@ -521,22 +520,28 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getLastBlock description]
-   * @return {[type]} [description]
+   * @return {Block}
    */
   async getLastBlock () {
     let block = await this.models.block.findOne({order: [['height', 'DESC']]})
-    if (!block) return null
+
+    if (!block) {
+      return null
+    }
+
     block = block.dataValues
+
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
     block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+
     return new Block(block)
   }
 
   /**
    * [getBlocks description]
-   * @param  {[type]} offset [description]
-   * @param  {[type]} limit  [description]
-   * @return {[type]}        [description]
+   * @param  {Number} offset
+   * @param  {Number} limit
+   * @return {Array}
    */
   async getBlocks (offset, limit) {
     const last = offset + limit
@@ -554,6 +559,7 @@ module.exports = class SequelizeConnection extends Connection {
         }
       }
     })
+
     const nblocks = blocks.map(block => {
       block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
 
@@ -565,9 +571,9 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [getBlockHeaders description]
-   * @param  {[type]} offset [description]
-   * @param  {[type]} limit  [description]
-   * @return {[type]}        [description]
+   * @param  {Number} offset
+   * @param  {Number} limit
+   * @return {Array}
    */
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
@@ -587,7 +593,7 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [runMigrations description]
-   * @return {[type]} [description]
+   * @return {Boolean}
    */
   __runMigrations () {
     const umzug = new Umzug({
@@ -609,7 +615,7 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [registerModels description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __registerModels () {
     this.models = {}
@@ -632,7 +638,7 @@ module.exports = class SequelizeConnection extends Connection {
 
   /**
    * [registerRepositories description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __registerRepositories () {
     const repositories = {

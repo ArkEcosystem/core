@@ -3,12 +3,12 @@
 const path = require('path')
 const JsonDriver = require('../lib/driver')
 
-const stubConfigPath = path.resolve(__dirname, './stubs')
+const stubConfigPath = path.resolve(__dirname, './__stubs__')
 
 const stubConfig = {
-  delegates: require('./stubs/delegates'),
-  genesisBlock: require('./stubs/genesisBlock'),
-  network: require('./stubs/network')
+  delegates: require('./__stubs__/delegates'),
+  genesisBlock: require('./__stubs__/genesisBlock'),
+  network: require('./__stubs__/network')
 }
 
 describe('JSON Driver', () => {
