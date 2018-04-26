@@ -92,6 +92,15 @@ module.exports = class Config extends ConfigInterface {
     for (let i = this.peers.sources.length - 1; i >= 0; i--) {
       const source = this.peers.sources[i]
 
+      // Local File...
+      if (source.startsWith('/')) {
+        // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
+        fs.writeFileSync(filePath, JSON.stringify(require(source), null, 2))
+
+        break
+      }
+
+      // URLs...
       try {
         const response = await axios.get(source)
 
