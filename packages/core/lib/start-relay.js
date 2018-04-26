@@ -8,11 +8,13 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
  * @return {void}
  */
 module.exports = async (options) => {
-  pluginManager.init(options.config, {
+  const config = options.config
+
+  pluginManager.init(config, {
     exclude: ['@arkecosystem/core-forger']
   })
 
-  await pluginManager.hook('init', { config: options.config })
+  await pluginManager.hook('init', {config})
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 
