@@ -3,8 +3,8 @@
 const path = require('path')
 const pluginManager = require('../lib')
 
-const stubPlugins = require('./stubs/plugins.js')
-const stubPluginPath = path.resolve(__dirname, './stubs')
+const stubPlugins = require('./__stubs__/plugins.js')
+const stubPluginPath = path.resolve(__dirname, './__stubs__')
 
 describe('PluginLoader', () => {
   it('should be an object', async () => {
@@ -25,7 +25,7 @@ describe('PluginLoader', () => {
   })
 
   it('should register a plugin', async () => {
-    const pluginName = './__tests__/stubs/plugin'
+    const pluginName = './__tests__/__stubs__/plugin'
     const pluginConfig = stubPlugins.init[pluginName]
 
     await pluginManager.init(stubPluginPath)
