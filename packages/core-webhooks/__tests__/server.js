@@ -7,7 +7,7 @@ const server = express()
 const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json()
 
-const fixture = require('./fixture')
+const fixture = require('./__fixtures__/credentials')
 
 beforeAll(() => {
   server.post('/', jsonParser, (req, res) => {
