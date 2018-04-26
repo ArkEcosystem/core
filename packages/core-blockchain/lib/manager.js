@@ -82,7 +82,7 @@ module.exports = class BlockchainManager {
    */
   async isReady () {
     /**
-     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
+     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
      */
     while (!stateMachine.state.started) await sleep(1000)
     return true
