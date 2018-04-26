@@ -154,7 +154,7 @@ module.exports = class HDNode {
 
   /**
    * [getAddress description]
-   * @return {[type]} [description]
+   * @return {String} [description]
    */
   getAddress () {
     return this.keyPair.getAddress()
@@ -162,7 +162,7 @@ module.exports = class HDNode {
 
   /**
    * [getIdentifier description]
-   * @return {[type]} [description]
+   * @return {String} [description]
    */
   getIdentifier () {
     return bcrypto.hash160(this.keyPair.getPublicKeyBuffer())
@@ -170,7 +170,7 @@ module.exports = class HDNode {
 
   /**
    * [getFingerprint description]
-   * @return {[type]} [description]
+   * @return {String} [description]
    */
   getFingerprint () {
     return this.getIdentifier().slice(0, 4)
