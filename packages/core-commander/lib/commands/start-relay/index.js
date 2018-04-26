@@ -6,10 +6,6 @@ const { startProcess } = require('../../utils')
 const { sleep } = require('sleep')
 const { onCancel } = require('../../utils')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   startProcess({
     name: 'ark-core:relay',

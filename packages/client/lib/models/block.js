@@ -1,8 +1,7 @@
 const crypto = require('crypto')
-const bignum = require('bignum')
+const Bignum = require('bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
-const legacyCryptoBuilder = require('../builder/legacy-crypto')
 const configManager = require('../managers/config')
 const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
@@ -17,8 +16,8 @@ const applyV1Fix = (data) => {
   data.totalAmount = parseInt(data.totalAmount)
   data.totalFee = parseInt(data.totalFee)
   data.reward = parseInt(data.reward)
-  data.previousBlockHex = data.previousBlock ? new bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000' // eslint-disable-line new-cap
-  data.idHex = new bignum(data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
+  data.previousBlockHex = data.previousBlock ? new Bignum(data.previousBlock).toBuffer({size: 8}).toString('hex') : '0000000000000000'
+  data.idHex = new Bignum(data.id).toBuffer({size: 8}).toString('hex')
   // END Fix for v1 api
 
   // order of transactions messed up in mainnet V1
@@ -38,38 +37,29 @@ module.exports = class Block {
     this.data = Block.deserialize(this.serialized)
 
     this.data.idHex = Block.getId(this.data)
-    this.data.id = bignum(this.data.idHex, 16).toString()
-
-    // fix on issue of non homogeneus transaction type 1 payloads
-    data.transactions.forEach((tx, i) => {
-      const thistx = this.data.transactions[i]
-      if (thistx.type === 1 && thistx.version === 1 && tx.recipientId) {
-        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        thistx.recipientId = legacyCryptoBuilder.getAddress(thistx.senderPublicKey, thistx.network)
-        // FIXME: @fix added this and this currently doesn't use the network the configManager uses
-        thistx.id = legacyCryptoBuilder.getId(thistx)
-      }
-    })
+    this.data.id = Bignum(this.data.idHex, 16).toString()
 
     if (data.height === 1) {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
-      this.data.idHex = new bignum(this.data.id).toBuffer({size: 8}).toString('hex') // eslint-disable-line new-cap
+      this.data.idHex = new Bignum(this.data.id).toBuffer({size: 8}).toString('hex')
       delete this.data.previousBlock
     }
 
-    // fix on real timestamp
+    // fix on real timestamp, this is overloading tx timestamp with block timestamp for storage only
     this.transactions = data.transactions.map(tx => {
-      let txx = new Transaction(tx)
+      const txx = new Transaction(tx)
       txx.blockId = this.data.id
       txx.timestamp = this.data.timestamp
       return txx
     })
 
+    delete this.data.transactions
+
     this.verification = this.verify()
     if (!this.verification.verified) {
-      console.log(JSON.stringify(this.data, null, 2))
+      console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
       console.log(this.verification)
     }
@@ -161,6 +151,10 @@ module.exports = class Block {
       errors: []
     }
     try {
+      if (!this.transactions.reduce((acc, tx) => acc && tx.verified, true)) {
+        result.errors.push('One or more transactions are not verified')
+      }
+
       const constants = configManager.getConstants(block.height)
 
       // let previousBlock = null
@@ -201,11 +195,11 @@ module.exports = class Block {
         result.errors.push('Payload length is too high')
       }
 
-      if (block.transactions.length !== block.numberOfTransactions) {
+      if (this.transactions.length !== block.numberOfTransactions) {
         result.errors.push('Invalid number of transactions')
       }
 
-      if (block.transactions.length > constants.block.maxTransactions) {
+      if (this.transactions.length > constants.block.maxTransactions) {
         if (block.height > 1) result.errors.push('Transactions length is too high')
       }
 
@@ -216,16 +210,16 @@ module.exports = class Block {
       let payloadHash = crypto.createHash('sha256')
       let appliedTransactions = {}
       // console.log(block.transactions)
-      block.transactions.forEach(transaction => {
-        const bytes = Buffer.from(transaction.id, 'hex')
+      this.transactions.forEach(transaction => {
+        const bytes = Buffer.from(transaction.data.id, 'hex')
 
-        if (appliedTransactions[transaction.id]) {
-          result.errors.push('Encountered duplicate transaction: ' + transaction.id)
+        if (appliedTransactions[transaction.data.id]) {
+          result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
         }
-        appliedTransactions[transaction.id] = transaction
+        appliedTransactions[transaction.data.id] = transaction.data
 
-        totalAmount += transaction.amount
-        totalFee += transaction.fee
+        totalAmount += transaction.data.amount
+        totalFee += transaction.data.fee
         size += bytes.length
 
         payloadHash.update(bytes)
@@ -266,7 +260,7 @@ module.exports = class Block {
     block.timestamp = buf.readUInt32(4)
     block.height = buf.readUInt32(8)
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
-    block.previousBlock = bignum(block.previousBlockHex, 16).toString()
+    block.previousBlock = Bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
     block.totalAmount = buf.readUInt64(24).toNumber()
     block.totalFee = buf.readUInt64(32).toNumber()
@@ -342,5 +336,9 @@ module.exports = class Block {
 
     bb.flip()
     return bb.toBuffer()
+  }
+
+  toRawJson () {
+    return {...this.data, transactions: this.transactions.map(tx => tx.data)}
   }
 }

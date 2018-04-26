@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * [description]
- * @param  {[type]} sequelize
- * @param  {[type]} DataTypes
- * @return {Object}
- */
 module.exports = (sequelize, DataTypes) => {
   const Webhook = sequelize.define('webhook', {
     id: {

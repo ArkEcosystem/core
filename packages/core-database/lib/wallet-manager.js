@@ -11,10 +11,6 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class WalletManager {
   /**
    * [constructor description]
@@ -180,8 +176,8 @@ module.exports = class WalletManager {
       logger.warn(datatx)
     } else if (!sender.canApply(datatx)) {
       logger.info(JSON.stringify(sender))
-      logger.error(`[sender.canApply] Send by ${sender.address}`, JSON.stringify(datatx))
-
+      logger.error(`[sender.canApply] Sent by ${sender.address}`, JSON.stringify(datatx))
+      logger.info('Audit', JSON.stringify(sender.auditApply(datatx), null, 2))
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }
 

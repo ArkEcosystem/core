@@ -249,6 +249,27 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+arkjsv1@arkecosystem/ark-js#master:
+  version "0.2.1"
+  resolved "https://codeload.github.com/arkecosystem/ark-js/tar.gz/08f9c5e9a209cef64e143098e2d4cb8ed1b09cc8"
+  dependencies:
+    bigi "^1.4.2"
+    bip66 "^1.1.5"
+    browserify-bignum "^1.3.0-2"
+    bs58check "^2.0.2"
+    buffer "^5.0.8"
+    bytebuffer "^5.0.1"
+    create-hash "^1.1.3"
+    create-hmac "^1.1.6"
+    crypto-browserify "^3.12.0"
+    ecdsa "^0.7.0"
+    ecurve "^1.0.5"
+    js-nacl "^1.2.2"
+    randombytes "^2.0.5"
+    secp256k1 "^3.3.0"
+    typeforce "^1.11.7"
+    wif "^2.0.6"
+
 arr-diff@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/arr-diff/-/arr-diff-2.0.0.tgz#8f3b827f955a8bd669697e4a4256ac3ceae356cf"
@@ -1360,6 +1381,10 @@ browserify-aes@^1.0.0, browserify-aes@^1.0.1, browserify-aes@^1.0.4, browserify-
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+browserify-bignum@^1.3.0-2:
+  version "1.3.0-2"
+  resolved "https://registry.yarnpkg.com/browserify-bignum/-/browserify-bignum-1.3.0-2.tgz#ddc3b6ed607fd6c960966950e2b35a2b0c6fb9bf"
+
 browserify-cipher@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/browserify-cipher/-/browserify-cipher-1.0.1.tgz#8d6474c1b870bfdabcd3bcfcc1934a10e94f15f0"
@@ -1414,7 +1439,7 @@ bs58@^4.0.0:
   dependencies:
     base-x "^3.0.2"
 
-bs58check@<3.0.0, bs58check@^2.1.1:
+bs58check@<3.0.0, bs58check@^2.0.2, bs58check@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/bs58check/-/bs58check-2.1.1.tgz#8a5d0e587af97b784bf9cbf1b29f454d82bc0222"
   dependencies:
@@ -1447,7 +1472,7 @@ buffer@^4.3.0:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.1.0:
+buffer@^5.0.8, buffer@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.1.0.tgz#c913e43678c7cb7c8bd16afbcddb6c5505e8f9fe"
   dependencies:
@@ -2311,7 +2336,7 @@ cryptiles@4.x.x:
   dependencies:
     boom "7.x.x"
 
-crypto-browserify@^3.11.0:
+crypto-browserify@^3.11.0, crypto-browserify@^3.12.0:
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/crypto-browserify/-/crypto-browserify-3.12.0.tgz#396cf9f3137f03e4b8e532c58f698254e00f80ec"
   dependencies:
@@ -2670,7 +2695,7 @@ ecdsa@^0.7.0:
     ecurve "^1.0.0"
     typeforce "^1.6.1"
 
-ecurve@^1.0.0, ecurve@^1.0.6:
+ecurve@^1.0.0, ecurve@^1.0.5, ecurve@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/ecurve/-/ecurve-1.0.6.tgz#dfdabbb7149f8d8b78816be5a7d5b83fcf6de797"
   dependencies:
@@ -7599,7 +7624,7 @@ scryptsy@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/scryptsy/-/scryptsy-2.0.0.tgz#262c36f0231cfa7654e2363fa394cd2dec66f378"
 
-secp256k1@^3.5.0:
+secp256k1@^3.3.0, secp256k1@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-3.5.0.tgz#677d3b8a8e04e1a5fa381a1ae437c54207b738d0"
   dependencies:
@@ -8577,7 +8602,7 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typeforce@^1.12.0, typeforce@^1.6.1:
+typeforce@^1.11.7, typeforce@^1.12.0, typeforce@^1.6.1:
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/typeforce/-/typeforce-1.12.0.tgz#ca40899919f1466d7819e37be039406beb912a2e"
 

@@ -3,10 +3,6 @@
 const _ = require('lodash')
 const filterObject = require('./utils/filter-object')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class WalletsRepository {
   /**
    * [constructor description]

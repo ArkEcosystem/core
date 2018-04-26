@@ -4,7 +4,7 @@
   "description": "A JavaScript library to interact with the ARK Blockchain",
   "version": "2.0.0",
   "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
+    "François-Xavier Thoorens <fx.thoorens@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
   ],
@@ -20,6 +20,7 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
+    "arkjsv1": "arkecosystem/ark-js#master",
     "axios": "^0.17.1",
     "bigi": "^1.4.2",
     "bignum": "^0.12.5",

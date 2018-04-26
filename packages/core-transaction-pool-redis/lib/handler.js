@@ -14,23 +14,11 @@ const TransactionPoolManager = require('./manager')
 
 let instance
 
-/**
- * [exports description]
- * @type {[type]}
- */
-module.exports = class Handler {
-  /**
-   * [getInstance description]
-   * @return {[type]} [description]
-   */
-  static getInstance () {
-    return instance
-  }
-
+module.exports = class TransactionPoolHandler {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {TransactionPoolHandler}
    */
   constructor (config) {
     this.walletManager = blockchainManager.getDatabaseConnection().walletManager
@@ -56,8 +44,16 @@ module.exports = class Handler {
   }
 
   /**
+   * [getInstance description]
+   * @return {TransactionPoolHandler}
+   */
+  static getInstance () {
+    return instance
+  }
+
+  /**
    * [addTransaction description]
-   * @param {[type]} transaction [description]
+   * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
     if (this.poolManager) {
@@ -67,7 +63,7 @@ module.exports = class Handler {
 
   /**
    * [addTransactions description]
-   * @param {[type]} transactions [description]
+   * @param {Array} transactions
    */
   async addTransactions (transactions) {
     this.queue.push(transactions.map(tx => {
@@ -92,42 +88,49 @@ module.exports = class Handler {
 
   /**
    * [verify description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * @param  {Transaction} transaction
+   * @return {Boolean}
    */
   verify (transaction) {
     const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+
     if (crypto.verify(transaction) && wallet.canApply(transaction)) {
       this.walletManager.applyTransaction(transaction)
+
       return true
     }
+
+    return false
   }
 
   /**
    * [undoBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async undoBlock (block) { // we add back the block txs to the pool
-    if (block.transactions.length === 0) return
+    if (block.transactions.length === 0) {
+      return
+    }
+
     // no return the main thread is liberated
     this.addTransactions(block.transactions.map(tx => tx.data))
   }
 
   /**
    * [addTransactionToRedis description]
-   * @param {[type]} object [description]
+   * @param {Transaction} transaction
    */
-  async addTransactionToRedis (object) {
+  async addTransactionToRedis (transaction) {
     if (this.poolManager) {
-      await this.poolManager.addTransaction(object)
+      await this.poolManager.addTransaction(transaction)
     }
   }
 
   /**
    * [removeForgedTransactions description]
-   * @param  {[type]} transactions [description]
-   * @return {[type]}              [description]
+   * @param  {Number} transactions
+   * @return {void}
    */
   async removeForgedTransactions (transactions) { // we remove the txs from the pool
     if (this.poolManager) {
@@ -137,9 +140,9 @@ module.exports = class Handler {
 
   /**
    * [getUnconfirmedTransactions description]
-   * @param  {[type]} start [description]
-   * @param  {[type]} size  [description]
-   * @return {[type]}       [description]
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
    */
   async getUnconfirmedTransactions (start, size) {
     return this.poolManager.getTransactions(start, size)
@@ -147,9 +150,9 @@ module.exports = class Handler {
 
   /**
    * [getTransactionsForForging description]
-   * @param  {[type]} start [description]
-   * @param  {[type]} size  [description]
-   * @return {[type]}       [description]
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
    */
   async getTransactionsForForging (start, size) {
     return this.poolManager.getTransactionsForForging(start, size)
@@ -157,8 +160,8 @@ module.exports = class Handler {
 
   /**
    * [getUnconfirmedTransaction description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Object}
    */
   async getUnconfirmedTransaction (id) {
     return this.poolManager.getTransaction(id)
@@ -166,7 +169,7 @@ module.exports = class Handler {
 
   /**
    * [getPoolSize description]
-   * @return {[type]} [description]
+   * @return {Number}
    */
   async getPoolSize () {
     return this.poolManager.getPoolSize()
