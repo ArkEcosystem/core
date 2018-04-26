@@ -3,7 +3,7 @@
 require('./server')
 
 const axios = require('axios')
-const fixture = require('./__data__/fixture')
+const fixture = require('./__fixtures__/credentials')
 
 describe('REST Hooks', () => {
   it('should respond with 200 with valid event and token', async () => {
