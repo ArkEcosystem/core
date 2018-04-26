@@ -23,8 +23,12 @@ module.exports = class Down {
     this.p2p = p2p
     this.config = config
     this.peers = {}
-    if (!config.server.peers.list) throw new Error('No seed peers defined in config/server.json')
-    config.server.peers.list
+
+    if (!config.peers.list) {
+      throw new Error('No seed peers defined in config/peers.json')
+    }
+
+    config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
   }
@@ -53,8 +57,8 @@ module.exports = class Down {
         await this.cleanPeers()
       }
 
-      if (Object.keys(this.peers).length < this.config.server.peers.list.length - 1 && process.env.ARK_ENV !== 'testnet') {
-        this.config.server.peers.list
+      if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'testnet') {
+        this.config.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
         return this.updateNetworkStatus()
@@ -62,7 +66,7 @@ module.exports = class Down {
     } catch (error) {
       logger.error(error.stack)
 
-      this.config.server.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
       return this.updateNetworkStatus()
     }
@@ -97,7 +101,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
-        pluginManager.get('webhooks').emit('peer.removed', this.peers[ip])
+        // pluginManager.get('webhooks').emit('peer.removed', this.peers[ip])
 
         return null
       }
@@ -125,7 +129,7 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
-      pluginManager.get('webhooks').emit('peer.added', npeer)
+      // pluginManager.get('webhooks').emit('peer.added', npeer)
     } catch (error) {
       logger.debug(`Peer ${npeer} not connectable - ${error}`)
     }
