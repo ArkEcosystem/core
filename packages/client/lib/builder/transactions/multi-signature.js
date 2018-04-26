@@ -19,10 +19,10 @@ module.exports = class MultiSignature extends Transaction {
 
   /**
    * Overrides the inherited method to add the necessary parameters.
-   * @param  {[type]} keysgroup [description]
-   * @param  {[type]} lifetime  [description]
-   * @param  {[type]} min       [description]
-   * @return {MultiSignature}   [description]
+   * @param  {Array} keysgroup
+   * @param  {Number} lifetime
+   * @param  {Number} min
+   * @return {MultiSignature}
    */
   create (keysgroup, lifetime, min) {
     this.asset.multisignature.keysgroup = keysgroup

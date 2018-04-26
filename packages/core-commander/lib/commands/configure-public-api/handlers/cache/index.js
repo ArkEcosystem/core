@@ -4,10 +4,6 @@ const prompts = require('prompts')
 const questions = require('./questions')
 const { onCancel, readConfig, writeConfig } = require('../../../utils')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   const response = await prompts(questions, { onCancel })
 

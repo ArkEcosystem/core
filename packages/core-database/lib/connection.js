@@ -7,10 +7,6 @@ const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 const WalletManager = require('./wallet-manager')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class ConnectionInterface {
   /**
    * [constructor description]

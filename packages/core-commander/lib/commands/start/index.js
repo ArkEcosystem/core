@@ -3,10 +3,6 @@
 const prompts = require('prompts')
 const { splash } = require('../../utils')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 const questions = () => {
   const relayChoice = process.env.ARK_RELAY_STATUS === 'online'
     ? { title: 'Stop Relay', value: 'stop-relay' }
@@ -41,7 +37,6 @@ const questions = () => {
     choices
   }]
 }
-
 module.exports = async () => {
   splash()
 

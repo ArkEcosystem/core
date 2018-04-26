@@ -4,13 +4,13 @@ const configTestnet = require('./networks/ark/testnet.json')
 
 /**
  * [ARKTOSHI description]
- * @type {[type]}
+ * @type {Number}
  */
 exports.ARKTOSHI = Math.pow(10, 8)
 
 /**
  * [TRANSACTION_TYPES description]
- * @type {[type]}
+ * @type {Object}
  */
 exports.TRANSACTION_TYPES = Object.freeze({
   TRANSFER: 0,
@@ -26,7 +26,7 @@ exports.TRANSACTION_TYPES = Object.freeze({
 
 /**
  * [CONFIGURATIONS description]
- * @type {[type]}
+ * @type {Object}
  */
 exports.CONFIGURATIONS = Object.freeze({
   ARK: {

@@ -4,8 +4,7 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const Hapi = require('hapi')
 
 /**
- * [exports description]
- * @type {[type]}
+ * [description]
  */
 module.exports = class Up {
   /**

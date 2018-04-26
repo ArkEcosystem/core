@@ -4,10 +4,6 @@ const Bull = require('bull')
 
 let instance
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class Queue {
   /**
    * [constructor description]

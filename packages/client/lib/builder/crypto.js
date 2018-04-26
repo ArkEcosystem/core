@@ -10,16 +10,18 @@ const ECSignature = require('../crypto/ecsignature')
 const feeManager = require('../managers/fee')
 
 class CryptoBuilder {
-
   /**
    * Get transaction id.
    * @param  {Transaction} transaction
    * @return {String}
    */
   getId (transaction) {
-    if (transaction.version === 1) return arkjsv1.crypto.getId(transaction)
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.getId(transaction)
+    }
+
     // TODO: Enable AIP11 id here
-    else return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
+    return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
   }
 
   /**
@@ -28,8 +30,11 @@ class CryptoBuilder {
    * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
-    if (transaction.version === 1) return arkjsv1.crypto.getHash(transaction, skipSignature, skipSecondSignature)
-    // else return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.getHash(transaction, skipSignature, skipSecondSignature)
+    }
+
+    // return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
   }
 
   /**
@@ -82,9 +87,12 @@ class CryptoBuilder {
    * @return {Boolean}
    */
   verify (transaction, network) {
-    if (transaction.version === 1) return arkjsv1.crypto.verify(transaction, network)
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.verify(transaction, network)
+    }
+
     // TODO: enable AIP11 when ready here
-    else return false
+    return false
   }
 
   /**
@@ -149,6 +157,7 @@ class CryptoBuilder {
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }
+
     try {
       var decode = bs58check.decode(address)
       return decode[0] === networkVersion

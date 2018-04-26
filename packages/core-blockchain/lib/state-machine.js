@@ -25,14 +25,14 @@ const state = {
 
 /**
  * [state description]
- * @type {[type]}
+ * @type {Object}
  */
 blockchainMachine.state = state
 
 /**
  * [description]
- * @param  {[type]} blockchainManager [description]
- * @return {[type]}                   [description]
+ * @param  {BlockchainManager} blockchainManager
+ * @return {Object}
  */
 blockchainMachine.actionMap = (blockchainManager) => {
   return {

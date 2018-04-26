@@ -8,43 +8,18 @@ const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
 
-/**
- * [description]
- * @param  {[type]} file [description]
- * @return {[type]}      [description]
- */
 exports.readConfig = (file) => require(`${process.env.ARK_CONFIG}/${file}.json`)
 
-/**
- * [description]
- * @param  {[type]} file [description]
- * @param  {[type]} data [description]
- * @return {[type]}      [description]
- */
 exports.writeConfig = async (file, data) => writeFile(`${process.env.ARK_CONFIG}/${file}.json`, JSON.stringify(data, null, 2))
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 exports.splash = async () => {
   clear()
 
   console.log(chalk.blue(figlet.textSync('ARK Core 2.0', { font: 'isometric3' })))
 }
 
-/**
- * [description]
- * @param  {[type]} prompt [description]
- * @return {[type]}        [description]
- */
 exports.onCancel = prompt => require('./commands/start')()
 
-/**
- * [description]
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
- */
 exports.getProcessStatus = (callback) => {
   pm2.connect((error) => {
     if (error) {
@@ -75,12 +50,6 @@ exports.getProcessStatus = (callback) => {
   })
 }
 
-/**
- * [description]
- * @param  {[type]}   options  [description]
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
- */
 exports.startProcess = (options, callback) => {
   pm2.connect((error) => {
     if (error) {
@@ -103,12 +72,6 @@ exports.startProcess = (options, callback) => {
   })
 }
 
-/**
- * [description]
- * @param  {[type]}   pid      [description]
- * @param  {Function} callback [description]
- * @return {[type]}            [description]
- */
 exports.stopProcess = (pid, callback) => {
   pm2.connect((error) => {
     if (error) {

@@ -14,23 +14,13 @@ const secp256k1native = require('secp256k1')
 
 const secp256k1 = ecurve.getCurveByName('secp256k1')
 
-/**
- * Provide either `d` or `Q` but not both.
- *
- * @constructor
- * @param {BigInteger} [d] Private key.
- * @param {Point} [Q] Public key.
- * @param {object} [options]
- * @param {boolean} [options.compressed=true]
- * @param {Network} [options.network=networks.mainnet]
- */
-module.exports = class ECPair {
+class ECPair {
   /**
-   * [constructor description]
-   * @param  {[type]} d       [description]
-   * @param  {[type]} Q       [description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param {BigInteger} [d] Private key.
+   * @param {Point} [Q] Public key.
+   * @param {object} [options]
+   * @param {boolean} [options.compressed=true]
+   * @param {Network} [options.network=networks.mainnet]
    */
   constructor (d, Q, options) {
     if (options) {
@@ -63,9 +53,9 @@ module.exports = class ECPair {
 
   /**
    * [fromPublicKeyBuffer description]
-   * @param  {[type]} buffer  [description]
-   * @param  {[type]} network [description]
-   * @return {[type]}         [description]
+   * @param  {Buffer} buffer
+   * @param  {(Object|Array)} network
+   * @returns {ECPair}
    */
   static fromPublicKeyBuffer (buffer, network) {
     const Q = ecurve.Point.decodeFrom(secp256k1, buffer)
@@ -78,9 +68,9 @@ module.exports = class ECPair {
 
   /**
    * [fromSeed description]
-   * @param  {[type]} seed    [description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param  {String} seed
+   * @param  {Object} options
+   * @returns {ECPair}
    */
   static fromSeed (seed, options) {
     const hash = bcrypto.sha256(Buffer.from(seed, 'utf-8'))
@@ -95,9 +85,9 @@ module.exports = class ECPair {
 
   /**
    * [fromWIF description]
-   * @param  {[type]} string  [description]
-   * @param  {[type]} network [description]
-   * @return {[type]}         [description]
+   * @param  {String} string
+   * @param  {(Object|Array)} network
+   * @returns {ECPair}
    */
   static fromWIF (string, network) {
     const decoded = wif.decode(string)
@@ -128,8 +118,8 @@ module.exports = class ECPair {
 
   /**
    * [makeRandom description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param  {Object} options
+   * @returns {ECPair}
    */
   static makeRandom (options) {
     options = options || {}
@@ -149,7 +139,7 @@ module.exports = class ECPair {
 
   /**
    * [getAddress description]
-   * @return {[type]} [description]
+   * @returns {ECPair}
    */
   getAddress () {
     const payload = Buffer.alloc(21)
@@ -163,7 +153,7 @@ module.exports = class ECPair {
 
   /**
    * [getNetwork description]
-   * @return {[type]} [description]
+   * @returns {ECPair}
    */
   getNetwork () {
     return this.network
@@ -171,7 +161,7 @@ module.exports = class ECPair {
 
   /**
    * [getPublicKeyBuffer description]
-   * @return {[type]} [description]
+   * @returns {ECPair}
    */
   getPublicKeyBuffer () {
     return this.Q.getEncoded(this.compressed)
@@ -179,8 +169,8 @@ module.exports = class ECPair {
 
   /**
    * [sign description]
-   * @param  {[type]} hash [description]
-   * @return {[type]}      [description]
+   * @param  {Buffer} hash
+   * @returns {ECPair}
    */
   sign (hash) {
     if (!this.d) throw new Error('Missing private key')
@@ -191,7 +181,7 @@ module.exports = class ECPair {
 
   /**
    * [toWIF description]
-   * @return {[type]} [description]
+   * @returns {ECPair}
    */
   toWIF () {
     if (!this.d) throw new Error('Missing private key')
@@ -201,11 +191,13 @@ module.exports = class ECPair {
 
   /**
    * [verify description]
-   * @param  {[type]} hash      [description]
-   * @param  {[type]} signature [description]
-   * @return {[type]}           [description]
+   * @param  {Buffer} hash
+   * @param  {ECPair} signature
+   * @returns {ECPair}
    */
   verify (hash, signature) {
     return secp256k1native.verify(hash, signature.toNativeSecp256k1(), this.Q.getEncoded(this.compressed))
   }
 }
+
+module.exports = ECPair

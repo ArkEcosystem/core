@@ -7,10 +7,6 @@ const path = require('path')
 const { onCancel } = require('../../utils')
 const expandHomeDir = require('expand-home-dir')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   const choices = await glob('logs/**/*.log', {
     cwd: expandHomeDir('~/.ark'), absolute: true, filesOnly: true

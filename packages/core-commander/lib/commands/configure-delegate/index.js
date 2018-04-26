@@ -6,10 +6,6 @@ const { onCancel, readConfig, writeConfig } = require('../../utils')
 const { Delegate } = require('@arkecosystem/client').models
 const { encrypt } = require('../../utils/forger-crypto')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   let response = await prompts(questions, { onCancel })
 

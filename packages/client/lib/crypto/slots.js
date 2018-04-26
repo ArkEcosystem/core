@@ -75,8 +75,8 @@ class Slots {
 
   /**
    * [getLastSlot description]
-   * @param  {[type]} nextSlot
-   * @return {[type]}
+   * @param  {Number} nextSlot
+   * @return {Number}
    */
   getLastSlot (nextSlot) {
     return nextSlot + this.getConstant('activeDelegates')

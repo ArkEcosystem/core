@@ -10,10 +10,6 @@ const { Delegate, Transaction } = client.models
 
 const sleep = require('./utils/sleep')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class ForgerManager {
   /**
    * [constructor description]
