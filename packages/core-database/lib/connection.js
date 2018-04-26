@@ -302,12 +302,17 @@ module.exports = class ConnectionInterface {
 
   /**
    * [snapshot description]
-   * @param  {[type]} path [description]
-   * @return {[type]}      [description]
+   * @return {[type]} [description]
    */
-  async snapshot (path) {
-    const fs = require('fs')
+  async snapshot () {
+    const expandHomeDir = require('expand-home-dir')
+    const path = expandHomeDir(pluginManager.config('databaseManager').snapshots)
+
+    const fs = require('fs-extra')
+    await fs.ensureFile(`${path}/blocks.dat`)
+
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
+
     let max = 100000 // eslint-disable-line no-unused-vars
     let offset = 0
     const writeQueue = async.queue((block, qcallback) => {
