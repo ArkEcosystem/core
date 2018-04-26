@@ -22,8 +22,8 @@ module.exports = class TimelockTransfer extends Transaction {
    * Overrides the inherited method to add the necessary parameters
    * @param  {String} recipientId
    * @param  {Number} amount
-   * @param  {[type]} timelock     [description]
-   * @param  {[type]} timelockType [description]
+   * @param  {Number} timelock
+   * @param  {Number} timelockType
    * @return {TimelockTransfer}
    */
   create (recipientId, amount, timelock, timelockType) {

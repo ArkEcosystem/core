@@ -9,7 +9,7 @@ const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-conf
 module.exports = class Config extends ConfigInterface {
   /**
    * [make description]
-   * @return {[type]} [description]
+   * @return {Config}
    */
   async make () {
     await this.__createFromDirectory()
@@ -21,8 +21,8 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [copyFiles description]
-   * @param  {[type]} dest [description]
-   * @return {[type]}      [description]
+   * @param  {String} dest
+   * @return {Promise}
    */
   async copyFiles (dest) {
     if (!dest) {
@@ -36,7 +36,7 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__createFromDirectory description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __createFromDirectory () {
     const files = this.__getFiles()
@@ -48,8 +48,8 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__createBindings description]
-   * @param  {[type]} files [description]
-   * @return {[type]}       [description]
+   * @param  {Array} files
+   * @return {void}
    */
   __createBindings (files) {
     for (const [key, value] of Object.entries(files)) {
@@ -59,7 +59,7 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__getFiles description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   __getFiles () {
     const basePath = path.resolve(this.options.config)
@@ -84,8 +84,8 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__buildPeers description]
-   * @param  {[type]} configFile [description]
-   * @return {[type]}            [description]
+   * @param  {String} configFile
+   * @return {void}
    */
   async __buildPeers (configFile) {
     if (!this.peers.sources) {

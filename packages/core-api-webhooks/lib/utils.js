@@ -6,10 +6,9 @@ const Boom = require('boom')
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformer
  * @return {Object}
  */
-const transformResource = (request, data, transformer) => {
+const transformResource = (request, data) => {
   return require('./transformer')(data)
 }
 
@@ -40,7 +39,7 @@ const paginate = (request) => {
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformerClass
+ * @param  {String} transformerClass
  * @return {Hapi.Response}
  */
 const respondWithResource = (request, data, transformerClass) => {
@@ -53,7 +52,7 @@ const respondWithResource = (request, data, transformerClass) => {
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformerClass
+ * @param  {String} transformerClass
  * @return {Object}
  */
 const respondWithCollection = (request, data, transformerClass) => {
@@ -64,7 +63,7 @@ const respondWithCollection = (request, data, transformerClass) => {
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformerClass
+ * @param  {String} transformerClass
  * @return {Hapi.Response}
  */
 const toResource = (request, data, transformerClass) => {
@@ -75,7 +74,7 @@ const toResource = (request, data, transformerClass) => {
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformerClass
+ * @param  {String} transformerClass
  * @return {Hapi.Response}
  */
 const toCollection = (request, data, transformerClass) => {
@@ -86,7 +85,7 @@ const toCollection = (request, data, transformerClass) => {
  * [description]
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {Object} transformerClass
+ * @param  {String} transformerClass
  * @return {Hapi.Response}
  */
 const toPagination = (request, data, transformerClass) => {

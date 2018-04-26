@@ -146,7 +146,7 @@ module.exports = class Wallet {
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
       // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      check = check && (!this.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config))
+      check = check && (!this.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config)) // eslint-disable-line max-len
     }
 
     if (!check) {
@@ -196,8 +196,13 @@ module.exports = class Wallet {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
       audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
+
       // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      if (this.secondPublicKey) audit.push({'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config)})
+      if (this.secondPublicKey) {
+        audit.push({
+          'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
+        })
+      }
     }
 
     const actions = {

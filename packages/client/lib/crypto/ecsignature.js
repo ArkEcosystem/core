@@ -4,6 +4,13 @@ const types = require('./types')
 const BigInteger = require('bigi')
 
 /**
+ * @typedef {Object} SignatureParseResult
+ * @property {boolean} compressed
+ * @property {number} i
+ * @property {ECSignature} signature
+ */
+
+/**
  * Creates a new ECSignature.
  *
  * @constructor
@@ -13,9 +20,9 @@ const BigInteger = require('bigi')
 module.exports = class ECSignature {
   /**
    * [constructor description]
-   * @param  {[type]} r [description]
-   * @param  {[type]} s [description]
-   * @return {[type]}   [description]
+   * @param  {BigInteger} r
+   * @param  {BigInteger} s
+   * @return {void}
    */
   constructor (r, s) {
     typeforce(types.tuple(types.BigInt, types.BigInt), arguments)
@@ -28,8 +35,8 @@ module.exports = class ECSignature {
 
   /**
    * [parseNativeSecp256k1 description]
-   * @param  {[type]} native [description]
-   * @return {[type]}        [description]
+   * @param  {*} native
+   * @return {SignatureParseResult}
    */
   static parseNativeSecp256k1 (native) {
     if (native.signature.length !== 64) throw new Error('Invalid signature length')
@@ -49,7 +56,7 @@ module.exports = class ECSignature {
 
   /**
    * [toNativeSecp256k1 description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   toNativeSecp256k1 () {
     const buffer = Buffer.alloc(64)
@@ -65,8 +72,8 @@ module.exports = class ECSignature {
 
   /**
    * [parseCompact description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {SignatureParseResult}
    */
   static parseCompact (buffer) {
     if (buffer.length !== 65) throw new Error('Invalid signature length')
@@ -89,8 +96,8 @@ module.exports = class ECSignature {
 
   /**
    * [fromDER description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {ECSignature}
    */
   static fromDER (buffer) {
     const decode = bip66.decode(buffer)
@@ -103,8 +110,8 @@ module.exports = class ECSignature {
   /**
    * BIP62: 1-byte `hashType` flag (only `0x01`, `0x02`, `0x03`, `0x81`, `0x82`, and `0x83` are allowed).
    *
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Object}
    */
   static parseScriptSignature (buffer) {
     const hashType = buffer.readUInt8(buffer.length - 1)
@@ -120,9 +127,9 @@ module.exports = class ECSignature {
 
   /**
    * [toCompact description]
-   * @param  {[type]} i          [description]
-   * @param  {[type]} compressed [description]
-   * @return {[type]}            [description]
+   * @param  {Number} i
+   * @param  {Boolean} compressed
+   * @return {Buffer}
    */
   toCompact (i, compressed) {
     if (compressed) {
@@ -142,7 +149,7 @@ module.exports = class ECSignature {
 
   /**
    * [toDER description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   toDER () {
     const r = Buffer.from(this.r.toDERInteger())
@@ -153,8 +160,8 @@ module.exports = class ECSignature {
 
   /**
    * [toScriptSignature description]
-   * @param  {[type]} hashType [description]
-   * @return {[type]}          [description]
+   * @param  {Number} hashType
+   * @return {Buffer}
    */
   toScriptSignature (hashType) {
     const hashTypeMod = hashType & ~0x80

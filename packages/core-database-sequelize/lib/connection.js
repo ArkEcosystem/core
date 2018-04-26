@@ -481,7 +481,7 @@ module.exports = class SequelizeConnection extends Connection {
   /**
    * [getTransaction description]
    * @param  {Number} id
-   * @return {[type]}
+   * @return {Promise}
    */
   getTransaction (id) {
     return this.connection.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
@@ -490,7 +490,7 @@ module.exports = class SequelizeConnection extends Connection {
   /**
    * [getCommonBlock description]
    * @param  {Array} ids
-   * @return {[type]}
+   * @return {Promise}
    */
   getCommonBlock (ids) {
     return this.connection.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
