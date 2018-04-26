@@ -32,12 +32,12 @@ const applyV1Fix = (data) => {
 }
 
 /**
- * TODO move to ArkDocs
+ * TODO copy some parts to ArkDocs
  * @classdesc This model holds the block data, its verification and serialization
  *
  * A Block model stores on the db:
  *   - id
- *   - version (version of the network? TODO)
+ *   - version (version of the block: could be used for changing how they are forged)
  *   - timestamp (related to the genesis block)
  *   - previousBlock (id of the previous block)
  *   - height
