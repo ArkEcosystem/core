@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER.UNSIGNED
     },
     publicKey: {
       type: DataTypes.STRING(66)
@@ -16,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       //   key: 'publicKey'
       // }
     },
-    balance: DataTypes.BIGINT,
-    round: DataTypes.BIGINT
+    balance: DataTypes.BIGINT.UNSIGNED,
+    round: DataTypes.INTEGER.UNSIGNED
   }, {})
 
   // Round.associate = (models) => {
