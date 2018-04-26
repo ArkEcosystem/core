@@ -1,5 +1,11 @@
 'use strict';
 
+beforeAll(async (done) => {
+  await require('../../__support__/setup')()
+
+  done()
+})
+
 const utils = require('../utils')
 
 describe('API 1.0 - Blocks', () => {

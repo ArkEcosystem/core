@@ -1,5 +1,11 @@
 'use strict';
 
+beforeAll(async (done) => {
+  await require('../../__support__/setup')()
+
+  done()
+})
+
 const utils = require('../utils')
 
 const transactionId = '1d151056a431f14909c9e9c7b11d6f40eb5fe01f07afa206e45c1cb4080a1e09'
