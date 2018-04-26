@@ -14,10 +14,6 @@ const sleep = require('./utils/sleep')
 
 let instance
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class BlockchainManager {
   /**
    * [constructor description]

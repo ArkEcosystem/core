@@ -2,10 +2,6 @@
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class DelegatesRepository {
   /**
    * [constructor description]

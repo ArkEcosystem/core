@@ -5,10 +5,6 @@ const prompts = require('prompts')
 const moment = require('moment')
 const questions = require('./questions')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   const response = await prompts(questions, { onCancel: () => process.exit() })
 

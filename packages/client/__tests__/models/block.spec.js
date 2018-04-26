@@ -2,7 +2,6 @@ const sinon = require('sinon')
 const Block = require('../../lib/models/block')
 
 describe('Models - Block', () => {
-
   describe('constructor', () => {
     it('stores the data', () => {})
     it('verifies the block', () => {})

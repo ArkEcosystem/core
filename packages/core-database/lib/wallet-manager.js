@@ -11,10 +11,6 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class WalletManager {
   /**
    * [constructor description]

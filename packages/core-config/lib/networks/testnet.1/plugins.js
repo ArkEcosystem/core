@@ -18,7 +18,7 @@ module.exports = {
       dialect_1: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {
-      port: 4102
+      port: 4101
     },
     '@arkecosystem/core-transaction-pool-redis': {}
   },

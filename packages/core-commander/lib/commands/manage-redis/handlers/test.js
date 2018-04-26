@@ -4,10 +4,6 @@ const Redis = require('ioredis')
 const { onCancel, readConfig } = require('../../../utils')
 const { sleep } = require('sleep')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   const client = new Redis(readConfig('server').redis)
 

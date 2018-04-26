@@ -8,10 +8,6 @@ const logger = pluginManager.get('logger')
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class Down {
   /**
    * @constructor
