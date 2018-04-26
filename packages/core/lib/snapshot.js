@@ -1,15 +1,7 @@
 'use strict';
 
-// TODO: ADJUST TO NEW PLUGIN SYSTEM
-
-/* eslint-disable */
-
 const expandHomeDir = require('expand-home-dir')
-
 const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const DB = pluginManager.get('database')
-const logger = pluginManager.get('logger')
 
 /**
  * [description]
@@ -17,12 +9,25 @@ const logger = pluginManager.get('logger')
  * @return {[type]}         [description]
  */
 module.exports = async (options) => {
-  await config.init(options.conig)
+  const config = options.config
 
-  logger.init(config.server.logging, config.network.name)
+  pluginManager.init(config, {
+    include: [
+      '@arkecosystem/core-config',
+      '@arkecosystem/core-config-json',
+      '@arkecosystem/core-logger',
+      '@arkecosystem/core-logger-winston',
+      '@arkecosystem/core-blockchain',
+      '@arkecosystem/core-database',
+      '@arkecosystem/core-database-sequelize'
+    ]
+  })
 
-  const database = await DB.create(config.server.database)
-  database.snapshot(expandHomeDir(config.server.database.snapshots))
+  await pluginManager.hook('init', {config})
+  await pluginManager.hook('beforeCreate')
+  await pluginManager.hook('beforeMount')
 
-  logger.info('Snapshot saved')
+  pluginManager.get('database').snapshot('') // expandHomeDir(config.database.snapshots))
+
+  pluginManager.get('logger').info('Snapshot saved')
 }
