@@ -1,7 +1,14 @@
 'use strict';
 
-const BlockRepository = require('../../lib/repositories/blocks')
-const repository = new BlockRepository()
+let repository
+
+beforeAll(async (done) => {
+  await require('../__support__/setup')()
+
+  repository = new (require('../../lib/repositories/blocks'))()
+
+  done()
+})
 
 describe('Block Repository', () => {
   it('should be an object', async () => {

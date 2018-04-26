@@ -14,10 +14,10 @@ exports.plugin = {
     const logManager = manager.get('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
 
-    // Disable logging during tests
-    if (process.env.NODE_ENV === 'test') {
-      logManager.driver().clear()
-    }
+    // // Disable logging during tests
+    // if (process.env.NODE_ENV === 'test') {
+    //   logManager.driver().clear()
+    // }
 
     return logManager.driver()
   }

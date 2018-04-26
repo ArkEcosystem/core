@@ -126,6 +126,11 @@ blockchainMachine.actionMap = (blockchainManager) => {
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in 10 last round
         state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
+
+        if (process.env.NODE_ENV === 'test') {
+          return blockchainManager.dispatch('STARTED')
+        }
+
         logger.info(`Fast rebuild: ${state.fastRebuild}`)
         logger.info(`Last block in database: ${block.data.height}`)
 
