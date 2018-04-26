@@ -128,7 +128,7 @@ module.exports = class Block {
    * @return {Object}
    */
   getHeader () {
-    const header = {...{}, ...this.data}
+    const header = this.data
     delete header.transactions
     return header
   }

@@ -37,7 +37,8 @@ class ConfigManager {
 
   /**
    * Get config from preset configurations.
-   * @param {String} path
+   * @param {String} coin
+   * @param {String} network
    */
   setFromPreset (coin, network) {
     this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()])
