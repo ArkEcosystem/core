@@ -4,7 +4,7 @@ const JsonDriver = require('./driver')
 const { client, NetworkManager } = require('@arkecosystem/client')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {

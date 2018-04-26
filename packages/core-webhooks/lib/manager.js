@@ -10,18 +10,10 @@ const RedisQueue = require('./queue')
 
 let instance
 
-module.exports = class Manager {
-  /**
-   * [getInstance description]
-   * @return {[type]} [description]
-   */
-  static getInstance () {
-    return instance
-  }
-
+module.exports = class WebhookManager {
   /**
    * [constructor description]
-   * @return {[type]} [description]
+   * @return {WebhookManager}
    */
   constructor () {
     if (!instance) {
@@ -32,9 +24,17 @@ module.exports = class Manager {
   }
 
   /**
+   * [getInstance description]
+   * @return {WebhookManager}
+   */
+  static getInstance () {
+    return instance
+  }
+
+  /**
    * [init description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {void}
    */
   async init (config) {
     this.config = config
@@ -89,21 +89,21 @@ module.exports = class Manager {
 
   /**
    * [emit description]
-   * @param  {[type]} event   [description]
-   * @param  {[type]} payload [description]
-   * @return {[type]}         [description]
+   * @param  {String} event
+   * @param  {Object} payload
+   * @return {void}
    */
   emit (event, payload) {
-    if (!this.config.enabled) return
-
-    this.emitter.emit(event, payload)
+    if (this.config.enabled) {
+      this.emitter.emit(event, payload)
+    }
   }
 
   /**
    * [getMatchingWebhooks description]
-   * @param  {[type]} webhooks [description]
-   * @param  {[type]} payload  [description]
-   * @return {[type]}          [description]
+   * @param  {Array} webhooks
+   * @param  {Object} payload
+   * @return {Array}
    */
   getMatchingWebhooks (webhooks, payload) {
     const matches = []
@@ -125,7 +125,7 @@ module.exports = class Manager {
 
   /**
    * [getEvents description]
-   * @return {[type]} [description]
+   * @return {Array}
    */
   getEvents () {
     return this.config.events
@@ -133,7 +133,7 @@ module.exports = class Manager {
 
   /**
    * [__registerEventEmitter description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   __registerEventEmitter () {
     this.emitter = new EventEmitter()
@@ -141,7 +141,7 @@ module.exports = class Manager {
 
   /**
    * [__registerQueueManager description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __registerQueueManager () {
     await new RedisQueue(this.config.redis)

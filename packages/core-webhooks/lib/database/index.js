@@ -10,8 +10,8 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 class Database {
   /**
    * [init description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {void}
    */
   async init (config) {
     if (this.connection) {
@@ -44,7 +44,7 @@ class Database {
 
   /**
    * [runMigrations description]
-   * @return {[type]} [description]
+   * @return {Boolean}
    */
   runMigrations () {
     const umzug = new Umzug({
@@ -66,7 +66,7 @@ class Database {
 
   /**
    * [registerModels description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   registerModels () {
     this.model = this.connection['import']('./model')
@@ -74,8 +74,8 @@ class Database {
 
   /**
    * [paginate description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   paginate (params) {
     return this.model.findAndCountAll(params)
@@ -83,8 +83,8 @@ class Database {
 
   /**
    * [findById description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Object}
    */
   findById (id) {
     return this.model.findById(id)
@@ -92,8 +92,8 @@ class Database {
 
   /**
    * [findByEvent description]
-   * @param  {[type]} event [description]
-   * @return {[type]}       [description]
+   * @param  {String} event
+   * @return {Array}
    */
   findByEvent (event) {
     return this.model.findAll({ where: {event} })
@@ -101,8 +101,8 @@ class Database {
 
   /**
    * [create description]
-   * @param  {[type]} data [description]
-   * @return {[type]}      [description]
+   * @param  {Object} data
+   * @return {Object}
    */
   create (data) {
     return this.model.create(data)
@@ -110,15 +110,17 @@ class Database {
 
   /**
    * [update description]
-   * @param  {[type]} id   [description]
-   * @param  {[type]} data [description]
-   * @return {[type]}      [description]
+   * @param  {Number} id
+   * @param  {Object} data
+   * @return {Boolean}
    */
   async update (id, data) {
     try {
       const webhook = await this.model.findById(id)
 
       webhook.update(data)
+
+      return true
     } catch (e) {
       return false
     }
@@ -126,14 +128,16 @@ class Database {
 
   /**
    * [destroy description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Boolean}
    */
   async destroy (id) {
     try {
       const webhook = this.model.findById(id)
 
       webhook.destroy()
+
+      return true
     } catch (e) {
       return false
     }

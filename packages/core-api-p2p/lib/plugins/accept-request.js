@@ -5,9 +5,9 @@ const isLocalhost = require('../utils/is-localhost')
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {[type]} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   const requiredHeaders = ['nethash', 'version', 'port', 'os']
@@ -40,7 +40,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {
