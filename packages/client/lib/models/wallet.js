@@ -16,7 +16,7 @@ const cryptoBuilder = require('../builder/crypto')
  *   - balance
  *   - vote
  *   - username (name, if the wallet is a delegate)
- *   - voteBalance (TODO)
+ *   - voteBalance (number of votes if the wallet is a delegate)
  *   - producedBlocks
  *   - missedBlocks
  *
