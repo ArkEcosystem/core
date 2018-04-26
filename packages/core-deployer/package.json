@@ -14,7 +14,7 @@
     "ark:deployer": "./bin/deployer"
   },
   "scripts": {
-    "ark:deployer": "./bin/deployer",
+    "start": "./bin/deployer",
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"

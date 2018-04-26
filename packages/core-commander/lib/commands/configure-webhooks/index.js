@@ -14,7 +14,10 @@ module.exports = async () => {
 
   let config = readConfig('webhooks')
   config.enabled = response.enabled
-  config.password = await argon2.hash(response.password, { type: argon2.argon2id })
+
+  if (config.enabled) {
+    config.password = await argon2.hash(response.password, { type: argon2.argon2id })
+  }
 
   return writeConfig('webhooks', config)
 }
