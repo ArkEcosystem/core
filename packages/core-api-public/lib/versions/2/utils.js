@@ -5,8 +5,8 @@ const { transformResource, transformCollection } = require('../../utils/transfor
 
 /**
  * [description]
- * @param  {[type]} request [description]
- * @return {[type]}         [description]
+ * @param  {Object} request [description]
+ * @return {Object}         [description]
  */
 const paginate = (request) => {
   return {
@@ -17,8 +17,8 @@ const paginate = (request) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
  * @return {[type]}                  [description]
  */
@@ -30,10 +30,10 @@ const respondWithResource = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @return {Object}                  [description]
  */
 const respondWithCollection = (request, data, transformerClass) => {
   return { data: transformCollection(request, data, transformerClass) }
@@ -41,8 +41,8 @@ const respondWithCollection = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
  * @return {[type]}                  [description]
  */
@@ -52,8 +52,8 @@ const toResource = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
  * @return {[type]}                  [description]
  */
@@ -63,10 +63,10 @@ const toCollection = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @return {Object}                  [description]
  */
 const toPagination = (request, data, transformerClass) => {
   return {

@@ -9,6 +9,9 @@ const Up = require('./up')
 
 const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8.8', 53, (err, hostname, service) => resolve(!err)))
 
+/**
+ * [description]
+ */
 module.exports = class P2PInterface {
   /**
    * @constructor

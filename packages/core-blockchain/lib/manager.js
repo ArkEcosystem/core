@@ -14,12 +14,14 @@ const sleep = require('./utils/sleep')
 
 let instance
 
+/**
+ * [description]
+ */
 module.exports = class BlockchainManager {
   /**
    * [constructor description]
-   * @param  {[type]} config       [description]
-   * @param  {[type]} networkStart [description]
-   * @return {[type]}              [description]
+   * @param  {Object} config       [description]
+   * @param  {Boolean} networkStart [description]
    */
   constructor (config, networkStart) {
     if (!instance) {
@@ -45,8 +47,8 @@ module.exports = class BlockchainManager {
 
   /**
    * [dispatch description]
-   * @param  {[type]} event [description]
-   * @return {[type]}       [description]
+   * @param  {String} event [description]
+   * @return {Timeout}       [description]
    */
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
@@ -66,7 +68,6 @@ module.exports = class BlockchainManager {
 
   /**
    * [start description]
-   * @return {[type]} [description]
    */
   start () {
     this.dispatch('START')
@@ -86,7 +87,7 @@ module.exports = class BlockchainManager {
 
   /**
    * [getInstance description]
-   * @return {[type]} [description]
+   * @return {BlockchainManager} [description]
    */
   static getInstance () {
     return instance
@@ -94,26 +95,27 @@ module.exports = class BlockchainManager {
 
   /**
    * [checkNetwork description]
-   * @return {[type]} [description]
    */
   checkNetwork () {
   }
 
   /**
    * [updateNetworkStatus description]
-   * @return {[type]} [description]
    */
   updateNetworkStatus () {
   }
 
   /**
    * [rebuild description]
-   * @param  {[type]} nblocks [description]
-   * @return {[type]}         [description]
+   * @param {[type]} nblocks [description]
    */
   rebuild (nblocks) {
   }
 
+  /**
+   * [resetState description]
+   * @return {undefined} [description]
+   */
   async resetState () {
     this.pauseQueues()
     this.clearQueues()
