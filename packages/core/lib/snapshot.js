@@ -4,9 +4,9 @@ const expandHomeDir = require('expand-home-dir')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 /**
- * [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * Create a snapshot.
+ * @param  {Object} options
+ * @return {void}
  */
 module.exports = async (options) => {
   const config = options.config

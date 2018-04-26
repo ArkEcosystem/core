@@ -6,9 +6,6 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 app.version(require('../package.json').version)
 
-/**
- * START A RELAY AND FORGER NODE
- */
 app
   .command('start')
   .description('start a relay and forging node')
@@ -19,18 +16,12 @@ app
   .option('--network-start', 'force genesis network start')
   .action(async(options) => require('../lib/start-relay-and-forger')(options))
 
-/**
- * START A RELAY NODE
- */
 app
   .command('relay')
   .description('start a relay node')
   .option('-c, --config <config>', 'network config', expandHomeDir('~/.ark/config'))
   .action(async(options) => require('../lib/start-relay')(options))
 
-/**
- * START A FORGER NODE
- */
 app
   .command('forge')
   .description('start a forging node')
@@ -41,18 +32,12 @@ app
   .option('--network-start', 'force genesis network start')
   .action(async(options) => require('../lib/start-forger')(options))
 
-/**
- * TAKE A SNAPSHOT
- */
 app
   .command('snapshot')
   .description('take a snapshot of the database')
   .option('-c, --config <config>', 'network config', expandHomeDir('~/.ark/config'))
   .action(async(options) => require('../lib/snapshot')(options))
 
-/**
- * FALLBACK
- */
 app
   .command('*')
   .action(function(env) {
@@ -60,7 +45,4 @@ app
     process.exit(0)
   })
 
-/**
- * PARSE
- */
 app.parse(process.argv)
