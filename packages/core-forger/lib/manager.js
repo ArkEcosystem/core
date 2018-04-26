@@ -17,8 +17,7 @@ const sleep = require('./utils/sleep')
 module.exports = class ForgerManager {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
    */
   constructor (config) {
     this.secrets = config.delegates ? config.delegates.secrets : null
@@ -32,10 +31,10 @@ module.exports = class ForgerManager {
 
   /**
    * [loadDelegates description]
-   * @param  {[type]} bip38    [description]
-   * @param  {[type]} address  [description]
-   * @param  {[type]} password [description]
-   * @return {[type]}          [description]
+   * @param  {String} bip38
+   * @param  {String} address
+   * @param  {String} password
+   * @return {Array}
    */
   async loadDelegates (bip38, address, password) {
     if (!bip38 && !this.secrets) {
@@ -58,8 +57,8 @@ module.exports = class ForgerManager {
 
   /**
    * [startForging description]
-   * @param  {[type]} proxy [description]
-   * @return {[type]}       [description]
+   * @param  {String} proxy
+   * @return {Object}
    */
   async startForging (proxy) {
     this.proxy = proxy
@@ -116,8 +115,8 @@ module.exports = class ForgerManager {
 
   /**
    * [send description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Object} block
+   * @return {Object}
    */
   async send (block) {
     logger.info(`Sending forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions to relay node`)
@@ -134,8 +133,8 @@ module.exports = class ForgerManager {
 
   /**
    * [pickForgingDelegate description]
-   * @param  {[type]} round [description]
-   * @return {[type]}       [description]
+   * @param  {Object} round
+   * @return {Object}
    */
   async pickForgingDelegate (round) {
     return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
@@ -143,7 +142,7 @@ module.exports = class ForgerManager {
 
   /**
    * [getRound description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   async getRound () {
     const result = await popsicle.request({
@@ -158,7 +157,7 @@ module.exports = class ForgerManager {
 
   /**
    * [getTransactions description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   async getTransactions () {
     const result = await popsicle.request({

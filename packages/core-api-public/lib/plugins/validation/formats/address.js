@@ -5,8 +5,8 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
- * @param  {[type]} ajv [description]
- * @return {[type]}     [description]
+ * @param  {AJV} ajv
+ * @return {void}
  */
 module.exports = (ajv) => {
   ajv.addFormat('address', {

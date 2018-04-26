@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [exports description]
+ * The AJV schema for the block endpoints.
  * @type {Object}
  */
 module.exports = {

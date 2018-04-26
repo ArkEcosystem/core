@@ -21,10 +21,10 @@ function validate (schema, data) {
 
 /**
  * [createErrorResponse description]
- * @param  {[type]} request
- * @param  {[type]} h
- * @param  {[type]} errors
- * @return {[type]}
+ * @param  {Hapi.Request} request
+ * @param  {Hapi.Toolkit} h
+ * @param  {Array} errors
+ * @return {Hapi.Response}
  */
 function createErrorResponse (request, h, errors) {
   return request.pre.apiVersion === 1
@@ -48,7 +48,7 @@ function registerCustomFormats () {
 
 /**
  * [description]
- * @param  {[type]} server
+ * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */

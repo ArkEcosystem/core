@@ -11,7 +11,7 @@ const wallets = require('./handlers/wallets')
 
 /**
  * [description]
- * @param  {[type]} server
+ * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */

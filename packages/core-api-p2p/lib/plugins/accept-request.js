@@ -5,7 +5,7 @@ const isLocalhost = require('../utils/is-localhost')
 
 /**
  * [description]
- * @param  {[type]} server
+ * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */

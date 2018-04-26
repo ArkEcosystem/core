@@ -2,8 +2,8 @@
 
 /**
  * [description]
- * @param  {[type]} ajv [description]
- * @return {[type]}     [description]
+ * @param  {AJV} ajv
+ * @return {void}
  */
 module.exports = (ajv) => {
   ajv.addFormat('parsedInt', {

@@ -11,7 +11,6 @@ module.exports = class WalletsRepository {
   /**
    * [constructor description]
    * @param  {ConnectionInterface} connection
-   * @return {void}
    */
   constructor (connection) {
     this.connection = connection

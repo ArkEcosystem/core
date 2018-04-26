@@ -16,7 +16,6 @@ module.exports = class TransactionsRepository {
   /**
    * [constructor description]
    * @param  {ConnectionInterface} connection
-   * @return {void}
    */
   constructor (connection) {
     this.connection = connection
