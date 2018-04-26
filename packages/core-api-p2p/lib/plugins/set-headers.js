@@ -4,7 +4,7 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
- * @param  {[type]} server
+ * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */

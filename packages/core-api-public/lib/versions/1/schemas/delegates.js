@@ -3,7 +3,7 @@
 const constants = require('@arkecosystem/core-plugin-manager').get('config').constants
 
 /**
- * [exports description]
+ * The AJV schema for the delegate endpoints.
  * @type {Object}
  */
 module.exports = {

@@ -10,7 +10,7 @@ const accounts = require('./handlers/accounts')
 
 /**
  * [description]
- * @param  {[type]} server
+ * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */
