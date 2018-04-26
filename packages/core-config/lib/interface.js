@@ -2,10 +2,6 @@
 
 const deepmerge = require('deepmerge')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class ConfigInterface {
   /**
    * [constructor description]

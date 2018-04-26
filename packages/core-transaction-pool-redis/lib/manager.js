@@ -12,23 +12,11 @@ const { Transaction } = client.models
 
 let instance
 
-/**
- * [exports description]
- * @type {[type]}
- */
-module.exports = class Manager {
-  /**
-   * [getInstance description]
-   * @return {[type]} [description]
-   */
-  static getInstance () {
-    return instance
-  }
-
+module.exports = class TransactionPoolManager {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {TransactionPoolManager}
    */
   constructor (config) {
     this.isConnected = false
@@ -62,8 +50,16 @@ module.exports = class Manager {
   }
 
   /**
+   * [getInstance description]
+   * @return {TransactionPoolManager}
+   */
+  static getInstance () {
+    return instance
+  }
+
+  /**
    * [getPoolSize description]
-   * @return {[type]} [description]
+   * @return {Number}
    */
   async getPoolSize () {
     return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
@@ -71,16 +67,16 @@ module.exports = class Manager {
 
   /**
    * [addTransaction description]
-   * @param {[type]} object [description]
+   * @param {Transaction} transaction
    */
-  async addTransaction (object) {
-    if (this.isConnected && object instanceof Transaction) {
+  async addTransaction (transaction) {
+    if (this.isConnected && transaction instanceof Transaction) {
       try {
-        await this.redis.hmset(this.__getRedisTransactionKey(object.id), 'serialized', object.serialized.toString('hex'), 'timestamp', object.data.timestamp, 'expiration', object.data.expiration, 'senderPublicKey', object.data.senderPublicKey, 'timelock', object.data.timelock, 'timelocktype', object.data.timelocktype)
-        await this.redis.rpush(this.__getRedisOrderKey(), object.id)
+        await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
+        await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
 
-        if (object.data.expiration > 0) {
-          await this.redis.expire(this.__getRedisTransactionKey(object.id), object.data.expiration - object.data.timestamp)
+        if (transaction.data.expiration > 0) {
+          await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
         }
       } catch (error) {
         logger.error('Error adding transaction to transaction pool error', error, error.stack)
@@ -90,8 +86,8 @@ module.exports = class Manager {
 
   /**
    * [removeTransaction description]
-   * @param  {[type]} txID [description]
-   * @return {[type]}      [description]
+   * @param  {Number} txID
+   * @return {void}
    */
   async removeTransaction (txID) {
     await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
@@ -100,8 +96,8 @@ module.exports = class Manager {
 
   /**
    * [removeTransactions description]
-   * @param  {[type]} transactions [description]
-   * @return {[type]}              [description]
+   * @param  {Array} transactions
+   * @return {void}
    */
   async removeTransactions (transactions) {
     try {
@@ -115,9 +111,9 @@ module.exports = class Manager {
 
   /**
    * [getTransactions description]
-   * @param  {[type]} start [description]
-   * @param  {[type]} size  [description]
-   * @return {[type]}       [description]
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
    */
   async getTransactions (start, size) {
     if (this.isConnected) {
@@ -138,9 +134,9 @@ module.exports = class Manager {
 
   /**
    * [getTransactionsForForging description]
-   * @param  {[type]} start [description]
-   * @param  {[type]} size  [description]
-   * @return {[type]}       [description]
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
    */
   async getTransactionsForForging (start, size) {
     if (this.isConnected) {
@@ -184,8 +180,8 @@ module.exports = class Manager {
 
   /**
    * [getTransaction description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {(Transaction|String)}
    */
   async getTransaction (id) {
     if (this.isConnected) {
@@ -202,8 +198,8 @@ module.exports = class Manager {
   // It returns only the ids of transactions that have yet to be forged
   /**
    * [__checkIfForged description]
-   * @param  {[type]} transactionIds [description]
-   * @return {[type]}                [description]
+   * @param  {Array} transactionIds
+   * @return {Array}
    */
   async __checkIfForged (transactionIds) {
     const forgedIds = await blockchainManager.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
@@ -213,8 +209,8 @@ module.exports = class Manager {
 
   /**
    * [__getRedisTransactionKey description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {String}
    */
   __getRedisTransactionKey (id) {
     return `${this.keyPrefix}/tx/${id}`
@@ -222,7 +218,7 @@ module.exports = class Manager {
 
   /**
    * [__getRedisOrderKey description]
-   * @return {[type]} [description]
+   * @return {String}
    */
   __getRedisOrderKey () {
     return `${this.keyPrefix}/order`

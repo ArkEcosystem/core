@@ -23,10 +23,7 @@ exports.readConfig = (file) => require(`${process.env.ARK_CONFIG}/${file}.json`)
  */
 exports.writeConfig = async (file, data) => writeFile(`${process.env.ARK_CONFIG}/${file}.json`, JSON.stringify(data, null, 2))
 
-/**
- * [description]
- * @return {[type]} [description]
- */
+
 exports.splash = async () => {
   clear()
 

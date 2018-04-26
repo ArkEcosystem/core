@@ -8,10 +8,6 @@ const { TRANSACTION_TYPES } = client.constants
 
 const buildFilterQuery = require('./utils/filter-query')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class TransactionsRepository {
   /**
    * [constructor description]
@@ -61,7 +57,7 @@ module.exports = class TransactionsRepository {
 
   /**
    * [findAllByWallet description]
-   * @param  {[type]} wallet
+   * @param  {Wallet} wallet
    * @param  {Object} paginator
    * @return {Object}
    */

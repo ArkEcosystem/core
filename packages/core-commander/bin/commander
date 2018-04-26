@@ -6,10 +6,7 @@ const fs = require('fs')
 const expandHomeDir = require('expand-home-dir')
 const { splash, getProcessStatus } = require('../lib/utils')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
+
 const start = async () => {
   splash()
 

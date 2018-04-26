@@ -9,10 +9,6 @@ const questions = require('./questions')
 const { onCancel, readConfig, startProcess } = require('../../utils')
 const { decrypt } = require('../../utils/forger-crypto')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   const identity = readConfig('delegates').identity
 

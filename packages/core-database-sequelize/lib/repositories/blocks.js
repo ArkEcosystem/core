@@ -4,10 +4,6 @@ const Op = require('sequelize').Op
 const buildFilterQuery = require('./utils/filter-query')
 const Sequelize = require('sequelize')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class BlocksRepository {
   /**
    * [constructor description]

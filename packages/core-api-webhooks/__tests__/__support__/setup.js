@@ -13,7 +13,6 @@ const setupPluggy = async () => {
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 }
-
 module.exports = async () => {
   await setupPluggy()
 

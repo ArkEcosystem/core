@@ -7,9 +7,9 @@ const writeFile = util.promisify(fs.writeFile)
 
 /**
  * [description]
- * @param  {[type]} file       [description]
- * @param  {[type]} overwrites [description]
- * @return {[type]}            [description]
+ * @param  {String} file
+ * @param  {Object} overwrites
+ * @return {void}
  */
 exports.updateConfig = async (file, overwrites) => {
   let config = require(`${process.env.ARK_CONFIG}/${file}.json`)
