@@ -4,6 +4,27 @@ const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
 
+/**
+ * TODO copy some parts to ArkDocs
+ * @classdesc This class holds the wallet data, verifies it and applies the
+ * transaction and blocks to it
+ *
+ * Wallet attributes that are stored on the db:
+ *   - address
+ *   - publicKey
+ *   - secondPublicKey
+ *   - balance
+ *   - vote
+ *   - username (name, if the wallet is a delegate)
+ *   - voteBalance (number of votes if the wallet is a delegate)
+ *   - producedBlocks
+ *   - missedBlocks
+ *
+ * This other attributes are not stored on the db:
+ *   - multisignature
+ *   - lastBlock (last block applied or `null``)
+ *   - dirty
+ */
 module.exports = class Wallet {
   /**
    * @constructor
