@@ -13,21 +13,21 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING(64)
       },
-      version: Sequelize.SMALLINT,
+      version: Sequelize.SMALLINT.UNSIGNED, // TODO
       timestamp: {
         unique: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
       previousBlock: Sequelize.STRING(64),
       height: {
         unique: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER.UNSIGNED
       },
-      numberOfTransactions: Sequelize.INTEGER,
+      numberOfTransactions: Sequelize.TINYINT.UNSIGNED, // TODO
       totalAmount: Sequelize.BIGINT,
       totalFee: Sequelize.BIGINT,
       reward: Sequelize.BIGINT,
-      payloadLength: Sequelize.INTEGER,
+      payloadLength: Sequelize.MEDIUMINT.UNSIGNED,
       payloadHash: Sequelize.STRING(64),
       generatorPublicKey: {
         type: Sequelize.STRING(66)
