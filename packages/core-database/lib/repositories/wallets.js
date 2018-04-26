@@ -10,8 +10,8 @@ const filterObject = require('./utils/filter-object')
 module.exports = class WalletsRepository {
   /**
    * [constructor description]
-   * @param  {[type]} db [description]
-   * @return {[type]}    [description]
+   * @param  {ConnectionInterface} connection
+   * @return {void}
    */
   constructor (connection) {
     this.connection = connection
@@ -19,8 +19,8 @@ module.exports = class WalletsRepository {
 
 /**
  * [findAll description]
- * @param  {Object} params [description]
- * @return {[type]}        [description]
+ * @param  {Object} params
+ * @return {Object}
  */
   async findAll (params = {}) {
     const wallets = this.connection.walletManager.getLocalWallets()
@@ -33,8 +33,8 @@ module.exports = class WalletsRepository {
 
   /**
    * [paginate description]
-   * @param  {Object} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   async paginate (params = {}) {
     const wallets = await this.findAll()
@@ -47,9 +47,9 @@ module.exports = class WalletsRepository {
 
   /**
    * [findAllByVote description]
-   * @param  {[type]} publicKey [description]
-   * @param  {Object} params    [description]
-   * @return {[type]}           [description]
+   * @param  {String} publicKey
+   * @param  {Object} params
+   * @return {Object}
    */
   async findAllByVote (publicKey, params = {}) {
     let wallets = await this.findAll()
@@ -63,8 +63,8 @@ module.exports = class WalletsRepository {
 
   /**
    * [findById description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Object}
    */
   async findById (id) {
     const wallets = await this.findAll()
@@ -74,7 +74,7 @@ module.exports = class WalletsRepository {
 
   /**
    * [count description]
-   * @return {[type]} [description]
+   * @return {Number}
    */
   async count () {
     const wallets = await this.findAll()
@@ -84,9 +84,9 @@ module.exports = class WalletsRepository {
 
   /**
    * [top description]
-   * @param  {[type]}  params [description]
-   * @param  {Boolean} legacy [description]
-   * @return {[type]}         [description]
+   * @param  {Object}  params
+   * @param  {Boolean} legacy
+   * @return {Object}
    */
   async top (params, legacy = false) {
     let wallets = await this.findAll()
@@ -102,8 +102,8 @@ module.exports = class WalletsRepository {
 
   /**
    * [search description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   async search (params) {
     let wallets = await this.findAll()
