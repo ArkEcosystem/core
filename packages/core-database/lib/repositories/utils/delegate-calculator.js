@@ -7,12 +7,14 @@ const config = pluginManager.get('config')
 /**
  * [description]
  * @param  {[type]} delegate [description]
+ * @param  {Number} height   [description]
  * @return {[type]}          [description]
  */
-exports.calculateApproval = (delegate) => {
-  const lastBlock = state.lastBlock.data
-  const constants = config.getConstants(lastBlock.height)
-  const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
+exports.calculateApproval = (delegate, height = 0) => {
+  height = height ? height : state.lastBlock.data.height
+
+  const constants = config.getConstants(height)
+  const totalSupply = config.genesisBlock.totalAmount + (height - constants.height) * constants.reward
 
   return ((delegate.balance / totalSupply) * 100).toFixed(2)
 }
