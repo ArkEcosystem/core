@@ -15,8 +15,8 @@
   },
   "scripts": {
     "ark:deployer": "./bin/deployer",
-    "test": "ARK_ENV=testnet jest --forceExit",
-    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
+    "test": "jest --forceExit",
+    "test:watch": "jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
