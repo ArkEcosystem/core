@@ -14,6 +14,9 @@ const sleep = require('./utils/sleep')
 
 let instance
 
+/**
+ * [description]
+ */
 module.exports = class BlockchainManager {
   /**
    * [constructor description]
@@ -95,6 +98,14 @@ module.exports = class BlockchainManager {
   }
 
   /**
+   * [getInstance description]
+   * @return {BlockchainManager} [description]
+   */
+  static getInstance () {
+    return instance
+  }
+
+  /**
    * [checkNetwork description]
    * @return {void}
    */
@@ -116,6 +127,10 @@ module.exports = class BlockchainManager {
   rebuild (nblocks) {
   }
 
+  /**
+   * [resetState description]
+   * @return {undefined} [description]
+   */
   async resetState () {
     this.pauseQueues()
     this.clearQueues()
