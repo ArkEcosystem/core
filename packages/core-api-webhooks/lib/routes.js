@@ -2,9 +2,9 @@
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {[type]} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   require('./schema').init(options)
@@ -39,7 +39,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

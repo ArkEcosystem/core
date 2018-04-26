@@ -5,7 +5,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class SecondSignature extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -19,11 +18,9 @@ module.exports = class SecondSignature extends Transaction {
   }
 
   /**
-   * [sign description]
-   * Overrides the inherited `sign` method to include the generated second
-   * signature
-   * @param  {String} passphrase [description]
-   * @return {[type]}            [description]
+   * Overrides the inherited `sign` method to include the generated second signature.
+   * @param  {String}          passphrase
+   * @return {SecondSignature}
    */
   sign (passphrase) {
     super.sign(passphrase)
@@ -32,9 +29,8 @@ module.exports = class SecondSignature extends Transaction {
   }
 
   /**
-   * [getStruct description]
-   * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * Overrides the inherited method to return the additional required by this.
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

@@ -1,9 +1,9 @@
 'use strict';
 
-const Server = require('./server')
+const startServer = require('./server')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {
@@ -12,6 +12,8 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Starting Webhook API...')
 
-    await Server(options)
+    const server = await startServer(options)
+
+    return server
   }
 }

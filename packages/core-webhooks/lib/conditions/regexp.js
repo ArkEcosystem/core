@@ -2,8 +2,8 @@
 
 /**
  * [description]
- * @param  {[type]} input   [description]
- * @param  {[type]} pattern [description]
- * @return {[type]}         [description]
+ * @param  {*} input
+ * @param  {String} pattern
+ * @return {Boolean}
  */
 module.exports = (input, pattern) => (new RegExp(pattern).test(input))

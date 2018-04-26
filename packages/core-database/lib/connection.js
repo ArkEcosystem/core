@@ -14,8 +14,8 @@ const WalletManager = require('./wallet-manager')
 module.exports = class ConnectionInterface {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {void}
    */
   constructor (config) {
     this.config = config
@@ -24,7 +24,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * [getConnection description]
-   * @return {[type]} [description]
+   * @return {ConnectionInterface}
    */
   getConnection () {
     return this.connection
@@ -32,7 +32,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [connect description]
-   * @return {[type]} [description]
+   * @return {void}
+   * @throws Error
    */
   async connect () {
     throw new Error('Method [connect] not implemented!')
@@ -40,7 +41,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [disconnect description]
-   * @return {[type]} [description]
+   * @return {void}
+   * @throws Error
    */
   async disconnect () {
     throw new Error('Method [disconnect] not implemented!')
@@ -48,8 +50,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [getActiveDelegates description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {void}
+   * @throws Error
    */
   getActiveDelegates (height) {
     throw new Error('Method [getActiveDelegates] not implemented!')
@@ -57,9 +60,10 @@ module.exports = class ConnectionInterface {
 
   /**
    * [buildDelegates description]
-   * @param  {[type]} maxDelegates [description]
-   * @param  {[type]} height       [description]
-   * @return {[type]}              [description]
+   * @param  {Number} maxDelegates
+   * @param  {Number} height
+   * @return {void}
+   * @throws Error
    */
   buildDelegates (maxDelegates, height) {
     throw new Error('Method [buildDelegates] not implemented!')
@@ -67,8 +71,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [buildWallets description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {void}
+   * @throws Error
    */
   buildWallets (height) {
     throw new Error('Method [buildWallets] not implemented!')
@@ -76,8 +81,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [saveWallets description]
-   * @param  {[type]} force [description]
-   * @return {[type]}       [description]
+   * @param  {Boolean} force
+   * @return {void}
+   * @throws Error
    */
   saveWallets (force) {
     throw new Error('Method [saveWallets] not implemented!')
@@ -85,8 +91,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [saveBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
+   * @throws Error
    */
   saveBlock (block) {
     throw new Error('Method [saveBlock] not implemented!')
@@ -95,8 +102,9 @@ module.exports = class ConnectionInterface {
   // Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
   /**
    * [saveBlockAsync description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
+   * @throws Error
    */
   async saveBlockAsync (block) {
     throw new Error('Method [saveBlockAsync] not implemented!')
@@ -105,7 +113,8 @@ module.exports = class ConnectionInterface {
   // To be used in combination with saveBlockAsync
   /**
    * [saveBlockCommit description]
-   * @return {[type]} [description]
+   * @return {void}
+   * @throws Error
    */
   async saveBlockCommit () {
     throw new Error('Method [saveBlockCommit] not implemented!')
@@ -113,8 +122,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [deleteBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
+   * @throws Error
    */
   deleteBlock (block) {
     throw new Error('Method [deleteBlock] not implemented!')
@@ -122,8 +132,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [getBlock description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Block} id
+   * @return {void}
+   * @throws Error
    */
   getBlock (id) {
     throw new Error('Method [getBlock] not implemented!')
@@ -131,7 +142,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [getLastBlock description]
-   * @return {[type]} [description]
+   * @return {void}
+   * @throws Error
    */
   getLastBlock () {
     throw new Error('Method [getLastBlock] not implemented!')
@@ -139,9 +151,10 @@ module.exports = class ConnectionInterface {
 
   /**
    * [getBlocks description]
-   * @param  {[type]} offset [description]
-   * @param  {[type]} limit  [description]
-   * @return {[type]}        [description]
+   * @param  {Number} offset
+   * @param  {Number} limit
+   * @return {void}
+   * @throws Error
    */
   getBlocks (offset, limit) {
     throw new Error('Method [getBlocks] not implemented!')
@@ -149,8 +162,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [saveRounds description]
-   * @param  {[type]} activeDelegates [description]
-   * @return {[type]}                 [description]
+   * @param  {Array} activeDelegates
+   * @return {void}
+   * @throws Error
    */
   saveRounds (activeDelegates) {
     throw new Error('Method [saveRounds] not implemented!')
@@ -158,8 +172,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [deleteRound description]
-   * @param  {[type]} round [description]
-   * @return {[type]}       [description]
+   * @param  {Number} round
+   * @return {void}
+   * @throws Error
    */
   deleteRound (round) {
     throw new Error('Method [deleteRound] not implemented!')
@@ -167,8 +182,9 @@ module.exports = class ConnectionInterface {
 
   /**
    * [updateDelegateStats description]
-   * @param  {[type]} delegates [description]
-   * @return {[type]}           [description]
+   * @param  {Array} delegates
+   * @return {void}
+   * @throws Error
    */
   updateDelegateStats (delegates) {
     throw new Error('Method [updateDelegateStats] not implemented!')
@@ -176,14 +192,16 @@ module.exports = class ConnectionInterface {
 
   /**
    * [applyRound description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {void}
    */
   async applyRound (height) {
     const nextHeight = height === 1 ? 1 : height + 1
     const maxDelegates = config.getConstants(nextHeight).activeDelegates
+
     if (nextHeight % maxDelegates === 1) {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
+
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
         await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
@@ -199,8 +217,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [undoRound description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {void}
    */
   async undoRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
@@ -219,8 +237,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [validateDelegate description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async validateDelegate (block) {
     const delegates = await this.getActiveDelegates(block.data.height)
@@ -238,8 +256,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [validateForkedBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async validateForkedBlock (block) {
     await this.validateDelegate(block)
@@ -247,8 +265,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [applyBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async applyBlock (block) {
     await this.validateDelegate(block)
@@ -258,8 +276,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [undoBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * @param  {Block} block
+   * @return {void}
    */
   async undoBlock (block) {
     await this.undoRound(block.data.height)
@@ -269,23 +287,26 @@ module.exports = class ConnectionInterface {
 
   /**
    * [verifyTransaction description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * @param  {Transaction} transaction
+   * @return {Boolean}
    */
   verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
+
     let sender = this.walletManager.getWalletByAddress[senderId] // should exist
+
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
       this.walletManager.reindex(sender)
     }
+
     return sender.canApply(transaction.data) && !this.getTransaction(transaction.data.id)
   }
 
   /**
    * [applyTransaction description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * @param  {Transaction} transaction
+   * @return {Transaction}
    */
   applyTransaction (transaction) {
     return this.walletManager.applyTransaction(transaction)
@@ -293,8 +314,8 @@ module.exports = class ConnectionInterface {
 
   /**
    * [undoTransaction description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * @param  {Transaction} transaction
+   * @return {Boolean}
    */
   undoTransaction (transaction) {
     return this.walletManager.undoTransaction(transaction)
@@ -302,12 +323,17 @@ module.exports = class ConnectionInterface {
 
   /**
    * [snapshot description]
-   * @param  {[type]} path [description]
-   * @return {[type]}      [description]
+   * @return {void}
    */
-  async snapshot (path) {
-    const fs = require('fs')
+  async snapshot () {
+    const expandHomeDir = require('expand-home-dir')
+    const path = expandHomeDir(pluginManager.config('databaseManager').snapshots)
+
+    const fs = require('fs-extra')
+    await fs.ensureFile(`${path}/blocks.dat`)
+
     const wstream = fs.createWriteStream(`${path}/blocks.dat`)
+
     let max = 100000 // eslint-disable-line no-unused-vars
     let offset = 0
     const writeQueue = async.queue((block, qcallback) => {
@@ -333,7 +359,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * [__registerWalletManager description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __registerWalletManager () {
     this.walletManager = new WalletManager()
@@ -341,7 +367,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * [__registerRepositories description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)

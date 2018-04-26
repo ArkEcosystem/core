@@ -3,8 +3,8 @@
 const WinstonDriver = require('./driver')
 
 /**
- * [plugin description]
- * @type {Object}
+ * The struct used by the plugin manager.
+ * @type {WinstonDriver}
  */
 exports.plugin = {
   pkg: require('../package.json'),
@@ -23,3 +23,9 @@ exports.plugin = {
     return logManager.driver()
   }
 }
+
+/**
+ * Expose the winston formatter for configuration.
+ * @type {Function}
+ */
+exports.formatter = require('./formatter')

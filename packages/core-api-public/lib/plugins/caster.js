@@ -6,8 +6,8 @@ const BigNumber = require('bignumber.js')
 
 /**
  * [isBoolean description]
- * @param  {[type]}  value [description]
- * @return {Boolean}       [description]
+ * @param  {*}  value
+ * @return {Boolean}
  */
 function isBoolean (value) {
   try {
@@ -19,15 +19,15 @@ function isBoolean (value) {
 
 /**
  * [isNumber description]
- * @param  {[type]}  value [description]
- * @return {Boolean}       [description]
+ * @param  {*}  value
+ * @return {Boolean}
  */
 function isNumber (value) {
   return !isNaN(value)
 }
 
 /**
- * @TODO - Revise this module later on in the development.
+ * @TODO - Review this module later on in the development.
  */
 const register = async (server, options) => {
   server.ext({
@@ -64,7 +64,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

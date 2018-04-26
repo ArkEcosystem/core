@@ -15,10 +15,9 @@ const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8
  */
 module.exports = class P2PInterface {
   /**
-   * [constructor description]
-   * @param  {[type]} upConfig   [description]
-   * @param  {[type]} downConfig [description]
-   * @return {[type]}            [description]
+   * @constructor
+   * @param  {Object} upConfig
+   * @param  {Object} downConfig
    */
   constructor (upConfig, downConfig) {
     this.down = new Down(this, downConfig)
@@ -26,8 +25,7 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * [checkOnline description]
-   * @return {[type]} [description]
+   * Check if node is online.
    */
   async checkOnline () {
     const online = await isOnline()
@@ -42,9 +40,8 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * [warmup description]
-   * @param  {[type]} networkStart [description]
-   * @return {[type]}              [description]
+   * Start P2P interface.
+   * @param {Boolean} networkStart
    */
   async warmup (networkStart) {
     await this.checkOnline()
@@ -53,8 +50,7 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * [tearDown description]
-   * @return {[type]} [description]
+   * Shutdown P2P interface.
    */
   tearDown () {
     this.down.stop()
@@ -62,60 +58,58 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * [updateNetworkStatus description]
-   * @return {[type]} [description]
+   * Update network status.
+   * @return {Promise}
    */
   updateNetworkStatus () {
     return this.down.updateNetworkStatus()
   }
 
   /**
-   * [downloadBlocks description]
-   * @param  {[type]} fromBlockHeight [description]
-   * @return {[type]}                 [description]
+   * Download blocks from a random peer.
+   * @param  {Number}   fromBlockHeight
+   * @return {Object[]}
    */
   downloadBlocks (fromBlockHeight) {
     return this.down.downloadBlocks(fromBlockHeight)
   }
 
   /**
-   * [broadcastBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Broadcast block to all peers.
+   * @param {Block} block
    */
   broadcastBlock (block) {
     this.down.broadcastBlock(block)
   }
 
   /**
-   * [broadcastTransactions description]
-   * @param  {[type]} transactions [description]
-   * @return {[type]}              [description]
+   * Broadcast transactions to peers.
+   * @param {Transaction[]} transactions
    */
   broadcastTransactions (transactions) {
     this.down.broadcastTransactions(transactions)
   }
 
   /**
-   * [acceptNewPeer description]
-   * @param  {[type]} peer [description]
-   * @return {[type]}      [description]
+   * Accept a new peer to the node.
+   * @param  {Peer}    peer
+   * @return {Promise}
    */
   acceptNewPeer (peer) {
     return this.down.acceptNewPeer(peer)
   }
 
   /**
-   * [getPeers description]
-   * @return {[type]} [description]
+   * Get peers.
+   * @return {Peer[]}
    */
   getPeers () {
     return this.down.getPeers()
   }
 
   /**
-   * [getNetworkHeight description]
-   * @return {[type]} [description]
+   * Get network height.
+   * @return {Number}
    */
   getNetworkHeight () {
     return this.down.getNetworkHeight()

@@ -6,50 +6,49 @@ const feeManager = require('./managers/fee')
 
 class Client {
   /**
-   * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @constructor
+   * @param {Object} config
    */
   constructor (config) {
     this.setConfig(config || NetworkManager.findByName('devnet'))
   }
 
   /**
-   * [setConfig description]
-   * @param {[type]} config [description]
+   * Set config for client.
+   * @param {Object} config
    */
   setConfig (config) {
     configManager.setConfig(config)
   }
 
   /**
-   * [getFeeManager description]
-   * @return {[type]} [description]
+   * Get fee manager.
+   * @return {FeeManager}
    */
   getFeeManager () {
     return feeManager
   }
 
   /**
-   * [getConfigManager description]
-   * @return {[type]} [description]
+   * Get config manager.
+   * @return {ConfigManager}
    */
   getConfigManager () {
     return configManager
   }
 
   /**
-   * [getBuilder description]
-   * @return {[type]} [description]
+   * Get transaction builder.
+   * @return {TransactionBuilder}
    */
   getBuilder () {
     return transactionBuilder
   }
 
   /**
-   * [getClient description]
-   * @param  {[type]} host [description]
-   * @return {[type]}      [description]
+   * Get API client.
+   * @param  {String} host
+   * @return {ApiClient}
    */
   getClient (host) {
     return new ApiClient(host)

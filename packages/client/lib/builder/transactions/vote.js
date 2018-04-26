@@ -6,7 +6,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class Vote extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -20,9 +19,9 @@ module.exports = class Vote extends Transaction {
   }
 
   /**
-   * [create description]
-   * @param  {Array} delegates [description]
-   * @return {[type]}           [description]
+   * Create vote transaction with delegate votes.
+   * @param  {Array} delegates
+   * @return {Vote}
    */
   create (delegates) {
     this.asset.votes = delegates
@@ -30,10 +29,9 @@ module.exports = class Vote extends Transaction {
   }
 
   /**
-   * [sign description]
    * Overrides the inherited `sign` method to set the sender as the recipient too
-   * @param  {[type]} passphrase [description]
-   * @return {[type]}            [description]
+   * @param  {String} passphrase
+   * @return {Vote}
    */
   sign (passphrase) {
     super.sign(passphrase)
@@ -42,9 +40,8 @@ module.exports = class Vote extends Transaction {
   }
 
   /**
-   * [getStruct description]
    * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   enabled: true,
   port: 4004,

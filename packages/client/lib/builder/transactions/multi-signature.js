@@ -5,7 +5,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class MultiSignature extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -19,12 +18,11 @@ module.exports = class MultiSignature extends Transaction {
   }
 
   /**
-   * [create description]
-   * Overrides the inherited method to add the necessary parameters
+   * Overrides the inherited method to add the necessary parameters.
    * @param  {[type]} keysgroup [description]
    * @param  {[type]} lifetime  [description]
    * @param  {[type]} min       [description]
-   * @return {[type]}           [description]
+   * @return {MultiSignature}   [description]
    */
   create (keysgroup, lifetime, min) {
     this.asset.multisignature.keysgroup = keysgroup
@@ -35,9 +33,8 @@ module.exports = class MultiSignature extends Transaction {
   }
 
   /**
-   * [getStruct description]
-   * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * Overrides the inherited method to return the additional required by this.
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

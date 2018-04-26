@@ -4,9 +4,9 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @param  {Number} height   [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @param  {Number} height
+ * @return {Number}
  */
 exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
@@ -17,8 +17,8 @@ exports.calculateApproval = (delegate, height) => {
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @return {Number}
  */
 exports.calculateProductivity = (delegate) => {
   if (!delegate.missedBlocks && !delegate.producedBlocks) {

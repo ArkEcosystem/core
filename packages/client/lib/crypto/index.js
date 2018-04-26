@@ -3,8 +3,8 @@ const createHash = require('create-hash')
 class Crypto {
   /**
    * [ripemd160 description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Buffer}
    */
   ripemd160 (buffer) {
     return createHash('rmd160').update(buffer).digest()
@@ -12,8 +12,8 @@ class Crypto {
 
   /**
    * [sha1 description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Buffer}
    */
   sha1 (buffer) {
     return createHash('sha1').update(buffer).digest()
@@ -21,8 +21,8 @@ class Crypto {
 
   /**
    * [sha256 description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Buffer}
    */
   sha256 (buffer) {
     return createHash('sha256').update(buffer).digest()
@@ -30,8 +30,8 @@ class Crypto {
 
   /**
    * [hash160 description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Buffer}
    */
   hash160 (buffer) {
     return this.ripemd160(this.sha256(buffer))
@@ -39,8 +39,8 @@ class Crypto {
 
   /**
    * [hash256 description]
-   * @param  {[type]} buffer [description]
-   * @return {[type]}        [description]
+   * @param  {Buffer} buffer
+   * @return {Buffer}
    */
   hash256 (buffer) {
     return this.sha256(this.sha256(buffer))

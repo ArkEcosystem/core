@@ -12,10 +12,9 @@ const sortTransactions = require('../utils/sort-transactions')
 module.exports = class Delegate {
   /**
    * @constructor
-   * @param  {String} passphrase [description]
-   * @param  {[type]} network    [description]
-   * @param  {String} password   [description]
-   * @return {[type]}            [description]
+   * @param  {String} passphrase
+   * @param  {Number} network
+   * @param  {String} password
    */
   constructor (passphrase, network, password) {
     this.network = network
@@ -23,7 +22,7 @@ module.exports = class Delegate {
     this.iterations = 5000
     if (bip38.verify(passphrase)) {
       try {
-        this.keys = this.decrypt(passphrase, network, password)
+        this.keys = Delegate.decryptPassphrase(passphrase, network, password)
         this.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
         this.address = this.keys.getAddress(network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
@@ -42,13 +41,14 @@ module.exports = class Delegate {
   }
 
   /**
-   * [encrypt description]
-   * @param  {type} passphrase [description]
-   * @param  {[type]} network    [description]
-   * @param  {type} password   [description]
-   * @return {[type]}            [description]
+   * BIP38 encrypt passphrase.
+   * @param  {String} passphrase
+   * @param  {Number} network
+   * @param  {String} password
+   * @return {String}
+   * @static
    */
-  static encrypt (passphrase, network, password) {
+  static encryptPassphrase (passphrase, network, password) {
     const keys = cryptoBuilder.getKeys(passphrase, network)
     const wifKey = keys.toWIF()
     const decoded = wif.decode(wifKey)
@@ -57,35 +57,14 @@ module.exports = class Delegate {
   }
 
   /**
-   * [encryptKeysWithOtp description]
-   * @return {[type]} [description]
+   * BIP38 decrypt passphrase keys.
+   * @param  {String} passphrase
+   * @param  {Number} network
+   * @param  {String} password
+   * @return {ECPair}
+   * @static
    */
-  encryptKeysWithOtp () {
-    this.otp = otplib.authenticator.generate(this.otpSecret)
-    this.encryptedKeys = this.encryptData(this.keys.toWIF(), this.otp)
-    this.keys = null
-  }
-
-  /**
-   * [decryptKeysWithOtp description]
-   * @return {[type]} [description]
-   */
-  decryptKeysWithOtp () {
-    let wifKey = this.decryptData(this.encryptedKeys, this.otp)
-    this.keys = ECPair.fromWIF(wifKey, this.network)
-    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
-    this.otp = null
-    this.encryptedKeys = null
-  }
-
-  /**
-   * [decrypt description]
-   * @param  {type} passphrase [description]
-   * @param  {[type]} network    [description]
-   * @param  {type} password   [description]
-   * @return {[type]}            [description]
-   */
-  decrypt (passphrase, network, password) {
+  static decryptPassphrase (passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
     let keys = ECPair.fromWIF(wifKey, network)
@@ -95,43 +74,30 @@ module.exports = class Delegate {
   }
 
   /**
-   * [encryptData description]
-   * @param  {[type]} content  [description]
-   * @param  {type} password [description]
-   * @return {[type]}          [description]
+   * Encrypt keys with one time password - used to store encrypted in memory.
    */
-  encryptData (content, password) {
-    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
-    let cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
-    cipher.start({ iv: forge.util.decode64(this.otp) })
-    cipher.update(forge.util.createBuffer(content))
-    cipher.finish()
-
-    return forge.util.encode64(cipher.output.getBytes())
+  encryptKeysWithOtp () {
+    this.otp = otplib.authenticator.generate(this.otpSecret)
+    this.encryptedKeys = this.__encryptData(this.keys.toWIF(), this.otp)
+    this.keys = null
   }
 
   /**
-   * [decryptData description]
-   * @param  {[type]} cipherText [description]
-   * @param  {type} password   [description]
-   * @return {[type]}            [description]
+   * Decrypt keys with one time password.
    */
-  decryptData (cipherText, password) {
-    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
-    let decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
-    decipher.start({ iv: forge.util.decode64(this.otp) })
-    decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))
-    decipher.finish()
-
-    return decipher.output.toString()
+  decryptKeysWithOtp () {
+    let wifKey = this.__decryptData(this.encryptedKeys, this.otp)
+    this.keys = ECPair.fromWIF(wifKey, this.network)
+    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
+    this.otp = null
+    this.encryptedKeys = null
   }
 
-  // we consider transactions are signed, verified and unique
   /**
-   * [forge description]
-   * @param  {[type]} transactions [description]
-   * @param  {[type]} options      [description]
-   * @return {[type]}              [description]
+   * Forge block - we consider transactions are signed, verified and unique.
+   * @param  {Transaction[]} transactions
+   * @param  {Object} options
+   * @return {(Block|undefined)}
    */
   forge (transactions, options) {
     if (!options.version && (this.encryptedKeys || !this.bip38)) {
@@ -173,5 +139,37 @@ module.exports = class Delegate {
 
       return block
     }
+  }
+
+  /**
+   * Perform OTP encryption.
+   * @param  {String} content
+   * @param  {String} password
+   * @return {String}
+   */
+  __encryptData (content, password) {
+    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    let cipher = forge.cipher.createCipher('AES-CBC', derivedKey)
+    cipher.start({ iv: forge.util.decode64(this.otp) })
+    cipher.update(forge.util.createBuffer(content))
+    cipher.finish()
+
+    return forge.util.encode64(cipher.output.getBytes())
+  }
+
+  /**
+   * Perform OTP decryption.
+   * @param  {String} cipherText
+   * @param  {String} password
+   * @return {String}
+   */
+  __decryptData (cipherText, password) {
+    let derivedKey = forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize)
+    let decipher = forge.cipher.createDecipher('AES-CBC', derivedKey)
+    decipher.start({ iv: forge.util.decode64(this.otp) })
+    decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)))
+    decipher.finish()
+
+    return decipher.output.toString()
   }
 }

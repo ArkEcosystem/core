@@ -2,8 +2,8 @@
 
 /**
  * [description]
- * @param  {[type]} a [description]
- * @param  {[type]} b [description]
- * @return {[type]}   [description]
+ * @param  {*} a
+ * @param  {*} b
+ * @return {Boolean}
  */
 module.exports = (a, b) => (a !== b)

@@ -12,9 +12,9 @@ const feeManager = require('../managers/fee')
 class CryptoBuilder {
 
   /**
-   * [getId description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction id.
+   * @param  {Transaction} transaction
+   * @return {String}
    */
   getId (transaction) {
     if (transaction.version === 1) return arkjsv1.crypto.getId(transaction)
@@ -23,9 +23,9 @@ class CryptoBuilder {
   }
 
   /**
-   * [getHash description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction hash.
+   * @param  {Transaction} transaction
+   * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
     if (transaction.version === 1) return arkjsv1.crypto.getHash(transaction, skipSignature, skipSecondSignature)
@@ -33,19 +33,19 @@ class CryptoBuilder {
   }
 
   /**
-   * [getFee description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction fee.
+   * @param  {Transaction} transaction
+   * @return {Number}
    */
   getFee (transaction) {
     return feeManager.get(transaction.type)
   }
 
   /**
-   * [sign description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} keys        [description]
-   * @return {[type]}             [description]
+   * Sign transaction.
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
+   * @return {Object}
    */
   sign (transaction, keys) {
     const hash = this.getHash(transaction, false, false)
@@ -59,10 +59,10 @@ class CryptoBuilder {
   }
 
   /**
-   * [secondSign description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} keys        [description]
-   * @return {[type]}             [description]
+   * Sign transaction with second signature.
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
+   * @return {Object}
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
@@ -76,10 +76,10 @@ class CryptoBuilder {
   }
 
   /**
-   * [verify description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify transaction on the network.
+   * @param  {Transaction}        transaction
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
   verify (transaction, network) {
     if (transaction.version === 1) return arkjsv1.crypto.verify(transaction, network)
@@ -88,11 +88,11 @@ class CryptoBuilder {
   }
 
   /**
-   * [verifySecondSignature description]
-   * @param  {[type]} transaction [description]
-   * @param  {String} publicKey   [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify second signature for transaction.
+   * @param  {Transaction}        transaction
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, network) {
     const hash = this.getHash(transaction, false, true)
@@ -106,10 +106,10 @@ class CryptoBuilder {
   }
 
   /**
-   * [getKeys description]
-   * @param  {String} secret  [description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * Get keys from secret.
+   * @param  {String} secret
+   * @param  {Object} options
+   * @return {ECPair}
    */
   getKeys (secret, options) {
     const ecpair = ECPair.fromSeed(secret, options)
@@ -120,56 +120,56 @@ class CryptoBuilder {
   }
 
   /**
-   * [getAddress description]
-   * @param  {String} publicKey [description]
-   * @param  {[type]} [version] [description]
-   * @return {[type]}           [description]
+   * Get address from public key.
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {String}
    */
-  getAddress (publicKey, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  getAddress (publicKey, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
 
     const buffer = cryptoUtils.ripemd160(Buffer.from(publicKey, 'hex'))
     const payload = Buffer.alloc(21)
 
-    payload.writeUInt8(version, 0)
+    payload.writeUInt8(networkVersion, 0)
     buffer.copy(payload, 1)
 
     return bs58check.encode(payload)
   }
 
   /**
-   * [validateAddress description]
-   * @param  {String} address   [description]
-   * @param  {[type]} [version] [description]
-   * @return {[type]}           [description]
+   * Validate address.
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  validateAddress (address, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  validateAddress (address, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
     try {
       var decode = bs58check.decode(address)
-      return decode[0] === version
+      return decode[0] === networkVersion
     } catch (e) {
       return false
     }
   }
 
   /**
-   * [validatePublicKey description]
-   * @param  {[type]} address [description]
-   * @param  {[type]} version [description]
-   * @return {[type]}         [description]
+   * Validate public key.
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  validatePublicKey (address, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  validatePublicKey (address, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
 
     try {
-      return this.getAddress(address, version).length === 34
+      return this.getAddress(address, networkVersion).length === 34
     } catch (e) {
       return false
     }
