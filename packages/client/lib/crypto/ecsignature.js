@@ -12,12 +12,8 @@ const BigInteger = require('bigi')
 
 /**
  * Creates a new ECSignature.
- *
- * @constructor
- * @param {BigInteger} r
- * @param {BigInteger} s
  */
-module.exports = class ECSignature {
+class ECSignature {
   /**
    * [constructor description]
    * @param  {BigInteger} r
@@ -173,3 +169,5 @@ module.exports = class ECSignature {
     return Buffer.concat([this.toDER(), hashTypeBuffer])
   }
 }
+
+module.exports = ECSignature
