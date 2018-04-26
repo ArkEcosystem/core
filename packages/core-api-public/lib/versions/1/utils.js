@@ -4,8 +4,8 @@ const { transformResource, transformCollection } = require('../../utils/transfor
 
 /**
  * [description]
- * @param  {[type]} request [description]
- * @return {[type]}         [description]
+ * @param  {Object} request [description]
+ * @return {Object}         [description]
  */
 const paginator = (request) => {
   return {
@@ -16,9 +16,9 @@ const paginator = (request) => {
 
 /**
  * [description]
- * @param  {[type]}  data  [description]
+ * @param  {Object}  data  [description]
  * @param  {Boolean} error [description]
- * @return {[type]}        [description]
+ * @return {Object}        [description]
  */
 const respondWith = (data, error = false) => {
   return error
@@ -28,8 +28,8 @@ const respondWith = (data, error = false) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
  * @return {[type]}                  [description]
  */
@@ -39,8 +39,8 @@ const toResource = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
+ * @param  {Object} request          [description]
+ * @param  {Object} data             [description]
  * @param  {[type]} transformerClass [description]
  * @return {[type]}                  [description]
  */

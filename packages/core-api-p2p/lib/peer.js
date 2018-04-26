@@ -6,8 +6,7 @@ const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
 /**
- * [exports description]
- * @type {[type]}
+ * [description]
  */
 module.exports = class Peer {
   /**
