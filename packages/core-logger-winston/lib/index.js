@@ -23,3 +23,9 @@ exports.plugin = {
     return logManager.driver()
   }
 }
+
+/**
+ * Expose the winston formatter for configuration.
+ * @type {Function}
+ */
+exports.formatter = require('./formatter')

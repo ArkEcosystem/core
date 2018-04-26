@@ -1,7 +1,7 @@
 'use strict';
 
 const JsonDriver = require('./driver')
-const { client, NetworkManager } = require('@arkecosystem/client')
+const { client } = require('@arkecosystem/client')
 
 /**
  * The struct used by the plugin manager.
@@ -14,7 +14,7 @@ exports.plugin = {
     const configManager = manager.get('configManager')
     await configManager.makeDriver(new JsonDriver(options))
 
-    client.setConfig(NetworkManager.findByName(configManager.driver().network.name))
+    client.setConfig(configManager.driver().network)
 
     return configManager.driver()
   }

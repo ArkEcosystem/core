@@ -96,7 +96,11 @@ module.exports = async (config) => {
     await server.start()
 
     logger.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
+
+    return server
   } catch (error) {
     logger.error(error.stack)
+
+    process.exit(1)
   }
 }
