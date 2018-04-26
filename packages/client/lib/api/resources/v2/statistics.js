@@ -2,40 +2,40 @@ const Base = require('../../base')
 
 module.exports = class Statistics extends Base {
   /**
-   * [blockchain description]
-   * @return {[type]} [description]
+   * Get network statistics.
+   * @return {Promise}
    */
   blockchain () {
     return this.http.get('statistics/blockchain')
   }
 
   /**
-   * [transactions description]
-   * @return {[type]} [description]
+   * Get transaction statistics.
+   * @return {Promise}
    */
   transactions () {
     return this.http.get('statistics/transactions')
   }
 
   /**
-   * [blocks description]
-   * @return {[type]} [description]
+   * Get block statistics.
+   * @return {Promise}
    */
   blocks () {
     return this.http.get('statistics/blocks')
   }
 
   /**
-   * [votes description]
-   * @return {[type]} [description]
+   * Get vote statistics.
+   * @return {Promise}
    */
   votes () {
     return this.http.get('statistics/votes')
   }
 
   /**
-   * [unvotes description]
-   * @return {[type]} [description]
+   * Get unvote statistics.
+   * @return {Promise}
    */
   unvotes () {
     return this.http.get('statistics/unvotes')

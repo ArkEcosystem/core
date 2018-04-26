@@ -5,7 +5,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class Transfer extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -19,11 +18,10 @@ module.exports = class Transfer extends Transaction {
   }
 
   /**
-   * [create description]
    * Overrides the inherited method to add the necessary parameters
-   * @param  {String} recipientId [description]
-   * @param  {[type]} amount      [description]
-   * @return {[type]}             [description]
+   * @param  {String} recipientId
+   * @param  {Number} amount
+   * @return {Transfer}
    */
   create (recipientId, amount) {
     this.recipientId = recipientId
@@ -32,9 +30,10 @@ module.exports = class Transfer extends Transaction {
   }
 
   /**
-   * [setVendorField description]
-   * @param {[type]} data [description]
-   * @param {[type]} type [description]
+   * Set vendor field from data.
+   * @param {(String|undefined)} data
+   * @param {Number}             type
+   * @return {Transfer}
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
@@ -42,9 +41,8 @@ module.exports = class Transfer extends Transaction {
   }
 
   /**
-   * [getStruct description]
    * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

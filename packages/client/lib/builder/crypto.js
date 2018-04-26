@@ -13,9 +13,9 @@ const { TRANSACTION_TYPES } = require('../constants')
 
 class CryptoBuilder {
   /**
-   * [getBytes description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction as bytes.
+   * @param  {Transaction} transaction
+   * @return {Buffer}
    */
   getBytes (transaction) {
     if (!transaction.version) {
@@ -94,9 +94,9 @@ class CryptoBuilder {
   }
 
   /**
-   * [fromBytes description]
-   * @param  {String} hexString [description]
-   * @return {[type]}           [description]
+   * Get transaction from bytes.
+   * @param  {String} hexString
+   * @return {Object}
    */
   fromBytes (hexString) {
     let tx = {}
@@ -204,55 +204,57 @@ class CryptoBuilder {
   }
 
   /**
-   * [parseSignatures description]
-   * @param  {String} hexString   [description]
-   * @param  {[type]} tx          [description]
-   * @param  {[type]} startOffset [description]
-   * @return {[type]}             [description]
+   * Parse signatures from transaction bytes.
+   * @param {String}      transactionBytes
+   * @param {Transaction} transaction
+   * @param {Number}      startOffset
    */
-  parseSignatures (hexString, tx, startOffset) {
-    tx.signature = hexString.substring(startOffset)
-    if (tx.signature.length === 0) delete tx.signature
-    else {
-      const length = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2
-      tx.signature = hexString.substring(startOffset, startOffset + length * 2)
-      tx.secondSignature = hexString.substring(startOffset + length * 2)
-      if (tx.secondSignature.length === 0) delete tx.secondSignature
+  parseSignatures (transactionBytes, transaction, startOffset) {
+    transaction.signature = transactionBytes.substring(startOffset)
+    if (transaction.signature.length === 0) {
+      delete transaction.signature
+    } else {
+      const length = parseInt('0x' + transaction.signature.substring(2, 4), 16) + 2
+      transaction.signature = transactionBytes.substring(startOffset, startOffset + length * 2)
+      transaction.secondSignature = transactionBytes.substring(startOffset + length * 2)
+      if (transaction.secondSignature.length === 0) {
+        delete transaction.secondSignature
+      }
     }
   }
 
   /**
-   * [getId description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction id.
+   * @param  {Transaction} transaction
+   * @return {String}
    */
   getId (transaction) {
     return legacyCryptoBuilder.getId(transaction)
   }
 
   /**
-   * [getHash description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction hash.
+   * @param  {Transaction} transaction
+   * @return {Buffer}
    */
   getHash (transaction) {
     return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
   }
 
   /**
-   * [getFee description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Get transaction fee.
+   * @param  {Transaction} transaction
+   * @return {Number}
    */
   getFee (transaction) {
     return feeManager.get(transaction.type)
   }
 
   /**
-   * [sign description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} keys        [description]
-   * @return {[type]}             [description]
+   * Sign transaction.
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
+   * @return {Object}
    */
   sign (transaction, keys) {
     const hash = this.getHash(transaction)
@@ -266,10 +268,10 @@ class CryptoBuilder {
   }
 
   /**
-   * [secondSign description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} keys        [description]
-   * @return {[type]}             [description]
+   * Sign transaction with second signature.
+   * @param  {Transaction} transaction
+   * @param  {Object}      keys
+   * @return {Object}
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction)
@@ -283,38 +285,38 @@ class CryptoBuilder {
   }
 
   /**
-   * [verify description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify transaction on the network.
+   * @param  {Transaction}        transaction
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  verify (transaction, network) {
-    return legacyCryptoBuilder.verify(transaction, network)
+  verify (transaction, networkVersion) {
+    return legacyCryptoBuilder.verify(transaction, networkVersion)
   }
 
   /**
-   * [verifySecondSignature description]
-   * @param  {[type]} transaction [description]
-   * @param  {String} publicKey   [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify second signature for transaction.
+   * @param  {Transaction}        transaction
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  verifySecondSignature (transaction, publicKey, network) {
+  verifySecondSignature (transaction, publicKey, networkVersion) {
     const hash = this.getHash(transaction)
 
     const secondSignatureBuffer = Buffer.from(transaction.secondSignature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
+    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, networkVersion)
     const ecsignature = ECSignature.fromDER(secondSignatureBuffer)
 
     return ecpair.verify(hash, ecsignature)
   }
 
   /**
-   * [getKeys description]
-   * @param  {String} secret  [description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * Get keys from secret.
+   * @param  {String} secret
+   * @param  {Object} options
+   * @return {ECPair}
    */
   getKeys (secret, options) {
     const ecpair = ECPair.fromSeed(secret, options)
@@ -325,56 +327,56 @@ class CryptoBuilder {
   }
 
   /**
-   * [getAddress description]
-   * @param  {String} publicKey [description]
-   * @param  {[type]} [version] [description]
-   * @return {[type]}           [description]
+   * Get address from public key.
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {String}
    */
-  getAddress (publicKey, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  getAddress (publicKey, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
 
     const buffer = cryptoUtils.ripemd160(Buffer.from(publicKey, 'hex'))
     const payload = Buffer.alloc(21)
 
-    payload.writeUInt8(version, 0)
+    payload.writeUInt8(networkVersion, 0)
     buffer.copy(payload, 1)
 
     return bs58check.encode(payload)
   }
 
   /**
-   * [validateAddress description]
-   * @param  {String} address   [description]
-   * @param  {[type]} [version] [description]
-   * @return {[type]}           [description]
+   * Validate address.
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  validateAddress (address, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  validateAddress (address, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
     try {
       var decode = bs58check.decode(address)
-      return decode[0] === version
+      return decode[0] === networkVersion
     } catch (e) {
       return false
     }
   }
 
   /**
-   * [validatePublicKey description]
-   * @param  {[type]} address [description]
-   * @param  {[type]} version [description]
-   * @return {[type]}         [description]
+   * Validate public key.
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  validatePublicKey (address, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  validatePublicKey (address, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
 
     try {
-      return this.getAddress(address, version).length === 34
+      return this.getAddress(address, networkVersion).length === 34
     } catch (e) {
       return false
     }

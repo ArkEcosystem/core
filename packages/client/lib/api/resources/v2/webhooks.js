@@ -2,51 +2,52 @@ const Base = require('../../base')
 
 module.exports = class Webhooks extends Base {
   /**
-   * [all description]
-   * @return {[type]} [description]
+   * Get all webhooks.
+   * @return {Promise}
    */
   all () {
     return this.http.get('webhooks')
   }
 
   /**
-   * [create description]
-   * @return {[type]} [description]
+   * Create webhooks.
+   * @param  {Object} payload
+   * @return {Promise}
    */
-  create () {
-    return this.http.post('webhooks')
+  create (payload) {
+    return this.http.post('webhooks', payload)
   }
 
   /**
-   * [get description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get webhook by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   get (id) {
     return this.http.get(`webhooks/${id}`)
   }
 
   /**
-   * [update description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Update webhook by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   update (id) {
     return this.http.put(`webhooks/${id}`)
   }
 
   /**
-   * [delete description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Delete webhook by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   delete (id) {
     return this.http.delete(`webhooks/${id}`)
   }
 
   /**
-   * [events description]
-   * @return {[type]} [description]
+   * Get webhook events.
+   * @return {Promise}
    */
   events () {
     return this.http.get('webhooks/events')

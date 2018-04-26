@@ -2,27 +2,27 @@ const Base = require('../../base')
 
 module.exports = class Peers extends Base {
   /**
-   * [all description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all peers.
+   * @param  {Object} query
+   * @return {Promise}
    */
   all (query) {
     return this.http.get('peers', query)
   }
 
   /**
-   * [get description]
-   * @param  {String} ip   [description]
-   * @param  {Number} port [description]
-   * @return {[type]}      [description]
+   * Get peer by IP and Port.
+   * @param  {String} ip
+   * @param  {Number} port
+   * @return {Promise}
    */
   get (ip, port) {
     return this.http.get('peers/get', {ip, port})
   }
 
   /**
-   * [version description]
-   * @return {[type]} [description]
+   * Get peer version.
+   * @return {Promise}
    */
   version () {
     return this.http.get('peers/version')

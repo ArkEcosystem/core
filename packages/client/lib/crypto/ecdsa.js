@@ -14,8 +14,7 @@ const N_OVER_TWO = secp256k1.n.shiftRight(1)
 
 class ECDSA {
   /**
-   * [constructor description]
-   * @return {[type]} [description]
+   * @constructor
    */
   constructor () {
     this.__curve = secp256k1
@@ -24,7 +23,6 @@ class ECDSA {
   /**
    * [Generation of k.](https://tools.ietf.org/html/rfc6979#section-3.2)
    *
-   * @static
    * @param {Buffer} hash
    * @param {Buffer} x
    * @param {function} checkSig
@@ -94,7 +92,6 @@ class ECDSA {
   }
 
   /**
-   * @static
    * @param {Buffer} hash
    * @param {BigInteger} d
    * @returns {ECSignature}
@@ -131,7 +128,6 @@ class ECDSA {
   }
 
   /**
-   * @static
    * @param {Buffer} hash
    * @param {ECSignature} signature
    * @param {ECPoint} Q

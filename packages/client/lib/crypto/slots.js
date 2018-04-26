@@ -3,9 +3,9 @@ const configManager = require('../managers/config')
 
 class Slots {
   /**
-   * [getEpochTime description]
-   * @param  {[type]} time [description]
-   * @return {[type]}      [description]
+   * Get epoch time relative to beginning epoch time.
+   * @param  {Number} time
+   * @return {Number}
    */
   getEpochTime (time) {
     if (time === undefined) time = moment().valueOf()
@@ -16,26 +16,26 @@ class Slots {
   }
 
   /**
-   * [beginEpochTime description]
-   * @return {[type]} [description]
+   * Get beginning epoch time.
+   * @return {Moment}
    */
   beginEpochTime () {
     return moment(this.getConstant('epoch')).utc()
   }
 
   /**
-   * [getTime description]
-   * @param  {[type]} time [description]
-   * @return {[type]}      [description]
+   * Get epoch time relative to beginning epoch time.
+   * @param  {Number} time
+   * @return {Number}
    */
   getTime (time) {
     return this.getEpochTime(time)
   }
 
   /**
-   * [getRealTime description]
-   * @param  {[type]} epochTime [description]
-   * @return {[type]}           [description]
+   * Get real time from relative epoch time.
+   * @param  {Number} epochTime
+   * @return {Number}
    */
   getRealTime (epochTime) {
     if (epochTime === undefined) epochTime = this.getTime()
@@ -46,9 +46,9 @@ class Slots {
   }
 
   /**
-   * [getSlotNumber description]
-   * @param  {[type]} epochTime [description]
-   * @return {[type]}           [description]
+   * Get the current slot number.
+   * @param  {Number} epochTime
+   * @return {Number}
    */
   getSlotNumber (epochTime) {
     if (epochTime === undefined) epochTime = this.getTime()
@@ -57,17 +57,17 @@ class Slots {
   }
 
   /**
-   * [getSlotTime description]
-   * @param  {[type]} slot [description]
-   * @return {[type]}      [description]
+   * Get the current slot time.
+   * @param  {Number} slot
+   * @return {Number}
    */
   getSlotTime (slot) {
     return slot * this.getConstant('blocktime')
   }
 
   /**
-   * [getNextSlot description]
-   * @return {[type]} [description]
+   * Get the next slot number.
+   * @return {Number}
    */
   getNextSlot () {
     return this.getSlotNumber() + 1
@@ -75,17 +75,17 @@ class Slots {
 
   /**
    * [getLastSlot description]
-   * @param  {[type]} nextSlot [description]
-   * @return {[type]}          [description]
+   * @param  {[type]} nextSlot
+   * @return {[type]}
    */
   getLastSlot (nextSlot) {
     return nextSlot + this.getConstant('activeDelegates')
   }
 
   /**
-   * [getConstant description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
+   * Get constant from height 1.
+   * @param  {String} key
+   * @return {*}
    */
   getConstant (key) {
     return configManager.getConstants(1)[key]

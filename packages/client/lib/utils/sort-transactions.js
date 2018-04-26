@@ -1,7 +1,7 @@
 /**
- * [description]
- * @param  {[type]} transactions [description]
- * @return {[type]}              [description]
+ * Sort transactions by type, then id.
+ * @param  {Transaction[]} transactions
+ * @return {Transaction[]}
  */
 module.exports = (transactions) => {
   // Map to create a new array (sort is done in place)

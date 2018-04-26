@@ -2,24 +2,24 @@ const Base = require('../../base')
 
 module.exports = class Loader extends Base {
   /**
-   * [status description]
-   * @return {[type]} [description]
+   * Get network configuration.
+   * @return {Promise}
    */
   status () {
     return this.http.get('loader/autoconfigure')
   }
 
   /**
-   * [syncing description]
-   * @return {[type]} [description]
+   * Get node status.
+   * @return {Promise}
    */
   syncing () {
     return this.http.get('loader/status')
   }
 
   /**
-   * [configuration description]
-   * @return {[type]} [description]
+   * Get node syncing status.
+   * @return {Promise}
    */
   configuration () {
     return this.http.get('loader/status/sync')

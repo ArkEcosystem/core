@@ -2,35 +2,35 @@ const Base = require('../../base')
 
 module.exports = class Delegates extends Base {
   /**
-   * [all description]
-   * @return {[type]} [description]
+   * Get all delegates.
+   * @return {Promise}
    */
   all () {
     return this.http.get('delegates')
   }
 
   /**
-   * [get description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get delegate by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   get (id) {
     return this.http.get(`delegates/${id}`)
   }
 
   /**
-   * [blocks description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get blocks forged by delegate id.
+   * @param  {String} id
+   * @return {Promise}
    */
   blocks (id) {
     return this.http.get(`delegates/${id}/blocks`)
   }
 
   /**
-   * [voters description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get voters by delegate id.
+   * @param  {String} id
+   * @return {Promise}
    */
   voters (id) {
     return this.http.get(`delegates/${id}/voters`)

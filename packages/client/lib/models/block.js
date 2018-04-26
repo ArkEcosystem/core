@@ -9,11 +9,9 @@ const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 
 /**
-  * [description]
-  * @param  {[type]} data [description]
-  * @return {[type]}      [description]
+  * Fix to allow blocks to be backwards-compatible.
+  * @param {Object} data
   */
-
 const applyV1Fix = (data) => {
   // START Fix for v1 api
   data.totalAmount = parseInt(data.totalAmount)
@@ -32,6 +30,9 @@ const applyV1Fix = (data) => {
 }
 
 module.exports = class Block {
+  /*
+   * @constructor
+   */
   constructor (data) {
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
@@ -74,6 +75,13 @@ module.exports = class Block {
     }
   }
 
+  /*
+   * Create block from data.
+   * @param  {Object} data
+   * @param  {ECPair}} keys
+   * @return {Block}
+   * @static
+   */
   static create (data, keys) {
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
@@ -83,14 +91,28 @@ module.exports = class Block {
     return new Block(data)
   }
 
+  /*
+   * Return block as string.
+   * @return {String}
+   */
   toString () {
     return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
   }
 
+  /*
+   * [description]
+   * @return {Object}
+   */
   toBroadcastV1 () {
     return this.data
   }
 
+  /*
+   * Get block id
+   * @param  {Object} data
+   * @return {String}
+   * @static
+   */
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
@@ -101,12 +123,20 @@ module.exports = class Block {
     return temp.toString('hex')
   }
 
+  /*
+   * Get header from block.
+   * @return {Object}
+   */
   getHeader () {
-    const header = {...{}, ...this.data}
+    const header = this.data
     delete header.transactions
     return header
   }
 
+  /*
+   * Verify signature associated with this block.
+   * @return {Boolean}
+   */
   verifySignature () {
     // console.log(this.data)
     const bytes = Block.serialize(this.data, false)
@@ -120,6 +150,10 @@ module.exports = class Block {
     return res
   }
 
+  /*
+   * Verify this block.
+   * @return {Object}
+   */
   verify () {
     const block = this.data
     const result = {
@@ -219,6 +253,12 @@ module.exports = class Block {
     return result
   }
 
+  /*
+   * Deserialize block from hex string.
+   * @param  {String} hexString
+   * @return {Object}
+   * @static
+   */
   static deserialize (hexString) {
     const block = {}
     const buf = ByteBuffer.fromHex(hexString, true)
@@ -250,6 +290,12 @@ module.exports = class Block {
     return block
   }
 
+  /*
+   * Serialize block.
+   * @param  {Object} data
+   * @return {Buffer}
+   * @static
+   */
   static serializeFull (block) {
     const buf = new ByteBuffer(1024, true)
     applyV1Fix(block)
@@ -261,6 +307,13 @@ module.exports = class Block {
     return buf.toBuffer()
   }
 
+  /*
+   * Serialize block
+   * @param  {Object} block
+   * @param  {(Boolean|undefined)} includeSignature
+   * @return {Buffer}
+   * @static
+   */
   static serialize (block, includeSignature) {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined

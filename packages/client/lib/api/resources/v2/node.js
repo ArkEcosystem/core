@@ -2,24 +2,24 @@ const Base = require('../../base')
 
 module.exports = class Node extends Base {
   /**
-   * [status description]
-   * @return {[type]} [description]
+   * Get node status.
+   * @return {Promise}
    */
   status () {
     return this.http.get('node/status')
   }
 
   /**
-   * [syncing description]
-   * @return {[type]} [description]
+   * Get node syncing status.
+   * @return {Promise}
    */
   syncing () {
     return this.http.get('node/syncing')
   }
 
   /**
-   * [configuration description]
-   * @return {[type]} [description]
+   * Get node configuration.
+   * @return {Promise}
    */
   configuration () {
     return this.http.get('node/configuration')

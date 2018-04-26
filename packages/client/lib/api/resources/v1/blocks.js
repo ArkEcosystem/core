@@ -2,90 +2,90 @@ const Base = require('../../base')
 
 module.exports = class Blocks extends Base {
   /**
-   * [all description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all blocks.
+   * @param  {Object} query
+   * @return {Promise}
    */
   all (query) {
     return this.http.get('blocks', query)
   }
 
   /**
-   * [get description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get block by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   get (id) {
     return this.http.get('blocks/get', {id})
   }
 
   /**
-   * [epoch description]
-   * @return {[type]} [description]
+   * Get epoch time from config.
+   * @return {Promise}
    */
   epoch () {
     return this.http.get('blocks/getEpoch')
   }
 
   /**
-   * [fee description]
-   * @return {[type]} [description]
+   * Get the transfer fee from config.
+   * @return {Promise}
    */
   fee () {
     return this.http.get('blocks/getFee')
   }
 
   /**
-   * [fees description]
-   * @return {[type]} [description]
+   * Get all fees from config.
+   * @return {Promise}
    */
   fees () {
     return this.http.get('blocks/getFees')
   }
 
   /**
-   * [height description]
-   * @return {[type]} [description]
+   * Get current height.
+   * @return {Promise}
    */
   height () {
     return this.http.get('blocks/getHeight')
   }
 
   /**
-   * [milestone description]
-   * @return {[type]} [description]
+   * Get current milestone.
+   * @return {Promise}
    */
   milestone () {
     return this.http.get('blocks/getMilestone')
   }
 
   /**
-   * [nethash description]
-   * @return {[type]} [description]
+   * Get nethash from config.
+   * @return {Promise}
    */
   nethash () {
     return this.http.get('blocks/getNethash')
   }
 
   /**
-   * [reward description]
-   * @return {[type]} [description]
+   * Get reward from config.
+   * @return {Promise}
    */
   reward () {
     return this.http.get('blocks/getReward')
   }
 
   /**
-   * [status description]
-   * @return {[type]} [description]
+   * Get config/status for the network.
+   * @return {Promise}
    */
   status () {
     return this.http.get('blocks/getStatus')
   }
 
   /**
-   * [supply description]
-   * @return {[type]} [description]
+   * Calculate network supply.
+   * @return {Promise}
    */
   supply () {
     return this.http.get('blocks/getSupply')

@@ -18,22 +18,22 @@ module.exports = class IPFS extends Transaction {
   }
 
   /**
-   * [create description]
-   * Overrides the inherited method to add the necessary parameters
-   * @param  {String} ipfshash IPFS hash
-   * @return {[type]}          [description]
+   * Overrides the inherited method to add the necessary parameters.
+   * @param  {String} ipfsHash
+   * @return {IPFS}
    */
-  create (ipfshash) {
-    this.ipfshash = ipfshash
+  create (ipfsHash) {
+    this.ipfsHash = ipfsHash
     return this
   }
 
   /**
-   * [setVendorField description]
-   * @param {String} type [description]
+   * Set vendor field from hash.
+   * @param  {String} type
+   * @return {IPFS}
    */
   setVendorField (type) {
-    this.vendorFieldHex = Buffer.from(this.ipfshash, type).toString('hex')
+    this.vendorFieldHex = Buffer.from(this.ipfsHash, type).toString('hex')
     while (this.vendorFieldHex.length < 128) {
       this.vendorFieldHex = '00' + this.vendorFieldHex
     }
@@ -41,9 +41,8 @@ module.exports = class IPFS extends Transaction {
   }
 
   /**
-   * [getStruct description]
-   * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * Overrides the inherited method to return the additional required by this.
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

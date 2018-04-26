@@ -1,80 +1,80 @@
 class TransactionBuilder {
   /**
-   * [delegateResignation description]
-   * @return {[type]} [description]
+   * Create new delegate resignation transaction type.
+   * @return {DelegateResignation}
    */
   delegateResignation () {
     return this.__getTransaction('delegate-resignation')
   }
 
   /**
-   * [delegate description]
-   * @return {[type]} [description]
+   * Create new delegate transaction type.
+   * @return {Delegate}
    */
   delegate () {
     return this.__getTransaction('delegate')
   }
 
   /**
-   * [ipfs description]
-   * @return {[type]} [description]
+   * Create new IPFS transaction type.
+   * @return {IPFS}
    */
   ipfs () {
     return this.__getTransaction('ipfs')
   }
 
   /**
-   * [multiPayment description]
-   * @return {[type]} [description]
+   * Create new multi-payment transaction type.
+   * @return {MultiPayment}
    */
   multiPayment () {
     return this.__getTransaction('multi-payment')
   }
 
   /**
-   * [multiSignature description]
-   * @return {[type]} [description]
+   * Create new multi-signature transaction type.
+   * @return {MultiSignature}
    */
   multiSignature () {
     return this.__getTransaction('multi-signature')
   }
 
   /**
-   * [secondSignature description]
-   * @return {[type]} [description]
+   * Create new second signature transaction type.
+   * @return {SecondSignature}
    */
   secondSignature () {
     return this.__getTransaction('second-signature')
   }
 
   /**
-   * [timelockTransfer description]
-   * @return {[type]} [description]
+   * Create new timelock transfer transaction type.
+   * @return {TimelockTransfer}
    */
   timelockTransfer () {
     return this.__getTransaction('timelock-transfer')
   }
 
   /**
-   * [transfer description]
-   * @return {[type]} [description]
+   * Create new transfer transaction type.
+   * @return {Transfer}
    */
   transfer () {
     return this.__getTransaction('transfer')
   }
 
   /**
-   * [vote description]
-   * @return {[type]} [description]
+   * Create new vote transaction type.
+   * @return {Vote}
    */
   vote () {
     return this.__getTransaction('vote')
   }
 
   /**
-   * [getTransaction description]
-   * @param  {String} transactionType [description]
-   * @return {Transaction}            [description]
+   * Create new instance of specified transaction type.
+   * @param  {String} transactionType
+   * @return {Transaction}
    */
   __getTransaction (transactionType) {
     return new (require(`./transactions/${transactionType}`))() // eslint-disable-line new-cap

@@ -13,17 +13,17 @@ const fixedPoint = Math.pow(10, 8)
 
 class LegacyCryptoBuilder {
   /**
-   * [isECPair description]
-   * @param  {Object}  obj [description]
+   * Check if object is an ECPair.
+   * @param  {Object}  object
    * @return {Boolean}
    */
-  isECPair (obj) {
-    return obj instanceof ECPair
+  isECPair (object) {
+    return object instanceof ECPair
   }
 
   /**
-   * [getSignatureBytes description]
-   * @param  {ECSignature} signature [description]
+   * Get signature bytes.
+   * @param  {ECSignature} signature
    * @return {Uint8Array}
    */
   getSignatureBytes (signature) {
@@ -39,10 +39,10 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [getBytes description]
-   * @param  {Transaction} transaction         [description]
-   * @param  {Boolean}     skipSignature       [description]
-   * @param  {Boolean}     skipSecondSignature [description]
+   * Get transaction as bytes.
+   * @param  {Transaction} transaction
+   * @param  {Boolean}     skipSignature
+   * @param  {Boolean}     skipSecondSignature
    * @return {Buffer}
    */
   getBytes (transaction, skipSignature, skipSecondSignature) {
@@ -171,9 +171,9 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [fromBytes description]
-   * @param  {String}      hexString [description]
-   * @return {Transaction}
+   * Get transaction from bytes.
+   * @param  {String} hexString
+   * @return {Object}
    */
   fromBytes (hexString) {
     const tx = {}
@@ -247,15 +247,15 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [findAndParseSignatures description]
-   * @param  {String}      hexString [description]
-   * @param  {Transaction} tx        [description]
-   * @return {number}
+   * Parse signatures from transaction bytes.
+   * @param  {String}      transactionBytes
+   * @param  {Transaction} transaction
+   * @return {Number}
    */
-  findAndParseSignatures (hexString, tx) {
-    let signature1 = new Buffer(hexString.substring(hexString.length - 146), 'hex')
-    let found = false
-    let offset = 0
+  findAndParseSignatures (transactionBytes, transaction) {
+    let signature1 = new Buffer(transactionBytes.substring(transactionBytes.length-146), "hex")
+    let found      = false
+    let offset     = 0
 
     while (!found && signature1.length > 8) {
       if (signature1[0] !== 0x30) {
@@ -275,8 +275,9 @@ class LegacyCryptoBuilder {
       signature1 = null
     } else {
       found = false
-      offset = signature1.length * 2
-      let signature2 = new Buffer(hexString.substring(hexString.length - offset - 146, hexString.length - offset), 'hex')
+      offset = signature1.length*2
+      let signature2 = new Buffer(transactionBytes.substring(transactionBytes.length-offset-146, transactionBytes.length-offset), "hex")
+
       while (!found && signature2.length > 8) {
         if (signature2[0] !== 0x30) {
           signature2 = signature2.slice(1)
@@ -291,12 +292,12 @@ class LegacyCryptoBuilder {
       }
       if (!found) {
         signature2 = null
-        tx.signature = signature1.toString('hex')
-        offset = tx.signature.length
+        transaction.signature = signature1.toString("hex")
+        offset = transaction.signature.length
       } else if (signature2) {
-        tx.signSignature = signature1.toString('hex')
-        tx.signature = signature2.toString('hex')
-        offset = tx.signature.length + tx.signSignature.length
+        transaction.signSignature = signature1.toString("hex")
+        transaction.signature = signature2.toString("hex")
+        offset = transaction.signature.length+transaction.signSignature.length
       }
     }
 
@@ -304,26 +305,28 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [parseSignatures description]
-   * @param {String}      hexString   [description]
-   * @param {Transaction} tx          [description]
-   * @param {Number}      startOffset [description]
+   * Parse signatures from transaction bytes.
+   * @param {String}      transactionBytes
+   * @param {Transaction} transaction
+   * @param {Number}      startOffset
    */
-  parseSignatures (hexString, tx, startOffset) {
-    tx.signature = hexString.substring(startOffset)
-    if (tx.signature.length === 0) {
-      delete tx.signature
+  parseSignatures (transactionBytes, transaction, startOffset) {
+    transaction.signature = transactionBytes.substring(startOffset)
+    if (transaction.signature.length == 0) {
+      delete transaction.signature
     } else {
-      const length = parseInt('0x' + tx.signature.substring(2, 4), 16) + 2
-      tx.signature = hexString.substring(startOffset, startOffset + length * 2)
-      tx.signSignature = hexString.substring(startOffset + length * 2)
-      if (tx.signSignature.length === 0) delete tx.signSignature
+      const length = parseInt("0x" + transaction.signature.substring(2,4), 16) + 2
+      transaction.signature = transactionBytes.substring(startOffset, startOffset + length*2)
+      transaction.signSignature = transactionBytes.substring(startOffset + length*2)
+      if (transaction.signSignature.length == 0) {
+        delete transaction.signSignature
+      }
     }
   }
 
   /**
-   * [getId description]
-   * @param  {Transaction} transaction [description]
+   * Get transaction id.
+   * @param  {Transaction} transaction
    * @return {String}
    */
   getId (transaction) {
@@ -331,10 +334,10 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [getHash description]
-   * @param  {Transaction} transaction         [description]
-   * @param  {Boolean}     skipSignature       [description]
-   * @param  {Boolean}     skipSecondSignature [description]
+   * Get transaction hash
+   * @param  {Transaction} transaction
+   * @param  {Boolean}     skipSignature
+   * @param  {Boolean}     skipSecondSignature
    * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
@@ -342,8 +345,8 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [getFee description]
-   * @param  {Transaction} transaction [description]
+   * Get transaction fee.
+   * @param  {Transaction} transaction
    * @return {Number}
    */
   getFee (transaction) {
@@ -367,10 +370,10 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [sign description]
-   * @param  {Transaction} transaction [description]
-   * @param  {ECPair}      keys        [description]
-   * @return {ECSignature}
+   * Sign transaction.
+   * @param  {Transaction} transaction
+   * @param  {ECPair}      keys
+   * @return {String}
    */
   sign (transaction, keys) {
     const hash = this.getHash(transaction, true, true)
@@ -384,10 +387,10 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [secondSign description]
-   * @param  {Transaction} transaction [description]
-   * @param  {ECPair} keys             [description]
-   * @return {ECPair}
+   * Sign transaction with second signature.
+   * @param  {Transaction} transaction
+   * @param  {ECPair}      keys
+   * @return {String}
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
@@ -401,16 +404,16 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [verify description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify transaction
+   * @param  {Transaction}        transaction
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  verify (transaction, network) {
+  verify (transaction, networkVersion) {
     const hash = this.getHash(transaction, true, true)
-    const signatureBuffer = new Buffer(transaction.signature, 'hex')
-    const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, network)
+    const signatureBuffer = new Buffer(transaction.signature, "hex")
+    const senderPublicKeyBuffer = new Buffer(transaction.senderPublicKey, "hex")
+    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, networkVersion)
     const ecsignature = ECSignature.fromDER(signatureBuffer)
     const res = ecpair.verify(hash, ecsignature)
 
@@ -418,17 +421,17 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [verifySecondSignature description]
-   * @param  {[type]} transaction [description]
-   * @param  {[type]} publicKey   [description]
-   * @param  {[type]} network     [description]
-   * @return {[type]}             [description]
+   * Verify second signature for transaction.
+   * @param  {Transaction}        transaction
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  verifySecondSignature (transaction, publicKey, network) {
+  verifySecondSignature (transaction, publicKey, networkVersion) {
     const hash = this.getHash(transaction, false, true)
-    const signSignatureBuffer = new Buffer(transaction.signSignature, 'hex')
-    const publicKeyBuffer = new Buffer(publicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
+    const signSignatureBuffer = new Buffer(transaction.signSignature, "hex")
+    const publicKeyBuffer = new Buffer(publicKey, "hex")
+    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, networkVersion)
     const ecsignature = ECSignature.fromDER(signSignatureBuffer)
     const res = ecpair.verify(hash, ecsignature)
 
@@ -437,9 +440,9 @@ class LegacyCryptoBuilder {
 
   /**
    * [getKeys description]
-   * @param  {[type]} secret  [description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param  {String} secret
+   * @param  {Object} options
+   * @return {ECPair}
    */
   getKeys (secret, options) {
     const ecpair = ECPair.fromSeed(secret, options)
@@ -451,38 +454,38 @@ class LegacyCryptoBuilder {
   }
 
   /**
-   * [getAddress description]
-   * @param  {[type]} publicKey [description]
-   * @param  {[type]} version   [description]
-   * @return {[type]}           [description]
+   * Get address from public key.
+   * @param  {String}             publicKey
+   * @param  {(Number|undefined)} networkVersion
+   * @return {String}
    */
-  getAddress (publicKey, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  getAddress (publicKey, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
 
     const buffer = cryptoUtils.ripemd160(new Buffer(publicKey, 'hex'))
 
     const payload = new Buffer(21)
-    payload.writeUInt8(version, 0)
+    payload.writeUInt8(networkVersion, 0)
     buffer.copy(payload, 1)
 
     return bs58check.encode(payload)
   }
 
   /**
-   * [validateAddress description]
-   * @param  {[type]} address [description]
-   * @param  {[type]} version [description]
-   * @return {[type]}         [description]
+   * Validate address.
+   * @param  {String}             address
+   * @param  {(Number|undefined)} networkVersion
+   * @return {Boolean}
    */
-  validateAddress (address, version) {
-    if (!version) {
-      version = configManager.get('pubKeyHash')
+  validateAddress(address, networkVersion) {
+    if (!networkVersion) {
+      networkVersion = configManager.get('pubKeyHash')
     }
     try {
       const decode = bs58check.decode(address)
-      return decode[0] === version
+      return decode[0] == networkVersion
     } catch (e) {
       return false
     }

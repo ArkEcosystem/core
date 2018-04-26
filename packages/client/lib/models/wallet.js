@@ -7,8 +7,7 @@ const cryptoBuilder = require('../builder/crypto')
 module.exports = class Wallet {
   /**
    * @constructor
-   * @param  {String} address [description]
-   * @return {[type]}         [description]
+   * @param  {String} address
    */
   constructor (address) {
     this.address = address
@@ -26,9 +25,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [applyTransactionToSender description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Associate this wallet as the sender of a transaction.
+   * @param {Transaction} transaction
    */
   applyTransactionToSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
@@ -56,9 +54,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [undoTransactionToSender description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Remove this wallet as the sender of a transaction.
+   * @param {Transaction} transaction
    */
   undoTransactionToSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
@@ -88,9 +85,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [applyTransactionToRecipient description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Add transaction balance to this wallet.
+   * @param {Transaction} transaction
    */
   applyTransactionToRecipient (transaction) {
     if (transaction.recipientId === this.address) {
@@ -100,9 +96,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [undoTransactionToRecipient description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Remove transaction balance from this wallet.
+   * @param {Transaction} transaction
    */
   undoTransactionToRecipient (transaction) {
     if (transaction.recipientId === this.address) {
@@ -112,9 +107,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [applyBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Add block data to this wallet.
+   * @param {Block} block
    */
   applyBlock (block) {
     if (block.generatorPublicKey === this.publicKey || cryptoBuilder.getAddress(block.generatorPublicKey) === this.address) {
@@ -126,9 +120,8 @@ module.exports = class Wallet {
   }
 
   /**
-   * [undoBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Remove block data from this wallet.
+   * @param {Block} block
    */
   undoBlock (block) {
     if (block.generatorPublicKey === this.publicKey || cryptoBuilder.getAddress(block.generatorPublicKey) === this.address) {
@@ -141,9 +134,9 @@ module.exports = class Wallet {
   }
 
   /**
-   * [canApply description]
-   * @param  {[type]} transaction [description]
-   * @return {[type]}             [description]
+   * Check if can apply a transaction to the wallet.
+   * @param  {Transaction} transaction
+   * @return {Boolean}
    */
   canApply (transaction) {
     let check = true
@@ -197,10 +190,10 @@ module.exports = class Wallet {
   }
 
   /**
-   * [verifySignatures description]
-   * @param  {[type]} transaction    [description]
-   * @param  {[type]} multisignature [description]
-   * @return {[type]}                [description]
+   * Verify multi-signatures for the wallet.
+   * @param  {Transaction}    transaction
+   * @param  {MultiSignature} multisignature
+   * @return {Boolean}
    */
   verifySignatures (transaction, multisignature) {
     if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) return false
@@ -213,15 +206,16 @@ module.exports = class Wallet {
         else if (index < multisignature.keysgroup.length) publicKey = multisignature.keysgroup[index].slice(1)
       }
     }
+
     return true
   }
 
   /**
-   * [verify description]
-   * @param  {[type]} transaction [description]
-   * @param  {String} signature   [description]
-   * @param  {String} publicKey   [description]
-   * @return {[type]}             [description]
+   * Verify the wallet.
+   * @param  {Transaction} transaction
+   * @param  {String}      signature
+   * @param  {String}      publicKey
+   * @return {Boolean}
    */
   verify (transaction, signature, publicKey) {
     const hash = cryptoBuilder.getHash(transaction)
@@ -229,12 +223,13 @@ module.exports = class Wallet {
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, config.network)
     const ecsignature = ECSignature.fromDER(signSignatureBuffer)
+
     return ecpair.verify(hash, ecsignature)
   }
 
   /**
-   * [toString description]
-   * @return {String} [description]
+   * Get formatted wallet balance as string.
+   * @return {String}
    */
   toString () {
     return `${this.address}=${this.balance / ARKTOSHI}`
