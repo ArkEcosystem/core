@@ -18,7 +18,6 @@ const logger = pluginManager.get('logger')
 module.exports = class WalletManager {
   /**
    * [constructor description]
-   * @return {void}
    */
   constructor () {
     this.reset()

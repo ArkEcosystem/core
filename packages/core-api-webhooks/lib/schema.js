@@ -3,13 +3,15 @@
 const webhookManager = require('@arkecosystem/core-plugin-manager').get('webhooks')
 const Joi = require('joi')
 
+/**
+ * TODO: refactor this to simple exports.*
+ */
 class Schema {
   /**
    * [init description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @return {void}
    */
-  init (config) {
+  init () {
     this.events = webhookManager.getEvents().map(event => event.name)
     this.conditions = [
       'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
@@ -19,7 +21,7 @@ class Schema {
 
   /**
    * [index description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   index () {
     return {
@@ -32,7 +34,7 @@ class Schema {
 
   /**
    * [show description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   show () {
     return {
@@ -44,7 +46,7 @@ class Schema {
 
   /**
    * [store description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   store () {
     return {
@@ -63,7 +65,7 @@ class Schema {
 
   /**
    * [update description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   update () {
     return {
@@ -82,7 +84,7 @@ class Schema {
 
   /**
    * [destroy description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   destroy () {
     return {

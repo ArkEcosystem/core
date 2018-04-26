@@ -2,8 +2,8 @@
 
 /**
  * [description]
- * @param  {[type]} model [description]
- * @return {[type]}       [description]
+ * @param  {Object} model
+ * @return {Object}
  */
 module.exports = (model) => {
   return {

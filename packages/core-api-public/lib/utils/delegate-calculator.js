@@ -6,8 +6,8 @@ const config = pluginManager.get('config')
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @return {Number}
  */
 exports.calculateApproval = (delegate) => {
   const lastBlock = state.lastBlock.data
@@ -19,8 +19,8 @@ exports.calculateApproval = (delegate) => {
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @return {Number}
  */
 exports.calculateProductivity = (delegate) => {
   if (!delegate.missedBlocks && !delegate.producedBlocks) {

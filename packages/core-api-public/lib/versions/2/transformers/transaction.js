@@ -12,8 +12,8 @@ const formatTimestamp = require('./utils/format-timestamp')
 
 /**
  * [description]
- * @param  {[type]} model [description]
- * @return {[type]}       [description]
+ * @param  {Object} model
+ * @return {Object}
  */
 module.exports = (model) => {
   const data = Transaction.deserialize(model.serialized.toString('hex'))

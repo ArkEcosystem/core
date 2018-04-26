@@ -15,7 +15,6 @@ module.exports = class ConnectionInterface {
   /**
    * [constructor description]
    * @param  {Object} config
-   * @return {void}
    */
   constructor (config) {
     this.config = config
