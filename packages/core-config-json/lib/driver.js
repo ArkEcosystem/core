@@ -92,10 +92,14 @@ module.exports = class Config extends ConfigInterface {
     for (let i = this.peers.sources.length - 1; i >= 0; i--) {
       const source = this.peers.sources[i]
 
+      let output = require(filePath)
+
       // Local File...
       if (source.startsWith('/')) {
+        output.list = require(source)
+
         // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
-        fs.writeFileSync(filePath, JSON.stringify(require(source), null, 2))
+        fs.writeFileSync(filePath, JSON.stringify(output, null, 2))
 
         break
       }
@@ -104,7 +108,6 @@ module.exports = class Config extends ConfigInterface {
       try {
         const response = await axios.get(source)
 
-        const output = require(filePath)
         output.list = response.data
 
         // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
