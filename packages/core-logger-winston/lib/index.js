@@ -15,6 +15,7 @@ exports.plugin = {
     await logManager.makeDriver(new WinstonDriver(options))
 
     // // Disable logging during tests
+    // // NODE_ENV=test >>> Jest Test-Suite
     // if (process.env.NODE_ENV === 'test') {
     //   logManager.driver().clear()
     // }

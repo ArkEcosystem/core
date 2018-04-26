@@ -59,7 +59,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         event = 'SYNCED'
       }
 
-      if (process.env.ARK_ENV === 'test') {
+      if (process.env.ARK_ENV === 'testnet') {
         event = 'TEST'
       }
 
@@ -127,6 +127,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
         // no fast rebuild if in 10 last round
         state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchainManager.config.server.fastRebuild
 
+        // NODE_ENV=test >>> Jest Test-Suite
         if (process.env.NODE_ENV === 'test') {
           return blockchainManager.dispatch('STARTED')
         }
