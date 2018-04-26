@@ -302,8 +302,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * [snapshot description]
-   * @param  {[type]} path [description]
-   * @return {[type]}      [description]
+   * @return {[type]} [description]
    */
   async snapshot () {
     const expandHomeDir = require('expand-home-dir')

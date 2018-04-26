@@ -27,7 +27,7 @@ module.exports = async (options) => {
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 
-  pluginManager.get('database').snapshot('') // expandHomeDir(config.database.snapshots))
+  pluginManager.get('database').snapshot()
 
   pluginManager.get('logger').info('Snapshot saved')
 }
