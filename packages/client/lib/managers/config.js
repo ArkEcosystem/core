@@ -6,16 +6,15 @@ const defaultConfig = require('../networks/ark/devnet.json')
 
 class ConfigManager {
   /**
-   * [constructor description]
-   * @return {[type]} [description]
+   * @constructor
    */
   constructor () {
     this.setConfig(defaultConfig)
   }
 
   /**
-   * [setConfig description]
-   * @param {Object} config [description]
+   * Set config data.
+   * @param {Object} config
    */
   setConfig (config) {
     this.config = {}
@@ -29,76 +28,77 @@ class ConfigManager {
   }
 
   /**
-   * [setFromFile description]
-   * @param {String} path [description]
+   * Get config from file.
+   * @param {String} path
    */
   setFromFile (path) {
     this.setConfig(require(path))
   }
 
   /**
-   * [setFromPreset description]
-   * @param {String} path [description]
+   * Get config from preset configurations.
+   * @param {String} coin
+   * @param {String} network
    */
   setFromPreset (coin, network) {
     this.setConfig(CONFIGURATIONS[coin.toUpperCase()][network.toUpperCase()])
   }
 
   /**
-   * [all description]
-   * @return {Object} [description]
+   * Get all config data.
+   * @return {Object}
    */
   all () {
     return this.config
   }
 
   /**
-   * [set description]
-   * @param {String} key   [description]
-   * @param {[type]} value [description]
+   * Set individual config value.
+   * @param {String} key
+   * @param {*}      value
    */
   set (key, value) {
     this.config[key] = value
   }
 
   /**
-   * [get description]
-   * @param  {String} key [description]
-   * @return {[type]}     [description]
+   * Get specific config value.
+   * @param  {String} key
+   * @return {*}
    */
   get (key) {
     return this.config[key]
   }
 
   /**
-   * [setHeight description]
-   * @param {[type]} value [description]
+   * Set config manager height.
+   * @param {Number} value
    */
   setHeight (value) {
     this.height = value
   }
 
   /**
-   * [getHeight description]
-   * @return {[type]} [description]
+   * Get config manager height.
+   * @return {Number}
    */
   getHeight () {
     return this.height
   }
 
   /**
-   * [getConstant description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
+   * Get specific config constant based on height 1.
+   * @param  {String} key
+   * @return {*}
    */
   getConstant (key) {
     return this.getConstants()[key]
   }
 
   /**
-   * [getConstants description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * Get all config constants based on height.
+   * @param  {(Number|undefined)} height
+   * @return {*}
    */
   getConstants (height) {
     if (this.height) {
@@ -122,8 +122,7 @@ class ConfigManager {
   }
 
   /**
-   * [__buildConstants description]
-   * @return {[type]} [description]
+   * Build constant data based on active heights.
    */
   __buildConstants () {
     this.constants = this.config.constants.sort((a, b) => a.height - b.height)
@@ -141,8 +140,7 @@ class ConfigManager {
   }
 
   /**
-   * [__buildFees description]
-   * @return {[type]} [description]
+   * Build fees from config constants.
    */
   __buildFees () {
     Object

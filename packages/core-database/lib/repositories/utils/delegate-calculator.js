@@ -1,26 +1,24 @@
 'use strict';
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const state = pluginManager.get('blockchain').getState()
-const config = pluginManager.get('config')
+const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @param  {Number} height
+ * @return {Number}
  */
-exports.calculateApproval = (delegate) => {
-  const lastBlock = state.lastBlock.data
-  const constants = config.getConstants(lastBlock.height)
-  const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
+exports.calculateApproval = (delegate, height) => {
+  const constants = config.getConstants(height)
+  const totalSupply = config.genesisBlock.totalAmount + (height - constants.height) * constants.reward
 
   return ((delegate.balance / totalSupply) * 100).toFixed(2)
 }
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Delegate} delegate
+ * @return {Number}
  */
 exports.calculateProductivity = (delegate) => {
   if (!delegate.missedBlocks && !delegate.producedBlocks) {

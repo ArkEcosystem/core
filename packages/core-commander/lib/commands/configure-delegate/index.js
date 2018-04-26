@@ -6,16 +6,12 @@ const { onCancel, readConfig, writeConfig } = require('../../utils')
 const { Delegate } = require('@arkecosystem/client').models
 const { encrypt } = require('../../utils/forger-crypto')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
 module.exports = async () => {
   let response = await prompts(questions, { onCancel })
 
   let config = readConfig('delegates')
 
-  const bip38 = Delegate.encrypt(response.secret, readConfig('network'), response.password)
+  const bip38 = Delegate.encryptPassphrase(response.secret, readConfig('network'), response.password)
   config.identity = encrypt(bip38, response.address, response.password)
 
   writeConfig('delegates', config)

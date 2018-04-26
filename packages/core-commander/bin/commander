@@ -3,22 +3,18 @@
 'use strict';
 
 const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const { splash, getProcessStatus } = require('../utils')
+const expandHomeDir = require('expand-home-dir')
+const { splash, getProcessStatus } = require('../lib/utils')
 
-/**
- * [description]
- * @return {[type]} [description]
- */
+
 const start = async () => {
   splash()
 
-  process.env.ARK_CONFIG = path.resolve(os.homedir(), '.ark')
+  process.env.ARK_CONFIG = expandHomeDir('~/.ark/config')
 
-  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('./commands/configure-network')()
+  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('../lib/commands/configure-network')()
 
-  require('./commands/start')()
+  require('../lib/commands/start')()
 }
 
 getProcessStatus(() => start())

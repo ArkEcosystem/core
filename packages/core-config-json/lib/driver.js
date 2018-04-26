@@ -1,14 +1,15 @@
 'use strict';
 
-const path = require('path')
-const fs = require('fs-extra')
+const axios = require('axios')
 const dirTree = require('directory-tree')
+const fs = require('fs-extra')
+const path = require('path')
 const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-config')
 
 module.exports = class Config extends ConfigInterface {
   /**
    * [make description]
-   * @return {[type]} [description]
+   * @return {Config}
    */
   async make () {
     await this.__createFromDirectory()
@@ -19,21 +20,36 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
+   * [copyFiles description]
+   * @param  {String} dest
+   * @return {Promise}
+   */
+  async copyFiles (dest) {
+    if (!dest) {
+      dest = getTargetDirectory('config')
+    }
+
+    await fs.ensureDir(this.options.config)
+
+    return fs.copy(this.options.config, dest)
+  }
+
+  /**
    * [__createFromDirectory description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   async __createFromDirectory () {
     const files = this.__getFiles()
 
-    await this.__copyFiles(files)
-
     this.__createBindings(files)
+
+    await this.__buildPeers(files.peers)
   }
 
   /**
    * [__createBindings description]
-   * @param  {[type]} files [description]
-   * @return {[type]}       [description]
+   * @param  {Array} files
+   * @return {void}
    */
   __createBindings (files) {
     for (const [key, value] of Object.entries(files)) {
@@ -43,7 +59,7 @@ module.exports = class Config extends ConfigInterface {
 
   /**
    * [__getFiles description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   __getFiles () {
     const basePath = path.resolve(this.options.config)
@@ -67,12 +83,43 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__copyFiles description]
-   * @return {[type]} [description]
+   * [__buildPeers description]
+   * @param  {String} configFile
+   * @return {void}
    */
-  async __copyFiles () {
-    await fs.ensureDir(this.options.config)
+  async __buildPeers (configFile) {
+    if (!this.peers.sources) {
+      return false
+    }
 
-    return fs.copy(this.options.config, getTargetDirectory('config'))
+    let output = require(configFile)
+
+    for (let i = this.peers.sources.length - 1; i >= 0; i--) {
+      const source = this.peers.sources[i]
+
+      // Local File...
+      if (source.startsWith('/')) {
+        output.list = require(source)
+
+        // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
+        fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
+
+        break
+      }
+
+      // URLs...
+      try {
+        const response = await axios.get(source)
+
+        output.list = response.data
+
+        // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
+        fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
+
+        break
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
   }
 }

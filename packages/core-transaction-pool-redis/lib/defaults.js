@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   enabled: false,
   key: 'ark/pool',

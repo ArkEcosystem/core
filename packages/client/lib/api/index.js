@@ -4,8 +4,7 @@ const resources = require('./resources')
 module.exports = class ApiClient {
   /**
    * @constructor
-   * @param  {[type]} host [description]
-   * @return {[type]}      [description]
+   * @param {String} host
    */
   constructor (host) {
     this.setConnection(host)
@@ -14,24 +13,24 @@ module.exports = class ApiClient {
   }
 
   /**
-   * [setConnection description]
-   * @param {[type]} host [description]
+   * Create a HTTP connection to the API.
+   * @param {String} host
    */
   setConnection (host) {
     this.http = new HttpClient(host, this.version)
   }
 
   /**
-   * [getConnection description]
-   * @return {[type]} [description]
+   * Get the HTTP connection to the API.
+   * @return {Object}
    */
   getConnection () {
     return this.http
   }
 
   /**
-   * [setVersion description]
-   * @param {[type]} version [description]
+   * Set the API Version.
+   * @param {Number} version
    */
   setVersion (version) {
     this.version = version
@@ -41,9 +40,9 @@ module.exports = class ApiClient {
   }
 
   /**
-   * [resource description]
-   * @param  {String} name [description]
-   * @return {Resource}      [description]
+   * Create an instance of a version specific resource.
+   * @param  {String}   name
+   * @return {Resource}
    */
   resource (name) {
     return new resources[`v${this.version}`][name](this.http)

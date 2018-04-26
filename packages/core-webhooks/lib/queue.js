@@ -4,15 +4,11 @@ const Bull = require('bull')
 
 let instance
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class Queue {
   /**
    * [constructor description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @param  {Object} config
+   * @return {Queue}
    */
   constructor (config) {
     this.config = config
@@ -26,7 +22,7 @@ module.exports = class Queue {
 
   /**
    * [getInstance description]
-   * @return {[type]} [description]
+   * @return {Queue}
    */
   static getInstance () {
     return instance
@@ -34,8 +30,8 @@ module.exports = class Queue {
 
   /**
    * [connection description]
-   * @param  {[type]} connection [description]
-   * @return {[type]}            [description]
+   * @param  {string} connection
+   * @return {Bull}
    */
   connection (connection) {
     return new Bull(connection, { redis: this.config })

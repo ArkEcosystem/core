@@ -5,8 +5,8 @@ const { transformResource, transformCollection } = require('../../utils/transfor
 
 /**
  * [description]
- * @param  {[type]} request [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Request} request
+ * @return {Object}
  */
 const paginate = (request) => {
   return {
@@ -17,10 +17,10 @@ const paginate = (request) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const respondWithResource = (request, data, transformerClass) => {
   return data
@@ -30,10 +30,10 @@ const respondWithResource = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const respondWithCollection = (request, data, transformerClass) => {
   return { data: transformCollection(request, data, transformerClass) }
@@ -41,10 +41,10 @@ const respondWithCollection = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toResource = (request, data, transformerClass) => {
   return transformResource(request, data, transformerClass)
@@ -52,10 +52,10 @@ const toResource = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toCollection = (request, data, transformerClass) => {
   return transformCollection(request, data, transformerClass)
@@ -63,10 +63,10 @@ const toCollection = (request, data, transformerClass) => {
 
 /**
  * [description]
- * @param  {[type]} request          [description]
- * @param  {[type]} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toPagination = (request, data, transformerClass) => {
   return {

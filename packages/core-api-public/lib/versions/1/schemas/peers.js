@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [exports description]
+ * The AJV schema for the peer endpoints.
  * @type {Object}
  */
 module.exports = {

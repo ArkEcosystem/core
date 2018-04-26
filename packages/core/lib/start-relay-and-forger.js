@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 /**
- * [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * Start a node.
+ * @param  {Object} options
+ * @return {void}
  */
 module.exports = async (options) => {
   pluginManager.init(options.config, {

@@ -3,7 +3,7 @@ const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
-const legacyCryptoBuilder = require('../builder/legacy-crypto')
+const arkjsv1 = require('arkjsv1')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -35,7 +35,22 @@ module.exports = class Transaction {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
     if (this.data.version === 1) {
-      this.verified = legacyCryptoBuilder.verify(this.data)
+      this.verified = arkjsv1.crypto.verify(this.data)
+      if (!this.verified) {
+        // fix on issue of non homogeneus transaction type 1 payload
+        if (this.data.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+          if (this.data.recipientId) {
+            delete this.data.recipientId
+          } else {
+            this.data.recipientId = arkjsv1.crypto.getAddress(this.data.senderPublicKey, this.data.network)
+          }
+          this.verified = arkjsv1.crypto.verify(this.data)
+          this.data.id = arkjsv1.crypto.getId(this.data)
+        }
+      }
+    } else {
+      // TODO: enable AIP11 when network ready
+      this.verified = false
     }
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature'].forEach((key) => { // eslint-disable-line max-len
@@ -244,24 +259,24 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.VOTE) {
-        tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
       }
 
-      // if (tx.type === TRANSACTION_TYPES.VOTE || tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      //   tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
-      // }
+      if (tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+      }
 
       if (tx.vendorFieldHex) {
         tx.vendorField = Buffer.from(tx.vendorFieldHex, 'hex').toString('utf8')
       }
 
       if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        tx.recipientId = legacyCryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!tx.id) {
-        tx.id = legacyCryptoBuilder.getId(tx)
+        tx.id = arkjsv1.crypto.getId(tx)
       }
     } else if (tx.version === 2) {
       tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')

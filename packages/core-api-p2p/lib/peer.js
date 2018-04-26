@@ -6,16 +6,14 @@ const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
 /**
- * [exports description]
- * @type {[type]}
+ * [description]
  */
 module.exports = class Peer {
   /**
-   * [constructor description]
-   * @param  {[type]} ip     [description]
-   * @param  {[type]} port   [description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @constructor
+   * @param  {String} ip
+   * @param  {Number} port
+   * @param  {Object} config
    */
   constructor (ip, port, config) {
     this.ip = ip
@@ -31,8 +29,8 @@ module.exports = class Peer {
   }
 
   /**
-   * [toBroadcastInfo description]
-   * @return {[type]} [description]
+   * Get information to broadcast.
+   * @return {Object}
    */
   toBroadcastInfo () {
     return {
@@ -47,19 +45,19 @@ module.exports = class Peer {
   }
 
   /**
-   * [get description]
-   * @param  {[type]} api     [description]
-   * @param  {[type]} timeout [description]
-   * @return {[type]}         [description]
+   * Perform GET request.
+   * @param  {String} apiEndpoint
+   * @param  {Number} [timeout=10000]
+   * @return {(Object|undefined)}
    */
-  async get (api, timeout) {
+  async get (apiEndpoint, timeout) {
     const temp = new Date().getTime()
     const that = this
 
     try {
       const res = await popsicle.request({
         method: 'GET',
-        url: this.url + api,
+        url: this.url + apiEndpoint,
         headers: this.headers,
         timeout: timeout || 10000
       }).use(popsicle.plugins.parse('json'))
@@ -77,9 +75,9 @@ module.exports = class Peer {
   }
 
   /**
-   * [postBlock description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Perform POST request for a block.
+   * @param  {Block}              block
+   * @return {(Object|undefined)}
    */
   async postBlock (block) {
     // console.log(block)
@@ -104,9 +102,9 @@ module.exports = class Peer {
   }
 
   /**
-   * [parseHeaders description]
-   * @param  {[type]} res [description]
-   * @return {[type]}     [description]
+   * Parse headers from response.
+   * @param  {Object} res
+   * @return {Object}
    */
   parseHeaders (res) {
     ['nethash', 'os', 'version'].forEach(key => (this[key] = res.headers[key]))
@@ -116,9 +114,9 @@ module.exports = class Peer {
   }
 
   /**
-   * [downloadBlocks description]
-   * @param  {[type]} fromBlockHeight [description]
-   * @return {[type]}                 [description]
+   * Download blocks from peer.
+   * @param  {Number}               fromBlockHeight
+   * @return {(Object[]|undefined)}
    */
   async downloadBlocks (fromBlockHeight) {
     const message = {
@@ -145,9 +143,10 @@ module.exports = class Peer {
   }
 
   /**
-   * [ping description]
-   * @param  {[type]} delay [description]
-   * @return {[type]}       [description]
+   * Perform ping request on peer.
+   * @param  {Number} [delay=5000]
+   * @return {Object}
+   * @throws {Error} If fail to get peer status.
    */
   async ping (delay) {
     const body = await this.get('/peer/status', delay || 5000)
@@ -160,8 +159,8 @@ module.exports = class Peer {
   }
 
   /**
-   * [getPeers description]
-   * @return {[type]} [description]
+   * Refresh peer list.
+   * @return {Object[]}
    */
   async getPeers () {
     logger.info(`Getting fresh peer list from ${this.url}`)

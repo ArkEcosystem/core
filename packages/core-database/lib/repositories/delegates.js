@@ -2,15 +2,10 @@
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class DelegatesRepository {
   /**
    * [constructor description]
-   * @param  {[type]} db [description]
-   * @return {[type]}    [description]
+   * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
     this.connection = connection
@@ -18,8 +13,8 @@ module.exports = class DelegatesRepository {
 
   /**
    * [findAll description]
-   * @param  {Object} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   async findAll (params = {}) {
     return this.connection.walletManager.getLocalWallets().filter(a => !!a.username)
@@ -27,8 +22,8 @@ module.exports = class DelegatesRepository {
 
   /**
    * [paginate description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   async paginate (params) {
     const delegates = await this.findAll()
@@ -41,8 +36,8 @@ module.exports = class DelegatesRepository {
 
   /**
    * [search description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   async search (params) {
     let delegates = await this.findAll()
@@ -68,8 +63,8 @@ module.exports = class DelegatesRepository {
 
   /**
    * [findById description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {String} id
+   * @return {Object}
    */
   async findById (id) {
     const delegates = await this.findAll()
@@ -79,9 +74,9 @@ module.exports = class DelegatesRepository {
 
   /**
    * [active description]
-   * @param  {[type]} height      [description]
-   * @param  {[type]} totalSupply [description]
-   * @return {[type]}             [description]
+   * @param  {Number} height
+   * @param  {Number} totalSupply
+   * @return {Array}
    */
   async active (height, totalSupply) {
     const delegates = await this.connection.getActiveDelegates(height)
@@ -91,7 +86,7 @@ module.exports = class DelegatesRepository {
 
       return {
         username: wallet.username,
-        approval: calculateApproval(delegate),
+        approval: calculateApproval(delegate, height),
         productivity: calculateProductivity(wallet)
       }
     }))

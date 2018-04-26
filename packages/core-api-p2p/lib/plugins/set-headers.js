@@ -4,9 +4,9 @@ const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   const headers = {
@@ -33,7 +33,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

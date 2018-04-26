@@ -14,9 +14,9 @@
     "ark:commander": "./bin/commander"
   },
   "scripts": {
-    "ark:commander": "./bin/commander",
-    "test": "ARK_ENV=test jest --forceExit",
-    "test:watch": "ARK_ENV=test jest --forceExit --watch",
+    "start": "./bin/commander",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {

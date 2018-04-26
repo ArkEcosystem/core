@@ -2,63 +2,63 @@ const Base = require('../../base')
 
 module.exports = class Delegates extends Base {
   /**
-   * [all description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all delegates.
+   * @param  {Object} query
+   * @return {Promise}
    */
   all (query) {
     return this.http.get('delegates', query)
   }
 
   /**
-   * [get description]
-   * @param  {String} id [description]
-   * @return {[type]}    [description]
+   * Get delegate by id.
+   * @param  {String} id
+   * @return {Promise}
    */
   get (id) {
     return this.http.get('delegates/get', {id})
   }
 
   /**
-   * [count description]
-   * @return {[type]} [description]
+   * Get quantity of delegates.
+   * @return {Promise}
    */
   count () {
     return this.http.get('delegates/count')
   }
 
   /**
-   * [fee description]
-   * @return {[type]} [description]
+   * Get delegate fee.
+   * @return {Promise}
    */
   fee () {
     return this.http.get('delegates/fee')
   }
 
   /**
-   * [forged description]
-   * @param  {String} generatorPublicKey [description]
-   * @return {[type]}                    [description]
+   * Get delegate forged data by public key.
+   * @param  {String} generatorPublicKey
+   * @return {Promise}
    */
   forged (generatorPublicKey) {
     return this.http.get('delegates/forging/getForgedByAccount', {generatorPublicKey})
   }
 
   /**
-   * [search description]
-   * @param  {Object} query [description]
-   * @param  {String} query.q [description]
-   * @param  {Number} query.limit [description]
-   * @return {[type]}       [description]
+   * Search for delegates.
+   * @param  {Object} query
+   * @param  {String} query.q
+   * @param  {Number} query.limit
+   * @return {Promise}
    */
   search (query) {
     return this.http.get('delegates/search', query)
   }
 
   /**
-   * [voters description]
-   * @param  {String} publicKey [description]
-   * @return {[type]}           [description]
+   * Get voters for delegate.
+   * @param  {String} publicKey
+   * @return {Promise}
    */
   voters (publicKey) {
     return this.http.get('delegates/voters', {publicKey})

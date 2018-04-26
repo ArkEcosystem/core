@@ -18,10 +18,9 @@ module.exports = class Delegate extends Transaction {
   }
 
   /**
-   * [create description]
-   * Overrides the inherited method to add the necessary parameters
-   * @param  {String} username [description]
-   * @return {[type]}          [description]
+   * Overrides the inherited method to add the necessary parameters.
+   * @param  {String}   username
+   * @return {Delegate}
    */
   create (username) {
     this.username = username
@@ -29,11 +28,9 @@ module.exports = class Delegate extends Transaction {
   }
 
   /**
-   * [sign description]
-   * Overrides the inherited `sign` method to include the public key of the new
-   * delegate
-   * @param  {String} passphrase [description]
-   * @return {[type]}            [description]
+   * Overrides the inherited `sign` method to include the public key of the new delegate.
+   * @param  {String}   passphrase
+   * @return {Delegate}
    */
   sign (passphrase) {
     super.sign(passphrase)
@@ -42,10 +39,8 @@ module.exports = class Delegate extends Transaction {
   }
 
   /**
-   * Overrides the inherited method to return the additional required by this
-   * type of transaction
-   * [getStruct description]
-   * @return {Object} [description]
+   * Overrides the inherited method to return the additional required by this type of transaction.
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

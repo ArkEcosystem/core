@@ -7,7 +7,7 @@ require('colors')
 module.exports = class Logger extends LoggerInterface {
   /**
    * [make description]
-   * @return {[type]} [description]
+   * @return {Winston.Logger}
    */
   make () {
     this.driver = new (winston.Logger)()
@@ -24,12 +24,12 @@ module.exports = class Logger extends LoggerInterface {
 
   /**
    * [printTracker description]
-   * @param  {[type]} title     [description]
-   * @param  {[type]} current   [description]
-   * @param  {[type]} max       [description]
-   * @param  {[type]} posttitle [description]
-   * @param  {Number} figures   [description]
-   * @return {[type]}           [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @param  {String} posttitle
+   * @param  {Number} figures
+   * @return {void}
    */
   printTracker (title, current, max, posttitle, figures = 0) {
     const progress = 100 * current / max
@@ -46,10 +46,10 @@ module.exports = class Logger extends LoggerInterface {
 
   /**
    * [stopTracker description]
-   * @param  {[type]} title   [description]
-   * @param  {[type]} current [description]
-   * @param  {[type]} max     [description]
-   * @return {[type]}         [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @return {void}
    */
   stopTracker (title, current, max) {
     const progress = 100 * current / max
@@ -67,7 +67,7 @@ module.exports = class Logger extends LoggerInterface {
 
   /**
    * [__registerTransports description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   __registerTransports () {
     Object.values(this.options.transports).forEach(transport => {
@@ -81,7 +81,7 @@ module.exports = class Logger extends LoggerInterface {
 
   /**
    * [__registerFilters description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   __registerFilters () {
     this.driver.filters.push((level, message, meta) => {

@@ -15,14 +15,16 @@ const curve = ecurve.getCurveByName('secp256k1')
 module.exports = class HDNode {
   /**
    * [constructor description]
-   * @param  {[type]} keyPair   [description]
-   * @param  {[type]} chainCode [description]
-   * @return {[type]}           [description]
+   * @param  {ECPair} keyPair
+   * @param  {Buffer} chainCode
+   * @return {void}
    */
   constructor (keyPair, chainCode) {
     typeforce(types.tuple('ECPair', types.Buffer256bit), arguments)
 
-    if (!keyPair.compressed) throw new TypeError('BIP32 only allows compressed keyPairs')
+    if (!keyPair.compressed) {
+      throw new TypeError('BIP32 only allows compressed keyPairs')
+    }
 
     /** @type {ECPair} */
     this.keyPair = keyPair
@@ -38,15 +40,20 @@ module.exports = class HDNode {
 
   /**
    * [fromSeedBuffer description]
-   * @param  {[type]} seed    [description]
-   * @param  {[type]} network [description]
-   * @return {[type]}         [description]
+   * @param  {(String|Buffer)} seed
+   * @param  {Object} network
+   * @return {HDNode}
    */
   static fromSeedBuffer (seed, network) {
     typeforce(types.tuple(types.Buffer, types.maybe(types.Network)), arguments)
 
-    if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
-    if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
+    if (seed.length < 16) {
+      throw new TypeError('Seed should be at least 128 bits')
+    }
+
+    if (seed.length > 64) {
+      throw new TypeError('Seed should be at most 512 bits')
+    }
 
     const I = createHmac('sha512', MASTER_SECRET).update(seed).digest()
     const IL = I.slice(0, 32)
@@ -64,9 +71,9 @@ module.exports = class HDNode {
 
   /**
    * [fromSeedHex description]
-   * @param  {[type]} hex     [description]
-   * @param  {[type]} network [description]
-   * @return {[type]}         [description]
+   * @param  {String} hex
+   * @param  {Object} network
+   * @return {HDNode}
    */
   static fromSeedHex (hex, network) {
     return HDNode.fromSeedBuffer(Buffer.from(hex, 'hex'), network)
@@ -74,9 +81,9 @@ module.exports = class HDNode {
 
   /**
    * [fromBase58 description]
-   * @param  {[type]} string   [description]
-   * @param  {[type]} networks [description]
-   * @return {[type]}          [description]
+   * @param  {String} string
+   * @param  {(Object|Array)} networks
+   * @return {HDNode}
    */
   static fromBase58 (string, networks) {
     const buffer = base58check.decode(string)
@@ -154,7 +161,7 @@ module.exports = class HDNode {
 
   /**
    * [getAddress description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   getAddress () {
     return this.keyPair.getAddress()
@@ -162,7 +169,7 @@ module.exports = class HDNode {
 
   /**
    * [getIdentifier description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   getIdentifier () {
     return bcrypto.hash160(this.keyPair.getPublicKeyBuffer())
@@ -170,7 +177,7 @@ module.exports = class HDNode {
 
   /**
    * [getFingerprint description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   getFingerprint () {
     return this.getIdentifier().slice(0, 4)
@@ -178,7 +185,7 @@ module.exports = class HDNode {
 
   /**
    * [getNetwork description]
-   * @return {[type]} [description]
+   * @return {Object}
    */
   getNetwork () {
     return this.keyPair.getNetwork()
@@ -186,7 +193,7 @@ module.exports = class HDNode {
 
   /**
    * [getPublicKeyBuffer description]
-   * @return {[type]} [description]
+   * @return {Buffer}
    */
   getPublicKeyBuffer () {
     return this.keyPair.getPublicKeyBuffer()
@@ -194,7 +201,7 @@ module.exports = class HDNode {
 
   /**
    * [neutered description]
-   * @return {[type]} [description]
+   * @return {HDNode}
    */
   neutered () {
     const neuteredKeyPair = new ECPair(null, this.keyPair.Q, {
@@ -211,8 +218,8 @@ module.exports = class HDNode {
 
   /**
    * [sign description]
-   * @param  {[type]} hash [description]
-   * @return {[type]}      [description]
+   * @param  {Buffer} hash
+   * @return {ECSignature}
    */
   sign (hash) {
     return this.keyPair.sign(hash)
@@ -220,9 +227,9 @@ module.exports = class HDNode {
 
   /**
    * [verify description]
-   * @param  {[type]} hash      [description]
-   * @param  {[type]} signature [description]
-   * @return {[type]}           [description]
+   * @param  {Buffer} hash
+   * @param  {ECPair} signature
+   * @return {boolean}
    */
   verify (hash, signature) {
     return this.keyPair.verify(hash, signature)
@@ -230,7 +237,7 @@ module.exports = class HDNode {
 
   /**
    * [toBase58 description]
-   * @return {[type]} [description]
+   * @return {String}
    */
   toBase58 () {
     // Version
@@ -273,8 +280,8 @@ module.exports = class HDNode {
    * https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
    *
    * [derive description]
-   * @param  {[type]} index [description]
-   * @return {[type]}       [description]
+   * @param  {Number} index
+   * @return {HDNode}
    */
   derive (index) {
     typeforce(types.UInt32, index)
@@ -351,8 +358,8 @@ module.exports = class HDNode {
 
   /**
    * [deriveHardened description]
-   * @param  {[type]} index [description]
-   * @return {[type]}       [description]
+   * @param  {Number} index
+   * @return {HDNode}
    */
   deriveHardened (index) {
     typeforce(types.UInt31, index)
@@ -366,7 +373,7 @@ module.exports = class HDNode {
    * Public `===` neutered.
    *
    * [isNeutered description]
-   * @return {Boolean} [description]
+   * @return {Boolean}
    */
   isNeutered () {
     return !(this.keyPair.d)
@@ -374,8 +381,8 @@ module.exports = class HDNode {
 
   /**
    * [derivePath description]
-   * @param  {[type]} path [description]
-   * @return {[type]}      [description]
+   * @param  {String} path
+   * @return {HDNode}
    */
   derivePath (path) {
     typeforce(types.BIP32Path, path)

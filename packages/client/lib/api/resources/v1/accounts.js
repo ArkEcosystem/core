@@ -2,70 +2,70 @@ const Base = require('../../base')
 
 module.exports = class Wallets extends Base {
   /**
-   * [all description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get all wallets.
+   * @param  {Object} query
+   * @return {Promise}
    */
   all (query) {
     return this.http.get('accounts/getAllAccounts', query)
   }
 
   /**
-   * [get description]
-   * @param  {String} address [description]
-   * @return {[type]}         [description]
+   * Get a wallet by address.
+   * @param  {String} address
+   * @return {Promise}
    */
   get (address) {
     return this.http.get('accounts', {address})
   }
 
   /**
-   * [count description]
-   * @return {[type]} [description]
+   * Count how many wallets there are.
+   * @return {Promise}
    */
   count () {
     return this.http.get('accounts/count')
   }
 
   /**
-   * [delegates description]
-   * @param  {String} address [description]
-   * @return {[type]}         [description]
+   * Get deletate by address.
+   * @param  {String} address
+   * @return {Promise}
    */
   delegates (address) {
     return this.http.get('accounts/delegates', {address})
   }
 
   /**
-   * [fee description]
-   * @return {[type]} [description]
+   * Get delegate fees.
+   * @return {Promise}
    */
   fee () {
     return this.http.get('accounts/delegates/fee')
   }
 
   /**
-   * [balance description]
-   * @param  {String} address [description]
-   * @return {[type]}         [description]
+   * Get wallet balance by Address.
+   * @param  {String} address
+   * @return {Promise}
    */
   balance (address) {
     return this.http.get('accounts/getBalance', {address})
   }
 
   /**
-   * [publicKey description]
-   * @param  {String} address [description]
-   * @return {[type]}         [description]
+   * Get wallet public key by Address.
+   * @param  {String} address
+   * @return {Promise}
    */
   publicKey (address) {
     return this.http.get('accounts/getPublicKey', {address})
   }
 
   /**
-   * [top description]
-   * @param  {[type]} query [description]
-   * @return {[type]}       [description]
+   * Get the top wallets.
+   * @param  {Object} query
+   * @return {Promise}
    */
   top (query) {
     return this.http.get('accounts/top', query)

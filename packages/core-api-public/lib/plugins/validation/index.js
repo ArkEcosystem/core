@@ -11,9 +11,9 @@ const ajv = new AJV()
 
 /**
  * [validate description]
- * @param  {[type]} schema [description]
- * @param  {[type]} data   [description]
- * @return {[type]}        [description]
+ * @param  {Object} schema
+ * @param  {Object} data
+ * @return {(Boolean|Object)}
  */
 function validate (schema, data) {
   return ajv.validate(schema, data) ? null : ajv.errors
@@ -21,10 +21,10 @@ function validate (schema, data) {
 
 /**
  * [createErrorResponse description]
- * @param  {[type]} request [description]
- * @param  {[type]} h       [description]
- * @param  {[type]} errors  [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Request} request
+ * @param  {Hapi.Toolkit} h
+ * @param  {Array} errors
+ * @return {Hapi.Response}
  */
 function createErrorResponse (request, h, errors) {
   return request.pre.apiVersion === 1
@@ -34,7 +34,7 @@ function createErrorResponse (request, h, errors) {
 
 /**
  * [registerCustomFormats description]
- * @return {[type]} [description]
+ * @return {void}
  */
 function registerCustomFormats () {
   let directory = path.resolve(__dirname, 'formats')
@@ -48,9 +48,9 @@ function registerCustomFormats () {
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   registerCustomFormats()
@@ -78,7 +78,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

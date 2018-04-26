@@ -3,8 +3,8 @@
 const WinstonDriver = require('./driver')
 
 /**
- * [plugin description]
- * @type {Object}
+ * The struct used by the plugin manager.
+ * @type {WinstonDriver}
  */
 exports.plugin = {
   pkg: require('../package.json'),
@@ -14,6 +14,18 @@ exports.plugin = {
     const logManager = manager.get('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
 
+    // // Disable logging during tests
+    // // NODE_ENV=test >>> Jest Test-Suite
+    // if (process.env.NODE_ENV === 'test') {
+    //   logManager.driver().clear()
+    // }
+
     return logManager.driver()
   }
 }
+
+/**
+ * Expose the winston formatter for configuration.
+ * @type {Function}
+ */
+exports.formatter = require('./formatter')

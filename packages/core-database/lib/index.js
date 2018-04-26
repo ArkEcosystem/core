@@ -3,7 +3,7 @@
 const databaseManager = require('./manager')
 
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {
@@ -19,6 +19,6 @@ exports.plugin = {
 
 /**
  * [Connection description]
- * @type {[type]}
+ * @type {ConnectionInterface}
  */
 exports.Connection = require('./connection')

@@ -5,8 +5,8 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
  * [description]
- * @param  {[type]} config [description]
- * @return {[type]}        [description]
+ * @param  {Object} config
+ * @return {Hapi.Server}
  */
 module.exports = async (config) => {
   if (!config.enabled) {
@@ -59,7 +59,11 @@ module.exports = async (config) => {
     await server.start()
 
     logger.info(`Oh hapi day! Webhook API is listening on ${server.info.uri}`)
+
+    return server
   } catch (error) {
     logger.error(error.stack)
+
+    process.exit(1)
   }
 }

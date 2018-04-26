@@ -1,8 +1,7 @@
 module.exports = class Base {
   /**
    * @constructor
-   * @param  {[type]} http [description]
-   * @return {[type]}      [description]
+   * @param {Object} http
    */
   constructor (http) {
     this.http = http

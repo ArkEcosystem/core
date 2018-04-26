@@ -2,6 +2,7 @@
 
 const path = require('path')
 const fs = require('fs')
+const semver = require('semver')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
@@ -10,7 +11,6 @@ const { createContainer, asValue } = require('awilix')
 class PluginManager {
   /**
    * [constructor description]
-   * @return {[type]} [description]
    */
   constructor () {
     this.container = createContainer()
@@ -18,9 +18,9 @@ class PluginManager {
 
   /**
    * [init description]
-   * @param  {[type]} config  [description]
-   * @param  {Object} options [description]
-   * @return {[type]}         [description]
+   * @param  {Object} config
+   * @param  {Object} options
+   * @return {void}
    */
   init (config, options = {}) {
     const plugins = path.resolve(expandHomeDir(`${config}/plugins.js`))
@@ -36,8 +36,9 @@ class PluginManager {
 
   /**
    * [hook description]
-   * @param  {[type]} name [description]
-   * @return {[type]}      [description]
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
    */
   async hook (name, options = {}) {
     for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
@@ -49,9 +50,9 @@ class PluginManager {
 
   /**
    * [register description]
-   * @param  {[type]} plugin  [description]
-   * @param  {Object} options [description]
-   * @return {[type]}         [description]
+   * @param  {Object} plugin
+   * @param  {Object} options
+   * @return {void}
    */
   async register (plugin, options = {}) {
     let item = this.__resolvePlugin(plugin)
@@ -63,6 +64,10 @@ class PluginManager {
     const defaults = item.plugin.defaults || item.plugin.pkg.defaults
     const alias = item.plugin.alias || item.plugin.pkg.alias
 
+    if (!semver.valid(version)) {
+      throw new Error(`The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`)
+    }
+
     if (defaults) options = Hoek.applyToDefaults(defaults, options)
 
     plugin = await item.plugin.register(this, options || {})
@@ -71,8 +76,9 @@ class PluginManager {
 
   /**
    * [get description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
+   * @param  {string} key
+   * @return {Object}
+   * @throws {Error}
    */
   get (key) {
     try {
@@ -84,12 +90,14 @@ class PluginManager {
 
   /**
    * [has description]
-   * @param  {[type]}  key [description]
-   * @return {Boolean}     [description]
+   * @param  {String}  key
+   * @return {Boolean}
    */
   has (key) {
     try {
-      return this.container.resolve(key)
+      this.container.resolve(key)
+
+      return true
     } catch (err) {
       return false
     }
@@ -97,8 +105,9 @@ class PluginManager {
 
   /**
    * [config description]
-   * @param  {[type]} key [description]
-   * @return {[type]}     [description]
+   * @param  {String} key
+   * @return {Object}
+   * @throws {Error}
    */
   config (key) {
     try {
@@ -110,8 +119,8 @@ class PluginManager {
 
   /**
    * [__resolvePlugin description]
-   * @param  {[type]} plugin [description]
-   * @return {[type]}        [description]
+   * @param  {(String|Object)} plugin
+   * @return {Object}
    */
   __resolvePlugin (plugin) {
     let item
@@ -133,8 +142,8 @@ class PluginManager {
 
   /**
    * [__shouldBeRegistered description]
-   * @param  {[type]} name [description]
-   * @return {[type]}      [description]
+   * @param  {String} name
+   * @return {Boolean}
    */
   __shouldBeRegistered (name) {
     let register = true

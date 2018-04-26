@@ -2,7 +2,7 @@
 
 /**
  * [description]
- * @param  {[type]} value [description]
- * @return {[type]}       [description]
+ * @param  {*} value
+ * @return {Boolean}
  */
 module.exports = (value) => (value === true)

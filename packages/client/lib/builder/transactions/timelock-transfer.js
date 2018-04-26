@@ -5,7 +5,6 @@ const { TRANSACTION_TYPES } = require('../../constants')
 module.exports = class TimelockTransfer extends Transaction {
   /**
    * @constructor
-   * @return {[type]} [description]
    */
   constructor () {
     super()
@@ -20,13 +19,12 @@ module.exports = class TimelockTransfer extends Transaction {
   }
 
   /**
-   * [create description]
    * Overrides the inherited method to add the necessary parameters
-   * @param  {String} recipientId  [description]
-   * @param  {[type]} amount       [description]
-   * @param  {[type]} timelock     [description]
-   * @param  {[type]} timelockType [description]
-   * @return {[type]}              [description]
+   * @param  {String} recipientId
+   * @param  {Number} amount
+   * @param  {Number} timelock
+   * @param  {Number} timelockType
+   * @return {TimelockTransfer}
    */
   create (recipientId, amount, timelock, timelockType) {
     this.recipientId = recipientId
@@ -37,9 +35,10 @@ module.exports = class TimelockTransfer extends Transaction {
   }
 
   /**
-   * [setVendorField description]
-   * @param {[type]} data [description]
-   * @param {[type]} type [description]
+   * Set vendor field from data.
+   * @param {(String|undefined)} data
+   * @param {Number}             type
+   * @return {TimelockTransfer}
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
@@ -47,9 +46,8 @@ module.exports = class TimelockTransfer extends Transaction {
   }
 
   /**
-   * [getStruct description]
    * Overrides the inherited method to return the additional required by this
-   * @return {Object} [description]
+   * @return {Object}
    */
   getStruct () {
     const struct = super.getStruct()

@@ -5,7 +5,7 @@ const utils = require('../utils')
 const schema = require('../schema/wallets')
 
 /**
- * [index description]
+ * [description].
  * @type {Object}
  */
 exports.index = {
@@ -20,7 +20,7 @@ exports.index = {
 }
 
 /**
- * [top description]
+ * [description].
  * @type {Object}
  */
 exports.top = {
@@ -32,7 +32,7 @@ exports.top = {
 }
 
 /**
- * [show description]
+ * [description].
  * @type {Object}
  */
 exports.show = {
@@ -47,7 +47,7 @@ exports.show = {
 }
 
 /**
- * [transactions description]
+ * [description].
  * @type {Object}
  */
 exports.transactions = {
@@ -63,7 +63,7 @@ exports.transactions = {
 }
 
 /**
- * [transactionsSent description]
+ * [description].
  * @type {Object}
  */
 exports.transactionsSent = {
@@ -79,7 +79,7 @@ exports.transactionsSent = {
 }
 
 /**
- * [transactionsReceived description]
+ * [description].
  * @type {Object}
  */
 exports.transactionsReceived = {
@@ -95,7 +95,7 @@ exports.transactionsReceived = {
 }
 
 /**
- * [votes description]
+ * [description].
  * @type {Object}
  */
 exports.votes = {
@@ -111,7 +111,7 @@ exports.votes = {
 }
 
 /**
- * [search description]
+ * [description].
  * @type {Object}
  */
 exports.search = {

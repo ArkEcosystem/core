@@ -2,15 +2,11 @@
 
 const deepmerge = require('deepmerge')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class ConfigInterface {
   /**
    * [constructor description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param  {Object} options
+   * @return {void}
    */
   constructor (options) {
     this.options = options
@@ -18,8 +14,8 @@ module.exports = class ConfigInterface {
 
   /**
    * [getConstants description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * @param  {Number} height
+   * @return {void}
    */
   getConstants (height) {
     while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
@@ -36,7 +32,7 @@ module.exports = class ConfigInterface {
 
   /**
    * [buildConstants description]
-   * @return {[type]} [description]
+   * @return {void}
    */
   __buildConstants () {
     this.constants = this.network.constants.sort((a, b) => a.height - b.height)

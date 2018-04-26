@@ -5,9 +5,9 @@ const argon2 = require('argon2')
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {Object}
  */
 const implementation = (server, options) => {
   const scheme = {
@@ -29,12 +29,18 @@ const implementation = (server, options) => {
   return scheme
 }
 
+/**
+ * [description]
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {void}
+ */
 const register = async (server, options) => {
   server.auth.scheme('webhooks', implementation)
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

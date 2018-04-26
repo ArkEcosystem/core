@@ -4,15 +4,10 @@ const Op = require('sequelize').Op
 const buildFilterQuery = require('./utils/filter-query')
 const Sequelize = require('sequelize')
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class BlocksRepository {
   /**
    * [constructor description]
-   * @param  {[type]} db [description]
-   * @return {[type]}    [description]
+   * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
     this.connection = connection
@@ -20,9 +15,9 @@ module.exports = class BlocksRepository {
 
   /**
    * [findAll description]
-   * @param  {[type]}  params [description]
-   * @param  {Boolean} count  [description]
-   * @return {[type]}         [description]
+   * @param  {Object}  params
+   * @param  {Boolean} count
+   * @return {Object}
    */
   findAll (params, count = true) {
     let whereStatement = {}
@@ -47,9 +42,9 @@ module.exports = class BlocksRepository {
 
   /**
    * [findAllByGenerator description]
-   * @param  {[type]} generatorPublicKey [description]
-   * @param  {[type]} paginator          [description]
-   * @return {[type]}                    [description]
+   * @param  {String} generatorPublicKey
+   * @param  {Object} paginator
+   * @return {Object}
    */
   findAllByGenerator (generatorPublicKey, paginator) {
     return this.findAll({...{generatorPublicKey}, ...paginator})
@@ -57,8 +52,8 @@ module.exports = class BlocksRepository {
 
   /**
    * [findById description]
-   * @param  {[type]} id [description]
-   * @return {[type]}    [description]
+   * @param  {Number} id
+   * @return {Object}
    */
   findById (id) {
     return this.connection.models.block.findById(id)
@@ -66,8 +61,8 @@ module.exports = class BlocksRepository {
 
   /**
    * [findLastByPublicKey description]
-   * @param  {[type]} generatorPublicKey [description]
-   * @return {[type]}                    [description]
+   * @param  {String} generatorPublicKey
+   * @return {Object}
    */
   findLastByPublicKey (generatorPublicKey) {
     return this.connection.models.block.findOne({
@@ -80,9 +75,9 @@ module.exports = class BlocksRepository {
 
   /**
    * [findAllByDateTimeRange description]
-   * @param  {[type]} from [description]
-   * @param  {[type]} to   [description]
-   * @return {[type]}      [description]
+   * @param  {Number} from
+   * @param  {Number} to
+   * @return {Object}
    */
   findAllByDateTimeRange (from, to) {
     let where = { timestamp: {} }
@@ -98,8 +93,8 @@ module.exports = class BlocksRepository {
 
   /**
    * [search description]
-   * @param  {[type]} params [description]
-   * @return {[type]}        [description]
+   * @param  {Object} params
+   * @return {Object}
    */
   search (params) {
     return this.connection.models.block.findAndCountAll({
@@ -112,8 +107,8 @@ module.exports = class BlocksRepository {
 
   /**
    * [totalsByGenerator description]
-   * @param  {[type]} generatorPublicKey [description]
-   * @return {[type]}                    [description]
+   * @param  {String} generatorPublicKey
+   * @return {Object}
    */
   totalsByGenerator (generatorPublicKey) {
     return this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {

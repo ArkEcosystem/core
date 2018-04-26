@@ -1,9 +1,7 @@
 'use strict';
 
-const Server = require('./server')
-
 /**
- * [plugin description]
+ * The struct used by the plugin manager.
  * @type {Object}
  */
 exports.plugin = {
@@ -12,6 +10,6 @@ exports.plugin = {
   register: async (manager, options) => {
     manager.get('logger').info('Starting Public API...')
 
-    await Server(options)
+    return require('./server')(options)
   }
 }

@@ -1,6 +1,6 @@
 /**
  * [HIGHEST_BIT description]
- * @type {[type]}
+ * @type {Number}
  */
 exports.HIGHEST_BIT = 0x80000000
 
@@ -12,6 +12,6 @@ exports.LENGTH = 78
 
 /**
  * [MASTER_SECRET description]
- * @type {[type]}
+ * @type {Buffer}
  */
 exports.MASTER_SECRET = Buffer.from('Bitcoin seed')

@@ -17,69 +17,73 @@ module.exports = class Transaction {
   }
 
   /**
-   * [create description]
-   * @return {[type]} [description]
+   * Create new instance.
+   * @return {Transaction}
    */
   create () {
     return this
   }
 
   /**
-   * [setFee description]
-   * @param {[type]} value [description]
+   * Set transaction fee.
+   * @param {Number} fee
+   * @return {Transaction}
    */
-  setFee (value) {
-    this.fee = value
+  setFee (fee) {
+    this.fee = fee
     return this
   }
 
   /**
-   * [setAmount description]
-   * @param {[type]} value [description]
+   * Set amount to transfer.
+   * @param  {Number} amount
+   * @return {Transaction}
    */
-  setAmount (value) {
-    this.amount = value
+  setAmount (amount) {
+    this.amount = amount
     return this
   }
 
   /**
-   * [setRecipientId description]
-   * @param {[type]} value [description]
+   * Set recipient id.
+   * @param  {String} recipientId
+   * @return {Transaction}
    */
-  setRecipientId (value) {
-    this.recipientId = value
+  setRecipientId (recipientId) {
+    this.recipientId = recipientId
     return this
   }
 
   /**
-   * [setSenderPublicKey description]
-   * @param {[type]} value [description]
+   * Set sender public key.
+   * @param  {String} publicKey
+   * @return {Transaction}
    */
-  setSenderPublicKey (value) {
-    this.senderPublicKey = value
+  setSenderPublicKey (publicKey) {
+    this.senderPublicKey = publicKey
     return this
   }
 
   /**
-   * [verify description]
-   * @return {[type]} [description]
+   * Verify the transaction.
+   * @return {Boolean}
    */
   verify () {
     return cryptoBuilder.verify(this)
   }
 
   /**
-   * [serialize description]
-   * @return {[type]} [description]
+   * Serialize the transaction.
+   * @return {Buffer}
    */
   serialize () {
     return this.model.serialize(this.getStruct())
   }
 
   /**
-   * [sign description]
-   * @param  {String} passphrase [description]
-   * @return {[type]}            [description]
+   * Sign transaction using passphrase.
+   * @param  {String} passphrase
+   * @return {Transaction}
    */
   sign (passphrase) {
     const keys = cryptoBuilder.getKeys(passphrase)
@@ -89,9 +93,9 @@ module.exports = class Transaction {
   }
 
   /**
-   * [secondSign description]
-   * @param  {String} secondPassphrase  [description]
-   * @return {[type]}             [description]
+   * Sign transaction with second passphrase.
+   * @param  {String} secondPassphrase
+   * @return {Transaction}
    */
   secondSign (secondPassphrase) {
     const keys = cryptoBuilder.getKeys(secondPassphrase)
@@ -100,8 +104,8 @@ module.exports = class Transaction {
   }
 
   /**
-   * [getStruct description]
-   * @return {Object} [description]
+   * Get structure of transaction
+   * @return {Object}
    */
   getStruct () {
     return {

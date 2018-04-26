@@ -2,13 +2,9 @@
 
 const app = require('commander')
 const expandHomeDir = require('expand-home-dir')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 app.version(require('../package.json').version)
 
-/**
- * START A RELAY AND FORGER NODE
- */
 app
   .command('start')
   .description('start a relay and forging node')
@@ -17,20 +13,14 @@ app
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start')
-  .action(async(options) => require('../lib/start-relay-and-forger')(options))
+  .action(async (options) => require('../lib/start-relay-and-forger')(options))
 
-/**
- * START A RELAY NODE
- */
 app
   .command('relay')
   .description('start a relay node')
   .option('-c, --config <config>', 'network config', expandHomeDir('~/.ark/config'))
-  .action(async(options) => require('../lib/start-relay')(options))
+  .action(async (options) => require('../lib/start-relay')(options))
 
-/**
- * START A FORGER NODE
- */
 app
   .command('forge')
   .description('start a forging node')
@@ -39,28 +29,19 @@ app
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
   .option('--network-start', 'force genesis network start')
-  .action(async(options) => require('../lib/start-forger')(options))
+  .action(async (options) => require('../lib/start-forger')(options))
 
-/**
- * TAKE A SNAPSHOT
- */
 app
   .command('snapshot')
   .description('take a snapshot of the database')
   .option('-c, --config <config>', 'network config', expandHomeDir('~/.ark/config'))
-  .action(async(options) => require('../lib/snapshot')(options))
+  .action(async (options) => require('../lib/snapshot')(options))
 
-/**
- * FALLBACK
- */
 app
   .command('*')
-  .action(function(env) {
+  .action(env => {
     app.help()
     process.exit(0)
   })
 
-/**
- * PARSE
- */
 app.parse(process.argv)

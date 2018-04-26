@@ -4,15 +4,13 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const Hapi = require('hapi')
 
 /**
- * [exports description]
- * @type {[type]}
+ * [description]
  */
 module.exports = class Up {
   /**
-   * [constructor description]
-   * @param  {[type]} p2p    [description]
-   * @param  {[type]} config [description]
-   * @return {[type]}        [description]
+   * @constructor
+   * @param  {P2PInterface} p2p
+   * @param  {Object}       config
    */
   constructor (p2p, config) {
     this.p2p = p2p
@@ -20,8 +18,8 @@ module.exports = class Up {
   }
 
   /**
-   * [start description]
-   * @return {[type]} [description]
+   * Start the Hapi interface and register plugins.
+   * @return {Promise}
    */
   async start () {
     this.server = new Hapi.Server({ port: this.config.port })
@@ -61,8 +59,8 @@ module.exports = class Up {
   }
 
   /**
-   * [stop description]
-   * @return {[type]} [description]
+   * Stop the server.
+   * @return {Promise}
    */
   stop () {
     return this.server.stop()

@@ -11,8 +11,9 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "ARK_ENV=test jest --forceExit",
-    "test:watch": "ARK_ENV=test jest --forceExit --watch",
+    "build:docs": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "async": "^2.6.0",
     "axios": "^0.18.0",
     "bull": "^3.3.10",
+    "fs-extra": "^5.0.0",
     "lodash": "^4.17.5"
   }
 }

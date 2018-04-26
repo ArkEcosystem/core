@@ -1,14 +1,9 @@
 'use strict';
 
-/**
- * [exports description]
- * @type {[type]}
- */
 module.exports = class LoggerInterface {
   /**
    * [constructor description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * @param  {Object} options
    */
   constructor (options) {
     this.options = options
@@ -16,7 +11,7 @@ module.exports = class LoggerInterface {
 
   /**
    * [driver description]
-   * @return {[type]} [description]
+   * @return {LoggerInterface}
    */
   driver () {
     return this.driver
@@ -24,8 +19,8 @@ module.exports = class LoggerInterface {
 
   /**
    * [error description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
+   * @param  {*} message
+   * @return {void}
    */
   error (message) {
     throw new Error('Method [error] not implemented!')
@@ -33,8 +28,8 @@ module.exports = class LoggerInterface {
 
   /**
    * [warn description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
+   * @param  {*} message
+   * @return {void}
    */
   warn (message) {
     throw new Error('Method [warn] not implemented!')
@@ -42,8 +37,8 @@ module.exports = class LoggerInterface {
 
   /**
    * [info description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
+   * @param  {*} message
+   * @return {void}
    */
   info (message) {
     throw new Error('Method [info] not implemented!')
@@ -51,8 +46,8 @@ module.exports = class LoggerInterface {
 
   /**
    * [debug description]
-   * @param  {[type]} message [description]
-   * @return {[type]}         [description]
+   * @param  {*} message
+   * @return {void}
    */
   debug (message) {
     throw new Error('Method [debug] not implemented!')
@@ -60,12 +55,12 @@ module.exports = class LoggerInterface {
 
   /**
    * [printTracker description]
-   * @param  {[type]} title     [description]
-   * @param  {[type]} current   [description]
-   * @param  {[type]} max       [description]
-   * @param  {[type]} posttitle [description]
-   * @param  {Number} figures   [description]
-   * @return {[type]}           [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @param  {String} posttitle
+   * @param  {Number} figures
+   * @return {void}
    */
   printTracker (title, current, max, posttitle, figures = 0) {
     throw new Error('Method [printTracker] not implemented!')
@@ -73,10 +68,10 @@ module.exports = class LoggerInterface {
 
   /**
    * [stopTracker description]
-   * @param  {[type]} title   [description]
-   * @param  {[type]} current [description]
-   * @param  {[type]} max     [description]
-   * @return {[type]}         [description]
+   * @param  {String} title
+   * @param  {Number} current
+   * @param  {Number} max
+   * @return {void}
    */
   stopTracker (title, current, max) {
     throw new Error('Method [stopTracker] not implemented!')

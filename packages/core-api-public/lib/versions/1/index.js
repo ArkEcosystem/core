@@ -10,9 +10,9 @@ const accounts = require('./handlers/accounts')
 
 /**
  * [description]
- * @param  {[type]} server  [description]
- * @param  {[type]} options [description]
- * @return {[type]}         [description]
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   server.route([
@@ -63,7 +63,7 @@ const register = async (server, options) => {
 }
 
 /**
- * [plugin description]
+ * The struct used by hapi.js.
  * @type {Object}
  */
 exports.plugin = {

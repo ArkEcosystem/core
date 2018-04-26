@@ -5,8 +5,8 @@ const formatTimestamp = require('./utils/format-timestamp')
 
 /**
  * [description]
- * @param  {[type]} delegate [description]
- * @return {[type]}          [description]
+ * @param  {Object} delegate
+ * @return {Object}
  */
 module.exports = (delegate) => {
   const data = {

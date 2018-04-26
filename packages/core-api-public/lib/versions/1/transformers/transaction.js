@@ -10,8 +10,8 @@ const { Transaction } = require('@arkecosystem/client').models
 
 /**
  * [description]
- * @param  {[type]} model [description]
- * @return {[type]}       [description]
+ * @param  {Object} model
+ * @return {Object}
  */
 module.exports = (model) => {
   const lastBlock = state.lastBlock
