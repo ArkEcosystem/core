@@ -658,4 +658,17 @@ module.exports = class SequelizeConnection extends Connection {
 
     await super.__registerRepositories()
   }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('wallet:cold:created', coldWallet => {
+      const wallet = this.models.wallet.findByAddress(wallet.address)
+      if (wallet) {
+        Object.assign(coldWallet, wallet)
+      }
+    })
+  }
 }

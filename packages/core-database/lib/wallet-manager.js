@@ -10,6 +10,7 @@ const { TRANSACTION_TYPES } = client.constants
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 module.exports = class WalletManager {
   /**
@@ -181,6 +182,7 @@ module.exports = class WalletManager {
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
+      emitter.emit('wallet:cold:created', recipient)
       this.walletsByAddress[recipientId] = recipient
     }
 
