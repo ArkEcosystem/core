@@ -96,7 +96,6 @@ class Schema {
 }
 
 /**
- * [exports description]
  * @type {Schema}
  */
 module.exports = new Schema()

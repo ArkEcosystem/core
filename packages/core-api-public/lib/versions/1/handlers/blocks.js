@@ -10,7 +10,6 @@ const utils = require('../utils')
 const schema = require('../schemas/blocks')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -35,7 +34,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -56,7 +54,6 @@ exports.show = {
 }
 
 /**
- * [epoch description]
  * @type {Object}
  */
 exports.epoch = {
@@ -68,7 +65,6 @@ exports.epoch = {
 }
 
 /**
- * [height description]
  * @type {Object}
  */
 exports.height = {
@@ -80,7 +76,6 @@ exports.height = {
 }
 
 /**
- * [nethash description]
  * @type {Object}
  */
 exports.nethash = {
@@ -90,7 +85,6 @@ exports.nethash = {
 }
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {
@@ -102,7 +96,6 @@ exports.fee = {
 }
 
 /**
- * [fees description]
  * @type {Object}
  */
 exports.fees = {
@@ -114,7 +107,6 @@ exports.fees = {
 }
 
 /**
- * [milestone description]
  * @type {Object}
  */
 exports.milestone = {
@@ -126,7 +118,6 @@ exports.milestone = {
 }
 
 /**
- * [reward description]
  * @type {Object}
  */
 exports.reward = {
@@ -138,7 +129,6 @@ exports.reward = {
 }
 
 /**
- * [supply description]
  * @type {Object}
  */
 exports.supply = {
@@ -152,7 +142,6 @@ exports.supply = {
 }
 
 /**
- * [status description]
  * @type {Object}
  */
 exports.status = {

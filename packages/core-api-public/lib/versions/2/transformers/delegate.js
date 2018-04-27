@@ -4,7 +4,7 @@ const { calculateApproval, calculateProductivity } = require('../../../utils/del
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**
- * [description]
+ * Turns a "delegate" object into a generic object.
  * @param  {Object} delegate
  * @return {Object}
  */

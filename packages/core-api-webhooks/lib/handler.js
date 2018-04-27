@@ -6,7 +6,6 @@ const utils = require('./utils')
 const schema = require('./schema')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -18,7 +17,6 @@ exports.index = {
 }
 
 /**
- * [store description]
  * @type {Object}
  */
 exports.store = {
@@ -42,7 +40,6 @@ exports.store = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -58,7 +55,6 @@ exports.show = {
 }
 
 /**
- * [update description]
  * @type {Object}
  */
 exports.update = {
@@ -73,7 +69,6 @@ exports.update = {
 }
 
 /**
- * [destroy description]
  * @type {Object}
  */
 exports.destroy = {
@@ -88,7 +83,6 @@ exports.destroy = {
 }
 
 /**
- * [events description]
  * @type {Object}
  */
 exports.events = {

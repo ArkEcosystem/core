@@ -4,7 +4,7 @@ const requestIp = require('request-ip')
 const isLocalhost = require('../utils/is-localhost')
 
 /**
- * [description]
+ * The register method used by hapi.js.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

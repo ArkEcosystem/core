@@ -4,7 +4,7 @@ const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
- * [description]
+ * Create a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */

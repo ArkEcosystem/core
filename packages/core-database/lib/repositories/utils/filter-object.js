@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Filter an object based on the given parameters.
  * @param  {Object} object
  * @param  {Object} params
  * @param  {Object} filters

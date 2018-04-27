@@ -145,7 +145,6 @@ class Database {
 }
 
 /**
- * [exports description]
  * @type {Database}
  */
 module.exports = new Database()

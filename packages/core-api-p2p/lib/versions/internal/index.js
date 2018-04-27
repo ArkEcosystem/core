@@ -3,7 +3,7 @@
 const handlers = require('./handlers')
 
 /**
- * [description]
+ * Register internal routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

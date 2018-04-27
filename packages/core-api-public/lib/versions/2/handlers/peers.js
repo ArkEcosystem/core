@@ -5,7 +5,6 @@ const utils = require('../utils')
 const schema = require('../schema/peers')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -37,7 +36,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {

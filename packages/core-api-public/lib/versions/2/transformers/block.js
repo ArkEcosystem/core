@@ -4,7 +4,7 @@ const database = require('@arkecosystem/core-plugin-manager').get('database')
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**
- * [description]
+ * Turns a "block" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */

@@ -13,7 +13,6 @@ const schema = require('../schemas/accounts')
 const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -27,7 +26,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -48,7 +46,6 @@ exports.show = {
 }
 
 /**
- * [balance description]
  * @type {Object}
  */
 exports.balance = {
@@ -72,7 +69,6 @@ exports.balance = {
 }
 
 /**
- * [publicKey description]
  * @type {Object}
  */
 exports.publicKey = {
@@ -93,7 +89,6 @@ exports.publicKey = {
 }
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {
@@ -105,7 +100,6 @@ exports.fee = {
 }
 
 /**
- * [delegates description]
  * @type {Object}
  */
 exports.delegates = {
@@ -145,7 +139,6 @@ exports.delegates = {
 }
 
 /**
- * [top description]
  * @type {Object}
  */
 exports.top = {
@@ -170,7 +163,6 @@ exports.top = {
 }
 
 /**
- * [count description]
  * @type {Object}
  */
 exports.count = {

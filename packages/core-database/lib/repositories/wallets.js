@@ -5,18 +5,18 @@ const filterObject = require('./utils/filter-object')
 
 module.exports = class WalletsRepository {
   /**
-   * [constructor description]
+   * Create a new wallet repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
     this.connection = connection
   }
 
-/**
- * [findAll description]
- * @param  {Object} params
- * @return {Object}
- */
+  /**
+   * Get all wallets.
+   * @param  {Object} params
+   * @return {Object}
+   */
   async findAll (params = {}) {
     const wallets = this.connection.walletManager.getLocalWallets()
 
@@ -27,7 +27,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [paginate description]
+   * Paginate all wallets.
    * @param  {Object} params
    * @return {Object}
    */
@@ -41,7 +41,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [findAllByVote description]
+   * Get all wallets for the given vote.
    * @param  {String} publicKey
    * @param  {Object} params
    * @return {Object}
@@ -57,7 +57,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [findById description]
+   * Get a wallet.
    * @param  {Number} id
    * @return {Object}
    */
@@ -68,7 +68,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [count description]
+   * Count all wallets.
    * @return {Number}
    */
   async count () {
@@ -78,7 +78,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [top description]
+   * Get all wallets sorted by balance.
    * @param  {Object}  params
    * @param  {Boolean} legacy
    * @return {Object}
@@ -96,7 +96,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * [search description]
+   * Search all wallets.
    * @param  {Object} params
    * @return {Object}
    */

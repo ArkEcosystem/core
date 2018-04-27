@@ -4,7 +4,7 @@ const { calculateApproval, calculateProductivity } = require('./utils/delegate-c
 
 module.exports = class DelegatesRepository {
   /**
-   * [constructor description]
+   * Create a new delegate repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
@@ -12,7 +12,7 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [findAll description]
+   * Get all delegates.
    * @param  {Object} params
    * @return {Object}
    */
@@ -21,7 +21,7 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [paginate description]
+   * Paginate all delegates.
    * @param  {Object} params
    * @return {Object}
    */
@@ -35,7 +35,7 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [search description]
+   * Search all delegates.
    * @param  {Object} params
    * @return {Object}
    */
@@ -62,7 +62,7 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [findById description]
+   * Get a delegate.
    * @param  {String} id
    * @return {Object}
    */
@@ -73,7 +73,7 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [active description]
+   * [Get all active delegates.
    * @param  {Number} height
    * @param  {Number} totalSupply
    * @return {Array}

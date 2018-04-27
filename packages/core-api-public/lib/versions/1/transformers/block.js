@@ -4,7 +4,7 @@ const blockchainManager = require('@arkecosystem/core-plugin-manager').get('bloc
 const state = blockchainManager.getState()
 
 /**
- * [description]
+ * Turns a "block" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */

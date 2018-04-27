@@ -3,7 +3,7 @@
 const crypto = require('crypto')
 
 /**
- * [description]
+ * Encrypt data with the given password.
  * @param  {String} bip38
  * @param  {String} address
  * @param  {String} password
@@ -16,7 +16,7 @@ exports.encrypt = (bip38, address, password) => {
 }
 
 /**
- * [description]
+ * Decrypt data with the given password.
  * @param  {String} value
  * @param  {String} password
  * @return {String}

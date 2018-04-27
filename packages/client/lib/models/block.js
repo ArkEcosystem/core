@@ -121,7 +121,7 @@ module.exports = class Block {
   }
 
   /*
-   * [description]
+   * Return block data for v1.
    * @return {Object}
    */
   toBroadcastV1 () {
