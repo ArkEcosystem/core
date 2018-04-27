@@ -665,7 +665,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   __registerListeners () {
     emitter.on('wallet:cold:created', coldWallet => {
-      const wallet = this.models.wallet.findByAddress(wallet.address)
+      const wallet = this.models.wallet.findByAddress(coldWallet.address)
       if (wallet) {
         Object.assign(coldWallet, wallet)
       }
