@@ -73,7 +73,7 @@ class PluginManager {
       options = Hoek.applyToDefaults(defaults, options)
     }
 
-    if (this.options.options.hasOwnProperty(name)) {
+    if (this.options.options && this.options.options.hasOwnProperty(name)) {
       options = Hoek.applyToDefaults(options, this.options.options[name])
     }
 

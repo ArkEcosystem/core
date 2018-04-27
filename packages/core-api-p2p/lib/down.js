@@ -145,9 +145,14 @@ module.exports = class Down {
   getRandomPeer (acceptableDelay) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
-    if (acceptableDelay) keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
+
+    if (acceptableDelay) {
+      keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
+    }
+
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
+
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
