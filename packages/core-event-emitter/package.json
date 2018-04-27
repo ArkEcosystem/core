@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-webhooks",
-  "description": "Webhooks for ARK Core",
+  "name": "@arkecosystem/core-event-emitter",
+  "description": "Event Manager for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -15,15 +15,5 @@
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/core-database": "^1.0.0",
-    "@arkecosystem/core-event-emitter": "^1.0.0",
-    "@arkecosystem/core-logger": "^1.0.0",
-    "async": "^2.6.0",
-    "axios": "^0.18.0",
-    "bull": "^3.3.10",
-    "fs-extra": "^5.0.0",
-    "lodash": "^4.17.5"
   }
 }

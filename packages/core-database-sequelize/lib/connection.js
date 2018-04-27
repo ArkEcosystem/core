@@ -13,6 +13,7 @@ const { Connection } = require('@arkecosystem/core-database')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
@@ -349,12 +350,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          pluginManager.get('webhooks').emit('forging.missing', block)
+          emitter.emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          pluginManager.get('webhooks').emit('block.forged', block)
+          emitter.emit('block.forged', block)
         }
       })
     } catch (error) {
