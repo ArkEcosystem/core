@@ -12,7 +12,7 @@ const sleep = require('./utils/sleep')
 
 module.exports = class ForgerManager {
   /**
-   * [constructor description]
+   * Create a new forger manager instance.
    * @param  {Object} config
    */
   constructor (config) {

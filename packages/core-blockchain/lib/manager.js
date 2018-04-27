@@ -19,7 +19,7 @@ let instance
  */
 module.exports = class BlockchainManager {
   /**
-   * [constructor description]
+   * Create a new blockchain manager instance.
    * @param  {Number} config
    * @param  {Boolean} networkStart
    * @return {void}
@@ -47,7 +47,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getInstance description]
+   * Get a blockchain manager instance.
    * @return {BlockchainManager}
    */
   static getInstance () {
