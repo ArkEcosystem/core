@@ -11,7 +11,7 @@ const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 
 /**
- * [state description]
+ * Initial state of the machine.
  * @type {Object}
  */
 const state = {
@@ -24,15 +24,14 @@ const state = {
 }
 
 /**
- * [state description]
- * @type {[type]}
+ * @type {Object}
  */
 blockchainMachine.state = state
 
 /**
- * [description]
- * @param  {[type]} blockchainManager [description]
- * @return {[type]}                   [description]
+ * The blockchain actions.
+ * @param  {BlockchainManager} blockchainManager
+ * @return {Object}
  */
 blockchainMachine.actionMap = (blockchainManager) => {
   return {
@@ -42,7 +41,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isBuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
+    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isRebuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)

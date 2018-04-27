@@ -6,7 +6,7 @@ const util = require('util')
 const writeFile = util.promisify(fs.writeFile)
 
 /**
- * [description]
+ * Update the contents of the given file.
  * @param  {String} file
  * @param  {Object} overwrites
  * @return {void}

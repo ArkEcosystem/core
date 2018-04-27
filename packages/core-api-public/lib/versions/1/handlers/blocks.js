@@ -10,17 +10,14 @@ const utils = require('../utils')
 const schema = require('../schemas/blocks')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getBlocks
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const blocks = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
@@ -31,35 +28,50 @@ exports.index = {
     return utils.respondWith({
       blocks: utils.toCollection(request, blocks, 'block')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getBlocks
+      }
+    }
   }
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getBlock
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const block = await database.blocks.findById(request.query.id)
 
     if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
 
     return utils.respondWith({ block: utils.toResource(request, block, 'block') })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getBlock
+      }
+    }
   }
 }
 
 /**
- * [epoch description]
  * @type {Object}
  */
 exports.epoch = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       epoch: config.getConstants(state.lastBlock.data.height).epoch
@@ -68,10 +80,14 @@ exports.epoch = {
 }
 
 /**
- * [height description]
  * @type {Object}
  */
 exports.height = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     const block = state.lastBlock.data
 
@@ -80,20 +96,28 @@ exports.height = {
 }
 
 /**
- * [nethash description]
  * @type {Object}
  */
 exports.nethash = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({ nethash: config.network.nethash })
   }
 }
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       fee: config.getConstants(state.lastBlock.data.height).fees.send
@@ -102,10 +126,14 @@ exports.fee = {
 }
 
 /**
- * [fees description]
  * @type {Object}
  */
 exports.fees = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       fees: config.getConstants(state.lastBlock.data.height).fees
@@ -114,10 +142,14 @@ exports.fees = {
 }
 
 /**
- * [milestone description]
  * @type {Object}
  */
 exports.milestone = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       milestone: ~~(state.lastBlock.data.height / 3000000)
@@ -126,10 +158,14 @@ exports.milestone = {
 }
 
 /**
- * [reward description]
  * @type {Object}
  */
 exports.reward = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       reward: config.getConstants(state.lastBlock.data.height).reward
@@ -138,10 +174,14 @@ exports.reward = {
 }
 
 /**
- * [supply description]
  * @type {Object}
  */
 exports.supply = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     const lastBlock = state.lastBlock.data
 
@@ -152,10 +192,14 @@ exports.supply = {
 }
 
 /**
- * [status description]
  * @type {Object}
  */
 exports.status = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     const lastBlock = state.lastBlock.data
 

@@ -4,7 +4,7 @@ const Boom = require('boom')
 const argon2 = require('argon2')
 
 /**
- * [description]
+ * The concrete implementation of the authentication.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {Object}
@@ -30,7 +30,7 @@ const implementation = (server, options) => {
 }
 
 /**
- * [description]
+ * The register method used by hapi.js.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

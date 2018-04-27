@@ -5,10 +5,14 @@ const utils = require('../utils')
 const schema = require('../schema/peers')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 
@@ -37,10 +41,14 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 

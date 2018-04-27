@@ -8,8 +8,8 @@ const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-conf
 
 module.exports = class Config extends ConfigInterface {
   /**
-   * [make description]
-   * @return {[type]} [description]
+   * Make the config instance.
+   * @return {Config}
    */
   async make () {
     await this.__createFromDirectory()
@@ -20,9 +20,9 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [copyFiles description]
-   * @param  {[type]} dest [description]
-   * @return {[type]}      [description]
+   * Copy the config files to the given destination.
+   * @param  {String} dest
+   * @return {Promise}
    */
   async copyFiles (dest) {
     if (!dest) {
@@ -35,8 +35,8 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__createFromDirectory description]
-   * @return {[type]} [description]
+   * Load and bind the config.
+   * @return {void}
    */
   async __createFromDirectory () {
     const files = this.__getFiles()
@@ -47,9 +47,9 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__createBindings description]
-   * @param  {[type]} files [description]
-   * @return {[type]}       [description]
+   * Bind the config values to the instance.
+   * @param  {Array} files
+   * @return {void}
    */
   __createBindings (files) {
     for (const [key, value] of Object.entries(files)) {
@@ -58,8 +58,8 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__getFiles description]
-   * @return {[type]} [description]
+   * Get all config files.
+   * @return {Object}
    */
   __getFiles () {
     const basePath = path.resolve(this.options.config)
@@ -83,9 +83,9 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__buildPeers description]
-   * @param  {[type]} configFile [description]
-   * @return {[type]}            [description]
+   * Build the peer list either from a local file, remote file or object.
+   * @param  {String} configFile
+   * @return {void}
    */
   async __buildPeers (configFile) {
     if (!this.peers.sources) {

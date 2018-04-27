@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Turns a "peer" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */

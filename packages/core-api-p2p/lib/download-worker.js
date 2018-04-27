@@ -3,7 +3,7 @@
 const popsicle = require('popsicle')
 
 /**
- * [description]
+ * Download the latest blocks.
  * @param  {Object}   message
  * @param  {Function} done
  * @return {*}
@@ -18,6 +18,9 @@ module.exports = async (message, done) => {
         timeout: 60000
       })
       .use(popsicle.plugins.parse('json'))
+
     return done(response)
-  } else return done()
+  }
+
+  return done()
 }

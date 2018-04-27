@@ -5,7 +5,7 @@ const { LoggerInterface } = require('@arkecosystem/core-logger')
 
 module.exports = class Logger extends LoggerInterface {
   /**
-   * [make description]
+   * Make the logger instance.
    * @param  {Object} options
    * @return {Pino}
    */
@@ -21,7 +21,7 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
-   * [printTracker description]
+   * Print the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
@@ -32,7 +32,7 @@ module.exports = class Logger extends LoggerInterface {
   printTracker (title, current, max, posttitle, figures = 0) {}
 
   /**
-   * [stopTracker description]
+   * Stop the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max

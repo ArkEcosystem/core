@@ -2,7 +2,7 @@ const createHash = require('create-hash')
 
 class Crypto {
   /**
-   * [ripemd160 description]
+   * Create a "ripemd160" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
@@ -11,7 +11,7 @@ class Crypto {
   }
 
   /**
-   * [sha1 description]
+   * Create a "sha1" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
@@ -20,7 +20,7 @@ class Crypto {
   }
 
   /**
-   * [sha256 description]
+   * Create a "sha256" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
@@ -29,7 +29,7 @@ class Crypto {
   }
 
   /**
-   * [hash160 description]
+   * Create a "hash160" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */
@@ -38,7 +38,7 @@ class Crypto {
   }
 
   /**
-   * [hash256 description]
+   * Create a "hash256" buffer.
    * @param  {Buffer} buffer
    * @return {Buffer}
    */

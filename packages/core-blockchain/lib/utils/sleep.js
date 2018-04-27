@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Blocks execution for the given value in milliseconds.
  * @param  {Number} ms
  * @return {Promise}
  */

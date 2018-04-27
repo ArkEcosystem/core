@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Define the block model.
+ * @param  {Sequelize} sequelize
+ * @param  {Sequelize.DataTypes} DataTypes
+ * @return {Sequelize.Model}
+ */
 module.exports = (sequelize, DataTypes) => {
   const Block = sequelize.define('block', {
     id: {

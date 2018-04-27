@@ -5,9 +5,6 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
-/**
- * [description]
- */
 module.exports = class Peer {
   /**
    * @constructor

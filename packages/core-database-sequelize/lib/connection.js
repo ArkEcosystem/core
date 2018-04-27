@@ -13,6 +13,7 @@ const { Connection } = require('@arkecosystem/core-database')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
@@ -20,7 +21,7 @@ const { TRANSACTION_TYPES } = client.constants
 
 module.exports = class SequelizeConnection extends Connection {
   /**
-   * [connect description]
+   * Connect to the database.
    * @return {Boolean}
    */
   async connect () {
@@ -28,7 +29,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [disconnect description]
+   * Disconnect from the database.
    * @return {Boolean}
    */
   async disconnect () {
@@ -36,7 +37,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [make description]
+   * Make the database connection instance.
    * @return {SequelizeConnection}
    */
   async make () {
@@ -76,7 +77,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getActiveDelegates description]
+   * Get the top 51 delegates.
    * @param  {Number} height
    * @return {Array}
    */
@@ -114,7 +115,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [saveRounds description]
+   * Store the given round.
    * @param  {Array} activeDelegates
    * @return {Array}
    */
@@ -124,7 +125,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [deleteRound description]
+   * Delete the given round.
    * @param  {Number} round
    * @return {Boolean}
    */
@@ -133,7 +134,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [buildDelegates description]
+   * Load a list of delegates into memory.
    * @param  {Number} maxDelegates
    * @param  {Number} height
    * @return {Array}
@@ -189,7 +190,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [buildWallets description]
+   * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {Array}
    */
@@ -327,9 +328,9 @@ module.exports = class SequelizeConnection extends Connection {
     }
   }
 
-  // must be called before saving new round of delegates
   /**
-   * [updateDelegateStats description]
+   * Update delegate statistics in memory.
+   * NOTE: must be called before saving new round of delegates
    * @param  {Block} block
    * @param  {Array} delegates
    * @return {void}
@@ -351,12 +352,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          pluginManager.get('webhooks').emit('forging.missing', block)
+          emitter.emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          pluginManager.get('webhooks').emit('block.forged', block)
+          emitter.emit('block.forged', block)
         }
       })
     } catch (error) {
@@ -365,7 +366,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [saveWallets description]
+   * Commit wallets from the memory.
    * @param  {Boolean} force
    * @return {Object}
    */
@@ -384,9 +385,9 @@ module.exports = class SequelizeConnection extends Connection {
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
-  // to be used when node is in sync and committing newly received blocks
   /**
-   * [saveBlock description]
+   * Commit the given block.
+   * NOTE: to be used when node is in sync and committing newly received blocks
    * @param  {Block} block
    * @return {Object}
    */
@@ -403,21 +404,24 @@ module.exports = class SequelizeConnection extends Connection {
     }
   }
 
-  // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
   /**
-   * [saveBlockAsync description]
+   * Commit the given block (async version).
+   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    */
   async saveBlockAsync (block) {
-    if (!this.asyncTransaction) this.asyncTransaction = await this.connection.transaction()
+    if (!this.asyncTransaction) {
+      this.asyncTransaction = await this.connection.transaction()
+    }
+
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
     await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
 
-  // to be used in combination with saveBlockAsync
   /**
-   * [saveBlockCommit description]
+   * Commit the block database transaction.
+   * NOTE: to be used in combination with saveBlockAsync
    * @return {void}
    */
   async saveBlockCommit () {
@@ -436,7 +440,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [deleteBlock description]
+   * Delete the given block.
    * @param  {Block} block
    * @return {void}
    */
@@ -455,7 +459,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlock description]
+   * Get a block.
    * @param  {Number} id
    * @return {Block}
    */
@@ -481,25 +485,25 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getTransaction description]
+   * Get a transaction.
    * @param  {Number} id
-   * @return {[type]}
+   * @return {Promise}
    */
   getTransaction (id) {
     return this.connection.query(`SELECT * FROM transactions WHERE id = '${id}'`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
-   * [getCommonBlock description]
+   * Get common blocks for the given IDs.
    * @param  {Array} ids
-   * @return {[type]}
+   * @return {Promise}
    */
   getCommonBlock (ids) {
     return this.connection.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
-   * [getTransactionsFromIds description]
+   * Get transactions for the given IDs.
    * @param  {Array} txids
    * @return {Array}
    */
@@ -511,7 +515,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getForgedTransactionsIds description]
+   * Get forged transactions for the given IDs.
    * @param  {Array} txids
    * @return {Array}
    */
@@ -521,7 +525,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getLastBlock description]
+   * Get the last block.
    * @return {Block}
    */
   async getLastBlock () {
@@ -540,7 +544,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlocks description]
+   * Get blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {Array}
@@ -572,7 +576,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlockHeaders description]
+   * Get the headers of blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {Array}
@@ -594,7 +598,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [runMigrations description]
+   * Run all migrations.
    * @return {Boolean}
    */
   __runMigrations () {
@@ -616,7 +620,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [registerModels description]
+   * Register all models.
    * @return {void}
    */
   async __registerModels () {
@@ -639,7 +643,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [registerRepositories description]
+   * Register all repositories.
    * @return {void}
    */
   async __registerRepositories () {

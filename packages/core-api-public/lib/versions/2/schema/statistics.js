@@ -3,7 +3,6 @@
 const Joi = require('joi')
 
 /**
- * [transactions description]
  * @type {Object}
  */
 exports.transactions = {
@@ -14,7 +13,6 @@ exports.transactions = {
 }
 
 /**
- * [blocks description]
  * @type {Object}
  */
 exports.blocks = {
@@ -25,7 +23,6 @@ exports.blocks = {
 }
 
 /**
- * [votes description]
  * @type {Object}
  */
 exports.votes = {
@@ -36,7 +33,6 @@ exports.votes = {
 }
 
 /**
- * [unvotes description]
  * @type {Object}
  */
 exports.unvotes = {

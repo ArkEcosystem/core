@@ -4,6 +4,27 @@ const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
 
+/**
+ * TODO copy some parts to ArkDocs
+ * @classdesc This class holds the wallet data, verifies it and applies the
+ * transaction and blocks to it
+ *
+ * Wallet attributes that are stored on the db:
+ *   - address
+ *   - publicKey
+ *   - secondPublicKey
+ *   - balance
+ *   - vote
+ *   - username (name, if the wallet is a delegate)
+ *   - voteBalance (number of votes if the wallet is a delegate)
+ *   - producedBlocks
+ *   - missedBlocks
+ *
+ * This other attributes are not stored on the db:
+ *   - multisignature
+ *   - lastBlock (last block applied or `null``)
+ *   - dirty
+ */
 module.exports = class Wallet {
   /**
    * @constructor
@@ -146,7 +167,7 @@ module.exports = class Wallet {
     } else {
       check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
       // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      check = check && (!this.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config))
+      check = check && (!this.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config)) // eslint-disable-line max-len
     }
 
     if (!check) {
@@ -196,8 +217,13 @@ module.exports = class Wallet {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
       audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
+
       // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      if (this.secondPublicKey) audit.push({'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config)})
+      if (this.secondPublicKey) {
+        audit.push({
+          'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
+        })
+      }
     }
 
     const actions = {

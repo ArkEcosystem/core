@@ -13,13 +13,13 @@ exports.plugin = {
 }
 
 /**
- * [ConfigInterface description]
+ * The interface used by concrete implementations.
  * @type {ConfigInterface}
  */
 exports.ConfigInterface = require('./interface')
 
 /**
- * [description]
+ * Get the target directory for the given name.
  * @param  {String} name
  * @return {String}
  */

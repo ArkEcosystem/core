@@ -4,9 +4,9 @@ const Boom = require('boom')
 const { transformResource, transformCollection } = require('../../utils/transformer')
 
 /**
- * [description]
- * @param  {Object} request [description]
- * @return {Object}         [description]
+ * Create a pagination object for the request.
+ * @param  {Hapi.Request} request
+ * @return {Object}
  */
 const paginate = (request) => {
   return {
@@ -16,11 +16,11 @@ const paginate = (request) => {
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * Respond with a resource.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const respondWithResource = (request, data, transformerClass) => {
   return data
@@ -29,44 +29,44 @@ const respondWithResource = (request, data, transformerClass) => {
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {Object}                  [description]
+ * Respond with a collection.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const respondWithCollection = (request, data, transformerClass) => {
   return { data: transformCollection(request, data, transformerClass) }
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * Transform the given data into a resource.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toResource = (request, data, transformerClass) => {
   return transformResource(request, data, transformerClass)
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * Transform the given data into a collection.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toCollection = (request, data, transformerClass) => {
   return transformCollection(request, data, transformerClass)
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {Object}                  [description]
+ * Transform the given data into a pagination.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toPagination = (request, data, transformerClass) => {
   return {

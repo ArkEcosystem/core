@@ -7,7 +7,6 @@ const state = blockchainManager.getState()
 const utils = require('../utils')
 
 /**
- * [status description]
  * @type {Object}
  */
 exports.status = {
@@ -21,7 +20,6 @@ exports.status = {
 }
 
 /**
- * [syncing description]
  * @type {Object}
  */
 exports.syncing = {
@@ -36,7 +34,6 @@ exports.syncing = {
 }
 
 /**
- * [autoconfigure description]
  * @type {Object}
  */
 exports.autoconfigure = {

@@ -1,4 +1,3 @@
-const sinon = require('sinon')
 const Block = require('../../lib/models/block')
 
 describe('Models - Block', () => {
@@ -14,7 +13,7 @@ describe('Models - Block', () => {
 
       const data = {
         id: '9365419148238872318',
-        blockSignature: '3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8',
+        blockSignature: '3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8', // eslint-disable-line max-len
         generatorPublicKey: '024c8247388a02ecd1de2a3e3fd5b7c61ecc2797fa3776599d558333ef1802d231',
         height: 10,
         numberOfTransactions: 0,

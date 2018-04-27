@@ -9,10 +9,14 @@ const { slots } = client
 const { Transaction } = client.models
 
 /**
- * [postVerifyTransaction description]
  * @type {Object}
  */
 exports.postVerifyTransaction = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
     const result = await blockchainManager.getDatabaseConnection().verifyTransaction(transaction)
@@ -22,10 +26,14 @@ exports.postVerifyTransaction = {
 }
 
 /**
- * [postInternalBlock description]
  * @type {Object}
  */
 exports.postInternalBlock = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     // console.log(request.payload)
     blockchainManager.postBlock(request.payload)
@@ -35,10 +43,14 @@ exports.postInternalBlock = {
 }
 
 /**
- * [getRound description]
  * @type {Object}
  */
 exports.getRound = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const lastBlock = blockchainManager.getState().lastBlock
     try {
@@ -72,10 +84,14 @@ exports.getRound = {
 }
 
 /**
- * [getTransactionsForForging description]
  * @type {Object}
  */
 exports.getTransactionsForForging = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const height = blockchainManager.getState().lastBlock.data.height
     const blockSize = config.getConstants(height).block.maxTransactions

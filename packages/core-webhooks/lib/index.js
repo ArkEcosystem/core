@@ -23,4 +23,8 @@ exports.plugin = {
   }
 }
 
+/**
+ * The database connection.
+ * @type {Database}
+ */
 exports.database = database

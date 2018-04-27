@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [exports description]
+ * Questions for terkelg/prompts.
  * @type {Array}
  */
 module.exports = [{

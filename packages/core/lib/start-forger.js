@@ -28,5 +28,5 @@ module.exports = async (options) => {
   await pluginManager.hook('init', { config: options.config })
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
-  await pluginManager.hook('mounted')
+  pluginManager.hook('mounted')
 }

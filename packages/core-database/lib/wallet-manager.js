@@ -13,14 +13,15 @@ const logger = pluginManager.get('logger')
 
 module.exports = class WalletManager {
   /**
-   * [constructor description]
+   * Create a new wallet manager instance.
+   * @constructor
    */
   constructor () {
     this.reset()
   }
 
   /**
-   * [reset description]
+   * Reset the wallets index.
    * @return {void}
    */
   reset () {
@@ -30,7 +31,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [reindex description]
+   * Reindex the given wallet.
    * @param  {Wallet} wallet
    * @return {void}
    */
@@ -50,6 +51,7 @@ module.exports = class WalletManager {
 
   /**
    * Remove wallets that have zero (0) balance from memory.
+   * @return {void}
    */
   purgeEmpty () {
     Object.keys(this.walletsByAddress).forEach(address => {
@@ -70,7 +72,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [applyBlock description]
+   * Apply the given block to a delegate.
    * @param  {Block} block
    * @return {void}
    */
@@ -117,7 +119,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [undoBlock description]
+   * Remove the given block from a delegate.
    * @param  {Block} block
    * @return {void}
    */
@@ -155,7 +157,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [applyTransaction description]
+   * Apply the given transaction to a delegate.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
@@ -217,7 +219,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [undoTransaction description]
+   * Remove the given transaction from a delegate.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
@@ -234,7 +236,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getWalletByAddress description]
+   * Get a wallet by the given address.
    * @param  {String} address
    * @return {(Wallet|null)}
    */
@@ -254,7 +256,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getWalletByPublicKey description]
+   * Get a wallet by the given public key.
    * @param  {String} publicKey
    * @return {Wallet}
    */
@@ -274,7 +276,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getDelegate description]
+   * Get a delegate by the given username.
    * @param  {String} username
    * @return {Wallet}
    */
@@ -283,7 +285,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getLocalWallets description]
+   * Get all wallets by address.
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API

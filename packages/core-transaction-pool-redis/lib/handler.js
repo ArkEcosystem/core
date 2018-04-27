@@ -16,7 +16,7 @@ let instance
 
 module.exports = class TransactionPoolHandler {
   /**
-   * [constructor description]
+   * Create a new webhook manager instance.
    * @param  {Object} config
    * @return {TransactionPoolHandler}
    */
@@ -40,11 +40,12 @@ module.exports = class TransactionPoolHandler {
     if (!config.enabled) {
       logger.warn('Transaction Pool is disabled! If this node runs in production please enable it.')
     }
+
     return instance
   }
 
   /**
-   * [getInstance description]
+   * Get a transaction handler instance.
    * @return {TransactionPoolHandler}
    */
   static getInstance () {
@@ -52,7 +53,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [addTransaction description]
+   * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
@@ -62,7 +63,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [addTransactions description]
+   * Remove a transaction from the pool.
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
@@ -87,7 +88,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [verify description]
+   * Verify the given transaction.
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
@@ -104,7 +105,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [undoBlock description]
+   * Remove the given block.
    * @param  {Block} block
    * @return {void}
    */
@@ -118,7 +119,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [addTransactionToRedis description]
+   * Add the given transaction to the redis pool.
    * @param {Transaction} transaction
    */
   async addTransactionToRedis (transaction) {
@@ -128,7 +129,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [removeForgedTransactions description]
+   * Remove the given transactions.
    * @param  {Number} transactions
    * @return {void}
    */
@@ -139,7 +140,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [getUnconfirmedTransactions description]
+   * Get all unconfirmed transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
@@ -149,7 +150,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [getTransactionsForForging description]
+   * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
@@ -159,7 +160,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [getUnconfirmedTransaction description]
+   * Get an unconfirmed transaction.
    * @param  {Number} id
    * @return {Object}
    */
@@ -168,7 +169,7 @@ module.exports = class TransactionPoolHandler {
   }
 
   /**
-   * [getPoolSize description]
+   * Get the number of transactions in the pool.
    * @return {Number}
    */
   async getPoolSize () {

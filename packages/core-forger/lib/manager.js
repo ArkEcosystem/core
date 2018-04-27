@@ -12,7 +12,7 @@ const sleep = require('./utils/sleep')
 
 module.exports = class ForgerManager {
   /**
-   * [constructor description]
+   * Create a new forger manager instance.
    * @param  {Object} config
    */
   constructor (config) {
@@ -26,7 +26,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [loadDelegates description]
+   * Load all delegates that forge.
    * @param  {String} bip38
    * @param  {String} address
    * @param  {String} password
@@ -52,7 +52,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [startForging description]
+   * Start forging on the given peer.
    * @param  {String} proxy
    * @return {Object}
    */
@@ -88,7 +88,7 @@ module.exports = class ForgerManager {
 
         const block = await delegate.forge(transactions, data)
 
-        this.send(block)
+        this.send(block.toRawJson())
         await sleep(7800) // we will check at next slot
         return monitor()
       } catch (error) {
@@ -110,16 +110,16 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [send description]
+   * Send the given block to the relay.
    * @param  {Object} block
    * @return {Object}
    */
   async send (block) {
-    logger.info(`Sending forged block id ${block.data.id} at height ${block.data.height} with ${block.data.numberOfTransactions} transactions to relay node`)
+    logger.info(`Sending forged block id ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',
-      body: block.data,
+      body: block,
       headers: this.headers,
       timeout: 2000
     }).use(popsicle.plugins.parse('json'))
@@ -128,7 +128,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [pickForgingDelegate description]
+   * Pick the delegate that will forge.
    * @param  {Object} round
    * @return {Object}
    */
@@ -137,7 +137,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [getRound description]
+   * Get the current round.
    * @return {Object}
    */
   async getRound () {
@@ -152,7 +152,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [getTransactions description]
+   * Get all transactions that are ready to be forged.
    * @return {Object}
    */
   async getTransactions () {

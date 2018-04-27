@@ -1,10 +1,16 @@
 'use strict';
 
 /**
- * [exports description]
+ * The wallets migration.
  * @type {Object}
  */
 module.exports = {
+  /**
+   * Run the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('wallets', {
       address: {
@@ -37,5 +43,11 @@ module.exports = {
 
     queryInterface.addIndex('wallets', ['address', 'publicKey', 'vote', 'username'])
   },
+  /**
+   * Reverse the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   down: (queryInterface, Sequelize) => queryInterface.dropTable('wallets')
 }

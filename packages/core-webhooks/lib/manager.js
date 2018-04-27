@@ -2,17 +2,17 @@
 
 const axios = require('axios')
 const map = require('lodash/map')
-const EventEmitter = require('events').EventEmitter
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const database = require('./database')
 const RedisQueue = require('./queue')
+const emitter = pluginManager.get('event-emitter')
 
 let instance
 
 module.exports = class WebhookManager {
   /**
-   * [constructor description]
+   * Create a new webhook manager instance.
    * @return {WebhookManager}
    */
   constructor () {
@@ -24,7 +24,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [getInstance description]
+   * Get a webhook manager instance.
    * @return {WebhookManager}
    */
   static getInstance () {
@@ -32,7 +32,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [init description]
+   * Initialise the webhook manager.
    * @param  {Object} config
    * @return {void}
    */
@@ -41,11 +41,10 @@ module.exports = class WebhookManager {
 
     if (!this.config.enabled) return
 
-    this.__registerEventEmitter()
     await this.__registerQueueManager()
 
     map(this.config.events, 'name').forEach((event) => {
-      this.emitter.on(event, async (payload) => {
+      emitter.on(event, async (payload) => {
         const webhooks = await database.findByEvent(event)
 
         this
@@ -88,19 +87,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [emit description]
-   * @param  {String} event
-   * @param  {Object} payload
-   * @return {void}
-   */
-  emit (event, payload) {
-    if (this.config.enabled) {
-      this.emitter.emit(event, payload)
-    }
-  }
-
-  /**
-   * [getMatchingWebhooks description]
+   * Get all webhooks.
    * @param  {Array} webhooks
    * @param  {Object} payload
    * @return {Array}
@@ -112,7 +99,7 @@ module.exports = class WebhookManager {
       if (!webhook.conditions) webhooks.push(webhook)
 
       for (let condition of webhook.conditions) {
-        const satisfies = require(`../../webhooks/conditions/${condition.condition}`)
+        const satisfies = require(`./conditions/${condition.condition}`)
 
         if (!satisfies(payload[condition.key], condition.value)) break
 
@@ -124,7 +111,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [getEvents description]
+   * Get all webhook events.
    * @return {Array}
    */
   getEvents () {
@@ -132,15 +119,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [__registerEventEmitter description]
-   * @return {void}
-   */
-  __registerEventEmitter () {
-    this.emitter = new EventEmitter()
-  }
-
-  /**
-   * [__registerQueueManager description]
+   * Create a new redis queue instance.
    * @return {void}
    */
   async __registerQueueManager () {

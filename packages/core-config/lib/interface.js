@@ -4,18 +4,18 @@ const deepmerge = require('deepmerge')
 
 module.exports = class ConfigInterface {
   /**
-   * [constructor description]
-   * @param  {[type]} options [description]
-   * @return {[type]}         [description]
+   * Create a new config instance.
+   * @param  {Object} options
+   * @return {void}
    */
   constructor (options) {
     this.options = options
   }
 
   /**
-   * [getConstants description]
-   * @param  {[type]} height [description]
-   * @return {[type]}        [description]
+   * Get constants for the specified height.
+   * @param  {Number} height
+   * @return {void}
    */
   getConstants (height) {
     while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
@@ -31,8 +31,8 @@ module.exports = class ConfigInterface {
   }
 
   /**
-   * [buildConstants description]
-   * @return {[type]} [description]
+   * Build constants from the config.
+   * @return {void}
    */
   __buildConstants () {
     this.constants = this.network.constants.sort((a, b) => a.height - b.height)

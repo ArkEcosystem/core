@@ -3,9 +3,9 @@
 const { transformResource, transformCollection } = require('../../utils/transformer')
 
 /**
- * [description]
- * @param  {Object} request [description]
- * @return {Object}         [description]
+ * Create a pagination object for the request.
+ * @param  {Hapi.Request} request
+ * @return {Object}
  */
 const paginator = (request) => {
   return {
@@ -15,10 +15,10 @@ const paginator = (request) => {
 }
 
 /**
- * [description]
- * @param  {Object}  data  [description]
- * @param  {Boolean} error [description]
- * @return {Object}        [description]
+ * Create a hapi.js response.
+ * @param  {Object}  data
+ * @param  {Boolean} error
+ * @return {Object}
  */
 const respondWith = (data, error = false) => {
   return error
@@ -27,22 +27,22 @@ const respondWith = (data, error = false) => {
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * Transform the given data into a resource.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toResource = (request, data, transformerClass) => {
   return transformResource(request, data, transformerClass)
 }
 
 /**
- * [description]
- * @param  {Object} request          [description]
- * @param  {Object} data             [description]
- * @param  {[type]} transformerClass [description]
- * @return {[type]}                  [description]
+ * Transform the given data into a collection.
+ * @param  {Hapi.Request} request
+ * @param  {Object} data
+ * @param  {String} transformerClass
+ * @return {Object}
  */
 const toCollection = (request, data, transformerClass) => {
   return transformCollection(request, data, transformerClass)

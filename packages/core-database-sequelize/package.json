@@ -11,6 +11,7 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
@@ -19,6 +20,7 @@
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-config": "^1.0.0",
     "@arkecosystem/core-database": "^1.0.0",
+    "@arkecosystem/core-event-emitter": "^1.0.0",
     "expand-home-dir": "^0.0.3",
     "mysql2": "^1.5.3",
     "pg": "^7.4.1",

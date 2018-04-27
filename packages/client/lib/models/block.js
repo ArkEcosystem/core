@@ -28,11 +28,41 @@ const applyV1Fix = (data) => {
   // }
 }
 
+/**
+ * TODO copy some parts to ArkDocs
+ * @classdesc This model holds the block data, its verification and serialization
+ *
+ * A Block model stores on the db:
+ *   - id
+ *   - version (version of the block: could be used for changing how they are forged)
+ *   - timestamp (related to the genesis block)
+ *   - previousBlock (id of the previous block)
+ *   - height
+ *   - numberOfTransactions
+ *   - totalAmount (in arktoshi)
+ *   - totalFee (in arktoshi)
+ *   - reward (in arktoshi)
+ *   - payloadHash (hash of the transactions)
+ *   - payloadLength (total length in bytes of the IDs of the transactions)
+ *   - generatorPublicKey (public key of the delegate that forged this block)
+ *   - blockSignature
+ *
+ * The `transactions` are stored too, but in a different table.
+ *
+ * These data is exposed through the `data` attributed as a plain object and
+ * serialized through the `serialized` attribute.
+ *
+ * In the future the IDs could be changed to use the hexadecimal version of them,
+ * which would be more efficient for performance, disk usage and bandwidth reasons.
+ * That is why there are some attributes, such as `idHex` and `previousBlockHex`.
+ */
 module.exports = class Block {
-  /*
+  /**
    * @constructor
+   * @param {Object} data - The data of the block
    */
   constructor (data) {
+    if (!data.transactions) data.transactions = []
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
 
@@ -58,7 +88,7 @@ module.exports = class Block {
     delete this.data.transactions
 
     this.verification = this.verify()
-    if (!this.verification.verified) {
+    if (!this.verification.verified && this.data.height !== 1) {
       console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
       console.log(this.verification)
@@ -73,12 +103,13 @@ module.exports = class Block {
    * @static
    */
   static create (data, keys) {
+    data.generatorPublicKey = keys.publicKey
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
-    data.generatorPublicKey = keys.publicKey
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
     data.id = Block.getId(data)
-    return new Block(data)
+    const block = new Block(data)
+    return block
   }
 
   /*
@@ -90,7 +121,7 @@ module.exports = class Block {
   }
 
   /*
-   * [description]
+   * Return block data for v1.
    * @return {Object}
    */
   toBroadcastV1 () {
@@ -115,7 +146,7 @@ module.exports = class Block {
 
   /*
    * Get header from block.
-   * @return {Object}
+   * @return {Object} The block data, without the transactions
    */
   getHeader () {
     const header = this.data
@@ -336,6 +367,69 @@ module.exports = class Block {
 
     bb.flip()
     return bb.toBuffer()
+  }
+
+  static getBytesV1 (block, includeSignature) {
+    if (includeSignature === undefined) {
+      includeSignature = block.blockSignature !== undefined
+    }
+    var size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
+    var blockSignatureBuffer = null
+
+    if (includeSignature) {
+      blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
+      size += blockSignatureBuffer.length
+    }
+    var b, i
+
+    try {
+      var bb = new ByteBuffer(size, true)
+      bb.writeInt(block.version)
+      bb.writeInt(block.timestamp)
+      bb.writeInt(block.height)
+
+      if (block.previousBlock) {
+        var pb = Bignum(block.previousBlock).toBuffer({size: '8'})
+
+        for (i = 0; i < 8; i++) {
+          bb.writeByte(pb[i])
+        }
+      } else {
+        for (i = 0; i < 8; i++) {
+          bb.writeByte(0)
+        }
+      }
+
+      bb.writeInt(block.numberOfTransactions)
+      bb.writeLong(block.totalAmount)
+      bb.writeLong(block.totalFee)
+      bb.writeLong(block.reward)
+
+      bb.writeInt(block.payloadLength)
+
+      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
+      for (i = 0; i < payloadHashBuffer.length; i++) {
+        bb.writeByte(payloadHashBuffer[i])
+      }
+
+      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
+        bb.writeByte(generatorPublicKeyBuffer[i])
+      }
+
+      if (includeSignature) {
+        for (i = 0; i < blockSignatureBuffer.length; i++) {
+          bb.writeByte(blockSignatureBuffer[i])
+        }
+      }
+
+      bb.flip()
+      b = bb.toBuffer()
+    } catch (e) {
+      throw e
+    }
+
+    return b
   }
 
   toRawJson () {

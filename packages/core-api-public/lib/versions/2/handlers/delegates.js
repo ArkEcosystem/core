@@ -5,10 +5,14 @@ const utils = require('../utils')
 const schema = require('../schema/delegates')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegates = await database.delegates.paginate(utils.paginate(request))
 
@@ -20,10 +24,14 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegate = await database.delegates.findById(request.params.id)
 
@@ -35,10 +43,14 @@ exports.show = {
 }
 
 /**
- * [blocks description]
  * @type {Object}
  */
 exports.blocks = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegate = await database.delegates.findById(request.params.id)
     const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
@@ -51,10 +63,14 @@ exports.blocks = {
 }
 
 /**
- * [voters description]
  * @type {Object}
  */
 exports.voters = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegate = await database.delegates.findById(request.params.id)
     const wallets = await database.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))

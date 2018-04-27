@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  enabled: false,
+  enabled: true,
   key: 'ark/pool',
   maxTransactionsPerSender: 5,
   whiteList: [],

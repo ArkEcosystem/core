@@ -3,11 +3,11 @@
 const crypto = require('crypto')
 
 /**
- * [description]
- * @param  {[type]} bip38    [description]
- * @param  {[type]} address  [description]
- * @param  {[type]} password [description]
- * @return {[type]}          [description]
+ * Encrypt data with the given password.
+ * @param  {String} bip38
+ * @param  {String} address
+ * @param  {String} password
+ * @return {String}
  */
 exports.encrypt = (bip38, address, password) => {
   const cipher = crypto.createCipher('aes-256-ctr', password)
@@ -16,10 +16,10 @@ exports.encrypt = (bip38, address, password) => {
 }
 
 /**
- * [description]
- * @param  {[type]} value    [description]
- * @param  {[type]} password [description]
- * @return {[type]}          [description]
+ * Decrypt data with the given password.
+ * @param  {String} value
+ * @param  {String} password
+ * @return {String}
  */
 exports.decrypt = (value, password) => {
   const decipher = crypto.createDecipher('aes-256-ctr', password)

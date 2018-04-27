@@ -39,6 +39,7 @@ jspm_packages
 
 # Generated doc directory
 doc
+docs
 
 # Optional npm cache directory
 .npm

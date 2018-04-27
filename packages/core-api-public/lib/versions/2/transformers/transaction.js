@@ -11,7 +11,7 @@ const { Transaction } = client.models
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**
- * [description]
+ * Turns a "transaction" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */

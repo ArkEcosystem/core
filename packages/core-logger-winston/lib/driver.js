@@ -6,7 +6,7 @@ require('colors')
 
 module.exports = class Logger extends LoggerInterface {
   /**
-   * [make description]
+   * Make the logger instance.
    * @return {Winston.Logger}
    */
   make () {
@@ -23,7 +23,7 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
-   * [printTracker description]
+   * Print the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
@@ -45,7 +45,7 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
-   * [stopTracker description]
+   * Stop the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
@@ -66,7 +66,7 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
-   * [__registerTransports description]
+   * Register all transports.
    * @return {void}
    */
   __registerTransports () {
@@ -80,7 +80,7 @@ module.exports = class Logger extends LoggerInterface {
   }
 
   /**
-   * [__registerFilters description]
+   * Register all filters.
    * @return {void}
    */
   __registerFilters () {
