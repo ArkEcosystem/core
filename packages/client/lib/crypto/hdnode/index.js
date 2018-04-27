@@ -14,7 +14,7 @@ const curve = ecurve.getCurveByName('secp256k1')
 
 module.exports = class HDNode {
   /**
-   * [constructor description]
+   * Create a new HDNode instance.
    * @param  {ECPair} keyPair
    * @param  {Buffer} chainCode
    * @return {void}
@@ -39,7 +39,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [fromSeedBuffer description]
    * @param  {(String|Buffer)} seed
    * @param  {Object} network
    * @return {HDNode}
@@ -70,7 +69,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [fromSeedHex description]
    * @param  {String} hex
    * @param  {Object} network
    * @return {HDNode}
@@ -80,7 +78,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [fromBase58 description]
    * @param  {String} string
    * @param  {(Object|Array)} networks
    * @return {HDNode}
@@ -160,7 +157,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [getAddress description]
    * @return {Buffer}
    */
   getAddress () {
@@ -168,7 +164,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [getIdentifier description]
    * @return {Buffer}
    */
   getIdentifier () {
@@ -176,7 +171,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [getFingerprint description]
    * @return {Buffer}
    */
   getFingerprint () {
@@ -184,7 +178,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [getNetwork description]
    * @return {Object}
    */
   getNetwork () {
@@ -192,7 +185,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [getPublicKeyBuffer description]
    * @return {Buffer}
    */
   getPublicKeyBuffer () {
@@ -200,7 +192,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [neutered description]
    * @return {HDNode}
    */
   neutered () {
@@ -217,7 +208,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [sign description]
    * @param  {Buffer} hash
    * @return {ECSignature}
    */
@@ -226,7 +216,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [verify description]
    * @param  {Buffer} hash
    * @param  {ECPair} signature
    * @return {boolean}
@@ -236,7 +225,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [toBase58 description]
    * @return {String}
    */
   toBase58 () {
@@ -279,7 +267,6 @@ module.exports = class HDNode {
   /**
    * https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
    *
-   * [derive description]
    * @param  {Number} index
    * @return {HDNode}
    */
@@ -357,7 +344,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [deriveHardened description]
    * @param  {Number} index
    * @return {HDNode}
    */
@@ -372,7 +358,6 @@ module.exports = class HDNode {
    * Private `===` not neutered.
    * Public `===` neutered.
    *
-   * [isNeutered description]
    * @return {Boolean}
    */
   isNeutered () {
@@ -380,7 +365,6 @@ module.exports = class HDNode {
   }
 
   /**
-   * [derivePath description]
    * @param  {String} path
    * @return {HDNode}
    */

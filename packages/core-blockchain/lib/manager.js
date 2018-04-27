@@ -94,10 +94,6 @@ module.exports = class BlockchainManager {
     return true
   }
 
-  /**
-   * [checkNetwork description]
-   * @return {void}
-   */
   checkNetwork () {
   }
 

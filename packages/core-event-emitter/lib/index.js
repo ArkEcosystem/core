@@ -1,6 +1,6 @@
 'use strict';
 
-const eventManager = require('./manager')
+const emitter = require('./emitter')
 
 /**
  * The struct used by the plugin manager.
@@ -9,5 +9,5 @@ const eventManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'event-emitter',
-  register: async (manager, options) => eventManager
+  register: async (manager, options) => emitter
 }

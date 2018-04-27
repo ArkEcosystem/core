@@ -9,7 +9,6 @@ const { slots } = client
 const { Transaction } = client.models
 
 /**
- * [getPeers description]
  * @type {Object}
  */
 exports.getPeers = {
@@ -29,7 +28,6 @@ exports.getPeers = {
 }
 
 /**
- * [getHeight description]
  * @type {Object}
  */
 exports.getHeight = {
@@ -43,7 +41,6 @@ exports.getHeight = {
 }
 
 /**
- * [getCommonBlock description]
  * @type {Object}
  */
 exports.getCommonBlock = {
@@ -65,7 +62,6 @@ exports.getCommonBlock = {
 }
 
 /**
- * [getTransactionsFromIds description]
  * @type {Object}
  */
 exports.getTransactionsFromIds = {
@@ -83,7 +79,6 @@ exports.getTransactionsFromIds = {
 }
 
 /**
- * [getTransactions description]
  * @type {Object}
  */
 exports.getTransactions = {
@@ -93,7 +88,6 @@ exports.getTransactions = {
 }
 
 /**
- * [getStatus description]
  * @type {Object}
  */
 exports.getStatus = {
@@ -116,7 +110,6 @@ exports.getStatus = {
 }
 
 /**
- * [postBlock description]
  * @type {Object}
  */
 exports.postBlock = {
@@ -130,7 +123,6 @@ exports.postBlock = {
 }
 
 /**
- * [postTransactions description]
  * @type {Object}
  */
 exports.postTransactions = {
@@ -145,7 +137,6 @@ exports.postTransactions = {
 }
 
 /**
- * [getBlocks description]
  * @type {Object}
  */
 exports.getBlocks = {
