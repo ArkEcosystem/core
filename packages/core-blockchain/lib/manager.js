@@ -98,14 +98,6 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getInstance description]
-   * @return {BlockchainManager} [description]
-   */
-  static getInstance () {
-    return instance
-  }
-
-  /**
    * [checkNetwork description]
    * @return {void}
    */
