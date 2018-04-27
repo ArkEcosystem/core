@@ -20,7 +20,7 @@ module.exports = class TransactionPoolManager {
    */
   constructor (config) {
     this.isConnected = false
-    this.keyPrefix = config.keyPrefix
+    this.keyPrefix = config.key
     this.counters = {}
 
     this.redis = config.enabled ? new Redis(config.redis) : null
