@@ -3,7 +3,7 @@
 const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
 
 /**
- * [sendBlockchainEvent description]
+ * Respond with a blockchain event.
  * @type {Object}
  */
 exports.sendBlockchainEvent = {

@@ -20,7 +20,6 @@ class Schema {
   }
 
   /**
-   * [index description]
    * @return {Object}
    */
   index () {
@@ -33,7 +32,6 @@ class Schema {
   }
 
   /**
-   * [show description]
    * @return {Object}
    */
   show () {
@@ -45,7 +43,6 @@ class Schema {
   }
 
   /**
-   * [store description]
    * @return {Object}
    */
   store () {
@@ -64,7 +61,6 @@ class Schema {
   }
 
   /**
-   * [update description]
    * @return {Object}
    */
   update () {
@@ -83,7 +79,6 @@ class Schema {
   }
 
   /**
-   * [destroy description]
    * @return {Object}
    */
   destroy () {

@@ -52,7 +52,6 @@ class ECPair {
   }
 
   /**
-   * [fromPublicKeyBuffer description]
    * @param  {Buffer} buffer
    * @param  {(Object|Array)} network
    * @returns {ECPair}
@@ -67,7 +66,6 @@ class ECPair {
   }
 
   /**
-   * [fromSeed description]
    * @param  {String} seed
    * @param  {Object} options
    * @returns {ECPair}
@@ -84,7 +82,6 @@ class ECPair {
   }
 
   /**
-   * [fromWIF description]
    * @param  {String} string
    * @param  {(Object|Array)} network
    * @returns {ECPair}
@@ -117,7 +114,6 @@ class ECPair {
   }
 
   /**
-   * [makeRandom description]
    * @param  {Object} options
    * @returns {ECPair}
    */
@@ -138,7 +134,6 @@ class ECPair {
   }
 
   /**
-   * [getAddress description]
    * @returns {ECPair}
    */
   getAddress () {
@@ -152,7 +147,6 @@ class ECPair {
   }
 
   /**
-   * [getNetwork description]
    * @returns {ECPair}
    */
   getNetwork () {
@@ -160,7 +154,6 @@ class ECPair {
   }
 
   /**
-   * [getPublicKeyBuffer description]
    * @returns {ECPair}
    */
   getPublicKeyBuffer () {
@@ -168,7 +161,6 @@ class ECPair {
   }
 
   /**
-   * [sign description]
    * @param  {Buffer} hash
    * @returns {ECPair}
    */
@@ -180,7 +172,6 @@ class ECPair {
   }
 
   /**
-   * [toWIF description]
    * @returns {ECPair}
    */
   toWIF () {
@@ -190,7 +181,6 @@ class ECPair {
   }
 
   /**
-   * [verify description]
    * @param  {Buffer} hash
    * @param  {ECPair} signature
    * @returns {ECPair}

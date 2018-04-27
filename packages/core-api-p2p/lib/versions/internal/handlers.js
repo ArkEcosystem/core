@@ -9,7 +9,6 @@ const { slots } = client
 const { Transaction } = client.models
 
 /**
- * [postVerifyTransaction description]
  * @type {Object}
  */
 exports.postVerifyTransaction = {
@@ -22,7 +21,6 @@ exports.postVerifyTransaction = {
 }
 
 /**
- * [postInternalBlock description]
  * @type {Object}
  */
 exports.postInternalBlock = {
@@ -35,7 +33,6 @@ exports.postInternalBlock = {
 }
 
 /**
- * [getRound description]
  * @type {Object}
  */
 exports.getRound = {
@@ -72,7 +69,6 @@ exports.getRound = {
 }
 
 /**
- * [getTransactionsForForging description]
  * @type {Object}
  */
 exports.getTransactionsForForging = {

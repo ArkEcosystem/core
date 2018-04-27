@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('events').EventEmitter
+const EventEmitter = require('eventemitter3')
 
 class Emitter {
   /**
