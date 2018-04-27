@@ -5,7 +5,6 @@
     "build:docs": "lerna run build:docs",
     "clean": "lerna clean",
     "commit": "git-cz",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "lerna run lint",
     "prepare": "lerna run prepare",
     "test": "lerna run test"
@@ -46,7 +45,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn lint"
+      "commit-msg": "commitlint -e $GIT_PARAMS",
+      "pre-commit": "yarn lint"
     }
   }
 }
