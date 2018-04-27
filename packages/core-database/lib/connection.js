@@ -9,8 +9,8 @@ const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
   /**
-   * [constructor description]
-   * @param  {Object} config
+   * @constructor
+   * @param {Object} config
    */
   constructor (config) {
     this.config = config
@@ -18,7 +18,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [getConnection description]
+   * Get the current connection.
    * @return {ConnectionInterface}
    */
   getConnection () {
@@ -26,7 +26,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [connect description]
+   * Connect to a database.
    * @return {void}
    * @throws Error
    */
@@ -35,7 +35,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [disconnect description]
+   * Disconnect from a database.
    * @return {void}
    * @throws Error
    */
@@ -44,7 +44,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [getActiveDelegates description]
+   * Get the top 51 delegates.
    * @param  {Number} height
    * @return {void}
    * @throws Error
@@ -54,7 +54,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [buildDelegates description]
+   * Load a list of delegates into memory.
    * @param  {Number} maxDelegates
    * @param  {Number} height
    * @return {void}
@@ -65,7 +65,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [buildWallets description]
+   * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {void}
    * @throws Error
@@ -75,7 +75,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [saveWallets description]
+   * Commit wallets from the memory.
    * @param  {Boolean} force
    * @return {void}
    * @throws Error
@@ -85,7 +85,8 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [saveBlock description]
+   * Commit the given block.
+   * NOTE: to be used when node is in sync and committing newly received blocks
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -94,9 +95,9 @@ module.exports = class ConnectionInterface {
     throw new Error('Method [saveBlock] not implemented!')
   }
 
-  // Batch saving blocks, those blocks are not committed to database until saveBlockCommit is called
   /**
-   * [saveBlockAsync description]
+   * Commit the given block (async version).
+   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -105,9 +106,9 @@ module.exports = class ConnectionInterface {
     throw new Error('Method [saveBlockAsync] not implemented!')
   }
 
-  // To be used in combination with saveBlockAsync
   /**
-   * [saveBlockCommit description]
+   * Commit the block database transaction.
+   * NOTE: to be used in combination with saveBlockAsync
    * @return {void}
    * @throws Error
    */
@@ -116,7 +117,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [deleteBlock description]
+   * Delete the given block.
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -126,7 +127,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [getBlock description]
+   * Get a block.
    * @param  {Block} id
    * @return {void}
    * @throws Error
@@ -136,7 +137,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [getLastBlock description]
+   * Get last block.
    * @return {void}
    * @throws Error
    */
@@ -145,7 +146,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [getBlocks description]
+   * Get blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {void}
@@ -156,7 +157,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [saveRounds description]
+   * Store the given round.
    * @param  {Array} activeDelegates
    * @return {void}
    * @throws Error
@@ -166,7 +167,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [deleteRound description]
+   * Delete the given round.
    * @param  {Number} round
    * @return {void}
    * @throws Error
@@ -176,7 +177,8 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [updateDelegateStats description]
+   * Update delegate statistics in memory.
+   * NOTE: must be called before saving new round of delegates
    * @param  {Array} delegates
    * @return {void}
    * @throws Error
@@ -186,7 +188,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [applyRound description]
+   * Apply the round.
    * @param  {Number} height
    * @return {void}
    */
@@ -211,7 +213,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [undoRound description]
+   * Remove the round.
    * @param  {Number} height
    * @return {void}
    */
@@ -231,7 +233,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [validateDelegate description]
+   * Validate a delegate.
    * @param  {Block} block
    * @return {void}
    */
@@ -251,7 +253,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [validateForkedBlock description]
+   * Validate a forked block.
    * @param  {Block} block
    * @return {void}
    */
@@ -260,7 +262,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [applyBlock description]
+   * Apply the given block.
    * @param  {Block} block
    * @return {void}
    */
@@ -271,7 +273,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [undoBlock description]
+   * Remove the given block.
    * @param  {Block} block
    * @return {void}
    */
@@ -282,7 +284,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [verifyTransaction description]
+   * Verify a transaction.
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
@@ -300,7 +302,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [applyTransaction description]
+   * Apply the given transaction.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
@@ -309,7 +311,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [undoTransaction description]
+   * Remove the given transaction.
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
@@ -318,7 +320,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [snapshot description]
+   * Write blocks to file as a snapshot.
    * @return {void}
    */
   async snapshot () {
@@ -354,7 +356,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [__registerWalletManager description]
+   * Register the wallet manager.
    * @return {void}
    */
   async __registerWalletManager () {
@@ -362,7 +364,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * [__registerRepositories description]
+   * Register the wallet and delegate repositories.
    * @return {void}
    */
   async __registerRepositories () {
