@@ -672,7 +672,13 @@ module.exports = class SequelizeConnection extends Connection {
         })
 
         if (wallet) {
-          Object.assign(coldWallet, wallet)
+          Object.keys(wallet.dataValues).forEach(key => {
+            if (['balance'].indexOf(key) !== -1) {
+              return
+            }
+
+            coldWallet[key] = wallet[key]
+          })
         }
       } catch (err) {
         logger.error(err)
