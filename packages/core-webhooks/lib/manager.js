@@ -2,11 +2,11 @@
 
 const axios = require('axios')
 const map = require('lodash/map')
-const EventEmitter = require('events').EventEmitter
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const database = require('./database')
 const RedisQueue = require('./queue')
+const emitter = pluginManager.get('event-emitter')
 
 let instance
 
@@ -41,11 +41,10 @@ module.exports = class WebhookManager {
 
     if (!this.config.enabled) return
 
-    this.__registerEventEmitter()
     await this.__registerQueueManager()
 
     map(this.config.events, 'name').forEach((event) => {
-      this.emitter.on(event, async (payload) => {
+      emitter.on(event, async (payload) => {
         const webhooks = await database.findByEvent(event)
 
         this
@@ -88,18 +87,6 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * Emit a new webhook event.
-   * @param  {String} event
-   * @param  {Object} payload
-   * @return {void}
-   */
-  emit (event, payload) {
-    if (this.config.enabled) {
-      this.emitter.emit(event, payload)
-    }
-  }
-
-  /**
    * Get all webhooks.
    * @param  {Array} webhooks
    * @param  {Object} payload
@@ -129,14 +116,6 @@ module.exports = class WebhookManager {
    */
   getEvents () {
     return this.config.events
-  }
-
-  /**
-   * Create a new event emitter instance.
-   * @return {void}
-   */
-  __registerEventEmitter () {
-    this.emitter = new EventEmitter()
   }
 
   /**
