@@ -69,7 +69,13 @@ class PluginManager {
       throw new Error(`The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`)
     }
 
-    if (defaults) options = Hoek.applyToDefaults(defaults, options)
+    if (defaults) {
+      options = Hoek.applyToDefaults(defaults, options)
+    }
+
+    if (this.options.options.hasOwnProperty(name)) {
+      options = Hoek.applyToDefaults(options, this.options.options[name])
+    }
 
     plugin = await item.plugin.register(this, options || {})
     this.container.register(alias || name, asValue({ name, version, plugin, options }))
