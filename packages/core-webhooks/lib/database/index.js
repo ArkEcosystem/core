@@ -9,7 +9,7 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 class Database {
   /**
-   * [init description]
+   * Initialise the database connection.
    * @param  {Object} config
    * @return {void}
    */
@@ -34,8 +34,8 @@ class Database {
 
     try {
       await this.connection.authenticate()
-      await this.runMigrations()
-      await this.registerModels()
+      await this.__runMigrations()
+      await this.__registerModels()
     } catch (error) {
       logger.error('Unable to connect to the database:')
       logger.error(error.stack)
@@ -43,10 +43,81 @@ class Database {
   }
 
   /**
-   * [runMigrations description]
+   * Paginate all webhooks.
+   * @param  {Object} params
+   * @return {Object}
+   */
+  paginate (params) {
+    return this.model.findAndCountAll(params)
+  }
+
+  /**
+   * Get a webhook for the given id.
+   * @param  {Number} id
+   * @return {Object}
+   */
+  findById (id) {
+    return this.model.findById(id)
+  }
+
+  /**
+   * Get all webhooks for the given event.
+   * @param  {String} event
+   * @return {Array}
+   */
+  findByEvent (event) {
+    return this.model.findAll({ where: {event} })
+  }
+
+  /**
+   * Store a new webhook.
+   * @param  {Object} data
+   * @return {Object}
+   */
+  create (data) {
+    return this.model.create(data)
+  }
+
+  /**
+   * Update the webhook for the given id.
+   * @param  {Number} id
+   * @param  {Object} data
    * @return {Boolean}
    */
-  runMigrations () {
+  async update (id, data) {
+    try {
+      const webhook = await this.model.findById(id)
+
+      webhook.update(data)
+
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Destroy the webhook for the given id.
+   * @param  {Number} id
+   * @return {Boolean}
+   */
+  async destroy (id) {
+    try {
+      const webhook = this.model.findById(id)
+
+      webhook.destroy()
+
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Run all migrations.
+   * @return {Boolean}
+   */
+  __runMigrations () {
     const umzug = new Umzug({
       storage: 'sequelize',
       storageOptions: {
@@ -65,82 +136,11 @@ class Database {
   }
 
   /**
-   * [registerModels description]
+   * Register all models.
    * @return {void}
    */
-  registerModels () {
+  __registerModels () {
     this.model = this.connection['import']('./model')
-  }
-
-  /**
-   * [paginate description]
-   * @param  {Object} params
-   * @return {Object}
-   */
-  paginate (params) {
-    return this.model.findAndCountAll(params)
-  }
-
-  /**
-   * [findById description]
-   * @param  {Number} id
-   * @return {Object}
-   */
-  findById (id) {
-    return this.model.findById(id)
-  }
-
-  /**
-   * [findByEvent description]
-   * @param  {String} event
-   * @return {Array}
-   */
-  findByEvent (event) {
-    return this.model.findAll({ where: {event} })
-  }
-
-  /**
-   * [create description]
-   * @param  {Object} data
-   * @return {Object}
-   */
-  create (data) {
-    return this.model.create(data)
-  }
-
-  /**
-   * [update description]
-   * @param  {Number} id
-   * @param  {Object} data
-   * @return {Boolean}
-   */
-  async update (id, data) {
-    try {
-      const webhook = await this.model.findById(id)
-
-      webhook.update(data)
-
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-
-  /**
-   * [destroy description]
-   * @param  {Number} id
-   * @return {Boolean}
-   */
-  async destroy (id) {
-    try {
-      const webhook = this.model.findById(id)
-
-      webhook.destroy()
-
-      return true
-    } catch (e) {
-      return false
-    }
   }
 }
 

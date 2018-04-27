@@ -8,7 +8,7 @@ const Joi = require('joi')
  */
 class Schema {
   /**
-   * [init description]
+   * Initialise the schema.
    * @return {void}
    */
   init () {

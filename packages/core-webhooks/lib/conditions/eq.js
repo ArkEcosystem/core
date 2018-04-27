@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if A equals B.
  * @param  {*} a
  * @param  {*} b
  * @return {Boolean}
