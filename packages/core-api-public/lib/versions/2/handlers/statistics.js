@@ -15,6 +15,11 @@ const schema = require('../schema/statistics')
  * @type {Object}
  */
 exports.blockchain = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const lastBlock = state.lastBlock
 
@@ -56,6 +61,11 @@ exports.blockchain = {
  * @type {Object}
  */
 exports.transactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
 
@@ -76,6 +86,11 @@ exports.transactions = {
  * @type {Object}
  */
 exports.blocks = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const blocks = await database.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
@@ -96,6 +111,11 @@ exports.blocks = {
  * @type {Object}
  */
 exports.votes = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
@@ -117,6 +137,11 @@ exports.votes = {
  * @type {Object}
  */
 exports.unvotes = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))

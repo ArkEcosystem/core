@@ -11,13 +11,11 @@ const schema = require('../schemas/peers')
  * @type {Object}
  */
 exports.index = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getPeers
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 
@@ -44,6 +42,13 @@ exports.index = {
     return utils.respondWith({
       peers: utils.toCollection(request, retPeers.map(peer => peer.toBroadcastInfo()), 'peer')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getPeers
+      }
+    }
   }
 }
 
@@ -51,13 +56,11 @@ exports.index = {
  * @type {Object}
  */
 exports.show = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getPeer
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 
@@ -68,6 +71,13 @@ exports.show = {
     if (!peer) return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
 
     return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getPeer
+      }
+    }
   }
 }
 
@@ -75,6 +85,11 @@ exports.show = {
  * @type {Object}
  */
 exports.version = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({ version: config.server.version })
   }

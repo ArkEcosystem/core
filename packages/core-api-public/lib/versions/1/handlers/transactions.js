@@ -14,13 +14,11 @@ const schema = require('../schemas/transactions')
  * @type {Object}
  */
 exports.index = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransactions
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = await database.transactions.findAll({
       ...request.query, ...utils.paginator(request)
@@ -31,6 +29,13 @@ exports.index = {
     return utils.respondWith({
       transactions: utils.toCollection(request, transactions, 'transaction')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getTransactions
+      }
+    }
   }
 }
 
@@ -38,19 +43,24 @@ exports.index = {
  * @type {Object}
  */
 exports.show = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransaction
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const result = await database.transactions.findById(request.query.id)
 
     if (!result) return utils.respondWith('No transactions found', true)
 
     return utils.respondWith({ transaction: utils.toResource(request, result, 'transaction') })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getTransaction
+      }
+    }
   }
 }
 
@@ -58,6 +68,11 @@ exports.show = {
  * @type {Object}
  */
 exports.unconfirmed = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -77,6 +92,11 @@ exports.unconfirmed = {
  * @type {Object}
  */
 exports.showUnconfirmed = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');

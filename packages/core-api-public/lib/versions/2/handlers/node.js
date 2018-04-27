@@ -8,6 +8,11 @@ const config = pluginManager.get('config')
  * @type {Object}
  */
 exports.status = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const lastBlock = blockchainManager.getState().lastBlock
     const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
@@ -26,6 +31,11 @@ exports.status = {
  * @type {Object}
  */
 exports.syncing = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const lastBlock = blockchainManager.getState().lastBlock
     const networkHeight = await blockchainManager.getNetworkInterface().getNetworkHeight()
@@ -45,6 +55,11 @@ exports.syncing = {
  * @type {Object}
  */
 exports.configuration = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return {
       data: {

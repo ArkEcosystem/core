@@ -16,6 +16,11 @@ const { calculateApproval, calculateProductivity } = require('../../../utils/del
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallets = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
 
@@ -29,19 +34,24 @@ exports.index = {
  * @type {Object}
  */
 exports.show = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getAccount
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Not found', true)
 
     return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getAccount
+      }
+    }
   }
 }
 
@@ -49,13 +59,11 @@ exports.show = {
  * @type {Object}
  */
 exports.balance = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getBalance
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
@@ -65,6 +73,13 @@ exports.balance = {
       balance: account ? account.balance : '0',
       unconfirmedBalance: account ? account.balance : '0'
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getBalance
+      }
+    }
   }
 }
 
@@ -72,19 +87,24 @@ exports.balance = {
  * @type {Object}
  */
 exports.publicKey = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getPublicKey
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) return utils.respondWith('Not found', true)
 
     return utils.respondWith({ publicKey: account.publicKey })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getPublicKey
+      }
+    }
   }
 }
 
@@ -92,6 +112,11 @@ exports.publicKey = {
  * @type {Object}
  */
 exports.fee = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       fee: config.getConstants(state.lastBlock.data.height).fees.delegate
@@ -103,13 +128,11 @@ exports.fee = {
  * @type {Object}
  */
 exports.delegates = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getDelegates
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     let account = await database.wallets.findById(request.query.address)
 
@@ -135,6 +158,13 @@ exports.delegates = {
         productivity: calculateProductivity(account)
       }]
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getDelegates
+      }
+    }
   }
 }
 
@@ -142,13 +172,11 @@ exports.delegates = {
  * @type {Object}
  */
 exports.top = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.top
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     let accounts = await database.wallets.top(utils.paginator(request), true)
 
@@ -159,6 +187,13 @@ exports.top = {
     }))
 
     return utils.respondWith({ accounts })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.top
+      }
+    }
   }
 }
 
@@ -166,6 +201,11 @@ exports.top = {
  * @type {Object}
  */
 exports.count = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const accounts = await database.wallets.findAll()
 

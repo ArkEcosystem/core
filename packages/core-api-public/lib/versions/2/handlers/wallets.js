@@ -8,6 +8,11 @@ const schema = require('../schema/wallets')
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallets = await database.wallets.paginate(utils.paginate(request))
 
@@ -22,6 +27,11 @@ exports.index = {
  * @type {Object}
  */
 exports.top = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallets = await database.wallets.top(utils.paginate(request))
 
@@ -33,6 +43,11 @@ exports.top = {
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallet = await database.wallets.findById(request.params.id)
 
@@ -47,6 +62,11 @@ exports.show = {
  * @type {Object}
  */
 exports.transactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallet = await database.wallets.findById(request.params.id)
     const transactions = await database.transactions.findAllByWallet(wallet, utils.paginate(request))
@@ -62,6 +82,11 @@ exports.transactions = {
  * @type {Object}
  */
 exports.transactionsSent = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallet = await database.wallets.findById(request.params.id)
     const transactions = await database.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
@@ -77,6 +102,11 @@ exports.transactionsSent = {
  * @type {Object}
  */
 exports.transactionsReceived = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallet = await database.wallets.findById(request.params.id)
     const transactions = await database.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
@@ -92,6 +122,11 @@ exports.transactionsReceived = {
  * @type {Object}
  */
 exports.votes = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallet = await database.wallets.findById(request.params.id)
     const transactions = await database.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
@@ -107,6 +142,11 @@ exports.votes = {
  * @type {Object}
  */
 exports.search = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const wallets = await database.wallets.search({
       ...request.payload,
