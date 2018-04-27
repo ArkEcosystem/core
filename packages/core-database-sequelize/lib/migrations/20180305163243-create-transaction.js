@@ -39,7 +39,7 @@ module.exports = {
         // }
       },
       type: Sequelize.SMALLINT,
-      vendorFieldHex: Sequelize.STRING(256),
+      vendorField: Sequelize.STRING(256),
       amount: Sequelize.BIGINT,
       fee: Sequelize.BIGINT,
       serialized: Sequelize.BLOB,
@@ -53,7 +53,7 @@ module.exports = {
       }
     })
 
-    queryInterface.addIndex('transactions', ['senderPublicKey', 'recipientId', 'vendorFieldHex', 'timestamp'])
+    queryInterface.addIndex('transactions', ['senderPublicKey', 'recipientId', 'vendorField', 'timestamp'])
   },
   down: (queryInterface, Sequelize) => queryInterface.dropTable('transactions')
 }
