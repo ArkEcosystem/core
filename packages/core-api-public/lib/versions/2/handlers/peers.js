@@ -8,6 +8,11 @@ const schema = require('../schema/peers')
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 
@@ -39,6 +44,11 @@ exports.index = {
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const peers = await blockchainManager.getNetworkInterface().getPeers()
 
