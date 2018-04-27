@@ -89,7 +89,7 @@ module.exports = class Config extends ConfigInterface {
    */
   async __buildPeers (configFile) {
     if (!this.peers.sources) {
-      return false
+      return
     }
 
     let output = require(configFile)
