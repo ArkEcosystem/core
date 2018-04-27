@@ -2,12 +2,12 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "clean": "lerna clean --yes",
+    "build:docs": "lerna run build:docs",
+    "clean": "lerna clean",
     "commit": "git-cz",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "lerna run lint",
     "prepare": "lerna run prepare",
-    "setup": "lerna clean && lerna bootstrap",
     "test": "lerna run test"
   },
   "devDependencies": {

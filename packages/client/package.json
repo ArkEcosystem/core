@@ -14,7 +14,7 @@
   "scripts": {
     "_prepublish": "yarn run lint && yarn run test && yarn run build",
     "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
-    "build:docs": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "jest --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
