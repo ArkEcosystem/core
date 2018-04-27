@@ -199,7 +199,7 @@ module.exports = class TransactionsRepository {
         {
           exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
           between: ['timestamp', 'amount', 'fee'],
-          wildcard: ['vendorFieldHex']
+          wildcard: ['vendorField']
         }
       ),
       order: orderBy,

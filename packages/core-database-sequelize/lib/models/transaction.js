@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       // }
     },
     type: DataTypes.SMALLINT,
-    vendorFieldHex: DataTypes.BLOB,
+    vendorField: DataTypes.STRING(256),
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
     serialized: DataTypes.BLOB
