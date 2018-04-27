@@ -14,9 +14,6 @@ const sleep = require('./utils/sleep')
 
 let instance
 
-/**
- * [description]
- */
 module.exports = class BlockchainManager {
   /**
    * Create a new blockchain manager instance.
@@ -55,7 +52,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [dispatch description]
+   * Dispatch an event to transition the state machine.
    * @param  {String} event
    * @return {void}
    */
@@ -78,7 +75,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [start description]
+   * Start the blockchain.
    * @return {void}
    */
   start () {
@@ -86,7 +83,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [isReady description]
+   * Determine if the blockchain is ready.
    * @return {Boolean}
    */
   async isReady () {
@@ -105,14 +102,14 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [updateNetworkStatus description]
+   * Update network status.
    * @return {void}
    */
   updateNetworkStatus () {
   }
 
   /**
-   * [rebuild description]
+   * Rebuild N blocks in the blockchain.
    * @param  {Number} nblocks
    * @return {void}
    */
@@ -120,8 +117,8 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [resetState description]
-   * @return {undefined} [description]
+   * Reset the state of the blockchain.
+   * @return {void}
    */
   async resetState () {
     this.pauseQueues()
@@ -139,7 +136,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [postTransactions description]
+   * Hand the given transactions to the transaction handler.
    * @param  {Array} transactions
    * @return {Array}
    */
@@ -150,7 +147,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [postBlock description]
+   * Push a block to the process queue.
    * @param  {Block} block
    * @return {void}
    */
@@ -166,7 +163,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [deleteBlocksToLastRound description]
+   * Rollback all blocks up to the previous round.
    * @return {void}
    */
   async deleteBlocksToLastRound () {
@@ -198,7 +195,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [removeBlocks description]
+   * Remove N number of blocks.
    * @param  {Number} nblocks
    * @return {void}
    */
@@ -235,7 +232,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [pauseQueues description]
+   * Pause all queues.
    * @return {void}
    */
   pauseQueues () {
@@ -244,7 +241,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [clearQueues description]
+   * Flush all queues.
    * @return {void}
    */
   clearQueues () {
@@ -254,7 +251,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [resumeQueues description]
+   *  Resue all queues.
    * @return {void}
    */
   resumeQueues () {
@@ -263,7 +260,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [isChained description]
+   * Check if the given block is in order.
    * @param  {Block}  block
    * @param  {Block}  nextBlock
    * @return {Boolean}
@@ -273,7 +270,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [rebuildBlock description]
+   * Hande a block during a rebuild.
    * @param  {Block} block
    * @param  {Object} state
    * @param  {Function} qcallback
@@ -307,7 +304,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [processBlock description]
+   * Process the given block.
    * @param  {Block} block
    * @param  {Object} state
    * @param  {Function} qcallback
@@ -330,7 +327,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [acceptChainedBlock description]
+   * Accept a new chained block.
    * @param  {Block} block
    * @param  {Object} state
    * @return {void}
@@ -358,7 +355,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [manageUnchainedBlock description]
+   * Manage a block that is out of order.
    * @param  {Block} block
    * @param  {Object} state
    * @return {void}
@@ -382,7 +379,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getUnconfirmedTransactions description]
+   * Get unconfirmed transactions for the specified block size.
    * @param  {Number}  blockSize
    * @param  {Boolean} forForging
    * @return {Object}
@@ -400,7 +397,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [isSynced description]
+   * Determine if the blockchain is synced.
    * @param  {Block}  block
    * @return {Boolean}
    */
@@ -411,11 +408,11 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [isBuildSynced description]
+   * Determine if the blockchain is synced after a rebuild.
    * @param  {Block}  block
    * @return {Boolean}
    */
-  isBuildSynced (block) {
+  isRebuildSynced (block) {
     block = block || stateMachine.state.lastBlock.data
     logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
 
@@ -423,7 +420,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getState description]
+   * Get the state of the blockchain.
    * @return {Object}
    */
   getState () {
@@ -431,7 +428,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getNetworkInterface description]
+   * Get the network (p2p) interface.
    * @return {P2PInterface}
    */
   getNetworkInterface () {
@@ -439,7 +436,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getTransactionHandler description]
+   * Get the transaction handler.
    * @return {TransactionPoolHandler}
    */
   getTransactionHandler () {
@@ -447,7 +444,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [getDatabaseConnection description]
+   * Get the database connection.
    * @return {ConnectionInterface}
    */
   getDatabaseConnection () {
@@ -455,7 +452,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [__setupProcessQueue description]
+   * Initialise the process queue.
    * @return {void}
    */
   __setupProcessQueue () {
@@ -468,7 +465,7 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * [__setupRebuildQueue description]
+   * Initialise the rebuild queue.
    * @return {void}
    */
   __setupRebuildQueue () {
