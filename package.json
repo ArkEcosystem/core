@@ -43,5 +43,10 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn lint"
+    }
   }
 }
