@@ -67,6 +67,7 @@ module.exports = class SequelizeConnection extends Connection {
       await this.__registerModels()
       await this.__registerRepositories()
       await super.__registerWalletManager()
+      await this.__registerListeners()
 
       return this
     } catch (error) {
@@ -664,10 +665,17 @@ module.exports = class SequelizeConnection extends Connection {
    * @return {void}
    */
   __registerListeners () {
-    emitter.on('wallet:cold:created', coldWallet => {
-      const wallet = this.models.wallet.findByAddress(coldWallet.address)
-      if (wallet) {
-        Object.assign(coldWallet, wallet)
+    emitter.on('wallet:cold:created', async coldWallet => {
+      try {
+        const wallet = await this.models.wallet.findOne({
+          where: { address: coldWallet.address }
+        })
+
+        if (wallet) {
+          Object.assign(coldWallet, wallet)
+        }
+      } catch (err) {
+        logger.error(err)
       }
     })
   }
