@@ -2,12 +2,11 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "clean": "lerna clean --yes",
+    "build:docs": "lerna run build:docs",
+    "clean": "lerna clean",
     "commit": "git-cz",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "lerna run lint",
     "prepare": "lerna run prepare",
-    "setup": "lerna clean && lerna bootstrap",
     "test": "lerna run test"
   },
   "devDependencies": {
@@ -27,7 +26,7 @@
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "express": "^4.16.2",
-    "husky": "^0.14.3",
+    "husky": "^1.0.0-rc.2",
     "jest": "^22.4.3",
     "jest-extended": "^0.6.0",
     "jsdoc": "^3.5.5",
@@ -42,6 +41,12 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -e $GIT_PARAMS",
+      "pre-push": "yarn lint"
     }
   }
 }

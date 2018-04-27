@@ -1,1 +1,7 @@
-tests/coverage
+/build/**
+/coverage/**
+/docs/**
+/tests/bench/**
+/tmp/**
+test.js
+!.eslintrc.js

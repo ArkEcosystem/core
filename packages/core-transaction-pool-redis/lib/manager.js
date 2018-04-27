@@ -14,7 +14,7 @@ let instance
 
 module.exports = class TransactionPoolManager {
   /**
-   * [constructor description]
+   * Create a new transaction pool manager instance.
    * @param  {Object} config
    * @return {TransactionPoolManager}
    */
@@ -50,7 +50,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [getInstance description]
+   * Get a transaction pool manager instance.
    * @return {TransactionPoolManager}
    */
   static getInstance () {
@@ -58,7 +58,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [getPoolSize description]
+   * Get the number of transactions in the pool.
    * @return {Number}
    */
   async getPoolSize () {
@@ -66,7 +66,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [addTransaction description]
+   * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
@@ -85,17 +85,17 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [removeTransaction description]
-   * @param  {Number} txID
+   * Remove a transaction.
+   * @param  {Number} id
    * @return {void}
    */
-  async removeTransaction (txID) {
-    await this.redis.lrem(this.__getRedisOrderKey(), 1, txID)
-    await this.redis.del(this.__getRedisTransactionKey(txID))
+  async removeTransaction (id) {
+    await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
+    await this.redis.del(this.__getRedisTransactionKey(id))
   }
 
   /**
-   * [removeTransactions description]
+   * Remove multiple transactions.
    * @param  {Array} transactions
    * @return {void}
    */
@@ -110,7 +110,23 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [getTransactions description]
+   * Get a transaction.
+   * @param  {Number} id
+   * @return {(Transaction|String)}
+   */
+  async getTransaction (id) {
+    if (this.isConnected) {
+      const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+      if (serialized) {
+        return Transaction.fromBytes(serialized)
+      } else {
+        return 'Error: Non existing transaction'
+      }
+    }
+  }
+
+  /**
+   * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
@@ -133,7 +149,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [getTransactionsForForging description]
+   * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
@@ -179,25 +195,8 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [getTransaction description]
-   * @param  {Number} id
-   * @return {(Transaction|String)}
-   */
-  async getTransaction (id) {
-    if (this.isConnected) {
-      const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
-      if (serialized) {
-        return Transaction.fromBytes(serialized)
-      } else {
-        return 'Error: Non existing transaction'
-      }
-    }
-  }
-
-  // Checks if any of transactions for forging from pool was already forged and removes them from pool
-  // It returns only the ids of transactions that have yet to be forged
-  /**
-   * [__checkIfForged description]
+   * Checks if any of transactions for forging from pool was already forged and removes them from pool
+   * It returns only the ids of transactions that have yet to be forged
    * @param  {Array} transactionIds
    * @return {Array}
    */

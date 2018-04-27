@@ -10,14 +10,15 @@ const { createContainer, asValue } = require('awilix')
 
 class PluginManager {
   /**
-   * [constructor description]
+   * Create a new plugin manager instance.
+   * @constructor
    */
   constructor () {
     this.container = createContainer()
   }
 
   /**
-   * [init description]
+   * Initialise the plugin manager.
    * @param  {Object} config
    * @param  {Object} options
    * @return {void}
@@ -35,7 +36,7 @@ class PluginManager {
   }
 
   /**
-   * [hook description]
+   * Register a hook.
    * @param  {String} name
    * @param  {Object} options
    * @return {void}
@@ -49,7 +50,7 @@ class PluginManager {
   }
 
   /**
-   * [register description]
+   * Register a plugin.
    * @param  {Object} plugin
    * @param  {Object} options
    * @return {void}
@@ -75,7 +76,7 @@ class PluginManager {
   }
 
   /**
-   * [get description]
+   * Get a plugin instance.
    * @param  {string} key
    * @return {Object}
    * @throws {Error}
@@ -89,7 +90,7 @@ class PluginManager {
   }
 
   /**
-   * [has description]
+   * Determine if the given plugin exists.
    * @param  {String}  key
    * @return {Boolean}
    */
@@ -104,7 +105,7 @@ class PluginManager {
   }
 
   /**
-   * [config description]
+   * Get the configuration of a plugin.
    * @param  {String} key
    * @return {Object}
    * @throws {Error}
@@ -118,7 +119,7 @@ class PluginManager {
   }
 
   /**
-   * [__resolvePlugin description]
+   * Resolve a plugin instance.
    * @param  {(String|Object)} plugin
    * @return {Object}
    */
@@ -141,7 +142,7 @@ class PluginManager {
   }
 
   /**
-   * [__shouldBeRegistered description]
+   * Determine if the given plugin should be registered.
    * @param  {String} name
    * @return {Boolean}
    */

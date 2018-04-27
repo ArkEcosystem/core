@@ -1,6 +1,5 @@
 'use strict';
 
-const expandHomeDir = require('expand-home-dir')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 /**

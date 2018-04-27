@@ -12,7 +12,7 @@ let instance
 
 module.exports = class WebhookManager {
   /**
-   * [constructor description]
+   * Create a new webhook manager instance.
    * @return {WebhookManager}
    */
   constructor () {
@@ -24,7 +24,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [getInstance description]
+   * Get a webhook manager instance.
    * @return {WebhookManager}
    */
   static getInstance () {
@@ -32,7 +32,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [init description]
+   * Initialise the webhook manager.
    * @param  {Object} config
    * @return {void}
    */
@@ -88,7 +88,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [emit description]
+   * Emit a new webhook event.
    * @param  {String} event
    * @param  {Object} payload
    * @return {void}
@@ -100,7 +100,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [getMatchingWebhooks description]
+   * Get all webhooks.
    * @param  {Array} webhooks
    * @param  {Object} payload
    * @return {Array}
@@ -112,7 +112,7 @@ module.exports = class WebhookManager {
       if (!webhook.conditions) webhooks.push(webhook)
 
       for (let condition of webhook.conditions) {
-        const satisfies = require(`../../webhooks/conditions/${condition.condition}`)
+        const satisfies = require(`./conditions/${condition.condition}`)
 
         if (!satisfies(payload[condition.key], condition.value)) break
 
@@ -124,7 +124,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [getEvents description]
+   * Get all webhook events.
    * @return {Array}
    */
   getEvents () {
@@ -132,7 +132,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [__registerEventEmitter description]
+   * Create a new event emitter instance.
    * @return {void}
    */
   __registerEventEmitter () {
@@ -140,7 +140,7 @@ module.exports = class WebhookManager {
   }
 
   /**
-   * [__registerQueueManager description]
+   * Create a new redis queue instance.
    * @return {void}
    */
   async __registerQueueManager () {

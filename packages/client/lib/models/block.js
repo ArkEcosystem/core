@@ -377,7 +377,7 @@ module.exports = class Block {
     var blockSignatureBuffer = null
 
     if (includeSignature) {
-      blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
+      blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
     var b, i
@@ -407,12 +407,12 @@ module.exports = class Block {
 
       bb.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

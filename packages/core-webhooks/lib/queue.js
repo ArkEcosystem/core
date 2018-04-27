@@ -6,7 +6,7 @@ let instance
 
 module.exports = class Queue {
   /**
-   * [constructor description]
+   * Create a new queue instance.
    * @param  {Object} config
    * @return {Queue}
    */
@@ -21,7 +21,7 @@ module.exports = class Queue {
   }
 
   /**
-   * [getInstance description]
+   * Get a queue instance.
    * @return {Queue}
    */
   static getInstance () {
@@ -29,7 +29,7 @@ module.exports = class Queue {
   }
 
   /**
-   * [connection description]
+   * Get a queue connection instance.
    * @param  {string} connection
    * @return {Bull}
    */
