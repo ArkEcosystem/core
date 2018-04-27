@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if A contains B.
  * @param  {*} a
  * @param  {*} b
  * @return {Boolean}

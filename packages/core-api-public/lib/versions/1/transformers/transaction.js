@@ -9,7 +9,7 @@ const state = pluginManager.get('blockchain').getState()
 const { Transaction } = require('@arkecosystem/client').models
 
 /**
- * [description]
+ * Turns a "transaction" object into a generic object.
  * @param  {Object} model
  * @return {Object}
  */

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if the given IP address is local.
  * @param  {*} value
  * @return {boolean}
  */

@@ -3,7 +3,6 @@
 const Joi = require('joi')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -15,7 +14,6 @@ exports.index = {
 
 // TODO: validate transaction payload?
 /**
- * [store description]
  * @type {Object}
  */
 exports.store = {
@@ -23,7 +21,6 @@ exports.store = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -33,7 +30,6 @@ exports.show = {
 }
 
 /**
- * [unconfirmed description]
  * @type {Object}
  */
 exports.unconfirmed = {
@@ -44,7 +40,6 @@ exports.unconfirmed = {
 }
 
 /**
- * [showUnconfirmed description]
  * @type {Object}
  */
 exports.showUnconfirmed = {
@@ -54,7 +49,6 @@ exports.showUnconfirmed = {
 }
 
 /**
- * [search description]
  * @type {Object}
  */
 exports.search = {

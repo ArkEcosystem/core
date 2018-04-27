@@ -162,7 +162,6 @@ class PluginManager {
 }
 
 /**
- * [exports description]
  * @type {PluginManager}
  */
 module.exports = new PluginManager()

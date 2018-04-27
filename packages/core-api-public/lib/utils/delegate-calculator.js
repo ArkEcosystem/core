@@ -5,7 +5,7 @@ const state = pluginManager.get('blockchain').getState()
 const config = pluginManager.get('config')
 
 /**
- * [description]
+ * Calculate the approval for the given delegate.
  * @param  {Delegate} delegate
  * @return {Number}
  */
@@ -18,7 +18,7 @@ exports.calculateApproval = (delegate) => {
 }
 
 /**
- * [description]
+ * Calculate the productivity of the given delegate.
  * @param  {Delegate} delegate
  * @return {Number}
  */

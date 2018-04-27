@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if the given value matches.
  * @param  {*} input
  * @param  {String} pattern
  * @return {Boolean}

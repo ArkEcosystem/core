@@ -8,7 +8,7 @@ const Joi = require('joi')
  */
 class Schema {
   /**
-   * [init description]
+   * Initialise the schema.
    * @return {void}
    */
   init () {
@@ -96,7 +96,6 @@ class Schema {
 }
 
 /**
- * [exports description]
  * @type {Schema}
  */
 module.exports = new Schema()

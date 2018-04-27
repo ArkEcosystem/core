@@ -4,7 +4,7 @@ const moment = require('moment')
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
- * [description]
+ * Format the given epoch based timestamp into human and unix.
  * @param  {Number} epochStamp
  * @return {Object}
  */

@@ -3,7 +3,6 @@
 const ajv = new (require('ajv'))()
 
 /**
- * [exports description]
  * @type {Object}
  */
 module.exports = {

@@ -12,7 +12,6 @@ const state = blockchainManager.getState()
 const schema = require('../schema/statistics')
 
 /**
- * [blockchain description]
  * @type {Object}
  */
 exports.blockchain = {
@@ -54,7 +53,6 @@ exports.blockchain = {
 }
 
 /**
- * [transactions description]
  * @type {Object}
  */
 exports.transactions = {
@@ -75,7 +73,6 @@ exports.transactions = {
 }
 
 /**
- * [blocks description]
  * @type {Object}
  */
 exports.blocks = {
@@ -96,7 +93,6 @@ exports.blocks = {
 }
 
 /**
- * [votes description]
  * @type {Object}
  */
 exports.votes = {
@@ -118,7 +114,6 @@ exports.votes = {
 }
 
 /**
- * [unvotes description]
  * @type {Object}
  */
 exports.unvotes = {

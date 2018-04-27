@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if the given value is false.
  * @param  {*} value
  * @return {Boolean}
  */

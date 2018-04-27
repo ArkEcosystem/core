@@ -5,7 +5,6 @@ const blockchainManager = pluginManager.get('blockchain')
 const config = pluginManager.get('config')
 
 /**
- * [status description]
  * @type {Object}
  */
 exports.status = {
@@ -24,7 +23,6 @@ exports.status = {
 }
 
 /**
- * [syncing description]
  * @type {Object}
  */
 exports.syncing = {
@@ -44,7 +42,6 @@ exports.syncing = {
 }
 
 /**
- * [configuration description]
  * @type {Object}
  */
 exports.configuration = {

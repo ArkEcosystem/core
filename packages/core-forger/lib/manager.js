@@ -26,7 +26,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [loadDelegates description]
+   * Load all delegates that forge.
    * @param  {String} bip38
    * @param  {String} address
    * @param  {String} password
@@ -52,7 +52,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [startForging description]
+   * Start forging on the given peer.
    * @param  {String} proxy
    * @return {Object}
    */
@@ -110,7 +110,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [send description]
+   * Send the given block to the relay.
    * @param  {Object} block
    * @return {Object}
    */
@@ -128,7 +128,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [pickForgingDelegate description]
+   * Pick the delegate that will forge.
    * @param  {Object} round
    * @return {Object}
    */
@@ -137,7 +137,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [getRound description]
+   * Get the current round.
    * @return {Object}
    */
   async getRound () {
@@ -152,7 +152,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * [getTransactions description]
+   * Get all transactions that are ready to be forged.
    * @return {Object}
    */
   async getTransactions () {

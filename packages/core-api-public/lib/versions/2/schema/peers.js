@@ -3,7 +3,6 @@
 const Joi = require('joi')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -19,7 +18,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {

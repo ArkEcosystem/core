@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Register webhook routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

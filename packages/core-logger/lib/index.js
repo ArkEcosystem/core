@@ -13,4 +13,8 @@ exports.plugin = {
   register: async (manager, options) => logManager
 }
 
+/**
+ * The interface used by concrete implementations.
+ * @type {LoggerInterface}
+ */
 exports.LoggerInterface = require('./interface')

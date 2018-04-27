@@ -11,7 +11,6 @@ const utils = require('../utils')
 const schema = require('../schemas/transactions')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -36,7 +35,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -57,7 +55,6 @@ exports.show = {
 }
 
 /**
- * [unconfirmed description]
  * @type {Object}
  */
 exports.unconfirmed = {
@@ -77,7 +74,6 @@ exports.unconfirmed = {
 }
 
 /**
- * [showUnconfirmed description]
  * @type {Object}
  */
 exports.showUnconfirmed = {

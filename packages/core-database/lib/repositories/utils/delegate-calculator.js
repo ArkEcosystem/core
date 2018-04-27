@@ -3,7 +3,7 @@
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
- * [description]
+ * Calculate the approval for the given delegate.
  * @param  {Delegate} delegate
  * @param  {Number} height
  * @return {Number}
@@ -16,7 +16,7 @@ exports.calculateApproval = (delegate, height) => {
 }
 
 /**
- * [description]
+ * Calculate the productivity of the given delegate.
  * @param  {Delegate} delegate
  * @return {Number}
  */

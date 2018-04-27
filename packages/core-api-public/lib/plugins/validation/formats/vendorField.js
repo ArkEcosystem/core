@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Register the "vendorField" validation rule.
  * @param  {AJV} ajv
  * @return {void}
  */

@@ -10,7 +10,6 @@ const utils = require('../utils')
 const schema = require('../schemas/delegates')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -31,7 +30,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -52,7 +50,6 @@ exports.show = {
 }
 
 /**
- * [count description]
  * @type {Object}
  */
 exports.count = {
@@ -64,7 +61,6 @@ exports.count = {
 }
 
 /**
- * [search description]
  * @type {Object}
  */
 exports.search = {
@@ -85,7 +81,6 @@ exports.search = {
 }
 
 /**
- * [voters description]
  * @type {Object}
  */
 exports.voters = {
@@ -100,7 +95,6 @@ exports.voters = {
 }
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {
@@ -112,7 +106,6 @@ exports.fee = {
 }
 
 /**
- * [forged description]
  * @type {Object}
  */
 exports.forged = {

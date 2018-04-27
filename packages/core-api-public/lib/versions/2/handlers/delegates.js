@@ -5,7 +5,6 @@ const utils = require('../utils')
 const schema = require('../schema/delegates')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -20,7 +19,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -35,7 +33,6 @@ exports.show = {
 }
 
 /**
- * [blocks description]
  * @type {Object}
  */
 exports.blocks = {
@@ -51,7 +48,6 @@ exports.blocks = {
 }
 
 /**
- * [voters description]
  * @type {Object}
  */
 exports.voters = {

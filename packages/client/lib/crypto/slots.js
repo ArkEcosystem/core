@@ -74,7 +74,7 @@ class Slots {
   }
 
   /**
-   * [getLastSlot description]
+   * Get the last slot number.
    * @param  {Number} nextSlot
    * @return {Number}
    */

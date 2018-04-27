@@ -3,7 +3,7 @@
 const ip = require('ip')
 
 /**
- * [description]
+ * Register the "ip" validation rule.
  * @param  {AJV} ajv
  * @return {void}
  */

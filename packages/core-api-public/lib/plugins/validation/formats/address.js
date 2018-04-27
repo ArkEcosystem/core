@@ -4,7 +4,7 @@ const bs58check = require('bs58check')
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
- * [description]
+ * Register the "address" validation rule.
  * @param  {AJV} ajv
  * @return {void}
  */

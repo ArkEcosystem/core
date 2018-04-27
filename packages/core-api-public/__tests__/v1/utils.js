@@ -48,7 +48,6 @@ class Helpers {
 }
 
 /**
- * [exports description]
  * @type {Helpers}
  */
 module.exports = new Helpers()

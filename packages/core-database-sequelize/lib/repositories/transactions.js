@@ -10,7 +10,7 @@ const buildFilterQuery = require('./utils/filter-query')
 
 module.exports = class TransactionsRepository {
   /**
-   * [constructor description]
+   * Create a new transaction repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
@@ -18,7 +18,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAll description]
+   * Get all transactions.
    * @param  {Object}  params
    * @param  {Boolean} count
    * @return {Object}
@@ -56,7 +56,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllByWallet description]
+   * Get all transactions for the given wallet.
    * @param  {Wallet} wallet
    * @param  {Object} paginator
    * @return {Object}
@@ -75,7 +75,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllBySender description]
+   * Get all transactions for the given sender.
    * @param  {String} senderPublicKey
    * @param  {Object} paginator
    * @return {Object}
@@ -85,7 +85,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllByRecipient description]
+   * Get all transactions for the given recipient.
    * @param  {String} recipientId
    * @param  {Object} paginator
    * @return {Object}
@@ -95,7 +95,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [allVotesBySender description]
+   * Get all vote transactions for the given sender.
    * @param  {String} senderPublicKey
    * @param  {Object} paginator
    * @return {Object}
@@ -105,7 +105,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllByBlock description]
+   * Get all transactions for the given block.
    * @param  {Number} blockId
    * @param  {Object} paginator
    * @return {Object}
@@ -115,7 +115,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllByType description]
+   * Get all transactions for the given type.
    * @param  {Number} type
    * @param  {Object} paginator
    * @return {Object}
@@ -125,7 +125,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findById description]
+   * Get a transaction.
    * @param  {Number} id
    * @return {Object}
    */
@@ -139,7 +139,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findByTypeAndId description]
+   * Get a transactions for the given type and id.
    * @param  {Number} type
    * @param  {Number} id
    * @return {Object}
@@ -155,7 +155,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [findAllByDateAndType description]
+   * Get all transactions for the given type and range.
    * @param  {Number} type
    * @param  {Number} from
    * @param  {Number} to
@@ -181,7 +181,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * [search description]
+   * Search all transactions.
    * @param  {Object} payload
    * @return {Object}
    */

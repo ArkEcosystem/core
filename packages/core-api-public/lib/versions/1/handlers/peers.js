@@ -8,7 +8,6 @@ const utils = require('../utils')
 const schema = require('../schemas/peers')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
@@ -49,7 +48,6 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
@@ -74,7 +72,6 @@ exports.show = {
 }
 
 /**
- * [version description]
  * @type {Object}
  */
 exports.version = {

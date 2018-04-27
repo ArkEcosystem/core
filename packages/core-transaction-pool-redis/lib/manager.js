@@ -207,7 +207,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [__getRedisTransactionKey description]
+   * Get the redis key for the given transaction.
    * @param  {Number} id
    * @return {String}
    */
@@ -216,7 +216,7 @@ module.exports = class TransactionPoolManager {
   }
 
   /**
-   * [__getRedisOrderKey description]
+   * Get the redis key for the order of transactions.
    * @return {String}
    */
   __getRedisOrderKey () {

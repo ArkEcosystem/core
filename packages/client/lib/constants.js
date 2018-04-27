@@ -3,13 +3,13 @@ const configDevnet = require('./networks/ark/devnet.json')
 const configTestnet = require('./networks/ark/testnet.json')
 
 /**
- * [ARKTOSHI description]
+ * The Arktoshi base.
  * @type {Number}
  */
 exports.ARKTOSHI = Math.pow(10, 8)
 
 /**
- * [TRANSACTION_TYPES description]
+ * Available transaction types.
  * @type {Object}
  */
 exports.TRANSACTION_TYPES = Object.freeze({
@@ -25,7 +25,7 @@ exports.TRANSACTION_TYPES = Object.freeze({
 })
 
 /**
- * [CONFIGURATIONS description]
+ * Available network configurations.
  * @type {Object}
  */
 exports.CONFIGURATIONS = Object.freeze({

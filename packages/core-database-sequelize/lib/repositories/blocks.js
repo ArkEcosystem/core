@@ -6,7 +6,7 @@ const Sequelize = require('sequelize')
 
 module.exports = class BlocksRepository {
   /**
-   * [constructor description]
+   * Create a new block repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
@@ -14,7 +14,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [findAll description]
+   * Get all blocks for the given parameters.
    * @param  {Object}  params
    * @param  {Boolean} count
    * @return {Object}
@@ -41,7 +41,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [findAllByGenerator description]
+   * Get all blocks for the given generator.
    * @param  {String} generatorPublicKey
    * @param  {Object} paginator
    * @return {Object}
@@ -51,7 +51,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [findById description]
+   * Get a block.
    * @param  {Number} id
    * @return {Object}
    */
@@ -60,7 +60,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [findLastByPublicKey description]
+   * Get the last block for the given generator.
    * @param  {String} generatorPublicKey
    * @return {Object}
    */
@@ -74,7 +74,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [findAllByDateTimeRange description]
+   * Get all transactions for the given range.
    * @param  {Number} from
    * @param  {Number} to
    * @return {Object}
@@ -92,7 +92,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [search description]
+   * Search all transactions.
    * @param  {Object} params
    * @return {Object}
    */
@@ -106,7 +106,7 @@ module.exports = class BlocksRepository {
   }
 
   /**
-   * [totalsByGenerator description]
+   * Get fee and reward totals for the given generator.
    * @param  {String} generatorPublicKey
    * @return {Object}
    */

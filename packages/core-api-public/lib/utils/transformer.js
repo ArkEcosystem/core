@@ -3,7 +3,7 @@
 const path = require('path')
 
 /**
- * [description]
+ * Transform the given data to a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
  * @param  {Object} transformer
@@ -12,7 +12,7 @@ const path = require('path')
 const transformResource = (request, data, transformer) => require(path.resolve(__dirname, `../versions/${request.pre.apiVersion}/transformers/${transformer}`))(data)
 
 /**
- * [description]
+ * Transform the given data to a collection.
  * @param  {Hapi.Request} request
  * @param  {Object} data
  * @param  {Object} transformer

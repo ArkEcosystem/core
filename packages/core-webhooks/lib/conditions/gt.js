@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * [description]
+ * Check if A is greater than B.
  * @param  {Number} a
  * @param  {Number} b
  * @return {Boolean}

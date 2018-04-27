@@ -5,7 +5,7 @@
 const BigNumber = require('bignumber.js')
 
 /**
- * [isBoolean description]
+ * Check if the given value is a boolean.
  * @param  {*}  value
  * @return {Boolean}
  */
@@ -18,7 +18,7 @@ function isBoolean (value) {
 }
 
 /**
- * [isNumber description]
+ * Check if the given value is a number.
  * @param  {*}  value
  * @return {Boolean}
  */

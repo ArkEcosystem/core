@@ -8,7 +8,6 @@ const state = blockchainManager.getState()
 const utils = require('../utils')
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {

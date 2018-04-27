@@ -11,7 +11,7 @@ const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 
 /**
- * [state description]
+ * Initial state of the machine.
  * @type {Object}
  */
 const state = {
@@ -24,13 +24,12 @@ const state = {
 }
 
 /**
- * [state description]
  * @type {Object}
  */
 blockchainMachine.state = state
 
 /**
- * [description]
+ * The blockchain actions.
  * @param  {BlockchainManager} blockchainManager
  * @return {Object}
  */
