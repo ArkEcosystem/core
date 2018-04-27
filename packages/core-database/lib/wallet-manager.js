@@ -49,6 +49,27 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Remove wallets that have zero (0) balance from memory.
+   */
+  purgeEmpty () {
+    Object.keys(this.walletsByAddress).forEach(address => {
+      if (this.walletsByAddress[address].balance === 0) {
+        delete this.walletsByAddress[address]
+      }
+    })
+    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
+      if (this.walletsByPublicKey[publicKey].balance === 0) {
+        delete this.walletsByPublicKey[publicKey]
+      }
+    })
+    Object.keys(this.delegatesByUsername).forEach(username => {
+      if (this.delegatesByUsername[username].balance === 0) {
+        delete this.delegatesByUsername[username]
+      }
+    })
+  }
+
+  /**
    * [applyBlock description]
    * @param  {Block} block
    * @return {void}

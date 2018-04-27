@@ -315,6 +315,8 @@ module.exports = class SequelizeConnection extends Connection {
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
       })
 
+      this.walletManager.purgeEmpty()
+
       logger.stopTracker('SPV Building', 7, 7)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
