@@ -27,7 +27,7 @@
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "express": "^4.16.2",
-    "husky": "^0.14.3",
+    "husky": "^1.0.0-rc.2",
     "jest": "^22.4.3",
     "jest-extended": "^0.6.0",
     "jsdoc": "^3.5.5",
