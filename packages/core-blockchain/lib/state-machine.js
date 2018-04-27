@@ -41,7 +41,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isBuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
+    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isRebuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
