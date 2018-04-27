@@ -2,7 +2,7 @@
 
 module.exports = class LoggerInterface {
   /**
-   * [constructor description]
+   * Create a new logger instance.
    * @param  {Object} options
    */
   constructor (options) {
@@ -10,7 +10,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [driver description]
+   * Get a driver instance.
    * @return {LoggerInterface}
    */
   driver () {
@@ -18,7 +18,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [error description]
+   * Log an error message.
    * @param  {*} message
    * @return {void}
    */
@@ -27,7 +27,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [warn description]
+   * Log a warning message.
    * @param  {*} message
    * @return {void}
    */
@@ -36,7 +36,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [info description]
+   * Log an info message.
    * @param  {*} message
    * @return {void}
    */
@@ -45,7 +45,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [debug description]
+   * Log a debug message.
    * @param  {*} message
    * @return {void}
    */
@@ -54,7 +54,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [printTracker description]
+   * Print the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
@@ -67,7 +67,7 @@ module.exports = class LoggerInterface {
   }
 
   /**
-   * [stopTracker description]
+   * Stop the progress tracker.
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max

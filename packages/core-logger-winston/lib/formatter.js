@@ -4,7 +4,7 @@ const chalk = require('chalk')
 const moment = require('moment')
 
 /**
- * [description]
+ * The winston message formatter.
  * @param  {Object} info
  * @return {String}
  */
