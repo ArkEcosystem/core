@@ -130,6 +130,7 @@ module.exports = class Block {
 
   /*
    * Get block id
+   * TODO rename to getIdHex ?
    * @param  {Object} data
    * @return {String}
    * @static
@@ -334,16 +335,13 @@ module.exports = class Block {
 
   /*
    * Serialize block
+   * TODO split this method between bufferize (as a buffer) and serialize (as hex)
    * @param  {Object} block
    * @param  {(Boolean|undefined)} includeSignature
    * @return {Buffer}
    * @static
    */
-  static serialize (block, includeSignature) {
-    if (includeSignature === undefined) {
-      includeSignature = block.blockSignature !== undefined
-    }
-
+  static serialize (block, includeSignature = true) {
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
@@ -363,7 +361,10 @@ module.exports = class Block {
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
-    if (includeSignature) bb.append(block.blockSignature, 'hex')
+
+    if (includeSignature && block.blockSignature) {
+      bb.append(block.blockSignature, 'hex')
+    }
 
     bb.flip()
     return bb.toBuffer()
@@ -373,23 +374,26 @@ module.exports = class Block {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
-    var size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
-    var blockSignatureBuffer = null
+    let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
+    let blockSignatureBuffer = null
 
     if (includeSignature) {
       blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
-    var b, i
+
+    let b
 
     try {
-      var bb = new ByteBuffer(size, true)
+      const bb = new ByteBuffer(size, true)
       bb.writeInt(block.version)
       bb.writeInt(block.timestamp)
       bb.writeInt(block.height)
 
+      let i
+
       if (block.previousBlock) {
-        var pb = Bignum(block.previousBlock).toBuffer({size: '8'})
+        const pb = Bignum(block.previousBlock).toBuffer({size: '8'})
 
         for (i = 0; i < 8; i++) {
           bb.writeByte(pb[i])
@@ -407,12 +411,12 @@ module.exports = class Block {
 
       bb.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      const payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }
