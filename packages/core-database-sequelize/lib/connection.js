@@ -384,6 +384,8 @@ module.exports = class SequelizeConnection extends Connection {
 
     logger.info('Rebuilt wallets saved')
 
+    this.walletManager.purgeEmpty()
+
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
