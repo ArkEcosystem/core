@@ -201,7 +201,7 @@ module.exports = class SequelizeConnection extends Connection {
 
     try {
       // Received TX
-      logger.printTracker('SPV Building', 1, 7, 'received transactions')
+      logger.printTracker('SPV Building', 1, 8, 'received transactions')
       let data = await this.models.transaction.findAll({
         attributes: [
           'recipientId',
@@ -221,7 +221,7 @@ module.exports = class SequelizeConnection extends Connection {
       })
 
       // Block Rewards
-      logger.printTracker('SPV Building', 2, 7, 'block rewards')
+      logger.printTracker('SPV Building', 2, 8, 'block rewards')
       data = await this.connection.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
@@ -244,7 +244,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         group: 'senderPublicKey'
       })
-      logger.printTracker('SPV Building', 3, 7, 'sent transactions')
+      logger.printTracker('SPV Building', 3, 8, 'sent transactions')
       data.forEach(row => {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
@@ -261,7 +261,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.SECOND_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 4, 7, 'second signatures')
+      logger.printTracker('SPV Building', 4, 8, 'second signatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -275,7 +275,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.DELEGATE}}
       )
-      logger.printTracker('SPV Building', 5, 7, 'delegates')
+      logger.printTracker('SPV Building', 5, 8, 'delegates')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -291,7 +291,7 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.VOTE}}
       )
-      logger.printTracker('SPV Building', 6, 7, 'votes')
+      logger.printTracker('SPV Building', 6, 8, 'votes')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -311,15 +311,16 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.MULTI_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 7, 7, 'multisignatures')
+      logger.printTracker('SPV Building', 7, 8, 'multisignatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
       })
 
+      logger.printTracker('SPV Building', 8, 8, 'purge empty')
       this.walletManager.purgeEmpty()
 
-      logger.stopTracker('SPV Building', 7, 7)
+      logger.stopTracker('SPV Building', 8, 8)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
