@@ -55,7 +55,7 @@ module.exports = class SequelizeConnection extends Connection {
 
     this.connection = new Sequelize(this.config.uri, {
       dialect: this.config.dialect,
-      logging: !!this.config.logging,
+      logging: this.config.logging,
       operatorsAliases: Sequelize.Op
     })
 

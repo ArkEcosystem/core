@@ -6,7 +6,7 @@ const { onCancel, stopProcess } = require('../utils')
 
 module.exports = async () => {
   stopProcess('ark-core:relay', () => {
-    console.log(chalk.bgRed('The relay node has been stopped.'))
+    console.log(chalk.red('The relay node has been stopped.'))
 
     sleep(1)
 
