@@ -17,6 +17,9 @@ module.exports = async (options) => {
       '@arkecosystem/core-forger'
     ],
     options: {
+      '@arkecosystem/core-blockchain': {
+        networkStart: options.networkStart
+      },
       '@arkecosystem/core-forger': {
         bip38: options.bip38,
         address: options.address,
