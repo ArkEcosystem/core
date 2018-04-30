@@ -433,10 +433,10 @@ module.exports = class BlockchainManager {
 
   /**
    * Get the transaction handler.
-   * @return {TransactionPoolHandler}
+   * @return {TransactionPool}
    */
   getTransactionHandler () {
-    return pluginManager.get('transaction-handler')
+    return pluginManager.get('transactionPoolManager')
   }
 
   /**

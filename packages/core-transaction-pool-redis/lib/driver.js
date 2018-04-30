@@ -44,14 +44,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       logger.warn('Transaction pool is disabled in settings')
     }
 
-    this.driver.getPoolSize = this.getPoolSize
+   /* this.driver.getPoolSize = this.getPoolSize
     this.driver.addTransaction = this.addTransaction
     this.driver.removeTransaction = this.removeTransaction
     this.driver.removeTransactions = this.removeTransactions
     this.driver.getTransaction = this.getTransaction
     this.driver.getTransactions = this.getTransactions
     this.driver.getTransactionsForForging = this.getTransactionsForForging
-
+*/
     return this.driver
   }
 
