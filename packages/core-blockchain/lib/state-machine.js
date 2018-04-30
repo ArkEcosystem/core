@@ -89,12 +89,12 @@ blockchainMachine.actionMap = (blockchainManager) => {
       }
     },
     downloadPaused: () => logger.info('Blockchain download paused 🕥'),
-    syncingFinished: () => {
-      logger.info('Blockchain completed, congratulations! 🦄')
+    syncingComplete: () => {
+      logger.info('Blockchain download complete 🦄')
       blockchainManager.dispatch('SYNCFINISHED')
     },
-    rebuildingFinished: () => {
-      logger.info('Blockchain completed, congratulations! 🦄')
+    rebuildingComplete: () => {
+      logger.info('Blockchain rebuild complete 🦄')
       blockchainManager.dispatch('REBUILDFINISHED')
     },
     exitApp: () => {
