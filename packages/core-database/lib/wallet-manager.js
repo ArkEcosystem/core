@@ -77,7 +77,7 @@ module.exports = class WalletManager {
         logger.debug('Delegate by address', this.walletsByAddress[generator])
 
         if (this.walletsByAddress[generator]) {
-          logger.info('This look like a bug, please report 🐛')
+          logger.info('This look like a bug, please report :bug:')
         }
 
         throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)

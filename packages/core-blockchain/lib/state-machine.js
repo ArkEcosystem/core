@@ -65,7 +65,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => {
-      logger.info('Blockchain download finished 🚀')
+      logger.info('Blockchain download finished :rocket:')
       if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
@@ -74,7 +74,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     rebuildFinished: async () => {
       try {
-        logger.info('Blockchain rebuild finished ⛓')
+        logger.info('Blockchain rebuild finished :chains:')
         state.rebuild = false
         await blockchainManager.getDatabaseConnection().saveBlockCommit()
         await blockchainManager.deleteBlocksToLastRound()
@@ -88,13 +88,13 @@ blockchainMachine.actionMap = (blockchainManager) => {
         return blockchainManager.dispatch('FAILURE')
       }
     },
-    downloadPaused: () => logger.info('Blockchain download paused 🕥'),
+    downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
     syncingComplete: () => {
-      logger.info('Blockchain download complete 🦄')
+      logger.info('Blockchain download complete :unicorn_face:')
       blockchainManager.dispatch('SYNCFINISHED')
     },
     rebuildingComplete: () => {
-      logger.info('Blockchain rebuild complete 🦄')
+      logger.info('Blockchain rebuild complete :unicorn_face:')
       blockchainManager.dispatch('REBUILDFINISHED')
     },
     exitApp: () => {

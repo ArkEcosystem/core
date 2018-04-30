@@ -32,7 +32,7 @@ module.exports = class P2PInterface {
 
     const time = await Sntp.time()
 
-    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
+    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
   }
 
   /**

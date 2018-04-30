@@ -35,7 +35,7 @@ module.exports = class BlockchainManager {
     if (stateMachine.state.networkStart) {
       // TODO: Reword message below
       logger.warn('ARK Core is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
-      logger.info('Starting ARK Core for a new world, welcome aboard 🚀')
+      logger.info('Starting ARK Core for a new world, welcome aboard :rocket:')
     }
 
     this.actions = stateMachine.actionMap(this)
