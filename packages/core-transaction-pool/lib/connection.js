@@ -25,7 +25,7 @@ module.exports = class TransactionPoolInterface {
     }, 1)
 
     if (!this.options.enabled) {
-      logger.warn('Transaction Pool is disabled! If this node runs in production please enable it.')
+      logger.warn('Transaction pool is disabled - please enable if run in production')
     }
   }
 
