@@ -247,8 +247,8 @@ module.exports = class SequelizeConnection extends Connection {
       data.forEach(row => {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
-        if (wallet.balance < 0) {
-          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
+        if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
+          logger.warn(`Negative balance: ${wallet}`)
         }
       })
 

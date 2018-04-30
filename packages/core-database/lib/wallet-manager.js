@@ -11,6 +11,9 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
+const map = require('lodash/map')
+const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
+
 module.exports = class WalletManager {
   /**
    * Create a new wallet manager instance.
@@ -47,6 +50,10 @@ module.exports = class WalletManager {
     if (wallet.username) {
       this.delegatesByUsername[wallet.username] = wallet
     }
+  }
+
+  isGenesis (wallet) {
+    return genesisWallets.includes(wallet.address)
   }
 
   /**
