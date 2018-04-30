@@ -1,13 +1,13 @@
 'use strict';
 
-const RedisDriver = require('../lib/driver')
+const RedisDriver = require('../lib/connection')
 
 let redis
 beforeAll(() => {
   redis = new RedisDriver(require('../lib/defaults.js'))
 })
 
-describe('Logger', () => {
+describe('Redis', () => {
   it('should be an object', async () => {
     await expect(redis).toBeInstanceOf(RedisDriver)
   })

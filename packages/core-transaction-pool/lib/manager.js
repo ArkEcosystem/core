@@ -14,7 +14,7 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {TransactionPoolInterface}
    */
-  driver (name = 'default') {
+  connection (name = 'default') {
     return this.drivers[name]
   }
 
@@ -24,7 +24,7 @@ class TransactionPoolManager {
    * @param  {String} name
    * @return {void}
    */
-  async makeDriver (driver, name = 'default') {
+  async makeConnection (driver, name = 'default') {
     this.drivers[name] = await driver.make()
   }
 }

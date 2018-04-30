@@ -1,7 +1,6 @@
 'use strict';
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
-
 const Redis = require('ioredis')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
@@ -15,10 +14,9 @@ const { Transaction } = client.models
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
    * Make the transaction pool instance.
-   * @return {Redis}
+   * @return {TransactionPool}
    */
   make () {
-    console.log(this.config)
     this.driver = this.options.enabled ? new Redis(this.options.redis) : null
 
     this.isConnected = false
@@ -37,22 +35,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       })
 
       this.redisSub.on('message', (channel, message) => {
-        // logger.debug(`Receive message ${message} from channel ${channel}`)
+        logger.debug(`Receive message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
     } else {
       logger.warn('Transaction pool is disabled in settings')
     }
 
-   /* this.driver.getPoolSize = this.getPoolSize
-    this.driver.addTransaction = this.addTransaction
-    this.driver.removeTransaction = this.removeTransaction
-    this.driver.removeTransactions = this.removeTransactions
-    this.driver.getTransaction = this.getTransaction
-    this.driver.getTransactions = this.getTransactions
-    this.driver.getTransactionsForForging = this.getTransactionsForForging
-*/
-    return this.driver
+    return this
   }
 
    /**

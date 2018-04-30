@@ -4,7 +4,8 @@ const blockchainManager = pluginManager.get('blockchain')
 const async = require('async')
 const logger = pluginManager.get('logger')
 const client = require('@arkecosystem/client')
-const { Transaction, slots } = client
+const { slots, crypto } = client
+const { Transaction } = client.models
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -13,6 +14,7 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
+    this.walletManager = blockchainManager.getDatabaseConnection().walletManager
 
     const that = this
     this.queue = async.queue((transaction, qcallback) => {
@@ -35,15 +37,43 @@ module.exports = class TransactionPoolInterface {
     return this.driver
   }
 
+  async getPoolSize () {
+    throw new Error('Method [getPoolSize] not implemented!')
+  }
+
+  async addTransaction (transaction) {
+    throw new Error('Method [addTransaction (transaction)] not implemented!')
+  }
+
+  async removeTransaction (id) {
+    throw new Error('Method [removeTransaction (id)] not implemented!')
+  }
+
+  async removeTransactions (transactions) {
+    throw new Error('Method [removeTransactions (transactions)] not implemented!')
+  }
+
+  async getTransaction (id) {
+    throw new Error('Method [getTransaction (id)] not implemented!')
+  }
+
+  async getTransactions (start, size) {
+    throw new Error('Method [getTransactions (start,size)] not implemented!')
+  }
+
+  async getTransactionsForForging (start, size) {
+    throw new Error('Method [getTransactionsForForging (start, size)] not implemented!')
+  }
+
   /**
-   * Add transaction to the registered pool. Is called from blockchainManager
+   * Add transaction to the registered pool. Method called from blockchainManager, upon receiveing payload.
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
 
-      // TODO for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
+      // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
       if (process.env.ARK_ENV === 'testnet') {
         const current = slots.getTime()
         transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
@@ -82,31 +112,20 @@ module.exports = class TransactionPoolInterface {
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 
-  async getPoolSize () {
-    throw new Error('Method [getPoolSize] not implemented!')
-  }
+  /**
+   * Verify the given transaction.
+   * @param  {Transaction} transaction
+   * @return {Boolean}
+   */
+  verify (transaction) {
+    const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
-  async addTransaction (transaction) {
-    throw new Error('Method [addTransaction (transaction)] not implemented!')
-  }
+    if (crypto.verify(transaction) && wallet.canApply(transaction)) {
+      this.walletManager.applyTransaction(transaction)
 
-  async removeTransaction (id) {
-    throw new Error('Method [removeTransaction (id)] not implemented!')
-  }
+      return true
+    }
 
-  async removeTransactions (transactions) {
-    throw new Error('Method [removeTransactions (transactions)] not implemented!')
-  }
-
-  async getTransaction (id) {
-    throw new Error('Method [getTransaction (id)] not implemented!')
-  }
-
-  async getTransactions (start, size) {
-    throw new Error('Method [getTransactions (start,size)] not implemented!')
-  }
-
-  async getTransactionsForForging (start, size) {
-    throw new Error('Method [getTransactionsForForging (start, size)] not implemented!')
+    return false
   }
 }

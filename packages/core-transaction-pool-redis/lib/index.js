@@ -1,6 +1,6 @@
 'use strict';
 
-const RedisDriver = require('./driver')
+const RedisConnection = require('./connection')
 
 /**
  * The struct used by the plugin manager.
@@ -12,7 +12,10 @@ exports.plugin = {
   alias: 'transactionPool',
   register: async (manager, options) => {
     const transactionPoolManager = manager.get('transactionPoolManager')
-    await transactionPoolManager.makeDriver(new RedisDriver(options))
+    manager.get('logger').info('Establishing Transaction Pool Redis Connection...')
+    const redis = new RedisConnection(options)
+
+    await transactionPoolManager.makeConnection(redis)
 
     // // Disable logging during tests
     // // NODE_ENV=test >>> Jest Test-Suite
@@ -20,6 +23,6 @@ exports.plugin = {
     //   logManager.driver().clear()
     // }
 
-    return transactionPoolManager.driver()
+    return transactionPoolManager.connection()
   }
 }

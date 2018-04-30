@@ -17,4 +17,4 @@ exports.plugin = {
  * The interface used by concrete implementations.
  * @type {TransactionPoolInterface}
  */
-exports.TransactionPoolInterface = require('./interface')
+exports.TransactionPoolInterface = require('./connection')
