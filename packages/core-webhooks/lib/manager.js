@@ -75,7 +75,7 @@ module.exports = class WebhookManager {
           data: response.data
         }
       } catch (error) {
-        logger.error(`Job ${job.id} failed! ${error.message}`)
+        logger.error(`Job ${job.id} failed: ${error.message}`)
       }
     })
 

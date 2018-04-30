@@ -27,12 +27,12 @@ module.exports = class P2PInterface {
     const online = await isOnline()
 
     online
-      ? logger.info('Node is online, Google DNS is reachable')
-      : logger.error('Seems the node cannot access to internet (tested google DNS)')
+      ? logger.info('Node is online - Google DNS is accessible')
+      : logger.error('Node not online - Google DNS failed')
 
     const time = await Sntp.time()
 
-    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
+    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
   }
 
   /**
