@@ -25,13 +25,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     // separate connection for callback event sync
     this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
-    const that = this
     if (this.redis) {
       this.redis.on('connect', () => {
         logger.info('Redis connection established.')
-        that.isConnected = true
-        that.redis.config('set', 'notify-keyspace-events', 'Ex')
-        that.redisSub.subscribe('__keyevent@0__:expired')
+        this.isConnected = true
+        this.redis.config('set', 'notify-keyspace-events', 'Ex')
+        this.redisSub.subscribe('__keyevent@0__:expired')
       })
 
       this.redisSub.on('message', (channel, message) => {
