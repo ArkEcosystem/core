@@ -21,6 +21,7 @@ module.exports = {
     '@arkecosystem/core-api-p2p': {
       port: 4000
     },
+    '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
