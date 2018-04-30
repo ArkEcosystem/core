@@ -29,6 +29,8 @@ module.exports = {
       dialect_1: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {},
+    '@arkecosystem/core-graphql': {},
+    '@arkecosystem/core-api-graphql': {},
     '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {

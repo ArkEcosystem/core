@@ -31,9 +31,11 @@ module.exports = {
     '@arkecosystem/core-api-p2p': {
       port: 4000
     },
+    '@arkecosystem/core-graphql': {},
     '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
+    '@arkecosystem/core-api-graphql': {},
     '@arkecosystem/core-api-public': {},
     '@arkecosystem/core-api-webhooks': {},
     '@arkecosystem/core-forger': {}
