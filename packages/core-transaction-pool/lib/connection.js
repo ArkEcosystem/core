@@ -37,30 +37,65 @@ module.exports = class TransactionPoolInterface {
     return this.driver
   }
 
+   /**
+   * Get the number of transactions in the pool.
+   * @return {Number}
+   */
   async getPoolSize () {
     throw new Error('Method [getPoolSize] not implemented!')
   }
 
+  /**
+   * Add a transaction to the pool.
+   * @param {Transaction} transaction
+   */
   async addTransaction (transaction) {
     throw new Error('Method [addTransaction (transaction)] not implemented!')
   }
 
+  /**
+   * Remove a transaction.
+   * @param  {Number} id
+   * @return {void}
+   */
   async removeTransaction (id) {
     throw new Error('Method [removeTransaction (id)] not implemented!')
   }
 
+  /**
+   * Remove multiple transactions.
+   * @param  {Array} transactions
+   * @return {void}
+   */
   async removeTransactions (transactions) {
     throw new Error('Method [removeTransactions (transactions)] not implemented!')
   }
 
+    /**
+   * Get a transaction from the pool by transaction id.
+   * @param  {Number} id
+   * @return {(Transaction|String)}
+   */
   async getTransaction (id) {
     throw new Error('Method [getTransaction (id)] not implemented!')
   }
 
+    /**
+   * Get all transactions within the specified range.
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
+   */
   async getTransactions (start, size) {
     throw new Error('Method [getTransactions (start,size)] not implemented!')
   }
 
+    /**
+   * Get all transactions that are ready to be forged.
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {Array}
+   */
   async getTransactionsForForging (start, size) {
     throw new Error('Method [getTransactionsForForging (start, size)] not implemented!')
   }
