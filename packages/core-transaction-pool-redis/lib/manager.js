@@ -29,7 +29,7 @@ module.exports = class TransactionPoolManager {
     const that = this
     if (this.redis) {
       this.redis.on('connect', () => {
-        logger.info('Redis connection established.')
+        logger.info('Redis connection established')
         that.isConnected = true
         that.redis.config('set', 'notify-keyspace-events', 'Ex')
         that.redisSub.subscribe('__keyevent@0__:expired')
@@ -79,7 +79,7 @@ module.exports = class TransactionPoolManager {
           await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
         }
       } catch (error) {
-        logger.error('Error adding transaction to transaction pool error', error, error.stack)
+        logger.error('Problem adding transaction to transaction pool', error, error.stack)
       }
     }
   }
@@ -105,7 +105,7 @@ module.exports = class TransactionPoolManager {
         await this.removeTransaction(transaction.id)
       }
     } catch (error) {
-      logger.error(`Error removing forged transactions from pool ${error.stack}`)
+      logger.error(`Problem removing forged transactions from pool ${error.stack}`)
     }
   }
 
@@ -142,8 +142,7 @@ module.exports = class TransactionPoolManager {
         }
         return retList
       } catch (error) {
-        logger.error('Get Transactions items from redis pool: ', error)
-        logger.error(error.stack)
+        logger.error('Get Transactions items from redis pool: ', error, error.stack)
       }
     }
   }
@@ -170,13 +169,13 @@ module.exports = class TransactionPoolManager {
             const actions = {
               0: () => { // timestamp lock defined
                 if (parseInt(transaction[2]) <= slots.getTime()) {
-                  logger.debug(`Timelock for ${id} released timestamp=${transaction[2]}`)
+                  logger.debug(`Timelock for ${id} released - timestamp: ${transaction[2]}`)
                   retList.push(transaction[0])
                 }
               },
               1: () => { // block height time lock
                 if (parseInt(transaction[2]) <= blockchainManager.getState().lastBlock.data.height) {
-                  logger.debug(`Timelock for ${id} released block height=${transaction[2]}`)
+                  logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
                   retList.push(transaction[0])
                 }
               }
@@ -188,8 +187,7 @@ module.exports = class TransactionPoolManager {
         }
         return retList
       } catch (error) {
-        logger.error('Get transactions for forging from redis list: ', error)
-        logger.error(error.stack)
+        logger.error('Problem getting transactions for forging from redis list: ', error, error.stack)
       }
     }
   }

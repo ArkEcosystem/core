@@ -65,7 +65,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => {
-      logger.info('Blockchain download completed 🚀')
+      logger.info('Blockchain download finished 🚀')
       if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
@@ -74,7 +74,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     rebuildFinished: async () => {
       try {
-        logger.info('Blockchain rebuild complete! ⛓')
+        logger.info('Blockchain rebuild finished ⛓')
         state.rebuild = false
         await blockchainManager.getDatabaseConnection().saveBlockCommit()
         await blockchainManager.deleteBlocksToLastRound()
@@ -98,7 +98,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       blockchainManager.dispatch('REBUILDFINISHED')
     },
     exitApp: () => {
-      logger.error('Failed to startup blockchain, exiting app...')
+      logger.error('Failed to startup blockchain, exiting...')
       process.exit(1)
     },
     init: async () => {
@@ -173,8 +173,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.rebuildQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
-          logger.warn('Block Downloaded not accepted')
-          console.log(blocks[0])
+          logger.warn('Downloaded block not accepted', blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }
@@ -195,19 +194,17 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.processQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
-          logger.warn('Block Downloaded not accepted')
-          console.log(blocks[0])
+          logger.warn('Downloaded block not accepted', blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }
     },
     startForkRecovery: async () => {
-      logger.info('Starting Fork Recovery 🍴')
-      logger.info('Let sail the Ark in stormy waters ⛵️')
+      logger.info('Starting fork recovery 🍴')
       // state.forked = true
       const random = ~~(4 / Math.random())
       await blockchainManager.removeBlocks(random)
-      logger.info('Nice ride on the last ' + random + ' blocks 🌊')
+      logger.info(`Removed ${random} blocks`)
       blockchainManager.dispatch('SUCCESS')
     }
   }

@@ -74,10 +74,10 @@ module.exports = class WalletManager {
         this.walletsByAddress[generator] = delegate
         this.walletsByPublicKey[block.generatorPublicKey] = delegate
       } else {
-        logger.debug('delegate by address', this.walletsByAddress[generator])
+        logger.debug('Delegate by address', this.walletsByAddress[generator])
 
         if (this.walletsByAddress[generator]) {
-          logger.info('Oops ! this look like a bug, please report 🐛')
+          logger.info('This look like a bug, please report 🐛')
         }
 
         throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
@@ -170,21 +170,21 @@ module.exports = class WalletManager {
     }
 
     if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-      logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
     } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-      logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
     }
 
     if (config.network.exceptions[datatx.id]) {
-      logger.warn('Transaction is forced to be applied because it has been added as an exception:')
-      logger.warn(datatx)
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', datatx)
     } else if (!sender.canApply(datatx)) {
+      // TODO: What is this logging? Reduce?
       logger.info(JSON.stringify(sender))
-      logger.error(`[sender.canApply] Sent by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(datatx))
       logger.info('Audit', JSON.stringify(sender.auditApply(datatx), null, 2))
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }

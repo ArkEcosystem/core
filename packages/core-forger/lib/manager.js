@@ -115,7 +115,7 @@ module.exports = class ForgerManager {
    * @return {Object}
    */
   async send (block) {
-    logger.info(`Sending forged block id ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
+    logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

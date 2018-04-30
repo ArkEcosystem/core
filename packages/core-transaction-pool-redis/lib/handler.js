@@ -38,7 +38,7 @@ module.exports = class TransactionPoolHandler {
     }, 1)
 
     if (!config.enabled) {
-      logger.warn('Transaction Pool is disabled! If this node runs in production please enable it.')
+      logger.warn('Transaction pool is disabled - please enable if run in production')
     }
 
     return instance
