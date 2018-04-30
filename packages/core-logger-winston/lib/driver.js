@@ -3,6 +3,7 @@
 const winston = require('winston')
 const { LoggerInterface } = require('@arkecosystem/core-logger')
 require('colors')
+let tracker = null
 
 module.exports = class Logger extends LoggerInterface {
   /**
@@ -41,7 +42,7 @@ module.exports = class Logger extends LoggerInterface {
     line += progress.toFixed(figures) + '% '
     if (posttitle) line += posttitle + '                     '
     process.stdout.write(line)
-    this.tracker = line
+    tracker = line
   }
 
   /**
@@ -62,7 +63,7 @@ module.exports = class Logger extends LoggerInterface {
     if (current === max) line += '✔️'
     line += '                              \n'
     process.stdout.write(line)
-    this.tracker = null
+    tracker = null
   }
 
   /**
@@ -85,9 +86,9 @@ module.exports = class Logger extends LoggerInterface {
    */
   __registerFilters () {
     this.driver.filters.push((level, message, meta) => {
-      if (this.tracker) {
+      if (tracker) {
         process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
-        this.tracker = null
+        tracker = null
       }
 
       return message

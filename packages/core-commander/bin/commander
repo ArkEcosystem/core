@@ -6,15 +6,14 @@ const fs = require('fs')
 const expandHomeDir = require('expand-home-dir')
 const { splash, getProcessStatus } = require('../lib/utils')
 
-
 const start = async () => {
   splash()
 
   process.env.ARK_CONFIG = expandHomeDir('~/.ark/config')
 
-  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('../lib/commands/configure-network')()
+  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('../lib/commands/manage-network')()
 
-  require('../lib/commands/start')()
+  require('../lib/commands')()
 }
 
 getProcessStatus(() => start())
