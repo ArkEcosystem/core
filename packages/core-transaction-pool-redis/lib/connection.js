@@ -17,7 +17,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
-    this.driver = this.options.enabled ? new Redis(this.options.redis) : null
+    this.redis = this.options.enabled ? new Redis(this.options.redis) : null
 
     this.isConnected = false
     this.keyPrefix = this.options.key
@@ -26,16 +26,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     // separate connection for callback event sync
     this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
     const that = this
-    if (this.driver) {
-      this.driver.on('connect', () => {
+    if (this.redis) {
+      this.redis.on('connect', () => {
         logger.info('Redis connection established.')
         that.isConnected = true
-        that.driver.config('set', 'notify-keyspace-events', 'Ex')
+        that.redis.config('set', 'notify-keyspace-events', 'Ex')
         that.redisSub.subscribe('__keyevent@0__:expired')
       })
 
       this.redisSub.on('message', (channel, message) => {
-        logger.debug(`Receive message ${message} from channel ${channel}`)
+        logger.debug(`Receive expiration message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
     } else {
@@ -50,7 +50,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   async getPoolSize () {
-    return this.isConnected ? this.driver.llen(this.__getRedisOrderKey()) : -1
+    return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
   }
 
   /**
@@ -60,11 +60,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async addTransaction (transaction) {
     if (this.isConnected && transaction instanceof Transaction) {
       try {
-        await this.driver.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
-        await this.driver.rpush(this.__getRedisOrderKey(), transaction.id)
+        await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
+        await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
 
         if (transaction.data.expiration > 0) {
-          await this.driver.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
+          await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
         }
       } catch (error) {
         logger.error('Error adding transaction to transaction pool error', error, error.stack)
@@ -78,8 +78,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransaction (id) {
-    await this.driver.lrem(this.__getRedisOrderKey(), 1, id)
-    await this.driver.del(this.__getRedisTransactionKey(id))
+    if (this.isConnected) {
+      await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
+      await this.redis.del(this.__getRedisTransactionKey(id))
+    }
   }
 
   /**
@@ -104,7 +106,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransaction (id) {
     if (this.isConnected) {
-      const serialized = await this.driver.hget(this.__getRedisTransactionKey(id), 'serialized')
+      const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
       if (serialized) {
         return Transaction.fromBytes(serialized)
       } else {
@@ -122,10 +124,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async getTransactions (start, size) {
     if (this.isConnected) {
       try {
-        const transactionIds = await this.driver.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
         let retList = []
         for (const id of transactionIds) {
-          const serTrx = await this.driver.hmget(this.__getRedisTransactionKey(id), 'serialized')
+          const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
           serTrx ? retList.push(serTrx[0]) : await this.removeTransaction(id)
         }
         return retList
@@ -145,11 +147,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async getTransactionsForForging (start, size) {
     if (this.isConnected) {
       try {
-        let transactionIds = await this.driver.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+        let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
         transactionIds = await this.CheckIfForged(transactionIds)
         let retList = []
         for (const id of transactionIds) {
-          const transaction = await this.driver.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+          const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
           if (!transaction[0]) {
             await this.removeTransaction(id)
             break
