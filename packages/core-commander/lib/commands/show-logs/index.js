@@ -9,7 +9,9 @@ const expandHomeDir = require('expand-home-dir')
 
 module.exports = async () => {
   const choices = await glob('logs/**/*.log', {
-    cwd: expandHomeDir('~/.ark'), absolute: true, filesOnly: true
+    cwd: expandHomeDir('~/.ark'),
+    absolute: true,
+    filesOnly: true
   })
 
   const response = await prompts([{

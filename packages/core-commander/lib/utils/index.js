@@ -7,6 +7,16 @@ const writeFile = util.promisify(fs.writeFile)
 const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
+const _ = require('lodash')
+
+exports.readPluginConfig = (plugin) => {
+  const config = require(`${process.env.ARK_CONFIG}/plugins`)
+
+  let plugins = {}
+  Object.values(config).forEach(c => Object.assign(plugins, c))
+
+  return plugins[plugin]
+}
 
 exports.readConfig = (file) => require(`${process.env.ARK_CONFIG}/${file}.json`)
 
@@ -18,12 +28,12 @@ exports.splash = async () => {
   console.log(chalk.blue(figlet.textSync('ARK Core 2.0', { font: 'isometric3' })))
 }
 
-exports.onCancel = prompt => require('./commands/start')()
+exports.onCancel = prompt => require('../commands')()
 
 exports.getProcessStatus = (callback) => {
   pm2.connect((error) => {
     if (error) {
-      console.log(chalk.bgRed(error.message))
+      console.log(chalk.red(error.message))
       process.exit(2)
     }
 
@@ -31,7 +41,7 @@ exports.getProcessStatus = (callback) => {
       pm2.disconnect()
 
       if (error) {
-        console.log(chalk.bgRed(error.message))
+        console.log(chalk.red(error.message))
         process.exit(2)
       } else {
         const getProcess = (prefix, name) => {
@@ -53,7 +63,7 @@ exports.getProcessStatus = (callback) => {
 exports.startProcess = (options, callback) => {
   pm2.connect((error) => {
     if (error) {
-      console.log(chalk.bgRed(error.message))
+      console.log(chalk.red(error.message))
       process.exit(2)
     }
 
@@ -61,7 +71,7 @@ exports.startProcess = (options, callback) => {
       pm2.disconnect()
 
       if (error) {
-        console.log(chalk.bgRed(error.message))
+        console.log(chalk.red(error.message))
         process.exit(2)
       }
 
@@ -75,7 +85,7 @@ exports.startProcess = (options, callback) => {
 exports.stopProcess = (pid, callback) => {
   pm2.connect((error) => {
     if (error) {
-      console.log(chalk.bgRed(error.message))
+      console.log(chalk.red(error.message))
       process.exit(2)
     }
 
@@ -83,7 +93,7 @@ exports.stopProcess = (pid, callback) => {
       pm2.disconnect()
 
       if (error) {
-        console.log(chalk.bgRed(error.message))
+        console.log(chalk.red(error.message))
         process.exit(2)
       }
 
