@@ -67,7 +67,6 @@ module.exports = class SequelizeConnection extends Connection {
       await this.__registerModels()
       await this.__registerRepositories()
       await super.__registerWalletManager()
-      await this.__registerListeners()
 
       return this
     } catch (error) {
@@ -320,6 +319,8 @@ module.exports = class SequelizeConnection extends Connection {
       logger.stopTracker('SPV Building', 7, 7)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+
+      await this.__registerListeners()
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
