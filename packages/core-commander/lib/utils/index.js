@@ -7,7 +7,6 @@ const writeFile = util.promisify(fs.writeFile)
 const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
-const _ = require('lodash')
 
 exports.readPluginConfig = (plugin) => {
   const config = require(`${process.env.ARK_CONFIG}/plugins`)

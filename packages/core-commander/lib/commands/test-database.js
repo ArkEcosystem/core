@@ -1,8 +1,6 @@
 'use strict';
 
 const Sequelize = require('sequelize')
-const prompts = require('prompts')
-const fs = require('fs')
 const chalk = require('chalk')
 const expandHomeDir = require('expand-home-dir')
 const { sleep } = require('sleep')

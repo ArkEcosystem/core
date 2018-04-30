@@ -2,7 +2,6 @@
 
 const Sequelize = require('sequelize')
 const Redis = require('ioredis')
-const fs = require('fs')
 const chalk = require('chalk')
 const expandHomeDir = require('expand-home-dir')
 const { sleep } = require('sleep')
