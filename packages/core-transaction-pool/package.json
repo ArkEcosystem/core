@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-logger",
+  "description": "Logger Manager for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
+    "lint": "eslint ./ --fix"
+  }
+}
