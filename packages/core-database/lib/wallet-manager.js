@@ -50,7 +50,7 @@ module.exports = class WalletManager {
     }
   }
 
-  canPurge (wallet) {
+  canBePurged (wallet) {
     return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
@@ -60,12 +60,12 @@ module.exports = class WalletManager {
    */
   purgeEmptyNonDelegates () {
     Object.keys(this.walletsByAddress).forEach(address => {
-      if (this.canPurge(this.walletsByAddress[address])) {
+      if (this.canBePurged(this.walletsByAddress[address])) {
         delete this.walletsByAddress[address]
       }
     })
     Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      if (this.canPurge(this.walletsByPublicKey[publicKey])) {
+      if (this.canBePurged(this.walletsByPublicKey[publicKey])) {
         delete this.walletsByPublicKey[publicKey]
       }
     })
