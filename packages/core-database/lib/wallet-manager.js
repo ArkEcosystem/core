@@ -51,10 +51,10 @@ module.exports = class WalletManager {
   }
 
   /**
-   * Remove wallets that have zero (0) balance from memory.
+   * Remove non-delegate wallets that have zero (0) balance from memory.
    * @return {void}
    */
-  purgeEmpty () {
+  purgeEmptyNonDelegates () {
     Object.keys(this.walletsByAddress).forEach(address => {
       if (this.walletsByAddress[address].balance === 0) {
         delete this.walletsByAddress[address]
@@ -65,9 +65,10 @@ module.exports = class WalletManager {
         delete this.walletsByPublicKey[publicKey]
       }
     })
+    // Reindex empty delegate wallets
     Object.keys(this.delegatesByUsername).forEach(username => {
       if (this.delegatesByUsername[username].balance === 0) {
-        delete this.delegatesByUsername[username]
+        this.reindex(this.delegatesByUsername[username])
       }
     })
   }

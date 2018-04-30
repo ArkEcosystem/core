@@ -318,7 +318,7 @@ module.exports = class SequelizeConnection extends Connection {
       })
 
       logger.printTracker('SPV Building', 8, 8, 'purge empty')
-      this.walletManager.purgeEmpty()
+      this.walletManager.purgeEmptyNonDelegates()
 
       logger.stopTracker('SPV Building', 8, 8)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
@@ -384,7 +384,7 @@ module.exports = class SequelizeConnection extends Connection {
 
     logger.info('Rebuilt wallets saved')
 
-    this.walletManager.purgeEmpty()
+    this.walletManager.purgeEmptyNonDelegates()
 
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
