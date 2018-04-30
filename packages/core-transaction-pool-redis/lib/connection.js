@@ -1,5 +1,6 @@
 'use strict';
 
+const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
@@ -10,54 +11,40 @@ const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
 
-let instance
-
-module.exports = class TransactionPoolManager {
+module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
-   * Create a new transaction pool manager instance.
-   * @param  {Object} config
-   * @return {TransactionPoolManager}
+   * Make the transaction pool instance.
+   * @return {TransactionPool}
    */
-  constructor (config) {
+  make () {
+    this.redis = this.options.enabled ? new Redis(this.options.redis) : null
+
     this.isConnected = false
-    this.keyPrefix = config.key
+    this.keyPrefix = this.options.key
     this.counters = {}
 
-    this.redis = config.enabled ? new Redis(config.redis) : null
-    this.redisSub = config.enabled ? new Redis(config.redis) : null
-
-    const that = this
+    // separate connection for callback event sync
+    this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
     if (this.redis) {
       this.redis.on('connect', () => {
-        logger.info('Redis connection established')
-        that.isConnected = true
-        that.redis.config('set', 'notify-keyspace-events', 'Ex')
-        that.redisSub.subscribe('__keyevent@0__:expired')
+        logger.info('Redis connection established.')
+        this.isConnected = true
+        this.redis.config('set', 'notify-keyspace-events', 'Ex')
+        this.redisSub.subscribe('__keyevent@0__:expired')
       })
 
       this.redisSub.on('message', (channel, message) => {
-        // logger.debug(`Receive message ${message} from channel ${channel}`)
+        logger.debug(`Receive expiration message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
     } else {
-      logger.warn('Transaction pool is disabled in settings')
+      logger.warn('Transaction pool is disabled - please enable if run in production')
     }
 
-    if (!instance) {
-      instance = this
-    }
-    return instance
+    return this
   }
 
-  /**
-   * Get a transaction pool manager instance.
-   * @return {TransactionPoolManager}
-   */
-  static getInstance () {
-    return instance
-  }
-
-  /**
+   /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
@@ -90,8 +77,10 @@ module.exports = class TransactionPoolManager {
    * @return {void}
    */
   async removeTransaction (id) {
-    await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
-    await this.redis.del(this.__getRedisTransactionKey(id))
+    if (this.isConnected) {
+      await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
+      await this.redis.del(this.__getRedisTransactionKey(id))
+    }
   }
 
   /**
@@ -157,7 +146,7 @@ module.exports = class TransactionPoolManager {
     if (this.isConnected) {
       try {
         let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-        transactionIds = await this.__checkIfForged(transactionIds)
+        transactionIds = await this.CheckIfForged(transactionIds)
         let retList = []
         for (const id of transactionIds) {
           const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
@@ -190,18 +179,6 @@ module.exports = class TransactionPoolManager {
         logger.error('Problem getting transactions for forging from redis list: ', error, error.stack)
       }
     }
-  }
-
-  /**
-   * Checks if any of transactions for forging from pool was already forged and removes them from pool
-   * It returns only the ids of transactions that have yet to be forged
-   * @param  {Array} transactionIds
-   * @return {Array}
-   */
-  async __checkIfForged (transactionIds) {
-    const forgedIds = await blockchainManager.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
-    forgedIds.forEach(element => this.removeTransaction(element))
-    return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 
   /**

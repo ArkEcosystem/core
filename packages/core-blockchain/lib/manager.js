@@ -140,7 +140,7 @@ module.exports = class BlockchainManager {
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
 
-    return this.getTransactionHandler().addTransactions(transactions)
+    return this.getTransactionPool().addTransactions(transactions)
   }
 
   /**
@@ -202,7 +202,7 @@ module.exports = class BlockchainManager {
 
       await this.getDatabaseConnection().undoBlock(lastBlock)
       await this.getDatabaseConnection().deleteBlock(lastBlock)
-      await this.getTransactionHandler().undoBlock(lastBlock)
+      await this.getTransactionPool().addTransactions(lastBlock.transactions)
 
       const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
@@ -340,7 +340,7 @@ module.exports = class BlockchainManager {
         this.getNetworkInterface().broadcastBlock(block)
       }
 
-      this.getTransactionHandler().removeForgedTransactions(block.transactions)
+      this.getTransactionPool().removeTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
@@ -383,12 +383,12 @@ module.exports = class BlockchainManager {
    */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     let retItems = forForging
-      ? await this.getTransactionHandler().getTransactionsForForging(0, blockSize)
-      : await this.getTransactionHandler().getUnconfirmedTransactions(0, blockSize)
+      ? await this.getTransactionPool().getTransactionsForForging(0, blockSize)
+      : await this.getTransactionPool().getTransactions(0, blockSize)
 
     return {
       transactions: retItems,
-      poolSize: await this.getTransactionHandler().getPoolSize(),
+      poolSize: await this.getTransactionPool().getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
@@ -434,10 +434,10 @@ module.exports = class BlockchainManager {
 
   /**
    * Get the transaction handler.
-   * @return {TransactionPoolHandler}
+   * @return {TransactionPool}
    */
-  getTransactionHandler () {
-    return pluginManager.get('transaction-handler')
+  getTransactionPool () {
+    return pluginManager.get('transactionPool')
   }
 
   /**
