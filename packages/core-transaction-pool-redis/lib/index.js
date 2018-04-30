@@ -1,18 +1,31 @@
 'use strict';
 
-const TransactionHandler = require('./handler')
+const RedisDriver = require('./driver')
 
 /**
  * The struct used by the plugin manager.
- * @type {Object}
+ * @type {RedisDriver}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
-  alias: 'transaction-handler',
+  alias: 'transactionPool',
   register: async (manager, options) => {
-    manager.get('logger').info('Starting Transaction Pool...')
+    const transactionPoolManager = manager.get('transactionPoolManager')
+    await transactionPoolManager.makeDriver(new RedisDriver(options))
 
-    return new TransactionHandler(options)
+    // // Disable logging during tests
+    // // NODE_ENV=test >>> Jest Test-Suite
+    // if (process.env.NODE_ENV === 'test') {
+    //   logManager.driver().clear()
+    // }
+
+    return transactionPoolManager.driver()
   }
 }
+
+/**
+ * Expose the winston formatter for configuration.
+ * @type {Function}
+ */
+exports.formatter = require('./formatter')

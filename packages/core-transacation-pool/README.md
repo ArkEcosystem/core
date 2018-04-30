@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Transaction - Pool
+# ARK Core - Transaction-Pool (Redis)
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-transaction-pool
+yarn add @arkecosystem/core-transaction-pool-redis
 ```
 
 ## Security

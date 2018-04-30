@@ -1,8 +1,8 @@
 'use strict';
 
-class LogManager {
+class TransactionPoolManager {
   /**
-   * Create a new log manager instance.
+   * Create a new transaction pool manager instance.
    * @constructor
    */
   constructor () {
@@ -10,9 +10,9 @@ class LogManager {
   }
 
   /**
-   * Get a logger instance.
+   * Get a transaction pool instance.
    * @param  {String} name
-   * @return {LoggerInterface}
+   * @return {TransactionPoolInterface}
    */
   driver (name = 'default') {
     return this.drivers[name]
@@ -20,7 +20,7 @@ class LogManager {
 
   /**
    * Make the logger instance.
-   * @param  {LoggerInterface} driver
+   * @param  {TransactionPoolInterface} driver
    * @param  {String} name
    * @return {void}
    */
@@ -29,4 +29,4 @@ class LogManager {
   }
 }
 
-module.exports = new LogManager()
+module.exports = new TransactionPoolManager()

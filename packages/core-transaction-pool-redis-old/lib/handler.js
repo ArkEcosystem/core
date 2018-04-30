@@ -16,7 +16,7 @@ let instance
 
 module.exports = class TransactionPoolHandler {
   /**
-   * Create a new webhook manager instance.
+   * Create a new transaction pool  instance.
    * @param  {Object} config
    * @return {TransactionPoolHandler}
    */
