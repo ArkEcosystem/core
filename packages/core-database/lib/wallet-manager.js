@@ -51,7 +51,7 @@ module.exports = class WalletManager {
   }
 
   canPurge (wallet) {
-    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.username
+    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
   /**
