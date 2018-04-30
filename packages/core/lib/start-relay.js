@@ -11,7 +11,12 @@ module.exports = async (options) => {
   const config = options.config
 
   pluginManager.init(config, {
-    exclude: ['@arkecosystem/core-forger']
+    exclude: ['@arkecosystem/core-forger'],
+    options: {
+      '@arkecosystem/core-blockchain': {
+        networkStart: options.networkStart
+      }
+    }
   })
 
   await pluginManager.hook('init', {config})

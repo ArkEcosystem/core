@@ -14,7 +14,7 @@ exports.plugin = {
     manager.get('logger').info('Starting P2P Interface...')
 
     const p2p = new P2PInterface(options, manager.get('config'))
-    await p2p.warmup(options.networkStart || false)
+    await p2p.warmup(options.networkStart)
 
     return p2p
   }
