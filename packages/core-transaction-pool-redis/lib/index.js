@@ -4,7 +4,7 @@ const RedisConnection = require('./connection')
 
 /**
  * The struct used by the plugin manager.
- * @type {RedisDriver}
+ * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
@@ -16,13 +16,6 @@ exports.plugin = {
     const redis = new RedisConnection(options)
 
     await transactionPoolManager.makeConnection(redis)
-
-    // // Disable logging during tests
-    // // NODE_ENV=test >>> Jest Test-Suite
-    // if (process.env.NODE_ENV === 'test') {
-    //   logManager.driver().clear()
-    // }
-
     return transactionPoolManager.connection()
   }
 }
