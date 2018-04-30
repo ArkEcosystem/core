@@ -7,7 +7,6 @@ const Redis = require('ioredis')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const blockchainManager = pluginManager.get('blockchain')
-const config = pluginManager.get('config')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -19,14 +18,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Redis}
    */
   make () {
-    this.driver = this.config.enabled ? new Redis(this.config.redis) : null
+    console.log(this.config)
+    this.driver = this.options.enabled ? new Redis(this.options.redis) : null
 
     this.isConnected = false
-    this.keyPrefix = config.key
+    this.keyPrefix = this.options.key
     this.counters = {}
 
     // separate connection for callback event sync
-    this.redisSub = this.config.enabled ? new Redis(this.config.redis) : null
+    this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
     const that = this
     if (this.driver) {
       this.driver.on('connect', () => {

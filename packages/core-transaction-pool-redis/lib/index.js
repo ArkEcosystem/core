@@ -23,9 +23,3 @@ exports.plugin = {
     return transactionPoolManager.driver()
   }
 }
-
-/**
- * Expose the winston formatter for configuration.
- * @type {Function}
- */
-exports.formatter = require('./formatter')
