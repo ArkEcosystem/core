@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-logger-winston",
+  "name": "@arkecosystem/core-transaction-pool-redis",
   "description": "Winston Logger for ARK Core",
   "version": "1.0.0",
   "contributors": [
@@ -17,11 +17,9 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "chalk": "^2.3.2",
-    "colors": "^1.2.1",
-    "expand-home-dir": "^0.0.3",
-    "moment": "^2.22.0",
-    "winston": "^2.4.1",
-    "winston-daily-rotate-file": "^3.0.2"
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-plugin-manager": "^1.0.0",
+    "async": "^2.6.0",
+    "ioredis": "^3.2.2"
   }
 }
