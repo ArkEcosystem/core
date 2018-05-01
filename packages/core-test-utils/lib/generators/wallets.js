@@ -6,7 +6,7 @@ module.exports = (network, amount = 10) => {
 
   let wallets = {}
 
-  for (var i = amount - 1; i >= 0; i--) {
+  for (let i = amount - 1; i >= 0; i--) {
       const passphrase = bip39.generateMnemonic()
       const address = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 

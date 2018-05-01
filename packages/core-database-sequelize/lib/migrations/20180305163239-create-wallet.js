@@ -27,10 +27,10 @@ module.exports = {
       secondPublicKey: Sequelize.STRING(66),
       vote: Sequelize.STRING(66),
       username: Sequelize.STRING(64),
-      balance: Sequelize.BIGINT,
-      votebalance: Sequelize.BIGINT,
-      producedBlocks: Sequelize.BIGINT,
-      missedBlocks: Sequelize.BIGINT,
+      balance: Sequelize.BIGINT.UNSIGNED,
+      votebalance: Sequelize.BIGINT.UNSIGNED,
+      producedBlocks: Sequelize.INTEGER.UNSIGNED,
+      missedBlocks: Sequelize.INTEGER.UNSIGNED,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

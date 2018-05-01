@@ -125,7 +125,7 @@ module.exports = class Down {
 
       emitter.emit('peer.added', npeer)
     } catch (error) {
-      logger.debug(`Peer ${npeer} not connectable - ${error}`)
+      logger.debug(`Could not connect to peer '${npeer}' - ${error}`)
     }
   }
 

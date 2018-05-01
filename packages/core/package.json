@@ -45,11 +45,13 @@
     "@arkecosystem/core-blockchain": "^1.0.0",
     "@arkecosystem/core-commander": "^1.0.0",
     "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-config-json": "^1.0.0",
     "@arkecosystem/core-database": "^1.0.0",
     "@arkecosystem/core-database-sequelize": "^1.0.0",
     "@arkecosystem/core-forger": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",
     "@arkecosystem/core-logger-winston": "^1.0.0",
+    "@arkecosystem/core-transaction-pool": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",
     "commander": "^2.14.0"

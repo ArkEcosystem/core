@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-transaction-pool-redis",
-  "description": "Transaction Pool - Redis Implementation for ARK Core",
+  "name": "@arkecosystem/core-transaction-pool",
+  "description": "Transaction Pool Manager for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -15,11 +15,5 @@
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-plugin-manager": "^1.0.0",
-    "async": "^2.6.0",
-    "ioredis": "^3.2.2"
   }
 }
