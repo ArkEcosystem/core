@@ -193,6 +193,15 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async buildWallets (height) {
     this.walletManager.reset()
+
+    const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
+    if (fs.statSync(spvPath)) {
+      const crashHeight = require(spvPath).height
+      fs.removeSync(spvPath)
+      logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+      return await this.loadWallets()
+    }
+
     const maxDelegates = config.getConstants(height).activeDelegates
 
     try {
@@ -321,6 +330,15 @@ module.exports = class SequelizeConnection extends Connection {
     } catch (error) {
       logger.error(error.stack)
     }
+  }
+
+  /**
+   * Load all wallets from database.
+   * @return {void}
+   */
+  async loadWallets () {
+    const wallets = await this.models.wallet.findAll()
+    wallets.forEach(wallet => this.walletManager.reindex(wallet.dataValues))
   }
 
   /**
