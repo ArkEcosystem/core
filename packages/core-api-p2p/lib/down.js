@@ -233,7 +233,7 @@ module.exports = class Down {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
-    const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
+    const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
 
     return ratio
