@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
   globalSetup: './__tests__/support/tearup-full.js',

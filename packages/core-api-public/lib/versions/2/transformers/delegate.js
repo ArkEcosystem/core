@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 const formatTimestamp = require('./utils/format-timestamp')

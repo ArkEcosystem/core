@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const objectFilter = require('../../../lib/repositories/utils/filter-object')
 

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Check if A is greater than B.

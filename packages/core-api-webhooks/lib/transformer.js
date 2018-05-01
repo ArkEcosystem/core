@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Turns a "webhooks" object into a generic object.

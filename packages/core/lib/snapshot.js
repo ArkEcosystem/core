@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
@@ -32,6 +32,4 @@ module.exports = async (options) => {
   await pluginManager.hook('beforeMount')
 
   pluginManager.get('database').snapshot()
-
-  pluginManager.get('logger').info('Snapshot saved')
 }

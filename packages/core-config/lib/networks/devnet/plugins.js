@@ -23,16 +23,14 @@ module.exports = {
   beforeMount: {
     '@arkecosystem/core-database': {},
     '@arkecosystem/core-database-sequelize': {
-      uri: 'sqlite:~/.ark/database/devnet2.sqlite',
+      uri: 'sqlite:~/.ark/database/devnet.sqlite',
       uri_1: 'postgres://node:password@localhost:5432/ark_devnet',
       dialect: 'sqlite',
       dialect_1: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {},
     '@arkecosystem/core-transaction-pool': {},
-    '@arkecosystem/core-transaction-pool-redis': {
-      enabled: false
-    }
+    '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
     '@arkecosystem/core-api-public': {},

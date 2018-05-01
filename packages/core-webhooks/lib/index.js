@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const WebhookManager = require('./manager')
+const webhookManager = require('./manager')
 const database = require('./database')
 
 /**
@@ -16,10 +16,9 @@ exports.plugin = {
 
     await database.init(options.database)
 
-    const webhookManager = new WebhookManager(options)
     await webhookManager.init(options)
 
-    return WebhookManager.getInstance()
+    return webhookManager
   }
 }
 

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const moment = require('moment')
 const config = require('@arkecosystem/core-plugin-manager').get('config')

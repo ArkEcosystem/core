@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const axios = require('axios')
 const dirTree = require('directory-tree')
@@ -14,7 +14,7 @@ module.exports = class Config extends ConfigInterface {
   async make () {
     await this.__createFromDirectory()
 
-    this.__buildConstants()
+    super._buildConstants()
 
     return this
   }

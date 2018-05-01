@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * The AJV schema for the transaction endpoints.

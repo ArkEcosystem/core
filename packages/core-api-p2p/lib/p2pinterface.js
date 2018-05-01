@@ -1,13 +1,11 @@
-'use strict';
+'use strict'
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const dns = require('dns')
 const Sntp = require('sntp')
 
+const isOnline = require('./utils/is-online')
 const Down = require('./down')
 const Up = require('./up')
-
-const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8.8', 53, (err, hostname, service) => resolve(!err)))
 
 module.exports = class P2PInterface {
   /**
@@ -24,11 +22,13 @@ module.exports = class P2PInterface {
    * Check if node is online.
    */
   async checkOnline () {
-    const online = await isOnline()
+    try {
+      const server = await isOnline(this.up.config.dnsServers)
 
-    online
-      ? logger.info('Node is online - Google DNS is accessible')
-      : logger.error('Node not online - Google DNS failed')
+      logger.info(`Your network connectivity has been verified by ${server}`)
+    } catch (err) {
+      logger.error(err.message)
+    }
 
     const time = await Sntp.time()
 

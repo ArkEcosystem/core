@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-const BlockchainManager = require('../lib/manager')
+const Blockchain = require('../lib/manager')
 
-describe('Core | BlockchainManager', () => {
+describe('Core | Blockchain', () => {
   it('exists', () => {
-    expect(BlockchainManager).toBeFunction()
+    expect(Blockchain).toBeFunction()
   })
 
   it('works with sinons', () => {

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const path = require('path')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
@@ -13,6 +13,7 @@ const setupPluggy = async () => {
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 }
+
 module.exports = async () => {
   await setupPluggy()
 

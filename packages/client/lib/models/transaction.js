@@ -34,8 +34,10 @@ module.exports = class Transaction {
   constructor (transaction) {
     this.serialized = Transaction.serialize(transaction)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
+
     if (this.data.version === 1) {
       this.verified = arkjsv1.crypto.verify(this.data)
+
       if (!this.verified) {
         // fix on issue of non homogeneus transaction type 1 payload
         if (this.data.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
@@ -44,6 +46,7 @@ module.exports = class Transaction {
           } else {
             this.data.recipientId = arkjsv1.crypto.getAddress(this.data.senderPublicKey, this.data.network)
           }
+
           this.verified = arkjsv1.crypto.verify(this.data)
           this.data.id = arkjsv1.crypto.getId(this.data)
         }
@@ -52,6 +55,7 @@ module.exports = class Transaction {
       // TODO: enable AIP11 when network ready
       this.verified = false
     }
+
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature'].forEach((key) => { // eslint-disable-line max-len
       this[key] = this.data[key]
@@ -77,6 +81,7 @@ module.exports = class Transaction {
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
     bb.writeUInt64(transaction.fee)
+
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
       bb.writeByte(vf.length)
@@ -92,51 +97,83 @@ module.exports = class Transaction {
       bb.writeUInt64(transaction.amount)
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
-    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
       bb.writeByte(transaction.asset.votes.length)
       bb.append(voteBytes, 'hex')
-    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       bb.append(transaction.asset.signature.publicKey, 'hex')
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
       const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       let joined = null
-      if (!transaction.version || transaction.version === 1) joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('') // eslint-disable-line max-len
-      else joined = transaction.asset.multisignature.keysgroup.join('')
+
+      if (!transaction.version || transaction.version === 1) {
+        joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('') // eslint-disable-line max-len
+      } else {
+        joined = transaction.asset.multisignature.keysgroup.join('')
+      }
+
       const keysgroupBuffer = Buffer.from(joined, 'hex')
       bb.writeByte(transaction.asset.multisignature.min)
       bb.writeByte(transaction.asset.multisignature.keysgroup.length)
       bb.writeByte(transaction.asset.multisignature.lifetime)
       bb.append(keysgroupBuffer, 'hex')
-    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.IPFS) {
       bb.writeByte(transaction.asset.ipfs.dag.length / 2)
       bb.append(transaction.asset.ipfs.dag, 'hex')
-    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       bb.writeUInt64(transaction.amount)
       bb.writeByte(transaction.timelocktype)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       bb.writeUInt32(transaction.asset.payments.length)
       transaction.asset.payments.forEach(p => {
         bb.writeUInt64(p.amount)
         bb.append(bs58check.decode(p.recipientId))
       })
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
       // delegate resignation - empty payload
     }
 
-    if (transaction.signature) bb.append(transaction.signature, 'hex')
-    if (transaction.secondSignature) bb.append(transaction.secondSignature, 'hex')
-    else if (transaction.signSignature) bb.append(transaction.signSignature, 'hex')
+    if (transaction.signature) {
+      bb.append(transaction.signature, 'hex')
+    }
+
+    if (transaction.secondSignature) {
+      bb.append(transaction.secondSignature, 'hex')
+    }
+
+    if (transaction.signSignature) {
+      bb.append(transaction.signSignature, 'hex')
+    }
+
     if (transaction.signatures) {
       bb.append('ff', 'hex') // 0xff separator to signal start of multisign tx
       bb.append(transaction.signatures.join(''), 'hex')
     }
+
     bb.flip()
+
     return bb.toBuffer()
   }
 
@@ -149,6 +186,7 @@ module.exports = class Transaction {
     tx.timestamp = buf.readUInt32(4)
     tx.senderPublicKey = hexString.substring(16, 16 + 33 * 2)
     tx.fee = buf.readUInt64(41).toNumber()
+
     const vflength = buf.readInt8(41 + 8)
     if (vflength > 0) {
       tx.vendorFieldHex = hexString.substring((41 + 8 + 1) * 2, (41 + 8 + 1) * 2 + vflength * 2)
@@ -160,25 +198,35 @@ module.exports = class Transaction {
       tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
       tx.expiration = buf.readUInt32(assetOffset / 2 + 8)
       tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21))
+
       Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 12) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.VOTE) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.VOTE) {
       const votelength = buf.readInt8(assetOffset / 2) & 0xff
       tx.asset = { votes: [] }
+
       let vote
       for (let i = 0; i < votelength; i++) {
         vote = hexString.substring(assetOffset + 2 + i * 2 * 34, assetOffset + 2 + (i + 1) * 2 * 34)
         vote = (vote[1] === '1' ? '+' : '-') + vote.slice(2)
         tx.asset.votes.push(vote)
       }
+
       Transaction.parseSignatures(hexString, tx, assetOffset + 2 + votelength * 34 * 2)
-    } else if (tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       tx.asset = {
         signature: {
           publicKey: hexString.substring(assetOffset, assetOffset + 66)
         }
       }
+
       Transaction.parseSignatures(hexString, tx, assetOffset + 66)
-    } else if (tx.type === TRANSACTION_TYPES.DELEGATE) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.DELEGATE) {
       const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
 
       tx.asset = {
@@ -186,32 +234,47 @@ module.exports = class Transaction {
           username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString('utf8')
         }
       }
+
       Transaction.parseSignatures(hexString, tx, assetOffset + (usernamelength + 1) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       tx.asset = { multisignature: { keysgroup: [] } }
       tx.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
+
       const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
       tx.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
+
       for (let index = 0; index < num; index++) {
         const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66)
         tx.asset.multisignature.keysgroup.push(key)
       }
       Transaction.parseSignatures(hexString, tx, assetOffset + 6 + num * 66)
-    } else if (tx.type === TRANSACTION_TYPES.IPFS) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.IPFS) {
       tx.asset = {}
+
       const l = buf.readInt8(assetOffset / 2) & 0xff
       tx.asset.dag = hexString.substring(assetOffset + 2, assetOffset + 2 + l * 2)
       Transaction.parseSignatures(hexString, tx, assetOffset + 2 + l * 2)
-    } else if (tx.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       tx.amount = buf.readUInt64(assetOffset / 2).toNumber()
       tx.timelocktype = buf.readInt8(assetOffset / 2 + 8) & 0xff
       tx.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       tx.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
+
       Transaction.parseSignatures(hexString, tx, assetOffset + (21 + 13) * 2)
-    } else if (tx.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       tx.asset = { payments: [] }
+
       const total = buf.readInt8(assetOffset / 2) & 0xff
       let offset = assetOffset / 2 + 1
+
       for (let j = 0; j < total; j++) {
         const payment = {}
         payment.amount = buf.readUInt64(offset).toNumber()
@@ -219,9 +282,13 @@ module.exports = class Transaction {
         tx.asset.payments.push(payment)
         offset += 22
       }
+
       tx.amount = tx.asset.payments.reduce((a, p) => (a += p.amount), 0)
+
       Transaction.parseSignatures(hexString, tx, offset * 2)
-    } else if (tx.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+    }
+
+    if (tx.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
       Transaction.parseSignatures(hexString, tx, assetOffset)
     }
 
@@ -254,9 +321,12 @@ module.exports = class Transaction {
       if (!tx.id) {
         tx.id = arkjsv1.crypto.getId(tx)
       }
-    } else if (tx.version === 2) {
+    }
+
+    if (tx.version === 2) {
       tx.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')
     }
+
     return tx
   }
 
@@ -264,6 +334,7 @@ module.exports = class Transaction {
     tx.signature = hexString.substring(startOffset)
 
     let multioffset = 0
+
     if (tx.signature.length === 0) {
       delete tx.signature
     } else {
@@ -283,9 +354,16 @@ module.exports = class Transaction {
           multioffset += length2 * 2
         }
       }
+
       let signatures = hexString.substring(startOffset + multioffset)
-      if (!signatures.length) return
-      if (signatures.slice(0, 2) !== 'ff') return
+      if (!signatures.length) {
+        return
+      }
+
+      if (signatures.slice(0, 2) !== 'ff') {
+        return
+      }
+
       signatures = signatures.slice(2)
       tx.signatures = []
       for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {

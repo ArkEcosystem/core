@@ -23,6 +23,7 @@ module.exports = class MultiPayment extends Transaction {
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
+
     return this
   }
 
@@ -42,6 +43,7 @@ module.exports = class MultiPayment extends Transaction {
     const key = paymentsCount + 1
     this.payments[`address${key}`] = address
     this.payments[`amount${key}`] = amount
+
     return this
   }
 
@@ -53,6 +55,7 @@ module.exports = class MultiPayment extends Transaction {
     const struct = super.getStruct()
     struct.senderPublicKey = this.senderPublicKey
     struct.vendorFieldHex = this.vendorFieldHex
+
     return Object.assign(struct, this.payments)
   }
 }

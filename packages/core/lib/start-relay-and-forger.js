@@ -8,7 +8,9 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
  * @return {void}
  */
 module.exports = async (options) => {
-  pluginManager.init(options.config, {
+  const config = options.config
+
+  pluginManager.init(config, {
     options: {
       '@arkecosystem/core-api-p2p': {
         networkStart: options.networkStart
@@ -24,14 +26,10 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', { config: options.config })
+  await pluginManager.hook('init', {config})
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
+  await pluginManager.get('blockchain').start()
 
-  pluginManager.get('logger').info('Starting Blockchain Manager...')
-  const blockchainManager = pluginManager.get('blockchain')
-  await blockchainManager.start()
-  await blockchainManager.isReady()
-
-  await pluginManager.hook('mounted')
+  pluginManager.hook('mounted')
 }

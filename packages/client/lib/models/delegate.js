@@ -34,6 +34,7 @@ module.exports = class Delegate {
     this.network = network
     this.keySize = 32 // AES-256
     this.iterations = 5000
+
     if (bip38.verify(passphrase)) {
       try {
         this.keys = Delegate.decryptPassphrase(passphrase, network, password)
@@ -81,6 +82,7 @@ module.exports = class Delegate {
   static decryptPassphrase (passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
+
     let keys = ECPair.fromWIF(wifKey, network)
     keys.publicKey = keys.getPublicKeyBuffer().toString('hex')
 
@@ -147,7 +149,9 @@ module.exports = class Delegate {
       if (this.bip38) {
         this.decryptKeysWithOtp()
       }
+
       let block = Block.create(data, this.keys)
+
       if (this.bip38) {
         this.encryptKeysWithOtp()
       }
