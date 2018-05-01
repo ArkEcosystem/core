@@ -2,7 +2,6 @@ const ByteBuffer = require('bytebuffer')
 const Block = require('../../lib/models/block')
 
 describe('Models - Block', () => {
-
   const data = Object.freeze({
     id: '187940162505562345',
     blockSignature: '3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8', // eslint-disable-line max-len
@@ -38,13 +37,14 @@ describe('Models - Block', () => {
           expect(header[key]).toEqual(data2[key])
         }
       })
+
       expect(header).not.toHaveProperty('transactions')
     })
   })
 
   describe('serialize', () => {
     const serialize = (data, includeSignature) => {
-      const serialized = Block.serialize(data, includeSignature)      
+      const serialized = Block.serialize(data, includeSignature)
       const buffer = new ByteBuffer(1024, true)
       buffer.append(serialized)
       buffer.flip()
@@ -69,6 +69,7 @@ describe('Models - Block', () => {
         expect(serialize(data2).slice(12, 20).toString('hex')).toEqual(data2.previousBlockHex)
       })
     })
+
     describe('if `previousBlockHex` does not exist', () => {
       it('8 bytes are added, as padding', () => {
         expect(serialize(data).slice(12, 20).toString('hex')).toEqual('0000000000000000')
@@ -109,16 +110,19 @@ describe('Models - Block', () => {
         delete data2.blockSignature
         expect(serialize(data2).limit).toEqual(117)
       })
+
       it('is not serialized, even when the `includeSignature` parameter is true', () => {
         const data2 = { ...data }
         delete data2.blockSignature
         expect(serialize(data2, true).limit).toEqual(117)
       })
     })
+
     describe('if the `blockSignature` is included', () => {
       it('is serialized', () => {
         expect(serialize(data).slice(117, 188).toString('hex')).toEqual(data.blockSignature)
       })
+
       it('is serialized unless the `includeSignature` parameter is false', () => {
         expect(serialize(data, false).limit).toEqual(117)
       })

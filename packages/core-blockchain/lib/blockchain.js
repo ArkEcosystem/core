@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const async = require('async')
 
@@ -12,9 +12,7 @@ const logger = pluginManager.get('logger')
 const stateMachine = require('./state-machine')
 const sleep = require('./utils/sleep')
 
-let instance
-
-module.exports = class BlockchainManager {
+module.exports = class Blockchain {
   /**
    * Create a new blockchain manager instance.
    * @param  {Number} config
@@ -22,16 +20,11 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   constructor (config, networkStart) {
-    if (!instance) {
-      instance = this
-    } else {
-      throw new Error('Can\'t initialise 2 blockchains!')
-    }
-
     this.config = config
 
     // flag to force a network start
     stateMachine.state.networkStart = !!networkStart
+
     if (stateMachine.state.networkStart) {
       // TODO: Reword message below
       logger.warn('ARK Core is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
@@ -42,14 +35,6 @@ module.exports = class BlockchainManager {
 
     this.__setupProcessQueue()
     this.__setupRebuildQueue()
-  }
-
-  /**
-   * Get a blockchain manager instance.
-   * @return {BlockchainManager}
-   */
-  static getInstance () {
-    return instance
   }
 
   /**
@@ -76,22 +61,21 @@ module.exports = class BlockchainManager {
   }
 
   /**
-   * Start the blockchain.
+   * Start the blockchain and wait for it to be ready.
    * @return {void}
    */
-  start () {
-    this.dispatch('START')
-  }
+  async start () {
+    logger.info('Starting Blockchain Manager...')
 
-  /**
-   * Determine if the blockchain is ready.
-   * @return {Boolean}
-   */
-  async isReady () {
+    this.dispatch('START')
+
     /**
      * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
      */
-    while (!stateMachine.state.started) await sleep(1000)
+    while (!stateMachine.state.started) {
+      await sleep(1000)
+    }
+
     return true
   }
 

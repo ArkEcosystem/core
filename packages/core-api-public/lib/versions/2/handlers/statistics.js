@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
@@ -6,8 +6,8 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
+const state = blockchain.getState()
 
 const schema = require('../schema/statistics')
 

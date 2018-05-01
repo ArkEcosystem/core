@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const deepmerge = require('deepmerge')
 
@@ -22,6 +22,7 @@ module.exports = class ConfigInterface {
       this.constant.index++
       this.constant.data = this.constants[this.constant.index]
     }
+
     while (height < this.constants[this.constant.index].height) {
       this.constant.index--
       this.constant.data = this.constants[this.constant.index]
@@ -34,7 +35,7 @@ module.exports = class ConfigInterface {
    * Build constants from the config.
    * @return {void}
    */
-  __buildConstants () {
+  _buildConstants () {
     this.constants = this.network.constants.sort((a, b) => a.height - b.height)
     this.constant = {
       index: 0,

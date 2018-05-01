@@ -30,9 +30,7 @@ module.exports = {
     },
     '@arkecosystem/core-api-p2p': {},
     '@arkecosystem/core-transaction-pool': {},
-    '@arkecosystem/core-transaction-pool-redis': {
-      enabled: false
-    }
+    '@arkecosystem/core-transaction-pool-redis': {}
   },
   mounted: {
     '@arkecosystem/core-api-public': {},

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const pm2 = require('pm2')
 const fs = require('fs')

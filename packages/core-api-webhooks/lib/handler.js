@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const database = require('@arkecosystem/core-webhooks').database

@@ -1,23 +1,23 @@
-'use strict'
+'use strict';
 
 const path = require('path')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 module.exports = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
 
   pluginManager.init(config, {
     exclude: [
       '@arkecosystem/core-api-p2p',
-      '@arkecosystem/core-api-webhooks',
-      '@arkecosystem/core-forger'
+      '@arkecosystem/core-transaction-pool',
+      '@arkecosystem/core-transaction-pool-redis',
+      '@arkecosystem/core-webhooks'
     ]
   })
 
   await pluginManager.hook('init', {config})
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
-  await pluginManager.get('blockchain').start()
 
-  pluginManager.hook('mounted')
+  pluginManager.get('blockchain').start()
 }

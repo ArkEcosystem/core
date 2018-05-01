@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 
@@ -48,8 +48,13 @@ module.exports = class DelegatesRepository {
       const orderByDirection = params.orderBy.split(':')[1] || 'desc'
 
       delegates = delegates.sort((a, b) => {
-        if (orderByDirection === 'desc' && (a[orderByField] < b[orderByField])) return -1
-        if (orderByDirection === 'asc' && (a[orderByField] > b[orderByField])) return 1
+        if (orderByDirection === 'desc' && (a[orderByField] < b[orderByField])) {
+          return -1
+        }
+
+        if (orderByDirection === 'asc' && (a[orderByField] > b[orderByField])) {
+          return 1
+        }
 
         return 0
       })

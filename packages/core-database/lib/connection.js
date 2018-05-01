@@ -1,10 +1,11 @@
-'use strict';
+'use strict'
 
 const async = require('async')
 const { crypto, slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
@@ -201,8 +202,10 @@ module.exports = class ConnectionInterface {
 
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`New round ${round}`)
+
         await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
+
         const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
         await this.saveRounds(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
@@ -244,11 +247,14 @@ module.exports = class ConnectionInterface {
 
     if (!forgingDelegate) {
       logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
-    } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+    }
+
+    if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
     } else {
       logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
     }
+
     return true
   }
 
@@ -280,7 +286,7 @@ module.exports = class ConnectionInterface {
   async undoBlock (block) {
     await this.undoRound(block.data.height)
     await this.walletManager.undoBlock(block)
-    // webhookManager.emit('block.removed', block)
+    emitter.emit('block.removed', block)
   }
 
   /**
@@ -359,7 +365,7 @@ module.exports = class ConnectionInterface {
    * Register the wallet manager.
    * @return {void}
    */
-  async __registerWalletManager () {
+  async _registerWalletManager () {
     this.walletManager = new WalletManager()
   }
 
@@ -367,7 +373,7 @@ module.exports = class ConnectionInterface {
    * Register the wallet and delegate repositories.
    * @return {void}
    */
-  async __registerRepositories () {
+  async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
   }

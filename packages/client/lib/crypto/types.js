@@ -1,5 +1,3 @@
-// TODO: REFACTOR THIS MADNESS
-
 const typeforce = require('typeforce')
 
 /**
@@ -91,4 +89,7 @@ for (const typeName in typeforce) {
   types[typeName] = typeforce[typeName]
 }
 
+/**
+ * @type {Object}
+ */
 module.exports = types

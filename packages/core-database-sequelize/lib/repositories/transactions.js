@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Op = require('sequelize').Op
 
@@ -29,13 +29,17 @@ module.exports = class TransactionsRepository {
 
     const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
     for (const elem of filter) {
-      if (params[elem]) { whereStatement[elem] = params[elem] }
+      if (params[elem]) {
+        whereStatement[elem] = params[elem]
+      }
     }
 
     if (params['senderId']) {
       let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
 
-      if (wallet) whereStatement['senderPublicKey'] = wallet.publicKey
+      if (wallet) {
+        whereStatement['senderPublicKey'] = wallet.publicKey
+      }
     }
 
     params.orderBy
@@ -164,9 +168,17 @@ module.exports = class TransactionsRepository {
   async findAllByDateAndType (type, from, to) {
     let where = { type, timestamp: {} }
 
-    if (from) where.timestamp[Op.lte] = to
-    if (to) where.timestamp[Op.gte] = from
-    if (!where.timestamp.length) delete where.timestamp
+    if (from) {
+      where.timestamp[Op.lte] = to
+    }
+
+    if (to) {
+      where.timestamp[Op.gte] = from
+    }
+
+    if (!where.timestamp.length) {
+      delete where.timestamp
+    }
 
     const results = await this.connection.models.transaction.findAll({
       attributes: ['serialized'],

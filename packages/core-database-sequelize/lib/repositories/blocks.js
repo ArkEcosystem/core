@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Op = require('sequelize').Op
 const buildFilterQuery = require('./utils/filter-query')
@@ -24,8 +24,11 @@ module.exports = class BlocksRepository {
     let orderBy = []
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+
     for (const elem of filter) {
-      if (params[elem]) whereStatement[elem] = params[elem]
+      if (params[elem]) {
+        whereStatement[elem] = params[elem]
+      }
     }
 
     params.orderBy
@@ -82,9 +85,17 @@ module.exports = class BlocksRepository {
   findAllByDateTimeRange (from, to) {
     let where = { timestamp: {} }
 
-    if (from) where.timestamp[Op.lte] = to
-    if (to) where.timestamp[Op.gte] = from
-    if (!where.timestamp.length) delete where.timestamp
+    if (from) {
+      where.timestamp[Op.lte] = to
+    }
+
+    if (to) {
+      where.timestamp[Op.gte] = from
+    }
+
+    if (!where.timestamp.length) {
+      delete where.timestamp
+    }
 
     return this.connection.models.block.findAll({
       attributes: ['totalFee', 'reward'], where

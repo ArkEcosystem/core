@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -25,6 +25,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     // separate connection for callback event sync
     this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
+
     if (this.redis) {
       this.redis.on('connect', () => {
         logger.info('Redis connection established.')
@@ -38,7 +39,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         this.removeTransaction(message.split('/')[3])
       })
     } else {
-      logger.warn('Transaction pool is disabled - please enable if run in production')
+      logger.warn('Unable to connecto to REDIS server')
     }
 
     return this
@@ -163,7 +164,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
                 }
               },
               1: () => { // block height time lock
-                if (parseInt(transaction[2]) <= blockchainManager.getState().lastBlock.data.height) {
+                if (parseInt(transaction[2]) <= blockchain.getState().lastBlock.data.height) {
                   logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
                   retList.push(transaction[0])
                 }

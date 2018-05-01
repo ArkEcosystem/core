@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
@@ -66,7 +66,7 @@ module.exports = class SequelizeConnection extends Connection {
       await this.__runMigrations()
       await this.__registerModels()
       await this.__registerRepositories()
-      await super.__registerWalletManager()
+      await super._registerWalletManager()
 
       return this
     } catch (error) {
@@ -346,6 +346,7 @@ module.exports = class SequelizeConnection extends Connection {
       delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
         if (idx === -1) {
           wallet.missedBlocks++
 
@@ -370,6 +371,7 @@ module.exports = class SequelizeConnection extends Connection {
   async saveWallets (force) {
     const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
     const chunk = 5000
+
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
     for (let i = 0, j = wallets.length; i < j; i += chunk) {
       await this.connection.transaction(t =>
@@ -392,6 +394,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async saveBlock (block) {
     let transaction
+
     try {
       transaction = await this.connection.transaction()
       await this.models.block.create(block.data, {transaction})
@@ -424,14 +427,19 @@ module.exports = class SequelizeConnection extends Connection {
    * @return {void}
    */
   async saveBlockCommit () {
-    if (!this.asyncTransaction) return
+    if (!this.asyncTransaction) {
+      return
+    }
+
     logger.debug('Committing database transaction')
+
     try {
       await this.asyncTransaction.commit()
     } catch (error) {
       logger.error(error)
       await this.asyncTransaction.rollback()
     }
+
     this.asyncTransaction = null
   }
 
@@ -515,6 +523,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async getForgedTransactionsIds (txids) {
     const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+
     return rows.map(tx => tx.id)
   }
 
@@ -577,6 +586,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
+
     const blocks = await this.models.block.findAll({
       attributes: {
         exclude: ['createdAt', 'updatedAt']
@@ -650,7 +660,7 @@ module.exports = class SequelizeConnection extends Connection {
       this[key] = new value(this) // eslint-disable-line new-cap
     }
 
-    await super.__registerRepositories()
+    await super._registerRepositories()
   }
 
   /**

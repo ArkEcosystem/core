@@ -1,20 +1,25 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
+const state = blockchain.getState()
 const utils = require('../utils')
 
 /**
  * @type {Object}
  */
 exports.status = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
-      loaded: blockchainManager.isSynced(),
+      loaded: blockchain.isSynced(),
       now: state.lastBlock ? state.lastBlock.data.height : 0,
-      blocksCount: blockchainManager.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height
+      blocksCount: blockchain.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height
     })
   }
 }
@@ -23,10 +28,15 @@ exports.status = {
  * @type {Object}
  */
 exports.syncing = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
-      syncing: !blockchainManager.isSynced(),
-      blocks: blockchainManager.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height,
+      syncing: !blockchain.isSynced(),
+      blocks: blockchain.getNetworkInterface().getNetworkHeight() - state.lastBlock.data.height,
       height: state.lastBlock.data.height,
       id: state.lastBlock.data.id
     })
@@ -37,6 +47,11 @@ exports.syncing = {
  * @type {Object}
  */
 exports.autoconfigure = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       network: {

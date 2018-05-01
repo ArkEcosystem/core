@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Boom = require('boom')
 const { transformResource, transformCollection } = require('../../utils/transformer')
@@ -75,6 +75,9 @@ const toPagination = (request, data, transformerClass) => {
   }
 }
 
+/**
+ * @type {Object}
+ */
 module.exports = {
   paginate,
   respondWithResource,

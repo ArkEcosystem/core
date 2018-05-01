@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const database = require('@arkecosystem/core-plugin-manager').get('database')
 const utils = require('../utils')

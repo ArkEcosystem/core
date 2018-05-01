@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Promise = require('bluebird')
 
@@ -193,7 +193,9 @@ module.exports = class WalletManager {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
-    } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
+    }
+
+    if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
@@ -201,7 +203,9 @@ module.exports = class WalletManager {
 
     if (config.network.exceptions[datatx.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', datatx)
-    } else if (!sender.canApply(datatx)) {
+    }
+
+    if (!sender.canApply(datatx)) {
       // TODO: What is this logging? Reduce?
       logger.info(JSON.stringify(sender))
       logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(datatx))

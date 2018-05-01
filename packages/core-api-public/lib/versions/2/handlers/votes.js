@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const database = require('@arkecosystem/core-plugin-manager').get('database')

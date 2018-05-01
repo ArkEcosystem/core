@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const queryFilter = require('../../../lib/repositories/utils/filter-query')
 

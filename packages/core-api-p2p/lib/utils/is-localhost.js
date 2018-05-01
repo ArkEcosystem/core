@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Check if the given IP address is local.

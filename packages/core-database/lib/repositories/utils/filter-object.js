@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Filter an object based on the given parameters.

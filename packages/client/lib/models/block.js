@@ -62,7 +62,10 @@ module.exports = class Block {
    * @param {Object} data - The data of the block
    */
   constructor (data) {
-    if (!data.transactions) data.transactions = []
+    if (!data.transactions) {
+      data.transactions = []
+    }
+
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
 
@@ -88,6 +91,7 @@ module.exports = class Block {
     delete this.data.transactions
 
     this.verification = this.verify()
+
     if (!this.verification.verified && this.data.height !== 1) {
       console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
@@ -104,12 +108,14 @@ module.exports = class Block {
    */
   static create (data, keys) {
     data.generatorPublicKey = keys.publicKey
+
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
+
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
     data.id = Block.getId(data)
-    const block = new Block(data)
-    return block
+
+    return new Block(data)
   }
 
   /*
@@ -138,6 +144,7 @@ module.exports = class Block {
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
+
     for (let i = 0; i < 8; i++) {
       temp[i] = hash[7 - i]
     }
@@ -167,9 +174,8 @@ module.exports = class Block {
     const generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
     const ecsignature = ECSignature.fromDER(blockSignatureBuffer)
-    const res = ecpair.verify(hash, ecsignature)
 
-    return res
+    return ecpair.verify(hash, ecsignature)
   }
 
   /*
@@ -182,6 +188,7 @@ module.exports = class Block {
       verified: false,
       errors: []
     }
+
     try {
       if (!this.transactions.reduce((acc, tx) => acc && tx.verified, true)) {
         result.errors.push('One or more transactions are not verified')
@@ -248,6 +255,7 @@ module.exports = class Block {
         if (appliedTransactions[transaction.data.id]) {
           result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
         }
+
         appliedTransactions[transaction.data.id] = transaction.data
 
         totalAmount += transaction.data.amount
@@ -275,7 +283,9 @@ module.exports = class Block {
     } catch (error) {
       result.errors.push(error)
     }
+
     result.verified = result.errors.length === 0
+
     return result
   }
 
@@ -300,19 +310,24 @@ module.exports = class Block {
     block.payloadLength = buf.readUInt32(48)
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
+
     const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
+
     let txoffset = (104 + 64 + 33 * 2 + length * 2) / 2
     block.transactions = []
+
     for (let i = 0; i < block.numberOfTransactions; i++) {
       block.transactions.push(buf.readUint32(txoffset))
       txoffset += 4
     }
+
     for (let i = 0; i < block.numberOfTransactions; i++) {
       const ltx = block.transactions[i]
       block.transactions[i] = Transaction.deserialize(buf.slice(txoffset, txoffset + ltx).toString('hex'))
       txoffset += ltx
     }
+
     return block
   }
 
@@ -326,10 +341,12 @@ module.exports = class Block {
     const buf = new ByteBuffer(1024, true)
     applyV1Fix(block)
     buf.append(Block.serialize(block, true))
+
     const txser = block.transactions.map(tx => Transaction.serialize(tx))
     txser.forEach(tx => buf.writeUInt32(tx.length))
     txser.forEach(tx => buf.append(tx))
     buf.flip()
+
     return buf.toBuffer()
   }
 
@@ -374,6 +391,7 @@ module.exports = class Block {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
+
     let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
     let blockSignatureBuffer = null
 

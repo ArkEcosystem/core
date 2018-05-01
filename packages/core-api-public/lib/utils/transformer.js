@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const path = require('path')
 
@@ -20,6 +20,9 @@ const transformResource = (request, data, transformer) => require(path.resolve(_
  */
 const transformCollection = (request, data, transformer) => data.map((d) => transformResource(request, d, transformer))
 
+/**
+ * @type {Object}
+ */
 module.exports = {
   transformResource,
   transformCollection
