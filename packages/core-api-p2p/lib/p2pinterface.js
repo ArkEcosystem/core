@@ -1,7 +1,6 @@
 'use strict'
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const Sntp = require('sntp')
 
 const checkDNS = require('./utils/check-dns')
 const checkNTP = require('./utils/check-ntp')
