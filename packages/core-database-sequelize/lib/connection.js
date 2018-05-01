@@ -89,9 +89,7 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     let data = await this.models.round.findAll({
-      where: {
-        round: round
-      },
+      where: { round },
       order: [[ 'balance', 'DESC' ], [ 'publicKey', 'ASC' ]]
     }).map(del => del.dataValues)
 
@@ -471,9 +469,7 @@ module.exports = class SequelizeConnection extends Connection {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
-      where: {
-        id: id
-      }
+      where: { id }
     })
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
