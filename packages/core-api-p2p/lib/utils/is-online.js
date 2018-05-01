@@ -1,5 +1,6 @@
 const util = require('util')
 const dns = require('dns')
+const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 module.exports = async (servers) => {
   const lookupService = util.promisify(dns.lookupService);
@@ -10,7 +11,7 @@ module.exports = async (servers) => {
 
       return Promise.resolve(servers[i])
     } catch (err) {
-      console.log(err.message)
+      logger.error(err.message)
     }
   }
 
