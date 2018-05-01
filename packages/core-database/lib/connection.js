@@ -1,10 +1,12 @@
 'use strict';
 
 const async = require('async')
+const fs = require('fs')
 const { crypto, slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const blockchain = pluginManager.get('blockchain')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
@@ -15,6 +17,8 @@ module.exports = class ConnectionInterface {
   constructor (config) {
     this.config = config
     this.connection = null
+
+    this.__registerShutdownListener()
   }
 
   /**
@@ -370,5 +374,30 @@ module.exports = class ConnectionInterface {
   async __registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Handle any exit signals.
+   * @return {void}
+   */
+  __registerShutdownListener () {
+    const spvFile = require('expand-home-dir')('~/.ark/spv.json')
+
+    const handleExit = async () => {
+        await this.saveWallets(true)
+
+        const lastBlock = blockchain.getState().lastBlock
+
+        if (lastBlock) {
+          await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
+        }
+
+        process.exit()
+    }
+
+    [
+        `exit`, `uncaughtException`,
+        `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`
+    ].forEach((eventType) => process.on(eventType, handleExit))
   }
 }
