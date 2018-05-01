@@ -14,5 +14,5 @@ module.exports = async (servers) => {
     }
   }
 
-  Promise.reject(new Error('Please check your network connectivity, couldn\'t connect to any DNS.'))
+  Promise.reject(new Error('Please check your network connectivity, couldn\'t connect to any host.'))
 }
