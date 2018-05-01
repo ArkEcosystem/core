@@ -9,9 +9,10 @@ const { splash, getProcessStatus } = require('../lib/utils')
 const start = async () => {
   splash()
 
-  process.env.ARK_CONFIG = expandHomeDir('~/.ark/config')
+  process.env.ARK_PATH_DATA = expandHomeDir('~/.ark')
+  process.env.ARK_PATH_CONFIG = expandHomeDir('~/.ark/config')
 
-  if (!fs.existsSync(process.env.ARK_CONFIG)) await require('../lib/commands/manage-network')()
+  if (!fs.existsSync(process.env.ARK_PATH_CONFIG)) await require('../lib/commands/manage-network')()
 
   require('../lib/commands')()
 }

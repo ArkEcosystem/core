@@ -6,7 +6,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async () => {
   const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
 
-  pluginManager.init(config, {
+  pluginManager.init(options.data, config, {
     exclude: [
       '@arkecosystem/core-api-p2p',
       '@arkecosystem/core-api-webhooks',

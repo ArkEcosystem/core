@@ -5,11 +5,10 @@ const glob = require('tiny-glob')
 const Tail = require('tail').Tail
 const path = require('path')
 const { onCancel } = require('../../utils')
-const expandHomeDir = require('expand-home-dir')
 
 module.exports = async () => {
   const choices = await glob('logs/**/*.log', {
-    cwd: expandHomeDir('~/.ark'),
+    cwd: process.env.ARK_PATH_DATA,
     absolute: true,
     filesOnly: true
   })
