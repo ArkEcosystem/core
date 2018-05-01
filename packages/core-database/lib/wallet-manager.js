@@ -53,8 +53,12 @@ module.exports = class WalletManager {
     }
   }
 
-  canBePurged (wallet) {
-    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+  /**
+   * Used to determine if a wallet is a Genesis wallet.
+   * @return {Boolean}
+   */
+  isGenesis (wallet) {
+    return genesisWallets.includes(wallet.address)
   }
 
   /**
@@ -64,7 +68,7 @@ module.exports = class WalletManager {
   purgeEmptyNonDelegates () {
     Object.keys(this.walletsByPublicKey).forEach(publicKey => {
       const wallet = this.walletsByPublicKey[publicKey]
-      if (this.canBePurged(wallet)) {
+      if (this.__canBePurged(wallet)) {
         delete this.walletsByPublicKey[publicKey]
         delete this.walletsByAddress[wallet.address]
       }
@@ -291,5 +295,13 @@ module.exports = class WalletManager {
    */
   getLocalWallets () { // for compatibility with API
     return Object.values(this.walletsByAddress)
+  }
+
+  /**
+   * Used to determine if a wallet can be purged from memory.
+   * @return {Boolean}
+   */
+  __canBePurged (wallet) {
+    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 }
