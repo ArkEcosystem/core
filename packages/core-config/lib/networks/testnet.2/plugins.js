@@ -13,7 +13,7 @@ module.exports = {
   beforeMount: {
     '@arkecosystem/core-database': {},
     '@arkecosystem/core-database-sequelize': {
-      uri: 'sqlite:~/.ark/database/testnet.2.sqlite',
+      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.2.sqlite`,
       uri_1: 'postgres://node:password@localhost:5432/ark_testnet',
       dialect: 'sqlite',
       dialect_1: 'postgres'

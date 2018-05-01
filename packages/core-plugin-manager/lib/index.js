@@ -19,12 +19,15 @@ class PluginManager {
 
   /**
    * Initialise the plugin manager.
-   * @param  {Object} config
+   * @param  {String} dataPath
+   * @param  {String} configPath
    * @param  {Object} options
    * @return {void}
    */
-  init (config, options = {}) {
-    const plugins = path.resolve(expandHomeDir(`${config}/plugins.js`))
+  init (dataPath, configPath, options = {}) {
+    this.__exportPaths(dataPath, configPath)
+
+    const plugins = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
 
     if (!fs.existsSync(plugins)) {
       throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
@@ -164,6 +167,15 @@ class PluginManager {
     }
 
     return register
+  }
+
+  /**
+   * Export path variables before we bootstrap any plugins.
+   * @return {void}
+   */
+  __exportPaths (dataPath, configPath) {
+    process.env.ARK_PATH_DATA = expandHomeDir(dataPath)
+    process.env.ARK_PATH_CONFIG = expandHomeDir(configPath)
   }
 }
 

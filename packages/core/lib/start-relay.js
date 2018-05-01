@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init(config, {
+  pluginManager.init(options.data, config, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-blockchain': {
