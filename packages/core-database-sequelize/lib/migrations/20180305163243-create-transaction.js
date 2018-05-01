@@ -1,10 +1,16 @@
 'use strict';
 
 /**
- * [exports description]
+ * The transactions migration.
  * @type {Object}
  */
 module.exports = {
+  /**
+   * Run the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('transactions', {
       id: {
@@ -55,5 +61,11 @@ module.exports = {
 
     queryInterface.addIndex('transactions', ['senderPublicKey', 'recipientId', 'vendorFieldHex', 'timestamp'])
   },
+  /**
+   * Reverse the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   down: (queryInterface, Sequelize) => queryInterface.dropTable('transactions')
 }

@@ -4,13 +4,13 @@ const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
- * [description]
+ * Create a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
   if (!config.enabled) {
-    return logger.info('Oh snap! Public API not enabled')
+    return logger.info('Public API is not enabled')
   }
 
   const baseConfig = {
@@ -95,7 +95,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
+    logger.info(`Public API is available and listening on ${server.info.uri}`)
 
     return server
   } catch (error) {

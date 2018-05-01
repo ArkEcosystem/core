@@ -8,7 +8,7 @@ const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-conf
 
 module.exports = class Config extends ConfigInterface {
   /**
-   * [make description]
+   * Make the config instance.
    * @return {Config}
    */
   async make () {
@@ -20,7 +20,7 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [copyFiles description]
+   * Copy the config files to the given destination.
    * @param  {String} dest
    * @return {Promise}
    */
@@ -35,7 +35,7 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__createFromDirectory description]
+   * Load and bind the config.
    * @return {void}
    */
   async __createFromDirectory () {
@@ -47,7 +47,7 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__createBindings description]
+   * Bind the config values to the instance.
    * @param  {Array} files
    * @return {void}
    */
@@ -58,7 +58,7 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__getFiles description]
+   * Get all config files.
    * @return {Object}
    */
   __getFiles () {
@@ -83,13 +83,13 @@ module.exports = class Config extends ConfigInterface {
   }
 
   /**
-   * [__buildPeers description]
+   * Build the peer list either from a local file, remote file or object.
    * @param  {String} configFile
    * @return {void}
    */
   async __buildPeers (configFile) {
     if (!this.peers.sources) {
-      return false
+      return
     }
 
     let output = require(configFile)

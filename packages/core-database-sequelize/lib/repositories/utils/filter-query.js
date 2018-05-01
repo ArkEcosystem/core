@@ -3,7 +3,7 @@
 const Op = require('sequelize').Op
 
 /**
- * [description]
+ * Create a "where" object for a sequelize query.
  * @param  {Object} params
  * @param  {Object} filters
  * @return {Object}

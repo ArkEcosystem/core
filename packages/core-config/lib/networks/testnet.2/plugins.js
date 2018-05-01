@@ -1,5 +1,6 @@
 module.exports = {
   init: {
+    '@arkecosystem/core-event-emitter': {},
     '@arkecosystem/core-config': {},
     '@arkecosystem/core-config-json': {}
   },

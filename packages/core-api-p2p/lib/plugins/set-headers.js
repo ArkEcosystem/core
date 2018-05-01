@@ -3,7 +3,7 @@
 const config = require('@arkecosystem/core-plugin-manager').get('config')
 
 /**
- * [description]
+ * The register method used by hapi.js.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

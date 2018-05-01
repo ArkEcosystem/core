@@ -2,14 +2,15 @@
 
 class DatabaseManager {
   /**
-   * [constructor description]
+   * Create a new database manager instance.
+   * @constructor
    */
   constructor () {
     this.connections = {}
   }
 
   /**
-   * [connection description]
+   * Get a database connection instance.
    * @param  {String} name
    * @return {ConnectionInterface}
    */
@@ -18,7 +19,7 @@ class DatabaseManager {
   }
 
   /**
-   * [makeConnection description]
+   * Make the database connection instance.
    * @param  {ConnectionInterface} connection
    * @param  {String} name
    * @return {void}

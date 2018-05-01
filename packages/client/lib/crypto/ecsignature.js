@@ -15,7 +15,7 @@ const BigInteger = require('bigi')
  */
 class ECSignature {
   /**
-   * [constructor description]
+   * Create a new ECSignature instance.
    * @param  {BigInteger} r
    * @param  {BigInteger} s
    * @return {void}
@@ -30,7 +30,6 @@ class ECSignature {
   }
 
   /**
-   * [parseNativeSecp256k1 description]
    * @param  {*} native
    * @return {SignatureParseResult}
    */
@@ -51,7 +50,6 @@ class ECSignature {
   }
 
   /**
-   * [toNativeSecp256k1 description]
    * @return {Buffer}
    */
   toNativeSecp256k1 () {
@@ -67,7 +65,6 @@ class ECSignature {
   }
 
   /**
-   * [parseCompact description]
    * @param  {Buffer} buffer
    * @return {SignatureParseResult}
    */
@@ -91,7 +88,6 @@ class ECSignature {
   }
 
   /**
-   * [fromDER description]
    * @param  {Buffer} buffer
    * @return {ECSignature}
    */
@@ -122,7 +118,6 @@ class ECSignature {
   }
 
   /**
-   * [toCompact description]
    * @param  {Number} i
    * @param  {Boolean} compressed
    * @return {Buffer}
@@ -144,7 +139,6 @@ class ECSignature {
   }
 
   /**
-   * [toDER description]
    * @return {Buffer}
    */
   toDER () {
@@ -155,7 +149,6 @@ class ECSignature {
   }
 
   /**
-   * [toScriptSignature description]
    * @param  {Number} hashType
    * @return {Buffer}
    */

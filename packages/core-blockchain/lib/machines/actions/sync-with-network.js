@@ -41,7 +41,7 @@ module.exports = {
       }
     },
     end: {
-      onEntry: ['syncingFinished']
+      onEntry: ['syncingComplete']
     }
   }
 }

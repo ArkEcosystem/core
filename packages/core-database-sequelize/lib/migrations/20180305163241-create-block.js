@@ -1,10 +1,16 @@
 'use strict';
 
 /**
- * [exports description]
+ * The blocks migration.
  * @type {Object}
  */
 module.exports = {
+  /**
+   * Run the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('blocks', {
       id: {
@@ -50,5 +56,11 @@ module.exports = {
 
     queryInterface.addIndex('blocks', ['height', 'generatorPublicKey'])
   },
+  /**
+   * Reverse the migrations.
+   * @param  {Sequelize.QueryInterface} queryInterface
+   * @param  {Sequelize} Sequelize
+   * @return {void}
+   */
   down: (queryInterface, Sequelize) => queryInterface.dropTable('blocks')
 }

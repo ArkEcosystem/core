@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Define the round model.
+ * @param  {Sequelize} sequelize
+ * @param  {Sequelize.DataTypes} DataTypes
+ * @return {Sequelize.Model}
+ */
 module.exports = (sequelize, DataTypes) => {
   const Round = sequelize.define('round', {
     id: {

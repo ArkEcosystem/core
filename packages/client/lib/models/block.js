@@ -121,7 +121,7 @@ module.exports = class Block {
   }
 
   /*
-   * [description]
+   * Return block data for v1.
    * @return {Object}
    */
   toBroadcastV1 () {
@@ -378,7 +378,7 @@ module.exports = class Block {
     let blockSignatureBuffer = null
 
     if (includeSignature) {
-      blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
+      blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
 
@@ -411,12 +411,12 @@ module.exports = class Block {
 
       bb.writeInt(block.payloadLength)
 
-      const payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      const generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

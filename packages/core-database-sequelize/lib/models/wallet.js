@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Define the wallet model.
+ * @param  {Sequelize} sequelize
+ * @param  {Sequelize.DataTypes} DataTypes
+ * @return {Sequelize.Model}
+ */
 module.exports = (sequelize, DataTypes) => {
   const Wallet = sequelize.define('wallet', {
     address: {

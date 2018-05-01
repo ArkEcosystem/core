@@ -11,7 +11,7 @@ const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 
 /**
- * [state description]
+ * Initial state of the machine.
  * @type {Object}
  */
 const state = {
@@ -24,13 +24,12 @@ const state = {
 }
 
 /**
- * [state description]
  * @type {Object}
  */
 blockchainMachine.state = state
 
 /**
- * [description]
+ * The blockchain actions.
  * @param  {BlockchainManager} blockchainManager
  * @return {Object}
  */
@@ -42,7 +41,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       return blockchainManager.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchainManager.dispatch(blockchainManager.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isBuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
+    checkRebuildBlockSynced: () => blockchainManager.dispatch(blockchainManager.isRebuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchainManager.rebuildQueue.length()}`)
@@ -66,7 +65,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
       blockchainManager.dispatch(event)
     },
     downloadFinished: () => {
-      logger.info('Blockchain download completed 🚀')
+      logger.info('Blockchain download finished :rocket:')
       if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
@@ -75,7 +74,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
     },
     rebuildFinished: async () => {
       try {
-        logger.info('Blockchain rebuild complete! ⛓')
+        logger.info('Blockchain rebuild finished :chains:')
         state.rebuild = false
         await blockchainManager.getDatabaseConnection().saveBlockCommit()
         await blockchainManager.deleteBlocksToLastRound()
@@ -89,17 +88,17 @@ blockchainMachine.actionMap = (blockchainManager) => {
         return blockchainManager.dispatch('FAILURE')
       }
     },
-    downloadPaused: () => logger.info('Blockchain download paused 🕥'),
-    syncingFinished: () => {
-      logger.info('Blockchain completed, congratulations! 🦄')
+    downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
+    syncingComplete: () => {
+      logger.info('Blockchain download complete :unicorn_face:')
       blockchainManager.dispatch('SYNCFINISHED')
     },
-    rebuildingFinished: () => {
-      logger.info('Blockchain completed, congratulations! 🦄')
+    rebuildingComplete: () => {
+      logger.info('Blockchain rebuild complete :unicorn_face:')
       blockchainManager.dispatch('REBUILDFINISHED')
     },
     exitApp: () => {
-      logger.error('Failed to startup blockchain, exiting app...')
+      logger.error('Failed to startup blockchain, exiting...')
       process.exit(1)
     },
     init: async () => {
@@ -174,8 +173,7 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.rebuildQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
-          logger.warn('Block Downloaded not accepted')
-          console.log(blocks[0])
+          logger.warn('Downloaded block not accepted', blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }
@@ -196,19 +194,17 @@ blockchainMachine.actionMap = (blockchainManager) => {
           blockchainManager.processQueue.push(blocks)
           blockchainManager.dispatch('DOWNLOADED')
         } else {
-          logger.warn('Block Downloaded not accepted')
-          console.log(blocks[0])
+          logger.warn('Downloaded block not accepted', blocks[0])
           blockchainManager.dispatch('FORK')
         }
       }
     },
     startForkRecovery: async () => {
-      logger.info('Starting Fork Recovery 🍴')
-      logger.info('Let sail the Ark in stormy waters ⛵️')
+      logger.info('Starting fork recovery 🍴')
       // state.forked = true
       const random = ~~(4 / Math.random())
       await blockchainManager.removeBlocks(random)
-      logger.info('Nice ride on the last ' + random + ' blocks 🌊')
+      logger.info(`Removed ${random} blocks`)
       blockchainManager.dispatch('SUCCESS')
     }
   }

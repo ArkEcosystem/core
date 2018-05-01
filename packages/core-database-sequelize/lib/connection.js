@@ -13,6 +13,7 @@ const { Connection } = require('@arkecosystem/core-database')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
@@ -20,7 +21,7 @@ const { TRANSACTION_TYPES } = client.constants
 
 module.exports = class SequelizeConnection extends Connection {
   /**
-   * [connect description]
+   * Connect to the database.
    * @return {Boolean}
    */
   async connect () {
@@ -28,7 +29,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [disconnect description]
+   * Disconnect from the database.
    * @return {Boolean}
    */
   async disconnect () {
@@ -36,7 +37,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [make description]
+   * Make the database connection instance.
    * @return {SequelizeConnection}
    */
   async make () {
@@ -54,7 +55,7 @@ module.exports = class SequelizeConnection extends Connection {
 
     this.connection = new Sequelize(this.config.uri, {
       dialect: this.config.dialect,
-      logging: !!this.config.logging,
+      logging: this.config.logging,
       operatorsAliases: Sequelize.Op
     })
 
@@ -69,14 +70,13 @@ module.exports = class SequelizeConnection extends Connection {
 
       return this
     } catch (error) {
-      logger.error('Unable to connect to the database:')
-      logger.error(error.stack)
+      logger.error('Unable to connect to the database', error.stack)
       process.exit(1)
     }
   }
 
   /**
-   * [getActiveDelegates description]
+   * Get the top 51 delegates.
    * @param  {Number} height
    * @return {Array}
    */
@@ -112,17 +112,17 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [saveRounds description]
+   * Store the given round.
    * @param  {Array} activeDelegates
    * @return {Array}
    */
   saveRounds (activeDelegates) {
-    logger.info(`saving round ${activeDelegates[0].round}`)
+    logger.info(`Saving round ${activeDelegates[0].round}`)
     return this.models.round.bulkCreate(activeDelegates)
   }
 
   /**
-   * [deleteRound description]
+   * Delete the given round.
    * @param  {Number} round
    * @return {Boolean}
    */
@@ -131,7 +131,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [buildDelegates description]
+   * Load a list of delegates into memory.
    * @param  {Number} maxDelegates
    * @param  {Number} height
    * @return {Array}
@@ -181,13 +181,13 @@ module.exports = class SequelizeConnection extends Connection {
       .slice(0, maxDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
-    logger.debug(`generated ${data.length} active delegates`)
+    logger.debug(`Loaded ${data.length} active delegates`)
 
     return data
   }
 
   /**
-   * [buildWallets description]
+   * Load a list of wallets into memory.
    * @param  {Number} height
    * @return {Array}
    */
@@ -197,7 +197,7 @@ module.exports = class SequelizeConnection extends Connection {
 
     try {
       // Received TX
-      logger.printTracker('SPV Building', 1, 7, 'received transactions')
+      logger.printTracker('SPV Building', 1, 7, 'Received transactions')
       let data = await this.models.transaction.findAll({
         attributes: [
           'recipientId',
@@ -212,12 +212,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (wallet) {
           wallet.balance = parseInt(row.amount)
         } else {
-          logger.warn(`lost cold wallet: ${row.recipientId} ${row.amount}`)
+          logger.warn(`Lost cold wallet: ${row.recipientId} ${row.amount}`)
         }
       })
 
       // Block Rewards
-      logger.printTracker('SPV Building', 2, 7, 'block rewards')
+      logger.printTracker('SPV Building', 2, 7, 'Block rewards')
       data = await this.connection.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
@@ -240,12 +240,12 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         group: 'senderPublicKey'
       })
-      logger.printTracker('SPV Building', 3, 7, 'sent transactions')
+      logger.printTracker('SPV Building', 3, 7, 'Sent transactions')
       data.forEach(row => {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
-        if (wallet.balance < 0) {
-          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
+        if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
+          logger.warn(`Negative balance: ${wallet}`)
         }
       })
 
@@ -257,7 +257,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.SECOND_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 4, 7, 'second signatures')
+      logger.printTracker('SPV Building', 4, 7, 'Second signatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -271,7 +271,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.DELEGATE}}
       )
-      logger.printTracker('SPV Building', 5, 7, 'delegates')
+      logger.printTracker('SPV Building', 5, 7, 'Delegates')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -287,7 +287,7 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.VOTE}}
       )
-      logger.printTracker('SPV Building', 6, 7, 'votes')
+      logger.printTracker('SPV Building', 6, 7, 'Votes')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -307,7 +307,7 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.MULTI_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 7, 7, 'multisignatures')
+      logger.printTracker('SPV Building', 7, 7, 'Multisignatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
@@ -323,9 +323,9 @@ module.exports = class SequelizeConnection extends Connection {
     }
   }
 
-  // must be called before saving new round of delegates
   /**
-   * [updateDelegateStats description]
+   * Update delegate statistics in memory.
+   * NOTE: must be called before saving new round of delegates
    * @param  {Block} block
    * @param  {Array} delegates
    * @return {void}
@@ -347,12 +347,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          pluginManager.get('webhooks').emit('forging.missing', block)
+          emitter.emit('forging.missing', block)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
 
-          pluginManager.get('webhooks').emit('block.forged', block)
+          emitter.emit('block.forged', block)
         }
       })
     } catch (error) {
@@ -361,7 +361,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [saveWallets description]
+   * Commit wallets from the memory.
    * @param  {Boolean} force
    * @return {Object}
    */
@@ -380,9 +380,9 @@ module.exports = class SequelizeConnection extends Connection {
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
 
-  // to be used when node is in sync and committing newly received blocks
   /**
-   * [saveBlock description]
+   * Commit the given block.
+   * NOTE: to be used when node is in sync and committing newly received blocks
    * @param  {Block} block
    * @return {Object}
    */
@@ -399,40 +399,40 @@ module.exports = class SequelizeConnection extends Connection {
     }
   }
 
-  // to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
   /**
-   * [saveBlockAsync description]
+   * Commit the given block (async version).
+   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    */
   async saveBlockAsync (block) {
-    if (!this.asyncTransaction) this.asyncTransaction = await this.connection.transaction()
+    if (!this.asyncTransaction) {
+      this.asyncTransaction = await this.connection.transaction()
+    }
+
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
     await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
   }
 
-  // to be used in combination with saveBlockAsync
   /**
-   * [saveBlockCommit description]
+   * Commit the block database transaction.
+   * NOTE: to be used in combination with saveBlockAsync
    * @return {void}
    */
   async saveBlockCommit () {
     if (!this.asyncTransaction) return
-    logger.debug('Committing DB transaction')
+    logger.debug('Committing database transaction')
     try {
       await this.asyncTransaction.commit()
     } catch (error) {
       logger.error(error)
-      logger.error('boom')
-
-      logger.error(error.sql)
       await this.asyncTransaction.rollback()
     }
     this.asyncTransaction = null
   }
 
   /**
-   * [deleteBlock description]
+   * Delete the given block.
    * @param  {Block} block
    * @return {void}
    */
@@ -451,7 +451,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlock description]
+   * Get a block.
    * @param  {Number} id
    * @return {Block}
    */
@@ -475,7 +475,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getTransaction description]
+   * Get a transaction.
    * @param  {Number} id
    * @return {Promise}
    */
@@ -484,7 +484,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getCommonBlock description]
+   * Get common blocks for the given IDs.
    * @param  {Array} ids
    * @return {Promise}
    */
@@ -493,7 +493,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getTransactionsFromIds description]
+   * Get transactions for the given IDs.
    * @param  {Array} txids
    * @return {Array}
    */
@@ -505,7 +505,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getForgedTransactionsIds description]
+   * Get forged transactions for the given IDs.
    * @param  {Array} txids
    * @return {Array}
    */
@@ -515,7 +515,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getLastBlock description]
+   * Get the last block.
    * @return {Block}
    */
   async getLastBlock () {
@@ -534,7 +534,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlocks description]
+   * Get blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {Array}
@@ -566,7 +566,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [getBlockHeaders description]
+   * Get the headers of blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {Array}
@@ -588,7 +588,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [runMigrations description]
+   * Run all migrations.
    * @return {Boolean}
    */
   __runMigrations () {
@@ -610,7 +610,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [registerModels description]
+   * Register all models.
    * @return {void}
    */
   async __registerModels () {
@@ -633,7 +633,7 @@ module.exports = class SequelizeConnection extends Connection {
   }
 
   /**
-   * [registerRepositories description]
+   * Register all repositories.
    * @return {void}
    */
   async __registerRepositories () {

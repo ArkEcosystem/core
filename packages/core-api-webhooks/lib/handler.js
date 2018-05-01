@@ -6,10 +6,14 @@ const utils = require('./utils')
 const schema = require('./schema')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const webhooks = await database.paginate(utils.paginate(request))
 
@@ -18,10 +22,14 @@ exports.index = {
 }
 
 /**
- * [store description]
  * @type {Object}
  */
 exports.store = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const token = require('crypto').randomBytes(32).toString('hex')
     request.payload.token = token.substring(0, 32)
@@ -42,10 +50,14 @@ exports.store = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const webhook = await database.findById(request.params.id)
     delete webhook.token
@@ -58,10 +70,14 @@ exports.show = {
 }
 
 /**
- * [update description]
  * @type {Object}
  */
 exports.update = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     await database.update(request.params.id, request.payload)
 
@@ -73,10 +89,14 @@ exports.update = {
 }
 
 /**
- * [destroy description]
  * @type {Object}
  */
 exports.destroy = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     await database.destroy(request.params.id, request.payload)
 
@@ -88,11 +108,15 @@ exports.destroy = {
 }
 
 /**
- * [events description]
  * @type {Object}
  */
 exports.events = {
-  handler: (request, h) => {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  handler: async (request, h) => {
     return {
       data: pluginManager.get('webhooks').getEvents()
     }

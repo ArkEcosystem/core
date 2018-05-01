@@ -4,7 +4,7 @@ const deepmerge = require('deepmerge')
 
 module.exports = class ConfigInterface {
   /**
-   * [constructor description]
+   * Create a new config instance.
    * @param  {Object} options
    * @return {void}
    */
@@ -13,7 +13,7 @@ module.exports = class ConfigInterface {
   }
 
   /**
-   * [getConstants description]
+   * Get constants for the specified height.
    * @param  {Number} height
    * @return {void}
    */
@@ -31,7 +31,7 @@ module.exports = class ConfigInterface {
   }
 
   /**
-   * [buildConstants description]
+   * Build constants from the config.
    * @return {void}
    */
   __buildConstants () {

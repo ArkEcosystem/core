@@ -3,9 +3,6 @@
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const Hapi = require('hapi')
 
-/**
- * [description]
- */
 module.exports = class Up {
   /**
    * @constructor
@@ -50,7 +47,7 @@ module.exports = class Up {
     try {
       await this.server.start()
 
-      logger.info(`Oh hapi day! P2P API is listening on ${this.server.info.uri}`)
+      logger.info(`P2P API available and listening on ${this.server.info.uri}`)
     } catch (err) {
       logger.error(err)
 

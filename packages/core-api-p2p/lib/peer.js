@@ -5,9 +5,6 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
-/**
- * [description]
- */
 module.exports = class Peer {
   /**
    * @constructor
@@ -163,7 +160,7 @@ module.exports = class Peer {
    * @return {Object[]}
    */
   async getPeers () {
-    logger.info(`Getting fresh peer list from ${this.url}`)
+    logger.info(`Fetching a fresh peer list from ${this.url}`)
     await this.ping(5000)
     const body = await this.get('/peer/list')
 

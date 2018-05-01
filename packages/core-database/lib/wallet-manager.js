@@ -11,16 +11,20 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
 
+const map = require('lodash/map')
+const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
+
 module.exports = class WalletManager {
   /**
-   * [constructor description]
+   * Create a new wallet manager instance.
+   * @constructor
    */
   constructor () {
     this.reset()
   }
 
   /**
-   * [reset description]
+   * Reset the wallets index.
    * @return {void}
    */
   reset () {
@@ -30,7 +34,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [reindex description]
+   * Reindex the given wallet.
    * @param  {Wallet} wallet
    * @return {void}
    */
@@ -48,8 +52,12 @@ module.exports = class WalletManager {
     }
   }
 
+  isGenesis (wallet) {
+    return genesisWallets.includes(wallet.address)
+  }
+
   /**
-   * [applyBlock description]
+   * Apply the given block to a delegate.
    * @param  {Block} block
    * @return {void}
    */
@@ -66,10 +74,10 @@ module.exports = class WalletManager {
         this.walletsByAddress[generator] = delegate
         this.walletsByPublicKey[block.generatorPublicKey] = delegate
       } else {
-        logger.debug('delegate by address', this.walletsByAddress[generator])
+        logger.debug('Delegate by address', this.walletsByAddress[generator])
 
         if (this.walletsByAddress[generator]) {
-          logger.info('Oops ! this look like a bug, please report 🐛')
+          logger.info('This look like a bug, please report :bug:')
         }
 
         throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
@@ -96,7 +104,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [undoBlock description]
+   * Remove the given block from a delegate.
    * @param  {Block} block
    * @return {void}
    */
@@ -134,7 +142,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [applyTransaction description]
+   * Apply the given transaction to a delegate.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
@@ -162,21 +170,21 @@ module.exports = class WalletManager {
     }
 
     if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-      logger.error(`[TX2] Send by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
     } else if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-      logger.error(`[TX3] Send by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(datatx))
 
       throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
     }
 
     if (config.network.exceptions[datatx.id]) {
-      logger.warn('Transaction is forced to be applied because it has been added as an exception:')
-      logger.warn(datatx)
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', datatx)
     } else if (!sender.canApply(datatx)) {
+      // TODO: What is this logging? Reduce?
       logger.info(JSON.stringify(sender))
-      logger.error(`[sender.canApply] Sent by ${sender.address}`, JSON.stringify(datatx))
+      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(datatx))
       logger.info('Audit', JSON.stringify(sender.auditApply(datatx), null, 2))
       throw new Error(`Can't apply transaction ${datatx.id}`)
     }
@@ -196,7 +204,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [undoTransaction description]
+   * Remove the given transaction from a delegate.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
@@ -213,7 +221,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getWalletByAddress description]
+   * Get a wallet by the given address.
    * @param  {String} address
    * @return {(Wallet|null)}
    */
@@ -233,7 +241,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getWalletByPublicKey description]
+   * Get a wallet by the given public key.
    * @param  {String} publicKey
    * @return {Wallet}
    */
@@ -253,7 +261,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getDelegate description]
+   * Get a delegate by the given username.
    * @param  {String} username
    * @return {Wallet}
    */
@@ -262,7 +270,7 @@ module.exports = class WalletManager {
   }
 
   /**
-   * [getLocalWallets description]
+   * Get all wallets by address.
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API

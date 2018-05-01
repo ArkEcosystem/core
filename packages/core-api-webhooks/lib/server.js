@@ -4,13 +4,13 @@ const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 
 /**
- * [description]
+ * Creates a new hapi.js server.
  * @param  {Object} config
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
   if (!config.enabled) {
-    return logger.info('Oh snap! Webhook API not enabled...')
+    return logger.info('Webhook API is not enabled')
   }
 
   const baseConfig = {
@@ -58,7 +58,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Oh hapi day! Webhook API is listening on ${server.info.uri}`)
+    logger.info(`Webhook API available and listening on ${server.info.uri}`)
 
     return server
   } catch (error) {

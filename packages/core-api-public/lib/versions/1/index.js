@@ -9,7 +9,7 @@ const transactions = require('./handlers/transactions')
 const accounts = require('./handlers/accounts')
 
 /**
- * [description]
+ * Register the v1 routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

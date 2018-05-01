@@ -11,13 +11,14 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "build:docs": "node_modules/.bin/jsdoc -c jsdoc.json",
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-event-emitter": "^1.0.0",
     "@arkecosystem/core-plugin-manager": "^1.0.0",
     "ajv": "^6.4.0",
     "hapi": "^17.3.1",

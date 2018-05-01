@@ -10,7 +10,7 @@ const AJV = require('ajv')
 const ajv = new AJV()
 
 /**
- * [validate description]
+ * Validate the given data using AJV.
  * @param  {Object} schema
  * @param  {Object} data
  * @return {(Boolean|Object)}
@@ -20,7 +20,7 @@ function validate (schema, data) {
 }
 
 /**
- * [createErrorResponse description]
+ * Create an error response for hapi.js.
  * @param  {Hapi.Request} request
  * @param  {Hapi.Toolkit} h
  * @param  {Array} errors
@@ -33,7 +33,7 @@ function createErrorResponse (request, h, errors) {
 }
 
 /**
- * [registerCustomFormats description]
+ * Register all custom validation formats
  * @return {void}
  */
 function registerCustomFormats () {
@@ -47,7 +47,7 @@ function registerCustomFormats () {
 }
 
 /**
- * [description]
+ * The register method uses by hapi.js.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}

@@ -15,10 +15,14 @@ const utils = require('../utils')
 const schema = require('../schema/transactions')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = await database.transactions.findAll(utils.paginate(request))
 
@@ -27,10 +31,14 @@ exports.index = {
 }
 
 /**
- * [store description]
  * @type {Object}
  */
 exports.store = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
@@ -45,10 +53,14 @@ exports.store = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transaction = await database.transactions.findById(request.params.id)
 
@@ -60,10 +72,14 @@ exports.show = {
 }
 
 /**
- * [unconfirmed description]
  * @type {Object}
  */
 exports.unconfirmed = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -80,10 +96,14 @@ exports.unconfirmed = {
 }
 
 /**
- * [showUnconfirmed description]
  * @type {Object}
  */
 exports.showUnconfirmed = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -96,10 +116,14 @@ exports.showUnconfirmed = {
 }
 
 /**
- * [search description]
  * @type {Object}
  */
 exports.search = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = await database.transactions.search({
       ...request.query,
@@ -115,10 +139,14 @@ exports.search = {
 }
 
 /**
- * [types description]
  * @type {Object}
  */
 exports.types = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     return {
       data: TRANSACTION_TYPES

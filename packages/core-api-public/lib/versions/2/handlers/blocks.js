@@ -5,10 +5,14 @@ const utils = require('../utils')
 const schema = require('../schema/blocks')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const blocks = await database.blocks.findAll(utils.paginate(request))
 
@@ -20,10 +24,14 @@ exports.index = {
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const block = await database.blocks.findById(request.params.id)
 
@@ -35,10 +43,14 @@ exports.show = {
 }
 
 /**
- * [transactions description]
  * @type {Object}
  */
 exports.transactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const block = await database.blocks.findById(request.params.id)
     const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))
@@ -51,10 +63,14 @@ exports.transactions = {
 }
 
 /**
- * [search description]
  * @type {Object}
  */
 exports.search = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const blocks = await database.blocks.search({
       ...request.payload,

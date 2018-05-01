@@ -9,10 +9,14 @@ const { slots } = client
 const { Transaction } = client.models
 
 /**
- * [getPeers description]
  * @type {Object}
  */
 exports.getPeers = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     try {
       const peers = await request.server.app.p2p.getPeers()
@@ -29,7 +33,6 @@ exports.getPeers = {
 }
 
 /**
- * [getHeight description]
  * @type {Object}
  */
 exports.getHeight = {
@@ -43,10 +46,14 @@ exports.getHeight = {
 }
 
 /**
- * [getCommonBlock description]
  * @type {Object}
  */
 exports.getCommonBlock = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
@@ -65,10 +72,14 @@ exports.getCommonBlock = {
 }
 
 /**
- * [getTransactionsFromIds description]
  * @type {Object}
  */
 exports.getTransactionsFromIds = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
@@ -83,7 +94,6 @@ exports.getTransactionsFromIds = {
 }
 
 /**
- * [getTransactions description]
  * @type {Object}
  */
 exports.getTransactions = {
@@ -93,7 +103,6 @@ exports.getTransactions = {
 }
 
 /**
- * [getStatus description]
  * @type {Object}
  */
 exports.getStatus = {
@@ -116,7 +125,6 @@ exports.getStatus = {
 }
 
 /**
- * [postBlock description]
  * @type {Object}
  */
 exports.postBlock = {
@@ -130,10 +138,14 @@ exports.postBlock = {
 }
 
 /**
- * [postTransactions description]
  * @type {Object}
  */
 exports.postTransactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
@@ -145,10 +157,14 @@ exports.postTransactions = {
 }
 
 /**
- * [getBlocks description]
  * @type {Object}
  */
 exports.getBlocks = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     try {
       const blocks = await blockchainManager.getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)

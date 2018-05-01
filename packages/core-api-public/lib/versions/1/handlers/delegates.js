@@ -10,52 +10,64 @@ const utils = require('../utils')
 const schema = require('../schemas/delegates')
 
 /**
- * [index description]
  * @type {Object}
  */
 exports.index = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getDelegates
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegates = await database.delegates.findAll()
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates, 'delegate')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getDelegates
+      }
+    }
   }
 }
 
 /**
- * [show description]
  * @type {Object}
  */
 exports.show = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getDelegate
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegate = await database.delegates.findById(request.query.id)
 
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getDelegate
+      }
+    }
   }
 }
 
 /**
- * [count description]
  * @type {Object}
  */
 exports.count = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegates = await database.delegates.findAll()
 
@@ -64,31 +76,39 @@ exports.count = {
 }
 
 /**
- * [search description]
  * @type {Object}
  */
 exports.search = {
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.search
-      }
-    }
-  },
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegates = await database.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates.rows, 'delegate')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.search
+      }
+    }
   }
 }
 
 /**
- * [voters description]
  * @type {Object}
  */
 exports.voters = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: async (request, h) => {
     const delegate = await database.delegates.findById(request.query.publicKey)
     const accounts = await database.wallets.findAllByVote(delegate.publicKey)
@@ -100,10 +120,14 @@ exports.voters = {
 }
 
 /**
- * [fee description]
  * @type {Object}
  */
 exports.fee = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return utils.respondWith({
       data: config.getConstants(state.lastBlock.data.height).fees.delegate
@@ -112,20 +136,24 @@ exports.fee = {
 }
 
 /**
- * [forged description]
  * @type {Object}
  */
 exports.forged = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  handler: async (request, h) => {
+    const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
+
+    return utils.respondWith(totals[0])
+  },
   config: {
     plugins: {
       'hapi-ajv': {
         querySchema: schema.getForgedByAccount
       }
     }
-  },
-  handler: async (request, h) => {
-    const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
-
-    return utils.respondWith(totals[0])
   }
 }

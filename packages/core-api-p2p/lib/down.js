@@ -4,13 +4,11 @@ const { slots } = require('@arkecosystem/client')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
 
-/**
- * [description]
- */
 module.exports = class Down {
   /**
    * @constructor
@@ -97,7 +95,7 @@ module.exports = class Down {
         wrongpeers++
         delete this.peers[ip]
 
-        // pluginManager.get('webhooks').emit('peer.removed', this.peers[ip])
+        emitter.emit('peer.removed', this.peers[ip])
 
         return null
       }
@@ -125,9 +123,9 @@ module.exports = class Down {
       await npeer.ping()
       this.peers[peer.ip] = npeer
 
-      // pluginManager.get('webhooks').emit('peer.added', npeer)
+      emitter.emit('peer.added', npeer)
     } catch (error) {
-      logger.debug(`Peer ${npeer} not connectable - ${error}`)
+      logger.debug(`Could not connect to peer '${npeer}' - ${error}`)
     }
   }
 
@@ -147,9 +145,14 @@ module.exports = class Down {
   getRandomPeer (acceptableDelay) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
-    if (acceptableDelay) keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
+
+    if (acceptableDelay) {
+      keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
+    }
+
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
+
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
