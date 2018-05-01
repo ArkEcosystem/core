@@ -19,7 +19,12 @@ module.exports = async (options) => {
       '@arkecosystem/core-blockchain',
       '@arkecosystem/core-database',
       '@arkecosystem/core-database-sequelize'
-    ]
+    ],
+    options: {
+      '@arkecosystem/core-blockchain': {
+        networkStart: options.networkStart
+      }
+    }
   })
 
   await pluginManager.hook('init', {config})

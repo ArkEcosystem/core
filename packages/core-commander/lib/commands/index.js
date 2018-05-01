@@ -1,7 +1,7 @@
 'use strict';
 
 const prompts = require('prompts')
-const { splash } = require('../../utils')
+const { splash } = require('../utils')
 
 const questions = () => {
   const relayChoice = process.env.ARK_RELAY_STATUS === 'online'
@@ -20,12 +20,11 @@ const questions = () => {
     relayChoice,
     forgerChoice,
     relayForgerChoice,
-    { title: 'Manage Database', value: 'manage-database' },
-    { title: 'Manage Redis', value: 'manage-redis' },
-    { title: 'Configure Network', value: 'configure-network' },
-    { title: 'Configure Delegate', value: 'configure-delegate' },
-    { title: 'Configure Public API', value: 'configure-public-api' },
-    { title: 'Configure Webhooks', value: 'configure-webhooks' },
+    { title: 'Manage Network', value: 'manage-network' },
+    { title: 'Manage Delegate', value: 'manage-delegate' },
+    { title: 'Test Database', value: 'test-database' },
+    { title: 'Test Transaction Pool', value: 'test-transaction-pool' },
+    { title: 'Test Webhooks', value: 'test-webhooks' },
     { title: 'Show Logs', value: 'show-logs' },
     { title: 'Exit', value: 'exit' }
   ]
@@ -44,5 +43,5 @@ module.exports = async () => {
 
   if (response.action === 'exit') process.exit()
 
-  require(`../${response.action}`)(response)
+  require(`./${response.action}`)(response)
 }

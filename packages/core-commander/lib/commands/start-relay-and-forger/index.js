@@ -39,9 +39,9 @@ module.exports = async () => {
         })
       }
 
-      console.log(chalk.bgRed('The provided address could not be validated.'))
+      console.log(chalk.red('The provided address could not be validated.'))
     } catch (error) {
-      console.log(chalk.bgRed('The provided password could not be validated.'))
+      console.log(chalk.red('The provided password could not be validated.'))
     }
 
     sleep(1)

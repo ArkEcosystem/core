@@ -10,7 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   alias: 'blockchain',
   register: async (manager, options) => {
-    await new BlockchainManager(manager.get('config'))
+    await new BlockchainManager(manager.get('config'), options.networkStart)
 
     return BlockchainManager.getInstance()
   }

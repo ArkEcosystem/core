@@ -243,11 +243,11 @@ module.exports = class ConnectionInterface {
     const forgingDelegate = delegates[slot % delegates.length]
 
     if (!forgingDelegate) {
-      logger.debug('Could not decide yet if delegate ' + block.data.generatorPublicKey + ' is allowed to forge block ' + block.data.height)
+      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
     } else {
-      logger.debug('Delegate ' + block.data.generatorPublicKey + ' allowed to forge block ' + block.data.height)
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
     }
     return true
   }

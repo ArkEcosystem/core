@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-logger-winston",
-  "description": "Winston Logger for ARK Core",
+  "name": "@arkecosystem/core-transaction-pool",
+  "description": "Transaction Pool Manager for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -15,14 +15,5 @@
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
-  },
-  "dependencies": {
-    "chalk": "^2.3.2",
-    "colors": "^1.2.1",
-    "expand-home-dir": "^0.0.3",
-    "moment": "^2.22.0",
-    "node-emoji": "^1.8.1",
-    "winston": "^2.4.1",
-    "winston-daily-rotate-file": "^3.0.2"
   }
 }
