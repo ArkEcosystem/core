@@ -10,7 +10,9 @@ const options = {
     port: 6379
   }
 }
+
 let redis
+
 beforeAll(async (done) => {
   await require('./__support__/setup')()
 
