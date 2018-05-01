@@ -1,9 +1,9 @@
 'use strict'
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const Sntp = require('sntp')
 
-const isOnline = require('./utils/is-online')
+const checkDNS = require('./utils/check-dns')
+const checkNTP = require('./utils/check-ntp')
 const Down = require('./down')
 const Up = require('./up')
 
@@ -19,28 +19,13 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * Check if node is online.
-   */
-  async checkOnline () {
-    try {
-      const server = await isOnline(this.up.config.dnsServers)
-
-      logger.info(`Your network connectivity has been verified by ${server}`)
-    } catch (err) {
-      logger.error(err.message)
-    }
-
-    const time = await Sntp.time()
-
-    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
-  }
-
-  /**
    * Start P2P interface.
    * @param {Boolean} networkStart
    */
   async warmup (networkStart) {
-    await this.checkOnline()
+    await this.__checkDNSConnectivity()
+    await this.__checkNTPConnectivity()
+
     await this.down.start(networkStart)
     await this.up.start()
   }
@@ -109,5 +94,33 @@ module.exports = class P2PInterface {
    */
   getNetworkHeight () {
     return this.down.getNetworkHeight()
+  }
+
+  /**
+   * Check if the node can connect to any DNS host.
+   */
+  async __checkDNSConnectivity () {
+    try {
+      const host = await checkDNS(this.up.config.dns)
+
+      logger.info(`Your network connectivity has been verified by ${host}`)
+    } catch (err) {
+      logger.error(err.message)
+    }
+  }
+
+  /**
+   * Check if the node can connect to any NTP host.
+   */
+  async __checkNTPConnectivity () {
+    try {
+      const { host, time } = await checkNTP(this.up.config.ntp)
+
+      logger.info(`Your NTP connectivity has been verified by ${host}`)
+
+      logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
+    } catch (err) {
+      logger.error(err.message)
+    }
   }
 }
