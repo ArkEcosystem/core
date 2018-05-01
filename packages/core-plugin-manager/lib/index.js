@@ -174,8 +174,9 @@ class PluginManager {
    * @return {void}
    */
   __exportPaths (paths) {
-    process.env.ARK_PATH_DATA = expandHomeDir(paths.data)
-    process.env.ARK_PATH_CONFIG = expandHomeDir(paths.config)
+    for (let [key, value] of Object.entries(paths)) {
+      process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
+    }
   }
 }
 
