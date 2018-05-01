@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init(options.data, config, {
+  pluginManager.init({ data: options.data, config }, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-blockchain': {
@@ -19,7 +19,7 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', {config})
+  await pluginManager.hook('init', { config: options.config })
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
   await pluginManager.get('blockchain').start()
