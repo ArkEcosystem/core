@@ -181,12 +181,14 @@ module.exports = class BlockchainManager {
 
     const newHeigth = previousRound * maxDelegates
     logger.info('Removing ' + (height - newHeigth) + ' blocks to start from current round')
-
+    let count = 0
+    const max = stateMachine.state.lastBlock.data.height - newHeigth
     while (stateMachine.state.lastBlock.data.height >= newHeigth) {
+      logger.printTracker('Removing block', count++, max, 'id: ' + stateMachine.state.lastBlock.data.id + ', height: ' + stateMachine.state.lastBlock.data.height)
       await deleteLastBlock()
     }
+    logger.stopTracker(max + 'blocks removed', count, max)
 
-    logger.info('Blocks removed')
     await this.getDatabaseConnection().deleteRound(previousRound + 1)
   }
 
