@@ -66,9 +66,12 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
+    const canBePurged = (wallet) => {
+      return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+    }
     Object.keys(this.walletsByPublicKey).forEach(publicKey => {
       const wallet = this.walletsByPublicKey[publicKey]
-      if (this.__canBePurged(wallet)) {
+      if (canBePurged(wallet)) {
         delete this.walletsByPublicKey[publicKey]
         delete this.walletsByAddress[wallet.address]
       }
@@ -299,13 +302,5 @@ module.exports = class WalletManager {
    */
   getLocalWallets () { // for compatibility with API
     return Object.values(this.walletsByAddress)
-  }
-
-  /**
-   * Used to determine if a wallet can be purged from memory.
-   * @return {Boolean}
-   */
-  __canBePurged (wallet) {
-    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 }
