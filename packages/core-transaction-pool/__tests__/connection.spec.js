@@ -1,6 +1,6 @@
 'use strict';
 
-const TransactionPoolInterface = require('../lib/interface')
+const TransactionPoolInterface = require('../lib/connection')
 
 const transactionPoolInterface = new TransactionPoolInterface()
 
