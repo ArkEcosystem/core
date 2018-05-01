@@ -7,7 +7,7 @@ const defaults = require('../__stubs__/defaults.json')
 
 const setupPluggy = async () => {
   const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
-  pluginManager.init('~/.ark', config)
+  pluginManager.init({ data: '~/.ark', config })
 
   await pluginManager.hook('init', {config})
   await pluginManager.hook('beforeCreate')

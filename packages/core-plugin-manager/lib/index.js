@@ -19,13 +19,12 @@ class PluginManager {
 
   /**
    * Initialise the plugin manager.
-   * @param  {String} dataPath
-   * @param  {String} configPath
+   * @param  {Object} paths
    * @param  {Object} options
    * @return {void}
    */
-  init (dataPath, configPath, options = {}) {
-    this.__exportPaths(dataPath, configPath)
+  init (paths, options = {}) {
+    this.__exportPaths(paths)
 
     const plugins = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
 
@@ -171,11 +170,12 @@ class PluginManager {
 
   /**
    * Export path variables before we bootstrap any plugins.
+   * @param  {Object} paths
    * @return {void}
    */
-  __exportPaths (dataPath, configPath) {
-    process.env.ARK_PATH_DATA = expandHomeDir(dataPath)
-    process.env.ARK_PATH_CONFIG = expandHomeDir(configPath)
+  __exportPaths (paths) {
+    process.env.ARK_PATH_DATA = expandHomeDir(paths.data)
+    process.env.ARK_PATH_CONFIG = expandHomeDir(paths.config)
   }
 }
 
