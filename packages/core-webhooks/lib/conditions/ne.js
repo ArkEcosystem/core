@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Check if A does not equal B.

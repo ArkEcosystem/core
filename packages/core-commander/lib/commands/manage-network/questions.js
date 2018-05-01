@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Questions for terkelg/prompts.

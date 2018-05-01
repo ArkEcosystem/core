@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
   uri: 'sqlite:~/.ark/database/devnet.sqlite',

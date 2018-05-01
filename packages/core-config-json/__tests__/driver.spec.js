@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const path = require('path')
 const JsonDriver = require('../lib/driver')

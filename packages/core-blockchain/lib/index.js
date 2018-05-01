@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const BlockchainManager = require('./manager')
+const Blockchain = require('./blockchain')
 
 /**
  * The struct used by the plugin manager.
@@ -9,9 +9,5 @@ const BlockchainManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'blockchain',
-  register: async (manager, options) => {
-    await new BlockchainManager(manager.get('config'), options.networkStart)
-
-    return BlockchainManager.getInstance()
-  }
+  register: async (manager, options) => new Blockchain(manager.get('config'), options.networkStart)
 }

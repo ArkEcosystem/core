@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const WinstonDriver = require('../lib/driver')
 

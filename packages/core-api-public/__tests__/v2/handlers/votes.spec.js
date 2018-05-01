@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 beforeAll(async (done) => {
   await require('../../__support__/setup')()

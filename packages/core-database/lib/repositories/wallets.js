@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const _ = require('lodash')
 const filterObject = require('./utils/filter-object')
@@ -20,10 +20,14 @@ module.exports = class WalletsRepository {
   async findAll (params = {}) {
     const wallets = this.connection.walletManager.getLocalWallets()
 
-    return Object.keys(params).length ? {
+    if (!Object.keys(params).length) {
+      return wallets
+    }
+
+    return {
       rows: wallets.slice(params.offset, params.offset + params.limit),
       count: wallets.length
-    } : wallets
+    }
   }
 
   /**
@@ -50,10 +54,14 @@ module.exports = class WalletsRepository {
     let wallets = await this.findAll()
     wallets = await wallets.filter(a => a.vote === publicKey)
 
-    return Object.keys(params).length ? {
+    if (!Object.keys(params).length) {
+      return wallets
+    }
+
+    return {
       rows: wallets.slice(params.offset, params.offset + params.limit),
       count: wallets.length
-    } : wallets
+    }
   }
 
   /**
@@ -89,7 +97,11 @@ module.exports = class WalletsRepository {
     wallets = _.sortBy(wallets, 'balance').reverse()
     wallets = wallets.slice(params.offset, params.offset + params.limit)
 
-    return legacy ? wallets : {
+    if (legacy) {
+      return wallets
+    }
+
+    return {
       rows: wallets.slice(params.offset, params.offset + params.limit),
       count: wallets.length
     }

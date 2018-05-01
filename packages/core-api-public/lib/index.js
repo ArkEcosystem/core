@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * The struct used by the plugin manager.

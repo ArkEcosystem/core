@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const LoggerInterface = require('../lib/interface')
 

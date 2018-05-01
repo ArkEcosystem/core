@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const { transformResource, transformCollection } = require('../../utils/transformer')
 
@@ -48,6 +48,9 @@ const toCollection = (request, data, transformerClass) => {
   return transformCollection(request, data, transformerClass)
 }
 
+/**
+ * @type {Object}
+ */
 module.exports = {
   paginator,
   respondWith,

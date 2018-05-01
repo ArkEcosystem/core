@@ -29,6 +29,7 @@ module.exports = class MultiSignature extends Transaction {
     this.asset.multisignature.lifetime = lifetime
     this.asset.multisignature.min = min
     this.fee = (keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+
     return this
   }
 
@@ -41,6 +42,7 @@ module.exports = class MultiSignature extends Transaction {
     struct.amount = this.amount
     struct.recipientId = this.recipientId
     struct.asset = this.asset
+
     return struct
   }
 }

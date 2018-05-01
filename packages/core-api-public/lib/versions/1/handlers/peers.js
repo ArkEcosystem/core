@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const peers = await blockchainManager.getNetworkInterface().getPeers()
+    const peers = await blockchain.getNetworkInterface().getPeers()
 
     if (!peers) return utils.respondWith('No peers found', true)
 
@@ -62,7 +62,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const peers = await blockchainManager.getNetworkInterface().getPeers()
+    const peers = await blockchain.getNetworkInterface().getPeers()
 
     if (!peers) return utils.respondWith('No peers found', true)
 

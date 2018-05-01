@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const constants = require('@arkecosystem/core-plugin-manager').get('config').constants
 

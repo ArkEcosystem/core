@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 let ConnectionInterface
 
@@ -171,15 +171,15 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('__registerWalletManager', async () => {
+  describe('_registerWalletManager', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.__registerWalletManager).toBeFunction()
+      await expect(ConnectionInterface._registerWalletManager).toBeFunction()
     })
   })
 
-  describe('__registerRepositories', async () => {
+  describe('_registerRepositories', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.__registerRepositories).toBeFunction()
+      await expect(ConnectionInterface._registerRepositories).toBeFunction()
     })
   })
 })

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Redis = require('ioredis')
 const chalk = require('chalk')

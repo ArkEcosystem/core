@@ -76,9 +76,9 @@ class ECPair {
 
     if (d.signum() <= 0 || d.compareTo(secp256k1.n) >= 0) {
       throw new Error('seed cannot resolve to a compatible private key')
-    } else {
-      return new ECPair(d, null, options)
     }
+
+    return new ECPair(d, null, options)
   }
 
   /**
@@ -165,7 +165,9 @@ class ECPair {
    * @returns {ECPair}
    */
   sign (hash) {
-    if (!this.d) throw new Error('Missing private key')
+    if (!this.d) {
+      throw new Error('Missing private key')
+    }
 
     const native = secp256k1native.sign(hash, this.d.toBuffer(32))
     return ECSignature.parseNativeSecp256k1(native).signature
@@ -175,7 +177,9 @@ class ECPair {
    * @returns {ECPair}
    */
   toWIF () {
-    if (!this.d) throw new Error('Missing private key')
+    if (!this.d) {
+      throw new Error('Missing private key')
+    }
 
     return wif.encode(this.network.wif, this.d.toBuffer(32), this.compressed)
   }

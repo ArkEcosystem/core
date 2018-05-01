@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const state = blockchain.getState()
 
 /**
  * Turns a "block" object into a generic object.

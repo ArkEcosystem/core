@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Register the "vendorField" validation rule.

@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 const pluginManager = require('@arkecosystem/core-plugin-manager')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 const async = require('async')
 const logger = pluginManager.get('logger')
 const client = require('@arkecosystem/client')
@@ -14,7 +14,7 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = blockchainManager.getDatabaseConnection().walletManager
+    this.walletManager = blockchain.getDatabaseConnection().walletManager
 
     const that = this
     this.queue = async.queue((transaction, qcallback) => {
@@ -50,7 +50,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
-    throw new Error('Method [addTransaction (transaction)] not implemented!')
+    throw new Error('Method [addTransaction] not implemented!')
   }
 
   /**
@@ -59,7 +59,7 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   async removeTransaction (id) {
-    throw new Error('Method [removeTransaction (id)] not implemented!')
+    throw new Error('Method [removeTransaction] not implemented!')
   }
 
   /**
@@ -68,7 +68,7 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactions (transactions) {
-    throw new Error('Method [removeTransactions (transactions)] not implemented!')
+    throw new Error('Method [removeTransactions] not implemented!')
   }
 
     /**
@@ -77,7 +77,7 @@ module.exports = class TransactionPoolInterface {
    * @return {(Transaction|String)}
    */
   async getTransaction (id) {
-    throw new Error('Method [getTransaction (id)] not implemented!')
+    throw new Error('Method [getTransaction] not implemented!')
   }
 
     /**
@@ -87,7 +87,7 @@ module.exports = class TransactionPoolInterface {
    * @return {Array}
    */
   async getTransactions (start, size) {
-    throw new Error('Method [getTransactions (start,size)] not implemented!')
+    throw new Error('Method [getTransactions] not implemented!')
   }
 
     /**
@@ -97,11 +97,11 @@ module.exports = class TransactionPoolInterface {
    * @return {Array}
    */
   async getTransactionsForForging (start, size) {
-    throw new Error('Method [getTransactionsForForging (start, size)] not implemented!')
+    throw new Error('Method [getTransactionsForForging] not implemented!')
   }
 
   /**
-   * Add transaction to the registered pool. Method called from blockchainManager, upon receiveing payload.
+   * Add transaction to the registered pool. Method called from blockchain, upon receiveing payload.
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
@@ -118,9 +118,10 @@ module.exports = class TransactionPoolInterface {
           transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
         } else {
           transaction.data.timelocktype = 1 // block
-          transaction.data.timelock = blockchainManager.getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
+          transaction.data.timelock = blockchain.getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
         }
       }
+
       return transaction
     }))
   }
@@ -142,8 +143,9 @@ module.exports = class TransactionPoolInterface {
    * @return {Array}
    */
   async CheckIfForged (transactionIds) {
-    const forgedIds = await blockchainManager.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
+    const forgedIds = await blockchain.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
+
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 

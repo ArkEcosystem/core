@@ -37,6 +37,7 @@ describe('Models - Block', () => {
           expect(header[key]).toEqual(data2[key])
         }
       })
+
       expect(header).not.toHaveProperty('transactions')
     })
   })
@@ -68,6 +69,7 @@ describe('Models - Block', () => {
         expect(serialize(data2).slice(12, 20).toString('hex')).toEqual(data2.previousBlockHex)
       })
     })
+
     describe('if `previousBlockHex` does not exist', () => {
       it('8 bytes are added, as padding', () => {
         expect(serialize(data).slice(12, 20).toString('hex')).toEqual('0000000000000000')
@@ -108,16 +110,19 @@ describe('Models - Block', () => {
         delete data2.blockSignature
         expect(serialize(data2).limit).toEqual(117)
       })
+
       it('is not serialized, even when the `includeSignature` parameter is true', () => {
         const data2 = { ...data }
         delete data2.blockSignature
         expect(serialize(data2, true).limit).toEqual(117)
       })
     })
+
     describe('if the `blockSignature` is included', () => {
       it('is serialized', () => {
         expect(serialize(data).slice(117, 188).toString('hex')).toEqual(data.blockSignature)
       })
+
       it('is serialized unless the `includeSignature` parameter is false', () => {
         expect(serialize(data, false).limit).toEqual(117)
       })

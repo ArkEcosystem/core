@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
+const state = blockchain.getState()
 
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
@@ -23,7 +23,9 @@ exports.index = {
       ...request.query, ...utils.paginator(request)
     }, false)
 
-    if (!blocks) return utils.respondWith('No blocks found', true)
+    if (!blocks) {
+      return utils.respondWith('No blocks found', true)
+    }
 
     return utils.respondWith({
       blocks: utils.toCollection(request, blocks, 'block')
@@ -50,7 +52,9 @@ exports.show = {
   handler: async (request, h) => {
     const block = await database.blocks.findById(request.query.id)
 
-    if (!block) return utils.respondWith(`Block with id ${request.query.id} not found`, true)
+    if (!block) {
+      return utils.respondWith(`Block with id ${request.query.id} not found`, true)
+    }
 
     return utils.respondWith({ block: utils.toResource(request, block, 'block') })
   },

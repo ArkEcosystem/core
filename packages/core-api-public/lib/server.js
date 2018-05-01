@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
