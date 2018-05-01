@@ -22,11 +22,13 @@ module.exports = class P2PInterface {
    * Check if node is online.
    */
   async checkOnline () {
-    const online = await isOnline(this.up.config.dnsServers)
+    try {
+      const server = await isOnline(this.up.config.dnsServers)
 
-    online
-      ? logger.info('Node is online - Google DNS is accessible')
-      : logger.error('Node not online - Google DNS failed')
+      logger.info(`Your network connectivity has been verified by ${server}`)
+    } catch (err) {
+      logger.error(err.message)
+    }
 
     const time = await Sntp.time()
 

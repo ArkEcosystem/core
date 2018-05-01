@@ -8,11 +8,11 @@ module.exports = async (servers) => {
     try {
       await lookupService(servers[i], 53)
 
-      return Promise.resolve()
+      return Promise.resolve(servers[i])
     } catch (err) {
       console.log(err.message)
     }
   }
 
-  return Promise.reject()
+  Promise.reject(new Error("Please check your network connectivity, couldn't connect to any DNS."))
 }
