@@ -2,9 +2,23 @@
 
 const RedisConnection = require('../lib/connection')
 
+const options = {
+  enabled: true,
+  key: 'ark/pool',
+  maxTransactionsPerSender: 5,
+  whiteList: [],
+  redis: {
+    host: 'localhost',
+    port: 6379
+  }
+}
 let redis
-beforeAll(() => {
-  redis = new RedisConnection(require('../lib/defaults.js'))
+
+beforeAll(async (done) => {
+  await require('./__support__/setup')()
+  redis = new RedisConnection(require('../lib/defaults.js'))(options)
+
+  done()
 })
 
 describe('Redis', () => {
