@@ -39,7 +39,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         this.removeTransaction(message.split('/')[3])
       })
     } else {
-      logger.warn('Transaction pool is disabled - please enable if run in production')
+      logger.warn('Unable to connecto to REDIS server')
     }
 
     return this

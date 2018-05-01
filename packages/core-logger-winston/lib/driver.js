@@ -59,7 +59,11 @@ module.exports = class Logger extends LoggerInterface {
    * @return {void}
    */
   stopTracker (title, current, max) {
-    const progress = 100 * current / max
+    let progress = 100 * current / max
+
+    if (progress > 100) {
+      progress = 100
+    }
 
     let line = '\u{1b}[0G  '
     line += title.blue

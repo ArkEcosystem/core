@@ -1,8 +1,25 @@
 'use strict'
 
-const TransactionPoolInterface = require('../lib/interface')
+let transactionPoolInterface
 
-const transactionPoolInterface = new TransactionPoolInterface()
+const options = {
+  enabled: true,
+  key: 'ark/pool',
+  maxTransactionsPerSender: 5,
+  whiteList: [],
+  redis: {
+    host: 'localhost',
+    port: 6379
+  }
+}
+
+beforeAll(async (done) => {
+  await require('./__support__/setup')()
+
+  transactionPoolInterface = new (require('../lib/connection'))(options)
+
+  done()
+})
 
 describe('TransactionPoolInterface Interface', () => {
   it('should be an object', async () => {

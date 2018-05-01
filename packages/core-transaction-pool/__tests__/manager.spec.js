@@ -14,21 +14,21 @@ describe('Config Transaction Pool Manager', () => {
     expect(transactionPoolManager.drivers).toBeDefined()
   })
 
-  describe('driver', async () => {
+  describe('connection', async () => {
     it('should be a function', async () => {
-      expect(transactionPoolManager.driver).toBeFunction()
+      expect(transactionPoolManager.connection).toBeFunction()
     })
 
-    it('should return the driver', async () => {
-      await transactionPoolManager.makeDriver(new FakeDriver())
+    it('should return the drive-connection', async () => {
+      await transactionPoolManager.makeConnection(new FakeDriver())
 
-      expect(transactionPoolManager.driver()).toBeInstanceOf(FakeDriver)
+      expect(transactionPoolManager.connection()).toBeInstanceOf(FakeDriver)
     })
   })
 
-  describe('makeDriver', async () => {
+  describe('makeConnection', async () => {
     it('should be a function', async () => {
-      expect(transactionPoolManager.makeDriver).toBeFunction()
+      expect(transactionPoolManager.makeConnection).toBeFunction()
     })
   })
 })
