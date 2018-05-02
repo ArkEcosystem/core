@@ -3,11 +3,11 @@ const Sntp = require('sntp')
 module.exports = async (hosts) => {
   for (let i = 0; i < hosts.length; i++) {
     try {
-      const time = await Sntp.time({ host: hosts[i] })
+      const time = await Sntp.time({ host: hosts[i], timeout: 1000 })
 
       return Promise.resolve({ time, host: hosts[i] })
     } catch (err) {
-      console.log(err.message)
+      logger.error(`Host ${hosts[i]} responded with error: ${err.message}`)
     }
   }
 
