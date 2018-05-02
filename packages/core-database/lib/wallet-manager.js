@@ -10,6 +10,7 @@ const { TRANSACTION_TYPES } = client.constants
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
 
 const map = require('lodash/map')
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
@@ -52,8 +53,29 @@ module.exports = class WalletManager {
     }
   }
 
+  /**
+   * Used to determine if a wallet is a Genesis wallet.
+   * @return {Boolean}
+   */
   isGenesis (wallet) {
     return genesisWallets.includes(wallet.address)
+  }
+
+  /**
+   * Remove non-delegate wallets that have zero (0) balance from memory.
+   * @return {void}
+   */
+  purgeEmptyNonDelegates () {
+    const canBePurged = (wallet) => {
+      return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+    }
+    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
+      const wallet = this.walletsByPublicKey[publicKey]
+      if (canBePurged(wallet)) {
+        delete this.walletsByPublicKey[publicKey]
+        delete this.walletsByAddress[wallet.address]
+      }
+    })
   }
 
   /**
@@ -166,6 +188,7 @@ module.exports = class WalletManager {
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
+      emitter.emit('wallet:cold:created', recipient)
       this.walletsByAddress[recipientId] = recipient
     }
 
