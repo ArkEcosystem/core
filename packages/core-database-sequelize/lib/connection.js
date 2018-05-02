@@ -198,7 +198,7 @@ module.exports = class SequelizeConnection extends Connection {
     if (fs.statSync(spvPath)) {
       fs.removeSync(spvPath)
       logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
-      return await this.loadWallets()
+      return this.loadWallets()
     }
 
     const maxDelegates = config.getConstants(height).activeDelegates
@@ -338,6 +338,8 @@ module.exports = class SequelizeConnection extends Connection {
   async loadWallets () {
     const wallets = await this.models.wallet.findAll()
     wallets.forEach(wallet => this.walletManager.reindex(wallet.dataValues))
+
+    return this.walletManager.walletsByAddress || []
   }
 
   /**
