@@ -35,7 +35,7 @@ module.exports = class QueueInterface {
   }
 
   /**
-   *  Resue the queue.
+   * Resume the queue.
    * @return {void}
    */
   resume () {
@@ -43,7 +43,15 @@ module.exports = class QueueInterface {
   }
 
   /**
-   *  Resue the queue.
+   * Remove the item from the queue.
+   * @return {void}
+   */
+  remove (item) {
+    return this.queue.remove(item)
+  }
+
+  /**
+   * Push the item to the queue.
    * @return {void}
    */
   push (item) {
@@ -51,7 +59,7 @@ module.exports = class QueueInterface {
   }
 
   /**
-   *  Resue the queue.
+   * Get the length of the queue.
    * @return {void}
    */
   length () {

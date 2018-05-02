@@ -33,7 +33,7 @@ module.exports = class P2PInterface {
   /**
    * Shutdown P2P interface.
    */
-  tearDown () {
+  stop () {
     this.down.stop() // TODO: remove, not used
     this.up.stop()
   }
