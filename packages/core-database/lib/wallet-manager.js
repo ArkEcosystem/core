@@ -106,6 +106,8 @@ module.exports = class WalletManager {
       }
     }
 
+    delegate = new Wallet(delegate)
+
     const appliedTransactions = []
 
     try {

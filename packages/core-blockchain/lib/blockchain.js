@@ -155,7 +155,7 @@ module.exports = class Blockchain {
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    const height = stateMachine.blockchain.getLastBlock(true).height
+    const height = this.getLastBlock(true).height
     const maxDelegates = this.config.getConstants(height).activeDelegates
     const previousRound = Math.floor((height - 1) / maxDelegates)
 
@@ -166,9 +166,9 @@ module.exports = class Blockchain {
     const newHeigth = previousRound * maxDelegates
     logger.info(`Removing ${height - newHeigth} blocks to reset current round`)
     let count = 0
-    const max = stateMachine.blockchain.getLastBlock(true).height - newHeigth
-    while (stateMachine.blockchain.getLastBlock(true).height >= newHeigth) {
-      logger.printTracker('Removing block', count++, max, 'id: ' + stateMachine.blockchain.getLastBlock(true).id + ', height: ' + stateMachine.blockchain.getLastBlock(true).height)
+    const max = this.getLastBlock(true).height - newHeigth
+    while (this.getLastBlock(true).height >= newHeigth) {
+      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock(true).id + ', height: ' + this.getLastBlock(true).height)
       await deleteLastBlock()
     }
     logger.stopTracker(`${max} blocks removed`, count, max)
@@ -199,13 +199,13 @@ module.exports = class Blockchain {
         return
       }
 
-      logger.info(`Undoing block ${stateMachine.blockchain.getLastBlock(true).height}`)
+      logger.info(`Undoing block ${this.getLastBlock(true).height}`)
 
       await undoLastBlock()
       await __removeBlocks(nblocks - 1)
     }
 
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${stateMachine.blockchain.getLastBlock(true).height}`)
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height}`)
 
     this.queue.pause()
     this.queue.clear(stateMachine)
@@ -356,7 +356,7 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isSynced (block) {
-    block = block || stateMachine.blockchain.getLastBlock(true)
+    block = block || this.getLastBlock(true)
 
     return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
@@ -367,7 +367,7 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isRebuildSynced (block) {
-    block = block || stateMachine.blockchain.getLastBlock(true)
+    block = block || this.getLastBlock(true)
     logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
 
     return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
