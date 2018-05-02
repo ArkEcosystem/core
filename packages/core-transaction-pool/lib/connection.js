@@ -16,10 +16,9 @@ module.exports = class TransactionPoolInterface {
     this.options = options
     this.walletManager = blockchain.database.walletManager
 
-    const that = this
     this.queue = async.queue((transaction, qcallback) => {
-      if (that.verify(transaction)) {
-        that.addTransactionToPool(transaction)
+      if (this.verify(transaction)) {
+        this.addTransactionToPool(transaction)
       }
       qcallback()
     }, 1)
