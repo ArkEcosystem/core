@@ -87,7 +87,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await blockchain.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await blockchain.transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -111,7 +111,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await blockchain.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
+    const transaction = await blockchain.transactionPool.getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

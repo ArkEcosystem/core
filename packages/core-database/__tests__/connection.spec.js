@@ -99,9 +99,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveRounds', async () => {
+  describe('saveRound', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.saveRounds).toBeFunction()
+      await expect(ConnectionInterface.saveRound).toBeFunction()
     })
   })
 

@@ -14,7 +14,7 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = blockchain.getDatabaseConnection().walletManager
+    this.walletManager = blockchain.database.walletManager
 
     const that = this
     this.queue = async.queue((transaction, qcallback) => {
@@ -118,7 +118,7 @@ module.exports = class TransactionPoolInterface {
           transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
         } else {
           transaction.data.timelocktype = 1 // block
-          transaction.data.timelock = blockchain.getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
+          transaction.data.timelock = blockchain.getLastBlock(true).height + Math.floor(Math.random() * Math.floor(20) + 1)
         }
       }
 
@@ -142,8 +142,8 @@ module.exports = class TransactionPoolInterface {
    * @param  {Array} transactionIds
    * @return {Array}
    */
-  async CheckIfForged (transactionIds) {
-    const forgedIds = await blockchain.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
+  async checkIfForged (transactionIds) {
+    const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)

@@ -39,9 +39,9 @@ describe('Sequelize Connection', () => {
     })
   })
 
-  describe('saveRounds', async () => {
+  describe('saveRound', async () => {
     it('should be a function', async () => {
-      await expect(connection.saveRounds).toBeFunction()
+      await expect(connection.saveRound).toBeFunction()
     })
   })
 
