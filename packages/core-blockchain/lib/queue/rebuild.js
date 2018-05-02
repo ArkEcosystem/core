@@ -12,7 +12,7 @@ module.exports = class RebuildQueue extends QueueInterface {
     super(blockchain, event)
 
     this.queue = async.queue(
-      (block, cb) => this.queue.paused ? cb() : this.rebuildBlock(new Block(block), cb), 1
+      (block, cb) => this.queue.paused ? cb() : blockchain.rebuildBlock(new Block(block), cb), 1
     )
 
     this.drain()

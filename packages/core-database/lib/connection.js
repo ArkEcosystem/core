@@ -19,7 +19,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
 
-    // this.__registerShutdownListener()
+    this.__registerShutdownListener()
   }
 
   /**
@@ -397,15 +397,12 @@ module.exports = class ConnectionInterface {
       }
 
       logger.info('Shutting down P2P Interface')
-      blockchain.p2p.stop()
+      await blockchain.p2p.stop()
 
       process.exit()
     }
 
     // Handle CTRL + C
-    ['SIGINT'].forEach((eventType) => process.on(eventType, () => {
-      logger.error(eventType)
-      handleExit()
-    }))
+    ['SIGINT'].forEach((eventType) => process.on(eventType, handleExit))
   }
 }

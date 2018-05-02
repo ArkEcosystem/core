@@ -33,9 +33,10 @@ module.exports = class P2PInterface {
   /**
    * Shutdown P2P interface.
    */
-  stop () {
-    this.down.stop() // TODO: remove, not used
-    this.up.stop()
+  async stop () {
+    await this.down.stop() // TODO: remove, not used
+
+    return this.up.stop()
   }
 
   /**
