@@ -28,18 +28,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     if (this.redis) {
       this.redis.on('connect', () => {
-        logger.info('Redis connection established.')
+        logger.info('Redis connection established')
         this.isConnected = true
         this.redis.config('set', 'notify-keyspace-events', 'Ex')
         this.redisSub.subscribe('__keyevent@0__:expired')
       })
 
       this.redisSub.on('message', (channel, message) => {
-        logger.debug(`Receive expiration message ${message} from channel ${channel}`)
+        logger.debug(`Received expiration message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
     } else {
-      logger.warn('Unable to connecto to REDIS server')
+      logger.warn('Unable to connect to Redis server')
     }
 
     return this
@@ -110,7 +110,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       if (serialized) {
         return Transaction.fromBytes(serialized)
       } else {
-        return 'Error: Non existing transaction'
+        return 'Error: Non existant transaction'
       }
     }
   }
@@ -132,7 +132,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         }
         return retList
       } catch (error) {
-        logger.error('Get Transactions items from redis pool: ', error, error.stack)
+        logger.error('Get transaction items from Redis pool: ', error, error.stack)
       }
     }
   }
@@ -177,7 +177,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         }
         return retList
       } catch (error) {
-        logger.error('Problem getting transactions for forging from redis list: ', error, error.stack)
+        logger.error('Problem getting transactions for forging from Redis list: ', error, error.stack)
       }
     }
   }
