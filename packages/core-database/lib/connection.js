@@ -397,7 +397,7 @@ module.exports = class ConnectionInterface {
       }
 
       logger.info('Shutting down P2P Interface')
-      blockchain.p2p.stop()
+      await blockchain.p2p.stop()
 
       process.exit()
     }
