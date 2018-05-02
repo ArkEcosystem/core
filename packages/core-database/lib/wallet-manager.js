@@ -130,7 +130,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async undoBlock (block) {
-    const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
+    let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
@@ -167,11 +167,12 @@ module.exports = class WalletManager {
    */
   async applyTransaction (transaction) {
     const transactionData = transaction.data
+    const recipientId = transactionData.recipientId
 
     const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
-    const recipient = this.getWalletByAddress(transactionData.recipientId) // may not exist
+    let recipient = this.getWalletByAddress(recipientId) // may not exist
 
-    if (!recipient && transactionData.recipientId) { // cold wallet
+    if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       emitter.emit('wallet:cold:created', recipient)
       this.walletsByAddress[recipientId] = recipient

@@ -3,7 +3,7 @@
 let walletManager
 const { Block, Wallet } = require('@arkecosystem/client').models
 
-const block = new Block(require('./__fixtures__/block.json'))
+const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
 
 beforeAll(async (done) => {
   await require('./__support__/setup')()
@@ -68,20 +68,20 @@ describe('Wallet Manager', () => {
 
     })
 
-    describe('if 1 transaction fails while applying it', ()=> {
+    describe('if 1 transaction fails while applying it', () => {
       it('undoes all the transactions of the block', () => {
 
       })
     })
 
-    describe('when the delegate of the block is not indexed', ()=> {
-      describe('unless is the first block', ()=> {
+    describe('when the delegate of the block is not indexed', () => {
+      describe('unless is the first block', () => {
         it('throw an Error', () => {
 
         })
       })
 
-      describe('if it is the first block', ()=> {
+      describe('if it is the first block', () => {
         it('generates a new wallet', () => {
 
         })
@@ -116,20 +116,20 @@ describe('Wallet Manager', () => {
 
     })
 
-    describe('if 1 transaction fails while applying it', ()=> {
+    describe('if 1 transaction fails while applying it', () => {
       it('undoes all the transactions of the block', () => {
 
       })
     })
 
-    describe('when the delegate of the block is not indexed', ()=> {
-      describe('unless is the first block', ()=> {
+    describe('when the delegate of the block is not indexed', () => {
+      describe('unless is the first block', () => {
         it('throw an Error', () => {
 
         })
       })
 
-      describe('if it is the first block', ()=> {
+      describe('if it is the first block', () => {
         it('generates a new wallet', () => {
 
         })
