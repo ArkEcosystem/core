@@ -387,23 +387,22 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   __registerShutdownListener () {
-    const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
-
     const handleExit = async () => {
-        await this.saveWallets(true)
+      logger.info('Shutting down ARK Core - saving dirty wallets')
+      await this.saveWallets(true)
 
-        const lastBlock = blockchain.getState().lastBlock
+      const lastBlock = blockchain.getState().lastBlock
+      if (lastBlock) {
+        const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
+        await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
+      }
 
-        if (lastBlock) {
-          await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
-        }
-
-        process.exit()
+      process.exit()
     }
 
     [
-        'exit', 'uncaughtException',
-        'SIGINT', 'SIGUSR1', 'SIGUSR2', 'SIGTERM'
+      'exit', 'uncaughtException',
+      'SIGINT', 'SIGUSR1', 'SIGUSR2', 'SIGTERM'
     ].forEach((eventType) => process.on(eventType, handleExit))
   }
 }
