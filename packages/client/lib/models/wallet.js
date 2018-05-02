@@ -53,22 +53,19 @@ module.exports = class Wallet {
     if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance -= transaction.amount + transaction.fee
 
-      const actions = {
-        [TRANSACTION_TYPES.TRANSFER]: () => (true),
-        [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (this.secondPublicKey = transaction.asset.signature.publicKey),
-        [TRANSACTION_TYPES.DELEGATE]: () => (this.username = transaction.asset.delegate.username),
-        [TRANSACTION_TYPES.VOTE]: () => {
-          if (transaction.asset.votes[0].startsWith('+')) {
-            this.vote = transaction.asset.votes[0].slice(1)
-          } else if (transaction.asset.votes[0].startsWith('-')) {
-            this.vote = null
-          }
-        },
-        [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => (this.multisignature = transaction.asset.multisignature),
-        'default': () => (false)
+      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        this.secondPublicKey = transaction.asset.signature.publicKey
+      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+        this.username = transaction.asset.delegate.username
+      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+        if (transaction.asset.votes[0].startsWith('+')) {
+          this.vote = transaction.asset.votes[0].slice(1)
+        } else if (transaction.asset.votes[0].startsWith('-')) {
+          this.vote = null
+        }
+      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        this.multisignature = transaction.asset.multisignature
       }
-
-      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }
@@ -82,24 +79,19 @@ module.exports = class Wallet {
     if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance += transaction.amount + transaction.fee
 
-      const actions = {
-        [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (this.secondPublicKey = null),
-        [TRANSACTION_TYPES.DELEGATE]: () => (this.username = null),
-        [TRANSACTION_TYPES.VOTE]: () => {
-          if (transaction.asset.votes[0].startsWith('+')) {
-            this.vote = null
-          } else if (transaction.asset.votes[0].startsWith('-')) {
-            this.vote = transaction.asset.votes[0].slice(1)
-          }
-        },
-        [TRANSACTION_TYPES.MULTI_SIGNATURE]: () => (this.multisignature = null),
-        [TRANSACTION_TYPES.IPFS]: () => {},
-        [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => {},
-        [TRANSACTION_TYPES.MULTI_PAYMENT]: () => {},
-        'default': () => (false)
+      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        this.secondPublicKey = null
+      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+        this.username = null
+      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+        if (transaction.asset.votes[0].startsWith('+')) {
+          this.vote = null
+        } else if (transaction.asset.votes[0].startsWith('-')) {
+          this.vote = transaction.asset.votes[0].slice(1)
+        }
+      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        this.multisignature = null
       }
-
-      actions[transaction.type] ? actions[transaction.type]() : actions['default']()
 
       this.dirty = true
     }
@@ -174,40 +166,34 @@ module.exports = class Wallet {
       return false
     }
 
-    const actions = {
-      [TRANSACTION_TYPES.TRANSFER]: () => (true), // transfer
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => (!this.secondPublicKey), // second signature registration
-      [TRANSACTION_TYPES.DELEGATE] () {
-        const username = transaction.asset.delegate.username
-        return !this.username && username && username === username.toLowerCase()
-      },
-      [TRANSACTION_TYPES.VOTE] () {
-        if (transaction.asset.votes[0].startsWith('-') && this.vote) return true
-        if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
-
-        return false
-      },
-      [TRANSACTION_TYPES.MULTI_SIGNATURE] () {
-        const keysgroup = transaction.asset.multisignature.keysgroup
-
-        return !this.multisignature &&
-          keysgroup.length >= transaction.asset.multisignature.min - 1 &&
-          keysgroup.length === transaction.signatures.length &&
-          this.verifySignatures(transaction, transaction.asset.multisignature)
-      },
-      [TRANSACTION_TYPES.IPFS]: () => (true),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => (true),
-      [TRANSACTION_TYPES.MULTI_PAYMENT] () {
-        const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
-        return this.balance - amount - transaction.fee > -1
-      },
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: () => (!!this.username), // delegate resignation
-      'default': () => (false)
+    if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+      return true
+    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      if (transaction.asset.votes[0].startsWith('-')) return this.vote === transaction.asset.votes[0].slice(1)
+      if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
+      return false
+    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      return !this.secondPublicKey
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+      const username = transaction.asset.delegate.username
+      return !this.username && username && username === username.toLowerCase()
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      const keysgroup = transaction.asset.multisignature.keysgroup
+      return !this.multisignature &&
+        keysgroup.length >= transaction.asset.multisignature.min &&
+        keysgroup.length === transaction.signatures.length &&
+        this.verifySignatures(transaction, transaction.asset.multisignature)
+    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
+      return true
+    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+      return true
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+      const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
+      return this.balance - amount - transaction.fee > -1
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      return !!this.username
     }
-
-    return actions[transaction.type]
-      ? actions[transaction.type]()
-      : actions['default']()
+    return false
   }
 
   auditApply (transaction) {
@@ -217,7 +203,7 @@ module.exports = class Wallet {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
       audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
-
+      audit.push({'Signature validation': cryptoBuilder.verify(transaction)})
       // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
@@ -226,39 +212,35 @@ module.exports = class Wallet {
       }
     }
 
-    const actions = {
-      [TRANSACTION_TYPES.TRANSFER]: () => audit.push({'Transfert': true}), // transfer
-      [TRANSACTION_TYPES.SECOND_SIGNATURE]: () => audit.push({'Second public key': this.secondPublicKey}), // second signature registration
-      [TRANSACTION_TYPES.DELEGATE] () {
-        const username = transaction.asset.delegate.username
-        audit.push({'Current username': this.username})
-        audit.push({'New username': username})
-      },
-      [TRANSACTION_TYPES.VOTE] () {
-        audit.push({'Current vote': this.vote})
-        audit.push({'New vote': transaction.asset.votes[0]})
-      },
-      [TRANSACTION_TYPES.MULTI_SIGNATURE] () {
-        const keysgroup = transaction.asset.multisignature.keysgroup
-
-        return !this.multisignature &&
-          keysgroup.length >= transaction.asset.multisignature.min - 1 &&
-          keysgroup.length === transaction.signatures.length &&
-          this.verifySignatures(transaction, transaction.asset.multisignature)
-      },
-      [TRANSACTION_TYPES.IPFS]: () => audit.push({'IPFS': true}),
-      [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: () => audit.push({'Timelock': true}),
-      [TRANSACTION_TYPES.MULTI_PAYMENT] () {
-        const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
-        audit.push({'Multipayment remaining amount': amount})
-      },
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: () => audit.push({'Resignate Delegate': this.username}), // delegate resignation
-      'default': () => audit.push({'Unknown Type': true})
+    if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+      audit.push({'Transfert': true})
+    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      audit.push({'Second public key': this.secondPublicKey})
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+      const username = transaction.asset.delegate.username
+      audit.push({'Current username': this.username})
+      audit.push({'New username': username})
+    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      audit.push({'Current vote': this.vote})
+      audit.push({'New vote': transaction.asset.votes[0]})
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      const keysgroup = transaction.asset.multisignature.keysgroup
+      audit.push({'Multisignature not yet registered': !this.multisignature})
+      audit.push({'Multisignature enough keys': keysgroup.length >= transaction.asset.multisignature.min})
+      audit.push({'Multisignature all keys signed': keysgroup.length === transaction.signatures.length})
+      audit.push({'Multisignature verification': this.verifySignatures(transaction, transaction.asset.multisignature)})
+    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
+      audit.push({'IPFS': true})
+    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+      audit.push({'Timelock': true})
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+      const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
+      audit.push({'Multipayment remaining amount': amount})
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      audit.push({'Resignate Delegate': this.username})
+    } else {
+      audit.push({'Unknown Type': true})
     }
-
-    actions[transaction.type]
-      ? actions[transaction.type]()
-      : actions['default']()
 
     return audit
   }

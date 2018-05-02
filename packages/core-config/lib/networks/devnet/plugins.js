@@ -7,23 +7,13 @@ module.exports = {
   beforeCreate: {
     '@arkecosystem/core-logger': {},
     '@arkecosystem/core-logger-winston': {},
-    '@arkecosystem/core-webhooks': {
-      database: {
-        uri: 'sqlite:~/.ark/database/webhooks.sqlite',
-        dialect: 'sqlite',
-        logging: false
-      },
-      redis: {
-        host: 'localhost',
-        port: 6379
-      }
-    },
+    '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-blockchain': {}
   },
   beforeMount: {
     '@arkecosystem/core-database': {},
     '@arkecosystem/core-database-sequelize': {
-      uri: 'sqlite:~/.ark/database/devnet.sqlite',
+      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
       uri_1: 'postgres://node:password@localhost:5432/ark_devnet',
       dialect: 'sqlite',
       dialect_1: 'postgres'

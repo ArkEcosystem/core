@@ -23,4 +23,4 @@ exports.ConfigInterface = require('./interface')
  * @param  {String} name
  * @return {String}
  */
-exports.getTargetDirectory = (name) => require('expand-home-dir')(`~/.ark/${name}`)
+exports.getTargetDirectory = (name) => require('expand-home-dir')(`${process.env.ARK_PATH_CONFIG}/${name}`)

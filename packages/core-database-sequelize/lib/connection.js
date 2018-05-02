@@ -325,6 +325,8 @@ module.exports = class SequelizeConnection extends Connection {
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
       logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
 
+      await this.__registerListeners()
+
       return this.walletManager.walletsByAddress || []
     } catch (error) {
       logger.error(error.stack)
@@ -397,6 +399,8 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     logger.info('Rebuilt wallets saved')
+
+    this.walletManager.purgeEmptyNonDelegates()
 
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
@@ -676,5 +680,31 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     await super._registerRepositories()
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('wallet:cold:created', async coldWallet => {
+      try {
+        const wallet = await this.models.wallet.findOne({
+          where: { address: coldWallet.address }
+        })
+
+        if (wallet) {
+          Object.keys(wallet.dataValues).forEach(key => {
+            if (['balance'].indexOf(key) !== -1) {
+              return
+            }
+
+            coldWallet[key] = wallet[key]
+          })
+        }
+      } catch (err) {
+        logger.error(err)
+      }
+    })
   }
 }

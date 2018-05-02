@@ -2,7 +2,7 @@
 
 module.exports = {
   database: {
-    uri: 'sqlite:~/.ark/database/webhooks.sqlite',
+    uri: `sqlite:${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
     dialect: 'sqlite',
     logging: false
   },
