@@ -27,7 +27,7 @@ describe('Wallet Manager', () => {
       await expect(walletManager.reset).toBeFunction()
     })
 
-    it('empties the manager', () => {
+    it('should reset the index', () => {
       const wallet = new Wallet('dummy')
       const manager = createWalletManager()
 
@@ -44,7 +44,7 @@ describe('Wallet Manager', () => {
       await expect(walletManager.reindex).toBeFunction()
     })
 
-    it('indexes the wallet', () => {
+    it('should index the wallets', () => {
       const wallet = new Wallet('blabl')
       const manager = createWalletManager()
 
@@ -60,28 +60,28 @@ describe('Wallet Manager', () => {
       await expect(walletManager.applyBlock).toBeFunction()
     })
 
-    it('applies all the transactions on the block', () => {
+    it('should apply transactions of the block', () => {
 
     })
 
-    it('applies the block to the delegate', () => {
+    it('should apply the block to the delegate', () => {
 
     })
 
-    describe('if 1 transaction fails while applying it', () => {
-      it('undoes all the transactions of the block', () => {
+    describe('1 transaction fails while applying it', () => {
+      it('should undo all transactions of the block', () => {
 
       })
     })
 
-    describe('when the delegate of the block is not indexed', () => {
-      describe('unless is the first block', () => {
+    describe('the delegate of the block is not indexed', () => {
+      describe('not genesis block', () => {
         it('throw an Error', () => {
 
         })
       })
 
-      describe('if it is the first block', () => {
+      describe('genesis block', () => {
         it('generates a new wallet', () => {
 
         })
@@ -94,11 +94,11 @@ describe('Wallet Manager', () => {
       await expect(walletManager.undoBlock).toBeFunction()
     })
 
-    it('undoes all the transactions on the block', () => {
+    it('should undo all transactions of the block', () => {
 
     })
 
-    it('undoes the block to the delegate', () => {
+    it('should undo the block of the delegate', () => {
 
     })
   })
@@ -106,34 +106,6 @@ describe('Wallet Manager', () => {
   describe('applyTransaction', async () => {
     it('should be a function', async () => {
       await expect(walletManager.applyTransaction).toBeFunction()
-    })
-
-    it('applies all the transactions on the block', () => {
-
-    })
-
-    it('applies the block to the delegate', () => {
-
-    })
-
-    describe('if 1 transaction fails while applying it', () => {
-      it('undoes all the transactions of the block', () => {
-
-      })
-    })
-
-    describe('when the delegate of the block is not indexed', () => {
-      describe('unless is the first block', () => {
-        it('throw an Error', () => {
-
-        })
-      })
-
-      describe('if it is the first block', () => {
-        it('generates a new wallet', () => {
-
-        })
-      })
     })
   })
 
