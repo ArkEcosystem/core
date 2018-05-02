@@ -402,8 +402,8 @@ module.exports = class ConnectionInterface {
     }
 
     [
-        `exit`, `uncaughtException`,
-        `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`
+        'exit', 'uncaughtException',
+        'SIGINT', 'SIGUSR1', 'SIGUSR2', 'SIGTERM'
     ].forEach((eventType) => process.on(eventType, handleExit))
   }
 }
