@@ -196,7 +196,7 @@ module.exports = class SequelizeConnection extends Connection {
     this.walletManager.reset()
 
     const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
-    if (fs.statSync(spvPath)) {
+    if (fs.existsSync(spvPath)) {
       fs.removeSync(spvPath)
       logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
       return this.loadWallets()
