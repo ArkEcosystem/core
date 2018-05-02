@@ -14,14 +14,14 @@ exports.status = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const lastBlock = blockchain.getState().lastBlock
-    const networkHeight = await blockchain.getNetworkInterface().getNetworkHeight()
+    const lastBlock = blockchain.getLastBlock(true)
+    const networkHeight = await blockchain.p2p.getNetworkHeight()
 
     return {
       data: {
         synced: blockchain.isSynced(),
-        now: lastBlock ? lastBlock.data.height : 0,
-        blocksCount: networkHeight - lastBlock.data.height || 0
+        now: lastBlock ? lastBlock.height : 0,
+        blocksCount: networkHeight - lastBlock.height || 0
       }
     }
   }
@@ -37,15 +37,15 @@ exports.syncing = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const lastBlock = blockchain.getState().lastBlock
-    const networkHeight = await blockchain.getNetworkInterface().getNetworkHeight()
+    const lastBlock = blockchain.getLastBlock(true)
+    const networkHeight = await blockchain.p2p.getNetworkHeight()
 
     return {
       data: {
         syncing: !blockchain.isSynced(),
-        blocks: networkHeight - lastBlock.data.height || 0,
-        height: lastBlock.data.height,
-        id: lastBlock.data.id
+        blocks: networkHeight - lastBlock.height || 0,
+        height: lastBlock.height,
+        id: lastBlock.id
       }
     }
   }
@@ -68,7 +68,7 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
-        constants: config.getConstants(blockchain.getState().lastBlock.data.height)
+        constants: config.getConstants(blockchain.getLastBlock(true).height)
       }
     }
   }

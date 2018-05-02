@@ -21,7 +21,7 @@ class WebhookManager {
       return
     }
 
-    await this.__registerQueueManager()
+    await this.__registerQueue()
 
     map(this.config.events, 'name').forEach((event) => {
       emitter.on(event, async (payload) => {
@@ -106,7 +106,7 @@ class WebhookManager {
    * Create a new redis queue instance.
    * @return {void}
    */
-  __registerQueueManager () {
+  __registerQueue () {
     this.queue = new Bull('webhooks', { redis: this.config.redis })
   }
 }

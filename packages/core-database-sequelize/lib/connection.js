@@ -21,22 +21,6 @@ const { TRANSACTION_TYPES } = client.constants
 
 module.exports = class SequelizeConnection extends Connection {
   /**
-   * Connect to the database.
-   * @return {Boolean}
-   */
-  async connect () {
-    return this.connection.authenticate()
-  }
-
-  /**
-   * Disconnect from the database.
-   * @return {Boolean}
-   */
-  async disconnect () {
-    return this.connection.close()
-  }
-
-  /**
    * Make the database connection instance.
    * @return {SequelizeConnection}
    */
@@ -73,6 +57,22 @@ module.exports = class SequelizeConnection extends Connection {
       logger.error('Unable to connect to the database', error.stack)
       process.exit(1)
     }
+  }
+
+  /**
+   * Connect to the database.
+   * @return {Boolean}
+   */
+  async connect () {
+    return this.connection.authenticate()
+  }
+
+  /**
+   * Disconnect from the database.
+   * @return {Boolean}
+   */
+  async disconnect () {
+    return this.connection.close()
   }
 
   /**
@@ -116,8 +116,9 @@ module.exports = class SequelizeConnection extends Connection {
    * @param  {Array} activeDelegates
    * @return {Array}
    */
-  saveRounds (activeDelegates) {
+  saveRound (activeDelegates) {
     logger.info(`Saving round ${activeDelegates[0].round}`)
+
     return this.models.round.bulkCreate(activeDelegates)
   }
 

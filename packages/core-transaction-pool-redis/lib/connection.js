@@ -107,11 +107,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async getTransaction (id) {
     if (this.isConnected) {
       const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+
       if (serialized) {
         return Transaction.fromBytes(serialized)
-      } else {
-        return 'Error: Non existing transaction'
       }
+
+      return 'Error: Non existing transaction'
     }
   }
 
@@ -125,11 +126,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (this.isConnected) {
       try {
         const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+
         let retList = []
         for (const id of transactionIds) {
           const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
           serTrx ? retList.push(serTrx[0]) : await this.removeTransaction(id)
         }
+
         return retList
       } catch (error) {
         logger.error('Get Transactions items from redis pool: ', error, error.stack)
@@ -147,14 +150,17 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (this.isConnected) {
       try {
         let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-        transactionIds = await this.CheckIfForged(transactionIds)
+        transactionIds = await this.checkIfForged(transactionIds)
+
         let retList = []
         for (const id of transactionIds) {
           const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+
           if (!transaction[0]) {
             await this.removeTransaction(id)
             break
           }
+
           if (transaction[2]) { // timelock is defined
             const actions = {
               0: () => { // timestamp lock defined
@@ -164,12 +170,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
                 }
               },
               1: () => { // block height time lock
-                if (parseInt(transaction[2]) <= blockchain.getState().lastBlock.data.height) {
+                if (parseInt(transaction[2]) <= blockchain.getLastBlock(true).height) {
                   logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
                   retList.push(transaction[0])
                 }
               }
             }
+
             actions[parseInt(transaction[3])]()
           } else {
             retList.push(transaction[0])

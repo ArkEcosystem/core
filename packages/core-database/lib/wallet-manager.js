@@ -198,12 +198,14 @@ module.exports = class WalletManager {
     if (datatx.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(datatx)
     }
+
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
     //   const delegate = this.localwallets[delegateAdress]
     //   delegate.applyVote(sender, transaction.data.asset.votes[0])
     // }
+
     return transaction
   }
 

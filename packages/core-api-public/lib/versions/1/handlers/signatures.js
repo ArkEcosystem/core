@@ -3,7 +3,6 @@
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const blockchain = pluginManager.get('blockchain')
-const state = blockchain.getState()
 
 const utils = require('../utils')
 
@@ -18,7 +17,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(state.lastBlock.data.height).fees.secondsignature
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.secondsignature
     })
   }
 }
