@@ -386,7 +386,7 @@ module.exports = class ConnectionInterface {
    */
   __registerShutdownListener () {
     const handleExit = async () => {
-      logger.info('Shutting down ARK Core - saving dirty wallets')
+      logger.info('Shutting down ARK Core')
       await this.saveWallets(true)
 
       const lastBlock = blockchain.getState().lastBlock
@@ -395,7 +395,8 @@ module.exports = class ConnectionInterface {
         await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
       }
 
-      process.exit()
+      logger.info('Shutting down P2P Interface')
+      blockchain.p2p.stop()
     }
 
     [
