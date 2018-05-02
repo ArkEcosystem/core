@@ -405,7 +405,7 @@ module.exports = class ConnectionInterface {
     // Handle CTRL + C
     ['SIGINT'].forEach((eventType) => process.on(eventType, () => {
       logger.error(eventType)
-      handleExit
+      handleExit()
     }))
   }
 }
