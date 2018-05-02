@@ -19,7 +19,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
 
-    this.__registerShutdownListener()
+    // this.__registerShutdownListener()
   }
 
   /**
@@ -387,6 +387,7 @@ module.exports = class ConnectionInterface {
   __registerShutdownListener () {
     const handleExit = async () => {
       logger.info('Shutting down ARK Core')
+
       await this.saveWallets(true)
 
       const lastBlock = blockchain.getState().lastBlock
@@ -397,11 +398,14 @@ module.exports = class ConnectionInterface {
 
       logger.info('Shutting down P2P Interface')
       blockchain.p2p.stop()
+
+      process.exit()
     }
 
-    [
-      'exit', 'uncaughtException',
-      'SIGINT', 'SIGUSR1', 'SIGUSR2', 'SIGTERM'
-    ].forEach((eventType) => process.on(eventType, handleExit))
+    // Handle CTRL + C
+    ['SIGINT'].forEach((eventType) => process.on(eventType, () => {
+      logger.error(eventType)
+      handleExit
+    }))
   }
 }
