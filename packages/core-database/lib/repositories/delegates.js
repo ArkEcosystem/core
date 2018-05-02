@@ -78,7 +78,9 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * [Get all active delegates.
+   * TODO: find a better name...
+   *
+   * Get all active delegates.
    * @param  {Number} height
    * @param  {Number} totalSupply
    * @return {Array}

@@ -4,7 +4,6 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
 const blockchain = pluginManager.get('blockchain')
-const state = blockchain.getState()
 
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
@@ -78,7 +77,7 @@ exports.epoch = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      epoch: config.getConstants(state.lastBlock.data.height).epoch
+      epoch: config.getConstants(blockchain.getLastBlock(true).height).epoch
     })
   }
 }
@@ -93,7 +92,7 @@ exports.height = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const block = state.lastBlock.data
+    const block = blockchain.getLastBlock(true)
 
     return utils.respondWith({ height: block.height, id: block.id })
   }
@@ -124,7 +123,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(state.lastBlock.data.height).fees.send
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.send
     })
   }
 }
@@ -140,7 +139,7 @@ exports.fees = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fees: config.getConstants(state.lastBlock.data.height).fees
+      fees: config.getConstants(blockchain.getLastBlock(true).height).fees
     })
   }
 }
@@ -156,7 +155,7 @@ exports.milestone = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      milestone: ~~(state.lastBlock.data.height / 3000000)
+      milestone: ~~(blockchain.getLastBlock(true).height / 3000000)
     })
   }
 }
@@ -172,7 +171,7 @@ exports.reward = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      reward: config.getConstants(state.lastBlock.data.height).reward
+      reward: config.getConstants(blockchain.getLastBlock(true).height).reward
     })
   }
 }
@@ -187,10 +186,11 @@ exports.supply = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = state.lastBlock.data
+    const lastBlock = blockchain.getLastBlock(true)
+    const constants = config.getConstants(lastBlock.height)
 
     return utils.respondWith({
-      supply: config.genesisBlock.totalAmount + (lastBlock.height - config.getConstants(lastBlock.height).height) * config.getConstants(lastBlock.height).reward
+      supply: config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
     })
   }
 }
@@ -205,16 +205,17 @@ exports.status = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = state.lastBlock.data
+    const lastBlock = blockchain.getLastBlock(true)
+    const constants = config.getConstants(lastBlock.height)
 
     return utils.respondWith({
-      epoch: config.getConstants(lastBlock.height).epoch,
+      epoch: constants.epoch,
       height: lastBlock.height,
-      fee: config.getConstants(lastBlock.height).fees.send,
+      fee: constants.fees.send,
       milestone: ~~(lastBlock.height / 3000000),
       nethash: config.network.nethash,
-      reward: config.getConstants(lastBlock.height).reward,
-      supply: config.genesisBlock.totalAmount + (lastBlock.height - config.getConstants(lastBlock.height).height) * config.getConstants(lastBlock.height).reward
+      reward: constants.reward,
+      supply: config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
     })
   }
 }

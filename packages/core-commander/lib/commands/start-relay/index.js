@@ -11,7 +11,7 @@ module.exports = async () => {
     name: 'ark-core:relay',
     script: path.resolve(__dirname, '../../../lib/start-relay.js'),
     args: [
-      '--config', process.env.ARK_CONFIG
+      '--config', process.env.ARK_PATH_CONFIG
     ]
   }, () => {
     console.log(chalk.green('The relay node has been started.'))

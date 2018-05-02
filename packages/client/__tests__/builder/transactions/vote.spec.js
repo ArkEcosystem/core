@@ -22,9 +22,9 @@ describe('Vote Transaction', () => {
 
   describe('create', () => {
     it('establishes the votes asset', () => {
-      const nonsenseVotes = ['Trump', 'Brexit', 'Rajoy']
-      tx.create(nonsenseVotes)
-      expect(tx.asset.votes).toBe(nonsenseVotes)
+      const invalidVotes = ['invalid-1', 'invalid-2', 'invalid-3']
+      tx.create(invalidVotes)
+      expect(tx.asset.votes).toBe(invalidVotes)
     })
   })
 
