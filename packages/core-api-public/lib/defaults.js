@@ -35,7 +35,8 @@ module.exports = {
       '/api/v2/multisignatures',
       '/api/v2/peers',
       '/api/v2/signatures',
-      '/api/v2/transactions',
+      // TODO: Get below to work for GET and not POST - forcing pagination
+      // '/api/v2/transactions',
       '/api/v2/transactions/search',
       '/api/v2/votes',
       '/api/v2/wallets',
