@@ -8,10 +8,12 @@ const genesisPassphrase = 'peace vanish bleak box tuna woman rally manage undo r
 
 module.exports = async (options) => {
   for (let i = 0; i < options.number; i++) {
-    const amount = 1 * Math.pow(10, 8)
-    const transaction = ark.transaction.createTransaction('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri', amount, 'test', genesisPassphrase)
+    const wallet = generateWallet()
 
-    console.log(`TX${i}: ${transaction.id}`)
+    const amount = 1 * Math.pow(10, 8)
+    const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, wallet.passphrase)
+
+    console.log(`${i} ==> ${transaction.id}`)
 
     // send request with axios...
   }

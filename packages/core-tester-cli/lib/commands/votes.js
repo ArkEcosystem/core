@@ -9,7 +9,7 @@ module.exports = async (options) => {
     const wallet = generateWallet()
     const transaction = ark.vote.createVote(wallet.passphrase, [`+${options.delegate}`])
 
-    console.log(`TX${i}: ${transaction.id}`)
+    console.log(`${i} ==> ${transaction.id}`)
 
     // send request with axios...
   }
