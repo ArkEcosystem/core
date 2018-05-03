@@ -4,8 +4,6 @@ const ark = require('arkjs')
 
 const generateWallet = require('../utils/generate-wallet')
 
-const genesisPassphrase = 'peace vanish bleak box tuna woman rally manage undo royal lucky since'
-
 module.exports = async (options) => {
   for (let i = 0; i < options.number; i++) {
     const wallet = generateWallet()
