@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Webhooks API
+# ARK Core - Tester CLI
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-api-webhooks
+yarn add @arkecosystem/core-tester-cli
 ```
 
 ## Security
@@ -15,6 +15,7 @@ If you discover a security vulnerability within this package, please send an e-m
 ## Credits
 
 - [Brian Faust](https://github.com/faustbrian)
+- [Alex Barnsley](https://github.com/alexbarnsley)
 - [All Contributors](../../../../contributors)
 
 ## License

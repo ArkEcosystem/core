@@ -37,10 +37,10 @@ module.exports = {
       snapshots: `${process.env.ARK_PATH_DATA}/devnet/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
-      dialect: 'sqlite'
-      // uri: 'postgres://node:password@localhost:5432/ark_devnet',
-      // dialect: 'postgres'
+      // uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
+      // dialect: 'sqlite'
+      uri: 'postgres://node:password@localhost:5432/ark_devnet',
+      dialect: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {
       port: 4002,

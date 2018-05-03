@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-deployer",
-  "description": "Deployer for ARK Core",
+  "name": "@arkecosystem/core-tester-cli",
+  "description": "Tester CLI for ARK Core",
   "version": "1.0.0",
   "contributors": [
     "Brian Faust <brian@ark.io>",
@@ -10,17 +10,17 @@
   "license": "MIT",
   "main": "lib/index.js",
   "bin": {
-    "ark:deployer": "./bin/deployer"
+    "ark:tester": "./bin/tester"
   },
   "scripts": {
-    "start": "./bin/deployer",
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "assert-plus": "^1.0.0",
-    "commander": "^2.15.1",
-    "lodash": "^4.17.5"
+    "@arkecosystem/client": "^2.0.0",
+    "bip39": "^2.5.0",
+    "commander": "^2.14.0",
+    "chalk": "^2.4.0"
   }
 }
