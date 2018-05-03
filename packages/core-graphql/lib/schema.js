@@ -1,11 +1,10 @@
 'use strict';
 
-const { GraphQLSchema, GraphQLObjectType } = require('graphql')
-const queries = require('./queries')
+const { makeExecutableSchema } = require('graphql-tools')
+const resolvers = require('./resolvers')
+const typeDefs = require('./defs')
 
-module.exports = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQuery',
-    fields: () => queries
-  })
+module.exports = makeExecutableSchema({
+  typeDefs,
+  resolvers
 })

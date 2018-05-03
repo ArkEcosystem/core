@@ -4,7 +4,7 @@ const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
 const schema = require('@arkecosystem/core-plugin-manager').get('graphql')
 const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
-// const { GraphQLSchema } = require('graphql')
+
 /**
  * Create a new hapi.js server.
  * @param  {Object} config
@@ -16,7 +16,6 @@ module.exports = async (config) => {
   }
 
   const server = new Hapi.Server({ port: config.port })
-  // const TestSchema = new GraphQLSchema({});
 
   await server.register([require('vision'), require('inert'), require('lout')])
 
