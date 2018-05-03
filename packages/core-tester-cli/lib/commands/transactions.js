@@ -3,7 +3,7 @@
 const ark = require('arkjs')
 const axios = require('axios')
 const generateWallet = require('../utils/generate-wallet')
-const genesisPassphrase = 'peace vanish bleak box tuna woman rally manage undo royal lucky since'
+const genesisPassphrase = 'prison tobacco acquire stone dignity palace note decade they current lesson robot'
 
 module.exports = async (options) => {
   const transactions = []
