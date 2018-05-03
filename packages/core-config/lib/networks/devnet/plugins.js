@@ -36,7 +36,7 @@ module.exports = {
     '@arkecosystem/core-database': {},
     '@arkecosystem/core-database-sequelize': {
       uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
-      dialect: 'sqlite',
+      dialect: 'sqlite'
       // uri: 'postgres://node:password@localhost:5432/ark_devnet',
       // dialect: 'postgres'
     },
