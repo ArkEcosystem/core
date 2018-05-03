@@ -5,13 +5,6 @@ const app = require('commander')
 app.version(require('../package.json').version)
 
 app
-  .command('transaction')
-  .description('send one transaction')
-  .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
-  .action(async (options) => require('../lib/commands/transaction')(options))
-
-app
   .command('transactions')
   .description('send multiple transactions')
   .option('-d, --data <data>', 'data directory', '~/.ark')
@@ -20,26 +13,12 @@ app
   .action(async (options) => require('../lib/commands/transactions')(options))
 
 app
-  .command('delegate')
-  .description('create one delegate')
-  .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
-  .action(async (options) => require('../lib/commands/delegate')(options))
-
-app
   .command('delegates')
   .description('create multiple delegates')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-n, --number <number>', 'number of delegates', 100)
   .action(async (options) => require('../lib/commands/delegates')(options))
-
-app
-  .command('vote')
-  .description('create one vote for a delegate')
-  .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
-  .action(async (options) => require('../lib/commands/vote')(options))
 
 app
   .command('votes')
