@@ -13,14 +13,17 @@
     "ark:tester": "./bin/tester"
   },
   "scripts": {
+    "start": "./bin/tester",
     "test": "ARK_ENV=testnet jest --forceExit",
     "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
+    "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
     "bip39": "^2.5.0",
+    "chalk": "^2.4.0",
     "commander": "^2.14.0",
-    "chalk": "^2.4.0"
+    "superheroes": "^1.0.0"
   }
 }
