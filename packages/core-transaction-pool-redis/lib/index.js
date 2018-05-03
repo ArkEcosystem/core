@@ -11,11 +11,11 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'transactionPool',
   register: async (manager, options) => {
-    const transactionPoolManager = manager.get('transactionPoolManager')
-    manager.get('logger').info('Establishing Transaction Pool Redis Connection...')
-    const redis = new RedisConnection(options)
+    manager.get('logger').info('Establishing Transaction Pool Connection...')
 
-    await transactionPoolManager.makeConnection(redis)
+    const transactionPoolManager = manager.get('transactionPoolManager')
+    await transactionPoolManager.makeConnection(new RedisConnection(options))
+
     return transactionPoolManager.connection()
   }
 }

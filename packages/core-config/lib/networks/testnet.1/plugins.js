@@ -8,9 +8,7 @@ module.exports = {
     '@arkecosystem/core-config-json': {}
   },
   beforeCreate: {
-    '@arkecosystem/core-logger': {
-      driver: '@arkecosystem/core-logger-winston'
-    },
+    '@arkecosystem/core-logger': {},
     '@arkecosystem/core-logger-winston': {
       transports: [{
         constructor: 'Console',
@@ -36,7 +34,6 @@ module.exports = {
   },
   beforeMount: {
     '@arkecosystem/core-database': {
-      driver: '@arkecosystem/core-database-sequelize',
       snapshots: `${process.env.ARK_PATH_DATA}/testnet.1/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
@@ -49,9 +46,7 @@ module.exports = {
       port: 4101,
       remoteinterface: true
     },
-    '@arkecosystem/core-transaction-pool': {
-      driver: '@arkecosystem/core-transaction-pool-redis'
-    },
+    '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {
       enabled: true,
       key: 'ark/pool',

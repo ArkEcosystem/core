@@ -6,7 +6,7 @@ class TransactionPoolManager {
    * @constructor
    */
   constructor () {
-    this.drivers = {}
+    this.connections = {}
   }
 
   /**
@@ -15,17 +15,17 @@ class TransactionPoolManager {
    * @return {TransactionPoolInterface}
    */
   connection (name = 'default') {
-    return this.drivers[name]
+    return this.connections[name]
   }
 
   /**
-   * Make the logger instance.
-   * @param  {TransactionPoolInterface} driver
+   * Make the transaction pool instance.
+   * @param  {TransactionPoolInterface} connection
    * @param  {String} name
    * @return {void}
    */
-  async makeConnection (driver, name = 'default') {
-    this.drivers[name] = await driver.make()
+  async makeConnection (connection, name = 'default') {
+    this.connections[name] = await connection.make()
   }
 }
 
