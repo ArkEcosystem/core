@@ -10,7 +10,7 @@ const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
 
 /**
- * Register the v1 routes.
+ * Register the v2 routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
