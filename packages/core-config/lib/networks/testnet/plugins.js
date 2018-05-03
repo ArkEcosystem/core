@@ -8,7 +8,9 @@ module.exports = {
     '@arkecosystem/core-config-json': {}
   },
   beforeCreate: {
-    '@arkecosystem/core-logger': {},
+    '@arkecosystem/core-logger': {
+      driver: '@arkecosystem/core-logger-winston'
+    },
     '@arkecosystem/core-logger-winston': {
       transports: [{
         constructor: 'Console',
@@ -33,22 +35,43 @@ module.exports = {
     '@arkecosystem/core-blockchain': {}
   },
   beforeMount: {
-    '@arkecosystem/core-database': {},
+    '@arkecosystem/core-database': {
+      driver: '@arkecosystem/core-database-sequelize',
+      snapshots: `${process.env.ARK_PATH_DATA}/testnet/snapshots`
+    },
     '@arkecosystem/core-database-sequelize': {
       uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.sqlite`,
       dialect: 'sqlite'
-      // uri: 'postgres://node:password@localhost:5432/ark_testnet',
-      // dialect: 'postgres'
+        // uri: 'postgres://node:password@localhost:5432/ark_testnet',
+        // dialect: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {
-      port: 4000
+      port: 4000,
+      remoteinterface: true
     },
-    '@arkecosystem/core-transaction-pool': {},
-    '@arkecosystem/core-transaction-pool-redis': {}
+    '@arkecosystem/core-transaction-pool': {
+      driver: '@arkecosystem/core-transaction-pool-redis'
+    },
+    '@arkecosystem/core-transaction-pool-redis': {
+      enabled: true,
+      key: 'ark/pool',
+      maxTransactionsPerSender: 5,
+      whiteList: [],
+      redis: {
+        host: 'localhost',
+        port: 6379
+      }
+    }
   },
   mounted: {
-    '@arkecosystem/core-api-public': {},
-    '@arkecosystem/core-api-webhooks': {},
+    '@arkecosystem/core-api-public': {
+      enabled: true,
+      port: 4102
+    },
+    '@arkecosystem/core-api-webhooks': {
+      enabled: true,
+      port: 4102
+    },
     '@arkecosystem/core-forger': {}
   }
 }
