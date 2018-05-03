@@ -207,5 +207,35 @@ describe('Wallet Manager', () => {
     it('should be a function', async () => {
       await expect(walletManager.__canBePurged).toBeFunction()
     })
+
+    it('should be removed if all criteria are satisfied', async () => {
+      const wallet = new Wallet('dummy-1')
+
+      expect(createWalletManager().__canBePurged(wallet)).toBeTruthy()
+    })
+
+    it('should not be removed if wallet.secondPublicKey is set', async () => {
+      const wallet = new Wallet('dummy-1')
+      wallet.secondPublicKey = 'secondPublicKey'
+
+      expect(wallet.secondPublicKey).toBe('secondPublicKey')
+      expect(createWalletManager().__canBePurged(wallet)).toBeFalsy()
+    })
+
+    it('should not be removed if wallet.multisignature is set', async () => {
+      const wallet = new Wallet('dummy-1')
+      wallet.multisignature = 'multisignature'
+
+      expect(wallet.multisignature).toBe('multisignature')
+      expect(createWalletManager().__canBePurged(wallet)).toBeFalsy()
+    })
+
+    it('should not be removed if wallet.username is set', async () => {
+      const wallet = new Wallet('dummy-1')
+      wallet.username = 'username'
+
+      expect(wallet.username).toBe('username')
+      expect(createWalletManager().__canBePurged(wallet)).toBeFalsy()
+    })
   })
 })
