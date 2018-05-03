@@ -236,10 +236,9 @@ module.exports = class WalletManager {
    * @return {(Wallet|null)}
    */
   getWalletByAddress (address) {
-    // TODO: enable later on when working on the wallet manager tests
-    // if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
-    //   throw new Error(`${address} is not a valid address.`)
-    // }
+    if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
+      throw new Error(`${address} is not a valid address.`)
+    }
 
     if (!this.walletsByAddress[address]) {
       this.walletsByAddress[address] = new Wallet(address)
