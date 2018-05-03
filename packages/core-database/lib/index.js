@@ -21,4 +21,4 @@ exports.plugin = {
  * The interface used by concrete implementations.
  * @type {ConnectionInterface}
  */
-exports.Connection = require('./connection')
+exports.ConnectionInterface = require('./interface')

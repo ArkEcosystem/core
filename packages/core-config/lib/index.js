@@ -17,10 +17,3 @@ exports.plugin = {
  * @type {ConfigInterface}
  */
 exports.ConfigInterface = require('./interface')
-
-/**
- * Get the target directory for the given name.
- * @param  {String} name
- * @return {String}
- */
-exports.getTargetDirectory = (name) => require('expand-home-dir')(`${process.env.ARK_PATH_CONFIG}/${name}`)

@@ -8,7 +8,7 @@ const path = require('path')
 const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 
-const { Connection } = require('@arkecosystem/core-database')
+const { ConnectionInterface } = require('@arkecosystem/core-database')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
@@ -19,7 +19,7 @@ const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
 const { TRANSACTION_TYPES } = client.constants
 
-module.exports = class SequelizeConnection extends Connection {
+module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
    * Make the database connection instance.
    * @return {SequelizeConnection}

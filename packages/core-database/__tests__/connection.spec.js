@@ -5,14 +5,14 @@ let ConnectionInterface
 beforeAll(async (done) => {
   await require('./__support__/setup')()
 
-  ConnectionInterface = new (require('../lib/connection'))()
+  ConnectionInterface = new (require('../lib/interface'))()
 
   done()
 })
 
 describe('Connection Interface', () => {
   it('should be an object', async () => {
-    await expect(ConnectionInterface).toBeInstanceOf(require('../lib/connection'))
+    await expect(ConnectionInterface).toBeInstanceOf(require('../lib/interface'))
   })
 
   describe('getConnection', async () => {

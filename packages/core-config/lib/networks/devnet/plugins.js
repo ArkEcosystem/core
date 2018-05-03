@@ -8,9 +8,7 @@ module.exports = {
     '@arkecosystem/core-config-json': {}
   },
   beforeCreate: {
-    '@arkecosystem/core-logger': {
-      driver: '@arkecosystem/core-logger-winston'
-    },
+    '@arkecosystem/core-logger': {},
     '@arkecosystem/core-logger-winston': {
       transports: [{
         constructor: 'Console',
@@ -36,22 +34,19 @@ module.exports = {
   },
   beforeMount: {
     '@arkecosystem/core-database': {
-      driver: '@arkecosystem/core-database-sequelize',
       snapshots: `${process.env.ARK_PATH_DATA}/devnet/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
-      dialect: 'sqlite'
-      // uri: 'postgres://node:password@localhost:5432/ark_devnet',
-      // dialect: 'postgres'
+      // uri: `sqlite:${process.env.ARK_PATH_DATA}/database/devnet.sqlite`,
+      // dialect: 'sqlite'
+      uri: 'postgres://node:password@localhost:5432/ark_devnet',
+      dialect: 'postgres'
     },
     '@arkecosystem/core-api-p2p': {
       port: 4002,
       remoteinterface: true
     },
-    '@arkecosystem/core-transaction-pool': {
-      driver: '@arkecosystem/core-transaction-pool-redis'
-    },
+    '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {
       enabled: true,
       key: 'ark/pool',

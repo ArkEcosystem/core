@@ -49,4 +49,12 @@ module.exports = class ConfigInterface {
       lastmerged++
     }
   }
+
+  /**
+   * Expose some variables to the environment.
+   * @return {void}
+   */
+  _exposeEnvironmentVariables () {
+    process.env.ARK_NETWORK = this.network.name
+  }
 }

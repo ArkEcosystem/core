@@ -8,7 +8,6 @@ const transactionPoolManager = require('./manager')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults'),
   alias: 'transactionPoolManager',
   register: async (manager, options) => transactionPoolManager
 }
@@ -17,4 +16,4 @@ exports.plugin = {
  * The interface used by concrete implementations.
  * @type {TransactionPoolInterface}
  */
-exports.TransactionPoolInterface = require('./connection')
+exports.TransactionPoolInterface = require('./interface')
