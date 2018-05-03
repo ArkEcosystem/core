@@ -236,11 +236,11 @@ module.exports = class WalletManager {
    * @return {(Wallet|null)}
    */
   getWalletByAddress (address) {
-    if (!this.walletsByAddress[address]) {
-      if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
-        throw new Error(`${address} is not a valid address.`)
-      }
+    if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
+      throw new Error(`${address} is not a valid address.`)
+    }
 
+    if (!this.walletsByAddress[address]) {
       this.walletsByAddress[address] = new Wallet(address)
     }
 
@@ -269,15 +269,6 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   getWalletByUsername (username) {
-    return this.getDelegate(username)
-  }
-
-  /**
-   * Alias of "getWalletByUsername".
-   * @param  {String} username
-   * @return {Wallet}
-   */
-  getDelegate (username) {
     return this.walletsByUsername[username]
   }
 

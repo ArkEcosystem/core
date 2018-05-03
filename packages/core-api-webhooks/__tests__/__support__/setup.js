@@ -6,7 +6,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 const defaults = require('../__stubs__/defaults.json')
 
 const setupPluggy = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
   pluginManager.init({ data: '~/.ark', config })
 
   await pluginManager.hook('init', {config})

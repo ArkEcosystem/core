@@ -4,7 +4,7 @@ const path = require('path')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
 module.exports = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
 
   pluginManager.init({ data: '~/.ark', config }, {
     exclude: [
