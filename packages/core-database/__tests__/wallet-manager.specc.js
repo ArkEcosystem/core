@@ -238,4 +238,99 @@ describe('Wallet Manager', () => {
       expect(createWalletManager().__canBePurged(wallet)).toBeFalsy()
     })
   })
+
+  describe('purgeEmptyNonDelegates', async () => {
+    it('should be a function', async () => {
+      await expect(walletManager.purgeEmptyNonDelegates).toBeFunction()
+    })
+
+    it('should be purged if all criteria are satisfied', async () => {
+      const manager = createWalletManager()
+
+      const wallet1 = new Wallet('dummy-1')
+      wallet1.publicKey = 'dummy-1-publicKey'
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('dummy-2')
+      wallet2.username = 'username'
+
+      manager.reindex(wallet2)
+
+      manager.purgeEmptyNonDelegates()
+
+      expect(manager.getLocalWallets()).toEqual([wallet2])
+    })
+
+    it('should not be purged if wallet.secondPublicKey is set', async () => {
+      const manager = createWalletManager()
+
+      const wallet1 = new Wallet('dummy-1')
+      wallet1.publicKey = 'dummy-1-publicKey'
+      wallet1.secondPublicKey = 'dummy-1-secondPublicKey'
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('dummy-2')
+      wallet2.username = 'username'
+
+      manager.reindex(wallet2)
+
+      manager.purgeEmptyNonDelegates()
+
+      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+    })
+
+    it('should not be purged if wallet.multisignature is set', async () => {
+      const manager = createWalletManager()
+
+      const wallet1 = new Wallet('dummy-1')
+      wallet1.publicKey = 'dummy-1-publicKey'
+      wallet1.multisignature = 'dummy-1-multisignature'
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('dummy-2')
+      wallet2.username = 'username'
+
+      manager.reindex(wallet2)
+
+      manager.purgeEmptyNonDelegates()
+
+      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+    })
+
+    it('should not be purged if wallet.username is set', async () => {
+      const manager = createWalletManager()
+
+      const wallet1 = new Wallet('dummy-1')
+      wallet1.publicKey = 'dummy-1-publicKey'
+      wallet1.username = 'dummy-1-username'
+      manager.reindex(wallet1)
+
+      const wallet2 = new Wallet('dummy-2')
+      wallet2.username = 'username'
+
+      manager.reindex(wallet2)
+
+      manager.purgeEmptyNonDelegates()
+
+      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+    })
+  })
+
+  describe('isGenesis', async () => {
+    it('should be a function', async () => {
+      await expect(walletManager.isGenesis).toBeFunction()
+    })
+
+    it('should be truthy', async () => {
+      const wallet = new Wallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn')
+
+      expect(createWalletManager().isGenesis(wallet)).toBeTruthy()
+    })
+
+    it('should be falsy', async () => {
+      const wallet = new Wallet('dummy')
+
+      expect(createWalletManager().isGenesis(wallet)).toBeFalsy()
+    })
+  })
 })
