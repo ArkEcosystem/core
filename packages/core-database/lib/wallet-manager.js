@@ -174,8 +174,8 @@ module.exports = class WalletManager {
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
-      emitter.emit('wallet:cold:created', recipient)
       this.walletsByAddress[recipientId] = recipient
+      emitter.emit('wallet:cold:created', recipient)
     } else if (transactionData.type === TRANSACTION_TYPES.DELEGATE && this.walletsByUsername[transactionData.asset.delegate.username.toLowerCase()]) {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
