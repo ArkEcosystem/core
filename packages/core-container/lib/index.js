@@ -2,7 +2,7 @@
 
 const expandHomeDir = require('expand-home-dir')
 const PluginRegistrar = require('./registrars/plugin')
-const { createContainer, asValue } = require('awilix')
+const { createContainer } = require('awilix')
 
 class Container {
   /**

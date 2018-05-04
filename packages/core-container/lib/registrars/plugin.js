@@ -4,7 +4,7 @@ const semver = require('semver')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
-const { container, asValue } = require('awilix')
+const { asValue } = require('awilix')
 
 module.exports = class PluginRegistrars {
   /**
