@@ -17,5 +17,10 @@ exports.plugin = {
     await p2p.warmup(options.networkStart)
 
     return p2p
+  },
+  deregister: async (manager) => {
+    manager.get('logger').info('Stopping P2P Interface...')
+
+    return manager.get('p2p').stop()
   }
 }

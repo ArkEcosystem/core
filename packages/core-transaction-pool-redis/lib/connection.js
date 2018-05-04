@@ -45,6 +45,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     return this
   }
 
+  /**
+   * Disconnect from redis.
+   * @return {Boolean}
+   */
+  async disconnect () {
+    return this.redisSub.disconnect()
+  }
+
    /**
    * Get the number of transactions in the pool.
    * @return {Number}
