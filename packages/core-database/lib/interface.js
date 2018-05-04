@@ -1,13 +1,11 @@
 'use strict'
 
 const async = require('async')
-const fs = require('fs')
 const { crypto, slots } = require('@arkecosystem/client')
 const container = require('@arkecosystem/core-container')
 const config = container.get('config')
 const logger = container.get('logger')
 const emitter = container.get('event-emitter')
-const blockchain = container.get('blockchain')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
