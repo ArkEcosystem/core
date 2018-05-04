@@ -1,6 +1,6 @@
 const Sntp = require('sntp')
 const shuffle = require('lodash/shuffle')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').get('logger')
 
 module.exports = async (hosts) => {
   hosts = shuffle(hosts)

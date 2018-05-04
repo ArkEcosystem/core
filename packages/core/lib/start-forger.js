@@ -1,6 +1,6 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 
 /**
  * Start a forger.
@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init({ data: options.data, config }, {
+  container.init({ data: options.data, config }, {
     include: [
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
@@ -30,9 +30,9 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', { config: options.config })
-  await pluginManager.hook('beforeCreate')
-  await pluginManager.hook('beforeMount')
+  await container.plugins.registerGroup('init', { config: options.config })
+  await container.plugins.registerGroup('beforeCreate')
+  await container.plugins.registerGroup('beforeMount')
 
-  pluginManager.hook('mounted')
+  container.plugins.registerGroup('mounted')
 }

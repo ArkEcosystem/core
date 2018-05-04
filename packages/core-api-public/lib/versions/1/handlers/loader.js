@@ -1,8 +1,8 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const config = container.get('config')
+const blockchain = container.get('blockchain')
 const state = blockchain.getState()
 const utils = require('../utils')
 

@@ -3,14 +3,14 @@
 const axios = require('axios')
 const Bull = require('bull')
 const map = require('lodash/map')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const logger = pluginManager.get('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.get('logger')
 const database = require('./database')
-const emitter = pluginManager.get('event-emitter')
+const emitter = container.get('event-emitter')
 
 class WebhookManager {
   /**
-   * Initialise the webhook manager.
+   * Initialise the webhook container.
    * @param  {Object} config
    * @return {void}
    */

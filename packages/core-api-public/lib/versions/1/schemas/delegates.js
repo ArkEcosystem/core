@@ -1,6 +1,6 @@
 'use strict'
 
-const constants = require('@arkecosystem/core-plugin-manager').get('config').constants
+const constants = require('@arkecosystem/core-container').get('config').constants
 
 /**
  * The AJV schema for the delegate endpoints.

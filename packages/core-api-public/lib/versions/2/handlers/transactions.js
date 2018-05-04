@@ -2,10 +2,10 @@
 
 const Boom = require('boom')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const database = pluginManager.get('database')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const config = container.get('config')
+const database = container.get('database')
+const blockchain = container.get('blockchain')
 
 const client = require('@arkecosystem/client')
 const { Transaction } = client.models

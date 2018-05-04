@@ -34,11 +34,11 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(manager.getLocalWallets()).toEqual([wallet])
+      container.reindex(wallet)
+      expect(container.getLocalWallets()).toEqual([wallet])
 
-      manager.reset()
-      expect(manager.getLocalWallets()).toEqual([])
+      container.reset()
+      expect(container.getLocalWallets()).toEqual([])
     })
   })
 
@@ -51,10 +51,10 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
 
-      expect(manager.getLocalWallets()).toEqual([])
+      expect(container.getLocalWallets()).toEqual([])
 
-      manager.reindex(wallet)
-      expect(manager.getLocalWallets()).toEqual([wallet])
+      container.reindex(wallet)
+      expect(container.getLocalWallets()).toEqual([wallet])
     })
   })
 
@@ -127,14 +127,14 @@ describe('Wallet Manager', () => {
 
       const manager = createWalletManager()
 
-      const sender = manager.getWalletByPublicKey(transaction.data.senderPublicKey)
+      const sender = container.getWalletByPublicKey(transaction.data.senderPublicKey)
       sender.balance = transaction.data.amount
-      const recipient = manager.getWalletByAddress(transaction.data.recipientId)
+      const recipient = container.getWalletByAddress(transaction.data.recipientId)
 
       await expect(sender.balance).toBe(transaction.data.amount)
       await expect(recipient.balance).toBe(0)
 
-      await manager.applyTransaction(transaction)
+      await container.applyTransaction(transaction)
 
       await expect(sender.balance).toBe(0)
       await expect(recipient.balance).toBe(transaction.data.amount)
@@ -162,14 +162,14 @@ describe('Wallet Manager', () => {
 
       const manager = createWalletManager()
 
-      const sender = manager.getWalletByPublicKey(transaction.data.senderPublicKey)
-      const recipient = manager.getWalletByAddress(transaction.data.recipientId)
+      const sender = container.getWalletByPublicKey(transaction.data.senderPublicKey)
+      const recipient = container.getWalletByAddress(transaction.data.recipientId)
       recipient.balance = transaction.data.amount
 
       await expect(sender.balance).toBe(0)
       await expect(recipient.balance).toBe(transaction.data.amount)
 
-      await manager.undoTransaction(transaction)
+      await container.undoTransaction(transaction)
 
       await expect(sender.balance).toBe(transaction.data.amount)
       await expect(recipient.balance).toBe(0)
@@ -185,16 +185,16 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(Object.keys(manager.walletsByAddress)[0]).toBe(wallet.address)
+      container.reindex(wallet)
+      expect(Object.keys(container.walletsByAddress)[0]).toBe(wallet.address)
     })
 
     it('should return it by address', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(manager.getWalletByAddress(wallet.address).address).toBe(wallet.address)
+      container.reindex(wallet)
+      expect(container.getWalletByAddress(wallet.address).address).toBe(wallet.address)
     })
   })
 
@@ -208,8 +208,8 @@ describe('Wallet Manager', () => {
       wallet.publicKey = dummy1.publicKey
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(Object.keys(manager.walletsByPublicKey)[0]).toBe(wallet.publicKey)
+      container.reindex(wallet)
+      expect(Object.keys(container.walletsByPublicKey)[0]).toBe(wallet.publicKey)
     })
 
     it('should return it by publicKey', () => {
@@ -217,8 +217,8 @@ describe('Wallet Manager', () => {
       wallet.publicKey = 'dummy-public-key'
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(manager.getWalletByPublicKey(wallet.publicKey).publicKey).toBe(wallet.publicKey)
+      container.reindex(wallet)
+      expect(container.getWalletByPublicKey(wallet.publicKey).publicKey).toBe(wallet.publicKey)
     })
   })
 
@@ -232,8 +232,8 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(Object.keys(manager.walletsByUsername)[0]).toBe(wallet.username)
+      container.reindex(wallet)
+      expect(Object.keys(container.walletsByUsername)[0]).toBe(wallet.username)
     })
 
     it('should return it by username', () => {
@@ -241,8 +241,8 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
       const manager = createWalletManager()
 
-      manager.reindex(wallet)
-      expect(manager.getWalletByUsername(wallet.username).username).toBe(wallet.username)
+      container.reindex(wallet)
+      expect(container.getWalletByUsername(wallet.username).username).toBe(wallet.username)
     })
   })
 
@@ -255,12 +255,12 @@ describe('Wallet Manager', () => {
       const manager = createWalletManager()
 
       const wallet1 = new Wallet(dummy1.address)
-      manager.reindex(wallet1)
+      container.reindex(wallet1)
 
       const wallet2 = new Wallet(dummy2.address)
-      manager.reindex(wallet2)
+      container.reindex(wallet2)
 
-      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(container.getLocalWallets()).toEqual([wallet1, wallet2])
     })
   })
 
@@ -310,16 +310,16 @@ describe('Wallet Manager', () => {
 
       const wallet1 = new Wallet(dummy1.address)
       wallet1.publicKey = 'dummy-1-publicKey'
-      manager.reindex(wallet1)
+      container.reindex(wallet1)
 
       const wallet2 = new Wallet(dummy2.address)
       wallet2.username = 'username'
 
-      manager.reindex(wallet2)
+      container.reindex(wallet2)
 
-      manager.purgeEmptyNonDelegates()
+      container.purgeEmptyNonDelegates()
 
-      expect(manager.getLocalWallets()).toEqual([wallet2])
+      expect(container.getLocalWallets()).toEqual([wallet2])
     })
 
     it('should not be purged if wallet.secondPublicKey is set', async () => {
@@ -328,16 +328,16 @@ describe('Wallet Manager', () => {
       const wallet1 = new Wallet(dummy1.address)
       wallet1.publicKey = 'dummy-1-publicKey'
       wallet1.secondPublicKey = 'dummy-1-secondPublicKey'
-      manager.reindex(wallet1)
+      container.reindex(wallet1)
 
       const wallet2 = new Wallet(dummy2.address)
       wallet2.username = 'username'
 
-      manager.reindex(wallet2)
+      container.reindex(wallet2)
 
-      manager.purgeEmptyNonDelegates()
+      container.purgeEmptyNonDelegates()
 
-      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(container.getLocalWallets()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.multisignature is set', async () => {
@@ -346,16 +346,16 @@ describe('Wallet Manager', () => {
       const wallet1 = new Wallet(dummy1.address)
       wallet1.publicKey = 'dummy-1-publicKey'
       wallet1.multisignature = 'dummy-1-multisignature'
-      manager.reindex(wallet1)
+      container.reindex(wallet1)
 
       const wallet2 = new Wallet(dummy2.address)
       wallet2.username = 'username'
 
-      manager.reindex(wallet2)
+      container.reindex(wallet2)
 
-      manager.purgeEmptyNonDelegates()
+      container.purgeEmptyNonDelegates()
 
-      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(container.getLocalWallets()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.username is set', async () => {
@@ -364,16 +364,16 @@ describe('Wallet Manager', () => {
       const wallet1 = new Wallet(dummy1.address)
       wallet1.publicKey = 'dummy-1-publicKey'
       wallet1.username = 'dummy-1-username'
-      manager.reindex(wallet1)
+      container.reindex(wallet1)
 
       const wallet2 = new Wallet(dummy2.address)
       wallet2.username = 'username'
 
-      manager.reindex(wallet2)
+      container.reindex(wallet2)
 
-      manager.purgeEmptyNonDelegates()
+      container.purgeEmptyNonDelegates()
 
-      expect(manager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(container.getLocalWallets()).toEqual([wallet1, wallet2])
     })
   })
 

@@ -1,6 +1,6 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 
 /**
  * Start a node.
@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init({ data: options.data, config }, {
+  container.init({ data: options.data, config }, {
     options: {
       '@arkecosystem/core-api-p2p': {
         networkStart: options.networkStart
@@ -26,10 +26,10 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', { config: options.config })
-  await pluginManager.hook('beforeCreate')
-  await pluginManager.hook('beforeMount')
-  await pluginManager.get('blockchain').start()
+  await container.plugins.registerGroup('init', { config: options.config })
+  await container.plugins.registerGroup('beforeCreate')
+  await container.plugins.registerGroup('beforeMount')
+  await container.get('blockchain').start()
 
-  pluginManager.hook('mounted')
+  container.plugins.registerGroup('mounted')
 }

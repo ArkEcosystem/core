@@ -3,13 +3,13 @@
 const configManager = require('./manager')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'configManager',
-  register: async (manager, options) => configManager
+  register: async (container, options) => configManager
 }
 
 /**
