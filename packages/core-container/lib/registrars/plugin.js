@@ -6,13 +6,13 @@ const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
 const { asValue } = require('awilix')
 
-module.exports = class PluginManager {
+module.exports = class PluginRegistrars {
   /**
    * Create a new plugin manager instance.
    * @param  {Container} container
    * @param  {Object} options
    */
-  constructor (container, options) {
+  constructor (container, options = {}) {
     const plugins = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
 
     if (!fs.existsSync(plugins)) {
@@ -39,20 +39,6 @@ module.exports = class PluginManager {
   }
 
   /**
-   * Register a group of plugins.
-   * @param  {String} name
-   * @param  {Object} options
-   * @return {void}
-   */
-  async registerGroup (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
-      if (this.__shouldBeRegistered(pluginName)) {
-        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
-      }
-    }
-  }
-
-  /**
    * Register a plugin.
    * @param  {Object} plugin
    * @param  {Object} options
@@ -61,7 +47,9 @@ module.exports = class PluginManager {
   async register (plugin, options = {}) {
     let item = this.__resolve(plugin)
 
-    if (!item.plugin.register) return
+    if (!item.plugin.register) {
+      return
+    }
 
     const name = item.plugin.name || item.plugin.pkg.name
     const version = item.plugin.version || item.plugin.pkg.version
@@ -85,6 +73,20 @@ module.exports = class PluginManager {
 
     if (item.plugin.hasOwnProperty('deregister')) {
       this.deregister.push(item.plugin)
+    }
+  }
+
+  /**
+   * Register a group of plugins.
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
+   */
+  async registerGroup (name, options = {}) {
+    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
+      if (this.__shouldBeRegistered(pluginName)) {
+        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
+      }
     }
   }
 

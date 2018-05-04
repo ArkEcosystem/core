@@ -3,9 +3,9 @@
 const async = require('async')
 const { crypto, slots } = require('@arkecosystem/client')
 const container = require('@arkecosystem/core-container')
-const config = container.get('config')
-const logger = container.get('logger')
-const emitter = container.get('event-emitter')
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {

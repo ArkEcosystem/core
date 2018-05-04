@@ -1,8 +1,8 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
-const blockchain = container.get('blockchain')
+const blockchain = container.resolvePlugin('blockchain')
 const async = require('async')
-const logger = container.get('logger')
+const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
 const { slots, crypto } = client
 const { Transaction } = client.models

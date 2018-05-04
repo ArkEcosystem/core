@@ -11,16 +11,16 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'transactionPool',
   register: async (container, options) => {
-    container.get('logger').info('Establishing Transaction Pool Connection...')
+    container.resolvePlugin('logger').info('Establishing Transaction Pool Connection...')
 
-    const transactionPoolManager = container.get('transactionPoolManager')
+    const transactionPoolManager = container.resolvePlugin('transactionPoolManager')
     await transactionPoolManager.makeConnection(new RedisConnection(options))
 
     return transactionPoolManager.connection()
   },
   deregister: async (container) => {
-    container.get('logger').info('Closing Transaction Pool Connection...')
+    container.resolvePlugin('logger').info('Closing Transaction Pool Connection...')
 
-    return container.get('transactionPool').disconnect()
+    return container.resolvePlugin('transactionPool').disconnect()
   }
 }

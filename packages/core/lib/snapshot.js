@@ -31,5 +31,5 @@ module.exports = async (options) => {
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
 
-  container.get('database').snapshot()
+  container.resolvePlugin('database').snapshot()
 }

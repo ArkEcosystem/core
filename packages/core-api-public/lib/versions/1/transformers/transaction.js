@@ -3,8 +3,8 @@
 const { crypto } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
-const config = container.get('config')
-const state = container.get('blockchain').getState()
+const config = container.resolvePlugin('config')
+const state = container.resolvePlugin('blockchain').getState()
 
 const { Transaction } = require('@arkecosystem/client').models
 

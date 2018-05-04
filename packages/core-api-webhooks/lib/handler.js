@@ -118,7 +118,7 @@ exports.events = {
    */
   handler: async (request, h) => {
     return {
-      data: container.get('webhooks').getEvents()
+      data: container.resolvePlugin('webhooks').getEvents()
     }
   }
 }

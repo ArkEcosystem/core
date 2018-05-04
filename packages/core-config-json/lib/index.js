@@ -11,7 +11,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
   register: async (container, options) => {
-    const configManager = container.get('configManager')
+    const configManager = container.resolvePlugin('configManager')
     await configManager.makeDriver(new JsonDriver(options))
 
     client.setConfig(configManager.driver().network)

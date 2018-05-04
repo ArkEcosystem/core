@@ -4,8 +4,8 @@ const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-poo
 const Redis = require('ioredis')
 
 const container = require('@arkecosystem/core-container')
-const logger = container.get('logger')
-const blockchain = container.get('blockchain')
+const logger = container.resolvePlugin('logger')
+const blockchain = container.resolvePlugin('blockchain')
 
 const client = require('@arkecosystem/client')
 const { slots } = client

@@ -12,7 +12,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'webhooks',
   register: async (container, options) => {
-    container.get('logger').info('Starting Webhooks...')
+    container.resolvePlugin('logger').info('Starting Webhooks...')
 
     await database.init(options.database)
 

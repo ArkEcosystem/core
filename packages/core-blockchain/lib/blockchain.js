@@ -4,7 +4,7 @@ const client = require('@arkecosystem/client')
 const { slots } = client
 
 const container = require('@arkecosystem/core-container')
-const logger = container.get('logger')
+const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')
 const Queue = require('./queue')
 const sleep = require('./utils/sleep')
@@ -410,7 +410,7 @@ module.exports = class Blockchain {
    * @return {P2PInterface}
    */
   get p2p () {
-    return container.get('p2p')
+    return container.resolvePlugin('p2p')
   }
 
   /**
@@ -418,7 +418,7 @@ module.exports = class Blockchain {
    * @return {TransactionPool}
    */
   get transactionPool () {
-    return container.get('transactionPool')
+    return container.resolvePlugin('transactionPool')
   }
 
   /**
@@ -426,7 +426,7 @@ module.exports = class Blockchain {
    * @return {ConnectionInterface}
    */
   get database () {
-    return container.get('database')
+    return container.resolvePlugin('database')
   }
 
   /**

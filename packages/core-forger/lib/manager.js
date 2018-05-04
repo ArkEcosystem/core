@@ -3,7 +3,7 @@
 const popsicle = require('popsicle')
 const map = require('lodash/map')
 
-const logger = require('@arkecosystem/core-container').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 const client = require('@arkecosystem/client')
 const { slots } = client

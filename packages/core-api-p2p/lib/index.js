@@ -11,16 +11,16 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'p2p',
   register: async (container, options) => {
-    container.get('logger').info('Starting P2P Interface...')
+    container.resolvePlugin('logger').info('Starting P2P Interface...')
 
-    const p2p = new P2PInterface(options, container.get('config'))
+    const p2p = new P2PInterface(options, container.resolvePlugin('config'))
     await p2p.warmup(options.networkStart)
 
     return p2p
   },
   deregister: async (container) => {
-    container.get('logger').info('Stopping P2P Interface...')
+    container.resolvePlugin('logger').info('Stopping P2P Interface...')
 
-    return container.get('p2p').stop()
+    return container.resolvePlugin('p2p').stop()
   }
 }

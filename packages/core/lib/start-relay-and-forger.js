@@ -29,7 +29,7 @@ module.exports = async (options) => {
   await container.plugins.registerGroup('init', { config: options.config })
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
-  await container.get('blockchain').start()
+  await container.resolvePlugin('blockchain').start()
 
   container.plugins.registerGroup('mounted')
 }

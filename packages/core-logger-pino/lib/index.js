@@ -11,7 +11,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'logger',
   register: async (container, options) => {
-    const logManager = container.get('logManager')
+    const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new PinoDriver(options))
 
     return logManager.driver()

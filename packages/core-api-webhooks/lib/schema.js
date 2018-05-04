@@ -1,6 +1,6 @@
 'use strict'
 
-const webhookManager = require('@arkecosystem/core-container').get('webhooks')
+const webhookManager = require('@arkecosystem/core-container').resolvePlugin('webhooks')
 const Joi = require('joi')
 
 /**

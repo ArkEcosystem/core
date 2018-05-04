@@ -4,9 +4,9 @@ const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 const container = require('@arkecosystem/core-container')
-const config = container.get('config')
-const database = container.get('database')
-const blockchain = container.get('blockchain')
+const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 
 const schema = require('../schema/statistics')
 
