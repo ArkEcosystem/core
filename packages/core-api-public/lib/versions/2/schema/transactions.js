@@ -17,7 +17,9 @@ exports.index = {
  * @type {Object}
  */
 exports.store = {
-  payload: {}
+  payload: {
+    transactions: Joi.array().items(Joi.object())
+  }
 }
 
 /**

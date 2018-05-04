@@ -49,6 +49,11 @@ exports.store = {
   },
   options: {
     validate: schema.store
+  },
+  config: {
+    plugins: {
+      pagination: false
+    }
   }
 }
 
