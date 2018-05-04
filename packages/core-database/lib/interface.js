@@ -19,7 +19,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
 
-    this.__registerShutdownListener()
+    // this.__registerExitHandler()
   }
 
   /**
@@ -384,7 +384,7 @@ module.exports = class ConnectionInterface {
    * Handle any exit signals.
    * @return {void}
    */
-  __registerShutdownListener () {
+  __registerExitHandler () {
     const handleExit = async () => {
       logger.info('Shutting down ARK Core')
 
