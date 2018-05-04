@@ -8,7 +8,7 @@ exports.plugin = {
   alias: 'stub-plugin',
   register: (container, options) => {
     return {
-      manager,
+      container,
       options
     }
   }

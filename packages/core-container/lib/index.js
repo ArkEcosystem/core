@@ -1,6 +1,5 @@
 'use strict'
 
-const fs = require('fs')
 const expandHomeDir = require('expand-home-dir')
 const PluginRegistrar = require('./plugin-registrar')
 const { createContainer } = require('awilix')
