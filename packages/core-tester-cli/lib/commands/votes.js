@@ -7,7 +7,10 @@ const transactionCommand = require('./transactions')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallet(options.number)
-  transactionCommand(options, wallets)
+  await transactionCommand(options, wallets)
+
+  logger.info('Waiting 30 seconds to apply transactions')
+  utils.sleep(30000)
 
   const voters = await utils.getVoters(options.delegate)
 
