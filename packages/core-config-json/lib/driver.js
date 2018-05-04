@@ -14,6 +14,8 @@ module.exports = class Config extends ConfigInterface {
   async make () {
     await this.__createFromDirectory()
 
+    super._validateConfig()
+
     super._buildConstants()
 
     super._exposeEnvironmentVariables()
@@ -120,7 +122,7 @@ module.exports = class Config extends ConfigInterface {
 
         break
       } catch (error) {
-        console.log(error.message)
+        console.error(error.message)
       }
     }
   }

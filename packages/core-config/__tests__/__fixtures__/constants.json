@@ -1,0 +1,37 @@
+[{
+  "height": 1,
+  "reward": 0,
+  "activeDelegates": 51,
+  "blocktime": 8,
+  "block": {
+    "version": 0,
+    "maxTransactions": 50,
+    "maxPayload": 2097152
+  },
+  "epoch": "2017-03-21T13:00:00.000",
+  "fees": {
+    "send": 10000000,
+    "vote": 100000000,
+    "secondsignature": 500000000,
+    "delegate": 2500000000,
+    "multisignature": 500000000
+  }
+}, {
+  "height": 75600,
+  "reward": 200000000,
+  "activeDelegates": 51,
+  "blocktime": 8,
+  "block": {
+    "version": 0,
+    "maxTransactions": 50,
+    "maxPayload": 2097152
+  },
+  "epoch": "2017-03-21T13:00:00.000",
+  "fees": {
+    "send": 10000000,
+    "vote": 100000000,
+    "secondsignature": 500000000,
+    "delegate": 2500000000,
+    "multisignature": 500000000
+  }
+}]

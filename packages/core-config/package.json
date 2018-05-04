@@ -16,6 +16,7 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "deepmerge": "^2.1.0"
+    "deepmerge": "^2.1.0",
+    "ow": "^0.3.0"
   }
 }

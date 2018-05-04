@@ -20,7 +20,7 @@
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "bip39": "^2.5.0",
-    "commander": "^2.14.0",
-    "chalk": "^2.4.0"
+    "commander": "^2.15.1",
+    "chalk": "^2.4.1"
   }
 }

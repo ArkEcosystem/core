@@ -65,7 +65,7 @@ module.exports = {
     },
     '@arkecosystem/core-api-webhooks': {
       enabled: true,
-      port: 4102
+      port: 4103
     },
     '@arkecosystem/core-forger': {}
   }
