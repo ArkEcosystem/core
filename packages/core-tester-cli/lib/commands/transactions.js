@@ -1,41 +1,39 @@
 'use strict'
 
 const ark = require('arkjs')
-const axios = require('axios')
-const generateWallet = require('../utils/generate-wallet')
-const delegatePassphrase = 'prison tobacco acquire stone dignity palace note decade they current lesson robot'
+const config = require('../config')
+const utils = require('../utils')
+const logger = utils.logger
 
 module.exports = async (options) => {
   const transactions = []
   let totalDeductions = 0
 
-  const address = ark.crypto.getAddress(ark.crypto.getKeys(delegatePassphrase).publicKey)
-  const genesisWallet = (await axios.get(`http://localhost:4102/api/v2/wallets/${address}`)).data.data
+  const address = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
+  const walletBalance = await utils.getWalletBalance(address)
 
-  console.log(`Wallet starting balance: ${genesisWallet.balance}`)
+  logger.info(`Wallet starting balance: ${walletBalance}`)
 
   for (let i = 0; i < options.number; i++) {
-    const wallet = generateWallet()
-
+    const wallet = utils.generateWallet()
     const amount = 1 * Math.pow(10, 8)
-    const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, delegatePassphrase)
+    const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, config.passphrase)
 
     totalDeductions += amount + transaction.fee
 
     transactions.push(transaction)
 
-    console.log(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   }
 
-  console.log(`Wallet expected ending balance: ${genesisWallet.balance - totalDeductions}`)
+  logger.info(`Wallet expected ending balance: ${walletBalance - totalDeductions}`)
 
   try {
-    await axios.post('http://localhost:4102/api/v2/transactions', {transactions})
+    await utils.request.post('/peer/transactions', {transactions}, true)
 
-    console.log('All transactions have been sent')
-    const genesisWalletEnd = (await axios.get(`http://localhost:4102/api/v2/wallets/${address}`)).data.data
-    console.log(`Wallet ending balance: ${genesisWalletEnd.balance}`)
+    const walletBalance = await utils.getWalletBalance(address)
+    logger.info(`All transactions have been sent! Wallet ending balance: ${walletBalance}`)
   } catch (error) {
-    console.log(`There was a problem sending transactions: ${error.message}`)
+    logger.error(`There was a problem sending transactions: ${error.message}`)
   }
 }
