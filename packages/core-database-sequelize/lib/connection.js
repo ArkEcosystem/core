@@ -10,10 +10,10 @@ const expandHomeDir = require('expand-home-dir')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const logger = pluginManager.get('logger')
-const emitter = pluginManager.get('event-emitter')
+const container = require('@arkecosystem/core-container')
+const config = container.get('config')
+const logger = container.get('logger')
+const emitter = container.get('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models

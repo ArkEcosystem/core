@@ -2,9 +2,9 @@
 
 const { crypto } = require('@arkecosystem/client')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const state = pluginManager.get('blockchain').getState()
+const container = require('@arkecosystem/core-container')
+const config = container.get('config')
+const state = container.get('blockchain').getState()
 
 const { Transaction } = require('@arkecosystem/client').models
 

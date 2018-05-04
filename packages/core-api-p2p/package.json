@@ -19,7 +19,7 @@
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-event-emitter": "^1.0.0",
-    "@arkecosystem/core-plugin-manager": "^1.0.0",
+    "@arkecosystem/core-container": "^1.0.0",
     "ajv": "^6.4.0",
     "hapi": "^17.4.0",
     "popsicle": "^9.2.0",

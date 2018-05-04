@@ -1,7 +1,7 @@
 'use strict'
 
 const bs58check = require('bs58check')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const config = require('@arkecosystem/core-container').get('config')
 
 /**
  * Register the "address" validation rule.

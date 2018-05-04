@@ -1,6 +1,6 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 const database = require('@arkecosystem/core-webhooks').database
 const utils = require('./utils')
 const schema = require('./schema')
@@ -118,7 +118,7 @@ exports.events = {
    */
   handler: async (request, h) => {
     return {
-      data: pluginManager.get('webhooks').getEvents()
+      data: container.get('webhooks').getEvents()
     }
   }
 }

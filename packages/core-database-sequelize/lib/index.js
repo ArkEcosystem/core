@@ -3,26 +3,26 @@
 const SequelizeConnection = require('./connection')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'database',
-  register: async (manager, options) => {
-    manager.get('logger').info('Establishing Database Connection...')
+  register: async (container, options) => {
+    container.get('logger').info('Establishing Database Connection...')
 
     const sequelize = new SequelizeConnection(options)
 
-    const databaseManager = manager.get('databaseManager')
+    const databaseManager = container.get('databaseManager')
     await databaseManager.makeConnection(sequelize)
 
     return databaseManager.connection()
   },
-  deregister: async (manager) => {
-    manager.get('logger').info('Closing Database Connection...')
+  deregister: async (container) => {
+    container.get('logger').info('Closing Database Connection...')
 
-    return manager.get('database').disconnect()
+    return container.get('database').disconnect()
   }
 }

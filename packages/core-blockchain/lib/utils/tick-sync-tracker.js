@@ -1,9 +1,9 @@
 const human = require('interval-to-human')
 const { slots } = require('@arkecosystem/client')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const logger = pluginManager.get('logger')
-const config = pluginManager.get('config')
+const container = require('@arkecosystem/core-container')
+const logger = container.get('logger')
+const config = container.get('config')
 
 let synctracker = null
 
