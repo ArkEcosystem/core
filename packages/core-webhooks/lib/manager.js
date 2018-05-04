@@ -1,36 +1,14 @@
-'use strict';
+'use strict'
 
 const axios = require('axios')
+const Bull = require('bull')
 const map = require('lodash/map')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
 const database = require('./database')
-const RedisQueue = require('./queue')
 const emitter = pluginManager.get('event-emitter')
 
-let instance
-
-module.exports = class WebhookManager {
-  /**
-   * Create a new webhook manager instance.
-   * @return {WebhookManager}
-   */
-  constructor () {
-    if (!instance) {
-      instance = this
-    }
-
-    return instance
-  }
-
-  /**
-   * Get a webhook manager instance.
-   * @return {WebhookManager}
-   */
-  static getInstance () {
-    return instance
-  }
-
+class WebhookManager {
   /**
    * Initialise the webhook manager.
    * @param  {Object} config
@@ -39,9 +17,11 @@ module.exports = class WebhookManager {
   async init (config) {
     this.config = config
 
-    if (!this.config.enabled) return
+    if (!this.config.enabled) {
+      return
+    }
 
-    await this.__registerQueueManager()
+    await this.__registerQueue()
 
     map(this.config.events, 'name').forEach((event) => {
       emitter.on(event, async (payload) => {
@@ -75,7 +55,7 @@ module.exports = class WebhookManager {
           data: response.data
         }
       } catch (error) {
-        logger.error(`Job ${job.id} failed! ${error.message}`)
+        logger.error(`Job ${job.id} failed: ${error.message}`)
       }
     })
 
@@ -96,12 +76,16 @@ module.exports = class WebhookManager {
     const matches = []
 
     webhooks.forEach((webhook) => {
-      if (!webhook.conditions) webhooks.push(webhook)
+      if (!webhook.conditions) {
+        webhooks.push(webhook)
+      }
 
       for (let condition of webhook.conditions) {
         const satisfies = require(`./conditions/${condition.condition}`)
 
-        if (!satisfies(payload[condition.key], condition.value)) break
+        if (!satisfies(payload[condition.key], condition.value)) {
+          break
+        }
 
         matches.push(webhook)
       }
@@ -122,9 +106,9 @@ module.exports = class WebhookManager {
    * Create a new redis queue instance.
    * @return {void}
    */
-  async __registerQueueManager () {
-    await new RedisQueue(this.config.redis)
-
-    this.queue = RedisQueue.getInstance().connection('webhooks')
+  __registerQueue () {
+    this.queue = new Bull('webhooks', { redis: this.config.redis })
   }
 }
+
+module.exports = new WebhookManager()

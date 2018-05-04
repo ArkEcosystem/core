@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const popsicle = require('popsicle')
 
@@ -68,6 +68,7 @@ module.exports = class ForgerManager {
         if (!round.canForge) {
           // logger.debug('Block already forged in current slot')
           await sleep(100) // basically looping until we lock at beginning of next slot
+
           return monitor()
         }
 
@@ -75,6 +76,7 @@ module.exports = class ForgerManager {
         if (!delegate) {
           // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
           await sleep(7900) // we will check at next slot
+
           return monitor()
         }
 
@@ -90,18 +92,21 @@ module.exports = class ForgerManager {
 
         this.send(block.toRawJson())
         await sleep(7800) // we will check at next slot
+
         return monitor()
       } catch (error) {
         logger.debug(`Not able to forge: ${error.message}`)
         // console.log(round)
         // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
         await sleep(2000) // no idea when this will be ok, so waiting 2s before checking again
+
         return monitor()
       }
     }
 
     // TODO: assuming that blockTime = 8s
     const slot = slots.getSlotNumber()
+
     while (slots.getSlotNumber() === slot) {
       await sleep(100)
     }
@@ -115,7 +120,7 @@ module.exports = class ForgerManager {
    * @return {Object}
    */
   async send (block) {
-    logger.info(`Sending forged block id ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
+    logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
     const result = await popsicle.request({
       method: 'POST',
       url: this.proxy + '/internal/block',

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Turns a "peer" object into a generic object.

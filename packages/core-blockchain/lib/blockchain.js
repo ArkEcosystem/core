@@ -1,20 +1,15 @@
-'use strict';
-
-const async = require('async')
+'use strict'
 
 const client = require('@arkecosystem/client')
 const { slots } = client
-const { Block } = client.models
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
-
 const stateMachine = require('./state-machine')
+const Queue = require('./queue')
 const sleep = require('./utils/sleep')
 
-let instance
-
-module.exports = class BlockchainManager {
+module.exports = class Blockchain {
   /**
    * Create a new blockchain manager instance.
    * @param  {Number} config
@@ -22,33 +17,20 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   constructor (config, networkStart) {
-    if (!instance) {
-      instance = this
-    } else {
-      throw new Error('Can\'t initialise 2 blockchains!')
-    }
-
     this.config = config
 
     // flag to force a network start
     stateMachine.state.networkStart = !!networkStart
+
     if (stateMachine.state.networkStart) {
-      logger.warn('Arkchain is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
-      logger.info('Starting arkchain for a new world, welcome aboard 🚀 🚀 🚀 🚀 🚀 🚀')
+      // TODO: Reword message below
+      logger.warn('ARK Core is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.info('Starting ARK Core for a new world, welcome aboard :rocket:')
     }
 
     this.actions = stateMachine.actionMap(this)
 
-    this.__setupProcessQueue()
-    this.__setupRebuildQueue()
-  }
-
-  /**
-   * Get a blockchain manager instance.
-   * @return {BlockchainManager}
-   */
-  static getInstance () {
-    return instance
+    this.__registerQueue()
   }
 
   /**
@@ -70,31 +52,31 @@ module.exports = class BlockchainManager {
         return setTimeout(() => action.call(this, event), 0)
       }
 
-      logger.error(`No action ${actionKey} found`)
+      logger.error(`No action '${actionKey}' found`)
     })
   }
 
   /**
-   * Start the blockchain.
+   * Start the blockchain and wait for it to be ready.
    * @return {void}
    */
-  start () {
-    this.dispatch('START')
-  }
+  async start () {
+    logger.info('Starting Blockchain Manager...')
 
-  /**
-   * Determine if the blockchain is ready.
-   * @return {Boolean}
-   */
-  async isReady () {
+    this.dispatch('START')
+
     /**
      * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
      */
-    while (!stateMachine.state.started) await sleep(1000)
+    while (!stateMachine.state.started) {
+      await sleep(1000)
+    }
+
     return true
   }
 
   checkNetwork () {
+    throw new Error('Method [checkNetwork] not implemented!')
   }
 
   /**
@@ -102,6 +84,7 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   updateNetworkStatus () {
+    throw new Error('Method [updateNetworkStatus] not implemented!')
   }
 
   /**
@@ -110,6 +93,7 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   rebuild (nblocks) {
+    throw new Error('Method [rebuild] not implemented!')
   }
 
   /**
@@ -117,8 +101,8 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   async resetState () {
-    this.pauseQueues()
-    this.clearQueues()
+    this.queue.pause()
+    this.queue.clear(stateMachine)
 
     stateMachine.state = {
       blockchain: stateMachine.initialState,
@@ -127,7 +111,7 @@ module.exports = class BlockchainManager {
       lastDownloadedBlock: null
     }
 
-    this.resumeQueues()
+    this.queue.resume()
     return this.start()
   }
 
@@ -139,7 +123,7 @@ module.exports = class BlockchainManager {
   postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
 
-    return this.getTransactionHandler().addTransactions(transactions)
+    return this.transactionPool.addTransactions(transactions)
   }
 
   /**
@@ -147,7 +131,7 @@ module.exports = class BlockchainManager {
    * @param  {Block} block
    * @return {void}
    */
-  postBlock (block) {
+  queueBlock (block) {
     logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
 
     if (stateMachine.state.started) {
@@ -162,16 +146,16 @@ module.exports = class BlockchainManager {
    * Rollback all blocks up to the previous round.
    * @return {void}
    */
-  async deleteBlocksToLastRound () {
+  async rollbackCurrentRound () {
     const deleteLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
-      await this.getDatabaseConnection().deleteBlock(lastBlock)
-      const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
+      await this.database.deleteBlock(lastBlock)
+      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    const height = stateMachine.state.lastBlock.data.height
+    const height = this.getLastBlock(true).height
     const maxDelegates = this.config.getConstants(height).activeDelegates
     const previousRound = Math.floor((height - 1) / maxDelegates)
 
@@ -180,14 +164,16 @@ module.exports = class BlockchainManager {
     }
 
     const newHeigth = previousRound * maxDelegates
-    logger.info('Removing ' + (height - newHeigth) + ' blocks to start from current round')
-
-    while (stateMachine.state.lastBlock.data.height >= newHeigth) {
+    logger.info(`Removing ${height - newHeigth} blocks to reset current round`)
+    let count = 0
+    const max = this.getLastBlock(true).height - newHeigth
+    while (this.getLastBlock(true).height >= newHeigth) {
+      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock(true).id + ', height: ' + this.getLastBlock(true).height)
       await deleteLastBlock()
     }
+    logger.stopTracker(`${max} blocks removed`, count, max)
 
-    logger.info('Blocks removed')
-    await this.getDatabaseConnection().deleteRound(previousRound + 1)
+    await this.database.deleteRound(previousRound + 1)
   }
 
   /**
@@ -199,11 +185,11 @@ module.exports = class BlockchainManager {
     const undoLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
 
-      await this.getDatabaseConnection().undoBlock(lastBlock)
-      await this.getDatabaseConnection().deleteBlock(lastBlock)
-      await this.getTransactionHandler().undoBlock(lastBlock)
+      await this.database.undoBlock(lastBlock)
+      await this.database.deleteBlock(lastBlock)
+      await this.transactionPool.addTransactions(lastBlock.transactions)
 
-      const newLastBlock = await this.getDatabaseConnection().getBlock(lastBlock.data.previousBlock)
+      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
@@ -213,46 +199,18 @@ module.exports = class BlockchainManager {
         return
       }
 
-      logger.info(`Undoing block ${stateMachine.state.lastBlock.data.height}`)
+      logger.info(`Undoing block ${this.getLastBlock(true).height}`)
 
       await undoLastBlock()
       await __removeBlocks(nblocks - 1)
     }
 
-    logger.info(`Starting ${nblocks} blocks undo from height ${stateMachine.state.lastBlock.data.height}`)
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height}`)
 
-    this.pauseQueues()
-    this.clearQueues()
+    this.queue.pause()
+    this.queue.clear(stateMachine)
     await __removeBlocks(nblocks)
-    this.resumeQueues()
-  }
-
-  /**
-   * Pause all queues.
-   * @return {void}
-   */
-  pauseQueues () {
-    this.rebuildQueue.pause()
-    this.processQueue.pause()
-  }
-
-  /**
-   * Flush all queues.
-   * @return {void}
-   */
-  clearQueues () {
-    this.rebuildQueue.remove(() => true)
-    stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
-    this.processQueue.remove(() => true)
-  }
-
-  /**
-   *  Resue all queues.
-   * @return {void}
-   */
-  resumeQueues () {
-    this.rebuildQueue.resume()
-    this.processQueue.resume()
+    this.queue.resume()
   }
 
   /**
@@ -261,65 +219,65 @@ module.exports = class BlockchainManager {
    * @param  {Block}  nextBlock
    * @return {Boolean}
    */
-  isChained (block, nextBlock) {
+  __isChained (block, nextBlock) {
     return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
   }
 
   /**
    * Hande a block during a rebuild.
    * @param  {Block} block
-   * @param  {Object} state
-   * @param  {Function} qcallback
+   * @param  {Function} callback
    * @return {Object}
    */
-  async rebuildBlock (block, state, qcallback) {
+  async rebuildBlock (block, callback) {
+    const state = stateMachine.state
+
     if (block.verification.verified) {
-      if (this.isChained(state.lastBlock, block)) {
+      if (this.__isChained(state.lastBlock, block)) {
         // save block on database
-        await this.getDatabaseConnection().saveBlockAsync(block)
+        await this.database.saveBlockAsync(block)
         // committing to db every 10,000 blocks
-        if (block.data.height % 10000 === 0) await this.getDatabaseConnection().saveBlockCommit()
+        if (block.data.height % 10000 === 0) await this.database.saveBlockCommit()
         state.lastBlock = block
-        qcallback()
-      } else if (block.data.height > state.lastBlock.data.height + 1) {
-        logger.info(`Block disregarded because blockchain not ready to accept it ${block.data.height} lastBlock ${state.lastBlock.data.height}`)
+        callback()
+      } else if (block.data.height > this.getLastBlock(true).height + 1) {
+        logger.info(`Block ${block.data.height} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock(true).height}`)
         state.lastDownloadedBlock = state.lastBlock
-        qcallback()
-      } else if (block.data.height < state.lastBlock.data.height || (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id)) {
-        logger.debug('Block disregarded because already in blockchain')
-        qcallback()
+        callback()
+      } else if (block.data.height < this.getLastBlock(true).height || (block.data.height === this.getLastBlock(true).height && block.data.id === this.getLastBlock(true).id)) {
+        logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
+        callback()
       } else {
         state.lastDownloadedBlock = state.lastBlock
-        logger.info('Block disregarded because on a fork')
-        qcallback()
+        logger.info(`Block ${block.data.height} disregarded because on a fork`)
+        callback()
       }
     } else {
-      logger.warn('Block disregarded because verification failed. Tentative to hack the network 💣')
-      qcallback()
+      logger.warn(`Block ${block.data.height} disregarded because verification failed`)
+      callback()
     }
   }
 
   /**
    * Process the given block.
    * @param  {Block} block
-   * @param  {Object} state
-   * @param  {Function} qcallback
+   * @param  {Function} callback
    * @return {(Function|void)}
    */
-  async processBlock (block, state, qcallback) {
+  async processBlock (block, callback) {
     if (!block.verification.verified) {
-      logger.warn('Block disregarded because verification failed. Tentative to hack the network 💣')
+      logger.warn(`Block ${block.data.height} disregarded because verification failed`)
 
-      return qcallback()
+      return callback()
     }
 
-    if (this.isChained(state.lastBlock, block)) {
-      await this.acceptChainedBlock(block, state)
-    } else {
-      await this.manageUnchainedBlock(block, state)
-    }
+    const state = stateMachine.state
 
-    qcallback()
+    this.__isChained(state.lastBlock, block)
+      ? await this.acceptChainedBlock(block, state)
+      : await this.manageUnchainedBlock(block, state)
+
+    callback()
   }
 
   /**
@@ -330,16 +288,16 @@ module.exports = class BlockchainManager {
    */
   async acceptChainedBlock (block, state) {
     try {
-      await this.getDatabaseConnection().applyBlock(block)
-      await this.getDatabaseConnection().saveBlock(block)
+      await this.database.applyBlock(block)
+      await this.database.saveBlock(block)
       state.lastBlock = block
 
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) {
-        this.getNetworkInterface().broadcastBlock(block)
+        this.p2p.broadcastBlock(block)
       }
 
-      this.getTransactionHandler().removeForgedTransactions(block.transactions)
+      this.transactionPool.removeTransactions(block.transactions)
     } catch (error) {
       logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
@@ -357,19 +315,19 @@ module.exports = class BlockchainManager {
    * @return {void}
    */
   async manageUnchainedBlock (block, state) {
-    if (block.data.height > state.lastBlock.data.height + 1) {
-      logger.info(`blockchain not ready to accept new block at height ${block.data.height}, lastBlock ${state.lastBlock.data.height}`)
-    } else if (block.data.height < state.lastBlock.data.height) {
-      logger.debug('Block disregarded because already in blockchain')
-    } else if (block.data.height === state.lastBlock.data.height && block.data.id === state.lastBlock.data.id) {
-      logger.debug('Block just received')
+    if (block.data.height > this.getLastBlock(true).height + 1) {
+      logger.info(`Blockchain not ready to accept new block at height ${block.data.height}. Last block: ${this.getLastBlock(true).height}`)
+    } else if (block.data.height < this.getLastBlock(true).height) {
+      logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
+    } else if (block.data.height === this.getLastBlock(true).height && block.data.id === this.getLastBlock(true).id) {
+      logger.debug(`Block ${block.data.height} just received`)
     } else {
-      const isValid = await this.getDatabaseConnection().validateForkedBlock(block)
+      const isValid = await this.database.validateForkedBlock(block)
 
       if (isValid) {
         this.dispatch('FORK')
       } else {
-        logger.info(`Forked block disregarded because it is not allowed to forge, looks like an attack by delegate ${block.data.generatorPublicKey} 💣`)
+        logger.info(`Forked block disregarded because it is not allowed to forge. Caused by delegate: ${block.data.generatorPublicKey}`)
       }
     }
   }
@@ -382,12 +340,12 @@ module.exports = class BlockchainManager {
    */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     let retItems = forForging
-      ? await this.getTransactionHandler().getTransactionsForForging(0, blockSize)
-      : await this.getTransactionHandler().getUnconfirmedTransactions(0, blockSize)
+      ? await this.transactionPool.getTransactionsForForging(0, blockSize)
+      : await this.transactionPool.getTransactions(0, blockSize)
 
     return {
       transactions: retItems,
-      poolSize: await this.getTransactionHandler().getPoolSize(),
+      poolSize: await this.transactionPool.getPoolSize(),
       count: retItems ? retItems.length : -1
     }
   }
@@ -398,7 +356,7 @@ module.exports = class BlockchainManager {
    * @return {Boolean}
    */
   isSynced (block) {
-    block = block || stateMachine.state.lastBlock.data
+    block = block || this.getLastBlock(true)
 
     return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
@@ -409,13 +367,27 @@ module.exports = class BlockchainManager {
    * @return {Boolean}
    */
   isRebuildSynced (block) {
-    block = block || stateMachine.state.lastBlock.data
+    block = block || this.getLastBlock(true)
     logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
 
     return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
   /**
+   * TODO: refactor to "get lastBlock()"
+   *
+   * Get the last block of the blockchain.
+   * @return {Object}
+   */
+  getLastBlock (onlyData = false) {
+    const block = stateMachine.state.lastBlock
+
+    return onlyData ? block.data : block
+  }
+
+  /**
+   * TODO: refactor to "get state()"
+   *
    * Get the state of the blockchain.
    * @return {Object}
    */
@@ -424,52 +396,50 @@ module.exports = class BlockchainManager {
   }
 
   /**
+   * TODO: refactor to "get state()"
+   *
+   * Get the state machine.
+   * @return {Object}
+   */
+  get stateMachine () {
+    return stateMachine
+  }
+
+  /**
    * Get the network (p2p) interface.
    * @return {P2PInterface}
    */
-  getNetworkInterface () {
+  get p2p () {
     return pluginManager.get('p2p')
   }
 
   /**
    * Get the transaction handler.
-   * @return {TransactionPoolHandler}
+   * @return {TransactionPool}
    */
-  getTransactionHandler () {
-    return pluginManager.get('transaction-handler')
+  get transactionPool () {
+    return pluginManager.get('transactionPool')
   }
 
   /**
    * Get the database connection.
    * @return {ConnectionInterface}
    */
-  getDatabaseConnection () {
+  get database () {
     return pluginManager.get('database')
   }
 
   /**
-   * Initialise the process queue.
+   * Register the block queue.
    * @return {void}
    */
-  __setupProcessQueue () {
-    this.processQueue = async.queue(
-      (block, qcallback) => this.processBlock(new Block(block), stateMachine.state, qcallback),
-      1
-    )
+  __registerQueue () {
+    this.queue = new Queue(this, {
+      process: 'PROCESSFINISHED',
+      rebuild: 'REBUILDFINISHED'
+    })
 
-    this.processQueue.drain = () => this.dispatch('PROCESSFINISHED')
-  }
-
-  /**
-   * Initialise the rebuild queue.
-   * @return {void}
-   */
-  __setupRebuildQueue () {
-    this.rebuildQueue = async.queue(
-      (block, qcallback) => this.rebuildQueue.paused ? qcallback() : this.rebuildBlock(new Block(block), stateMachine.state, qcallback),
-      1
-    )
-
-    this.rebuildQueue.drain = () => this.dispatch('REBUILDFINISHED')
+    this.processQueue = this.queue.process
+    this.rebuildQueue = this.queue.rebuild
   }
 }

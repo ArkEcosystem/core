@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
@@ -10,7 +10,7 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
  */
 module.exports = async (config) => {
   if (!config.enabled) {
-    return logger.info('Oh snap! Public API not enabled')
+    return logger.info('Public API is not enabled')
   }
 
   const baseConfig = {
@@ -95,7 +95,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Oh hapi day! Public API is listening on ${server.info.uri}`)
+    logger.info(`Public API is available and listening on ${server.info.uri}`)
 
     return server
   } catch (error) {

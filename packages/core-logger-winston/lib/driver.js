@@ -1,8 +1,9 @@
-'use strict';
+'use strict'
 
 const winston = require('winston')
 const { LoggerInterface } = require('@arkecosystem/core-logger')
 require('colors')
+let tracker = null
 
 module.exports = class Logger extends LoggerInterface {
   /**
@@ -33,15 +34,21 @@ module.exports = class Logger extends LoggerInterface {
    */
   printTracker (title, current, max, posttitle, figures = 0) {
     const progress = 100 * current / max
+
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
     line += ('='.repeat(progress / 2)).green
     line += ' '.repeat(50 - progress / 2) + '] '
     line += progress.toFixed(figures) + '% '
-    if (posttitle) line += posttitle + '                     '
+
+    if (posttitle) {
+      line += posttitle + '                     '
+    }
+
     process.stdout.write(line)
-    this.tracker = line
+
+    tracker = line
   }
 
   /**
@@ -52,17 +59,26 @@ module.exports = class Logger extends LoggerInterface {
    * @return {void}
    */
   stopTracker (title, current, max) {
-    const progress = 100 * current / max
+    let progress = 100 * current / max
+
+    if (progress > 100) {
+      progress = 100
+    }
+
     let line = '\u{1b}[0G  '
     line += title.blue
     line += ' ['
     line += ('='.repeat(progress / 2)).green
     line += ' '.repeat(50 - progress / 2) + '] '
     line += progress.toFixed(0) + '% '
-    if (current === max) line += '✔️'
+
+    if (current === max) {
+      line += '✔️'
+    }
+
     line += '                              \n'
     process.stdout.write(line)
-    this.tracker = null
+    tracker = null
   }
 
   /**
@@ -85,9 +101,9 @@ module.exports = class Logger extends LoggerInterface {
    */
   __registerFilters () {
     this.driver.filters.push((level, message, meta) => {
-      if (this.tracker) {
+      if (tracker) {
         process.stdout.write('\u{1b}[0G                                                                                                     \u{1b}[0G')
-        this.tracker = null
+        tracker = null
       }
 
       return message

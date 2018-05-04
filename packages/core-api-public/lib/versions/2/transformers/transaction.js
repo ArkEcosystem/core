@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const state = pluginManager.get('blockchain').getState()
+const blockchain = pluginManager.get('blockchain')
 
 const client = require('@arkecosystem/client')
 const { crypto } = client
@@ -17,6 +17,7 @@ const formatTimestamp = require('./utils/format-timestamp')
  */
 module.exports = (model) => {
   const data = Transaction.deserialize(model.serialized.toString('hex'))
+  const lastBlock = blockchain.getLastBlock(true)
 
   return {
     id: data.id,
@@ -29,7 +30,7 @@ module.exports = (model) => {
     signature: data.signature,
     vendorField: data.vendorField,
     asset: data.asset,
-    confirmations: state.lastBlock ? state.lastBlock.data.height - model.block.height : 0,
+    confirmations: lastBlock ? lastBlock.height - model.block.height : 0,
     timestamp: formatTimestamp(data.timestamp)
   }
 }

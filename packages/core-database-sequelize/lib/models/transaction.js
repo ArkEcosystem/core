@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Define the transaction model.
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.STRING(64)
     },
-    version: DataTypes.SMALLINT,
+    version: DataTypes.SMALLINT, // TODO
     blockId: {
       type: DataTypes.STRING(64),
       // very bad practice to disable references, easy to corrupt database...

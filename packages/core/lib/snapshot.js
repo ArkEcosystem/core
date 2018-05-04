@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 
@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init(config, {
+  pluginManager.init({ data: options.data, config }, {
     include: [
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
@@ -27,11 +27,9 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', {config})
+  await pluginManager.hook('init', { config: options.config })
   await pluginManager.hook('beforeCreate')
   await pluginManager.hook('beforeMount')
 
   pluginManager.get('database').snapshot()
-
-  pluginManager.get('logger').info('Snapshot saved')
 }

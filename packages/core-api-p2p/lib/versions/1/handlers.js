@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const logger = pluginManager.get('logger')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -36,11 +36,16 @@ exports.getPeers = {
  * @type {Object}
  */
 exports.getHeight = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return {
       success: true,
-      height: blockchainManager.getState().lastBlock.data.height,
-      id: blockchainManager.getState().lastBlock.data.id
+      height: blockchain.getLastBlock(true).height,
+      id: blockchain.getLastBlock(true).id
     }
   }
 }
@@ -58,12 +63,12 @@ exports.getCommonBlock = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchainManager.getDatabaseConnection().getCommonBlock(ids)
+      const commonBlock = await blockchain.database.getCommonBlock(ids)
 
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchainManager.getState().lastBlock.data.height
+        lastBlockHeight: blockchain.getLastBlock(true).height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
@@ -84,7 +89,7 @@ exports.getTransactionsFromIds = {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await blockchainManager.getDatabaseConnection().getTransactionsFromIds(txids)
+      const transactions = await blockchain.database.getTransactionsFromIds(txids)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -97,6 +102,11 @@ exports.getTransactionsFromIds = {
  * @type {Object}
  */
 exports.getTransactions = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     return { success: true, transactions: [] }
   }
@@ -106,8 +116,13 @@ exports.getTransactions = {
  * @type {Object}
  */
 exports.getStatus = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
-    const lastBlock = blockchainManager.getState().lastBlock
+    const lastBlock = blockchain.getLastBlock()
     if (!lastBlock) {
       return {
         success: false
@@ -128,11 +143,16 @@ exports.getStatus = {
  * @type {Object}
  */
 exports.postBlock = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
     // console.log(request.payload)
     if (!request.payload.block) return { success: false }
 
-    blockchainManager.postBlock(request.payload.block)
+    blockchain.queueBlock(request.payload.block)
     return { success: true }
   }
 }
@@ -150,7 +170,7 @@ exports.postTransactions = {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
 
-    blockchainManager.postTransactions(transactions)
+    blockchain.postTransactions(transactions)
 
     return { success: true, transactionIds: [] }
   }
@@ -167,7 +187,7 @@ exports.getBlocks = {
    */
   handler: async (request, h) => {
     try {
-      const blocks = await blockchainManager.getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await blockchain.database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

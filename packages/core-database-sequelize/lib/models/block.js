@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Define the block model.
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.STRING(64)
     },
-    version: DataTypes.SMALLINT,
+    version: DataTypes.SMALLINT, // TODO
     timestamp: {
       unique: true,
       type: DataTypes.INTEGER
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       type: DataTypes.INTEGER
     },
-    numberOfTransactions: DataTypes.INTEGER,
+    numberOfTransactions: DataTypes.INTEGER, // TODO
     totalAmount: DataTypes.BIGINT,
     totalFee: DataTypes.BIGINT,
     reward: DataTypes.BIGINT,

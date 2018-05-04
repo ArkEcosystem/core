@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 let connection
 
@@ -39,9 +39,9 @@ describe('Sequelize Connection', () => {
     })
   })
 
-  describe('saveRounds', async () => {
+  describe('saveRound', async () => {
     it('should be a function', async () => {
-      await expect(connection.saveRounds).toBeFunction()
+      await expect(connection.saveRound).toBeFunction()
     })
   })
 
@@ -159,9 +159,9 @@ describe('Sequelize Connection', () => {
     })
   })
 
-  describe('__registerRepositories', async () => {
+  describe('_registerRepositories', async () => {
     it('should be a function', async () => {
-      await expect(connection.__registerRepositories).toBeFunction()
+      await expect(connection._registerRepositories).toBeFunction()
     })
   })
 })

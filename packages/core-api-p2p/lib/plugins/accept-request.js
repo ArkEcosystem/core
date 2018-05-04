@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const requestIp = require('request-ip')
 const isLocalhost = require('../utils/is-localhost')

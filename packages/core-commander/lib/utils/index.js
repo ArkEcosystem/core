@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const pm2 = require('pm2')
 const fs = require('fs')
@@ -9,7 +9,7 @@ const clear = require('clear')
 const figlet = require('figlet')
 
 exports.readPluginConfig = (plugin) => {
-  const config = require(`${process.env.ARK_CONFIG}/plugins`)
+  const config = require(`${process.env.ARK_PATH_CONFIG}/plugins`)
 
   let plugins = {}
   Object.values(config).forEach(c => Object.assign(plugins, c))
@@ -17,9 +17,9 @@ exports.readPluginConfig = (plugin) => {
   return plugins[plugin]
 }
 
-exports.readConfig = (file) => require(`${process.env.ARK_CONFIG}/${file}.json`)
+exports.readConfig = (file) => require(`${process.env.ARK_PATH_CONFIG}/${file}.json`)
 
-exports.writeConfig = async (file, data) => writeFile(`${process.env.ARK_CONFIG}/${file}.json`, JSON.stringify(data, null, 2))
+exports.writeConfig = async (file, data) => writeFile(`${process.env.ARK_PATH_CONFIG}/${file}.json`, JSON.stringify(data, null, 2))
 
 exports.splash = async () => {
   clear()

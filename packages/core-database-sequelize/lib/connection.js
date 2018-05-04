@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Sequelize = require('sequelize')
 const crypto = require('crypto')
@@ -8,7 +8,7 @@ const path = require('path')
 const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 
-const { Connection } = require('@arkecosystem/core-database')
+const { ConnectionInterface } = require('@arkecosystem/core-database')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
@@ -19,23 +19,7 @@ const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
 const { TRANSACTION_TYPES } = client.constants
 
-module.exports = class SequelizeConnection extends Connection {
-  /**
-   * Connect to the database.
-   * @return {Boolean}
-   */
-  async connect () {
-    return this.connection.authenticate()
-  }
-
-  /**
-   * Disconnect from the database.
-   * @return {Boolean}
-   */
-  async disconnect () {
-    return this.connection.close()
-  }
-
+module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
    * Make the database connection instance.
    * @return {SequelizeConnection}
@@ -66,14 +50,29 @@ module.exports = class SequelizeConnection extends Connection {
       await this.__runMigrations()
       await this.__registerModels()
       await this.__registerRepositories()
-      await super.__registerWalletManager()
+      await super._registerWalletManager()
 
       return this
     } catch (error) {
-      logger.error('Unable to connect to the database:')
-      logger.error(error.stack)
+      logger.error('Unable to connect to the database', error.stack)
       process.exit(1)
     }
+  }
+
+  /**
+   * Connect to the database.
+   * @return {Boolean}
+   */
+  async connect () {
+    return this.connection.authenticate()
+  }
+
+  /**
+   * Disconnect from the database.
+   * @return {Boolean}
+   */
+  async disconnect () {
+    return this.connection.close()
   }
 
   /**
@@ -90,9 +89,7 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     let data = await this.models.round.findAll({
-      where: {
-        round: round
-      },
+      where: { round },
       order: [[ 'balance', 'DESC' ], [ 'publicKey', 'ASC' ]]
     }).map(del => del.dataValues)
 
@@ -119,8 +116,9 @@ module.exports = class SequelizeConnection extends Connection {
    * @param  {Array} activeDelegates
    * @return {Array}
    */
-  saveRounds (activeDelegates) {
-    logger.info(`saving round ${activeDelegates[0].round}`)
+  saveRound (activeDelegates) {
+    logger.info(`Saving round ${activeDelegates[0].round}`)
+
     return this.models.round.bulkCreate(activeDelegates)
   }
 
@@ -184,7 +182,7 @@ module.exports = class SequelizeConnection extends Connection {
       .slice(0, maxDelegates)
       .map(a => ({...{round: round}, ...a.dataValues}))
 
-    logger.debug(`generated ${data.length} active delegates`)
+    logger.debug(`Loaded ${data.length} active delegates`)
 
     return data
   }
@@ -196,11 +194,19 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async buildWallets (height) {
     this.walletManager.reset()
+
+    const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
+    if (fs.existsSync(spvPath)) {
+      fs.removeSync(spvPath)
+      logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+      return this.loadWallets()
+    }
+
     const maxDelegates = config.getConstants(height).activeDelegates
 
     try {
       // Received TX
-      logger.printTracker('SPV Building', 1, 7, 'received transactions')
+      logger.printTracker('SPV Building', 1, 7, 'Received transactions')
       let data = await this.models.transaction.findAll({
         attributes: [
           'recipientId',
@@ -215,12 +221,12 @@ module.exports = class SequelizeConnection extends Connection {
         if (wallet) {
           wallet.balance = parseInt(row.amount)
         } else {
-          logger.warn(`lost cold wallet: ${row.recipientId} ${row.amount}`)
+          logger.warn(`Lost cold wallet: ${row.recipientId} ${row.amount}`)
         }
       })
 
       // Block Rewards
-      logger.printTracker('SPV Building', 2, 7, 'block rewards')
+      logger.printTracker('SPV Building', 2, 7, 'Block rewards')
       data = await this.connection.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {type: Sequelize.QueryTypes.SELECT})
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
@@ -243,12 +249,12 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         group: 'senderPublicKey'
       })
-      logger.printTracker('SPV Building', 3, 7, 'sent transactions')
+      logger.printTracker('SPV Building', 3, 7, 'Sent transactions')
       data.forEach(row => {
         let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
-        if (wallet.balance < 0) {
-          logger.warn(`Negative balance should never happen except from premining address: ${wallet}`)
+        if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
+          logger.warn(`Negative balance: ${wallet}`)
         }
       })
 
@@ -260,7 +266,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.SECOND_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 4, 7, 'second signatures')
+      logger.printTracker('SPV Building', 4, 7, 'Second signatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
@@ -274,7 +280,7 @@ module.exports = class SequelizeConnection extends Connection {
         ],
         where: {type: TRANSACTION_TYPES.DELEGATE}}
       )
-      logger.printTracker('SPV Building', 5, 7, 'delegates')
+      logger.printTracker('SPV Building', 5, 7, 'Delegates')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
@@ -290,7 +296,7 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.VOTE}}
       )
-      logger.printTracker('SPV Building', 6, 7, 'votes')
+      logger.printTracker('SPV Building', 6, 7, 'Votes')
 
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -310,7 +316,7 @@ module.exports = class SequelizeConnection extends Connection {
         order: [[ 'createdAt', 'DESC' ]],
         where: {type: TRANSACTION_TYPES.MULTI_SIGNATURE}}
       )
-      logger.printTracker('SPV Building', 7, 7, 'multisignatures')
+      logger.printTracker('SPV Building', 7, 7, 'Multisignatures')
       data.forEach(row => {
         const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
@@ -318,12 +324,25 @@ module.exports = class SequelizeConnection extends Connection {
 
       logger.stopTracker('SPV Building', 7, 7)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
-      logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+      logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.walletsByUsername).length}`)
+
+      await this.__registerListeners()
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
       logger.error(error.stack)
     }
+  }
+
+  /**
+   * Load all wallets from database.
+   * @return {void}
+   */
+  async loadWallets () {
+    const wallets = await this.models.wallet.findAll()
+    wallets.forEach(wallet => this.walletManager.reindex(wallet.dataValues))
+
+    return this.walletManager.walletsByAddress || []
   }
 
   /**
@@ -347,6 +366,7 @@ module.exports = class SequelizeConnection extends Connection {
       delegates.forEach(delegate => {
         let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
         if (idx === -1) {
           wallet.missedBlocks++
 
@@ -371,6 +391,7 @@ module.exports = class SequelizeConnection extends Connection {
   async saveWallets (force) {
     const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
     const chunk = 5000
+
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
     for (let i = 0, j = wallets.length; i < j; i += chunk) {
       await this.connection.transaction(t =>
@@ -379,6 +400,8 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     logger.info('Rebuilt wallets saved')
+
+    this.walletManager.purgeEmptyNonDelegates()
 
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
@@ -391,6 +414,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async saveBlock (block) {
     let transaction
+
     try {
       transaction = await this.connection.transaction()
       await this.models.block.create(block.data, {transaction})
@@ -423,17 +447,19 @@ module.exports = class SequelizeConnection extends Connection {
    * @return {void}
    */
   async saveBlockCommit () {
-    if (!this.asyncTransaction) return
-    logger.debug('Committing DB transaction')
+    if (!this.asyncTransaction) {
+      return
+    }
+
+    logger.debug('Committing database transaction')
+
     try {
       await this.asyncTransaction.commit()
     } catch (error) {
       logger.error(error)
-      logger.error('boom')
-
-      logger.error(error.sql)
       await this.asyncTransaction.rollback()
     }
+
     this.asyncTransaction = null
   }
 
@@ -471,9 +497,7 @@ module.exports = class SequelizeConnection extends Connection {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
-      where: {
-        id: id
-      }
+      where: { id }
     })
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
@@ -519,6 +543,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async getForgedTransactionsIds (txids) {
     const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+
     return rows.map(tx => tx.id)
   }
 
@@ -581,6 +606,7 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async getBlockHeaders (offset, limit) {
     const last = offset + limit
+
     const blocks = await this.models.block.findAll({
       attributes: {
         exclude: ['createdAt', 'updatedAt']
@@ -654,6 +680,32 @@ module.exports = class SequelizeConnection extends Connection {
       this[key] = new value(this) // eslint-disable-line new-cap
     }
 
-    await super.__registerRepositories()
+    await super._registerRepositories()
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('wallet:cold:created', async coldWallet => {
+      try {
+        const wallet = await this.models.wallet.findOne({
+          where: { address: coldWallet.address }
+        })
+
+        if (wallet) {
+          Object.keys(wallet.dataValues).forEach(key => {
+            if (['balance'].indexOf(key) !== -1) {
+              return
+            }
+
+            coldWallet[key] = wallet[key]
+          })
+        }
+      } catch (err) {
+        logger.error(err)
+      }
+    })
   }
 }

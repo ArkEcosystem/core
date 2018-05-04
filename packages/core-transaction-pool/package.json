@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-transaction-pool",
+  "description": "Transaction Pool Manager for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
+    "lint": "eslint ./ --fix"
+  }
+}

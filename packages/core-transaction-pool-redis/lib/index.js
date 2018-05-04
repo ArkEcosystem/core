@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const TransactionHandler = require('./handler')
+const RedisConnection = require('./connection')
 
 /**
  * The struct used by the plugin manager.
@@ -9,10 +9,13 @@ const TransactionHandler = require('./handler')
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
-  alias: 'transaction-handler',
+  alias: 'transactionPool',
   register: async (manager, options) => {
-    manager.get('logger').info('Starting Transaction Pool...')
+    manager.get('logger').info('Establishing Transaction Pool Connection...')
 
-    return new TransactionHandler(options)
+    const transactionPoolManager = manager.get('transactionPoolManager')
+    await transactionPoolManager.makeConnection(new RedisConnection(options))
+
+    return transactionPoolManager.connection()
   }
 }

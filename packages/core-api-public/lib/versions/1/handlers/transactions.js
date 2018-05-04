@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
 const Boom = require('boom')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
@@ -51,7 +51,9 @@ exports.show = {
   handler: async (request, h) => {
     const result = await database.transactions.findById(request.query.id)
 
-    if (!result) return utils.respondWith('No transactions found', true)
+    if (!result) {
+      return utils.respondWith('No transactions found', true)
+    }
 
     return utils.respondWith({ transaction: utils.toResource(request, result, 'transaction') })
   },
@@ -74,12 +76,13 @@ exports.unconfirmed = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
+    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await blockchainManager.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await blockchain.transactionPool.getTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -98,11 +101,12 @@ exports.showUnconfirmed = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
+    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await blockchainManager.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
+    const transaction = await blockchain.transactionPool.getTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

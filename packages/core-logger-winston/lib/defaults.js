@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const expandHomeDir = require('expand-home-dir')
 const formatter = require('./formatter')
@@ -16,7 +16,7 @@ module.exports = {
     package: 'winston-daily-rotate-file',
     constructor: 'DailyRotateFile',
     options: {
-      filename: expandHomeDir('~/.ark/logs/core/devnet/') + '%DATE%.log',
+      filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/devnet/`) + '%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       level: 'debug',
       zippedArchive: true

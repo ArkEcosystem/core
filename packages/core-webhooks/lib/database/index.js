@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
@@ -37,8 +37,7 @@ class Database {
       await this.__runMigrations()
       await this.__registerModels()
     } catch (error) {
-      logger.error('Unable to connect to the database:')
-      logger.error(error.stack)
+      logger.error('Unable to connect to the database', error.stack)
     }
   }
 

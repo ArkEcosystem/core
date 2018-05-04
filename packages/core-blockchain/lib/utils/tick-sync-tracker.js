@@ -18,12 +18,11 @@ module.exports = (block) => {
   }
 
   const remainingtime = (slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
-  const title = 'Fast Synchronisation'
 
   if (block.data.timestamp - slots.getTime() < 8) {
-    logger.printTracker(title, block.data.timestamp, slots.getTime(), human(remainingtime), 3)
+    logger.printTracker('Fast Synchronisation', block.data.timestamp, slots.getTime(), human(remainingtime), 3)
   } else {
     synctracker = null
-    logger.stopTracker(title, slots.getTime(), slots.getTime())
+    logger.stopTracker('Fast Synchronisation', slots.getTime(), slots.getTime())
   }
 }

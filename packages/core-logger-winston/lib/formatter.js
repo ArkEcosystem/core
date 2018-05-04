@@ -1,7 +1,8 @@
-'use strict';
+'use strict'
 
 const chalk = require('chalk')
 const moment = require('moment')
+const emoji = require('node-emoji')
 
 /**
  * The winston message formatter.
@@ -19,7 +20,7 @@ module.exports = (info) => {
     'silly': chalk.bold.white(level)
   }[info.level]
 
-  let message = info.message || JSON.stringify(info.meta)
+  let message = emoji.emojify(info.message) || JSON.stringify(info.meta)
   message = {
     'error': chalk.bold.bgRed(message),
     'warn': chalk.bold.black.bgYellow(message),

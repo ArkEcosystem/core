@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 beforeAll(async (done) => {
   await require('../../__support__/setup')()
@@ -18,7 +18,7 @@ describe('API 1.0 - Wallets', () => {
       await utils.assertSuccessful(res)
 
       const expected = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance']
-      await expect(Object.keys(res.body.account)).toEqual(expect.arrayContaining(expected))
+      await expect(Object.keys(res.body.account)).toEqual(expect.arrayContaining(expected)) // @FIXME
 
       await expect(res.body.account.vote).toBeString()
       await expect(res.body.account.balance).toBeNumber()
@@ -73,7 +73,7 @@ describe('API 1.0 - Wallets', () => {
       const res = await utils.request('GET', 'accounts/delegates', { address: AddressActive })
       await utils.assertSuccessful(res)
 
-      await expect(Array.isArray(res.body.delegates)).toBe(true)
+      await expect(res.body.delegates).toBeArray()
       await expect(res.body.delegates[0].producedblocks).toBeNumber()
     })
 

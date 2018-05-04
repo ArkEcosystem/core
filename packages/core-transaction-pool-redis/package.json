@@ -1,10 +1,9 @@
 {
   "private": true,
   "name": "@arkecosystem/core-transaction-pool-redis",
-  "description": "Module Loader for ARK Core",
+  "description": "Transaction Pool - Redis Implementation for ARK Core",
   "version": "1.0.0",
   "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
   ],

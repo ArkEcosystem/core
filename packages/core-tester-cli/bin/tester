@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+const app = require('commander')
+
+app.version(require('../package.json').version)
+
+app
+  .command('transactions')
+  .description('send multiple transactions')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-n, --number <number>', 'number of transactions', 100)
+  .action(async (options) => require('../lib/commands/transactions')(options))
+
+app
+  .command('delegates')
+  .description('create multiple delegates')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-n, --number <number>', 'number of delegates', 100)
+  .action(async (options) => require('../lib/commands/delegates')(options))
+
+app
+  .command('votes')
+  .description('create multiple votes for a delegate')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-n, --number <number>', 'number of votes', 100)
+  .action(async (options) => require('../lib/commands/votes')(options))
+
+app
+  .command('*')
+  .action(env => {
+    app.help()
+    process.exit(0)
+  })
+
+app.parse(process.argv)

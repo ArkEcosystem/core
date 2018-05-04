@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /* eslint-disable */
 
@@ -28,6 +28,11 @@ function isNumber (value) {
 
 /**
  * @TODO - Review this module later on in the development.
+ *
+ * The register method used by hapi.js.
+ * @param  {Hapi.Server} server
+ * @param  {Object} options
+ * @return {void}
  */
 const register = async (server, options) => {
   server.ext({

@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
 module.exports = {
   driver: '@arkecosystem/core-database-sequelize',
-  snapshots: '~/.ark/snapshots'
+  snapshots: `${process.env.ARK_PATH_DATA}/snapshots`
 }

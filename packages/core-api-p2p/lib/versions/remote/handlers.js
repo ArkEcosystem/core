@@ -1,16 +1,19 @@
-'use strict';
+'use strict'
 
-const blockchainManager = require('@arkecosystem/core-plugin-manager').get('blockchain')
+const blockchain = require('@arkecosystem/core-plugin-manager').get('blockchain')
 
 /**
  * Respond with a blockchain event.
  * @type {Object}
  */
 exports.sendBlockchainEvent = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
   handler: (request, h) => {
-    const bm = blockchainManager
-
-    if (!bm[request.params.event]) {
+    if (!blockchain[request.params.event]) {
       return h.response({
         success: false,
         event: request.params.event,
@@ -18,7 +21,7 @@ exports.sendBlockchainEvent = {
       }).code(500)
     }
 
-    const event = bm[request.params.event]
+    const event = blockchain[request.params.event]
 
     request.query.param
       ? event(request.query.paramrequest.params.param)

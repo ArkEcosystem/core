@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 beforeAll(async (done) => {
   await require('../../__support__/setup')()
@@ -52,7 +52,7 @@ describe('API 1.0 - Blocks', () => {
       await expect(res.body.fees).toBeObject()
 
       // TODO adjust when environment setup properly
-      // await expect(res.body.fees).toBe(config.getConstants(blockchainManager.getState().lastBlock.data.toBe.height).fees)
+      // await expect(res.body.fees).toBe(config.getConstants(blockchain.getLastBlock(true).toBe.height).fees)
     })
   })
 

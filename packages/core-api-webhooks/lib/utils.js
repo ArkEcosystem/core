@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Boom = require('boom')
 
@@ -95,6 +95,9 @@ const toPagination = (request, data, transformerClass) => {
   }
 }
 
+/**
+ * @type {Object}
+ */
 module.exports = {
   transformResource,
   transformCollection,

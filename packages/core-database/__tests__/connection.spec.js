@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 let ConnectionInterface
 
 beforeAll(async (done) => {
   await require('./__support__/setup')()
 
-  ConnectionInterface = new (require('../lib/connection'))()
+  ConnectionInterface = new (require('../lib/interface'))()
 
   done()
 })
 
 describe('Connection Interface', () => {
   it('should be an object', async () => {
-    await expect(ConnectionInterface).toBeInstanceOf(require('../lib/connection'))
+    await expect(ConnectionInterface).toBeInstanceOf(require('../lib/interface'))
   })
 
   describe('getConnection', async () => {
@@ -99,9 +99,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveRounds', async () => {
+  describe('saveRound', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.saveRounds).toBeFunction()
+      await expect(ConnectionInterface.saveRound).toBeFunction()
     })
   })
 
@@ -171,15 +171,15 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('__registerWalletManager', async () => {
+  describe('_registerWalletManager', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.__registerWalletManager).toBeFunction()
+      await expect(ConnectionInterface._registerWalletManager).toBeFunction()
     })
   })
 
-  describe('__registerRepositories', async () => {
+  describe('_registerRepositories', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.__registerRepositories).toBeFunction()
+      await expect(ConnectionInterface._registerRepositories).toBeFunction()
     })
   })
 })

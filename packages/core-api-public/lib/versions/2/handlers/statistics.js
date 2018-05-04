@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const _ = require('lodash')
 const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
@@ -6,8 +6,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
 
 const schema = require('../schema/statistics')
 
@@ -21,15 +20,15 @@ exports.blockchain = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const lastBlock = state.lastBlock
+    const lastBlock = blockchain.getLastBlock(true)
 
-    const height = lastBlock.data.height
+    const height = lastBlock.height
     const initialSupply = config.genesisBlock.totalAmount / 10 ** 8
 
     const constants = config.getConstants(height)
     const rewardPerBlock = constants.reward / 10 ** 8
 
-    const totalSupply = config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
+    const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
 
     let delegates = await database.delegates.active(height, totalSupply)
     delegates = _.sortBy(delegates, 'productivity')

@@ -43,7 +43,7 @@ module.exports = {
       }
     },
     end: {
-      onEntry: ['rebuildingFinished']
+      onEntry: ['rebuildingComplete']
     }
   }
 }

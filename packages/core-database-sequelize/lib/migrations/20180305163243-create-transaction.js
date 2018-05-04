@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * The transactions migration.
@@ -19,7 +19,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING(64)
       },
-      version: Sequelize.SMALLINT,
+      version: Sequelize.SMALLINT, // TODO
       blockId: {
         type: Sequelize.STRING(64)
         // references: {
@@ -48,7 +48,7 @@ module.exports = {
       vendorFieldHex: Sequelize.BLOB,
       amount: Sequelize.BIGINT,
       fee: Sequelize.BIGINT,
-      serialized: Sequelize.BLOB,
+      serialized: Sequelize.BLOB(),
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

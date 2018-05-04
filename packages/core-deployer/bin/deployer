@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
 const commander = require('commander')
 const assert = require('assert-plus')
@@ -50,10 +50,10 @@ if (!process.argv.slice(2).length) {
   commander.outputHelp();
 }
 
-process.env.ARK_CONFIG = path.resolve(os.homedir(), '.ark')
+process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
-if (!fs.existsSync(process.env.ARK_CONFIG)) {
-  fs.copy(`./config/${commander.network}`, process.env.ARK_CONFIG)
+if (!fs.existsSync(process.env.ARK_PATH_CONFIG)) {
+  fs.copy(`./config/${commander.network}`, process.env.ARK_PATH_CONFIG)
 }
 
 const networkConfig = {

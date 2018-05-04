@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const _ = require('lodash')
 const fs = require('fs')
@@ -12,11 +12,11 @@ const writeFile = util.promisify(fs.writeFile)
  * @return {void}
  */
 exports.updateConfig = async (file, overwrites) => {
-  let config = require(`${process.env.ARK_CONFIG}/${file}.json`)
+  let config = require(`${process.env.ARK_PATH_CONFIG}/${file}.json`)
 
   for (let key in overwrites) {
     _.set(config, key, overwrites[key])
   }
 
-  writeFile(`${process.env.ARK_CONFIG}/${file}.json`, JSON.stringify(config, null, 2))
+  writeFile(`${process.env.ARK_PATH_CONFIG}/${file}.json`, JSON.stringify(config, null, 2))
 }

@@ -1,10 +1,9 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/delegates')
@@ -130,7 +129,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      data: config.getConstants(state.lastBlock.data.height).fees.delegate
+      data: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
   }
 }

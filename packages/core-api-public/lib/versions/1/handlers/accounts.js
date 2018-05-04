@@ -1,12 +1,11 @@
-'use strict';
+'use strict'
 
 const { crypto } = require('@arkecosystem/client')
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const database = pluginManager.get('database')
-const blockchainManager = pluginManager.get('blockchain')
-const state = blockchainManager.getState()
+const blockchain = pluginManager.get('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
@@ -42,7 +41,9 @@ exports.show = {
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
-    if (!account) return utils.respondWith('Not found', true)
+    if (!account) {
+      return utils.respondWith('Not found', true)
+    }
 
     return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
   },
@@ -67,7 +68,9 @@ exports.balance = {
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
-    if (!account) return utils.respondWith('Not found', true)
+    if (!account) {
+      return utils.respondWith('Not found', true)
+    }
 
     return utils.respondWith({
       balance: account ? account.balance : '0',
@@ -95,7 +98,9 @@ exports.publicKey = {
   handler: async (request, h) => {
     const account = await database.wallets.findById(request.query.address)
 
-    if (!account) return utils.respondWith('Not found', true)
+    if (!account) {
+      return utils.respondWith('Not found', true)
+    }
 
     return utils.respondWith({ publicKey: account.publicKey })
   },
@@ -119,7 +124,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(state.lastBlock.data.height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
   }
 }
@@ -136,10 +141,15 @@ exports.delegates = {
   handler: async (request, h) => {
     let account = await database.wallets.findById(request.query.address)
 
-    if (!account) return utils.respondWith('Address not found.', true)
-    if (!account.vote) return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
+    if (!account) {
+      return utils.respondWith('Address not found.', true)
+    }
 
-    const delegates = await database.getActiveDelegates(state.lastBlock.data.height)
+    if (!account.vote) {
+      return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
+    }
+
+    const delegates = await database.getActiveDelegates(blockchain.getLastBlock(true).height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 

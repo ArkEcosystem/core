@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Op = require('sequelize').Op
 
@@ -21,15 +21,24 @@ module.exports = (params, filters) => {
 
   if (filters.hasOwnProperty('between')) {
     for (const elem of filters['between']) {
-      if (!params[elem]) continue
+      if (!params[elem]) {
+        continue
+      }
 
-      if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to')) where[elem] = params[elem]
+      if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to')) {
+        where[elem] = params[elem]
+      }
 
       if (params[elem].hasOwnProperty('from') || params[elem].hasOwnProperty('to')) {
         where[elem] = {}
 
-        if (params[elem].hasOwnProperty('from')) where[elem][Op.gte] = params[elem].from
-        if (params[elem].hasOwnProperty('to')) where[elem][Op.lte] = params[elem].to
+        if (params[elem].hasOwnProperty('from')) {
+          where[elem][Op.gte] = params[elem].from
+        }
+
+        if (params[elem].hasOwnProperty('to')) {
+          where[elem][Op.lte] = params[elem].to
+        }
       }
     }
   }

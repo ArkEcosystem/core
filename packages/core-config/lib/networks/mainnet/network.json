@@ -23,7 +23,7 @@
       "maxTransactions": 50,
       "maxPayload": 2097152
     },
-    "epoch": "2017-03-21T13:00:00",
+    "epoch": "2017-03-21T13:00:00.000Z",
     "fees": {
       "send": 10000000,
       "vote": 100000000,

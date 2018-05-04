@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const { slots } = require('@arkecosystem/client')
 
@@ -22,7 +22,7 @@ module.exports = class Down {
     this.peers = {}
 
     if (!config.peers.list) {
-      throw new Error('No seed peers defined in config/peers.json')
+      throw new Error('No seed peers defined in peers.json')
     }
 
     config.peers.list
@@ -46,9 +46,7 @@ module.exports = class Down {
    */
   async updateNetworkStatus () {
     try {
-      // TODO: this means peer recovery is disabled in testnet but also during the test suite,
-      // which is an issue as this one specific functionality has to be available during API tests
-      if (process.env.ARK_ENV !== 'testnet') {
+      if (process.env.ARK_ENV !== 'testnet' && process.env.NODE_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
       }
@@ -125,7 +123,7 @@ module.exports = class Down {
 
       emitter.emit('peer.added', npeer)
     } catch (error) {
-      logger.debug(`Peer ${npeer} not connectable - ${error}`)
+      logger.debug(`Could not connect to peer '${npeer}' - ${error}`)
     }
   }
 
@@ -233,7 +231,7 @@ module.exports = class Down {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
-    const okForging = syncedPeers.filter(peer => peer.state.forgingAllowed && peer.state.height >= height).length
+    const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
 
     return ratio
@@ -273,7 +271,5 @@ module.exports = class Down {
    * Placeholder method to broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {
-
-  }
+  broadcastTransactions (transactions) {}
 }

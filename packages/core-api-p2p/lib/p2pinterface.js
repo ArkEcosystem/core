@@ -1,13 +1,11 @@
-'use strict';
+'use strict'
 
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const dns = require('dns')
-const Sntp = require('sntp')
 
+const checkDNS = require('./utils/check-dns')
+const checkNTP = require('./utils/check-ntp')
 const Down = require('./down')
 const Up = require('./up')
-
-const isOnline = () => new Promise((resolve, reject) => dns.lookupService('8.8.8.8', 53, (err, hostname, service) => resolve(!err)))
 
 module.exports = class P2PInterface {
   /**
@@ -21,26 +19,13 @@ module.exports = class P2PInterface {
   }
 
   /**
-   * Check if node is online.
-   */
-  async checkOnline () {
-    const online = await isOnline()
-
-    online
-      ? logger.info('Node is online, Google DNS is reachable')
-      : logger.error('Seems the node cannot access to internet (tested google DNS)')
-
-    const time = await Sntp.time()
-
-    logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP ⏰')
-  }
-
-  /**
    * Start P2P interface.
    * @param {Boolean} networkStart
    */
   async warmup (networkStart) {
-    await this.checkOnline()
+    await this.__checkDNSConnectivity()
+    await this.__checkNTPConnectivity()
+
     await this.down.start(networkStart)
     await this.up.start()
   }
@@ -48,9 +33,10 @@ module.exports = class P2PInterface {
   /**
    * Shutdown P2P interface.
    */
-  tearDown () {
-    this.down.stop()
-    this.up.stop()
+  async stop () {
+    await this.down.stop() // TODO: remove, not used
+
+    return this.up.stop()
   }
 
   /**
@@ -109,5 +95,35 @@ module.exports = class P2PInterface {
    */
   getNetworkHeight () {
     return this.down.getNetworkHeight()
+  }
+
+  /**
+   * Check if the node can connect to any DNS host.
+   * @return {void}
+   */
+  async __checkDNSConnectivity () {
+    try {
+      const host = await checkDNS(this.up.config.dns)
+
+      logger.info(`Your network connectivity has been verified by ${host}`)
+    } catch (err) {
+      logger.error(err.message)
+    }
+  }
+
+  /**
+   * Check if the node can connect to any NTP host.
+   * @return {void}
+   */
+  async __checkNTPConnectivity () {
+    try {
+      const { host, time } = await checkNTP(this.up.config.ntp)
+
+      logger.info(`Your NTP connectivity has been verified by ${host}`)
+
+      logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
+    } catch (err) {
+      logger.error(err.message)
+    }
   }
 }

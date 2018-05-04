@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
@@ -21,6 +20,7 @@
     "colors": "^1.2.1",
     "expand-home-dir": "^0.0.3",
     "moment": "^2.22.0",
+    "node-emoji": "^1.8.1",
     "winston": "^2.4.1",
     "winston-daily-rotate-file": "^3.0.2"
   }

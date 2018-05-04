@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * The blocks migration.
@@ -19,7 +19,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING(64)
       },
-      version: Sequelize.SMALLINT,
+      version: Sequelize.SMALLINT, // TODO
       timestamp: {
         unique: true,
         type: Sequelize.INTEGER
@@ -29,7 +29,7 @@ module.exports = {
         unique: true,
         type: Sequelize.INTEGER
       },
-      numberOfTransactions: Sequelize.INTEGER,
+      numberOfTransactions: Sequelize.INTEGER, // TODO
       totalAmount: Sequelize.BIGINT,
       totalFee: Sequelize.BIGINT,
       reward: Sequelize.BIGINT,

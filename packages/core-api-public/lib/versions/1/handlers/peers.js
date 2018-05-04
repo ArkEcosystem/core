@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
-const blockchainManager = pluginManager.get('blockchain')
+const blockchain = pluginManager.get('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -17,9 +17,11 @@ exports.index = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const peers = await blockchainManager.getNetworkInterface().getPeers()
+    const peers = await blockchain.p2p.getPeers()
 
-    if (!peers) return utils.respondWith('No peers found', true)
+    if (!peers) {
+      return utils.respondWith('No peers found', true)
+    }
 
     let retPeers = peers.sort(() => 0.5 - Math.random())
     retPeers = request.query.os ? peers.filter(peer => peer.os === request.query.os) : retPeers
@@ -62,13 +64,17 @@ exports.show = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const peers = await blockchainManager.getNetworkInterface().getPeers()
+    const peers = await blockchain.p2p.getPeers()
 
-    if (!peers) return utils.respondWith('No peers found', true)
+    if (!peers) {
+      return utils.respondWith('No peers found', true)
+    }
 
     const peer = peers.find(elem => { return elem.ip === request.query.ip && elem.port === +request.query.port })
 
-    if (!peer) return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
+    if (!peer) {
+      return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
+    }
 
     return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
   },

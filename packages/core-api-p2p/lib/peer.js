@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const popsicle = require('popsicle')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
@@ -49,7 +49,6 @@ module.exports = class Peer {
    */
   async get (apiEndpoint, timeout) {
     const temp = new Date().getTime()
-    const that = this
 
     try {
       const res = await popsicle.request({
@@ -59,7 +58,7 @@ module.exports = class Peer {
         timeout: timeout || 10000
       }).use(popsicle.plugins.parse('json'))
 
-      that.delay = new Date().getTime() - temp
+      this.delay = new Date().getTime() - temp
 
       this.parseHeaders(res)
 
@@ -147,8 +146,10 @@ module.exports = class Peer {
    */
   async ping (delay) {
     const body = await this.get('/peer/status', delay || 5000)
+
     if (body) {
       this.state = body
+
       return body
     }
 
@@ -160,8 +161,10 @@ module.exports = class Peer {
    * @return {Object[]}
    */
   async getPeers () {
-    logger.info(`Getting fresh peer list from ${this.url}`)
+    logger.info(`Fetching a fresh peer list from ${this.url}`)
+
     await this.ping(5000)
+
     const body = await this.get('/peer/list')
 
     return body.peers

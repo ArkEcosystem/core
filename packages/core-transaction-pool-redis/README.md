@@ -1,6 +1,6 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Transaction Pool (Redis)
+# ARK Core - Transaction Pool Redis
 
 ## Installation
 
@@ -14,10 +14,8 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [François-Xavier Thoorens](https://github.com/fix)
 - [Kristjan Košič](https://github.com/kristjank)
 - [Brian Faust](https://github.com/faustbrian)
-- [Alex Barnsley](https://github.com/alexbarnsley)
 - [All Contributors](../../../../contributors)
 
 ## License

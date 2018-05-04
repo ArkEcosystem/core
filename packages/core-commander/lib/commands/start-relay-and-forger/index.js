@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const path = require('path')
 const prompts = require('prompts')
@@ -25,7 +25,7 @@ module.exports = async () => {
           name: 'ark-core:relay-and-forger',
           script: path.resolve(__dirname, '../../../lib/start-relay-and-forger.js'),
           args: [
-            '--config', process.env.ARK_CONFIG,
+            '--config', process.env.ARK_PATH_CONFIG,
             '--bip38', bip38,
             '--address', address,
             '--password', response.password

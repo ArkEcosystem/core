@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const JsonDriver = require('./driver')
 const { client } = require('@arkecosystem/client')

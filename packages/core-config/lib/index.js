@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const configManager = require('./manager')
 
@@ -17,10 +17,3 @@ exports.plugin = {
  * @type {ConfigInterface}
  */
 exports.ConfigInterface = require('./interface')
-
-/**
- * Get the target directory for the given name.
- * @param  {String} name
- * @return {String}
- */
-exports.getTargetDirectory = (name) => require('expand-home-dir')(`~/.ark/${name}`)

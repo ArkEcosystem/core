@@ -62,7 +62,10 @@ module.exports = class Block {
    * @param {Object} data - The data of the block
    */
   constructor (data) {
-    if (!data.transactions) data.transactions = []
+    if (!data.transactions) {
+      data.transactions = []
+    }
+
     this.serialized = Block.serializeFull(data).toString('hex')
     this.data = Block.deserialize(this.serialized)
 
@@ -88,6 +91,7 @@ module.exports = class Block {
     delete this.data.transactions
 
     this.verification = this.verify()
+
     if (!this.verification.verified && this.data.height !== 1) {
       console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
@@ -104,12 +108,14 @@ module.exports = class Block {
    */
   static create (data, keys) {
     data.generatorPublicKey = keys.publicKey
+
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
+
     data.blockSignature = keys.sign(hash).toDER().toString('hex')
     data.id = Block.getId(data)
-    const block = new Block(data)
-    return block
+
+    return new Block(data)
   }
 
   /*
@@ -130,6 +136,7 @@ module.exports = class Block {
 
   /*
    * Get block id
+   * TODO rename to getIdHex ?
    * @param  {Object} data
    * @return {String}
    * @static
@@ -137,6 +144,7 @@ module.exports = class Block {
   static getId (data) {
     const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
+
     for (let i = 0; i < 8; i++) {
       temp[i] = hash[7 - i]
     }
@@ -166,9 +174,8 @@ module.exports = class Block {
     const generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(generatorPublicKeyBuffer)
     const ecsignature = ECSignature.fromDER(blockSignatureBuffer)
-    const res = ecpair.verify(hash, ecsignature)
 
-    return res
+    return ecpair.verify(hash, ecsignature)
   }
 
   /*
@@ -181,6 +188,7 @@ module.exports = class Block {
       verified: false,
       errors: []
     }
+
     try {
       if (!this.transactions.reduce((acc, tx) => acc && tx.verified, true)) {
         result.errors.push('One or more transactions are not verified')
@@ -247,6 +255,7 @@ module.exports = class Block {
         if (appliedTransactions[transaction.data.id]) {
           result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
         }
+
         appliedTransactions[transaction.data.id] = transaction.data
 
         totalAmount += transaction.data.amount
@@ -274,7 +283,9 @@ module.exports = class Block {
     } catch (error) {
       result.errors.push(error)
     }
+
     result.verified = result.errors.length === 0
+
     return result
   }
 
@@ -299,19 +310,24 @@ module.exports = class Block {
     block.payloadLength = buf.readUInt32(48)
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
+
     const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
+
     let txoffset = (104 + 64 + 33 * 2 + length * 2) / 2
     block.transactions = []
+
     for (let i = 0; i < block.numberOfTransactions; i++) {
       block.transactions.push(buf.readUint32(txoffset))
       txoffset += 4
     }
+
     for (let i = 0; i < block.numberOfTransactions; i++) {
       const ltx = block.transactions[i]
       block.transactions[i] = Transaction.deserialize(buf.slice(txoffset, txoffset + ltx).toString('hex'))
       txoffset += ltx
     }
+
     return block
   }
 
@@ -325,25 +341,24 @@ module.exports = class Block {
     const buf = new ByteBuffer(1024, true)
     applyV1Fix(block)
     buf.append(Block.serialize(block, true))
+
     const txser = block.transactions.map(tx => Transaction.serialize(tx))
     txser.forEach(tx => buf.writeUInt32(tx.length))
     txser.forEach(tx => buf.append(tx))
     buf.flip()
+
     return buf.toBuffer()
   }
 
   /*
    * Serialize block
+   * TODO split this method between bufferize (as a buffer) and serialize (as hex)
    * @param  {Object} block
    * @param  {(Boolean|undefined)} includeSignature
    * @return {Buffer}
    * @static
    */
-  static serialize (block, includeSignature) {
-    if (includeSignature === undefined) {
-      includeSignature = block.blockSignature !== undefined
-    }
-
+  static serialize (block, includeSignature = true) {
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
@@ -363,7 +378,10 @@ module.exports = class Block {
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
-    if (includeSignature) bb.append(block.blockSignature, 'hex')
+
+    if (includeSignature && block.blockSignature) {
+      bb.append(block.blockSignature, 'hex')
+    }
 
     bb.flip()
     return bb.toBuffer()
@@ -373,23 +391,27 @@ module.exports = class Block {
     if (includeSignature === undefined) {
       includeSignature = block.blockSignature !== undefined
     }
-    var size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
-    var blockSignatureBuffer = null
+
+    let size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 33
+    let blockSignatureBuffer = null
 
     if (includeSignature) {
       blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
       size += blockSignatureBuffer.length
     }
-    var b, i
+
+    let b
 
     try {
-      var bb = new ByteBuffer(size, true)
+      const bb = new ByteBuffer(size, true)
       bb.writeInt(block.version)
       bb.writeInt(block.timestamp)
       bb.writeInt(block.height)
 
+      let i
+
       if (block.previousBlock) {
-        var pb = Bignum(block.previousBlock).toBuffer({size: '8'})
+        const pb = Bignum(block.previousBlock).toBuffer({size: '8'})
 
         for (i = 0; i < 8; i++) {
           bb.writeByte(pb[i])
@@ -407,12 +429,12 @@ module.exports = class Block {
 
       bb.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
+      const payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (i = 0; i < payloadHashBuffer.length; i++) {
         bb.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
+      const generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (i = 0; i < generatorPublicKeyBuffer.length; i++) {
         bb.writeByte(generatorPublicKeyBuffer[i])
       }

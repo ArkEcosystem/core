@@ -1,10 +1,13 @@
-'use strict';
+'use strict'
 
 const async = require('async')
+const fs = require('fs')
 const { crypto, slots } = require('@arkecosystem/client')
 const pluginManager = require('@arkecosystem/core-plugin-manager')
 const config = pluginManager.get('config')
 const logger = pluginManager.get('logger')
+const emitter = pluginManager.get('event-emitter')
+const blockchain = pluginManager.get('blockchain')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
@@ -15,6 +18,8 @@ module.exports = class ConnectionInterface {
   constructor (config) {
     this.config = config
     this.connection = null
+
+    this.__registerShutdownListener()
   }
 
   /**
@@ -162,8 +167,8 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveRounds (activeDelegates) {
-    throw new Error('Method [saveRounds] not implemented!')
+  saveRound (activeDelegates) {
+    throw new Error('Method [saveRound] not implemented!')
   }
 
   /**
@@ -200,14 +205,16 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
-        logger.info(`New round ${round}`)
+        logger.info(`Starting Round ${round}`)
+
         await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
+
         const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
-        await this.saveRounds(delegates) // save next round delegate list
+        await this.saveRound(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
       } else {
-        logger.info(`New round ${round} already applied. This should happen only if you are a forger`)
+        logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
       }
     }
   }
@@ -243,12 +250,13 @@ module.exports = class ConnectionInterface {
     const forgingDelegate = delegates[slot % delegates.length]
 
     if (!forgingDelegate) {
-      logger.debug('Could not decide yet if delegate ' + block.data.generatorPublicKey + ' is allowed to forge block ' + block.data.height)
+      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
     } else {
-      logger.debug('Delegate ' + block.data.generatorPublicKey + ' allowed to forge block ' + block.data.height)
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
     }
+
     return true
   }
 
@@ -280,7 +288,7 @@ module.exports = class ConnectionInterface {
   async undoBlock (block) {
     await this.undoRound(block.data.height)
     await this.walletManager.undoBlock(block)
-    // webhookManager.emit('block.removed', block)
+    emitter.emit('block.removed', block)
   }
 
   /**
@@ -359,7 +367,7 @@ module.exports = class ConnectionInterface {
    * Register the wallet manager.
    * @return {void}
    */
-  async __registerWalletManager () {
+  async _registerWalletManager () {
     this.walletManager = new WalletManager()
   }
 
@@ -367,8 +375,34 @@ module.exports = class ConnectionInterface {
    * Register the wallet and delegate repositories.
    * @return {void}
    */
-  async __registerRepositories () {
+  async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Handle any exit signals.
+   * @return {void}
+   */
+  __registerShutdownListener () {
+    const handleExit = async () => {
+      logger.info('Shutting down ARK Core')
+
+      await this.saveWallets(true)
+
+      const lastBlock = blockchain.getState().lastBlock
+      if (lastBlock) {
+        const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
+        await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
+      }
+
+      logger.info('Shutting down P2P Interface')
+      await blockchain.p2p.stop()
+
+      process.exit()
+    }
+
+    // Handle CTRL + C
+    ['SIGINT'].forEach((eventType) => process.on(eventType, handleExit))
   }
 }

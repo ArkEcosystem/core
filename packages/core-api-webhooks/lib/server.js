@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const Hapi = require('hapi')
 const logger = require('@arkecosystem/core-plugin-manager').get('logger')
@@ -10,7 +10,7 @@ const logger = require('@arkecosystem/core-plugin-manager').get('logger')
  */
 module.exports = async (config) => {
   if (!config.enabled) {
-    return logger.info('Oh snap! Webhook API not enabled...')
+    return logger.info('Webhook API is not enabled')
   }
 
   const baseConfig = {
@@ -58,7 +58,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Oh hapi day! Webhook API is listening on ${server.info.uri}`)
+    logger.info(`Webhook API available and listening on ${server.info.uri}`)
 
     return server
   } catch (error) {
