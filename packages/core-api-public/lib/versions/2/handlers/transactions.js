@@ -48,9 +48,7 @@ exports.store = {
     return { transactionIds: [] }
   },
   options: {
-    validate: schema.store
-  },
-  config: {
+    validate: schema.store,
     plugins: {
       pagination: false
     }
