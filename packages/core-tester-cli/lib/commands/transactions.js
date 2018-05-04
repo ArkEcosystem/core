@@ -9,21 +9,18 @@ module.exports = async (options, wallets) => {
   if (wallets === undefined) {
     wallets = utils.generateWallet(options.number)
   }
-  const transactions = []
-  let totalDeductions = 0
-
   const address = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
   const walletBalance = await utils.getWalletBalance(address)
 
   logger.info(`Wallet starting balance: ${walletBalance}`)
 
+  const transactions = []
+  let totalDeductions = 0
   wallets.forEach((wallet, i) => {
     const amount = 1 * Math.pow(10, 8)
     const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, config.passphrase)
-
-    totalDeductions += amount + transaction.fee
-
     transactions.push(transaction)
+    totalDeductions += amount + transaction.fee
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
