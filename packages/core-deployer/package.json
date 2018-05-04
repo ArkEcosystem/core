@@ -21,6 +21,6 @@
   "dependencies": {
     "assert-plus": "^1.0.0",
     "commander": "^2.15.1",
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.10"
   }
 }

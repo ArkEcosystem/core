@@ -17,7 +17,7 @@
     "awilix": "^3.0.7",
     "expand-home-dir": "^0.0.3",
     "hoek": "^5.0.3",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.10",
     "semver": "^5.5.0"
   }
 }

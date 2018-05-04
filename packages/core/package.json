@@ -55,6 +55,6 @@
     "@arkecosystem/core-transaction-pool": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",
-    "commander": "^2.14.0"
+    "commander": "^2.15.1"
   }
 }
