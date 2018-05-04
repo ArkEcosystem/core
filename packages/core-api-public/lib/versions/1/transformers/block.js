@@ -1,6 +1,6 @@
 'use strict'
 
-const blockchain = require('@arkecosystem/core-container').get('blockchain')
+const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
 const state = blockchain.getState()
 
 /**

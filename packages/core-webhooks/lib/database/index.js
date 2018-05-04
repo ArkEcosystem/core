@@ -5,7 +5,7 @@ const Umzug = require('umzug')
 const path = require('path')
 const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
-const logger = require('@arkecosystem/core-container').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 class Database {
   /**

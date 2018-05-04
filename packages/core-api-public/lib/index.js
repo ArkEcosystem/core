@@ -9,13 +9,13 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'public-api',
   register: async (container, options) => {
-    container.get('logger').info('Starting Public API...')
+    container.resolvePlugin('logger').info('Starting Public API...')
 
     return require('./server')(options)
   },
   deregister: async (container) => {
-    container.get('logger').info('Stopping Public API...')
+    container.resolvePlugin('logger').info('Stopping Public API...')
 
-    return container.get('public-api').stop()
+    return container.resolvePlugin('public-api').stop()
   }
 }

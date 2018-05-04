@@ -1,12 +1,12 @@
 'use strict'
 
 const expandHomeDir = require('expand-home-dir')
-const PluginRegistrar = require('./plugin-registrar')
-const { createContainer } = require('awilix')
+const PluginRegistrar = require('./registrars/plugin')
+const { createContainer, asValue } = require('awilix')
 
 class Container {
   /**
-   * Create a new plugin manager instance.
+   * Create a new container instance.
    * @constructor
    */
   constructor () {
@@ -16,7 +16,7 @@ class Container {
   }
 
   /**
-   * Initialise the plugin container.
+   * Initialise the container.
    * @param  {Object} paths
    * @param  {Object} options
    * @return {void}
@@ -25,13 +25,13 @@ class Container {
     this.__exportPaths(paths)
 
     /**
-     * TODO: Move this outside of the container as it isn't it's responsibility...
+     * TODO: Move this out eventually - not really it's responsiblity
      */
     this.plugins = new PluginRegistrar(this, options)
   }
 
   /**
-   * Get a plugin instance.
+   * Add a new registration.
    * @param  {string} key
    * @return {Object}
    * @throws {Error}
@@ -45,12 +45,26 @@ class Container {
   }
 
   /**
-   * Resolve an instance from the .
+   * Resolve a registration.
    * @param  {string} key
    * @return {Object}
    * @throws {Error}
    */
-  get (key) {
+  resolve (key) {
+    try {
+      return this.container.resolve(key)
+    } catch (err) {
+      throw new Error(err.message)
+    }
+  }
+
+  /**
+   * Resolve a plugin.
+   * @param  {string} key
+   * @return {Object}
+   * @throws {Error}
+   */
+  resolvePlugin (key) {
     try {
       return this.container.resolve(key).plugin
     } catch (err) {
@@ -59,13 +73,13 @@ class Container {
   }
 
   /**
-   * Determine if the given plugin exists.
+   * Determine if the given registration exists.
    * @param  {String}  key
    * @return {Boolean}
    */
   has (key) {
     try {
-      this.container.get(key)
+      this.container.resolve(key)
 
       return true
     } catch (err) {
@@ -74,21 +88,7 @@ class Container {
   }
 
   /**
-   * Get the configuration of a plugin.
-   * @param  {String} key
-   * @return {Object}
-   * @throws {Error}
-   */
-  config (key) {
-    try {
-      return this.container.get(key).options
-    } catch (err) {
-      throw new Error(`The service "${key}" is not available.`)
-    }
-  }
-
-  /**
-   * Export path variables before we bootstrap any plugins.
+   * Export path variables before we bootstrap anything.
    * @param  {Object} paths
    * @return {void}
    */
@@ -104,11 +104,11 @@ class Container {
    */
   __registerExitHandler () {
     const handleExit = async () => {
-      this.get('logger').info('Stopping ARK Core...')
+      this.resolvePlugin('logger').info('Stopping ARK Core...')
 
-      // await this.get('database').saveWallets(true)
+      // await this.resolvePlugin('database').saveWallets(true)
 
-      // const lastBlock = this.get('blockchain').getLastBlock()
+      // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
 
       // if (lastBlock) {
       //   const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`

@@ -3,8 +3,8 @@
 const { slots } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
-const logger = container.get('logger')
-const emitter = container.get('event-emitter')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')

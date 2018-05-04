@@ -9,5 +9,5 @@ const Blockchain = require('./blockchain')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'blockchain',
-  register: async (container, options) => new Blockchain(container.get('config'), options.networkStart)
+  register: async (container, options) => new Blockchain(container.resolvePlugin('config'), options.networkStart)
 }

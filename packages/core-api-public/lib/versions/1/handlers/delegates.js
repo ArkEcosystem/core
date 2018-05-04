@@ -1,9 +1,9 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const config = container.get('config')
-const database = container.get('database')
-const blockchain = container.get('blockchain')
+const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/delegates')

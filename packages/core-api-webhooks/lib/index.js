@@ -9,13 +9,13 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'webhooks-api',
   register: async (container, options) => {
-    container.get('logger').info('Starting Webhook API...')
+    container.resolvePlugin('logger').info('Starting Webhook API...')
 
     return require('./server')(options)
   },
   deregister: async (container) => {
-    container.get('logger').info('Stopping Webhook API...')
+    container.resolvePlugin('logger').info('Stopping Webhook API...')
 
-    return container.get('webhooks-api').stop()
+    return container.resolvePlugin('webhooks-api').stop()
   }
 }

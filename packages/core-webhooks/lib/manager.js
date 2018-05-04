@@ -4,9 +4,9 @@ const axios = require('axios')
 const Bull = require('bull')
 const map = require('lodash/map')
 const container = require('@arkecosystem/core-container')
-const logger = container.get('logger')
+const logger = container.resolvePlugin('logger')
 const database = require('./database')
-const emitter = container.get('event-emitter')
+const emitter = container.resolvePlugin('event-emitter')
 
 class WebhookManager {
   /**

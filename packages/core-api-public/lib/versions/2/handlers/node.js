@@ -1,8 +1,8 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const blockchain = container.get('blockchain')
-const config = container.get('config')
+const blockchain = container.resolvePlugin('blockchain')
+const config = container.resolvePlugin('config')
 
 /**
  * @type {Object}

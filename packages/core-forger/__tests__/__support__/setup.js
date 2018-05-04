@@ -18,5 +18,5 @@ module.exports = async () => {
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
 
-  container.get('blockchain').start()
+  container.resolvePlugin('blockchain').start()
 }

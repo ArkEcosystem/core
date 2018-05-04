@@ -2,8 +2,8 @@ const human = require('interval-to-human')
 const { slots } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
-const logger = container.get('logger')
-const config = container.get('config')
+const logger = container.resolvePlugin('logger')
+const config = container.resolvePlugin('config')
 
 let synctracker = null
 
