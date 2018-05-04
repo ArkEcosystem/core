@@ -30,9 +30,9 @@ module.exports = async (options) => {
   console.log(`Wallet expected ending balance: ${genesisWallet.balance - totalDeductions}`)
 
   try {
-    const response = await axios.post('http://localhost:4102/api/v2/transactions', {transactions})
+    await axios.post('http://localhost:4102/api/v2/transactions', {transactions})
 
-    console.log(`All transactions have been sent`)
+    console.log('All transactions have been sent')
     const genesisWalletEnd = (await axios.get(`http://localhost:4102/api/v2/wallets/${address}`)).data.data
     console.log(`Wallet ending balance: ${genesisWalletEnd.balance}`)
   } catch (error) {
