@@ -17,5 +17,10 @@ exports.plugin = {
     await transactionPoolManager.makeConnection(new RedisConnection(options))
 
     return transactionPoolManager.connection()
+  },
+  deregister: async (manager) => {
+    manager.get('logger').info('Closing Transaction Pool Connection...')
+
+    return manager.get('transactionPool').disconnect()
   }
 }

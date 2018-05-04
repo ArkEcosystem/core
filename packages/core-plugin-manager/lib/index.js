@@ -35,6 +35,21 @@ class PluginManager {
 
     this.plugins = require(plugins)
     this.options = options
+    this.deregister = []
+  }
+
+  /**
+   * Register a hook.
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
+   */
+  async stop () {
+    const plugins = this.deregister.reverse()
+
+    for (let i = 0; i < plugins.length; i++) {
+      await plugins[i].deregister(this)
+    }
   }
 
   /**
@@ -81,6 +96,11 @@ class PluginManager {
 
     plugin = await item.plugin.register(this, options || {})
     this.container.register(alias || name, asValue({ name, version, plugin, options }))
+
+    // Store
+    if (item.plugin.hasOwnProperty('deregister')) {
+      this.deregister.push(item.plugin)
+    }
   }
 
   /**

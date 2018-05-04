@@ -19,5 +19,10 @@ exports.plugin = {
     await databaseManager.makeConnection(sequelize)
 
     return databaseManager.connection()
+  },
+  deregister: async (manager) => {
+    manager.get('logger').info('Closing Database Connection...')
+
+    return manager.get('database').disconnect()
   }
 }

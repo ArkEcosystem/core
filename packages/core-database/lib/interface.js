@@ -19,7 +19,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
 
-    // this.__registerExitHandler()
+    this.__registerExitHandler()
   }
 
   /**
@@ -386,18 +386,18 @@ module.exports = class ConnectionInterface {
    */
   __registerExitHandler () {
     const handleExit = async () => {
-      logger.info('Shutting down ARK Core')
+      logger.info('Stopping ARK Core...')
 
       await this.saveWallets(true)
 
       const lastBlock = blockchain.getState().lastBlock
+
       if (lastBlock) {
         const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
         await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
       }
 
-      logger.info('Shutting down P2P Interface')
-      await blockchain.p2p.stop()
+      await pluginManager.stop()
 
       process.exit()
     }
