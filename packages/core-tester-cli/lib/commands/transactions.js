@@ -17,7 +17,7 @@ module.exports = async (options, wallets) => {
   const transactions = []
   let totalDeductions = 0
   wallets.forEach((wallet, i) => {
-    const amount = 1 * Math.pow(10, 8)
+    const amount = 2 * Math.pow(10, 8)
     const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, config.passphrase)
     transactions.push(transaction)
     totalDeductions += amount + transaction.fee
