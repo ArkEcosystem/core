@@ -1,16 +1,35 @@
 'use strict'
 
 const ark = require('arkjs')
-
-const generateWallet = require('../utils/generate-wallet')
+const utils = require('../utils')
+const logger = utils.logger
+const transactionCommand = require('./transactions')
 
 module.exports = async (options) => {
-  for (let i = 0; i < options.number; i++) {
-    const wallet = generateWallet()
+  const wallets = utils.generateWallet(options.number)
+  transactionCommand(options, wallets)
+
+  const voters = await utils.getVoters(options.delegate)
+
+  logger.info(`Delegate starting voters: ${voters.length}`)
+
+  const transactions = []
+  wallets.forEach((wallet, i) => {
     const transaction = ark.vote.createVote(wallet.passphrase, [`+${options.delegate}`])
+    console.log(transaction)
+    transactions.push(transaction)
 
-    console.log(`${i} ==> ${transaction.id}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+  })
 
-    // send request with axios...
+  logger.info(`Expected end voters: ${voters.length + wallets.length}`)
+
+  try {
+    await utils.request.post('/peer/transactions', {transactions}, true)
+
+    const voters = await utils.getVoters(options.delegate)
+    logger.info(`All transactions have been sent! Total voters: ${voters.length}`)
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.message}`)
   }
 }
