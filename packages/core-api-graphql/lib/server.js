@@ -1,8 +1,9 @@
 'use strict';
 
 const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
-const schema = require('@arkecosystem/core-plugin-manager').get('graphql')
+const pluginManager = require('@arkecosystem/core-plugin-manager')
+const logger = pluginManager.get('logger')
+const schema = pluginManager.get('graphql')
 const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
 
 /**
@@ -46,7 +47,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Oh hapi day! GraphQL API is listening on ${server.info.uri}`)
+    logger.info(`GraphQL API is available and listening on ${server.info.uri}`)
 
     return server
   } catch (error) {

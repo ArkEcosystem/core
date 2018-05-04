@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-webhooks
+yarn add @arkecosystem/core-graphql
 ```
 
 ## Security
@@ -14,10 +14,6 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [François-Xavier Thoorens](https://github.com/fix)
-- [Kristjan Košič](https://github.com/kristjank)
-- [Brian Faust](https://github.com/faustbrian)
-- [Alex Barnsley](https://github.com/alexbarnsley)
 - [Lúcio Rubens](https://github.com/luciorubeens)
 - [All Contributors](../../../../contributors)
 

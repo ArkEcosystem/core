@@ -29,7 +29,6 @@ module.exports = {
         }
       }]
     },
-    '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-blockchain': {}
   },
   beforeMount: {
@@ -63,10 +62,13 @@ module.exports = {
       enabled: true,
       port: 4202
     },
+    '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-api-webhooks': {
       enabled: true,
       port: 4203
     },
+    '@arkecosystem/core-graphql': {},
+    '@arkecosystem/core-api-graphql': {},
     '@arkecosystem/core-forger': {}
   }
 }

@@ -3,12 +3,7 @@
   "name": "@arkecosystem/core-graphql",
   "description": "GraphQL wrapper for ARK Core",
   "version": "1.0.0",
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>",
-    "Lúcio Rubens <lucio@ark.io>"
-  ],
+  "contributors": ["Lúcio Rubens <lucio@ark.io>"],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {

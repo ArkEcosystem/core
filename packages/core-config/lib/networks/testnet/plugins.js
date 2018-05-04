@@ -29,7 +29,6 @@ module.exports = {
         }
       }]
     },
-    '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-blockchain': {}
   },
   beforeMount: {
@@ -63,6 +62,7 @@ module.exports = {
       enabled: true,
       port: 4102
     },
+    '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-api-webhooks': {
       enabled: true,
       port: 4102
