@@ -4,7 +4,6 @@ const config = require('../config')
 module.exports = {
   get: (endpoint, isTransport) => {
     const baseUrl = isTransport ? config.baseUrlTransport : config.baseUrlApi
-    console.log('GET', baseUrl + endpoint)
     return axios.get(baseUrl + endpoint, {
       headers: {
         nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
@@ -15,7 +14,6 @@ module.exports = {
   },
   post: (endpoint, data, isTransport) => {
     const baseUrl = isTransport ? config.baseUrlTransport : config.baseUrlApi
-    console.log('POST', baseUrl + endpoint)
     return axios.post(baseUrl + endpoint, data, {
       headers: {
         nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
