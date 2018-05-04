@@ -5,7 +5,10 @@ const config = require('../config')
 const utils = require('../utils')
 const logger = utils.logger
 
-module.exports = async (options) => {
+module.exports = async (options, wallets) => {
+  if (wallets === undefined) {
+    wallets = utils.generateWallet(options.number)
+  }
   const transactions = []
   let totalDeductions = 0
 
@@ -14,8 +17,7 @@ module.exports = async (options) => {
 
   logger.info(`Wallet starting balance: ${walletBalance}`)
 
-  for (let i = 0; i < options.number; i++) {
-    const wallet = utils.generateWallet()
+  wallets.forEach((wallet, i) => {
     const amount = 1 * Math.pow(10, 8)
     const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, config.passphrase)
 
@@ -24,7 +26,7 @@ module.exports = async (options) => {
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
-  }
+  })
 
   logger.info(`Wallet expected ending balance: ${walletBalance - totalDeductions}`)
 
