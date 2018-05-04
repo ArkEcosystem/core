@@ -390,7 +390,7 @@ module.exports = class ConnectionInterface {
 
       await this.saveWallets(true)
 
-      const lastBlock = blockchain.getState().lastBlock
+      const lastBlock = blockchain.getLastBlock()
 
       if (lastBlock) {
         const spvFile = `${process.env.ARK_PATH_DATA}/spv.json`
