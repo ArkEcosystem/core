@@ -1,7 +1,7 @@
 'use strict'
 
 const popsicle = require('popsicle')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 

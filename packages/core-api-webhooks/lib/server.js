@@ -1,7 +1,7 @@
 'use strict'
 
 const Hapi = require('hapi')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 /**
  * Creates a new hapi.js server.

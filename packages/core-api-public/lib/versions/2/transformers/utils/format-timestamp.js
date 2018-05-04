@@ -1,7 +1,7 @@
 'use strict'
 
 const moment = require('moment')
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const config = require('@arkecosystem/core-container').resolvePlugin('config')
 
 /**
  * Format the given epoch based timestamp into human and unix.

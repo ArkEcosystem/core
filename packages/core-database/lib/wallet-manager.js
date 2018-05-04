@@ -7,10 +7,10 @@ const { crypto } = client
 const { Wallet } = client.models
 const { TRANSACTION_TYPES } = client.constants
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const logger = pluginManager.get('logger')
-const emitter = pluginManager.get('event-emitter')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const map = require('lodash/map')
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')

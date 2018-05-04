@@ -1,7 +1,7 @@
 const util = require('util')
 const dns = require('dns')
 const shuffle = require('lodash/shuffle')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 module.exports = async (hosts) => {
   hosts = shuffle(hosts)

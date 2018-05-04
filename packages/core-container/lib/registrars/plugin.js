@@ -1,31 +1,18 @@
-'use strict'
-
 const path = require('path')
 const fs = require('fs')
 const semver = require('semver')
 const isString = require('lodash/isString')
 const expandHomeDir = require('expand-home-dir')
 const Hoek = require('hoek')
-const { createContainer, asValue } = require('awilix')
+const { asValue } = require('awilix')
 
-class PluginManager {
+module.exports = class PluginRegistrars {
   /**
    * Create a new plugin manager instance.
-   * @constructor
-   */
-  constructor () {
-    this.container = createContainer()
-  }
-
-  /**
-   * Initialise the plugin manager.
-   * @param  {Object} paths
+   * @param  {Container} container
    * @param  {Object} options
-   * @return {void}
    */
-  init (paths, options = {}) {
-    this.__exportPaths(paths)
-
+  constructor (container, options = {}) {
     const plugins = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
 
     if (!fs.existsSync(plugins)) {
@@ -33,21 +20,21 @@ class PluginManager {
       process.exit(1) // eslint-disable-line no-unreachable
     }
 
+    this.container = container
     this.plugins = require(plugins)
     this.options = options
+    this.deregister = []
   }
 
   /**
-   * Register a hook.
-   * @param  {String} name
-   * @param  {Object} options
+   * Deregister all plugins.
    * @return {void}
    */
-  async hook (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
-      if (this.__shouldBeRegistered(pluginName)) {
-        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
-      }
+  async teardown () {
+    const plugins = this.deregister.reverse()
+
+    for (let i = 0; i < plugins.length; i++) {
+      await plugins[i].deregister(this.container)
     }
   }
 
@@ -58,9 +45,11 @@ class PluginManager {
    * @return {void}
    */
   async register (plugin, options = {}) {
-    let item = this.__resolvePlugin(plugin)
+    let item = this.__resolve(plugin)
 
-    if (!item.plugin.register) return
+    if (!item.plugin.register) {
+      return
+    }
 
     const name = item.plugin.name || item.plugin.pkg.name
     const version = item.plugin.version || item.plugin.pkg.version
@@ -79,50 +68,25 @@ class PluginManager {
       options = Hoek.applyToDefaults(options, this.options.options[name])
     }
 
-    plugin = await item.plugin.register(this, options || {})
+    plugin = await item.plugin.register(this.container, options || {})
     this.container.register(alias || name, asValue({ name, version, plugin, options }))
-  }
 
-  /**
-   * Get a plugin instance.
-   * @param  {string} key
-   * @return {Object}
-   * @throws {Error}
-   */
-  get (key) {
-    try {
-      return this.container.resolve(key).plugin
-    } catch (err) {
-      throw new Error(err.message)
+    if (item.plugin.hasOwnProperty('deregister')) {
+      this.deregister.push(item.plugin)
     }
   }
 
   /**
-   * Determine if the given plugin exists.
-   * @param  {String}  key
-   * @return {Boolean}
+   * Register a group of plugins.
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
    */
-  has (key) {
-    try {
-      this.container.resolve(key)
-
-      return true
-    } catch (err) {
-      return false
-    }
-  }
-
-  /**
-   * Get the configuration of a plugin.
-   * @param  {String} key
-   * @return {Object}
-   * @throws {Error}
-   */
-  config (key) {
-    try {
-      return this.container.resolve(key).options
-    } catch (err) {
-      throw new Error(`The service "${key}" is not available.`)
+  async registerGroup (name, options = {}) {
+    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
+      if (this.__shouldBeRegistered(pluginName)) {
+        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
+      }
     }
   }
 
@@ -131,7 +95,7 @@ class PluginManager {
    * @param  {(String|Object)} plugin
    * @return {Object}
    */
-  __resolvePlugin (plugin) {
+  __resolve (plugin) {
     let item
 
     if (isString(plugin)) {
@@ -167,20 +131,4 @@ class PluginManager {
 
     return register
   }
-
-  /**
-   * Export path variables before we bootstrap any plugins.
-   * @param  {Object} paths
-   * @return {void}
-   */
-  __exportPaths (paths) {
-    for (let [key, value] of Object.entries(paths)) {
-      process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
-    }
-  }
 }
-
-/**
- * @type {PluginManager}
- */
-module.exports = new PluginManager()

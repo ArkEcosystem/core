@@ -1,8 +1,9 @@
 'use strict'
 
 const popsicle = require('popsicle')
+const map = require('lodash/map')
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -169,5 +170,14 @@ module.exports = class ForgerManager {
     }).use(popsicle.plugins.parse('json'))
 
     return result.body.data || {}
+  }
+
+  /**
+   * Get a list of forgers by attribute.
+   * @param  {String} attribute
+   * @return {Array}
+   */
+  getForgersBy (attribute) {
+    return map(this.delegates, attribute)
   }
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const config = require('@arkecosystem/core-container').resolvePlugin('config')
 
 /**
  * Calculate the approval for the given delegate.

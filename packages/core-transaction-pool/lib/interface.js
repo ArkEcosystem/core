@@ -1,8 +1,8 @@
 'use strict'
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const blockchain = container.resolvePlugin('blockchain')
 const async = require('async')
-const logger = pluginManager.get('logger')
+const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
 const { crypto } = client
 // const { slots, crypto } = client
