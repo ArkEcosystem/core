@@ -81,8 +81,6 @@ blockchainMachine.actionMap = (blockchain) => {
         await blockchain.deleteBlocksToLastRound()
         await blockchain.getDatabaseConnection().buildWallets(state.lastBlock.data.height)
         await blockchain.getDatabaseConnection().saveWallets(true)
-        // blockchain.transactionPool.initialiseWallets(blockchain.getDatabaseConnection().walletManager.getLocalWallets())
-        // await blockchain.getDatabaseConnection().applyRound(state.lastBlock.data.height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -204,6 +202,9 @@ blockchainMachine.actionMap = (blockchain) => {
           blockchain.dispatch('FORK')
         }
       }
+    },
+    analyseFork: async () => {
+      logger.info('Analysing fork')
     },
     startForkRecovery: async () => {
       logger.info('Starting fork recovery 🍴')

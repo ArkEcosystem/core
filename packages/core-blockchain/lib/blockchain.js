@@ -86,7 +86,8 @@ module.exports = class Blockchain {
    * Update network status.
    * @return {void}
    */
-  updateNetworkStatus () {
+  async updateNetworkStatus () {
+    await this.p2p.updateNetworkStatus()
   }
 
   /**
@@ -172,7 +173,7 @@ module.exports = class Blockchain {
       logger.printTracker('Removing block', count++, max, 'id: ' + stateMachine.state.lastBlock.data.id + ', height: ' + stateMachine.state.lastBlock.data.height)
       await deleteLastBlock()
     }
-    logger.stopTracker(max + 'blocks removed', count, max)
+    logger.stopTracker(max + ' blocks removed', count, max)
 
     await this.getDatabaseConnection().deleteRound(previousRound + 1)
   }
