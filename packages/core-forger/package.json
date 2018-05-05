@@ -19,6 +19,7 @@
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "@arkecosystem/core-container": "^1.0.0",
+    "delay": "^2.0.0",
     "popsicle": "^9.2.0"
   }
 }

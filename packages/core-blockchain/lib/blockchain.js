@@ -7,7 +7,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')
 const Queue = require('./queue')
-const sleep = require('./utils/sleep')
+const delay = require('delay')
 
 module.exports = class Blockchain {
   /**
@@ -69,7 +69,7 @@ module.exports = class Blockchain {
      * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
      */
     while (!stateMachine.state.started) {
-      await sleep(1000)
+      await delay(1000)
     }
 
     return true

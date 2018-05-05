@@ -3,22 +3,22 @@
 const Redis = require('ioredis')
 const chalk = require('chalk')
 const { onCancel, readPluginConfig } = require('../utils')
-const { sleep } = require('sleep')
+const delay = require('delay')
 
 module.exports = async () => {
   const client = new Redis(readPluginConfig('@arkecosystem/core-transaction-pool-redis').redis)
 
-  client.on('connect', () => {
+  client.on('connect', async () => {
     console.log(chalk.green('Redis connection established.'))
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
-  }).on('error', (error) => {
+  }).on('error', async (error) => {
     console.log(chalk.red('Redis connection not established.'))
     console.log(chalk.red(error.message))
 
-    sleep(3)
+    await delay(3000)
 
     onCancel()
   })

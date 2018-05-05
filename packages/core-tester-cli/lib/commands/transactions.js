@@ -2,6 +2,7 @@
 
 const ark = require('arkjs')
 const config = require('../config')
+const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 
@@ -32,7 +33,7 @@ module.exports = async (options, wallets) => {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
     logger.info('Waiting 30 seconds to apply transfer transactions')
-    utils.sleep(30000)
+    await delay(30000)
 
     const walletBalance = await utils.getWalletBalance(address)
     logger.info('All transactions have been sent!')
