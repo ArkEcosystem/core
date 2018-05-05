@@ -299,8 +299,8 @@ module.exports = class Blockchain {
 
       this.transactionPool.removeTransactions(block.transactions)
     } catch (error) {
-      logger.error(error.stack)
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
+      logger.debug(error.stack)
 
       this.dispatch('FORK')
     }
