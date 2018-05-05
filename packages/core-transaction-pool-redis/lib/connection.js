@@ -49,11 +49,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Disconnect from redis.
-   * @return {Boolean}
+   * @return {void}
    */
   async disconnect () {
-    return this.redis.disconnect()
-    return this.redisSub.disconnect()
+    this.redis.disconnect()
+    this.redisSub.disconnect()
   }
 
    /**
