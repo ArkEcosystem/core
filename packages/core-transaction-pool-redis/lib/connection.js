@@ -17,14 +17,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
-    this.redis = this.options.enabled ? new Redis(this.options.redis) : null
+    this.redis = null
+    this.redisSub = null
+    if (this.options.enabled) {
+      this.redis = new Redis(this.options.redis)
+      this.redisSub = new Redis(this.options.redis)
+    }
 
     this.isConnected = false
     this.keyPrefix = this.options.key
     this.counters = {}
-
-    // separate connection for callback event sync
-    this.redisSub = this.options.enabled ? new Redis(this.options.redis) : null
 
     if (this.redis) {
       this.redis.on('connect', () => {
@@ -50,6 +52,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean}
    */
   async disconnect () {
+    return this.redis.disconnect()
     return this.redisSub.disconnect()
   }
 
