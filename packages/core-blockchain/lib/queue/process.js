@@ -11,7 +11,13 @@ module.exports = class ProcessQueue extends QueueInterface {
   constructor (blockchain, event) {
     super(blockchain, event)
 
-    this.queue = async.queue((block, cb) => blockchain.processBlock(new Block(block), cb), 1)
+    this.queue = async.queue((block, cb) => {
+      try {
+        return blockchain.processBlock(new Block(block), cb)
+      } catch (error) {
+        console.log('Failed to process block in ProcessQueue')
+      }
+    }, 1)
 
     this.drain()
   }
