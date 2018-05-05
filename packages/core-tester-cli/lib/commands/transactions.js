@@ -12,26 +12,42 @@ module.exports = async (options, wallets) => {
   const address = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
   const walletBalance = await utils.getWalletBalance(address)
 
-  logger.info(`Wallet starting balance: ${walletBalance}`)
+  logger.info(`Sender starting balance: ${walletBalance}`)
 
   const transactions = []
   let totalDeductions = 0
+  const transactionAmount = 2 * Math.pow(10, 8)
   wallets.forEach((wallet, i) => {
-    const amount = 2 * Math.pow(10, 8)
-    const transaction = ark.transaction.createTransaction(wallet.address, amount, `TID: ${i}`, config.passphrase)
+    const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase)
     transactions.push(transaction)
-    totalDeductions += amount + transaction.fee
+    totalDeductions += transactionAmount + transaction.fee
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
-  logger.info(`Wallet expected ending balance: ${walletBalance - totalDeductions}`)
+  const expectedSenderBalance = walletBalance - totalDeductions
+  logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
+    logger.info('Waiting 30 seconds to apply transactions')
+    utils.sleep(30000)
+
     const walletBalance = await utils.getWalletBalance(address)
-    logger.info(`All transactions have been sent! Wallet ending balance: ${walletBalance}`)
+    logger.info(`All transactions have been sent!`)
+
+    if (walletBalance !== expectedSenderBalance) {
+      logger.error(`Sender balance incorrect. '${walletBalance}' but is '${expectedSenderBalance}'`)
+    }
+
+    wallets.forEach(async wallet => {
+      const balance = await utils.getWalletBalance(wallet.address)
+
+      if (balance !== transactionAmount) {
+        logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
+      }
+    })
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.message}`)
   }
