@@ -17,7 +17,6 @@ module.exports = async (options) => {
   const transactions = []
   wallets.forEach((wallet, i) => {
     const transaction = ark.vote.createVote(wallet.passphrase, [`+${options.delegate}`])
-    // console.log('vote', transaction)
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)

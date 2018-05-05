@@ -6,7 +6,7 @@ const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 
-module.exports = async (options, wallets) => {
+module.exports = async (options, wallets, arkPerTransaction) => {
   if (wallets === undefined) {
     wallets = utils.generateWallet(options.number)
   }
@@ -17,7 +17,7 @@ module.exports = async (options, wallets) => {
 
   const transactions = []
   let totalDeductions = 0
-  const transactionAmount = 2 * Math.pow(10, 8)
+  const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase)
     transactions.push(transaction)
