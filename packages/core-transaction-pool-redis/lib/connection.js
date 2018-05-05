@@ -41,14 +41,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         this.removeTransaction(message.split('/')[3])
       })
     } else {
-      logger.warn('Unable to connect to Redis server')
+      logger.warn('Could not connect to Redis')
     }
 
     return this
   }
 
   /**
-   * Disconnect from redis.
+   * Disconnect from Redis.
    * @return {void}
    */
   async disconnect () {
@@ -78,13 +78,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
           await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
         }
       } catch (error) {
-        logger.error('Problem adding transaction to transaction pool', error, error.stack)
+        logger.error('Could not add transaction to Redis', error, error.stack)
       }
     }
   }
 
   /**
-   * Remove a transaction.
+   * Remove a transaction from the pool.
    * @param  {Number} id
    * @return {void}
    */
@@ -96,7 +96,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions.
+   * Remove multiple transactions from the pool.
    * @param  {Array} transactions
    * @return {void}
    */
@@ -106,7 +106,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         await this.removeTransaction(transaction.id)
       }
     } catch (error) {
-      logger.error(`Problem removing forged transactions from pool ${error.stack}`)
+      logger.error('Could not remove forged transactions from Redis: ', error.stack)
     }
   }
 
@@ -146,7 +146,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
         return retList
       } catch (error) {
-        logger.error('Get transaction items from Redis pool: ', error, error.stack)
+        logger.error('Could not get transactions from Redis: ', error, error.stack)
       }
     }
   }
@@ -193,15 +193,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
             retList.push(transaction[0])
           }
         }
+
         return retList
       } catch (error) {
-        logger.error('Problem getting transactions for forging from Redis list: ', error, error.stack)
+        logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
       }
     }
   }
 
   /**
-   * Get the redis key for the given transaction.
+   * Get the Redis key for the given transaction.
    * @param  {Number} id
    * @return {String}
    */
@@ -210,7 +211,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get the redis key for the order of transactions.
+   * Get the Redis key for the order of transactions.
    * @return {String}
    */
   __getRedisOrderKey () {

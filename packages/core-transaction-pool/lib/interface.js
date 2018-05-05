@@ -54,7 +54,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove a transaction.
+   * Remove a transaction from the pool.
    * @param  {Number} id
    * @return {void}
    */
@@ -63,7 +63,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions.
+   * Remove multiple transactions from the pool.
    * @param  {Array} transactions
    * @return {void}
    */
@@ -71,7 +71,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [removeTransactions] not implemented!')
   }
 
-    /**
+  /**
    * Get a transaction from the pool by transaction id.
    * @param  {Number} id
    * @return {(Transaction|String)}
@@ -80,7 +80,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [getTransaction] not implemented!')
   }
 
-    /**
+  /**
    * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
@@ -90,7 +90,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [getTransactions] not implemented!')
   }
 
-    /**
+  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size
@@ -101,11 +101,10 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Add transaction to the registered pool. Method called from blockchain, upon receiveing payload.
+   * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
-    // console.log('tx pool txs', transactions)
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
 
@@ -138,8 +137,8 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Checks if any of transactions for forging from pool was already forged and removes them from pool
-   * It returns only the ids of transactions that have yet to be forged
+   * Removes any transactions in the pool that have already been forged.
+   * Returns IDs of pending transactions that have yet to be forged.
    * @param  {Array} transactionIds
    * @return {Array}
    */
