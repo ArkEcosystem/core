@@ -17,16 +17,18 @@ module.exports = class TransactionPoolInterface {
     this.options = options
     this.walletManager = blockchain.database.walletManager
 
-    this.queue = async.queue((transaction, qcallback) => {
-      if (this.verify(transaction)) {
-        this.addTransactionToPool(transaction)
-      }
-      qcallback()
-    }, 1)
-
     if (!this.options.enabled) {
       logger.warn('Transaction pool is disabled - please enable if run in production')
+
+      return
     }
+
+    this.queue = async.queue((transaction, queueCallback) => {
+      if (this.verifyTransaction(transaction)) {
+        this.addTransaction(transaction)
+      }
+      queueCallback()
+    }, 1)
   }
 
   /**
@@ -50,7 +52,9 @@ module.exports = class TransactionPoolInterface {
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
-    throw new Error('Method [addTransaction] not implemented!')
+    if (this.driver) {
+      await this.addTransaction(transaction)
+    }
   }
 
   /**
@@ -126,23 +130,13 @@ module.exports = class TransactionPoolInterface {
     }))
   }
 
-    /**
-   * Add the given transaction to the redis pool.
-   * @param {Transaction} transaction
-   */
-  async addTransactionToPool (transaction) {
-    if (this.driver) {
-      await this.addTransaction(transaction)
-    }
-  }
-
   /**
    * Removes any transactions in the pool that have already been forged.
    * Returns IDs of pending transactions that have yet to be forged.
    * @param  {Array} transactionIds
    * @return {Array}
    */
-  async checkIfForged (transactionIds) {
+  async removeForgedAndGetPending (transactionIds) {
     const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
 
@@ -154,7 +148,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  verify (transaction) {
+  verifyTransaction (transaction) {
     const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
     if (crypto.verify(transaction) && wallet.canApply(transaction)) {

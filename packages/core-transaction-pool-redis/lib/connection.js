@@ -66,20 +66,22 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add a transaction to the pool.
-   * @param {Transaction} transaction
+   * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    if (this.isConnected && transaction instanceof Transaction) {
-      try {
-        await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
-        await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
+    if (!this.isConnected || !(transaction instanceof Transaction)) {
+      return
+    }
 
-        if (transaction.data.expiration > 0) {
-          await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
-        }
-      } catch (error) {
-        logger.error('Could not add transaction to Redis', error, error.stack)
+    try {
+      await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
+      await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
+
+      if (transaction.data.expiration > 0) {
+        await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
       }
+    } catch (error) {
+      logger.error('Could not add transaction to Redis', error, error.stack)
     }
   }
 
@@ -101,53 +103,61 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactions (transactions) {
+    if (!this.isConnected) {
+      return
+    }
+
     try {
       for (let transaction of transactions) {
         await this.removeTransaction(transaction.id)
       }
     } catch (error) {
-      logger.error('Could not remove forged transactions from Redis: ', error.stack)
+      logger.error('Could not remove transactions from Redis: ', error.stack)
     }
   }
 
   /**
-   * Get a transaction.
+   * Get a transaction by transaction id.
    * @param  {Number} id
-   * @return {(Transaction|String)}
+   * @return {(Transaction|String|void)}
    */
   async getTransaction (id) {
-    if (this.isConnected) {
-      const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
-
-      if (serialized) {
-        return Transaction.fromBytes(serialized)
-      }
-
-      return 'Error: Non existing transaction'
+    if (!this.isConnected) {
+      return
     }
+
+    const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+
+    if (serialized) {
+      return Transaction.fromBytes(serialized)
+    }
+
+    return 'Error: Non existing transaction'
   }
 
   /**
    * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
-   * @return {Array}
+   * @return {(Array|void)}
    */
   async getTransactions (start, size) {
-    if (this.isConnected) {
-      try {
-        const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+    if (!this.isConnected) {
+      return
+    }
 
-        let retList = []
-        for (const id of transactionIds) {
-          const serTrx = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
-          serTrx ? retList.push(serTrx[0]) : await this.removeTransaction(id)
-        }
+    try {
+      const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
 
-        return retList
-      } catch (error) {
-        logger.error('Could not get transactions from Redis: ', error, error.stack)
+      let transactions = []
+      for (const id of transactionIds) {
+        const serializedTransaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
+        serializedTransaction ? transactions.push(serializedTransaction[0]) : await this.removeTransaction(id)
       }
+
+      return transactions
+    } catch (error) {
+      logger.error('Could not get transactions from Redis: ', error, error.stack)
     }
   }
 
@@ -155,49 +165,51 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size
-   * @return {Array}
+   * @return {(Array|void)}
    */
   async getTransactionsForForging (start, size) {
-    if (this.isConnected) {
-      try {
-        let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-        transactionIds = await this.checkIfForged(transactionIds)
+    if (!this.isConnected) {
+      return
+    }
 
-        let retList = []
-        for (const id of transactionIds) {
-          const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+    try {
+      let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      transactionIds = await this.removeForgedAndGetPending(transactionIds)
 
-          if (!transaction[0]) {
-            await this.removeTransaction(id)
-            break
-          }
+      let transactions = []
+      for (const id of transactionIds) {
+        const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
 
-          if (transaction[2]) { // timelock is defined
-            const actions = {
-              0: () => { // timestamp lock defined
-                if (parseInt(transaction[2]) <= slots.getTime()) {
-                  logger.debug(`Timelock for ${id} released - timestamp: ${transaction[2]}`)
-                  retList.push(transaction[0])
-                }
-              },
-              1: () => { // block height time lock
-                if (parseInt(transaction[2]) <= blockchain.getLastBlock(true).height) {
-                  logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
-                  retList.push(transaction[0])
-                }
-              }
-            }
-
-            actions[parseInt(transaction[3])]()
-          } else {
-            retList.push(transaction[0])
-          }
+        if (!transaction[0]) {
+          await this.removeTransaction(id)
+          break
         }
 
-        return retList
-      } catch (error) {
-        logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+        if (transaction[2]) { // timelock is defined
+          const actions = {
+            0: () => { // timestamp lock defined
+              if (parseInt(transaction[2]) <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction[2]}`)
+                transactions.push(transaction[0])
+              }
+            },
+            1: () => { // block height time lock
+              if (parseInt(transaction[2]) <= blockchain.getLastBlock(true).height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
+                transactions.push(transaction[0])
+              }
+            }
+          }
+
+          actions[parseInt(transaction[3])]()
+        } else {
+          transactions.push(transaction[0])
+        }
       }
+
+      return transactions
+    } catch (error) {
+      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
     }
   }
 
