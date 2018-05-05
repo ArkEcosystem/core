@@ -61,7 +61,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   async getPoolSize () {
-    return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : -1
+    return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : 0
   }
 
   /**
