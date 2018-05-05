@@ -159,7 +159,6 @@ module.exports = class TransactionPoolInterface {
     const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
     if (crypto.verify(transaction) && wallet.canApply(transaction)) {
-      this.walletManager.applyTransaction(transaction)
 
       return true
     }
