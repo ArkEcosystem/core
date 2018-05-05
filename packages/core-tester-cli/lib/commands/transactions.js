@@ -31,14 +31,14 @@ module.exports = async (options, wallets) => {
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
-    logger.info('Waiting 30 seconds to apply transactions')
+    logger.info('Waiting 30 seconds to apply transfer transactions')
     utils.sleep(30000)
 
     const walletBalance = await utils.getWalletBalance(address)
-    logger.info(`All transactions have been sent!`)
+    logger.info('All transactions have been sent!')
 
     if (walletBalance !== expectedSenderBalance) {
-      logger.error(`Sender balance incorrect. '${walletBalance}' but is '${expectedSenderBalance}'`)
+      logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
     }
 
     wallets.forEach(async wallet => {
