@@ -9,7 +9,7 @@ const transactionCommand = require('./transactions')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallet(options.number)
-  await transactionCommand(options, wallets, 50)
+  await transactionCommand(options, wallets, 50, true)
 
   const delegates = await utils.getDelegates()
 
@@ -35,7 +35,7 @@ module.exports = async (options) => {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
     logger.info('Waiting 30 seconds to apply delegate transactions')
-    await delay(30000)
+    await delay(config.transactionDelay)
 
     const delegates = await utils.getDelegates()
     logger.info(`All transactions have been sent! Total delegates: ${delegates.length}`)
