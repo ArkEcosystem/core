@@ -35,7 +35,7 @@ module.exports = async (options) => {
     logger.info(`All transactions have been sent! Total voters: ${voters.length}`)
 
     if (voters.length !== expectedVoters) {
-      logger.error(`Delegate voter count incorrect. '${walletBalance}' but should be '${expectedSenderBalance}'`)
+      logger.error(`Delegate voter count incorrect. '${voters.length}' but should be '${expectedVoters}'`)
     }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.message}`)
