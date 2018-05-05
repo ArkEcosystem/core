@@ -1,6 +1,7 @@
 'use strict'
 
 const ark = require('arkjs')
+const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
@@ -22,6 +23,7 @@ module.exports = async (options) => {
     while (typeof usedDelegateNames[wallet.username] !== 'undefined') {
       wallet.username = superheroes.random()
     }
+    wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
     const transaction = ark.delegate.createDelegate(wallet.passphrase, wallet.username)
     transactions.push(transaction)
 

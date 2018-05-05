@@ -1,6 +1,7 @@
 'use strict'
 
 const ark = require('arkjs')
+const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger

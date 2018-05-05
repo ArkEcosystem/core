@@ -5,7 +5,6 @@ const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
 
 const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance) => {
