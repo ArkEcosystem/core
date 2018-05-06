@@ -23,6 +23,12 @@ describe('Config Transaction Pool Manager', () => {
 
       expect(transactionPoolManager.connection()).toBeInstanceOf(FakeDriver)
     })
+
+    it('should return the drive-connection for a different name', async () => {
+      await transactionPoolManager.makeConnection(new FakeDriver(), 'testing')
+
+      expect(transactionPoolManager.connection('testing')).toBeInstanceOf(FakeDriver)
+    })
   })
 
   describe('makeConnection', async () => {
