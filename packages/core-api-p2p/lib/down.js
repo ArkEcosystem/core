@@ -271,5 +271,10 @@ module.exports = class Down {
    * Placeholder method to broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {}
+  broadcastTransactions (transactions) {
+    const peers = Object.values(this.peers)
+    logger.info(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
+
+    return Promise.all(peers.map((peer) => peer.postTransactions(transactions)))
+  }
 }
