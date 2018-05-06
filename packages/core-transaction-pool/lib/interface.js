@@ -27,7 +27,9 @@ module.exports = class TransactionPoolInterface {
     this.queue = async.queue((transaction, queueCallback) => {
       if (this.verifyTransaction(transaction)) {
         this.addTransaction(transaction)
-        this.broadcastTransaction(transaction)
+        if (!transaction.isBroadcast) {
+          this.broadcastTransaction(transaction)
+        }
       }
       queueCallback()
     }, 1)
@@ -116,11 +118,13 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
-   * @param {Array} transactions
+   * @param {Array}   transactions
+   * @param {Boolean} isBroadcast
    */
-  async addTransactions (transactions) {
+  async addTransactions (transactions, isBroadcast) {
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
+      transaction.isBroadcast = isBroadcast
 
       // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
       // if (process.env.ARK_ENV === 'testnet') {

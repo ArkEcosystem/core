@@ -107,7 +107,10 @@ module.exports = class Peer {
       const res = await popsicle.request({
         method: 'POST',
         url: this.url + '/peer/transactions',
-        body: {transactions},
+        body: {
+          transactions,
+          broadcast: true
+        },
         headers: this.headers,
         timeout: 5000
       }).use(popsicle.plugins.parse('json'))
