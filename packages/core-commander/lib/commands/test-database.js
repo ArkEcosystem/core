@@ -3,7 +3,7 @@
 const Sequelize = require('sequelize')
 const chalk = require('chalk')
 const expandHomeDir = require('expand-home-dir')
-const { sleep } = require('sleep')
+const delay = require('delay')
 const { onCancel, readPluginConfig } = require('../utils')
 
 module.exports = async () => {
@@ -26,14 +26,14 @@ module.exports = async () => {
 
     console.log(chalk.green('Database connection has been established.'))
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
   } catch (error) {
     console.log(chalk.red('Unable to connect to the database:'))
     console.log(chalk.red(error.stack))
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
   }

@@ -4,23 +4,23 @@ const Sequelize = require('sequelize')
 const Redis = require('ioredis')
 const chalk = require('chalk')
 const expandHomeDir = require('expand-home-dir')
-const { sleep } = require('sleep')
+const delay = require('delay')
 const { onCancel, readPluginConfig } = require('../utils')
 
 function testRedisConnection () {
   const client = new Redis(readPluginConfig('@arkecosystem/core-webhooks').redis)
 
-  client.on('connect', () => {
+  client.on('connect', async () => {
     console.log(chalk.green('Redis connection established.'))
 
-    sleep(3)
+    await delay(3000)
 
     onCancel()
-  }).on('error', (error) => {
+  }).on('error', async (error) => {
     console.log(chalk.red('Redis connection not established.'))
     console.log(chalk.red(error.message))
 
-    sleep(3)
+    await delay(3000)
 
     onCancel()
   })
@@ -46,14 +46,14 @@ async function testDatabaseConnection () {
 
     console.log(chalk.green('Database connection has been established.'))
 
-    sleep(3)
+    await delay(3000)
 
     onCancel()
   } catch (error) {
     console.log(chalk.red('Unable to connect to the database:'))
     console.log(chalk.red(error.stack))
 
-    sleep(3)
+    await delay(3000)
 
     onCancel()
   }

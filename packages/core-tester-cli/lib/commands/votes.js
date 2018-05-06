@@ -1,13 +1,15 @@
 'use strict'
 
 const ark = require('arkjs')
+const config = require('../config')
+const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 const transactionCommand = require('./transactions')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallet(options.number)
-  await transactionCommand(options, wallets)
+  await transactionCommand(options, wallets, 2, true)
 
   const voters = await utils.getVoters(options.delegate)
 
@@ -16,7 +18,6 @@ module.exports = async (options) => {
   const transactions = []
   wallets.forEach((wallet, i) => {
     const transaction = ark.vote.createVote(wallet.passphrase, [`+${options.delegate}`])
-    // console.log('vote', transaction)
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
@@ -29,7 +30,7 @@ module.exports = async (options) => {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
     logger.info('Waiting 30 seconds to apply vote transactions')
-    utils.sleep(30000)
+    await delay(config.transactionDelay)
 
     const voters = await utils.getVoters(options.delegate)
     logger.info(`All transactions have been sent! Total voters: ${voters.length}`)

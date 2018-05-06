@@ -2,21 +2,50 @@
 
 const ark = require('arkjs')
 const config = require('../config')
+const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 
-module.exports = async (options, wallets) => {
+const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
+const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance) => {
+  let successfulTest = true
+
+  await utils.request.post('/peer/transactions', {transactions}, true)
+
+  logger.info('Waiting 30 seconds to apply transfer transactions')
+  await delay(config.transactionDelay)
+
+  const walletBalance = await utils.getWalletBalance(primaryAddress)
+  logger.info('All transactions have been sent!')
+
+  if (walletBalance !== expectedSenderBalance) {
+    successfulTest = false
+    logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
+  }
+
+  wallets.forEach(async wallet => {
+    const balance = await utils.getWalletBalance(wallet.address)
+
+    if (balance !== transactionAmount) {
+      successfulTest = false
+      logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
+    }
+  })
+
+  return successfulTest
+}
+
+module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) => {
   if (wallets === undefined) {
     wallets = utils.generateWallet(options.number)
   }
-  const address = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
-  const walletBalance = await utils.getWalletBalance(address)
+  const walletBalance = await utils.getWalletBalance(primaryAddress)
 
   logger.info(`Sender starting balance: ${walletBalance}`)
 
   const transactions = []
   let totalDeductions = 0
-  const transactionAmount = 2 * Math.pow(10, 8)
+  const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase)
     transactions.push(transaction)
@@ -29,25 +58,19 @@ module.exports = async (options, wallets) => {
   logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    let successfulTest = await sendTransactionsWithResults(transactions, wallets, transactionAmount, expectedSenderBalance)
 
-    logger.info('Waiting 30 seconds to apply transfer transactions')
-    utils.sleep(30000)
-
-    const walletBalance = await utils.getWalletBalance(address)
-    logger.info('All transactions have been sent!')
-
-    if (walletBalance !== expectedSenderBalance) {
-      logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
+    if (!successfulTest) {
+      logger.error('Test failed on first run')
     }
 
-    wallets.forEach(async wallet => {
-      const balance = await utils.getWalletBalance(wallet.address)
+    if (successfulTest && !skipTestingAgain) {
+      successfulTest = await sendTransactionsWithResults(transactions, wallets, transactionAmount, expectedSenderBalance)
 
-      if (balance !== transactionAmount) {
-        logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
+      if (!successfulTest) {
+        logger.error('Test failed on second run')
       }
-    })
+    }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.message}`)
   }

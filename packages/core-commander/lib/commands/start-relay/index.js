@@ -3,7 +3,7 @@
 const chalk = require('chalk')
 const path = require('path')
 const { startProcess } = require('../../utils')
-const { sleep } = require('sleep')
+const delay = require('delay')
 const { onCancel } = require('../../utils')
 
 module.exports = async () => {
@@ -13,10 +13,10 @@ module.exports = async () => {
     args: [
       '--config', process.env.ARK_PATH_CONFIG
     ]
-  }, () => {
+  }, async () => {
     console.log(chalk.green('The relay node has been started.'))
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
   })

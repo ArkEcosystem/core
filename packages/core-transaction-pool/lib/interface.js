@@ -17,16 +17,18 @@ module.exports = class TransactionPoolInterface {
     this.options = options
     this.walletManager = blockchain.database.walletManager
 
-    this.queue = async.queue((transaction, qcallback) => {
-      if (this.verify(transaction)) {
-        this.addTransactionToPool(transaction)
-      }
-      qcallback()
-    }, 1)
-
     if (!this.options.enabled) {
       logger.warn('Transaction pool is disabled - please enable if run in production')
+
+      return
     }
+
+    this.queue = async.queue((transaction, queueCallback) => {
+      if (this.verifyTransaction(transaction)) {
+        this.addTransaction(transaction)
+      }
+      queueCallback()
+    }, 1)
   }
 
   /**
@@ -50,11 +52,13 @@ module.exports = class TransactionPoolInterface {
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
-    throw new Error('Method [addTransaction] not implemented!')
+    if (this.driver) {
+      await this.addTransaction(transaction)
+    }
   }
 
   /**
-   * Remove a transaction.
+   * Remove a transaction from the pool.
    * @param  {Number} id
    * @return {void}
    */
@@ -63,7 +67,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove multiple transactions.
+   * Remove multiple transactions from the pool.
    * @param  {Array} transactions
    * @return {void}
    */
@@ -71,7 +75,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [removeTransactions] not implemented!')
   }
 
-    /**
+  /**
    * Get a transaction from the pool by transaction id.
    * @param  {Number} id
    * @return {(Transaction|String)}
@@ -80,7 +84,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [getTransaction] not implemented!')
   }
 
-    /**
+  /**
    * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
@@ -90,7 +94,7 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [getTransactions] not implemented!')
   }
 
-    /**
+  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size
@@ -101,11 +105,10 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Add transaction to the registered pool. Method called from blockchain, upon receiveing payload.
+   * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
-    // console.log('tx pool txs', transactions)
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
 
@@ -127,23 +130,13 @@ module.exports = class TransactionPoolInterface {
     }))
   }
 
-    /**
-   * Add the given transaction to the redis pool.
-   * @param {Transaction} transaction
-   */
-  async addTransactionToPool (transaction) {
-    if (this.driver) {
-      await this.addTransaction(transaction)
-    }
-  }
-
   /**
-   * Checks if any of transactions for forging from pool was already forged and removes them from pool
-   * It returns only the ids of transactions that have yet to be forged
+   * Removes any transactions in the pool that have already been forged.
+   * Returns IDs of pending transactions that have yet to be forged.
    * @param  {Array} transactionIds
    * @return {Array}
    */
-  async checkIfForged (transactionIds) {
+  async removeForgedAndGetPending (transactionIds) {
     const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
 
@@ -155,14 +148,9 @@ module.exports = class TransactionPoolInterface {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  verify (transaction) {
+  verifyTransaction (transaction) {
     const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
-    if (crypto.verify(transaction) && wallet.canApply(transaction)) {
-
-      return true
-    }
-
-    return false
+    return crypto.verify(transaction) && wallet.canApply(transaction)
   }
 }

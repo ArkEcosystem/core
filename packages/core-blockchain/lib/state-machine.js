@@ -6,7 +6,7 @@ const client = require('@arkecosystem/client')
 const { slots } = client
 const { Block } = client.models
 
-const sleep = require('./utils/sleep')
+const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
 const blockchainMachine = require('./machines/blockchain')
 
@@ -37,7 +37,7 @@ blockchainMachine.actionMap = (blockchain) => {
   return {
     blockchainReady: () => (state.started = true),
     checkLater: async () => {
-      await sleep(60000)
+      await delay(60000)
       return blockchain.dispatch('WAKEUP')
     },
     checkLastBlockSynced: () => blockchain.dispatch(blockchain.isSynced(blockchain.getLastBlock(true)) ? 'SYNCED' : 'NOTSYNCED'),
