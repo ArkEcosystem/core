@@ -170,7 +170,7 @@ module.exports = class WalletManager {
     const recipientId = transactionData.recipientId
 
     const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
-    let recipient = this.getWalletByAddress(recipientId) // may not exist
+    let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
@@ -196,7 +196,7 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(transactionData)
 
-    if (transactionData.type === TRANSACTION_TYPES.TRANSFER) {
+    if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(transactionData)
     }
 
