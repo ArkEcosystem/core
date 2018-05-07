@@ -1,7 +1,7 @@
 'use strict';
 
 const Hapi = require('hapi')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 const logger = pluginManager.get('logger')
 const schema = pluginManager.get('graphql')
 const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')

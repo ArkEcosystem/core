@@ -1,6 +1,6 @@
 'use strict';
 
-const database = require('@arkecosystem/core-plugin-manager').get('database')
+const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { constants } = require('@arkecosystem/client')
 
 module.exports = async (root, args) => {
