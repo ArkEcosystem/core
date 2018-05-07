@@ -205,7 +205,11 @@ module.exports = class Blockchain {
       await __removeBlocks(nblocks - 1)
     }
 
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height}`)
+    if (nblocks >= this.getLastBlock(true).height) {
+      nblocks = this.getLastBlock(true).height - 1
+    }
+
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height - nblocks}`)
 
     this.queue.pause()
     this.queue.clear(stateMachine)
