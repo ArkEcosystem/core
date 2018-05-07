@@ -2,8 +2,8 @@
 
 const Hapi = require('hapi')
 const container = require('@arkecosystem/core-container')
-const logger = pluginManager.get('logger')
-const schema = pluginManager.get('graphql')
+const logger = container.resolvePlugin('logger')
+const schema = container.resolvePlugin('graphql')
 const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
 
 /**

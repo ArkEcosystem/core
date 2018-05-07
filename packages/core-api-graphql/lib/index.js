@@ -15,7 +15,7 @@ exports.plugin = {
   },
   deregister: async (manager) => {
     manager.get('logger').info('Stopping GraphQL API...')
- 
+
     return manager.get('api-graphql').stop()
   }
 }
