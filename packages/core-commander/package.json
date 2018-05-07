@@ -18,6 +18,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "clear": "^0.1.0",
+    "delay": "^2.0.0",
     "expand-home-dir": "^0.0.3",
     "figlet": "^1.2.0",
     "fs-extra": "^6.0.0",
@@ -25,7 +26,6 @@
     "pm2": "^2.10.3",
     "prompts": "^0.1.8",
     "sequelize": "^4.37.6",
-    "sleep": "^5.1.1",
     "tail": "^1.2.3",
     "tiny-glob": "^0.2.0",
     "umzug": "^2.1.0",

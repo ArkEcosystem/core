@@ -116,7 +116,7 @@ module.exports = class WalletManager {
 
       return delegate.applyBlock(block.data)
     } catch (error) {
-      logger.error(error.stack)
+      logger.error('Failed to apply all transactions in block - undoing previous transactions')
 
       await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
 
@@ -170,7 +170,7 @@ module.exports = class WalletManager {
     const recipientId = transactionData.recipientId
 
     const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
-    let recipient = this.getWalletByAddress(recipientId) // may not exist
+    let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
@@ -188,16 +188,15 @@ module.exports = class WalletManager {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
     } else if (!sender.canApply(transactionData)) {
       // TODO: What is this logging? Reduce?
-      logger.info(JSON.stringify(sender))
       logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(transactionData))
-      logger.info('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
+      logger.debug('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
 
       throw new Error(`Can't apply transaction ${transactionData.id}`)
     }
 
     sender.applyTransactionToSender(transactionData)
 
-    if (transactionData.type === TRANSACTION_TYPES.TRANSFER) {
+    if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(transactionData)
     }
 

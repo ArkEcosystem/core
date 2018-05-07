@@ -4,7 +4,7 @@ const path = require('path')
 const prompts = require('prompts')
 const arkjs = require('arkjs')
 const chalk = require('chalk')
-const { sleep } = require('sleep')
+const delay = require('delay')
 const questions = require('./questions')
 const { onCancel, readConfig, startProcess } = require('../../utils')
 const { decrypt } = require('../../utils/forger-crypto')
@@ -30,10 +30,10 @@ module.exports = async () => {
             '--address', address,
             '--password', response.password
           ]
-        }, () => {
+        }, async () => {
           console.log(chalk.green('The forger has been started.'))
 
-          sleep(1)
+          await delay(1000)
 
           onCancel()
         })
@@ -44,7 +44,7 @@ module.exports = async () => {
       console.log(chalk.red('The provided password could not be validated.'))
     }
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
   }

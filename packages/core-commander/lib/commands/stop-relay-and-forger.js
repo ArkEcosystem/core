@@ -1,14 +1,14 @@
 'use strict'
 
 const chalk = require('chalk')
-const { sleep } = require('sleep')
+const delay = require('delay')
 const { onCancel, stopProcess } = require('../utils')
 
 module.exports = async () => {
-  stopProcess('ark-core:relay-and-forger', () => {
+  stopProcess('ark-core:relay-and-forger', async () => {
     console.log(chalk.red('The relay node and forger have been stopped.'))
 
-    sleep(1)
+    await delay(1000)
 
     onCancel()
   })
