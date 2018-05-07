@@ -1,10 +1,11 @@
 'use strict'
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const blockchain = container.resolvePlugin('blockchain')
 const async = require('async')
-const logger = pluginManager.get('logger')
+const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
-const { slots, crypto } = client
+const { crypto } = client
+// const { slots, crypto } = client
 const { Transaction } = client.models
 
 module.exports = class TransactionPoolInterface {
@@ -14,12 +15,11 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = blockchain.getDatabaseConnection().walletManager
+    this.walletManager = blockchain.database.walletManager
 
-    const that = this
     this.queue = async.queue((transaction, qcallback) => {
-      if (that.verify(transaction)) {
-        that.addTransactionToPool(transaction)
+      if (this.verify(transaction)) {
+        this.addTransactionToPool(transaction)
       }
       qcallback()
     }, 1)
@@ -105,22 +105,23 @@ module.exports = class TransactionPoolInterface {
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
+    // console.log('tx pool txs', transactions)
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
 
       // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      if (process.env.ARK_ENV === 'testnet') {
-        const current = slots.getTime()
-        transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
+      // if (process.env.ARK_ENV === 'testnet') {
+      //   const current = slots.getTime()
+      //   transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
-        if (Math.round(Math.random() * Math.floor(1)) === 0) {
-          transaction.data.timelocktype = 0 // timestamp
-          transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
-        } else {
-          transaction.data.timelocktype = 1 // block
-          transaction.data.timelock = blockchain.getState().lastBlock.data.height + Math.floor(Math.random() * Math.floor(20) + 1)
-        }
-      }
+      //   if (Math.round(Math.random() * Math.floor(1)) === 0) {
+      //     transaction.data.timelocktype = 0 // timestamp
+      //     transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
+      //   } else {
+      //     transaction.data.timelocktype = 1 // block
+      //     transaction.data.timelock = blockchain.getLastBlock(true).height + Math.floor(Math.random() * Math.floor(20) + 1)
+      //   }
+      // }
 
       return transaction
     }))
@@ -142,8 +143,8 @@ module.exports = class TransactionPoolInterface {
    * @param  {Array} transactionIds
    * @return {Array}
    */
-  async CheckIfForged (transactionIds) {
-    const forgedIds = await blockchain.getDatabaseConnection().getForgedTransactionsIds(transactionIds)
+  async checkIfForged (transactionIds) {
+    const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransaction(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)

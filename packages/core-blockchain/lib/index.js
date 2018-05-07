@@ -3,11 +3,11 @@
 const Blockchain = require('./blockchain')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'blockchain',
-  register: async (manager, options) => new Blockchain(manager.get('config'), options.networkStart)
+  register: async (container, options) => new Blockchain(container.resolvePlugin('config'), options.networkStart)
 }

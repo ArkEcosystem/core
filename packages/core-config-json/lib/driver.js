@@ -4,7 +4,7 @@ const axios = require('axios')
 const dirTree = require('directory-tree')
 const fs = require('fs-extra')
 const path = require('path')
-const { ConfigInterface, getTargetDirectory } = require('@arkecosystem/core-config')
+const { ConfigInterface } = require('@arkecosystem/core-config')
 
 module.exports = class Config extends ConfigInterface {
   /**
@@ -14,7 +14,11 @@ module.exports = class Config extends ConfigInterface {
   async make () {
     await this.__createFromDirectory()
 
+    super._validateConfig()
+
     super._buildConstants()
+
+    super._exposeEnvironmentVariables()
 
     return this
   }
@@ -26,7 +30,7 @@ module.exports = class Config extends ConfigInterface {
    */
   async copyFiles (dest) {
     if (!dest) {
-      dest = getTargetDirectory('config')
+      dest = `${process.env.ARK_PATH_CONFIG}/config`
     }
 
     await fs.ensureDir(this.options.config)
@@ -118,7 +122,7 @@ module.exports = class Config extends ConfigInterface {
 
         break
       } catch (error) {
-        console.log(error.message)
+        console.error(error.message)
       }
     }
   }

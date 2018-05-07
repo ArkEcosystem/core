@@ -5,7 +5,6 @@
   "description": "Configuration Manager for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
   ],
   "license": "MIT",
@@ -17,6 +16,7 @@
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "deepmerge": "^2.1.0"
+    "deepmerge": "^2.1.0",
+    "ow": "^0.3.0"
   }
 }

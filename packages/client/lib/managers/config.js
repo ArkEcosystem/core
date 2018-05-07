@@ -113,6 +113,7 @@ class ConfigManager {
       this.current.index++
       this.current.data = this.constants[this.current.index]
     }
+
     while (height < this.constants[this.current.index].height) {
       this.current.index--
       this.current.data = this.constants[this.current.index]

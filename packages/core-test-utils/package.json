@@ -3,11 +3,7 @@
   "name": "@arkecosystem/core-test-utils",
   "description": "Test Utilities for ARK Core",
   "version": "1.0.0",
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
-  ],
+  "contributors": ["Brian Faust <brian@ark.io>"],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
@@ -18,6 +14,6 @@
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "bip39": "^2.5.0",
-    "chalk": "^2.4.0"
+    "chalk": "^2.4.1"
   }
 }

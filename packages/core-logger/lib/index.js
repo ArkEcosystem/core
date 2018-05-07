@@ -3,14 +3,13 @@
 const logManager = require('./manager')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults'),
   alias: 'logManager',
-  register: async (manager, options) => logManager
+  register: async (container, options) => logManager
 }
 
 /**

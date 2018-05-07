@@ -1,3 +1,6 @@
+const expandHomeDir = require('expand-home-dir')
+const formatter = require('@arkecosystem/core-logger-winston').formatter
+
 module.exports = {
   init: {
     '@arkecosystem/core-event-emitter': {},
@@ -6,25 +9,64 @@ module.exports = {
   },
   beforeCreate: {
     '@arkecosystem/core-logger': {},
-    '@arkecosystem/core-logger-winston': {},
+    '@arkecosystem/core-logger-winston': {
+      transports: [{
+        constructor: 'Console',
+        options: {
+          colorize: true,
+          level: 'debug',
+          timestamp: () => Date.now(),
+          formatter: (info) => formatter(info)
+        }
+      }, {
+        package: 'winston-daily-rotate-file',
+        constructor: 'DailyRotateFile',
+        options: {
+          filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/mainnet/`) + '%DATE%.log',
+          datePattern: 'YYYY-MM-DD',
+          level: 'debug',
+          zippedArchive: true
+        }
+      }]
+    },
     '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-blockchain': {}
   },
   beforeMount: {
-    '@arkecosystem/core-database': {},
+    '@arkecosystem/core-database': {
+      snapshots: `${process.env.ARK_PATH_DATA}/mainnet/snapshots`
+    },
     '@arkecosystem/core-database-sequelize': {
       uri: `sqlite:${process.env.ARK_PATH_DATA}/database/mainnet.sqlite`,
-      uri_1: 'postgres://node:password@localhost:5432/ark_mainnet',
-      dialect: 'sqlite',
-      dialect_1: 'postgres'
+      dialect: 'sqlite'
+        // uri: 'postgres://node:password@localhost:5432/ark_mainnet',
+        // dialect: 'postgres'
     },
-    '@arkecosystem/core-api-p2p': {},
+    '@arkecosystem/core-api-p2p': {
+      port: 4002,
+      remoteinterface: true
+    },
     '@arkecosystem/core-transaction-pool': {},
-    '@arkecosystem/core-transaction-pool-redis': {}
+    '@arkecosystem/core-transaction-pool-redis': {
+      enabled: true,
+      key: 'ark/pool',
+      maxTransactionsPerSender: 5,
+      whiteList: [],
+      redis: {
+        host: 'localhost',
+        port: 6379
+      }
+    }
   },
   mounted: {
-    '@arkecosystem/core-api-public': {},
-    '@arkecosystem/core-api-webhooks': {},
+    '@arkecosystem/core-api-public': {
+      enabled: true,
+      port: 4003
+    },
+    '@arkecosystem/core-api-webhooks': {
+      enabled: true,
+      port: 4004
+    },
     '@arkecosystem/core-forger': {}
   }
 }

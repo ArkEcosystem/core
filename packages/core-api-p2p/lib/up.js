@@ -1,6 +1,6 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const Hapi = require('hapi')
 
 module.exports = class Up {

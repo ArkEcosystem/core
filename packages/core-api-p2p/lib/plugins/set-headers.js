@@ -1,6 +1,6 @@
 'use strict'
 
-const config = require('@arkecosystem/core-plugin-manager').get('config')
+const config = require('@arkecosystem/core-container').resolvePlugin('config')
 
 /**
  * The register method used by hapi.js.

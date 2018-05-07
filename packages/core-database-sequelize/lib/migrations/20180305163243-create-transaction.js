@@ -19,7 +19,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING(64)
       },
-      version: Sequelize.BLOB('tiny'), // TODO
+      version: Sequelize.SMALLINT, // TODO
       blockId: {
         type: Sequelize.STRING(64)
         // references: {
@@ -27,7 +27,7 @@ module.exports = {
         //   key: 'id'
         // }
       },
-      timestamp: Sequelize.INTEGER.UNSIGNED,
+      timestamp: Sequelize.INTEGER,
       senderPublicKey: {
         type: Sequelize.STRING(66)
         // very bad practice to disable references, easy to corrupt database...
@@ -44,10 +44,10 @@ module.exports = {
         //   key: 'address'
         // }
       },
-      type: Sequelize.TINYINT.UNSIGNED,
-      vendorFieldHex: Sequelize.BLOB('tiny'),
-      amount: Sequelize.BIGINT.UNSIGNED,
-      fee: Sequelize.BIGINT.UNSIGNED,
+      type: Sequelize.SMALLINT,
+      vendorFieldHex: Sequelize.BLOB,
+      amount: Sequelize.BIGINT,
+      fee: Sequelize.BIGINT,
       serialized: Sequelize.BLOB(),
       createdAt: {
         allowNull: false,

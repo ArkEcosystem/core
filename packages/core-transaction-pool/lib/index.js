@@ -3,18 +3,17 @@
 const transactionPoolManager = require('./manager')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  defaults: require('./defaults'),
   alias: 'transactionPoolManager',
-  register: async (manager, options) => transactionPoolManager
+  register: async (container, options) => transactionPoolManager
 }
 
 /**
  * The interface used by concrete implementations.
  * @type {TransactionPoolInterface}
  */
-exports.TransactionPoolInterface = require('./connection')
+exports.TransactionPoolInterface = require('./interface')

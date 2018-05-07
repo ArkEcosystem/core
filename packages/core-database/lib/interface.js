@@ -2,10 +2,10 @@
 
 const async = require('async')
 const { crypto, slots } = require('@arkecosystem/client')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const logger = pluginManager.get('logger')
-const emitter = pluginManager.get('event-emitter')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
 
 module.exports = class ConnectionInterface {
@@ -163,8 +163,8 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveRounds (activeDelegates) {
-    throw new Error('Method [saveRounds] not implemented!')
+  saveRound (activeDelegates) {
+    throw new Error('Method [saveRound] not implemented!')
   }
 
   /**
@@ -201,16 +201,16 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
-        logger.info(`New round ${round}`)
+        logger.info(`Starting Round ${round}`)
 
         await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
         await this.saveWallets(false) // save only modified wallets during the last round
 
         const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
-        await this.saveRounds(delegates) // save next round delegate list
+        await this.saveRound(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
       } else {
-        logger.info(`New round ${round} already applied. This should happen only if you are a forger`)
+        logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
       }
     }
   }
@@ -329,7 +329,7 @@ module.exports = class ConnectionInterface {
    */
   async snapshot () {
     const expandHomeDir = require('expand-home-dir')
-    const path = expandHomeDir(pluginManager.config('databaseManager').snapshots)
+    const path = expandHomeDir(container.config('databaseManager').snapshots)
 
     const fs = require('fs-extra')
     await fs.ensureFile(`${path}/blocks.dat`)
@@ -360,7 +360,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Register the wallet manager.
+   * Register the wallet container.
    * @return {void}
    */
   async _registerWalletManager () {

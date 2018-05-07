@@ -2,9 +2,9 @@
 
 const { slots } = require('@arkecosystem/client')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const logger = pluginManager.get('logger')
-const emitter = pluginManager.get('event-emitter')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
@@ -22,7 +22,7 @@ module.exports = class Down {
     this.peers = {}
 
     if (!config.peers.list) {
-      throw new Error('No seed peers defined in config/peers.json')
+      throw new Error('No seed peers defined in peers.json')
     }
 
     config.peers.list
@@ -46,9 +46,7 @@ module.exports = class Down {
    */
   async updateNetworkStatus () {
     try {
-      // TODO: this means peer recovery is disabled in testnet but also during the test suite,
-      // which is an issue as this one specific functionality has to be available during API tests
-      if (process.env.ARK_ENV !== 'testnet') {
+      if (process.env.ARK_ENV !== 'testnet' && process.env.NODE_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
       }
@@ -273,7 +271,5 @@ module.exports = class Down {
    * Placeholder method to broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {
-
-  }
+  broadcastTransactions (transactions) {}
 }

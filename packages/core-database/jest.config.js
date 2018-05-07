@@ -3,9 +3,9 @@
 module.exports = {
   testEnvironment: 'node',
   bail: true,
-  verbose: true,
+  verbose: false,
   testMatch: [
-    '**/__tests__/**/*.spec.js'
+    '**/__tests__/**/*.specc.js'
   ],
   moduleFileExtensions: [
     'js',

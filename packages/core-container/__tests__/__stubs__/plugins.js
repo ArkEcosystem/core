@@ -1,6 +1,6 @@
 module.exports = {
   init: {
-    './__tests__/stubs/plugin': {
+    './__tests__/__stubs__/plugin': {
       enabled: true
     }
   }

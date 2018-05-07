@@ -2,10 +2,10 @@
 
 const Boom = require('boom')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const database = pluginManager.get('database')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 
 const client = require('@arkecosystem/client')
 const { Transaction } = client.models
@@ -48,7 +48,10 @@ exports.store = {
     return { transactionIds: [] }
   },
   options: {
-    validate: schema.store
+    validate: schema.store,
+    plugins: {
+      pagination: false
+    }
   }
 }
 
@@ -87,7 +90,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await blockchain.getTransactionHandler().getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await blockchain.transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -111,7 +114,7 @@ exports.showUnconfirmed = {
       return Boom.teapot('Transaction Pool disabled...');
     }
 
-    const transaction = await blockchain.getTransactionHandler().getUnconfirmedTransaction(request.param.id)
+    const transaction = await blockchain.transactionPool.getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

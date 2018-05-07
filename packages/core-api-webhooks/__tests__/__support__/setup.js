@@ -1,17 +1,17 @@
 'use strict'
 
 const path = require('path')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 
 const defaults = require('../__stubs__/defaults.json')
 
 const setupPluggy = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
-  pluginManager.init({ data: '~/.ark', config })
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
+  container.init({ data: '~/.ark', config })
 
-  await pluginManager.hook('init', {config})
-  await pluginManager.hook('beforeCreate')
-  await pluginManager.hook('beforeMount')
+  await container.plugins.registerGroup('init', {config})
+  await container.plugins.registerGroup('beforeCreate')
+  await container.plugins.registerGroup('beforeMount')
 }
 
 module.exports = async () => {

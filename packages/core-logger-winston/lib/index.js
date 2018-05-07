@@ -3,15 +3,15 @@
 const WinstonDriver = require('./driver')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {WinstonDriver}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'logger',
-  register: async (manager, options) => {
-    const logManager = manager.get('logManager')
+  register: async (container, options) => {
+    const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
 
     // // Disable logging during tests

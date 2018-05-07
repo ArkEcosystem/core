@@ -7,9 +7,10 @@ const { crypto } = client
 const { Wallet } = client.models
 const { TRANSACTION_TYPES } = client.constants
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const logger = pluginManager.get('logger')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const map = require('lodash/map')
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
@@ -30,7 +31,7 @@ module.exports = class WalletManager {
   reset () {
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
-    this.delegatesByUsername = {}
+    this.walletsByUsername = {}
   }
 
   /**
@@ -48,12 +49,31 @@ module.exports = class WalletManager {
     }
 
     if (wallet.username) {
-      this.delegatesByUsername[wallet.username] = wallet
+      this.walletsByUsername[wallet.username] = wallet
     }
   }
 
+  /**
+   * Used to determine if a wallet is a Genesis wallet.
+   * @return {Boolean}
+   */
   isGenesis (wallet) {
     return genesisWallets.includes(wallet.address)
+  }
+
+  /**
+   * Remove non-delegate wallets that have zero (0) balance from memory.
+   * @return {void}
+   */
+  purgeEmptyNonDelegates () {
+    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
+      const wallet = this.walletsByPublicKey[publicKey]
+
+      if (this.__canBePurged(wallet)) {
+        delete this.walletsByPublicKey[publicKey]
+        delete this.walletsByAddress[wallet.address]
+      }
+    })
   }
 
   /**
@@ -62,25 +82,26 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async applyBlock (block) {
-    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey]
+    const generatorPublicKey = block.data.generatorPublicKey
+
+    let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
-      const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+      const generator = crypto.getAddress(generatorPublicKey, config.network.pubKeyHash)
 
       if (block.data.height === 1) {
         delegate = new Wallet(generator)
-        delegate.publicKey = block.data.generatorPublicKey
+        delegate.publicKey = generatorPublicKey
 
-        this.walletsByAddress[generator] = delegate
-        this.walletsByPublicKey[block.generatorPublicKey] = delegate
+        this.reindex(delegate)
       } else {
-        logger.debug('Delegate by address', this.walletsByAddress[generator])
+        logger.debug(`Delegate by address: ${this.walletsByAddress[generator]}`)
 
         if (this.walletsByAddress[generator]) {
           logger.info('This look like a bug, please report :bug:')
         }
 
-        throw new Error('Could not find delegate with publicKey ' + block.data.generatorPublicKey)
+        throw new Error(`Could not find delegate with publicKey ${generatorPublicKey}`)
       }
     }
 
@@ -109,24 +130,22 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async undoBlock (block) {
-    let delegate = this.walletsByPublicKey[block.data.generatorPublicKey] // FIXME: this is empty during fork recovery
+    let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
 
-    // README: temporary (?) fix for the above issue that the delegate is empty on fork recovery
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
 
       delegate = new Wallet(generator)
       delegate.publicKey = block.data.generatorPublicKey
-      this.walletsByAddress[generator] = delegate
-      this.walletsByPublicKey[block.generatorPublicKey] = delegate
+
+      this.reindex(delegate)
     }
 
     const undoneTransactions = []
-    const that = this
 
     try {
       await Promise.each(block.transactions, async (tx) => {
-        await that.undoTransaction(tx)
+        await this.undoTransaction(tx)
 
         undoneTransactions.push(tx)
       })
@@ -135,7 +154,7 @@ module.exports = class WalletManager {
     } catch (error) {
       logger.error(error.stack)
 
-      await Promise.each(undoneTransactions, async (tx) => that.applyTransaction(tx))
+      await Promise.each(undoneTransactions, async (tx) => this.applyTransaction(tx))
 
       throw error
     }
@@ -147,81 +166,68 @@ module.exports = class WalletManager {
    * @return {Transaction}
    */
   async applyTransaction (transaction) {
-    const datatx = transaction.data
-    let sender = this.walletsByPublicKey[datatx.senderPublicKey]
+    const transactionData = transaction.data
+    const recipientId = transactionData.recipientId
 
-    if (!sender) {
-      const senderId = crypto.getAddress(datatx.senderPublicKey, config.network.pubKeyHash)
-      sender = this.walletsByAddress[senderId] // should exist
-
-      if (!sender.publicKey) {
-        sender.publicKey = datatx.senderPublicKey
-      }
-
-      this.walletsByPublicKey[datatx.senderPublicKey] = sender
-    }
-
-    const recipientId = datatx.recipientId // may not exist
-    let recipient = this.walletsByAddress[recipientId]
+    const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
+    let recipient = this.getWalletByAddress(recipientId) // may not exist
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
-    }
+      emitter.emit('wallet:cold:created', recipient)
+    } else if (transactionData.type === TRANSACTION_TYPES.DELEGATE && this.walletsByUsername[transactionData.asset.delegate.username.toLowerCase()]) {
+      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-    if (datatx.type === TRANSACTION_TYPES.DELEGATE && this.delegatesByUsername[datatx.asset.delegate.username.toLowerCase()]) {
-      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(datatx))
+      throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
+    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-      throw new Error(`Can't apply transaction ${datatx.id}: delegate name already taken`)
-    }
-
-    if (datatx.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[datatx.asset.votes[0].slice(1)].username) {
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(datatx))
-
-      throw new Error(`Can't apply transaction ${datatx.id}: voted delegate does not exist`)
-    }
-
-    if (config.network.exceptions[datatx.id]) {
-      logger.warn('Transaction forcibly applied because it has been added as an exception:', datatx)
-    }
-
-    if (!sender.canApply(datatx)) {
+      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
+    } else if (config.network.exceptions[transactionData.id]) {
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
+    } else if (!sender.canApply(transactionData)) {
       // TODO: What is this logging? Reduce?
       logger.info(JSON.stringify(sender))
-      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(datatx))
-      logger.info('Audit', JSON.stringify(sender.auditApply(datatx), null, 2))
-      throw new Error(`Can't apply transaction ${datatx.id}`)
+      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(transactionData))
+      logger.info('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
+
+      throw new Error(`Can't apply transaction ${transactionData.id}`)
     }
 
-    sender.applyTransactionToSender(datatx)
+    sender.applyTransactionToSender(transactionData)
 
-    if (datatx.type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.applyTransactionToRecipient(datatx)
+    if (transactionData.type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(transactionData)
     }
+
     // TODO: faster way to maintain active delegate list (ie instead of db queries)
     // if (sender.vote) {
     //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
     //   const delegate = this.localwallets[delegateAdress]
     //   delegate.applyVote(sender, transaction.data.asset.votes[0])
     // }
+
     return transaction
   }
 
   /**
    * Remove the given transaction from a delegate.
-   * @param  {Transaction} transaction
+   * @param  {Number} type
+   * @param  {Object} data
    * @return {Transaction}
    */
-  async undoTransaction (transaction) {
-    let sender = this.walletsByPublicKey[transaction.data.senderPublicKey] // should exist
-    let recipient = this.walletsByAddress[transaction.data.recipientId]
-    sender.undoTransactionToSender(transaction.data)
+  async undoTransaction ({ type, data }) {
+    const sender = this.getWalletByPublicKey(data.senderPublicKey) // Should exist
+    const recipient = this.getWalletByAddress(data.recipientId)
 
-    if (recipient && transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.undoTransactionToRecipient(transaction.data)
+    sender.undoTransactionToSender(data)
+
+    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.undoTransactionToRecipient(data)
     }
 
-    return transaction.data
+    return data
   }
 
   /**
@@ -230,18 +236,15 @@ module.exports = class WalletManager {
    * @return {(Wallet|null)}
    */
   getWalletByAddress (address) {
-    let wallet = this.walletsByAddress[address]
-
-    if (!wallet) {
-      if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
-        return null
-      }
-
-      wallet = new Wallet(address)
-      this.walletsByAddress[address] = wallet
+    if (!crypto.validateAddress(address, config.network.pubKeyHash)) {
+      throw new Error(`${address} is not a valid address.`)
     }
 
-    return wallet
+    if (!this.walletsByAddress[address]) {
+      this.walletsByAddress[address] = new Wallet(address)
+    }
+
+    return this.walletsByAddress[address]
   }
 
   /**
@@ -250,27 +253,23 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   getWalletByPublicKey (publicKey) {
-    let wallet = this.walletsByPublicKey[publicKey]
-
-    if (!wallet) {
+    if (!this.walletsByPublicKey[publicKey]) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
-      wallet = this.getWalletByAddress(address)
-      wallet.publicKey = publicKey
-
-      this.walletsByPublicKey[publicKey] = wallet
+      this.walletsByPublicKey[publicKey] = this.getWalletByAddress(address)
+      this.walletsByPublicKey[publicKey].publicKey = publicKey
     }
 
-    return wallet
+    return this.walletsByPublicKey[publicKey]
   }
 
   /**
-   * Get a delegate by the given username.
-   * @param  {String} username
+   * Get a wallet by the given username.
+   * @param  {String} publicKey
    * @return {Wallet}
    */
-  getDelegate (username) {
-    return this.delegatesByUsername[username]
+  getWalletByUsername (username) {
+    return this.walletsByUsername[username]
   }
 
   /**
@@ -279,5 +278,14 @@ module.exports = class WalletManager {
    */
   getLocalWallets () { // for compatibility with API
     return Object.values(this.walletsByAddress)
+  }
+
+  /**
+   * Determine if the wallet can be removed from memory.
+   * @param  {Object} wallet
+   * @return {Boolean}
+   */
+  __canBePurged (wallet) {
+    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 }

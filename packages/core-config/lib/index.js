@@ -3,13 +3,13 @@
 const configManager = require('./manager')
 
 /**
- * The struct used by the plugin manager.
+ * The struct used by the plugin container.
  * @type {Object}
  */
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'configManager',
-  register: async (manager, options) => configManager
+  register: async (container, options) => configManager
 }
 
 /**
@@ -17,10 +17,3 @@ exports.plugin = {
  * @type {ConfigInterface}
  */
 exports.ConfigInterface = require('./interface')
-
-/**
- * Get the target directory for the given name.
- * @param  {String} name
- * @return {String}
- */
-exports.getTargetDirectory = (name) => require('expand-home-dir')(`${process.env.ARK_PATH_CONFIG}/${name}`)

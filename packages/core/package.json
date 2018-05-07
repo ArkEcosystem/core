@@ -6,7 +6,8 @@
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
+    "Brian Faust <brian@ark.io>",
+    "Alex Barnsley <alex@ark.io>"
   ],
   "license": "MIT",
   "bin": {
@@ -54,6 +55,6 @@
     "@arkecosystem/core-transaction-pool": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",
-    "commander": "^2.14.0"
+    "commander": "^2.15.1"
   }
 }

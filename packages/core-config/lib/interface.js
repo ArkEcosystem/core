@@ -1,6 +1,7 @@
 'use strict'
 
 const deepmerge = require('deepmerge')
+const ow = require('ow')
 
 module.exports = class ConfigInterface {
   /**
@@ -47,6 +48,30 @@ module.exports = class ConfigInterface {
     while (lastmerged < this.constants.length - 1) {
       this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
       lastmerged++
+    }
+  }
+
+  /**
+   * Expose some variables to the environment.
+   * @return {void}
+   */
+  _exposeEnvironmentVariables () {
+    process.env.ARK_NETWORK = this.network.name
+  }
+
+  /**
+   * Validate crucial parts of the configuration.
+   * @return {void}
+   */
+  _validateConfig () {
+    try {
+      ow(this.network.pubKeyHash, ow.number)
+      ow(this.network.nethash, ow.string.length(64))
+      ow(this.network.wif, ow.number)
+    } catch (error) {
+      console.error('Invalid configuration. Shutting down...')
+      throw Error(error.message)
+      process.exit(1) // eslint-disable-line no-unreachable
     }
   }
 }

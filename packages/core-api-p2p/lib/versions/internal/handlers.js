@@ -1,8 +1,8 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const blockchain = pluginManager.get('blockchain')
-const config = pluginManager.get('config')
+const container = require('@arkecosystem/core-container')
+const blockchain = container.resolvePlugin('blockchain')
+const config = container.resolvePlugin('config')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -19,7 +19,7 @@ exports.postVerifyTransaction = {
    */
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await blockchain.getDatabaseConnection().verifyTransaction(transaction)
+    const result = await blockchain.database.verifyTransaction(transaction)
 
     return { success: result }
   }
@@ -36,7 +36,7 @@ exports.postInternalBlock = {
    */
   handler: (request, h) => {
     // console.log(request.payload)
-    blockchain.postBlock(request.payload)
+    blockchain.queueBlock(request.payload)
 
     return { success: true }
   }
@@ -52,14 +52,14 @@ exports.getRound = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const lastBlock = blockchain.getState().lastBlock
+    const lastBlock = blockchain.getLastBlock()
 
     try {
       const height = lastBlock.data.height + 1
       const maxActive = config.getConstants(height).activeDelegates
       const blockTime = config.getConstants(height).blocktime
       const reward = config.getConstants(height).reward
-      const delegates = await blockchain.getDatabaseConnection().getActiveDelegates(height)
+      const delegates = await blockchain.database.getActiveDelegates(height)
       const timestamp = slots.getTime()
 
       // console.log(delegates.length)
@@ -94,7 +94,7 @@ exports.getTransactionsForForging = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const height = blockchain.getState().lastBlock.data.height
+    const height = blockchain.getLastBlock(true).height
     const blockSize = config.getConstants(height).block.maxTransactions
 
     try {

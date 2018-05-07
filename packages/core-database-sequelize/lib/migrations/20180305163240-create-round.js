@@ -17,7 +17,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER.UNSIGNED
+        type: Sequelize.INTEGER
       },
       publicKey: {
         type: Sequelize.STRING(66)
@@ -27,8 +27,8 @@ module.exports = {
         //   key: 'publicKey'
         // }
       },
-      balance: Sequelize.BIGINT.UNSIGNED,
-      round: Sequelize.INTEGER.UNSIGNED,
+      balance: Sequelize.BIGINT,
+      round: Sequelize.BIGINT,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

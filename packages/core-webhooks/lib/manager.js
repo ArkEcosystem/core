@@ -3,14 +3,14 @@
 const axios = require('axios')
 const Bull = require('bull')
 const map = require('lodash/map')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const logger = pluginManager.get('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 const database = require('./database')
-const emitter = pluginManager.get('event-emitter')
+const emitter = container.resolvePlugin('event-emitter')
 
 class WebhookManager {
   /**
-   * Initialise the webhook manager.
+   * Initialise the webhook container.
    * @param  {Object} config
    * @return {void}
    */
@@ -21,7 +21,7 @@ class WebhookManager {
       return
     }
 
-    await this.__registerQueueManager()
+    await this.__registerQueue()
 
     map(this.config.events, 'name').forEach((event) => {
       emitter.on(event, async (payload) => {
@@ -106,7 +106,7 @@ class WebhookManager {
    * Create a new redis queue instance.
    * @return {void}
    */
-  __registerQueueManager () {
+  __registerQueue () {
     this.queue = new Bull('webhooks', { redis: this.config.redis })
   }
 }

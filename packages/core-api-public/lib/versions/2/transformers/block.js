@@ -1,6 +1,6 @@
 'use strict'
 
-const database = require('@arkecosystem/core-plugin-manager').get('database')
+const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const formatTimestamp = require('./utils/format-timestamp')
 
 /**

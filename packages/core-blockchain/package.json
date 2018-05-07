@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-plugin-manager": "^1.0.0",
+    "@arkecosystem/core-container": "^1.0.0",
     "async": "^2.6.0",
     "interval-to-human": "^0.1.1",
-    "xstate": "^3.1.1"
+    "xstate": "^3.2.1"
   }
 }

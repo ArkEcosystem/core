@@ -1,0 +1,31 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-tester-cli",
+  "description": "Tester CLI for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "Brian Faust <brian@ark.io>",
+    "Alex Barnsley <alex@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "bin": {
+    "ark:tester": "./bin/tester"
+  },
+  "scripts": {
+    "start": "./bin/tester",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
+    "axios": "^0.18.0",
+    "bip39": "^2.5.0",
+    "chalk": "^2.4.0",
+    "commander": "^2.14.0",
+    "pino": "^4.16.1",
+    "superheroes": "^1.0.0"
+  }
+}

@@ -3,11 +3,7 @@
   "name": "@arkecosystem/core-api-webhooks",
   "description": "Webhooks API for ARK Core",
   "version": "1.0.0",
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
-  ],
+  "contributors": ["Brian Faust <brian@ark.io>"],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
@@ -21,7 +17,7 @@
     "@arkecosystem/core-logger": "^1.0.0",
     "async": "^2.6.0",
     "axios": "^0.18.0",
-    "bull": "^3.3.10",
-    "lodash": "^4.17.5"
+    "bull": "^3.4.1",
+    "lodash": "^4.17.10"
   }
 }

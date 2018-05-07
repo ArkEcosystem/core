@@ -1,8 +1,8 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const logger = pluginManager.get('logger')
-const blockchain = pluginManager.get('blockchain')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const blockchain = container.resolvePlugin('blockchain')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -44,8 +44,8 @@ exports.getHeight = {
   handler: (request, h) => {
     return {
       success: true,
-      height: blockchain.getState().lastBlock.data.height,
-      id: blockchain.getState().lastBlock.data.id
+      height: blockchain.getLastBlock(true).height,
+      id: blockchain.getLastBlock(true).id
     }
   }
 }
@@ -63,12 +63,12 @@ exports.getCommonBlock = {
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.getDatabaseConnection().getCommonBlock(ids)
+      const commonBlock = await blockchain.database.getCommonBlock(ids)
 
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getState().lastBlock.data.height
+        lastBlockHeight: blockchain.getLastBlock(true).height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
@@ -89,7 +89,7 @@ exports.getTransactionsFromIds = {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await blockchain.getDatabaseConnection().getTransactionsFromIds(txids)
+      const transactions = await blockchain.database.getTransactionsFromIds(txids)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -122,7 +122,7 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = blockchain.getState().lastBlock
+    const lastBlock = blockchain.getLastBlock()
     if (!lastBlock) {
       return {
         success: false
@@ -152,7 +152,7 @@ exports.postBlock = {
     // console.log(request.payload)
     if (!request.payload.block) return { success: false }
 
-    blockchain.postBlock(request.payload.block)
+    blockchain.queueBlock(request.payload.block)
     return { success: true }
   }
 }
@@ -187,7 +187,7 @@ exports.getBlocks = {
    */
   handler: async (request, h) => {
     try {
-      const blocks = await blockchain.getDatabaseConnection().getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await blockchain.database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

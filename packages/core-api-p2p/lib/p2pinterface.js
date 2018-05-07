@@ -1,6 +1,6 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 const checkDNS = require('./utils/check-dns')
 const checkNTP = require('./utils/check-ntp')
@@ -33,9 +33,10 @@ module.exports = class P2PInterface {
   /**
    * Shutdown P2P interface.
    */
-  tearDown () {
-    this.down.stop()
-    this.up.stop()
+  async stop () {
+    await this.down.stop() // TODO: remove, not used
+
+    return this.up.stop()
   }
 
   /**
@@ -98,6 +99,7 @@ module.exports = class P2PInterface {
 
   /**
    * Check if the node can connect to any DNS host.
+   * @return {void}
    */
   async __checkDNSConnectivity () {
     try {
@@ -111,6 +113,7 @@ module.exports = class P2PInterface {
 
   /**
    * Check if the node can connect to any NTP host.
+   * @return {void}
    */
   async __checkNTPConnectivity () {
     try {

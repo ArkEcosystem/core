@@ -1,7 +1,7 @@
 'use strict'
 
 const popsicle = require('popsicle')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/download-worker.js`)
 
@@ -49,7 +49,6 @@ module.exports = class Peer {
    */
   async get (apiEndpoint, timeout) {
     const temp = new Date().getTime()
-    const that = this
 
     try {
       const res = await popsicle.request({
@@ -59,7 +58,7 @@ module.exports = class Peer {
         timeout: timeout || 10000
       }).use(popsicle.plugins.parse('json'))
 
-      that.delay = new Date().getTime() - temp
+      this.delay = new Date().getTime() - temp
 
       this.parseHeaders(res)
 

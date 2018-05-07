@@ -1,12 +1,12 @@
 'use strict'
 
 const path = require('path')
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 
 module.exports = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
 
-  pluginManager.init({ data: '~/.ark', config }, {
+  container.init({ data: '~/.ark', config }, {
     exclude: [
       '@arkecosystem/core-api-p2p',
       '@arkecosystem/core-api-webhooks',
@@ -14,10 +14,10 @@ module.exports = async () => {
     ]
   })
 
-  await pluginManager.hook('init', {config})
-  await pluginManager.hook('beforeCreate')
-  await pluginManager.hook('beforeMount')
-  await pluginManager.get('blockchain').start()
+  await container.plugins.registerGroup('init', {config})
+  await container.plugins.registerGroup('beforeCreate')
+  await container.plugins.registerGroup('beforeMount')
+  await container.resolvePlugin('blockchain').start()
 
-  pluginManager.hook('mounted')
+  container.plugins.registerGroup('mounted')
 }

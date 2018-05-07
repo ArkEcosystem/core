@@ -1,6 +1,6 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -40,8 +40,8 @@ blockchainMachine.actionMap = (blockchain) => {
       await sleep(60000)
       return blockchain.dispatch('WAKEUP')
     },
-    checkLastBlockSynced: () => blockchain.dispatch(blockchain.isSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
-    checkRebuildBlockSynced: () => blockchain.dispatch(blockchain.isRebuildSynced(state.lastBlock.data) ? 'SYNCED' : 'NOTSYNCED'),
+    checkLastBlockSynced: () => blockchain.dispatch(blockchain.isSynced(blockchain.getLastBlock(true)) ? 'SYNCED' : 'NOTSYNCED'),
+    checkRebuildBlockSynced: () => blockchain.dispatch(blockchain.isRebuildSynced(blockchain.getLastBlock(true)) ? 'SYNCED' : 'NOTSYNCED'),
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
@@ -77,10 +77,12 @@ blockchainMachine.actionMap = (blockchain) => {
       try {
         logger.info('Blockchain rebuild finished :chains:')
         state.rebuild = false
-        await blockchain.getDatabaseConnection().saveBlockCommit()
-        await blockchain.deleteBlocksToLastRound()
-        await blockchain.getDatabaseConnection().buildWallets(state.lastBlock.data.height)
-        await blockchain.getDatabaseConnection().saveWallets(true)
+        await blockchain.database.saveBlockCommit()
+        await blockchain.rollbackCurrentRound()
+        await blockchain.database.buildWallets(state.lastBlock.data.height)
+        await blockchain.database.saveWallets(true)
+        // blockchain.transactionPool.initialiseWallets(blockchain.database.walletManager.getLocalWallets())
+        // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -102,7 +104,7 @@ blockchainMachine.actionMap = (blockchain) => {
     },
     init: async () => {
       try {
-        let block = await blockchain.getDatabaseConnection().getLastBlock()
+        let block = await blockchain.database.getLastBlock()
 
         if (!block) {
           logger.warn('No block found in database')
@@ -113,11 +115,11 @@ blockchainMachine.actionMap = (blockchain) => {
             return blockchain.dispatch('FAILURE')
           }
 
-          await blockchain.getDatabaseConnection().saveBlock(block)
+          await blockchain.database.saveBlock(block)
         }
 
         // only genesis block? special case of first round needs to be dealt with
-        if (block.data.height === 1) await blockchain.getDatabaseConnection().deleteRound(1)
+        if (block.data.height === 1) await blockchain.database.deleteRound(1)
 
         /*********************************
          *  state machine data init      *
@@ -142,17 +144,17 @@ blockchainMachine.actionMap = (blockchain) => {
         }
 
         // removing blocks up to the last round to compute active delegate list later if needed
-        if (!blockchain.getDatabaseConnection().getActiveDelegates(block.data.height)) {
-          await blockchain.deleteBlocksToLastRound()
+        if (!blockchain.database.getActiveDelegates(block.data.height)) {
+          await blockchain.rollbackCurrentRound()
         }
 
         /*********************************
          * database init                 *
          ********************************/
         // SPV rebuild
-        await blockchain.getDatabaseConnection().buildWallets(block.data.height)
-        await blockchain.getDatabaseConnection().saveWallets(true)
-        await blockchain.getDatabaseConnection().applyRound(block.data.height)
+        await blockchain.database.buildWallets(block.data.height)
+        await blockchain.database.saveWallets(true)
+        await blockchain.database.applyRound(block.data.height)
 
         return blockchain.dispatch('STARTED')
       } catch (error) {
@@ -164,7 +166,7 @@ blockchainMachine.actionMap = (blockchain) => {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
       tickSyncTracker(block)
-      const blocks = await blockchain.getNetworkInterface().downloadBlocks(block.data.height)
+      const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
@@ -185,7 +187,7 @@ blockchainMachine.actionMap = (blockchain) => {
     downloadBlocks: async () => {
       const block = state.lastDownloadedBlock || state.lastBlock
 
-      const blocks = await blockchain.getNetworkInterface().downloadBlocks(block.data.height)
+      const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')

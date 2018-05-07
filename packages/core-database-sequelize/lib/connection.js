@@ -8,34 +8,18 @@ const path = require('path')
 const fs = require('fs-extra')
 const expandHomeDir = require('expand-home-dir')
 
-const { Connection } = require('@arkecosystem/core-database')
+const { ConnectionInterface } = require('@arkecosystem/core-database')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const logger = pluginManager.get('logger')
-const emitter = pluginManager.get('event-emitter')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { Block, Transaction } = client.models
 const { TRANSACTION_TYPES } = client.constants
 
-module.exports = class SequelizeConnection extends Connection {
-  /**
-   * Connect to the database.
-   * @return {Boolean}
-   */
-  async connect () {
-    return this.connection.authenticate()
-  }
-
-  /**
-   * Disconnect from the database.
-   * @return {Boolean}
-   */
-  async disconnect () {
-    return this.connection.close()
-  }
-
+module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
    * Make the database connection instance.
    * @return {SequelizeConnection}
@@ -73,6 +57,22 @@ module.exports = class SequelizeConnection extends Connection {
       logger.error('Unable to connect to the database', error.stack)
       process.exit(1)
     }
+  }
+
+  /**
+   * Connect to the database.
+   * @return {Boolean}
+   */
+  async connect () {
+    return this.connection.authenticate()
+  }
+
+  /**
+   * Disconnect from the database.
+   * @return {Boolean}
+   */
+  async disconnect () {
+    return this.connection.close()
   }
 
   /**
@@ -116,8 +116,9 @@ module.exports = class SequelizeConnection extends Connection {
    * @param  {Array} activeDelegates
    * @return {Array}
    */
-  saveRounds (activeDelegates) {
+  saveRound (activeDelegates) {
     logger.info(`Saving round ${activeDelegates[0].round}`)
+
     return this.models.round.bulkCreate(activeDelegates)
   }
 
@@ -193,6 +194,14 @@ module.exports = class SequelizeConnection extends Connection {
    */
   async buildWallets (height) {
     this.walletManager.reset()
+
+    const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
+    if (fs.existsSync(spvPath)) {
+      fs.removeSync(spvPath)
+      logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+      return this.loadWallets()
+    }
+
     const maxDelegates = config.getConstants(height).activeDelegates
 
     try {
@@ -315,12 +324,25 @@ module.exports = class SequelizeConnection extends Connection {
 
       logger.stopTracker('SPV Building', 7, 7)
       logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
-      logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.delegatesByUsername).length}`)
+      logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.walletsByUsername).length}`)
+
+      await this.__registerListeners()
 
       return this.walletManager.walletsByAddress || []
     } catch (error) {
       logger.error(error.stack)
     }
+  }
+
+  /**
+   * Load all wallets from database.
+   * @return {void}
+   */
+  async loadWallets () {
+    const wallets = await this.models.wallet.findAll()
+    wallets.forEach(wallet => this.walletManager.reindex(wallet.dataValues))
+
+    return this.walletManager.walletsByAddress || []
   }
 
   /**
@@ -378,6 +400,8 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     logger.info('Rebuilt wallets saved')
+
+    this.walletManager.purgeEmptyNonDelegates()
 
     return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
   }
@@ -657,5 +681,31 @@ module.exports = class SequelizeConnection extends Connection {
     }
 
     await super._registerRepositories()
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('wallet:cold:created', async coldWallet => {
+      try {
+        const wallet = await this.models.wallet.findOne({
+          where: { address: coldWallet.address }
+        })
+
+        if (wallet) {
+          Object.keys(wallet.dataValues).forEach(key => {
+            if (['balance'].indexOf(key) !== -1) {
+              return
+            }
+
+            coldWallet[key] = wallet[key]
+          })
+        }
+      } catch (err) {
+        logger.error(err)
+      }
+    })
   }
 }

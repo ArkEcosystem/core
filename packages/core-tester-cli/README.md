@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Plugin Manager
+# ARK Core - Tester CLI
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-plugin-manager
+yarn add @arkecosystem/core-tester-cli
 ```
 
 ## Security
@@ -14,8 +14,6 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [François-Xavier Thoorens](https://github.com/fix)
-- [Kristjan Košič](https://github.com/kristjank)
 - [Brian Faust](https://github.com/faustbrian)
 - [Alex Barnsley](https://github.com/alexbarnsley)
 - [All Contributors](../../../../contributors)

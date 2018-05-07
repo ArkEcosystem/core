@@ -1,15 +1,18 @@
 const util = require('util')
 const dns = require('dns')
-const logger = require('@arkecosystem/core-plugin-manager').get('logger')
+const shuffle = require('lodash/shuffle')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-module.exports = async (servers) => {
+module.exports = async (hosts) => {
+  hosts = shuffle(hosts)
+
   const lookupService = util.promisify(dns.lookupService);
 
-  for (let i = 0; i < servers.length; i++) {
+  for (let i = hosts.length - 1; i >= 0; i--) {
     try {
-      await lookupService(servers[i], 53)
+      await lookupService(hosts[i], 53)
 
-      return Promise.resolve(servers[i])
+      return Promise.resolve(hosts[i])
     } catch (err) {
       logger.error(err.message)
     }

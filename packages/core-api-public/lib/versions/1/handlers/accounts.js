@@ -2,11 +2,10 @@
 
 const { crypto } = require('@arkecosystem/client')
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
-const config = pluginManager.get('config')
-const database = pluginManager.get('database')
-const blockchain = pluginManager.get('blockchain')
-const state = blockchain.getState()
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
@@ -125,7 +124,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(state.lastBlock.data.height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
   }
 }
@@ -150,7 +149,7 @@ exports.delegates = {
       return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
     }
 
-    const delegates = await database.getActiveDelegates(state.lastBlock.data.height)
+    const delegates = await database.getActiveDelegates(blockchain.getLastBlock(true).height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 

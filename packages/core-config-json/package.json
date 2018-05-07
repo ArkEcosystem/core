@@ -3,11 +3,7 @@
   "name": "@arkecosystem/core-config-json",
   "description": "JSON Configuration Loader for ARK Core",
   "version": "1.0.0",
-  "contributors": [
-    "François-Xavier Thoorens <fx@ark.io>",
-    "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
-  ],
+  "contributors": ["Brian Faust <brian@ark.io>"],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
@@ -18,6 +14,6 @@
   },
   "dependencies": {
     "directory-tree": "^2.1.0",
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.10"
   }
 }

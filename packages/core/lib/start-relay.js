@@ -1,6 +1,6 @@
 'use strict'
 
-const pluginManager = require('@arkecosystem/core-plugin-manager')
+const container = require('@arkecosystem/core-container')
 
 /**
  * Start a relay.
@@ -10,7 +10,7 @@ const pluginManager = require('@arkecosystem/core-plugin-manager')
 module.exports = async (options) => {
   const config = options.config
 
-  pluginManager.init({ data: options.data, config }, {
+  container.init({ data: options.data, config }, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-blockchain': {
@@ -19,10 +19,10 @@ module.exports = async (options) => {
     }
   })
 
-  await pluginManager.hook('init', { config: options.config })
-  await pluginManager.hook('beforeCreate')
-  await pluginManager.hook('beforeMount')
-  await pluginManager.get('blockchain').start()
+  await container.plugins.registerGroup('init', { config: options.config })
+  await container.plugins.registerGroup('beforeCreate')
+  await container.plugins.registerGroup('beforeMount')
+  await container.resolvePlugin('blockchain').start()
 
-  pluginManager.hook('mounted')
+  container.plugins.registerGroup('mounted')
 }
