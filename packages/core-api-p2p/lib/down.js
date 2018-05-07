@@ -275,6 +275,11 @@ module.exports = class Down {
     const peers = Object.values(this.peers)
     logger.info(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
-    return Promise.all(peers.map((peer) => peer.postTransactions(transactions)))
+    const transactionsV1 = []
+    transactions.forEach(transaction => {
+      transactionsV1.push(transaction.toBroadcastV1())
+    })
+
+    return Promise.all(peers.map((peer) => peer.postTransactions(transactionsV1)))
   }
 }

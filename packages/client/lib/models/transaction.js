@@ -71,6 +71,14 @@ module.exports = class Transaction {
     return true
   }
 
+  /*
+   * Return transaction data for v1.
+   * @return {Object}
+   */
+  toBroadcastV1 () {
+    return this.data
+  }
+
   // AIP11 serialization
   static serialize (transaction) {
     const bb = new ByteBuffer(512, true)
