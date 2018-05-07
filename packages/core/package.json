@@ -50,6 +50,7 @@
     "@arkecosystem/core-database": "^1.0.0",
     "@arkecosystem/core-database-sequelize": "^1.0.0",
     "@arkecosystem/core-forger": "^1.0.0",
+    "@arkecosystem/core-graphql": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",
     "@arkecosystem/core-logger-winston": "^1.0.0",
     "@arkecosystem/core-transaction-pool": "^1.0.0",

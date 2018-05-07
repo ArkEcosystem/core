@@ -11,7 +11,6 @@ class FakeDriver {
 describe('Config Transaction Pool Manager', () => {
   it('should be an object', async () => {
     expect(transactionPoolManager).toBeObject()
-    expect(transactionPoolManager.drivers).toBeDefined()
   })
 
   describe('connection', async () => {
@@ -23,6 +22,12 @@ describe('Config Transaction Pool Manager', () => {
       await transactionPoolManager.makeConnection(new FakeDriver())
 
       expect(transactionPoolManager.connection()).toBeInstanceOf(FakeDriver)
+    })
+
+    it('should return the drive-connection for a different name', async () => {
+      await transactionPoolManager.makeConnection(new FakeDriver(), 'testing')
+
+      expect(transactionPoolManager.connection('testing')).toBeInstanceOf(FakeDriver)
     })
   })
 
