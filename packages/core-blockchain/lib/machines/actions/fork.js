@@ -1,6 +1,13 @@
 module.exports = {
-  initial: 'undoBlocks',
+  initial: 'analysing',
   states: {
+    analysing: {
+      onEntry: ['analyseFork'],
+      on: {
+        REBUILD: 'undoBlocks',
+        NOFORK: 'exit'
+      }
+    },
     network: {
       onEntry: ['checkNetwork'],
       on: {
@@ -9,6 +16,9 @@ module.exports = {
       }
     },
     undoBlocks: {
+    },
+    exit: {
+      onEntry: ['forkRecovered']
     }
   }
 }

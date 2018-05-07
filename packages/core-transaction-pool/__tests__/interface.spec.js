@@ -16,7 +16,7 @@ const options = {
 beforeAll(async (done) => {
   await require('./__support__/setup')()
 
-  transactionPoolInterface = new (require('../lib/connection'))(options)
+  transactionPoolInterface = new (require('../lib/interface'))(options)
 
   done()
 })
@@ -33,6 +33,10 @@ describe('TransactionPoolInterface Interface', () => {
   })
 
   describe('getPoolSize', async () => {
+    it('should be a function', async () => {
+      await expect(transactionPoolInterface.getPoolSize).toBeFunction()
+    })
+
     it('should be a function', async () => {
       await expect(transactionPoolInterface.getPoolSize).toBeFunction()
     })

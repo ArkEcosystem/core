@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-api-graphql",
+  "description": "GraphQL API for ARK Core",
+  "version": "1.0.0",
+  "contributors": ["Lúcio Rubens <lucio@ark.io>"],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=testnet jest --forceExit",
+    "test:watch": "ARK_ENV=testnet jest --forceExit --watch",
+    "lint": "eslint ./ --fix"
+  },
+  "dependencies": {
+    "apollo-server-hapi": "^1.3.6",
+    "hapi": "^17.3.1"
+  }
+}

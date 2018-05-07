@@ -52,8 +52,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async disconnect () {
-    this.redis.disconnect()
-    this.redisSub.disconnect()
+    if (this.redis) this.redis.disconnect()
+    if (this.redisSub) this.redisSub.disconnect()
   }
 
    /**

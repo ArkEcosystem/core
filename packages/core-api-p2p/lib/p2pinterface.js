@@ -43,8 +43,8 @@ module.exports = class P2PInterface {
    * Update network status.
    * @return {Promise}
    */
-  updateNetworkStatus () {
-    return this.down.updateNetworkStatus()
+  async updateNetworkStatus () {
+    await this.down.updateNetworkStatus()
   }
 
   /**
@@ -60,8 +60,8 @@ module.exports = class P2PInterface {
    * Broadcast block to all peers.
    * @param {Block} block
    */
-  broadcastBlock (block) {
-    this.down.broadcastBlock(block)
+  async broadcastBlock (block) {
+    await this.down.broadcastBlock(block)
   }
 
   /**

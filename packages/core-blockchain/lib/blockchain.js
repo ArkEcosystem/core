@@ -83,8 +83,8 @@ module.exports = class Blockchain {
    * Update network status.
    * @return {void}
    */
-  updateNetworkStatus () {
-    throw new Error('Method [updateNetworkStatus] not implemented!')
+  async updateNetworkStatus () {
+    await this.p2p.updateNetworkStatus()
   }
 
   /**

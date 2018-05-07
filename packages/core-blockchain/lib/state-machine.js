@@ -79,7 +79,7 @@ blockchainMachine.actionMap = (blockchain) => {
         state.rebuild = false
         await blockchain.database.saveBlockCommit()
         await blockchain.rollbackCurrentRound()
-        await blockchain.database.buildWallets(blockchain.getLastBlock(true).height)
+        await blockchain.database.buildWallets(state.lastBlock.data.height)
         await blockchain.database.saveWallets(true)
         // blockchain.transactionPool.initialiseWallets(blockchain.database.walletManager.getLocalWallets())
         // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
@@ -204,6 +204,9 @@ blockchainMachine.actionMap = (blockchain) => {
           blockchain.dispatch('FORK')
         }
       }
+    },
+    analyseFork: async () => {
+      logger.info('Analysing fork')
     },
     startForkRecovery: async () => {
       logger.info('Starting fork recovery 🍴')
