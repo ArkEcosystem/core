@@ -257,8 +257,11 @@ module.exports = class Down {
     try {
       await randomPeer.ping()
 
-      return randomPeer.downloadBlocks(fromBlockHeight)
+      const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
+      blocks.forEach(block => (block.ip = randomPeer.ip))
+      return blocks
     } catch (error) {
+      logger.error(JSON.stringify(error))
       return this.downloadBlocks(fromBlockHeight)
     }
   }
