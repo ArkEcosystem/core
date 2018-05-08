@@ -60,16 +60,22 @@ const register = async (server, options) => {
     method: (request, h) => {
       const config = request.route.settings.plugins[PLUGIN_NAME] || {}
 
-      let errors = null
+      let errors
 
       if (config.payloadSchema) {
         errors = validate(config.payloadSchema, request.payload)
-        if (errors) return createErrorResponse(request, h, errors)
+
+        if (errors) {
+          return createErrorResponse(request, h, errors)
+        }
       }
 
       if (config.querySchema) {
         errors = validate(config.querySchema, request.query)
-        if (errors) return createErrorResponse(request, h, errors)
+
+        if (errors) {
+          return createErrorResponse(request, h, errors)
+        }
       }
 
       return h.continue
