@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchain = container.resolvePlugin('blockchain')
+const transactionPool = container.resolvePlugin('transactionPool')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -171,9 +172,14 @@ exports.postTransactions = {
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
     const isBroadcast = request.payload.broadcast
 
-    blockchain.postTransactions(transactions, isBroadcast)
+    // TODO: Review throttling of v1
+    const poolThrottle = await transactionPool.determineExceededTransactions(transactions)
+    blockchain.postTransactions(poolThrottle.acceptable, isBroadcast)
 
-    return { success: true, transactionIds: [] }
+    return {
+      success: true,
+      transactionIds: poolThrottle.acceptable.map(tx => tx.id)
+    }
   }
 }
 

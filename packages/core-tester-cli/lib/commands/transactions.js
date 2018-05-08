@@ -72,6 +72,6 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
   }
 }

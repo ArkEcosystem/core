@@ -17,26 +17,26 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
-    this.redis = null
-    this.redisSub = null
+    this.pool = null
+    this.subscription = null
     if (this.options.enabled) {
-      this.redis = new Redis(this.options.redis)
-      this.redisSub = new Redis(this.options.redis)
+      this.pool = new Redis(this.options.redis)
+      this.subscription = new Redis(this.options.redis)
     }
 
     this.isConnected = false
     this.keyPrefix = this.options.key
     this.counters = {}
 
-    if (this.redis) {
-      this.redis.on('connect', () => {
+    if (this.pool) {
+      this.pool.on('connect', () => {
         logger.info('Redis connection established')
         this.isConnected = true
-        this.redis.config('set', 'notify-keyspace-events', 'Ex')
-        this.redisSub.subscribe('__keyevent@0__:expired')
+        this.pool.config('set', 'notify-keyspace-events', 'Ex')
+        this.subscription.subscribe('__keyevent@0__:expired')
       })
 
-      this.redisSub.on('message', (channel, message) => {
+      this.subscription.on('message', (channel, message) => {
         logger.debug(`Received expiration message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
@@ -52,8 +52,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async disconnect () {
-    if (this.redis) this.redis.disconnect()
-    if (this.redisSub) this.redisSub.disconnect()
+    if (this.pool) this.pool.disconnect()
+    if (this.subscription) this.subscription.disconnect()
   }
 
    /**
@@ -61,7 +61,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   async getPoolSize () {
-    return this.isConnected ? this.redis.llen(this.__getRedisOrderKey()) : 0
+    return this.isConnected ? this.pool.llen(this.__getRedisOrderKey()) : 0
   }
 
   /**
@@ -74,11 +74,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
-      await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
+      const senderPublicKey = transaction.data.senderPublicKey
+      await this.pool.hmset(
+        this.__getRedisTransactionKey(transaction.id),
+        'serialized', transaction.serialized.toString('hex'),
+        'timestamp', transaction.data.timestamp,
+        'expiration', transaction.data.expiration,
+        'senderPublicKey', senderPublicKey,
+        'timelock', transaction.data.timelock,
+        'timelocktype', transaction.data.timelocktype
+      )
+      await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
+      await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.id)
 
       if (transaction.data.expiration > 0) {
-        await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
+        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -86,15 +96,32 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove a transaction from the pool.
+   * Remove a transaction from the pool by transaction object.
+   * @param  {Transaction} transaction
+   * @return {void}
+   */
+  async removeTransaction (transaction) {
+    if (this.isConnected) {
+      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+      await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
+      await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    }
+  }
+
+  /**
+   * Remove a transaction from the pool by id.
    * @param  {Number} id
    * @return {void}
    */
-  async removeTransaction (id) {
-    if (this.isConnected) {
-      await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
-      await this.redis.del(this.__getRedisTransactionKey(id))
+  async removeTransactionById (id) {
+    if (!this.isConnected) {
+      return
     }
+
+    const publicKey = await this.getPublicKeyById(id)
+    await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(publicKey), 1, id)
+    await this.pool.del(this.__getRedisTransactionKey(id))
   }
 
   /**
@@ -109,11 +136,39 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     try {
       for (let transaction of transactions) {
-        await this.removeTransaction(transaction.id)
+        await this.removeTransaction(transaction)
       }
     } catch (error) {
       logger.error('Could not remove transactions from Redis: ', error.stack)
     }
+  }
+
+  /**
+   * Check whether sender of transaction has exceeded max transactions in queue.
+   * @param  {String} address
+   * @return {(Boolean|void)}
+   */
+  async hasExceededMaxTransactions (transaction) {
+    if (!this.isConnected) {
+      return
+    }
+
+    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
+
+    return count >= this.options.maxTransactionsPerSender
+  }
+
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Number} id
+   * @return {(String|void)}
+   */
+  async getPublicKeyById (id) {
+    if (!this.isConnected) {
+      return
+    }
+
+    return this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
   }
 
   /**
@@ -126,7 +181,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    const serialized = await this.redis.hget(this.__getRedisTransactionKey(id), 'serialized')
+    const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
 
     if (serialized) {
       return Transaction.fromBytes(serialized)
@@ -147,11 +202,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      const transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
 
       let transactions = []
       for (const id of transactionIds) {
-        const serializedTransaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized')
+        const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
         serializedTransaction ? transactions.push(serializedTransaction[0]) : await this.removeTransaction(id)
       }
 
@@ -173,12 +228,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      let transactionIds = await this.redis.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      let transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
       transactionIds = await this.removeForgedAndGetPending(transactionIds)
 
       let transactions = []
       for (const id of transactionIds) {
-        const transaction = await this.redis.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+        const transaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
 
         if (!transaction[0]) {
           await this.removeTransaction(id)
@@ -228,5 +283,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   __getRedisOrderKey () {
     return `${this.keyPrefix}/order`
+  }
+
+  /**
+   * Get the Redis key for the transactions associated with a public key.
+   * @param  {String} publicKey
+   * @return {String}
+   */
+  __getRedisKeyByPublicKey (publicKey) {
+    return `${this.keyPrefix}/publicKey/${publicKey}`
   }
 }

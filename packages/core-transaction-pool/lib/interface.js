@@ -1,7 +1,7 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
-const p2p = container.resolvePlugin('p2p')
+const emitter = container.resolvePlugin('event-emitter')
 const async = require('async')
 const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
@@ -56,7 +56,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Transaction} transaction
    */
   async broadcastTransaction (transaction) {
-    p2p.broadcastTransactions([transaction])
+    emitter.emit('broadcastTransactions', [transaction])
   }
 
   /**
@@ -70,12 +70,21 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove a transaction from the pool.
+   * Remove a transaction from the pool by transaction object.
+   * @param  {Transaction} transaction
+   * @return {void}
+   */
+  async removeTransaction (transaction) {
+    throw new Error('Method [removeTransaction] not implemented!')
+  }
+
+  /**
+   * Remove a transaction from the pool by id.
    * @param  {Number} id
    * @return {void}
    */
-  async removeTransaction (id) {
-    throw new Error('Method [removeTransaction] not implemented!')
+  async removeTransactionById (id) {
+    throw new Error('Method [removeTransactionById] not implemented!')
   }
 
   /**
@@ -122,26 +131,54 @@ module.exports = class TransactionPoolInterface {
    * @param {Boolean} isBroadcast
    */
   async addTransactions (transactions, isBroadcast) {
-    this.queue.push(transactions.map(tx => {
-      let transaction = new Transaction(tx)
-      transaction.isBroadcast = isBroadcast
+    this.queue.push(transactions
+      .map(transaction => {
+        transaction = new Transaction(transaction)
+        transaction.isBroadcast = isBroadcast
 
-      // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      // if (process.env.ARK_ENV === 'test') {
-      //   const current = slots.getTime()
-      //   transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
+        return transaction
+      }))
+  }
 
-      //   if (Math.round(Math.random() * Math.floor(1)) === 0) {
-      //     transaction.data.timelocktype = 0 // timestamp
-      //     transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
-      //   } else {
-      //     transaction.data.timelocktype = 1 // block
-      //     transaction.data.timelock = blockchain.getLastBlock(true).height + Math.floor(Math.random() * Math.floor(20) + 1)
-      //   }
-      // }
+  /**
+   * Check whether sender of transaction has exceeded max transactions in queue.
+   * @param  {String} address
+   * @return {(Boolean|void)}
+   */
+  async hasExceededMaxTransactions (transaction) {
+    throw new Error('Method [hasExceededMaxTransactions] not implemented!')
+  }
 
-      return transaction
-    }))
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Number} id
+   * @return {(String|void)}
+   */
+  async getPublicKeyById (id) {
+    throw new Error('Method [getPublicKeyById] not implemented!')
+  }
+
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Transactions[]} transactions
+   * @return {Object}
+   */
+  async determineExceededTransactions (transactions) {
+    const response = {
+      acceptable: [],
+      exceeded: []
+    }
+
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i]
+      if (await this.hasExceededMaxTransactions(transaction)) {
+        response.exceeded.push(transaction)
+      } else {
+        response.acceptable.push(transaction)
+      }
+    }
+
+    return response
   }
 
   /**
@@ -152,7 +189,7 @@ module.exports = class TransactionPoolInterface {
    */
   async removeForgedAndGetPending (transactionIds) {
     const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
-    forgedIds.forEach(element => this.removeTransaction(element))
+    forgedIds.forEach(element => this.removeTransactionById(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
