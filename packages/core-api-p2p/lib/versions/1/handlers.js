@@ -169,8 +169,9 @@ exports.postTransactions = {
   handler: async (request, h) => {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
+    const isBroadcast = request.payload.broadcast
 
-    blockchain.postTransactions(transactions)
+    blockchain.postTransactions(transactions, isBroadcast)
 
     return { success: true, transactionIds: [] }
   }
