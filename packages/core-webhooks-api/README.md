@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - GraphQL API
+# ARK Core - Webhooks API
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-api-graphql
+yarn add @arkecosystem/core-webhooks-api
 ```
 
 ## Security
@@ -14,7 +14,7 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Lúcio Rubens](https://github.com/luciorubeens)
+- [Brian Faust](https://github.com/faustbrian)
 - [All Contributors](../../../../contributors)
 
 ## License

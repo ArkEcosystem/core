@@ -63,12 +63,12 @@ module.exports = {
       port: 4003
     },
     '@arkecosystem/core-webhooks': {},
-    '@arkecosystem/core-api-webhooks': {
+    '@arkecosystem/core-webhooks-api': {
       enabled: true,
       port: 4004
     },
     '@arkecosystem/core-graphql': {},
-    '@arkecosystem/core-api-graphql': {},
+    '@arkecosystem/core-graphql-api': {},
     '@arkecosystem/core-forger': {}
   }
 }

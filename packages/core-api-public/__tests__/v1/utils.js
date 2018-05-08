@@ -45,6 +45,20 @@ class Helpers {
     this.assertState(res, false)
     this.assertVersion(res, '1')
   }
+
+  assertDelegate (res) {
+    expect(res).toHaveProperty('username')
+    expect(res).toHaveProperty('address')
+    expect(res).toHaveProperty('publicKey')
+    expect(res).toHaveProperty('vote')
+  }
+
+  assertWallet (res) {
+    expect(res).toHaveProperty('username')
+    expect(res).toHaveProperty('address')
+    expect(res).toHaveProperty('publicKey')
+    expect(res).toHaveProperty('balance')
+  }
 }
 
 /**

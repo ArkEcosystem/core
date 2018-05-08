@@ -71,7 +71,7 @@ module.exports = {
       }
     }
   },
-  getForgedByWallet: {
+  getForgedByAccount: {
     type: 'object',
     properties: {
       generatorPublicKey: {

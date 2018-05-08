@@ -1,6 +1,6 @@
 'use strict'
 
-const app = require('./__support__/setup')
+const app = require('../__support__/setup')
 
 let repository
 
@@ -12,11 +12,11 @@ beforeAll(async (done) => {
   done()
 })
 
-afterAll(async (done) => {
-  await app.tearDown()
+// afterAll(async (done) => {
+//   await app.tearDown()
 
-  done()
-})
+//   done()
+// })
 
 describe('Wallet Repository', () => {
   it('should be an object', async () => {

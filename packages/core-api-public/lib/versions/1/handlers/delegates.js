@@ -133,7 +133,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      data: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
   }
 }
