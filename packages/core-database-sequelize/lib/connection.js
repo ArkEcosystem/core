@@ -72,7 +72,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Boolean}
    */
   async disconnect () {
-    return this.connection.close()
+    await this.saveBlockCommit()
+    await this.connection.close()
   }
 
   /**
@@ -399,7 +400,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       )
     }
 
-    logger.info('Rebuilt wallets saved')
+    logger.info(`${wallets.length} modified wallets committed to database`)
 
     this.walletManager.purgeEmptyNonDelegates()
 
