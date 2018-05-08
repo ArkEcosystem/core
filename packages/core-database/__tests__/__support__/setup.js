@@ -11,6 +11,7 @@ exports.setUp = async () => {
       '@arkecosystem/core-api-p2p',
       '@arkecosystem/core-transaction-pool',
       '@arkecosystem/core-transaction-pool-redis',
+      '@arkecosystem/core-database-sequelize',
       '@arkecosystem/core-webhooks'
     ]
   })
@@ -18,8 +19,6 @@ exports.setUp = async () => {
   await container.plugins.registerGroup('init', {config})
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
-
-  container.resolvePlugin('blockchain').start()
 }
 
 exports.tearDown = async () => container.tearDown()
