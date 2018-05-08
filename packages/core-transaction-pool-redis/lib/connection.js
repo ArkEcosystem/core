@@ -118,7 +118,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    const publicKey = await getPublicKeyById(id)
+    const publicKey = await this.getPublicKeyById(id)
     await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
     await this.redis.lrem(this.__getRedisKeyByPublicKey(publicKey), 1, id)
     await this.redis.del(this.__getRedisTransactionKey(id))
@@ -168,7 +168,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    return await this.redis.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
+    return this.redis.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
   }
 
   /**
