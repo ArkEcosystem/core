@@ -16,6 +16,7 @@ module.exports = `
     generatorPublicKey: String
     blockSignature: String
     transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
+    generator: Wallet
   }
 
   type Transaction {
