@@ -36,8 +36,8 @@ class Container {
    * @param  {Object} options
    * @return {void}
    */
-  async teardown () {
-    return this.plugins.teardown()
+  async tearDown () {
+    return this.plugins.tearDown()
   }
 
   /**
@@ -125,7 +125,7 @@ class Container {
       //   await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
       // }
 
-      await this.plugins.teardown()
+      await this.plugins.tearDown()
 
       process.exit()
     }

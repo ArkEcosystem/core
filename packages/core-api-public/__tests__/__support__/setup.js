@@ -31,7 +31,7 @@ beforeAll(async (done) => {
 })
 
 afterAll(async (done) => {
-  await container.teardown()
+  await container.tearDown()
 
   done()
 })
