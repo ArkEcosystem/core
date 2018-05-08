@@ -127,7 +127,7 @@ module.exports = class TransactionPoolInterface {
       transaction.isBroadcast = isBroadcast
 
       // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      // if (process.env.ARK_ENV === 'testnet') {
+      // if (process.env.ARK_ENV === 'test') {
       //   const current = slots.getTime()
       //   transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
 
