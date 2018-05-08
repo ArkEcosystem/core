@@ -16,10 +16,10 @@
     "start": "./bin/deployer",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
-    "assert-plus": "^1.0.0",
     "commander": "^2.15.1",
     "lodash": "^4.17.10"
   }

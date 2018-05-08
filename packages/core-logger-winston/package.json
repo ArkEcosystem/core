@@ -13,9 +13,11 @@
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
   },
   "dependencies": {
+    "@arkecosystem/core-logger": "^1.0.0",
     "chalk": "^2.4.1",
     "colors": "^1.2.3",
     "expand-home-dir": "^0.0.3",

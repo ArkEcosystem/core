@@ -10,7 +10,8 @@
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "eventemitter3": "^3.1.0"

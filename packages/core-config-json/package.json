@@ -3,17 +3,23 @@
   "name": "@arkecosystem/core-config-json",
   "description": "JSON Configuration Loader for ARK Core",
   "version": "1.0.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-config": "^1.0.0",
+    "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
-    "lodash": "^4.17.10"
+    "fs-extra": "^6.0.0"
   }
 }
