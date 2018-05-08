@@ -109,25 +109,49 @@ module.exports = class TransactionPoolInterface {
    * @param {Array} transactions
    */
   async addTransactions (transactions) {
-    this.queue.push(transactions.map(tx => {
-      let transaction = new Transaction(tx)
+    this.queue.push(transactions
+      .map(transaction => new Transaction(transaction)))
+  }
 
-      // TODO: for TESTING - REMOVE LATER ON expiration and time lock testing remove from production
-      // if (process.env.ARK_ENV === 'testnet') {
-      //   const current = slots.getTime()
-      //   transaction.data.expiration = current + Math.floor(Math.random() * Math.floor(1000) + 1)
+  /**
+   * Check whether sender of transaction has exceeded max transactions in queue.
+   * @param  {String} address
+   * @return {(Boolean|void)}
+   */
+  async hasExceededMaxTransactions (transaction) {
+    throw new Error('Method [hasExceededMaxTransactions] not implemented!')
+  }
 
-      //   if (Math.round(Math.random() * Math.floor(1)) === 0) {
-      //     transaction.data.timelocktype = 0 // timestamp
-      //     transaction.data.timelock = current + Math.floor(Math.random() * Math.floor(50) + 1)
-      //   } else {
-      //     transaction.data.timelocktype = 1 // block
-      //     transaction.data.timelock = blockchain.getLastBlock(true).height + Math.floor(Math.random() * Math.floor(20) + 1)
-      //   }
-      // }
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Number} id
+   * @return {(String|void)}
+   */
+  async getPublicKeyById (id) {
+    throw new Error('Method [getPublicKeyById] not implemented!')
+  }
 
-      return transaction
-    }))
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Transactions[]} transactions
+   * @return {Object}
+   */
+  async determineExceededTransactions (transactions) {
+    const response = {
+      acceptable: [],
+      exceeded: []
+    }
+
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i]
+      if (await this.hasExceededMaxTransactions(transaction)) {
+        response.exceeded.push(transaction)
+      } else {
+        response.acceptable.push(transaction)
+      }
+    }
+
+    return response
   }
 
   /**

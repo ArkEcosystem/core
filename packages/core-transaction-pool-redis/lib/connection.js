@@ -119,11 +119,39 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     try {
       for (let transaction of transactions) {
-        await this.removeTransaction(transaction.id)
+        await this.removeTransaction(transaction)
       }
     } catch (error) {
       logger.error('Could not remove transactions from Redis: ', error.stack)
     }
+  }
+
+  /**
+   * Check whether sender of transaction has exceeded max transactions in queue.
+   * @param  {String} address
+   * @return {(Boolean|void)}
+   */
+  async hasExceededMaxTransactions (transaction) {
+    if (!this.isConnected) {
+      return
+    }
+
+    const count = await this.redis.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
+
+    return count >= this.options.maxTransactionsPerSender
+  }
+
+  /**
+   * Get a sender public key by transaction id.
+   * @param  {Number} id
+   * @return {(String|void)}
+   */
+  async getPublicKeyById (id) {
+    if (!this.isConnected) {
+      return
+    }
+
+    return await this.redis.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
   }
 
   /**
