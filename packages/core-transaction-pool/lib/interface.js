@@ -58,12 +58,21 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Remove a transaction from the pool.
+   * Remove a transaction from the pool by transaction object.
+   * @param  {Transaction} transaction
+   * @return {void}
+   */
+  async removeTransaction (transaction) {
+    throw new Error('Method [removeTransaction] not implemented!')
+  }
+
+  /**
+   * Remove a transaction from the pool by id.
    * @param  {Number} id
    * @return {void}
    */
-  async removeTransaction (id) {
-    throw new Error('Method [removeTransaction] not implemented!')
+  async removeTransactionById (id) {
+    throw new Error('Method [removeTransactionById] not implemented!')
   }
 
   /**
@@ -162,7 +171,7 @@ module.exports = class TransactionPoolInterface {
    */
   async removeForgedAndGetPending (transactionIds) {
     const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
-    forgedIds.forEach(element => this.removeTransaction(element))
+    forgedIds.forEach(element => this.removeTransactionById(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }

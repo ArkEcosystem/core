@@ -96,15 +96,32 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Remove a transaction from the pool.
+   * Remove a transaction from the pool by transaction object.
+   * @param  {Transaction} transaction
+   * @return {void}
+   */
+  async removeTransaction (transaction) {
+    if (this.isConnected) {
+      await this.redis.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+      await this.redis.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
+      await this.redis.del(this.__getRedisTransactionKey(transaction.id))
+    }
+  }
+
+  /**
+   * Remove a transaction from the pool by id.
    * @param  {Number} id
    * @return {void}
    */
-  async removeTransaction (id) {
-    if (this.isConnected) {
-      await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
-      await this.redis.del(this.__getRedisTransactionKey(id))
+  async removeTransactionById (id) {
+    if (!this.isConnected) {
+      return
     }
+
+    const publicKey = await getPublicKeyById(id)
+    await this.redis.lrem(this.__getRedisOrderKey(), 1, id)
+    await this.redis.lrem(this.__getRedisKeyByPublicKey(publicKey), 1, id)
+    await this.redis.del(this.__getRedisTransactionKey(id))
   }
 
   /**
