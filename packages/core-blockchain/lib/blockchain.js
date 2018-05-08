@@ -219,16 +219,6 @@ module.exports = class Blockchain {
   }
 
   /**
-   * Check if the given block is in order.
-   * @param  {Block}  block
-   * @param  {Block}  nextBlock
-   * @return {Boolean}
-   */
-  __isChained (block, nextBlock) {
-    return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
-  }
-
-  /**
    * Hande a block during a rebuild.
    * @param  {Block} block
    * @param  {Function} callback
@@ -432,6 +422,16 @@ module.exports = class Blockchain {
    */
   get database () {
     return container.resolvePlugin('database')
+  }
+
+  /**
+   * Check if the given block is in order.
+   * @param  {Block}  block
+   * @param  {Block}  nextBlock
+   * @return {Boolean}
+   */
+  __isChained (block, nextBlock) {
+    return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
   }
 
   /**
