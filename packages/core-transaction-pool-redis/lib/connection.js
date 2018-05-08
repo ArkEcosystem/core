@@ -18,10 +18,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   make () {
     this.redis = null
-    this.redisSub = null
+    this.subscription = null
     if (this.options.enabled) {
       this.redis = new Redis(this.options.redis)
-      this.redisSub = new Redis(this.options.redis)
+      this.subscription = new Redis(this.options.redis)
     }
 
     this.isConnected = false
@@ -33,10 +33,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         logger.info('Redis connection established')
         this.isConnected = true
         this.redis.config('set', 'notify-keyspace-events', 'Ex')
-        this.redisSub.subscribe('__keyevent@0__:expired')
+        this.subscription.subscribe('__keyevent@0__:expired')
       })
 
-      this.redisSub.on('message', (channel, message) => {
+      this.subscription.on('message', (channel, message) => {
         logger.debug(`Received expiration message ${message} from channel ${channel}`)
         this.removeTransaction(message.split('/')[3])
       })
@@ -53,7 +53,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async disconnect () {
     if (this.redis) this.redis.disconnect()
-    if (this.redisSub) this.redisSub.disconnect()
+    if (this.subscription) this.subscription.disconnect()
   }
 
    /**
