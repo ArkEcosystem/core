@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-api-graphql",
+  "name": "@arkecosystem/core-graphql-api",
   "description": "GraphQL API for ARK Core",
   "version": "1.0.0",
   "contributors": ["Lúcio Rubens <lucio@ark.io>"],

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-api-webhooks",
+  "name": "@arkecosystem/core-webhooks-api",
   "description": "Webhooks API for ARK Core",
   "version": "1.0.0",
   "contributors": ["Brian Faust <brian@ark.io>"],

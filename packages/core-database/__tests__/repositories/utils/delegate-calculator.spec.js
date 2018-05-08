@@ -12,11 +12,11 @@ beforeAll(async (done) => {
   done()
 })
 
-afterAll(async (done) => {
-  await app.tearDown()
+// afterAll(async (done) => {
+//   await app.tearDown()
 
-  done()
-})
+//   done()
+// })
 
 const delegate = {
  balance: 10000000 * Math.pow(10, 8),
