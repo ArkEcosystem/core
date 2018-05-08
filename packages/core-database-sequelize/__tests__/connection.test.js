@@ -7,7 +7,7 @@ let connection
 beforeAll(async (done) => {
   await app.setUp()
 
-  connection = new (require('../lib/connection'))()
+  connection = new (require('../lib/connection'))(require('../lib/defaults'))
 
   done()
 })
@@ -23,9 +23,19 @@ describe('Sequelize Connection', () => {
     await expect(connection).toBeObject()
   })
 
+  describe('make', async () => {
+    it('should be a function', async () => {
+      await expect(connection.make).toBeFunction()
+    })
+  })
+
   describe('connect', async () => {
     it('should be a function', async () => {
       await expect(connection.connect).toBeFunction()
+    })
+
+    it('should connect to the database', async () => {
+      await expect(connection.connect()).toBeInstanceOf(require('sequelize'))
     })
   })
 
