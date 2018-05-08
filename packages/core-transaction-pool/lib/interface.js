@@ -122,6 +122,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Boolean} isBroadcast
    */
   async addTransactions (transactions, isBroadcast) {
+    if (!this.queue) return
     this.queue.push(transactions.map(tx => {
       let transaction = new Transaction(tx)
       transaction.isBroadcast = isBroadcast
