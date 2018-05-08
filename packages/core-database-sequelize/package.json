@@ -15,19 +15,19 @@
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-config": "^1.0.0",
+    "@arkecosystem/core-container": "^1.0.0",
     "@arkecosystem/core-database": "^1.0.0",
-    "@arkecosystem/core-event-emitter": "^1.0.0",
     "expand-home-dir": "^0.0.3",
+    "fs-extra": "^6.0.0",
     "mysql2": "^1.5.3",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.37.6",
-    "sequelize-cli": "^4.0.0",
     "sqlite3": "^4.0.0",
     "tedious": "^2.3.1",
     "tiny-glob": "^0.2.0",

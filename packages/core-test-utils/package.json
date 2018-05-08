@@ -3,17 +3,21 @@
   "name": "@arkecosystem/core-test-utils",
   "description": "Test Utilities for ARK Core",
   "version": "1.0.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
     "bip39": "^2.5.0",
-    "chalk": "^2.4.1"
+    "chalk": "^2.4.1",
+    "lodash": "^4.17.10"
   }
 }

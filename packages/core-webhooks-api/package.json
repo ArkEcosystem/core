@@ -3,21 +3,28 @@
   "name": "@arkecosystem/core-webhooks-api",
   "description": "Webhooks API for ARK Core",
   "version": "1.0.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-database": "^1.0.0",
-    "@arkecosystem/core-logger": "^1.0.0",
-    "async": "^2.6.0",
-    "axios": "^0.18.0",
-    "bull": "^3.4.1",
-    "lodash": "^4.17.10"
+    "@arkecosystem/core-container": "^1.0.0",
+    "@arkecosystem/core-webhooks": "^1.0.0",
+    "argon2": "^0.19.0",
+    "boom": "^7.2.0",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "hapi": "^17.4.0",
+    "hapi-pagination": "^2.0.0",
+    "joi": "^13.2.0"
   }
 }

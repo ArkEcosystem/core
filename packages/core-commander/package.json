@@ -3,7 +3,9 @@
   "name": "@arkecosystem/core-commander",
   "description": "Commander for ARK Core",
   "version": "1.0.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "bin": {
@@ -13,22 +15,24 @@
     "start": "./bin/commander",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "arkjs": "^0.2.1",
     "chalk": "^2.4.1",
     "clear": "^0.1.0",
     "delay": "^2.0.0",
     "expand-home-dir": "^0.0.3",
     "figlet": "^1.2.0",
     "fs-extra": "^6.0.0",
-    "os": "^0.1.1",
+    "ioredis": "^3.2.2",
+    "moment": "^2.22.1",
     "pm2": "^2.10.3",
     "prompts": "^0.1.8",
     "sequelize": "^4.37.6",
     "tail": "^1.2.3",
-    "tiny-glob": "^0.2.0",
-    "umzug": "^2.1.0",
-    "util": "^0.10.3"
+    "tiny-glob": "^0.2.0"
   }
 }

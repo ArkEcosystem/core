@@ -14,11 +14,16 @@
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-config": "^1.0.0",
-    "@arkecosystem/core-logger": "^1.0.0"
+    "@arkecosystem/core-container": "^1.0.0",
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
+    "expand-home-dir": "^0.0.3",
+    "fs-extra": "^6.0.0",
+    "lodash": "^4.17.10"
   }
 }

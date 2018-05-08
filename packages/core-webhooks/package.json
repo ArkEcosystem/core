@@ -3,23 +3,28 @@
   "name": "@arkecosystem/core-webhooks",
   "description": "Webhooks for ARK Core",
   "version": "1.0.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-database": "^1.0.0",
-    "@arkecosystem/core-event-emitter": "^1.0.0",
-    "@arkecosystem/core-logger": "^1.0.0",
-    "async": "^2.6.0",
+    "@arkecosystem/core-container": "^1.0.0",
     "axios": "^0.18.0",
+    "body-parser": "^1.18.2",
     "bull": "^3.4.1",
+    "expand-home-dir": "^0.0.3",
+    "express": "^4.16.3",
     "fs-extra": "^6.0.0",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "sequelize": "^4.37.7",
+    "umzug": "^2.1.0"
   }
 }

@@ -20,7 +20,8 @@
     "test": "jest --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
     "arkjsv1": "arkecosystem/ark-js#master",

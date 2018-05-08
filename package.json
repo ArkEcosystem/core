@@ -6,6 +6,7 @@
     "clean": "lerna clean",
     "commit": "git-cz",
     "lint": "lerna run lint",
+    "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",
     "test": "lerna run test"
   },
@@ -13,8 +14,7 @@
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
-    "commitizen": "^2.9.6",
-    "cz-conventional-changelog": "^2.1.0",
+    "depcheck": "^0.6.9",
     "docdash": "^0.4.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",

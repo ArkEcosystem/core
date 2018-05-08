@@ -13,10 +13,13 @@
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
-    "lint": "eslint ./ --fix"
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/core-logger-winston": "^1.0.0",
     "deepmerge": "^2.1.0",
+    "expand-home-dir": "^0.0.3",
     "ow": "^0.3.0"
   }
 }
