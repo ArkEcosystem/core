@@ -18,11 +18,11 @@ beforeAll(async (done) => {
   done()
 })
 
-// afterAll(async (done) => {
-//   await app.tearDown()
+afterAll(async (done) => {
+  await app.tearDown()
 
-//   done()
-// })
+  done()
+})
 
 function createWalletManager () {
   return new (require('../lib/wallet-manager'))()

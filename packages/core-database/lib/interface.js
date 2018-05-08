@@ -50,7 +50,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  getActiveDelegates (height) {
+  async getActiveDelegates (height) {
     throw new Error('Method [getActiveDelegates] not implemented!')
   }
 
@@ -61,7 +61,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  buildDelegates (maxDelegates, height) {
+  async buildDelegates (maxDelegates, height) {
     throw new Error('Method [buildDelegates] not implemented!')
   }
 
@@ -71,7 +71,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  buildWallets (height) {
+  async buildWallets (height) {
     throw new Error('Method [buildWallets] not implemented!')
   }
 
@@ -81,7 +81,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveWallets (force) {
+  async saveWallets (force) {
     throw new Error('Method [saveWallets] not implemented!')
   }
 
@@ -92,7 +92,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  saveBlock (block) {
+  async saveBlock (block) {
     throw new Error('Method [saveBlock] not implemented!')
   }
 
@@ -123,7 +123,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  deleteBlock (block) {
+  async deleteBlock (block) {
     throw new Error('Method [deleteBlock] not implemented!')
   }
 
@@ -133,7 +133,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  getBlock (id) {
+  async getBlock (id) {
     throw new Error('Method [getBlock] not implemented!')
   }
 
@@ -142,7 +142,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  getLastBlock () {
+  async getLastBlock () {
     throw new Error('Method [getLastBlock] not implemented!')
   }
 
@@ -153,7 +153,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  getBlocks (offset, limit) {
+  async getBlocks (offset, limit) {
     throw new Error('Method [getBlocks] not implemented!')
   }
 
@@ -184,7 +184,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  updateDelegateStats (delegates) {
+  async updateDelegateStats (delegates) {
     throw new Error('Method [updateDelegateStats] not implemented!')
   }
 
