@@ -4,15 +4,15 @@ const app = require('./__support__/setup')
 
 let blockchain
 
-beforeAll(async(done) => {
+beforeAll(async (done) => {
   await app.setUp()
 
-  blockchain = new(require('../lib/blockchain'))()
+  blockchain = new (require('../lib/blockchain'))()
 
   done()
 })
 
-afterAll(async(done) => {
+afterAll(async (done) => {
   await app.tearDown()
 
   done()
