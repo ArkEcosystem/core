@@ -18,11 +18,11 @@ beforeAll(async (done) => {
   done()
 })
 
-// afterAll(async (done) => {
-//   await app.tearDown()
+afterAll(async (done) => {
+  await app.tearDown()
 
-//   done()
-// })
+  done()
+})
 
 function createWalletManager () {
   return new (require('../lib/wallet-manager'))()
@@ -66,7 +66,7 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('applyBlock', async () => {
+  describe.skip('applyBlock', async () => {
     it('should be a function', async () => {
       await expect(walletManager.applyBlock).toBeFunction()
     })
@@ -100,7 +100,7 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('undoBlock', async () => {
+  describe.skip('undoBlock', async () => {
     it('should be a function', async () => {
       await expect(walletManager.undoBlock).toBeFunction()
     })
