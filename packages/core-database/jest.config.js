@@ -3,7 +3,7 @@
 module.exports = {
   testEnvironment: 'node',
   bail: true,
-  verbose: false,
+  verbose: true,
   testMatch: [
     '**/__tests__/**/*.specc.js'
   ],

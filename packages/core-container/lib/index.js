@@ -31,6 +31,16 @@ class Container {
   }
 
   /**
+   * Tear down the container.
+   * @param  {Object} paths
+   * @param  {Object} options
+   * @return {void}
+   */
+  async tearDown () {
+    return this.plugins.tearDown()
+  }
+
+  /**
    * Add a new registration.
    * @param  {string} key
    * @return {Object}
@@ -115,7 +125,7 @@ class Container {
       //   await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
       // }
 
-      await this.plugins.teardown()
+      await this.plugins.tearDown()
 
       process.exit()
     }
