@@ -3,7 +3,7 @@
 const options = {
   enabled: true,
   key: 'ark/pool',
-  maxTransactionsPerSender: 5,
+  maxTransactionsPerSender: 100,
   whiteList: [],
   redis: {
     host: 'localhost',
