@@ -74,8 +74,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      await this.redis.hmset(this.__getRedisTransactionKey(transaction.id), 'serialized', transaction.serialized.toString('hex'), 'timestamp', transaction.data.timestamp, 'expiration', transaction.data.expiration, 'senderPublicKey', transaction.data.senderPublicKey, 'timelock', transaction.data.timelock, 'timelocktype', transaction.data.timelocktype)
+      const senderPublicKey = transaction.data.senderPublicKey
+      await this.redis.hmset(
+        this.__getRedisTransactionKey(transaction.id),
+        'serialized', transaction.serialized.toString('hex'),
+        'timestamp', transaction.data.timestamp,
+        'expiration', transaction.data.expiration,
+        'senderPublicKey', senderPublicKey,
+        'timelock', transaction.data.timelock,
+        'timelocktype', transaction.data.timelocktype
+      )
       await this.redis.rpush(this.__getRedisOrderKey(), transaction.id)
+      await this.redis.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.id)
 
       if (transaction.data.expiration > 0) {
         await this.redis.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
@@ -228,5 +238,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   __getRedisOrderKey () {
     return `${this.keyPrefix}/order`
+  }
+
+  /**
+   * Get the Redis key for the transactions associated with a public key.
+   * @param  {String} publicKey
+   * @return {String}
+   */
+  __getRedisKeyByPublicKey (publicKey) {
+    return `${this.keyPrefix}/publicKey/${publicKey}`
   }
 }
