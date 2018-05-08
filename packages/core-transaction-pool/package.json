@@ -11,8 +11,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
-    "test": "ARK_ENV=test jest --forceExit",
-    "test:watch": "ARK_ENV=test jest --forceExit --watch",
+    "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix"
   }
 }
