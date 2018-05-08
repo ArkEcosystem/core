@@ -1,5 +1,5 @@
 expect.extend({
-  toBeArkAddress: require('../../lib/matchers/address')
+  toBeArkAddress: require('../../../lib/matchers/fields/address')
 })
 
 describe('.toBeArkAddress', () => {
