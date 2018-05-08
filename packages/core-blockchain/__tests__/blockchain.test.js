@@ -19,7 +19,7 @@ afterAll(async (done) => {
 })
 
 describe('Blockchain', () => {
-  it('should be a function', () => {
+  it('should be an object', () => {
     expect(blockchain).toBeObject()
   })
 
@@ -136,7 +136,7 @@ describe('Blockchain', () => {
       expect(blockchain.getState).toBeFunction()
     })
 
-    it('should be a function', () => {
+    it('should be an empty state object', () => {
       expect(blockchain.getState()).toEqual({
         blockchain: {
           actions: [],
@@ -157,7 +157,7 @@ describe('Blockchain', () => {
   })
 
   describe('stateMachine', () => {
-    it('should be a function', () => {
+    it('should be an object', () => {
       expect(blockchain.stateMachine).toBeObject()
     })
   })
