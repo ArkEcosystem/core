@@ -1,10 +1,6 @@
 'use strict'
 
-beforeAll(async (done) => {
-  await require('../../__support__/setup')()
-
-  done()
-})
+require('../../__support__/setup')
 
 const utils = require('../utils')
 
@@ -299,7 +295,7 @@ describe('API 2.0 - Blocks', () => {
       const block = res.body.data[0]
       await utils.assertBlock(block)
       await expect(block.id).toBe(blockId)
-      await expect(block.forged.fee).toBe(totalFee)
+      await expect(+block.forged.fee).toBe(totalFee)
     })
 
     it('should POST a search for blocks with the specified totalFee range', async () => {
@@ -318,7 +314,7 @@ describe('API 2.0 - Blocks', () => {
       const block = res.body.data[0]
       await utils.assertBlock(block)
       await expect(block.id).toBe(blockId)
-      await expect(block.forged.fee).toBe(totalFee)
+      await expect(+block.forged.fee).toBe(totalFee)
     })
 
     it('should POST a search for blocks with the exact specified reward', async () => {
@@ -337,7 +333,7 @@ describe('API 2.0 - Blocks', () => {
       const block = res.body.data[0]
       await utils.assertBlock(block)
       await expect(block.id).toBe(blockId)
-      await expect(block.forged.reward).toBe(reward)
+      await expect(+block.forged.reward).toBe(reward)
     })
 
     it('should POST a search for blocks with the specified reward range', async () => {
@@ -356,7 +352,7 @@ describe('API 2.0 - Blocks', () => {
       const block = res.body.data[0]
       await utils.assertBlock(block)
       await expect(block.id).toBe(blockId)
-      await expect(block.forged.reward).toBe(reward)
+      await expect(+block.forged.reward).toBe(reward)
     })
 
     it('should POST a search for blocks with the exact specified payloadLength', async () => {

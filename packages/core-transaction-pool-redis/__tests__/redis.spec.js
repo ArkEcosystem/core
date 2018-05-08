@@ -1,5 +1,7 @@
 'use strict'
 
+const app = require('./__support__/setup')
+
 const options = {
   enabled: true,
   key: 'ark/pool',
@@ -14,9 +16,15 @@ const options = {
 let redis
 
 beforeAll(async (done) => {
-  await require('./__support__/setup')()
+  await app.setUp()
 
   redis = new (require('../lib/connection.js'))(options)
+
+  done()
+})
+
+afterAll(async (done) => {
+  await app.tearDown()
 
   done()
 })

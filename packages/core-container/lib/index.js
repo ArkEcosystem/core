@@ -31,6 +31,14 @@ class Container {
   }
 
   /**
+   * Tear down the container.
+   * @return {Promise}
+   */
+  async tearDown () {
+    return this.plugins.tearDown()
+  }
+
+  /**
    * Add a new registration.
    * @param  {string} key
    * @return {Object}
@@ -104,6 +112,7 @@ class Container {
    */
   __registerExitHandler () {
     const handleExit = async () => {
+      this.resolvePlugin('logger').info('SIGINT handled, trying to shut down gracefully')
       this.resolvePlugin('logger').info('Stopping ARK Core...')
 
       // await this.resolvePlugin('database').saveWallets(true)
@@ -115,13 +124,13 @@ class Container {
       //   await fs.writeFile(spvFile, JSON.stringify(lastBlock.data))
       // }
 
-      await this.plugins.teardown()
+      await this.plugins.tearDown()
 
       process.exit()
     }
 
     // Handle CTRL + C
-    ['SIGINT'].forEach((eventType) => process.on(eventType, handleExit))
+    ['SIGINT'].forEach(eventType => process.on(eventType, handleExit))
   }
 }
 

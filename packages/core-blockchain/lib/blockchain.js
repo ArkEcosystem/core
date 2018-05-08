@@ -66,7 +66,7 @@ module.exports = class Blockchain {
     this.dispatch('START')
 
     /**
-     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
+     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
      */
     while (!stateMachine.state.started) {
       await delay(1000)
@@ -117,13 +117,14 @@ module.exports = class Blockchain {
 
   /**
    * Hand the given transactions to the transaction handler.
-   * @param  {Array} transactions
+   * @param  {Array}   transactions
+   * @param  {Boolean} isBroadcast
    * @return {Array}
    */
-  postTransactions (transactions) {
+  postTransactions (transactions, isBroadcast) {
     logger.info(`Received ${transactions.length} new transactions`)
 
-    return this.transactionPool.addTransactions(transactions)
+    return this.transactionPool.addTransactions(transactions, isBroadcast)
   }
 
   /**
@@ -205,7 +206,11 @@ module.exports = class Blockchain {
       await __removeBlocks(nblocks - 1)
     }
 
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height}`)
+    if (nblocks >= this.getLastBlock(true).height) {
+      nblocks = this.getLastBlock(true).height - 1
+    }
+
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height - nblocks}`)
 
     this.queue.pause()
     this.queue.clear(stateMachine)

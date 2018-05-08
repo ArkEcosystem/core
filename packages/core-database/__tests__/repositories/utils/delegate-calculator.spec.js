@@ -1,14 +1,22 @@
 'use strict'
 
+const app = require('../../__support__/setup')
+
 let calculatorModule
 
 beforeAll(async (done) => {
-  await require('../../__support__/setup')()
+  await app.setUp()
 
   calculatorModule = require('../../../lib/repositories/utils/delegate-calculator')
 
   done()
 })
+
+// afterAll(async (done) => {
+//   await app.tearDown()
+
+//   done()
+// })
 
 const delegate = {
  balance: 10000000 * Math.pow(10, 8),

@@ -122,7 +122,7 @@ module.exports = class BlocksRepository {
    * @return {Object}
    */
   totalsByGenerator (generatorPublicKey) {
-    return this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") as rewards, SUM("reward"+"totalFee") as forged FROM blocks WHERE "generatorPublicKey" = "${generatorPublicKey}"`, {
+    return this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") AS rewards, SUM("reward"+"totalFee") AS forged FROM "blocks" WHERE "generatorPublicKey" = '${generatorPublicKey}'`, {
       type: Sequelize.QueryTypes.SELECT
     })
   }

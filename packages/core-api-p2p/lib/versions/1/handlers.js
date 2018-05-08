@@ -170,10 +170,11 @@ exports.postTransactions = {
   handler: async (request, h) => {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
+    const isBroadcast = request.payload.broadcast
 
     // TODO: Review throttling of v1
     const poolThrottle = await transactionPool.determineExceededTransactions(transactions)
-    blockchain.postTransactions(poolThrottle.acceptable)
+    blockchain.postTransactions(poolThrottle.acceptable, isBroadcast)
 
     return {
       success: true,

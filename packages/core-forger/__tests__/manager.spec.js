@@ -1,13 +1,20 @@
 'use strict'
 
 const { Delegate } = require('@arkecosystem/client').models
+const app = require('./__support__/setup')
 
 let ForgerManager
 
 beforeAll(async (done) => {
-  await require('./__support__/setup')()
+  await app.setUp()
 
   ForgerManager = require('../lib/manager')
+
+  done()
+})
+
+afterAll(async (done) => {
+  await app.tearDown()
 
   done()
 })

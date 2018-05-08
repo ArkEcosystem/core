@@ -1,5 +1,7 @@
 'use strict'
 
+const app = require('./__support__/setup')
+
 let walletManager
 const { Block, Transaction, Wallet } = require('@arkecosystem/client').models
 
@@ -9,12 +11,18 @@ const dummy2 = require('./__fixtures__/wallets.json')[1]
 const dummyFake = require('./__fixtures__/wallets.json')[2]
 
 beforeAll(async (done) => {
-  await require('./__support__/setup')()
+  await app.setUp()
 
   walletManager = new (require('../lib/wallet-manager'))()
 
   done()
 })
+
+// afterAll(async (done) => {
+//   await app.tearDown()
+
+//   done()
+// })
 
 function createWalletManager () {
   return new (require('../lib/wallet-manager'))()

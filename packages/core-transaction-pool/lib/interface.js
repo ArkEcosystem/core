@@ -1,6 +1,7 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
+const p2p = container.resolvePlugin('p2p')
 const async = require('async')
 const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
@@ -26,6 +27,9 @@ module.exports = class TransactionPoolInterface {
     this.queue = async.queue((transaction, queueCallback) => {
       if (this.verifyTransaction(transaction)) {
         this.addTransaction(transaction)
+        if (!transaction.isBroadcast) {
+          this.broadcastTransaction(transaction)
+        }
       }
       queueCallback()
     }, 1)
@@ -45,6 +49,14 @@ module.exports = class TransactionPoolInterface {
    */
   async getPoolSize () {
     throw new Error('Method [getPoolSize] not implemented!')
+  }
+
+  /**
+   * Broadcast transaction to additional peers.
+   * @param {Transaction} transaction
+   */
+  async broadcastTransaction (transaction) {
+    p2p.broadcastTransactions([transaction])
   }
 
   /**
@@ -115,11 +127,17 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
-   * @param {Array} transactions
+   * @param {Array}   transactions
+   * @param {Boolean} isBroadcast
    */
-  async addTransactions (transactions) {
+  async addTransactions (transactions, isBroadcast) {
     this.queue.push(transactions
-      .map(transaction => new Transaction(transaction)))
+      .map(transaction => {
+        transaction = new Transaction(transaction)
+        transaction.isBroadcast = isBroadcast
+
+        return transaction
+      }))
   }
 
   /**

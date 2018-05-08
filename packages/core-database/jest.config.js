@@ -2,10 +2,10 @@
 
 module.exports = {
   testEnvironment: 'node',
-  bail: true,
-  verbose: false,
+  bail: false,
+  verbose: true,
   testMatch: [
-    '**/__tests__/**/*.specc.js'
+    '**/__tests__/**/*.spec.js'
   ],
   moduleFileExtensions: [
     'js',

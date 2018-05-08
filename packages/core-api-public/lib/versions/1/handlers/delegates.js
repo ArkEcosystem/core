@@ -43,7 +43,11 @@ exports.show = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const delegate = await database.delegates.findById(request.query.id)
+    if (!request.query.publicKey && !request.query.username) {
+      return utils.respondWith('Delegate not found', true)
+    }
+
+    const delegate = await database.delegates.findById(request.query.publicKey || request.query.username)
 
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
@@ -129,7 +133,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      data: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
   }
 }

@@ -1,5 +1,7 @@
 'use strict'
 
+const app = require('./__support__/setup')
+
 let transactionPoolInterface
 
 const options = {
@@ -14,9 +16,15 @@ const options = {
 }
 
 beforeAll(async (done) => {
-  await require('./__support__/setup')()
+  await app.setUp()
 
   transactionPoolInterface = new (require('../lib/interface'))(options)
+
+  done()
+})
+
+afterAll(async (done) => {
+  await app.tearDown()
 
   done()
 })

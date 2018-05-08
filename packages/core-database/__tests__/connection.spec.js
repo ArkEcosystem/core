@@ -1,14 +1,22 @@
 'use strict'
 
+const app = require('./__support__/setup')
+
 let ConnectionInterface
 
 beforeAll(async (done) => {
-  await require('./__support__/setup')()
+  await app.setUp()
 
   ConnectionInterface = new (require('../lib/interface'))()
 
   done()
 })
+
+// afterAll(async (done) => {
+//   await app.tearDown()
+
+//   done()
+// })
 
 describe('Connection Interface', () => {
   it('should be an object', async () => {
