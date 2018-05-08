@@ -28,6 +28,8 @@ module.exports = class Down {
     config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+
+    this.__registerListeners()
   }
 
   /**
@@ -290,5 +292,16 @@ module.exports = class Down {
     })
 
     return Promise.all(peers.map((peer) => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Register event listeners for p2p.
+   * @TODO: rethink placement
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('broadcastTransactions', async transactions => {
+      this.broadcastTransactions(transactions)
+    })
   }
 }

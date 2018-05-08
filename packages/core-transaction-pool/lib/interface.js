@@ -1,7 +1,7 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
-const p2p = container.resolvePlugin('p2p')
+const emitter = container.resolvePlugin('event-emitter')
 const async = require('async')
 const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
@@ -56,7 +56,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Transaction} transaction
    */
   async broadcastTransaction (transaction) {
-    p2p.broadcastTransactions([transaction])
+    emitter.emit('broadcastTransactions', [transaction])
   }
 
   /**
