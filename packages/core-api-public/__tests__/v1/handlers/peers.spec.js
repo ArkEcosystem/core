@@ -1,10 +1,6 @@
 'use strict'
 
-beforeAll(async (done) => {
-  await require('../../__support__/setup')()
-
-  done()
-})
+require('../../__support__/setup')
 
 const utils = require('../utils')
 
