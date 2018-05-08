@@ -98,6 +98,32 @@ module.exports = class Peer {
   }
 
   /**
+   * Perform POST request for a transactions.
+   * @param  {Transaction[]}      transactions
+   * @return {(Object|undefined)}
+   */
+  async postTransactions (transactions) {
+    try {
+      const res = await popsicle.request({
+        method: 'POST',
+        url: this.url + '/peer/transactions',
+        body: {
+          transactions,
+          broadcast: true
+        },
+        headers: this.headers,
+        timeout: 5000
+      }).use(popsicle.plugins.parse('json'))
+
+      this.parseHeaders(res)
+
+      return res.body
+    } catch (error) {
+      this.status = error.code
+    }
+  }
+
+  /**
    * Parse headers from response.
    * @param  {Object} res
    * @return {Object}

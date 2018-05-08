@@ -1,5 +1,9 @@
 'use strict'
 
-module.exports = async () => {
-  // Mount plugin here...
+const container = require('@arkecosystem/core-container')
+
+exports.setUp = async () => {
+  // Mount plugins here...
 }
+
+exports.tearDown = async () => container.tearDown()

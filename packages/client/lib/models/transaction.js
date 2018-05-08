@@ -71,6 +71,33 @@ module.exports = class Transaction {
     return true
   }
 
+  /*
+   * Return transaction data for v1.
+   * @return {Object}
+   */
+  toBroadcastV1 () {
+    if (this.type === TRANSACTION_TYPES.DELEGATE) {
+      return {
+        id: this.id,
+        type: this.type,
+        amount: 0,
+        fee: this.fee,
+        recipientId: null,
+        senderPublicKey: this.senderPublicKey,
+        timestamp: this.timestamp,
+        asset: {
+          delegate: {
+            username: this.asset.delegate.username,
+            publicKey: this.senderPublicKey
+          }
+        },
+        signature: this.signature
+      }
+    } else {
+      return this.data
+    }
+  }
+
   // AIP11 serialization
   static serialize (transaction) {
     const bb = new ByteBuffer(512, true)

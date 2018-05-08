@@ -65,7 +65,7 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * Get a wallet.
+   * Get a wallet by address, public key or username.
    * @param  {Number} id
    * @return {Object}
    */
