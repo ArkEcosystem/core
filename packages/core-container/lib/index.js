@@ -31,6 +31,16 @@ class Container {
   }
 
   /**
+   * Tear down the container.
+   * @param  {Object} paths
+   * @param  {Object} options
+   * @return {void}
+   */
+  async teardown () {
+    return this.plugins.teardown()
+  }
+
+  /**
    * Add a new registration.
    * @param  {string} key
    * @return {Object}
