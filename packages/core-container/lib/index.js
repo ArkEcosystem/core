@@ -32,9 +32,7 @@ class Container {
 
   /**
    * Tear down the container.
-   * @param  {Object} paths
-   * @param  {Object} options
-   * @return {void}
+   * @return {Promise}
    */
   async tearDown () {
     return this.plugins.tearDown()
