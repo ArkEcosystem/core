@@ -41,10 +41,6 @@ module.exports = {
         // uri: 'postgres://node:password@localhost:5432/ark_mainnet',
         // dialect: 'postgres'
     },
-    '@arkecosystem/core-api-p2p': {
-      port: 4002,
-      remoteinterface: true
-    },
     '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {
       enabled: true,
@@ -55,6 +51,10 @@ module.exports = {
         host: 'localhost',
         port: 6379
       }
+    },
+    '@arkecosystem/core-api-p2p': {
+      port: 4002,
+      remoteinterface: true
     }
   },
   mounted: {
