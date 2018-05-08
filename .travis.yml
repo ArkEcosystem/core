@@ -6,6 +6,5 @@ node_js:
 
 script:
   - yarn test
-  - commitlint-travis
 
 cache: yarn
