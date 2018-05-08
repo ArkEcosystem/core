@@ -21,9 +21,16 @@ module.exports = class PluginRegistrars {
     }
 
     this.container = container
-    this.plugins = require(plugins)
+    this.groups = require(plugins)
     this.options = options
     this.deregister = []
+    this.plugins = {}
+
+    Object.keys(this.groups).forEach((key) => {
+      typeof this.groups[key] === 'object'
+        ? Object.assign(this.plugins, this.groups[key])
+        : this.plugins[key] = this.groups[key]
+    })
   }
 
   /**
@@ -40,11 +47,35 @@ module.exports = class PluginRegistrars {
 
   /**
    * Register a plugin.
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
+   */
+  async register (name, options = {}) {
+    return this.__registerWithContainer(name, Hoek.applyToDefaults(this.plugins[name], options))
+  }
+
+  /**
+   * Register a group of plugins.
+   * @param  {String} name
+   * @param  {Object} options
+   * @return {void}
+   */
+  async registerGroup (name, options = {}) {
+    for (let [pluginName, pluginOptions] of Object.entries(this.groups[name])) {
+      if (this.__shouldBeRegistered(pluginName)) {
+        await this.__registerWithContainer(pluginName, Hoek.applyToDefaults(pluginOptions, options))
+      }
+    }
+  }
+
+  /**
+   * Register a plugin.
    * @param  {Object} plugin
    * @param  {Object} options
    * @return {void}
    */
-  async register (plugin, options = {}) {
+  async __registerWithContainer (plugin, options = {}) {
     let item = this.__resolve(plugin)
 
     if (!item.plugin.register) {
@@ -73,20 +104,6 @@ module.exports = class PluginRegistrars {
 
     if (item.plugin.hasOwnProperty('deregister')) {
       this.deregister.push(item.plugin)
-    }
-  }
-
-  /**
-   * Register a group of plugins.
-   * @param  {String} name
-   * @param  {Object} options
-   * @return {void}
-   */
-  async registerGroup (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.plugins[name])) {
-      if (this.__shouldBeRegistered(pluginName)) {
-        await this.register(pluginName, Hoek.applyToDefaults(pluginOptions, options))
-      }
     }
   }
 
