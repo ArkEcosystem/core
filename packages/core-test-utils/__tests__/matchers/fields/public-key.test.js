@@ -1,5 +1,5 @@
 expect.extend({
-  toBeArkPublicKey: require('../../lib/matchers/public-key')
+  toBeArkPublicKey: require('../../../lib/matchers/fields/public-key')
 })
 
 describe('.toBeArkPublicKey', () => {
