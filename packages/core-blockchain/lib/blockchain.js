@@ -66,7 +66,7 @@ module.exports = class Blockchain {
     this.dispatch('START')
 
     /**
-     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=testnet
+     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
      */
     while (!stateMachine.state.started) {
       await delay(1000)

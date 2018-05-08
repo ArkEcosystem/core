@@ -46,12 +46,13 @@ module.exports = class Down {
    */
   async updateNetworkStatus () {
     try {
-      if (process.env.ARK_ENV !== 'testnet' && process.env.NODE_ENV !== 'test') {
+      // TODO: for tests that involve peers we need to sync them
+      if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
         await this.cleanPeers()
       }
 
-      if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'testnet') {
+      if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
         this.config.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
 
@@ -111,9 +112,17 @@ module.exports = class Down {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip] || process.env.ARK_ENV === 'testnet') return
-    if (peer.nethash !== this.config.network.nethash) throw new Error('Request is made on the wrong network')
-    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') throw new Error('Localhost peer not accepted')
+    if (this.peers[peer.ip] || process.env.ARK_ENV === 'test') {
+      return
+    }
+
+    if (peer.nethash !== this.config.network.nethash) {
+      throw new Error('Request is made on the wrong network')
+    }
+
+    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') {
+      throw new Error('Localhost peer not accepted')
+    }
 
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
