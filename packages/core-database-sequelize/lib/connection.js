@@ -82,6 +82,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getActiveDelegates (height) {
+    logger.verbose(`GETTING ACTIVE DELEGATES FOR HEIGHT ===> ${height}`)
+    
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
