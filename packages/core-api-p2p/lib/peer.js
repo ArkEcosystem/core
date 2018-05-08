@@ -158,9 +158,9 @@ module.exports = class Peer {
 
       return response.body.blocks
     } catch (error) {
-      logger.debug(`Cannot Download blocks from peer - ${error}`)
-
+      logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
       this.ban = new Date().getTime() + 60 * 60000
+      throw error
     }
   }
 

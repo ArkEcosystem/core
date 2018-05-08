@@ -6,6 +6,7 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
+const transactionPool = container.resolvePlugin('transactionPool')
 
 const client = require('@arkecosystem/client')
 const { Transaction } = client.models
@@ -43,9 +44,14 @@ exports.store = {
     const transactions = request.payload.transactions
       .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
 
-    blockchain.postTransactions(transactions)
+    const poolThrottle = await transactionPool.determineExceededTransactions(transactions)
+    blockchain.postTransactions(poolThrottle.acceptable)
 
-    return { transactionIds: [] }
+    return {
+      success: true,
+      transactionIds: poolThrottle.acceptable.map(tx => tx.id),
+      exceeded: poolThrottle.exceeded.map(tx => tx.id)
+    }
   },
   options: {
     validate: schema.store,

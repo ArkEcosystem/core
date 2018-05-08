@@ -28,6 +28,8 @@ module.exports = class Down {
     config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+
+    this.__registerListeners()
   }
 
   /**
@@ -257,8 +259,11 @@ module.exports = class Down {
     try {
       await randomPeer.ping()
 
-      return randomPeer.downloadBlocks(fromBlockHeight)
+      const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
+      blocks.forEach(block => (block.ip = randomPeer.ip))
+      return blocks
     } catch (error) {
+      logger.error(JSON.stringify(error))
       return this.downloadBlocks(fromBlockHeight)
     }
   }
@@ -290,5 +295,16 @@ module.exports = class Down {
     })
 
     return Promise.all(peers.map((peer) => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Register event listeners for p2p.
+   * @TODO: rethink placement
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('broadcastTransactions', async transactions => {
+      this.broadcastTransactions(transactions)
+    })
   }
 }
