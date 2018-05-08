@@ -20,9 +20,11 @@ const register = async (server, options) => {
     { method: 'GET', path: '/blocks/get', ...blocks.show },
     { method: 'GET', path: '/blocks/getEpoch', ...blocks.epoch },
     { method: 'GET', path: '/blocks/getHeight', ...blocks.height },
+    { method: 'GET', path: '/blocks/getheight', ...blocks.height }, // desktop wallet inconsistency
     { method: 'GET', path: '/blocks/getNethash', ...blocks.nethash },
     { method: 'GET', path: '/blocks/getFee', ...blocks.fee },
     { method: 'GET', path: '/blocks/getFees', ...blocks.fees },
+    { method: 'GET', path: '/blocks/getfees', ...blocks.fees }, // desktop wallet inconsistency
     { method: 'GET', path: '/blocks/getMilestone', ...blocks.milestone },
     { method: 'GET', path: '/blocks/getReward', ...blocks.reward },
     { method: 'GET', path: '/blocks/getSupply', ...blocks.supply },
