@@ -40,7 +40,7 @@ module.exports = class Transaction {
 
       if (!this.verified) {
         // fix on issue of non homogeneus transaction type 1 payload
-        if (this.data.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+        if (this.data.type === TRANSACTION_TYPES.SECOND_SIGNATURE || this.data.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
           if (this.data.recipientId) {
             delete this.data.recipientId
           } else {
@@ -366,9 +366,11 @@ module.exports = class Transaction {
 
       signatures = signatures.slice(2)
       tx.signatures = []
-      for (let i = 0; i < tx.asset.multisignature.keysgroup.length; i++) {
+      let moreSignatures = true
+      while (moreSignatures) {
         const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
         if (mlength > 0) tx.signatures.push(signatures.substring(0, mlength * 2))
+        else moreSignatures = false
         signatures = signatures.substring(mlength * 2)
       }
     }
