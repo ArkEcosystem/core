@@ -16,6 +16,17 @@ const accounts = require('./handlers/accounts')
  */
 const register = async (server, options) => {
   server.route([
+    { method: 'GET', path: '/accounts/getAllAccounts', ...accounts.index },
+    { method: 'GET', path: '/accounts', ...accounts.show },
+    { method: 'GET', path: '/accounts/', ...accounts.show }, // v1 inconsistency
+    { method: 'GET', path: '/accounts/getBalance', ...accounts.balance },
+    { method: 'GET', path: '/accounts/getPublicKey', ...accounts.publicKey },
+    { method: 'GET', path: '/accounts/delegates/fee', ...accounts.fee },
+    { method: 'GET', path: '/accounts/delegates', ...accounts.delegates },
+    { method: 'GET', path: '/accounts/delegates/', ...accounts.delegates }, // v1 inconsistency
+    { method: 'GET', path: '/accounts/top', ...accounts.top },
+    { method: 'GET', path: '/accounts/count', ...accounts.count },
+
     { method: 'GET', path: '/blocks', ...blocks.index },
     { method: 'GET', path: '/blocks/get', ...blocks.show },
     { method: 'GET', path: '/blocks/getEpoch', ...blocks.epoch },
@@ -32,6 +43,7 @@ const register = async (server, options) => {
 
     { method: 'GET', path: '/delegates', ...delegates.index },
     { method: 'GET', path: '/delegates/get', ...delegates.show },
+    { method: 'GET', path: '/delegates/get/', ...delegates.show }, // v1 inconsistency
     { method: 'GET', path: '/delegates/count', ...delegates.count },
     { method: 'GET', path: '/delegates/search', ...delegates.search },
     { method: 'GET', path: '/delegates/voters', ...delegates.voters },
@@ -44,23 +56,16 @@ const register = async (server, options) => {
 
     { method: 'GET', path: '/peers', ...peers.index },
     { method: 'GET', path: '/peers/get', ...peers.show },
+    { method: 'GET', path: '/peers/get/', ...peers.show }, // v1 inconsistency
     { method: 'GET', path: '/peers/version', ...peers.version },
 
     { method: 'GET', path: '/signatures/fee', ...signatures.fee },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
     { method: 'GET', path: '/transactions/get', ...transactions.show },
+    { method: 'GET', path: '/transactions/get/', ...transactions.show }, // v1 inconsistency
     { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
-    { method: 'GET', path: '/transactions/unconfirmed/get', ...transactions.showUnconfirmed },
-
-    { method: 'GET', path: '/accounts/getAllAccounts', ...accounts.index },
-    { method: 'GET', path: '/accounts', ...accounts.show },
-    { method: 'GET', path: '/accounts/getBalance', ...accounts.balance },
-    { method: 'GET', path: '/accounts/getPublicKey', ...accounts.publicKey },
-    { method: 'GET', path: '/accounts/delegates/fee', ...accounts.fee },
-    { method: 'GET', path: '/accounts/delegates', ...accounts.delegates },
-    { method: 'GET', path: '/accounts/top', ...accounts.top },
-    { method: 'GET', path: '/accounts/count', ...accounts.count }
+    { method: 'GET', path: '/transactions/unconfirmed/get', ...transactions.showUnconfirmed }
   ])
 }
 
