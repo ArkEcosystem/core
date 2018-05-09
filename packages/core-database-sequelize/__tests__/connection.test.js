@@ -123,7 +123,7 @@ describe('Sequelize Connection', () => {
     it('should return a list of delegates', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const wallets = await connection.buildWallets(1)
+      await connection.buildWallets(1)
       await connection.saveWallets(true)
 
       const delegates = await connection.buildDelegates(51, 1)
@@ -154,7 +154,7 @@ describe('Sequelize Connection', () => {
     it('should update the delegate', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const wallets = await connection.buildWallets(1)
+      await connection.buildWallets(1)
       await connection.saveWallets(true)
 
       const delegates = await connection.buildDelegates(51, 1)
@@ -176,7 +176,7 @@ describe('Sequelize Connection', () => {
     it('should save the wallets', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const wallets = await connection.buildWallets(1)
+      await connection.buildWallets(1)
       await connection.saveWallets(true)
 
       const walletCount = await connection.models.wallet.count()
