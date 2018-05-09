@@ -8,6 +8,6 @@ module.exports = {
     version: '1.0.1',
     port: 4000
   },
-  transactionDelay: 15000,
+  transactionWaitDelay: 15,
   passphrase: 'prison tobacco acquire stone dignity palace note decade they current lesson robot'
 }
