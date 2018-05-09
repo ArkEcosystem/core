@@ -23,8 +23,7 @@ module.exports = class Blockchain {
     stateMachine.state.networkStart = !!networkStart
 
     if (stateMachine.state.networkStart) {
-      // TODO: Reword message below
-      logger.warn('ARK Core is launched in Genesis Network Start. Unless you know what you are doing, this is likely wrong.')
+      logger.warn('ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.')
       logger.info('Starting ARK Core for a new world, welcome aboard :rocket:')
     }
 
