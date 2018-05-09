@@ -41,13 +41,13 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       if (this.config.storage === ':memory:') {
         this.connection = new Sequelize('database', 'username', 'password', config)
       } else {
-        if (this.config.dialect === 'sqlite' && this.config.uri) {
-          const databasePath = expandHomeDir(this.config.uri.substring(7))
+        const databasePath = expandHomeDir(this.config.uri.substring(7))
 
-          this.config.uri = `sqlite:${databasePath}`
+        this.config.uri = `sqlite:${databasePath}`
 
-          await fs.ensureFile(databasePath)
-        }
+        await fs.ensureFile(databasePath)
+
+        this.connection = new Sequelize(this.config.uri, config)
       }
     } else {
       this.connection = new Sequelize(this.config.uri, config)
