@@ -4,6 +4,7 @@ module.exports = {
     getDelegates: require('./get-delegates'),
     getTransactionDelay: require('./get-transaction-delay'),
     getVoters: require('./get-voters'),
+    getWallet: require('./get-wallet'),
     getWalletBalance: require('./get-wallet-balance'),
     logger: require('./logger'),
     request: require('./request')

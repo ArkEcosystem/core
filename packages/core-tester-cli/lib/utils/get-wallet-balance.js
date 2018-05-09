@@ -1,10 +1,10 @@
-const request = require('./request')
+const getWallet = require('./get-wallet')
 
 module.exports = async (address) => {
-    const response = (await request.get(`/api/accounts/getBalance?address=${address}`)).data
+    const wallet = await getWallet(address)
 
-    if (response.success) {
-        return response.balance
+    if (wallet) {
+        return wallet.balance
     }
 
     return null
