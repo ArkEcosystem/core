@@ -25,6 +25,16 @@ module.exports = class Transaction {
   }
 
   /**
+   * Set transaction version.
+   * @param {Number} version
+   * @return {Transaction}
+   */
+  setVersion (version) {
+    this.version = version
+    return this
+  }
+
+  /**
    * Set transaction fee.
    * @param {Number} fee
    * @return {Transaction}
