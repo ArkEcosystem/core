@@ -277,7 +277,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async flush () {
-    const keys = await this.pool.keys(`*`)
+    const keys = await this.pool.keys('*')
 
     keys.forEach(key => this.pool.del(key))
   }
