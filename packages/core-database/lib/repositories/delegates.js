@@ -78,14 +78,11 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * TODO: find a better name...
-   *
-   * Get all active delegates.
+   * Get all active delegates at height.
    * @param  {Number} height
-   * @param  {Number} totalSupply
    * @return {Array}
    */
-  async active (height, totalSupply) {
+  async getActiveAtHeight (height) {
     const delegates = await this.connection.getActiveDelegates(height)
 
     return Promise.all(delegates.map(async delegate => {
