@@ -20,16 +20,16 @@ beforeAll(() => {
 })
 
 describe('Logger', () => {
-  it('should be an object', async() => {
+  it('should be an object', async () => {
     await expect(logger).toBeInstanceOf(winston.Logger)
   })
 
-  describe('error', async() => {
-    it('should be a function', async() => {
+  describe('error', async () => {
+    it('should be a function', async () => {
       await expect(logger.error).toBeFunction()
     })
 
-    it('should log a message', async() => {
+    it('should log a message', async () => {
       logger.info('error_message')
 
       await expect(message).toMatch(/error/)
@@ -38,12 +38,12 @@ describe('Logger', () => {
     })
   })
 
-  describe('warn', async() => {
-    it('should be a function', async() => {
+  describe('warn', async () => {
+    it('should be a function', async () => {
       await expect(logger.warn).toBeFunction()
     })
 
-    it('should log a message', async() => {
+    it('should log a message', async () => {
       logger.info('warning_message')
 
       await expect(message).toMatch(/warn/)
@@ -52,12 +52,12 @@ describe('Logger', () => {
     })
   })
 
-  describe('info', async() => {
-    it('should be a function', async() => {
+  describe('info', async () => {
+    it('should be a function', async () => {
       await expect(logger.info).toBeFunction()
     })
 
-    it('should log a message', async() => {
+    it('should log a message', async () => {
       logger.info('info_message')
 
       await expect(message).toMatch(/info/)
@@ -66,12 +66,12 @@ describe('Logger', () => {
     })
   })
 
-  describe('debug', async() => {
-    it('should be a function', async() => {
+  describe('debug', async () => {
+    it('should be a function', async () => {
       await expect(logger.debug).toBeFunction()
     })
 
-    it('should log a message', async() => {
+    it('should log a message', async () => {
       logger.info('debug_message')
 
       await expect(message).toMatch(/debug/)
@@ -80,12 +80,12 @@ describe('Logger', () => {
     })
   })
 
-  describe('printTracker', async() => {
-    it('should be a function', async() => {
+  describe('printTracker', async () => {
+    it('should be a function', async () => {
       await expect(logger.printTracker).toBeFunction()
     })
 
-    it('should print the tracker', async() => {
+    it('should print the tracker', async () => {
       logger.printTracker('test_title', 50, 100, 'done')
 
       await expect(message).toMatch(/test_title/)
@@ -96,12 +96,12 @@ describe('Logger', () => {
     })
   })
 
-  describe('stopTracker', async() => {
-    it('should be a function', async() => {
+  describe('stopTracker', async () => {
+    it('should be a function', async () => {
       await expect(logger.stopTracker).toBeFunction()
     })
 
-    it('should stop the tracker', async() => {
+    it('should stop the tracker', async () => {
       logger.stopTracker('test_title', 50, 100)
 
       await expect(message).toMatch(/test_title/)

@@ -3,7 +3,6 @@
 const path = require('path')
 const PluginRegistrar = require('../../lib/registrars/plugin')
 
-const stubPlugins = require('../__stubs__/plugins.js')
 const stubPluginPath = path.resolve(__dirname, '../__stubs__')
 
 let instance
