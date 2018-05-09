@@ -11,6 +11,12 @@ app
   .action(async (options) => require('../lib/commands/transactions')(options))
 
 app
+  .command('signatures')
+  .description('create wallets with second signature')
+  .option('-n, --number <number>', 'number of wallets', 10)
+  .action(async (options) => require('../lib/commands/signatures')(options))
+
+app
   .command('delegates')
   .description('create multiple delegates')
   .option('-n, --number <number>', 'number of delegates', 10)
