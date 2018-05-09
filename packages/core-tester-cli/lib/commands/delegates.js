@@ -1,7 +1,6 @@
 'use strict'
 
 const ark = require('arkjs')
-const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
@@ -36,8 +35,9 @@ module.exports = async (options) => {
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
-    logger.info('Waiting 30 seconds to apply delegate transactions')
-    await delay(config.transactionDelay)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply delegate transactions`)
+    await delay(delaySeconds * 1000)
 
     const delegates = await utils.getDelegates()
     logger.info(`All transactions have been sent! Total delegates: ${delegates.length}`)
