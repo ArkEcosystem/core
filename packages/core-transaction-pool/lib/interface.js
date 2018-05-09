@@ -27,10 +27,12 @@ module.exports = class TransactionPoolInterface {
     this.queue = async.queue((transaction, queueCallback) => {
       if (this.verifyTransaction(transaction)) {
         this.addTransaction(transaction)
+
         if (!transaction.isBroadcast) {
           this.broadcastTransaction(transaction)
         }
       }
+
       queueCallback()
     }, 1)
   }
@@ -43,6 +45,14 @@ module.exports = class TransactionPoolInterface {
     return this.driver
   }
 
+  /**
+   * Broadcast transaction to additional peers.
+   * @param {Transaction} transaction
+   */
+  async broadcastTransaction (transaction) {
+    emitter.emit('broadcastTransactions', [transaction])
+  }
+
    /**
    * Get the number of transactions in the pool.
    * @return {Number}
@@ -52,21 +62,11 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Broadcast transaction to additional peers.
-   * @param {Transaction} transaction
-   */
-  async broadcastTransaction (transaction) {
-    emitter.emit('broadcastTransactions', [transaction])
-  }
-
-  /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
-    if (this.driver) {
-      await this.addTransaction(transaction)
-    }
+    throw new Error('Method [addTransaction] not implemented!')
   }
 
   /**
@@ -132,13 +132,12 @@ module.exports = class TransactionPoolInterface {
    */
   async addTransactions (transactions, isBroadcast) {
     if (!this.queue) return
-    this.queue.push(transactions
-      .map(transaction => {
-        transaction = new Transaction(transaction)
-        transaction.isBroadcast = isBroadcast
+    this.queue.push(transactions.map(transaction => {
+      transaction = new Transaction(transaction)
+      transaction.isBroadcast = isBroadcast
 
-        return transaction
-      }))
+      return transaction
+    }))
   }
 
   /**
