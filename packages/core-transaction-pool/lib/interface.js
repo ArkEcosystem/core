@@ -20,21 +20,7 @@ module.exports = class TransactionPoolInterface {
 
     if (!this.options.enabled) {
       logger.warn('Transaction pool is disabled - please enable if run in production')
-
-      return
     }
-
-    this.queue = async.queue((transaction, queueCallback) => {
-      if (this.verifyTransaction(transaction)) {
-        this.addTransaction(transaction)
-
-        if (!transaction.isBroadcast) {
-          this.broadcastTransaction(transaction)
-        }
-      }
-
-      queueCallback()
-    }, 1)
   }
 
   /**
@@ -131,18 +117,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Boolean} isBroadcast
    */
   async addTransactions (transactions, isBroadcast) {
-    if (!this.options.enabled) {
-      logger.warn('Transaction pool is disabled - Transactions will not be added')
-
-      return
-    }
-
-    this.queue.push(transactions.map(transaction => {
-      transaction = new Transaction(transaction)
-      transaction.isBroadcast = isBroadcast
-
-      return transaction
-    }))
+    throw new Error('Method [addTransactions] not implemented!')
   }
 
   /**

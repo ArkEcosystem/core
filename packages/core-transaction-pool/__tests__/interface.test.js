@@ -5,22 +5,11 @@ const { dummy1, dummy2 } = require('./__fixtures__/transactions')
 
 let poolInterface
 
-const options = {
-  enabled: true,
-  key: 'ark/pool',
-  maxTransactionsPerSender: 100,
-  whiteList: [],
-  redis: {
-    host: 'localhost',
-    port: 6379
-  }
-}
-
 beforeAll(async (done) => {
   const container = await app.setUp()
   await container.resolvePlugin('blockchain').start()
 
-  poolInterface = new (require('../lib/interface'))(options)
+  poolInterface = new (require('../lib/interface'))({ enabled: false })
 
   done()
 })
