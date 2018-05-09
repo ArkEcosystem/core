@@ -5,9 +5,9 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 
-module.exports = class ForgerManager {
+module.exports = class Client {
   /**
-   * Create a new forger manager instance.
+   * Create a new client instance.
    * @param  {String} host
    */
   constructor (host) {
