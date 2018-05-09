@@ -20,7 +20,6 @@ describe('Signature transaction', () => {
   })
 
   it('should return an array of 4 signature objects', async () => {
-    const quantity = 4
     for (let i = 0; i < transactions.length; i++) {
       await expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.SECOND_SIGNATURE})
     }

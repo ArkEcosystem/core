@@ -14,16 +14,13 @@ describe('Vote transaction', () => {
     undefined,
     quantity
   )
-  console.log(transactions)
 
   it('should return an array', async () => {
     await expect(transactions).toBeArrayOfSize(quantity)
   })
 
   it('should return an array of 4 vote objects', async () => {
-    const quantity = 4
     for (let i = 0; i < transactions.length; i++) {
-      console.log(transactions[i])
       await expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.VOTE})
     }
   })

@@ -23,14 +23,12 @@ describe('Transfer transaction', () => {
   })
 
   it('should return an array of 4 transfer objects', async () => {
-    const quantity = 4
     for (let i = 0; i < transactions.length; i++) {
       await expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.TRANSFER})
     }
   })
 
   it('should return an array sending 20 ark', async () => {
-    const quantity = 4
     for (let i = 0; i < transactions.length; i++) {
       await expect(transactions[i]).toMatchObject({amount: arkAmount * Math.pow(10, 8)})
     }
