@@ -41,7 +41,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
       transaction = ark.delegate.createDelegate(passphrase, username)
     } else if (type === TRANSACTION_TYPES.VOTE) {
       const publicKey = crypto.getKeys(config.passphrase).publicKey
-      transaction = ark.vote.createVote(passphrase, publicKey)
+      transaction = ark.vote.createVote(passphrase, [publicKey])
     } else {
       break
     }
