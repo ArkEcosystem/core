@@ -352,7 +352,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   __registerTransactionQueue () {
     this.queue = async.queue((transaction, queueCallback) => {
-      console.log('wtf')
       if (super.verifyTransaction(transaction)) {
         this.addTransaction(transaction)
 

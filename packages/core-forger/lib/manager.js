@@ -1,29 +1,26 @@
 'use strict'
 
-const popsicle = require('popsicle')
-const map = require('lodash/map')
+const delay = require('delay')
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const config = container.resolvePlugin('config')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Delegate, Transaction } = client.models
 
-const delay = require('delay')
+const Client = require('./client')
 
 module.exports = class ForgerManager {
   /**
    * Create a new forger manager instance.
-   * @param  {Object} config
+   * @param  {Object} options
    */
-  constructor (config) {
+  constructor (options) {
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
-    this.headers = {
-      version: config.server.version,
-      port: config.server.port,
-      nethash: config.network.nethash
-    }
+    this.client = new Client(options.host)
   }
 
   /**
@@ -45,6 +42,7 @@ module.exports = class ForgerManager {
 
       if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
         logger.info('BIP38 Delegate loaded')
+
         this.delegates.push(bip38Delegate)
       }
     }
@@ -53,58 +51,10 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * Start forging on the given peer.
-   * @param  {String} proxy
+   * Start forging on the given node.
    * @return {Object}
    */
-  async startForging (proxy) {
-    this.proxy = proxy
-    let round = null
-    let forgingData = null
-    let data = {}
-
-    const monitor = async () => {
-      try {
-        round = await this.getRound()
-        if (!round.canForge) {
-          // logger.debug('Block already forged in current slot')
-          await delay(100) // basically looping until we lock at beginning of next slot
-
-          return monitor()
-        }
-
-        const delegate = await this.pickForgingDelegate(round)
-        if (!delegate) {
-          // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-          await delay(7900) // we will check at next slot
-
-          return monitor()
-        }
-
-        forgingData = await this.getTransactions()
-        const transactions = forgingData.transactions ? forgingData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-        logger.debug(`Received ${transactions.length} transactions from the pool containing ${forgingData.poolSize}`)
-
-        data.previousBlock = round.lastBlock
-        data.timestamp = round.timestamp
-        data.reward = round.reward
-
-        const block = await delegate.forge(transactions, data)
-
-        this.send(block.toRawJson())
-        await delay(7800) // we will check at next slot
-
-        return monitor()
-      } catch (error) {
-        logger.debug(`Not able to forge: ${error.message}`)
-        // console.log(round)
-        // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
-        await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
-
-        return monitor()
-      }
-    }
-
+  async startForging () {
     // TODO: assuming that blockTime = 8s
     const slot = slots.getSlotNumber()
 
@@ -112,25 +62,58 @@ module.exports = class ForgerManager {
       await delay(100)
     }
 
-    return monitor()
+    return this.__monitor(null, null, {})
   }
 
   /**
-   * Send the given block to the relay.
-   * @param  {Object} block
-   * @return {Object}
+   * Monitor the node for any actions that trigger forging.
+   * @param  {Object} round
+   * @param  {Object} transactionData
+   * @param  {Object} data
+   * @return {Function}
    */
-  async send (block) {
-    logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
-    const result = await popsicle.request({
-      method: 'POST',
-      url: this.proxy + '/internal/block',
-      body: block,
-      headers: this.headers,
-      timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
+  async __monitor (round, transactionData, data) {
+    try {
+      round = await this.client.getRound()
 
-    return result.success
+      if (!round.canForge) {
+        // logger.debug('Block already forged in current slot')
+        await delay(100) // basically looping until we lock at beginning of next slot
+
+        return this.__monitor(round, transactionData, data)
+      }
+
+      const delegate = await this.__pickForgingDelegate(round)
+
+      if (!delegate) {
+        // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
+        await delay(7900) // we will check at next slot
+
+        return this.__monitor(round, transactionData, data)
+      }
+
+      transactionData = await this.client.getTransactions()
+      const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
+      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize}`)
+
+      data.previousBlock = round.lastBlock
+      data.timestamp = round.timestamp
+      data.reward = round.reward
+
+      const block = await delegate.forge(transactions, data)
+
+      this.client.broadcast(block.toRawJson())
+      await delay(7800) // we will check at next slot
+
+      return this.__monitor(round, transactionData, data)
+    } catch (error) {
+      logger.debug(`Not able to forge: ${error.message}`)
+      // console.log(round)
+      // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+      await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
+
+      return this.__monitor(round, transactionData, data)
+    }
   }
 
   /**
@@ -138,46 +121,7 @@ module.exports = class ForgerManager {
    * @param  {Object} round
    * @return {Object}
    */
-  async pickForgingDelegate (round) {
+  async __pickForgingDelegate (round) {
     return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
-  }
-
-  /**
-   * Get the current round.
-   * @return {Object}
-   */
-  async getRound () {
-    const result = await popsicle.request({
-      method: 'GET',
-      url: this.proxy + '/internal/round',
-      headers: this.headers,
-      timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
-
-    return result.body.round
-  }
-
-  /**
-   * Get all transactions that are ready to be forged.
-   * @return {Object}
-   */
-  async getTransactions () {
-    const result = await popsicle.request({
-      method: 'GET',
-      url: this.proxy + '/internal/forgingTransactions',
-      headers: this.headers,
-      timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
-
-    return result.body.data || {}
-  }
-
-  /**
-   * Get a list of forgers by attribute.
-   * @param  {String} attribute
-   * @return {Array}
-   */
-  getForgersBy (attribute) {
-    return map(this.delegates, attribute)
   }
 }

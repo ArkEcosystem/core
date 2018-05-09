@@ -52,7 +52,7 @@ exports.getRound = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const lastBlock = blockchain.getLastBlock()
+    const lastBlock = await blockchain.getLastBlock()
 
     try {
       const height = lastBlock.data.height + 1

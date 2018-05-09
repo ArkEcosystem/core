@@ -8,17 +8,16 @@ const ForgerManager = require('./manager')
  */
 exports.plugin = {
   pkg: require('../package.json'),
+  defaults: require('./defaults'),
   alias: 'forger',
   register: async (container, options) => {
-    const config = container.resolvePlugin('config')
-
-    const forgerManager = await new ForgerManager(config)
+    const forgerManager = await new ForgerManager(options)
 
     const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)
 
     container.resolvePlugin('logger').info(`ForgerManager started with ${forgers.length} forgers`)
 
-    forgerManager.startForging(`http://127.0.0.1:${config.server.port}`)
+    forgerManager.startForging()
 
     return forgerManager
   }

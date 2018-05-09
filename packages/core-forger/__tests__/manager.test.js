@@ -1,14 +1,13 @@
 'use strict'
 
-const { Delegate } = require('@arkecosystem/client').models
 const app = require('./__support__/setup')
 
-let ForgerManager
+const { Delegate } = require('@arkecosystem/client').models
+
+let manager
 
 beforeAll(async (done) => {
   await app.setUp()
-
-  ForgerManager = require('../lib/manager')
 
   done()
 })
@@ -19,73 +18,65 @@ afterAll(async (done) => {
   done()
 })
 
+beforeEach(() => {
+  const ForgeManager = require('../lib/manager')
+  manager = new ForgeManager(require('../lib/defaults'))
+})
+
+jest.setTimeout(30000)
+
 describe('Forger Manager', () => {
-  const config = {
-    server: { version: '0.0.1', port: 9999 },
-    network: { nethash: 'lol-hash' }
-  }
-
-  const delegateConfig = {
-    ...{ delegates: { secrets: ['do-not-tell-anyone'] } },
-    ...config
-  }
-
   describe('loadDelegates', () => {
-    it('returns a promise', async () => {
-      const forger = new ForgerManager(config)
-      try {
-        const promise = await forger.loadDelegates()
-        expect(promise).toBeInstanceOf(Promise)
-      } catch (error) {
-        //
-      }
+    it('should be a function', () => {
+      expect(manager.loadDelegates).toBeFunction()
     })
 
-    describe('without configured delegates', () => {
-      it('rejects with an Error', () => {
-        const forger = new ForgerManager(config)
-
-        try {
-          forger.loadDelegates()
-        } catch (error) {
-          expect(error).toBeInstanceOf(Error)
-          expect(error.message).toMatch(/no delegate/i)
-        }
-      })
+    it('should throw an error without configured delegates', async () => {
+      manager.secrets = null
+      await expect(manager.loadDelegates()).rejects.toThrowError('No delegate found')
     })
-    describe('with configured delegates', () => {
-      it('resolves with them', async () => {
-        const forger = new ForgerManager(delegateConfig)
 
-        try {
-          const delegates = await forger.loadDelegates()
+    it('should be ok with configured delegates', async () => {
+      const delegates = await manager.loadDelegates()
 
-          await expect(delegates).toBeArray()
+      await expect(delegates).toBeArray()
 
-          delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
-        } catch (error) {
-          console.error(error)
-        }
-      })
+      delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
     })
   })
 
-  describe('startForging', () => {})
-
-  describe('broadcast', () => {})
-
-  describe('pickForgingDelegate', () => {
-    it('returns a promise', async () => {
-      const forger = new ForgerManager(delegateConfig)
-      await forger.loadDelegates()
-
-      try {
-        const promise = await forger.pickForgingDelegate({ delegate: {} })
-        expect(promise).toBeInstanceOf(Promise)
-      } catch (error) {
-      }
+  describe('startForging', () => {
+    it('should be a function', () => {
+      expect(manager.startForging).toBeFunction()
     })
   })
 
-  describe('getRound', () => {})
+  describe('__monitor', () => {
+    it('should be a function', () => {
+      expect(manager.__monitor).toBeFunction()
+    })
+  })
+
+  describe('__pickForgingDelegate', () => {
+    it('should be a function', () => {
+      expect(manager.__pickForgingDelegate).toBeFunction()
+    })
+
+    it('should be ok', async () => {
+      manager.delegates = [{
+        username: 'arkxdev',
+        publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+      }]
+
+      const delegate = await manager.__pickForgingDelegate({
+        delegate: {
+          publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
+        }
+      })
+
+      await expect(delegate).toBeObject()
+      await expect(delegate.username).toBe('arkxdev')
+      await expect(delegate.publicKey).toBe('0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0')
+    })
+  })
 })

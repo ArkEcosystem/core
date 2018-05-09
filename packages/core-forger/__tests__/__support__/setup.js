@@ -6,19 +6,12 @@ const container = require('@arkecosystem/core-container')
 exports.setUp = async () => {
   const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
 
-  container.init({ data: '~/.ark', config }, {
-    exclude: [
-      '@arkecosystem/core-api-p2p',
-      '@arkecosystem/core-transaction-pool-redis',
-      '@arkecosystem/core-webhooks'
-    ]
-  })
+  container.init({ data: '~/.ark', config })
 
   await container.plugins.registerGroup('init', {config})
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
-
-  container.resolvePlugin('blockchain').start()
+  await container.resolvePlugin('blockchain').start()
 }
 
 exports.tearDown = async () => container.tearDown()
