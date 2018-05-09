@@ -3,7 +3,6 @@
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const blockchain = container.resolvePlugin('blockchain')
-const state = blockchain.state
 const utils = require('../utils')
 
 /**
@@ -18,7 +17,7 @@ exports.status = {
   handler: (request, h) => {
     return utils.respondWith({
       loaded: blockchain.isSynced(),
-      now: state.lastBlock ? blockchain.getLastBlock(true).height : 0,
+      now: blockchain.state.lastBlock ? blockchain.getLastBlock(true).height : 0,
       blocksCount: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock(true).height
     })
   }

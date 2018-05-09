@@ -1,7 +1,6 @@
 'use strict'
 
 const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
-const state = blockchain.state
 
 /**
  * Turns a "block" object into a generic object.
@@ -9,7 +8,7 @@ const state = blockchain.state
  * @return {Object}
  */
 module.exports = (model) => {
-  const lastBlock = state.lastBlock
+  const lastBlock = blockchain.state.lastBlock
 
   return {
     id: model.id,
