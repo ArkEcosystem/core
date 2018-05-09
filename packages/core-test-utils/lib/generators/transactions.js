@@ -24,7 +24,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
   const transactions = []
   for (let i = 0; i < quantity; i++) {
     const passphrase = testWallet ? testWallet.passphrase : config.passphrase
-    const address = testAddress ? testAddress : crypto.getAddress(crypto.getKeys(passphrase).publicKey)
+    const address = testAddress || crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 
     let transaction
     if (type === TRANSACTION_TYPES.TRANSFER) {
