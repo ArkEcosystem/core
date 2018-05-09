@@ -19,10 +19,6 @@ describe('Plugin Registrar', () => {
     await expect(instance).toBeObject()
   })
 
-  it('should register plugin list from file', async () => {
-    await expect(instance.plugins).toEqual(stubPlugins)
-  })
-
   it('should register a hook', async () => {
     await instance.registerGroup('init')
 
