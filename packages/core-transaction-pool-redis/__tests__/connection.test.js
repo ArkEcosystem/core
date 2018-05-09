@@ -66,13 +66,19 @@ describe('Connection', () => {
     })
   })
 
-  describe.skip('addTransactions', async () => {
+  describe('addTransactions', async () => {
     it('should be a function', async () => {
       await expect(connection.addTransactions).toBeFunction()
     })
 
-    it('should add the transaction to the pool', async () => {
+    it('should add the transactions to the pool', async () => {
       await expect(await connection.getPoolSize()).toBe(0)
+
+      connection.addTransactions = jest.fn(async (transactions) => {
+        for (let i = 0; i < transactions.length; i++) {
+          await connection.addTransaction(transactions[i])
+        }
+      })
 
       await connection.addTransactions([dummy1, dummy2])
 

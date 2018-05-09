@@ -2,6 +2,7 @@
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
+const async = require('async')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -31,12 +32,17 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (this.pool) {
       this.pool.on('connect', () => {
         logger.info('Redis connection established')
+
+        this.__registerTransactionQueue()
+
         this.pool.config('set', 'notify-keyspace-events', 'Ex')
+
         this.subscription.subscribe('__keyevent@0__:expired')
       })
 
       this.subscription.on('message', (channel, message) => {
         logger.debug(`Received expiration message ${message} from channel ${channel}`)
+
         this.removeTransaction(message.split('/')[3])
       })
     } else {
@@ -73,8 +79,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    if (!this.__isReady() || !(transaction instanceof Transaction)) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "addTransaction".')
+    }
+
+    if (!(transaction instanceof Transaction)) {
+      return logger.warn(`Discarded Transaction ${transaction.id} - Invalid object.`)
     }
 
     try {
@@ -100,16 +110,36 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Add many transaction to the pool.
+   * @param {Array}   transactions
+   * @param {Boolean} isBroadcast
+   */
+  async addTransactions (transactions, isBroadcast) {
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
+    }
+
+    this.queue.push(transactions.map(transaction => {
+      transaction = new Transaction(transaction)
+      transaction.isBroadcast = isBroadcast
+
+      return transaction
+    }))
+  }
+
+  /**
    * Remove a transaction from the pool by transaction object.
    * @param  {Transaction} transaction
    * @return {void}
    */
   async removeTransaction (transaction) {
-    if (this.__isReady()) {
-      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-      await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
-      await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransaction".')
     }
+
+    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
+    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
   }
 
   /**
@@ -119,7 +149,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async removeTransactionById (id) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactionById".')
     }
 
     const publicKey = await this.getPublicKeyById(id)
@@ -135,7 +165,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async removeTransactions (transactions) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactions".')
     }
 
     try {
@@ -154,7 +184,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async hasExceededMaxTransactions (transaction) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
     const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
@@ -169,7 +199,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getPublicKeyById (id) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "getPublicKeyById".')
     }
 
     return this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
@@ -182,7 +212,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransaction (id) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransaction".')
     }
 
     const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
@@ -202,7 +232,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransactions (start, size) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransactions".')
     }
 
     try {
@@ -228,7 +258,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransactionsForForging (start, size) {
     if (!this.__isReady()) {
-      return
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransactionsForForging".')
     }
 
     try {
@@ -313,6 +343,27 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean}
    */
   __isReady () {
-    return this.pool.status === 'ready' && this.subscription.status === 'ready'
+    return this.pool.status === 'ready'
+  }
+
+  /**
+   * Register the transaction queue listener.
+   * @return {void}
+   */
+  __registerTransactionQueue () {
+    this.queue = async.queue((transaction, queueCallback) => {
+      console.log('wtf')
+      if (super.verifyTransaction(transaction)) {
+        this.addTransaction(transaction)
+
+        if (!transaction.isBroadcast) {
+          super.broadcastTransaction(transaction)
+        }
+      } else {
+        logger.warn(`Discarded Transaction ${transaction.id} - Unable to verify.`)
+      }
+
+      queueCallback()
+    }, 1)
   }
 }
