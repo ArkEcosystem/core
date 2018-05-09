@@ -131,7 +131,12 @@ module.exports = class TransactionPoolInterface {
    * @param {Boolean} isBroadcast
    */
   async addTransactions (transactions, isBroadcast) {
-    if (!this.queue) return
+    if (!this.options.enabled) {
+      logger.warn('Transaction pool is disabled - Transactions will not be added')
+
+      return
+    }
+
     this.queue.push(transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
@@ -166,16 +171,15 @@ module.exports = class TransactionPoolInterface {
   async determineExceededTransactions (transactions) {
     const response = {
       acceptable: [],
-      exceeded: []
+      excess: []
     }
 
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i]
-      if (await this.hasExceededMaxTransactions(transaction)) {
-        response.exceeded.push(transaction)
-      } else {
-        response.acceptable.push(transaction)
-      }
+
+      await this.hasExceededMaxTransactions(transaction)
+        ? response.excess.push(transaction)
+        : response.acceptable.push(transaction)
     }
 
     return response

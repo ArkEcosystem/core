@@ -50,7 +50,7 @@ exports.store = {
     return {
       success: true,
       transactionIds: poolThrottle.acceptable.map(tx => tx.id),
-      exceeded: poolThrottle.exceeded.map(tx => tx.id)
+      excess: poolThrottle.excess.map(tx => tx.id)
     }
   },
   options: {
