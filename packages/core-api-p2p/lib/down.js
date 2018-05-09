@@ -70,13 +70,6 @@ module.exports = class Down {
   }
 
   /**
-   * Stop method placeholder.
-   */
-  stop () {
-    // Noop
-  }
-
-  /**
    * Clear peers which aren't responding.
    * @param {Boolean} fast
    */

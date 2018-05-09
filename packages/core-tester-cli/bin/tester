@@ -23,7 +23,7 @@ app
   .description('create multiple votes for a delegate')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-n, --number <number>', 'number of votes', 10)
-  .option('-d, --delegate <delegate>', 'delegate public key')
+  .option('-d, --delegate <delegate>', 'delegate public key', '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
   .action(async (options) => require('../lib/commands/votes')(options))
 
 app

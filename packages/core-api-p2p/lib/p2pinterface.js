@@ -34,8 +34,6 @@ module.exports = class P2PInterface {
    * Shutdown P2P interface.
    */
   async stop () {
-    await this.down.stop() // TODO: remove, not used
-
     return this.up.stop()
   }
 
