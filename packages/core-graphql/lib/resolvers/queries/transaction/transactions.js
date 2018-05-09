@@ -2,13 +2,13 @@
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { constants } = require('@arkecosystem/client')
+const { formatOrderBy } = require('../../../helpers')
 
 module.exports = async (root, args) => {
   const { orderBy, filter, ...params } = args
   if (root && root.dataValues.id) filter.blockId = root.dataValues.id
 
-  let order = []
-  orderBy ? order.push([orderBy.field, orderBy.direction]) : order.push(['timestamp', 'DESC'])
+  const order = formatOrderBy(orderBy, ['timestamp', 'DESC'])
 
   const where = { ...filter }
   if (where.type) where.type = constants.TRANSACTION_TYPES[where.type]

@@ -6,8 +6,8 @@ const { formatOrderBy } = require('../../../helpers')
 module.exports = async (_, args) => {
   const { orderBy, ...params } = args
 
-  let order = formatOrderBy(orderBy, ['height', 'DESC'])
+  let order = formatOrderBy(orderBy, ['id', 'DESC'])
 
-  const result = await database.connection.models.block.findAll({ ...params, order })
+  const result = await database.connection.models.round.findAll({ ...params, order })
   return result
 }

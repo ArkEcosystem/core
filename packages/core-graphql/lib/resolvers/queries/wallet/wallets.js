@@ -1,12 +1,12 @@
 'use strict';
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
+const { formatOrderBy } = require('../../../helpers')
 
 module.exports = async (_, args) => {
   const { limit, orderBy, ...params } = args
 
-  let order = []
-  orderBy ? order.push([orderBy.field, orderBy.direction]) : order.push(['balance', 'DESC'])
+  let order = formatOrderBy(orderBy, ['balance', 'DESC'])
 
   const where = params
 
