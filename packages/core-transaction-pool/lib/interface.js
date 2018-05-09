@@ -2,12 +2,9 @@
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const emitter = container.resolvePlugin('event-emitter')
-const async = require('async')
 const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
 const { crypto } = client
-// const { slots, crypto } = client
-const { Transaction } = client.models
 
 module.exports = class TransactionPoolInterface {
   /**
