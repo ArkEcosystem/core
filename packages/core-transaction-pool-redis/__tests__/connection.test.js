@@ -173,19 +173,39 @@ describe('Connection', () => {
 
     it('should return transactions within the specified range', async () => {
       await connection.addTransaction(dummy1)
-      await connection.addTransaction(dummy1)
+      await connection.addTransaction(dummy2)
 
-      let poolTransaction = await connection.getTransactions(0, 1)
-      poolTransaction = poolTransaction.map(serializedTx => Transaction.fromBytes(serializedTx))
+      let transactions = await connection.getTransactions(0, 1)
+      transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
-      await expect(poolTransaction[0]).toBeObject()
-      await expect(poolTransaction[0].id).toBe(dummy1.id)
+      await expect(transactions[0]).toBeObject()
+      await expect(transactions[0].id).toBe(dummy1.id)
     })
   })
 
   describe('getTransactionsForForging', async () => {
     it('should be a function', async () => {
       await expect(connection.getTransactionsForForging).toBeFunction()
+    })
+
+    it('should return an array of transactions', async () => {
+      await connection.addTransaction(dummy1)
+      await connection.addTransaction(dummy2)
+      await connection.addTransaction(dummy1)
+      await connection.addTransaction(dummy2)
+      await connection.addTransaction(dummy2)
+      await connection.addTransaction(dummy1)
+
+      let transactions = await connection.getTransactionsForForging(0, 6)
+      transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+
+      await expect(transactions[0]).toBeObject()
+      await expect(transactions[0].id).toBe(dummy1.id)
+      await expect(transactions[1].id).toBe(dummy2.id)
+      await expect(transactions[2].id).toBe(dummy1.id)
+      await expect(transactions[3].id).toBe(dummy2.id)
+      await expect(transactions[4].id).toBe(dummy2.id)
+      await expect(transactions[5].id).toBe(dummy1.id)
     })
   })
 
