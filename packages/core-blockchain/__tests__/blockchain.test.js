@@ -131,13 +131,9 @@ describe('Blockchain', () => {
     })
   })
 
-  describe('getState', () => {
-    it('should be a function', () => {
-      expect(blockchain.getState).toBeFunction()
-    })
-
-    it('should be a function', () => {
-      expect(blockchain.getState()).toEqual({
+  describe('get state', () => {
+    it('should be an object', () => {
+      expect(blockchain.state).toEqual({
         blockchain: {
           actions: [],
           activities: {},

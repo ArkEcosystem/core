@@ -12,7 +12,6 @@ exports.index = {
   }
 }
 
-// TODO: validate transaction payload?
 /**
  * @type {Object}
  */

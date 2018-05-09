@@ -47,8 +47,13 @@ describe('API 1.0 - Blocks', () => {
 
       await expect(res.body.fees).toBeObject()
 
-      // TODO adjust when environment setup properly
-      // await expect(res.body.fees).toBe(config.getConstants(blockchain.getLastBlock(true).toBe.height).fees)
+      const container = require('@arkecosystem/core-container')
+      const blockchain = container.resolvePlugin('blockchain')
+      const config = container.resolvePlugin('config')
+
+      await expect(res.body.fees).toEqual(
+        config.getConstants(blockchain.getLastBlock(true).height).fees
+      )
     })
   })
 
@@ -59,8 +64,10 @@ describe('API 1.0 - Blocks', () => {
 
       await expect(res.body.nethash).toBeString()
 
-      // TODO adjust when environment setup properly
-      // await expect(res.body.nethash).toBe(config.toBe.network.nethash)
+      const container = require('@arkecosystem/core-container')
+      const config = container.resolvePlugin('config')
+
+      await expect(res.body.nethash).toBe(config.network.nethash)
     })
   })
 

@@ -4,7 +4,7 @@ const { crypto } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const state = container.resolvePlugin('blockchain').getState()
+const state = container.resolvePlugin('blockchain').state
 
 const { Transaction } = require('@arkecosystem/client').models
 
