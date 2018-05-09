@@ -19,6 +19,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
   ].includes(type), 'Invalid transaction type')
 
   client.getConfigManager().setFromPreset('ark', network)
+  ark.crypto.setNetworkVersion(client.getConfigManager().config.pubKeyHash)
 
   const transactions = []
   for (let i = 0; i < quantity; i++) {
@@ -27,8 +28,12 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
 
     let transaction
     if (type === TRANSACTION_TYPES.TRANSFER) {
-      // console.log(address)
-      transaction = ark.transaction.createTransaction(address, amount, `Test Transaction ${i}`, passphrase)
+      transaction = ark.transaction.createTransaction(
+        address,
+        amount,
+        `Test Transaction ${i + 1}`,
+        passphrase
+      )
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       transaction = ark.signature.createSignature(passphrase, passphrase)
     } else if (type === TRANSACTION_TYPES.DELEGATE) {
