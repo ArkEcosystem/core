@@ -1,14 +1,9 @@
 'use strict'
 
 const app = require('./__support__/setup')
-const {
-  dummy1,
-  dummy2
-} = require('./__fixtures__/transaction')
+const { dummy1, dummy2 } = require('./__fixtures__/transactions')
 
-const {
-  Transaction
-} = require('@arkecosystem/client').models
+const { Transaction } = require('@arkecosystem/client').models
 
 let connection
 

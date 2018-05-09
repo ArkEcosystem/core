@@ -8,10 +8,7 @@ exports.setUp = async () => {
 
   container.init({ data: '~/.ark', config }, {
     exclude: [
-      '@arkecosystem/core-api-p2p',
-      '@arkecosystem/core-transaction-pool',
-      '@arkecosystem/core-transaction-pool-redis',
-      '@arkecosystem/core-webhooks'
+      '@arkecosystem/core-api-p2p'
     ]
   })
 
@@ -19,7 +16,7 @@ exports.setUp = async () => {
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
 
-  container.resolvePlugin('blockchain').start()
+  return container
 }
 
 exports.tearDown = async () => container.tearDown()
