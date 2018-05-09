@@ -388,8 +388,6 @@ module.exports = class Blockchain {
   }
 
   /**
-   * TODO: refactor to "get state()"
-   *
    * Get the state machine.
    * @return {Object}
    */
