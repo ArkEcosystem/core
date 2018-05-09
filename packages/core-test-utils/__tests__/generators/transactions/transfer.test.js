@@ -22,7 +22,7 @@ describe('Transfer transaction', () => {
     await expect(transactions).toBeArrayOfSize(quantity)
   })
 
-  it('should return an array of transfer objects', async () => {
+  it('should return an array of 4 transfer objects', async () => {
     const quantity = 4
     for (let i = 0; i < transactions.length; i++) {
       await expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.TRANSFER})
