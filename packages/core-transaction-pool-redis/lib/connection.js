@@ -19,19 +19,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   make () {
     this.pool = null
     this.subscription = null
+
     if (this.options.enabled) {
       this.pool = new Redis(this.options.redis)
       this.subscription = new Redis(this.options.redis)
     }
 
-    this.isConnected = false
     this.keyPrefix = this.options.key
     this.counters = {}
 
     if (this.pool) {
       this.pool.on('connect', () => {
         logger.info('Redis connection established')
-        this.isConnected = true
         this.pool.config('set', 'notify-keyspace-events', 'Ex')
         this.subscription.subscribe('__keyevent@0__:expired')
       })
@@ -52,8 +51,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async disconnect () {
-    if (this.pool) this.pool.disconnect()
-    if (this.subscription) this.subscription.disconnect()
+    if (this.pool) {
+      await this.pool.disconnect()
+    }
+
+    if (this.subscription) {
+      await this.subscription.disconnect()
+    }
   }
 
    /**
@@ -61,7 +65,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   async getPoolSize () {
-    return this.isConnected ? this.pool.llen(this.__getRedisOrderKey()) : 0
+    return this.__isReady() ? this.pool.llen(this.__getRedisOrderKey()) : 0
   }
 
   /**
@@ -69,7 +73,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    if (!this.isConnected || !(transaction instanceof Transaction)) {
+    if (!this.__isReady() || !(transaction instanceof Transaction)) {
       return
     }
 
@@ -101,7 +105,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransaction (transaction) {
-    if (this.isConnected) {
+    if (this.__isReady()) {
       await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
       await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
       await this.pool.del(this.__getRedisTransactionKey(transaction.id))
@@ -114,7 +118,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactionById (id) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -130,7 +134,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactions (transactions) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -149,7 +153,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -164,7 +168,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(String|void)}
    */
   async getPublicKeyById (id) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -177,7 +181,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Transaction|String|void)}
    */
   async getTransaction (id) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -197,7 +201,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)}
    */
   async getTransactions (start, size) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -223,7 +227,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)}
    */
   async getTransactionsForForging (start, size) {
-    if (!this.isConnected) {
+    if (!this.__isReady()) {
       return
     }
 
@@ -269,12 +273,22 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Flush the pool.
+   * @return {void}
+   */
+  async flush () {
+    const keys = await this.pool.keys('*')
+
+    keys.forEach(key => this.pool.del(key))
+  }
+
+  /**
    * Get the Redis key for the given transaction.
    * @param  {Number} id
    * @return {String}
    */
   __getRedisTransactionKey (id) {
-    return `${this.keyPrefix}/tx/${id}`
+    return `${this.keyPrefix}:transactions:${id}`
   }
 
   /**
@@ -282,7 +296,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {String}
    */
   __getRedisOrderKey () {
-    return `${this.keyPrefix}/order`
+    return `${this.keyPrefix}:order`
   }
 
   /**
@@ -291,6 +305,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {String}
    */
   __getRedisKeyByPublicKey (publicKey) {
-    return `${this.keyPrefix}/publicKey/${publicKey}`
+    return `${this.keyPrefix}:publicKey:${publicKey}`
+  }
+
+  /**
+   * Determine if the pool and subscription are connected.
+   * @return {Boolean}
+   */
+  __isReady () {
+    return this.pool.status === 'ready' && this.subscription.status === 'ready'
   }
 }
