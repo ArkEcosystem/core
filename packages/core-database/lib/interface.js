@@ -292,7 +292,7 @@ module.exports = class ConnectionInterface {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  verifyTransaction (transaction) {
+  async verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
 
     let sender = this.walletManager.getWalletByAddress[senderId] // should exist
@@ -302,7 +302,9 @@ module.exports = class ConnectionInterface {
       this.walletManager.reindex(sender)
     }
 
-    return sender.canApply(transaction.data) && !this.getTransaction(transaction.data.id)
+    const dbTransaction = await this.getTransaction(transaction.data.id)
+
+    return sender.canApply(transaction.data) && !dbTransaction
   }
 
   /**

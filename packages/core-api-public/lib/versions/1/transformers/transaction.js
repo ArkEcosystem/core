@@ -4,7 +4,7 @@ const { crypto } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const state = container.resolvePlugin('blockchain').getState()
+const blockchain = container.resolvePlugin('blockchain')
 
 const { Transaction } = require('@arkecosystem/client').models
 
@@ -14,7 +14,7 @@ const { Transaction } = require('@arkecosystem/client').models
  * @return {Object}
  */
 module.exports = (model) => {
-  const lastBlock = state.lastBlock
+  const lastBlock = blockchain.state.lastBlock
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
   return {

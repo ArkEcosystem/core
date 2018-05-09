@@ -1,6 +1,6 @@
 'use strict'
 
-const app = require('./__support__/setup')
+const app = require('../__support__/setup')
 
 let repository
 
