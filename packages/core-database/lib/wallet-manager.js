@@ -35,6 +35,15 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Index the given wallets.
+   * @param  {Array} wallets
+   * @return {void}
+   */
+  index (wallets) {
+    wallets.forEach(wallet => this.reindex(wallet))
+  }
+
+  /**
    * Reindex the given wallet.
    * @param  {Wallet} wallet
    * @return {void}
