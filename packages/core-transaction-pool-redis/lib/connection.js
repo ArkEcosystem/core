@@ -106,6 +106,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.id)
 
       if (transaction.data.expiration > 0) {
+        logger.debug('Setting expiration')
         await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
       }
     } catch (error) {

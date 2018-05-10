@@ -1,7 +1,9 @@
 'use strict'
 
 const app = require('./__support__/setup')
-const { dummy1, dummy2 } = require('./__fixtures__/transactions')
+const delay = require('delay')
+
+const { dummy1, dummy2, dummyExp1, dummyExp2 } = require('./__fixtures__/transactions')
 
 const { Transaction } = require('@arkecosystem/client').models
 
@@ -63,6 +65,19 @@ describe('Connection', () => {
       await connection.addTransaction(dummy1)
 
       await expect(await connection.getPoolSize()).toBe(1)
+    })
+  })
+
+  describe('addTransaction - expiration', async () => {
+    it('should add the transactions to the pool and they should expire', async () => {
+      await expect(await connection.getPoolSize()).toBe(0)
+
+      await connection.addTransaction(dummyExp1)
+      await connection.addTransaction(dummyExp2)
+
+      await expect(await connection.getPoolSize()).toBe(2)
+      await delay(5000)
+      await expect(await connection.getPoolSize()).toBe(0)
     })
   })
 
