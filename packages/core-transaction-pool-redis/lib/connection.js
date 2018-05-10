@@ -20,16 +20,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   make () {
     this.pool = null
     this.subscription = null
+    this.keyPrefix = this.options.key
+    this.counters = {}
 
     if (this.options.enabled) {
       this.pool = new Redis(this.options.redis)
       this.subscription = new Redis(this.options.redis)
-    }
-
-    this.keyPrefix = this.options.key
-    this.counters = {}
-
-    if (this.pool) {
       this.pool.on('connect', () => {
         logger.info('Redis connection established')
 
@@ -40,13 +36,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         this.subscription.subscribe('__keyevent@0__:expired')
       })
 
+      this.pool.on('error', () => {
+        logger.error('Could not connect to Redis')
+        process.exit(1)
+      })
+
       this.subscription.on('message', (channel, message) => {
         logger.debug(`Received expiration message ${message} from channel ${channel}`)
 
         this.removeTransaction(message.split('/')[3])
       })
-    } else {
-      logger.warn('Could not connect to Redis')
     }
 
     return this

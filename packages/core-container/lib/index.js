@@ -116,7 +116,6 @@ class Container {
       if (shuttingDown) {
         return
       }
-
       shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
