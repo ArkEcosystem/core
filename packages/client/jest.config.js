@@ -1,4 +1,5 @@
 module.exports = {
+  bail: false,
   verbose: true,
   testMatch: [
     '**/__tests__/**/*.test.js'

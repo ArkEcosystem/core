@@ -1,6 +1,4 @@
 const assert = require('assert')
-const sinon = require('sinon')
-const sinonTestFactory = require('sinon-test')
 const BigInteger = require('bigi')
 
 const configManager = require('../../lib/managers/config')
@@ -10,8 +8,6 @@ const HDNode = require('../../lib/crypto/hdnode')
 const { NETWORKS, NETWORKS_LIST } = require('../utils/network-list')
 
 const fixtures = require('./fixtures/hdnode.json')
-
-const sinonTest = sinonTestFactory(sinon)
 
 beforeEach(() => configManager.setConfig(NETWORKS.mainnet))
 
@@ -77,26 +73,27 @@ describe('HDNode', () => {
       })
     })
 
-    it('throws if IL is not within interval [1, n - 1] | IL === 0', sinonTest(function () {
-      this.mock(BigInteger).expects('fromBuffer')
-        .once().returns(BigInteger.ZERO)
+    it('throws if IL is not within interval [1, n - 1] | IL === 0', () => {
+      BigInteger.fromBuffer = jest.fn()
+      BigInteger.fromBuffer.mockReturnValue(BigInteger.ZERO)
 
       expect(() => {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
       }).toThrowError(/Private key must be greater than 0/)
-    }))
 
-    it('throws if IL is not within interval [1, n - 1] | IL === n', sinonTest(function () {
-      this
-        .mock(BigInteger)
-        .expects('fromBuffer')
-        .once()
-        .returns(ecdsa.__curve.n)
+      expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(1)
+    })
+
+    it('throws if IL is not within interval [1, n - 1] | IL === n', () => {
+      BigInteger.fromBuffer = jest.fn()
+      BigInteger.fromBuffer.mockReturnValue(ecdsa.__curve.n)
 
       expect(() => {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
       }).toThrowError(/Private key must be less than the curve order/)
-    }))
+
+      expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(1)
+    })
 
     it('throws on low entropy seed', () => {
       expect(() => {
@@ -125,51 +122,48 @@ describe('HDNode', () => {
     })
 
     describe('getAddress', () => {
-      it('wraps keyPair.getAddress', sinonTest(function () {
-        this
-          .mock(keyPair)
-          .expects('getAddress')
-          .once()
-          .withArgs()
-          .returns('foobar')
+      it('wraps keyPair.getAddress', () => {
+        keyPair.getAddress = jest.fn()
+        keyPair.getAddress.mockReturnValue('foobar')
 
         expect(hd.getAddress()).toBe('foobar')
-      }))
+
+        expect(keyPair.getAddress).toHaveBeenCalledTimes(1)
+      })
     })
 
     describe('getNetwork', () => {
-      it('wraps keyPair.getNetwork', sinonTest(function () {
-        this
-          .mock(keyPair)
-          .expects('getNetwork')
-          .once()
-          .withArgs()
-          .returns('network')
+      it('wraps keyPair.getNetwork', () => {
+        keyPair.getNetwork = jest.fn()
+        keyPair.getNetwork.mockReturnValue('network')
 
         expect(hd.getNetwork()).toBe('network')
-      }))
+
+        expect(keyPair.getNetwork).toHaveBeenCalledTimes(1)
+      })
     })
 
     describe('getPublicKeyBuffer', () => {
-      it('wraps keyPair.getPublicKeyBuffer', sinonTest(function () {
-        this
-          .mock(keyPair)
-          .expects('getPublicKeyBuffer')
-          .once()
-          .withArgs()
-          .returns('pubKeyBuffer')
+      it('wraps keyPair.getPublicKeyBuffer', () => {
+        keyPair.getPublicKeyBuffer = jest.fn()
+        keyPair.getPublicKeyBuffer.mockReturnValue('pubKeyBuffer')
 
         expect(hd.getPublicKeyBuffer()).toBe('pubKeyBuffer')
-      }))
+
+        expect(keyPair.getPublicKeyBuffer).toHaveBeenCalledTimes(1)
+      })
     })
 
     describe('sign', () => {
-      it('wraps keyPair.sign', sinonTest(function () {
-        this.mock(keyPair).expects('sign')
-          .once().withArgs(hash).returns('signed')
+      it('wraps keyPair.sign', () => {
+        keyPair.sign = jest.fn()
+        keyPair.sign.mockReturnValue('signed')
 
         expect(hd.sign(hash)).toBe('signed')
-      }))
+
+        expect(keyPair.sign).toHaveBeenCalledWith(hash)
+        expect(keyPair.sign).toHaveBeenCalledTimes(1)
+      })
     })
 
     describe('verify', () => {
@@ -179,12 +173,15 @@ describe('HDNode', () => {
         signature = hd.sign(hash)
       })
 
-      it('wraps keyPair.verify', sinonTest(function () {
-        this.mock(keyPair).expects('verify')
-          .once().withArgs(hash, signature).returns('verified')
+      it('wraps keyPair.verify', () => {
+        keyPair.verify = jest.fn()
+        keyPair.verify.mockReturnValue('verified')
 
         expect(hd.verify(hash, signature)).toBe('verified')
-      }))
+
+        expect(keyPair.verify).toHaveBeenCalledWith(hash, signature)
+        expect(keyPair.verify).toHaveBeenCalledTimes(1)
+      })
     })
   })
 

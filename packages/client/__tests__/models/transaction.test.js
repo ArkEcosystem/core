@@ -82,14 +82,28 @@ describe('Models - Transaction', () => {
         .map(tx => {
           tx.network = 0x17
           tx.version = 1
-          if (tx.vendorField) tx.vendorFieldHex = Buffer.from(tx.vendorField, 'utf8').toString('hex')
-          if (tx.asset.delegate) delete tx.asset.delegate.publicKey
+
+          if (tx.vendorField) {
+            tx.vendorFieldHex = Buffer.from(tx.vendorField, 'utf8').toString('hex')
+          }
+
+          if (tx.asset.delegate) {
+            delete tx.asset.delegate.publicKey
+          }
+
           if (tx.type === 0) {
             delete tx.asset
             tx.expiration = 0
           }
-          if (tx.signSignature) tx.secondSignature = tx.signSignature
-          if (!tx.recipientId) delete tx.recipientId
+
+          if (tx.signSignature) {
+            tx.secondSignature = tx.signSignature
+          }
+
+          if (!tx.recipientId) {
+            delete tx.recipientId
+          }
+
           return tx
         })
         .map(tx => {
@@ -111,7 +125,6 @@ describe('Models - Transaction', () => {
   it('Signatures are not malleable', () => {
     [0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
-      .map(tx => expect(verifyEcdsaNonMalleability(tx))
-        .toBeTruthy())
+      .map(tx => expect(verifyEcdsaNonMalleability(tx)).toBeTruthy())
   })
 })
