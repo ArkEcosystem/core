@@ -2,7 +2,6 @@
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const emitter = container.resolvePlugin('event-emitter')
-const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
 const { crypto } = client
 
@@ -14,10 +13,6 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = blockchain.database.walletManager
-
-    if (!this.options.enabled) {
-      logger.warn('Transaction pool is disabled - please enable if run in production')
-    }
   }
 
   /**

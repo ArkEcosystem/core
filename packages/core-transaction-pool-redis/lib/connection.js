@@ -18,36 +18,38 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
+    if (!this.options.enabled) {
+      logger.warn('Redis transaction pool disabled - please enable if run in production')
+
+      return this
+    }
+
     this.pool = null
     this.subscription = null
-
-    if (this.options.enabled) {
-      this.pool = new Redis(this.options.redis)
-      this.subscription = new Redis(this.options.redis)
-    }
-
     this.keyPrefix = this.options.key
     this.counters = {}
+    this.pool = new Redis(this.options.redis)
+    this.subscription = new Redis(this.options.redis)
+    this.pool.on('connect', () => {
+      logger.info('Redis connection established')
 
-    if (this.pool) {
-      this.pool.on('connect', () => {
-        logger.info('Redis connection established')
+      this.__registerTransactionQueue()
 
-        this.__registerTransactionQueue()
+      this.pool.config('set', 'notify-keyspace-events', 'Ex')
 
-        this.pool.config('set', 'notify-keyspace-events', 'Ex')
+      this.subscription.subscribe('__keyevent@0__:expired')
+    })
 
-        this.subscription.subscribe('__keyevent@0__:expired')
-      })
+    this.pool.on('error', () => {
+      logger.error('Could not connect to Redis')
+      process.exit(1)
+    })
 
-      this.subscription.on('message', (channel, message) => {
-        logger.debug(`Received expiration message ${message} from channel ${channel}`)
+    this.subscription.on('message', (channel, message) => {
+      logger.debug(`Received expiration message ${message} from channel ${channel}`)
 
-        this.removeTransaction(message.split('/')[3])
-      })
-    } else {
-      logger.warn('Could not connect to Redis')
-    }
+      this.removeTransaction(message.split('/')[3])
+    })
 
     return this
   }
@@ -61,7 +63,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       if (this.pool) {
         await this.pool.disconnect()
       }
-
+    } catch (error) {
+      logger.warn('Connection already closed')
+    }
+    try {
       if (this.subscription) {
         await this.subscription.disconnect()
       }
@@ -347,7 +352,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean}
    */
   __isReady () {
-    return this.pool.status === 'ready'
+    return this.pool && this.pool.status === 'ready'
   }
 
   /**
