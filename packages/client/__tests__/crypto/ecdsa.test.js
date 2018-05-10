@@ -1,5 +1,4 @@
 const BigInteger = require('bigi')
-
 const ecdsa = require('../../lib/crypto/ecdsa')
 const bcrypto = require('../../lib/crypto')
 const ECSignature = require('../../lib/crypto/ecsignature')
@@ -7,6 +6,12 @@ const ECSignature = require('../../lib/crypto/ecsignature')
 const fixtures = require('./fixtures/ecdsa.json')
 
 const curve = ecdsa.__curve
+
+// Make sure we reset fromBuffer to the original implementation
+const restoreFromBuffer = BigInteger.fromBuffer
+afterEach(() => {
+  BigInteger.fromBuffer = restoreFromBuffer
+})
 
 describe('ecdsa', () => {
   describe('deterministicGenerateK', () => {
