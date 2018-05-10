@@ -58,7 +58,7 @@ module.exports = {
     }
   },
   mounted: {
-    '@arkecosystem/core-api-public': {
+    '@arkecosystem/core-api': {
       enabled: true,
       port: 4202
     },

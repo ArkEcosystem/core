@@ -1,11 +1,11 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Public API
+# ARK Core - API
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-api-public
+yarn add @arkecosystem/core-api
 ```
 
 ## Security

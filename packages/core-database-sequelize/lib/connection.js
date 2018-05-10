@@ -84,7 +84,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   async disconnect () {
     try {
       await this.saveBlockCommit()
-    } catch(error) {
+    } catch (error) {
       logger.error(error.message)
     }
 
