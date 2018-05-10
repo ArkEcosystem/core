@@ -35,7 +35,7 @@ commander
   .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)
   .option('--token <value>', 'Token Name [CHAIN]', 'CHAIN')
   .option('--symbol <value>', 'Symbol for Token [C]', 'C')
-  .option('--prefix <value>', 'Address Prefix [C]', 'C')
+  .option('--prefixHash <value>', 'Address Prefix Hash [28]', '28')
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   // .option('--total-premine', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]')
@@ -66,7 +66,7 @@ const schema = Joi.object().keys({
   blocktime: Joi.number().required(),
   token: Joi.string().required(),
   symbol: Joi.string().required(),
-  prefix: Joi.string().required(),
+  prefixHash: Joi.number().required(),
   transactionsPerBlock: Joi.number().required()
 })
 
