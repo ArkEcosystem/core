@@ -12,7 +12,7 @@ module.exports = async (options) => {
 
   container.init({ data: options.data, config }, {
     options: {
-      '@arkecosystem/core-api-p2p': {
+      '@arkecosystem/core-p2p': {
         networkStart: options.networkStart
       },
       '@arkecosystem/core-blockchain': {

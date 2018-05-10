@@ -52,7 +52,7 @@ module.exports = {
         port: 6379
       }
     },
-    '@arkecosystem/core-api-p2p': {
+    '@arkecosystem/core-p2p': {
       port: 4101,
       remoteinterface: true
     }

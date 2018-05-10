@@ -7,9 +7,7 @@ exports.setUp = async () => {
   const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
 
   container.init({ data: '~/.ark', config }, {
-    exclude: [
-      '@arkecosystem/core-api-p2p'
-    ]
+    exclude: ['@arkecosystem/core-p2p']
   })
 
   await container.plugins.registerGroup('init', { config: config })
