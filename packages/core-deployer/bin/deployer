@@ -31,14 +31,14 @@ commander
   .option('--feeMultisignature <value>', 'Fee for Multisignature Transaction', 500000000)
   .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21T13:00:00.000Z')
   .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [1]', 1)
-  .option('--rewardBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
+  .option('--rewardPerBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
   .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)
   .option('--token <value>', 'Token Name [CHAIN]', 'CHAIN')
   .option('--symbol <value>', 'Symbol for Token [C]', 'C')
   .option('--prefixHash <value>', 'Address Prefix Hash [28]', '28')
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
-  // .option('--total-premine', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]')
+  .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
   .parse(process.argv)
 
@@ -62,12 +62,13 @@ const schema = Joi.object().keys({
   feeMultisignature: Joi.number().required(),
   epoch: Joi.string().regex(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/).required(),
   rewardHeight: Joi.number().min(1).required(),
-  rewardBlock: Joi.number().required(),
+  rewardPerBlock: Joi.number().required(),
   blocktime: Joi.number().required(),
   token: Joi.string().required(),
   symbol: Joi.string().required(),
   prefixHash: Joi.number().required(),
-  transactionsPerBlock: Joi.number().required()
+  transactionsPerBlock: Joi.number().required(),
+  totalPremine: Joi.number().required()
 })
 
 const { error, value } = Joi.validate(commander, schema, { allowUnknown: true })
@@ -107,11 +108,11 @@ const networkConfig = {
 
 if (commander.rewardHeight === 1) {
   networkConfig['constants[0].height'] = commander.rewardHeight
-  networkConfig['constants[0].reward'] = commander.rewardBlock
+  networkConfig['constants[0].reward'] = commander.rewardPerBlock
   delete networkConfig.constants[1]
 } else {
   networkConfig['constants[1].height'] = commander.rewardHeight
-  networkConfig['constants[1].reward'] = commander.rewardBlock
+  networkConfig['constants[1].reward'] = commander.rewardPerBlock
 }
 
 updateConfig('network', networkConfig)
