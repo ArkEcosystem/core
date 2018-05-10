@@ -2,27 +2,16 @@
 
 const app = require('./__support__/setup')
 const generateRound = require('./__support__/utils/generate-round')
+const createConnection = require('./__support__/utils/create-connection')
 const activeDelegates = require('./__fixtures__/delegates.json')
-
-const { Block } = require('@arkecosystem/client').models
-
-const genesisBlock = new Block(require('./__fixtures__/genesisBlock.json'))
+const genesisBlock = require('./__fixtures__/genesisBlock')
 
 let connection
-
-async function createConnection () {
-  const sequelize = new (require('../lib/connection'))({
-    dialect: 'sqlite',
-    storage: ':memory:'
-  })
-
-  connection = await sequelize.make()
-}
 
 beforeAll(async (done) => {
   await app.setUp()
 
-  await createConnection()
+  connection = await createConnection()
 
   done()
 })
@@ -36,7 +25,7 @@ afterAll(async (done) => {
 beforeEach(async (done) => {
   connection.disconnect()
 
-  await createConnection()
+  connection = await createConnection()
 
   done()
 })
