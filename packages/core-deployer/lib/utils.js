@@ -3,7 +3,6 @@
 const _ = require('lodash')
 const fs = require('fs-extra')
 const logger = require('./logger')
-const util = require('util')
 
 /**
  * Update the contents of the given file.
