@@ -76,8 +76,9 @@ module.exports = class Monitor {
   async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
     let count = 0
-    const max = keys.length
     let wrongpeers = 0
+
+    const max = keys.length
 
     logger.info(`Checking ${max} peers`)
 
@@ -87,6 +88,7 @@ module.exports = class Monitor {
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
+
         delete this.peers[ip]
 
         emitter.emit('peer.removed', this.peers[ip])
@@ -123,6 +125,7 @@ module.exports = class Monitor {
 
     try {
       await npeer.ping()
+
       this.peers[peer.ip] = npeer
 
       emitter.emit('peer.added', npeer)
@@ -135,7 +138,7 @@ module.exports = class Monitor {
    * Get all available peers.
    * @return {Peer[]}
    */
-  async getPeers () {
+  getPeers () {
     return Object.values(this.peers)
   }
 
@@ -158,7 +161,10 @@ module.exports = class Monitor {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
-      this.manager.checkOnline()
+
+      // FIXME: this method doesn't exist
+      // this.manager.checkOnline()
+
       return this.getRandomPeer()
     }
 
@@ -178,8 +184,8 @@ module.exports = class Monitor {
     const randomPeer = this.peers[random]
 
     if (!randomPeer) {
-      // logger.error(this.peers)
       delete this.peers[random]
+
       return this.getRandomPeer()
     }
 
@@ -204,16 +210,6 @@ module.exports = class Monitor {
     } catch (error) {
       return this.discoverPeers()
     }
-  }
-
-  /**
-   * Resolve value at a later time.
-   * @param  {Number}  delay
-   * @param  {*}       value
-   * @return {Promise}
-   */
-  later (delay, value) {
-    return new Promise(resolve => setTimeout(resolve, delay, value))
   }
 
   /**
@@ -256,9 +252,11 @@ module.exports = class Monitor {
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
       blocks.forEach(block => (block.ip = randomPeer.ip))
+
       return blocks
     } catch (error) {
       logger.error(JSON.stringify(error))
+
       return this.downloadBlocks(fromBlockHeight)
     }
   }
@@ -270,9 +268,9 @@ module.exports = class Monitor {
    */
   async broadcastBlock (block) {
     const bpeers = Object.values(this.peers)
-    // console.log(Object.values(this.peers))
+
     logger.info(`Broadcasting block ${block.data.height} to ${bpeers.length} peers`)
-    // console.log(bpeers)
+
     await Promise.all(bpeers.map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
 
@@ -285,9 +283,7 @@ module.exports = class Monitor {
     logger.info(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
     const transactionsV1 = []
-    transactions.forEach(transaction => {
-      transactionsV1.push(transaction.toBroadcastV1())
-    })
+    transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map((peer) => peer.postTransactions(transactionsV1)))
   }

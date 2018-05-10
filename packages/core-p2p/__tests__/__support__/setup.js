@@ -6,7 +6,7 @@ const container = require('@arkecosystem/core-container')
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  const config = path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
+  const config = path.resolve(__dirname, '../../../core-config/lib/networks/devnet')
 
   container.init({ data: '~/.ark', config }, {
     exclude: [

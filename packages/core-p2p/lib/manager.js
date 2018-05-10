@@ -67,7 +67,7 @@ module.exports = class PeerManager {
    * @param {Transaction[]} transactions
    */
   broadcastTransactions (transactions) {
-    this.monitor.broadcastTransactions(transactions)
+    return this.monitor.broadcastTransactions(transactions)
   }
 
   /**

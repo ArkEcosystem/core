@@ -42,44 +42,13 @@ module.exports = class Peer {
   }
 
   /**
-   * Perform GET request.
-   * @param  {String} endpoint
-   * @param  {Number} [timeout=10000]
-   * @return {(Object|undefined)}
-   */
-  async get (endpoint, timeout) {
-    const temp = new Date().getTime()
-
-    try {
-      const res = await popsicle.request({
-        method: 'GET',
-        url: this.url + endpoint,
-        headers: this.headers,
-        timeout: timeout || 10000
-      }).use(popsicle.plugins.parse('json'))
-
-      this.delay = new Date().getTime() - temp
-
-      this.parseHeaders(res)
-
-      return res.body
-    } catch (error) {
-      // logger.error(error.stack)
-
-      this.status = error.code
-    }
-  }
-
-  /**
    * Perform POST request for a block.
    * @param  {Block}              block
    * @return {(Object|undefined)}
    */
   async postBlock (block) {
-    // console.log(block)
-    // console.log(this)
     try {
-      const res = await popsicle.request({
+      const response = await popsicle.request({
         method: 'POST',
         url: this.url + '/peer/blocks',
         body: {block},
@@ -87,9 +56,9 @@ module.exports = class Peer {
         timeout: 5000
       }).use(popsicle.plugins.parse('json'))
 
-      this.parseHeaders(res)
-      // console.log(res.body)
-      return res.body
+      this.__parseHeaders(response)
+
+      return response.body
     } catch (error) {
       // logger.debug('Peer unreachable', this.url + '/peer/blocks/', error.code)
 
@@ -104,7 +73,7 @@ module.exports = class Peer {
    */
   async postTransactions (transactions) {
     try {
-      const res = await popsicle.request({
+      const response = await popsicle.request({
         method: 'POST',
         url: this.url + '/peer/transactions',
         body: {
@@ -115,24 +84,12 @@ module.exports = class Peer {
         timeout: 5000
       }).use(popsicle.plugins.parse('json'))
 
-      this.parseHeaders(res)
+      this.__parseHeaders(response)
 
-      return res.body
+      return response.body
     } catch (error) {
       this.status = error.code
     }
-  }
-
-  /**
-   * Parse headers from response.
-   * @param  {Object} res
-   * @return {Object}
-   */
-  parseHeaders (res) {
-    ['nethash', 'os', 'version'].forEach(key => (this[key] = res.headers[key]))
-    this.status = 'OK'
-
-    return res
   }
 
   /**
@@ -159,7 +116,9 @@ module.exports = class Peer {
       return response.body.blocks
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
+
       this.ban = new Date().getTime() + 60 * 60000
+
       throw error
     }
   }
@@ -171,7 +130,7 @@ module.exports = class Peer {
    * @throws {Error} If fail to get peer status.
    */
   async ping (delay) {
-    const body = await this.get('/peer/status', delay || 5000)
+    const body = await this.__get('/peer/status', delay || 5000)
 
     if (body) {
       this.state = body
@@ -179,7 +138,7 @@ module.exports = class Peer {
       return body
     }
 
-    throw new Error('Peer unreachable')
+    throw new Error(`Peer ${this.ip} is unreachable`)
   }
 
   /**
@@ -191,8 +150,48 @@ module.exports = class Peer {
 
     await this.ping(5000)
 
-    const body = await this.get('/peer/list')
+    const body = await this.__get('/peer/list')
 
     return body.peers
+  }
+
+  /**
+   * Perform GET request.
+   * @param  {String} endpoint
+   * @param  {Number} [timeout=10000]
+   * @return {(Object|undefined)}
+   */
+  async __get (endpoint, timeout) {
+    const temp = new Date().getTime()
+
+    try {
+      const response = await popsicle.request({
+        method: 'GET',
+        url: this.url + endpoint,
+        headers: this.headers,
+        timeout: timeout || 10000
+      }).use(popsicle.plugins.parse('json'))
+
+      this.delay = new Date().getTime() - temp
+
+      this.__parseHeaders(response)
+
+      return response.body
+    } catch (error) {
+      this.status = error.code
+    }
+  }
+
+  /**
+   * Parse headers from response.
+   * @param  {Object} response
+   * @return {Object}
+   */
+  __parseHeaders (response) {
+    ['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+
+    this.status = 'OK'
+
+    return response
   }
 }
