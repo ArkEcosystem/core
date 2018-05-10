@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const fs = require('fs')
+const logger = require('./logger')
 const util = require('util')
 const writeFile = util.promisify(fs.writeFile)
 
@@ -20,3 +21,5 @@ exports.updateConfig = async (file, overwrites) => {
 
   writeFile(`${process.env.ARK_PATH_CONFIG}/${file}.json`, JSON.stringify(config, null, 2))
 }
+
+exports.logger = logger

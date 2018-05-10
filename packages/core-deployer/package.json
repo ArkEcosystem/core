@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "commander": "^2.15.1",
-    "lodash": "^4.17.10"
+    "fs-extra": "^6.0.1",
+    "lodash": "^4.17.10",
+    "pino": "^4.16.1"
   }
 }
