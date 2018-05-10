@@ -2,12 +2,12 @@ const Sntp = require('sntp')
 const shuffle = require('lodash/shuffle')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-module.exports = async (hosts) => {
+module.exports = async (hosts, timeout = 1000) => {
   hosts = shuffle(hosts)
 
   for (let i = hosts.length - 1; i >= 0; i--) {
     try {
-      const time = await Sntp.time({ host: hosts[i], timeout: 1000 })
+      const time = await Sntp.time({ host: hosts[i], timeout })
 
       return Promise.resolve({ time, host: hosts[i] })
     } catch (err) {

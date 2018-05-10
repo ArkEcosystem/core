@@ -13,11 +13,11 @@ const isLocalhost = require('./utils/is-localhost')
 module.exports = class Monitor {
   /**
    * @constructor
-   * @param  {P2PInterface} p2p
+   * @param  {PeerManager} manager
    * @throws {Error} If no seed peers
    */
-  constructor (p2p) {
-    this.p2p = p2p
+  constructor (manager) {
+    this.manager = manager
     this.config = config
     this.peers = {}
 
@@ -158,7 +158,7 @@ module.exports = class Monitor {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
-      this.p2p.checkOnline()
+      this.manager.checkOnline()
       return this.getRandomPeer()
     }
 
@@ -293,7 +293,7 @@ module.exports = class Monitor {
   }
 
   /**
-   * Register event listeners for p2p.
+   * Register event listeners for manager.
    * @TODO: rethink placement
    * @return {void}
    */

@@ -85,7 +85,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     try {
       await this.saveBlockCommit()
     } catch (error) {
-      logger.error(error.message)
+      logger.warn('Block already commited.')
+      logger.warn(error.message)
     }
 
     await this.connection.close()

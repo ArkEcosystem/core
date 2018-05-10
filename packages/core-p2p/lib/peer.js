@@ -43,17 +43,17 @@ module.exports = class Peer {
 
   /**
    * Perform GET request.
-   * @param  {String} apiEndpoint
+   * @param  {String} endpoint
    * @param  {Number} [timeout=10000]
    * @return {(Object|undefined)}
    */
-  async get (apiEndpoint, timeout) {
+  async get (endpoint, timeout) {
     const temp = new Date().getTime()
 
     try {
       const res = await popsicle.request({
         method: 'GET',
-        url: this.url + apiEndpoint,
+        url: this.url + endpoint,
         headers: this.headers,
         timeout: timeout || 10000
       }).use(popsicle.plugins.parse('json'))
