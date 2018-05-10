@@ -54,7 +54,7 @@ describe('Peer', () => {
     })
   })
 
-  describe('postBlock', async () => {
+  describe.skip('postBlock', async () => {
     it('should be a function', async () => {
       await expect(peer.postBlock).toBeFunction()
     })
@@ -68,7 +68,7 @@ describe('Peer', () => {
     })
   })
 
-  describe('postTransactions', async () => {
+  describe.skip('postTransactions', async () => {
     it('should be a function', async () => {
       await expect(peer.postTransactions).toBeFunction()
     })
