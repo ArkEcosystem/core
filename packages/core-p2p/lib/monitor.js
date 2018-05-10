@@ -270,9 +270,9 @@ module.exports = class Monitor {
    */
   async broadcastBlock (block) {
     const bpeers = Object.values(this.peers)
-    // console.log(Object.values(this.peers))
+
     logger.info(`Broadcasting block ${block.data.height} to ${bpeers.length} peers`)
-    // console.log(bpeers)
+
     await Promise.all(bpeers.map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
 
