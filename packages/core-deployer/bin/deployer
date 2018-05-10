@@ -91,19 +91,23 @@ if (!fs.existsSync(process.env.ARK_PATH_CONFIG)) {
 }
 
 const networkConfig = {
+  name: commander.name.toLowerCase(),
+  messagePrefix: `${commander.token} message:\n`,
+  pubKeyHash: commander.prefixHash,
+  // nethash: commander.nethash, TODO
+  // wif: wif, TODO
+  'constants[0].blocktime': commander.blocktime,
+  'constants[0].block.maxTransactions': commander.transactionsPerBlock,
+  'constants[0].epoch': commander.epoch,
   'constants[0].activeDelegates': commander.activeDelegates,
   'constants[0].fees.send': commander.feeSend,
   'constants[0].fees.vote': commander.feeVote,
   'constants[0].fees.secondsignature': commander.feeSecondSignature,
   'constants[0].fees.delegate': commander.feeDelegate,
   'constants[0].fees.multisignature': commander.feeMultisignature,
-  'constants[0].epoch': commander.epoch,
-  'constants[0].blocktime': commander.blocktime,
   'client.token': commander.token,
-  'client.symbol': commander.symbol,
-  pubKeyHash: commander.prefix,
-  nethash: commander.nethash,
-  'constants[0].block.maxTransactions': commander.transactionsPerBlock
+  'client.symbol': commander.symbol
+  // 'client.explorer': commander.explorerUrl, TODO
 }
 
 if (commander.rewardHeight === 1) {
