@@ -3,15 +3,16 @@
 'use strict'
 
 const commander = require('commander')
-const assert = require('assert-plus')
+const Joi = require('joi')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { updateConfig } = require('../lib/utils')
+const { logger, updateConfig } = require('../lib/utils')
 
 commander
   .version(require('../package.json').version)
-  .option('--network <value>', 'Network')
+  .option('-h, --help', 'help', false)
+  .option('--network <value>', 'Network to initially copy', 'mainnet')
   .option('--name <value>', 'Name', 'Bridgechain')
   .option('--p2pPort <value>', 'P2P API Port', 4202)
   .option('--pubPort <value>', 'Public P2P Port', 4203)
@@ -28,26 +29,57 @@ commander
   .option('--feeSecondSignature <value>', 'Fee for Second Passphrase Transaction', 500000000)
   .option('--feeDelegate <value>', 'Fee for Register Delegate Transaction', 2500000000)
   .option('--feeMultisignature <value>', 'Fee for Multisignature Transaction', 500000000)
-  .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21 13:00:00.000Z')
-  .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [75600]', 75600)
+  .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21T13:00:00.000Z')
+  .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [1]', 1)
   .option('--rewardBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
   .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)
-  .option('--token <value>', 'Token Name [MINE]', 'MINE')
-  .option('--symbol <value>', 'Symbol for Token [M]', 'M')
-  .option('--prefix <value>', 'Address Prefix [M]', 'M')
-  .option('--transactionsPerBlock <value>', 'Max Transaciton count per Block [50]', 50)
+  .option('--token <value>', 'Token Name [CHAIN]', 'CHAIN')
+  .option('--symbol <value>', 'Symbol for Token [C]', 'C')
+  .option('--prefix <value>', 'Address Prefix [C]', 'C')
+  .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   // .option('--total-premine', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]')
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
   .parse(process.argv)
 
-assert.number(commander.feeSend)
-assert.number(commander.feeVote)
-assert.number(commander.feeSecondSignature)
-assert.number(commander.feeDelegate)
-assert.number(commander.feeMultisignature)
+const schema = Joi.object().keys({
+  network: Joi.string().required(),
+  name: Joi.string().required(),
+  p2pPort: Joi.number().required(),
+  pubPort: Joi.number().required(),
+  dbHost: Joi.string().required(),
+  dbPort: Joi.number().required(),
+  dbUsername: Joi.string().required(),
+  dbPassword: Joi.string().required(),
+  dbDatabase: Joi.string().required(),
+  nodeIp: Joi.string().required(),
+  nodePort: Joi.number().required(),
+  activeDelegates: Joi.number().required(),
+  feeSend: Joi.number().required(),
+  feeVote: Joi.number().required(),
+  feeSecondSignature: Joi.number().required(),
+  feeDelegate: Joi.number().required(),
+  feeMultisignature: Joi.number().required(),
+  epoch: Joi.string().regex(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/).required(),
+  rewardHeight: Joi.number().min(1).required(),
+  rewardBlock: Joi.number().required(),
+  blocktime: Joi.number().required(),
+  token: Joi.string().required(),
+  symbol: Joi.string().required(),
+  prefix: Joi.string().required(),
+  transactionsPerBlock: Joi.number().required()
+})
 
-if (!process.argv.slice(2).length) {
+const { error, value } = Joi.validate(commander, schema, { allowUnknown: true })
+
+if (error) {
+  error.details.forEach(detail => {
+    logger.error(detail.message)
+  })
+  process.exit(1)
+}
+
+if (!commander.help) {
   commander.outputHelp();
 }
 
