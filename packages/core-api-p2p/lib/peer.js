@@ -3,7 +3,7 @@
 const popsicle = require('popsicle')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const threads = require('threads')
-const thread = threads.spawn(`${__dirname}/download-worker.js`)
+const thread = threads.spawn(`${__dirname}/workers/download.js`)
 
 module.exports = class Peer {
   /**
