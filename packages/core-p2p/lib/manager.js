@@ -4,37 +4,37 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 const checkDNS = require('./utils/check-dns')
 const checkNTP = require('./utils/check-ntp')
-const Down = require('./down')
-const Up = require('./up')
+const Monitor = require('./monitor')
+const startServer = require('./server')
 
-module.exports = class P2PInterface {
+module.exports = class PeerManager {
   /**
    * @constructor
-   * @param  {Object} upConfig
-   * @param  {Object} downConfig
+   * @param  {Object} config
    */
-  constructor (upConfig, downConfig) {
-    this.down = new Down(this, downConfig)
-    this.up = new Up(this, upConfig)
+  constructor (config) {
+    this.config = config
+    this.monitor = new Monitor(this)
   }
 
   /**
    * Start P2P interface.
    * @param {Boolean} networkStart
    */
-  async warmup (networkStart) {
+  async start () {
     await this.__checkDNSConnectivity()
     await this.__checkNTPConnectivity()
 
-    await this.down.start(networkStart)
-    await this.up.start()
+    await this.monitor.start(this.config.networkStart)
+
+    this.api = await startServer(this, this.config)
   }
 
   /**
    * Shutdown P2P interface.
    */
   async stop () {
-    return this.up.stop()
+    return this.api.stop()
   }
 
   /**
@@ -42,7 +42,7 @@ module.exports = class P2PInterface {
    * @return {Promise}
    */
   async updateNetworkStatus () {
-    await this.down.updateNetworkStatus()
+    await this.monitor.updateNetworkStatus()
   }
 
   /**
@@ -51,7 +51,7 @@ module.exports = class P2PInterface {
    * @return {Object[]}
    */
   downloadBlocks (fromBlockHeight) {
-    return this.down.downloadBlocks(fromBlockHeight)
+    return this.monitor.downloadBlocks(fromBlockHeight)
   }
 
   /**
@@ -59,7 +59,7 @@ module.exports = class P2PInterface {
    * @param {Block} block
    */
   async broadcastBlock (block) {
-    await this.down.broadcastBlock(block)
+    await this.monitor.broadcastBlock(block)
   }
 
   /**
@@ -67,7 +67,7 @@ module.exports = class P2PInterface {
    * @param {Transaction[]} transactions
    */
   broadcastTransactions (transactions) {
-    this.down.broadcastTransactions(transactions)
+    this.monitor.broadcastTransactions(transactions)
   }
 
   /**
@@ -76,7 +76,7 @@ module.exports = class P2PInterface {
    * @return {Promise}
    */
   acceptNewPeer (peer) {
-    return this.down.acceptNewPeer(peer)
+    return this.monitor.acceptNewPeer(peer)
   }
 
   /**
@@ -84,7 +84,7 @@ module.exports = class P2PInterface {
    * @return {Peer[]}
    */
   getPeers () {
-    return this.down.getPeers()
+    return this.monitor.getPeers()
   }
 
   /**
@@ -92,7 +92,7 @@ module.exports = class P2PInterface {
    * @return {Number}
    */
   getNetworkHeight () {
-    return this.down.getNetworkHeight()
+    return this.monitor.getNetworkHeight()
   }
 
   /**
@@ -101,7 +101,7 @@ module.exports = class P2PInterface {
    */
   async __checkDNSConnectivity () {
     try {
-      const host = await checkDNS(this.up.config.dns)
+      const host = await checkDNS(this.config.dns)
 
       logger.info(`Your network connectivity has been verified by ${host}`)
     } catch (err) {
@@ -115,7 +115,7 @@ module.exports = class P2PInterface {
    */
   async __checkNTPConnectivity () {
     try {
-      const { host, time } = await checkNTP(this.up.config.ntp)
+      const { host, time } = await checkNTP(this.config.ntp)
 
       logger.info(`Your NTP connectivity has been verified by ${host}`)
 

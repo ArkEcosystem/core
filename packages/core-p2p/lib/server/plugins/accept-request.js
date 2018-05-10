@@ -1,7 +1,7 @@
 'use strict'
 
 const requestIp = require('request-ip')
-const isLocalhost = require('../utils/is-localhost')
+const isLocalhost = require('../../utils/is-localhost')
 
 /**
  * The register method used by hapi.js.

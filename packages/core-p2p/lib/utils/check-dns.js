@@ -6,7 +6,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 module.exports = async (hosts) => {
   hosts = shuffle(hosts)
 
-  const lookupService = util.promisify(dns.lookupService);
+  const lookupService = util.promisify(dns.lookupService)
 
   for (let i = hosts.length - 1; i >= 0; i--) {
     try {

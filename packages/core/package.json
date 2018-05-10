@@ -42,8 +42,7 @@
   },
   "dependencies": {
     "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-api-p2p": "^1.0.0",
-    "@arkecosystem/core-api-public": "^1.0.0",
+    "@arkecosystem/core-api": "^1.0.0",
     "@arkecosystem/core-blockchain": "^1.0.0",
     "@arkecosystem/core-commander": "^1.0.0",
     "@arkecosystem/core-config": "^1.0.0",
@@ -55,6 +54,7 @@
     "@arkecosystem/core-graphql-api": "^1.0.0",
     "@arkecosystem/core-logger": "^1.0.0",
     "@arkecosystem/core-logger-winston": "^1.0.0",
+    "@arkecosystem/core-p2p": "^1.0.0",
     "@arkecosystem/core-transaction-pool": "^1.0.0",
     "@arkecosystem/core-transaction-pool-redis": "^1.0.0",
     "@arkecosystem/core-webhooks": "^1.0.0",

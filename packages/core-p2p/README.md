@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-yarn add @arkecosystem/core-api-p2p
+yarn add @arkecosystem/core-p2p
 ```
 
 ## Security

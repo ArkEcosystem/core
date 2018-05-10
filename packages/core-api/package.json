@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-api-public",
+  "name": "@arkecosystem/core-api",
   "description": "Public API for ARK Core",
   "version": "1.0.0",
   "contributors": [

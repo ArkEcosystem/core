@@ -3,21 +3,21 @@
 const { slots } = require('@arkecosystem/client')
 
 const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
 
-module.exports = class Down {
+module.exports = class Monitor {
   /**
    * @constructor
-   * @param  {P2PInterface} p2p
-   * @param  {Object}       config
+   * @param  {PeerManager} manager
    * @throws {Error} If no seed peers
    */
-  constructor (p2p, config) {
-    this.p2p = p2p
+  constructor (manager) {
+    this.manager = manager
     this.config = config
     this.peers = {}
 
@@ -25,7 +25,7 @@ module.exports = class Down {
       throw new Error('No seed peers defined in peers.json')
     }
 
-    config.peers.list
+    this.config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
 
@@ -158,7 +158,7 @@ module.exports = class Down {
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
-      this.p2p.checkOnline()
+      this.manager.checkOnline()
       return this.getRandomPeer()
     }
 
@@ -173,8 +173,10 @@ module.exports = class Down {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
     keys = keys.filter(key => this.peers[key].downloadSize !== 100)
+
     const random = keys[keys.length * Math.random() << 0]
     const randomPeer = this.peers[random]
+
     if (!randomPeer) {
       // logger.error(this.peers)
       delete this.peers[random]
@@ -291,7 +293,7 @@ module.exports = class Down {
   }
 
   /**
-   * Register event listeners for p2p.
+   * Register event listeners for manager.
    * @TODO: rethink placement
    * @return {void}
    */

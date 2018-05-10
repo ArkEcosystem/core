@@ -16,7 +16,6 @@ module.exports = {
   ],
   ntp: [
     'pool.ntp.org',
-    'time.google.com',
-    'time.nist.gov'
+    'time.google.com'
   ]
 }
