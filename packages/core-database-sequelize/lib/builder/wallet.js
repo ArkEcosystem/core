@@ -100,7 +100,7 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildLastForgedBlocks () {
-    const data = await this.connection.query(`select  id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${this.activeDelegates}`, {
+    const data = await this.connection.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${this.activeDelegates}`, {
       type: Sequelize.QueryTypes.SELECT
     })
 
@@ -197,9 +197,14 @@ module.exports = class WalletBuilder {
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+
       if (!wallet.voted) {
         let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
-        if (vote.startsWith('+')) wallet.vote = vote.slice(1)
+
+        if (vote.startsWith('+')) {
+          wallet.vote = vote.slice(1)
+        }
+
         wallet.voted = true
       }
     })
