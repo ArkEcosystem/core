@@ -38,6 +38,8 @@ class Database {
       await this.__registerModels()
     } catch (error) {
       logger.error('Unable to connect to the database', error.stack)
+
+      process.exit(1)
     }
   }
 

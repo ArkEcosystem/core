@@ -16,8 +16,8 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  async findAll (params = {}) {
-    return this.connection.walletManager.getLocalWallets().filter(a => !!a.username)
+  findAll (params = {}) {
+    return this.connection.walletManager.getLocalWallets().filter(wallet => !!wallet.username)
   }
 
   /**
@@ -25,12 +25,12 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  async paginate (params) {
-    const delegates = await this.findAll()
+  paginate (params) {
+    const delegates = this.findAll().slice(params.offset, params.offset + params.limit)
 
     return {
-      rows: delegates.slice(params.offset, params.offset + params.limit),
-      count: delegates.length
+      count: delegates.length,
+      rows: delegates
     }
   }
 
@@ -39,9 +39,8 @@ module.exports = class DelegatesRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  async search (params) {
-    let delegates = await this.findAll()
-    delegates = delegates.filter((delegate) => delegate.username.indexOf(params.q) > -1)
+  search (params) {
+    let delegates = this.findAll().filter((delegate) => delegate.username.indexOf(params.q) > -1)
 
     if (params.orderBy) {
       const orderByField = params.orderBy.split(':')[0]
@@ -60,9 +59,13 @@ module.exports = class DelegatesRepository {
       })
     }
 
+    if (params.offset && params.limit) {
+      delegates = delegates.slice(params.offset, params.offset + params.limit)
+    }
+
     return {
-      rows: delegates.slice(params.offset, params.offset + params.limit),
-      count: delegates.length
+      count: delegates.length,
+      rows: delegates
     }
   }
 
@@ -71,25 +74,22 @@ module.exports = class DelegatesRepository {
    * @param  {String} id
    * @return {Object}
    */
-  async findById (id) {
-    const delegates = await this.findAll()
+  findById (id) {
+    const delegates = this.findAll()
 
     return delegates.find(a => (a.address === id || a.publicKey === id || a.username === id))
   }
 
   /**
-   * TODO: find a better name...
-   *
-   * Get all active delegates.
+   * Get all active delegates at height.
    * @param  {Number} height
-   * @param  {Number} totalSupply
    * @return {Array}
    */
-  async active (height, totalSupply) {
-    const delegates = await this.connection.getActiveDelegates(height)
+  getActiveAtHeight (height) {
+    const delegates = this.connection.getActiveDelegates(height)
 
-    return Promise.all(delegates.map(async delegate => {
-      const wallet = await this.connection.wallets.findById(delegate.publicKey)
+    return Promise.all(delegates.map(delegate => {
+      const wallet = this.connection.wallets.findById(delegate.publicKey)
 
       return {
         username: wallet.username,

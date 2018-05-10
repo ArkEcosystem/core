@@ -23,7 +23,7 @@ module.exports = class TransactionsRepository {
    * @param  {Boolean} count
    * @return {Object}
    */
-  findAll (params, count = true) {
+  findAll (params = {}, count = true) {
     let whereStatement = {}
     let orderBy = []
 
@@ -169,15 +169,11 @@ module.exports = class TransactionsRepository {
     let where = { type, timestamp: {} }
 
     if (from) {
-      where.timestamp[Op.lte] = to
-    }
-
-    if (to) {
       where.timestamp[Op.gte] = from
     }
 
-    if (!where.timestamp.length) {
-      delete where.timestamp
+    if (to) {
+      where.timestamp[Op.lte] = to
     }
 
     const results = await this.connection.models.transaction.findAll({

@@ -119,7 +119,9 @@ blockchainMachine.actionMap = (blockchain) => {
         }
 
         // only genesis block? special case of first round needs to be dealt with
-        if (block.data.height === 1) await blockchain.database.deleteRound(1)
+        if (block.data.height === 1) {
+          await blockchain.database.deleteRound(1)
+        }
 
         /*********************************
          *  state machine data init      *
@@ -134,6 +136,7 @@ blockchainMachine.actionMap = (blockchain) => {
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
 
+          state.lastBlock = new Block(blockchain.config.genesisBlock)
           await blockchain.database.buildWallets(block.data.height)
 
           return blockchain.dispatch('STARTED')

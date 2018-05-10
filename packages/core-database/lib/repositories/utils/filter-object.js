@@ -7,11 +7,13 @@
  * @param  {Object} filters
  * @return {Object}
  */
-module.exports = async (object, params, filters) => {
+module.exports = (object, params, filters) => {
   return object.filter(item => {
     if (filters.hasOwnProperty('exact')) {
       for (const elem of filters['exact']) {
-        if (params[elem] && item[elem] !== params[elem]) return false
+        if (params[elem] && item[elem] !== params[elem]) {
+          return false
+        }
       }
     }
 

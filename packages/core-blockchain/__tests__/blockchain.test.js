@@ -132,12 +132,12 @@ describe('Blockchain', () => {
   })
 
   describe('getState', () => {
-    it('should be a function', () => {
-      expect(blockchain.getState).toBeFunction()
+    it('should be an object', () => {
+      expect(blockchain.state).toBeObject()
     })
 
     it('should be an empty state object', () => {
-      expect(blockchain.getState()).toEqual({
+      expect(blockchain.state).toEqual({
         blockchain: {
           actions: [],
           activities: {},
@@ -163,19 +163,19 @@ describe('Blockchain', () => {
   })
 
   describe.skip('p2p', () => {
-    it('should be a function', () => {
+    it('should be an object', () => {
       expect(blockchain.p2p).toBeFunction()
     })
   })
 
   describe.skip('transactionPool', () => {
-    it('should be a function', () => {
+    it('should be an object', () => {
       expect(blockchain.transactionPool).toBeFunction()
     })
   })
 
   describe.skip('database', () => {
-    it('should be a function', () => {
+    it('should be an object', () => {
       expect(blockchain.database).toBeFunction()
     })
   })

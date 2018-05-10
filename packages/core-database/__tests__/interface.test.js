@@ -195,61 +195,61 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('applyRound', async () => {
+  describe.skip('applyRound', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.applyRound).toBeFunction()
     })
   })
 
-  describe('undoRound', async () => {
+  describe.skip('undoRound', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.undoRound).toBeFunction()
     })
   })
 
-  describe('validateDelegate', async () => {
+  describe.skip('validateDelegate', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.validateDelegate).toBeFunction()
     })
   })
 
-  describe('validateForkedBlock', async () => {
+  describe.skip('validateForkedBlock', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.validateForkedBlock).toBeFunction()
     })
   })
 
-  describe('applyBlock', async () => {
+  describe.skip('applyBlock', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.applyBlock).toBeFunction()
     })
   })
 
-  describe('undoBlock', async () => {
+  describe.skip('undoBlock', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.undoBlock).toBeFunction()
     })
   })
 
-  describe('verifyTransaction', async () => {
+  describe.skip('verifyTransaction', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.verifyTransaction).toBeFunction()
     })
   })
 
-  describe('applyTransaction', async () => {
+  describe.skip('applyTransaction', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.applyTransaction).toBeFunction()
     })
   })
 
-  describe('undoTransaction', async () => {
+  describe.skip('undoTransaction', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.undoTransaction).toBeFunction()
     })
   })
 
-  describe('snapshot', async () => {
+  describe.skip('snapshot', async () => {
     it('should be a function', async () => {
       await expect(ConnectionInterface.snapshot).toBeFunction()
     })

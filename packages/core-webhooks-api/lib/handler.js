@@ -45,7 +45,7 @@ exports.store = {
         enabled: false
       }
     },
-    validate: schema.store()
+    validate: schema.store
   }
 }
 
@@ -65,7 +65,7 @@ exports.show = {
     return utils.respondWithResource(request, webhook, 'webhook')
   },
   options: {
-    validate: schema.show()
+    validate: schema.show
   }
 }
 
@@ -84,7 +84,7 @@ exports.update = {
     return h.response(null).code(204)
   },
   options: {
-    validate: schema.update()
+    validate: schema.update
   }
 }
 
@@ -103,7 +103,7 @@ exports.destroy = {
     return h.response(null).code(204)
   },
   options: {
-    validate: schema.destroy()
+    validate: schema.destroy
   }
 }
 

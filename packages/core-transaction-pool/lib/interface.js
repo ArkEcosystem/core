@@ -2,12 +2,8 @@
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const emitter = container.resolvePlugin('event-emitter')
-const async = require('async')
-const logger = container.resolvePlugin('logger')
 const client = require('@arkecosystem/client')
 const { crypto } = client
-// const { slots, crypto } = client
-const { Transaction } = client.models
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -17,22 +13,6 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = blockchain.database.walletManager
-
-    if (!this.options.enabled) {
-      logger.warn('Transaction pool is disabled - please enable if run in production')
-
-      return
-    }
-
-    this.queue = async.queue((transaction, queueCallback) => {
-      if (this.verifyTransaction(transaction)) {
-        this.addTransaction(transaction)
-        if (!transaction.isBroadcast) {
-          this.broadcastTransaction(transaction)
-        }
-      }
-      queueCallback()
-    }, 1)
   }
 
   /**
@@ -41,6 +21,14 @@ module.exports = class TransactionPoolInterface {
    */
   driver () {
     return this.driver
+  }
+
+  /**
+   * Broadcast transaction to additional peers.
+   * @param {Transaction} transaction
+   */
+  async broadcastTransaction (transaction) {
+    emitter.emit('broadcastTransactions', [transaction])
   }
 
    /**
@@ -52,21 +40,11 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Broadcast transaction to additional peers.
-   * @param {Transaction} transaction
-   */
-  async broadcastTransaction (transaction) {
-    emitter.emit('broadcastTransactions', [transaction])
-  }
-
-  /**
    * Add a transaction to the pool.
    * @param {Transaction} transaction
    */
   async addTransaction (transaction) {
-    if (this.driver) {
-      await this.addTransaction(transaction)
-    }
+    throw new Error('Method [addTransaction] not implemented!')
   }
 
   /**
@@ -131,14 +109,7 @@ module.exports = class TransactionPoolInterface {
    * @param {Boolean} isBroadcast
    */
   async addTransactions (transactions, isBroadcast) {
-    if (!this.queue) return
-    this.queue.push(transactions
-      .map(transaction => {
-        transaction = new Transaction(transaction)
-        transaction.isBroadcast = isBroadcast
-
-        return transaction
-      }))
+    throw new Error('Method [addTransactions] not implemented!')
   }
 
   /**
@@ -167,16 +138,15 @@ module.exports = class TransactionPoolInterface {
   async determineExceededTransactions (transactions) {
     const response = {
       acceptable: [],
-      exceeded: []
+      excess: []
     }
 
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i]
-      if (await this.hasExceededMaxTransactions(transaction)) {
-        response.exceeded.push(transaction)
-      } else {
-        response.acceptable.push(transaction)
-      }
+
+      await this.hasExceededMaxTransactions(transaction)
+        ? response.excess.push(transaction)
+        : response.acceptable.push(transaction)
     }
 
     return response

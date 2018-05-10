@@ -1,0 +1,31 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-p2p",
+  "description": "P2P API for ARK Core",
+  "version": "1.0.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Kristjan Košič <kristjan@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
+  },
+  "dependencies": {
+    "@arkecosystem/client": "^2.0.0",
+    "@arkecosystem/core-container": "^1.0.0",
+    "ajv": "^6.4.0",
+    "hapi": "^17.4.0",
+    "lodash": "^4.17.10",
+    "popsicle": "^9.2.0",
+    "request-ip": "^2.0.2",
+    "sntp": "^3.0.1",
+    "threads": "^0.11.0"
+  }
+}

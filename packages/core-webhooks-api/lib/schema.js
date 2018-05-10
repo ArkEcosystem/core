@@ -3,94 +3,68 @@
 const webhookManager = require('@arkecosystem/core-container').resolvePlugin('webhooks')
 const Joi = require('joi')
 
+const events = webhookManager.getEvents().map(event => event.name)
+const conditions = [
+  'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
+  'lt', 'lte', 'ne', 'not-between', 'regexp', 'truthy'
+]
+
 /**
- * TODO: refactor this to simple exports.*
+ * @return {Object}
  */
-class Schema {
-  /**
-   * Initialise the schema.
-   * @return {void}
-   */
-  init () {
-    this.events = webhookManager.getEvents().map(event => event.name)
-    this.conditions = [
-      'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
-      'lt', 'lte', 'ne', 'not-between', 'regexp', 'truthy'
-    ]
-  }
-
-  /**
-   * @return {Object}
-   */
-  index () {
-    return {
-      query: {
-        page: Joi.number().integer(),
-        limit: Joi.number().integer()
-      }
-    }
-  }
-
-  /**
-   * @return {Object}
-   */
-  show () {
-    return {
-      params: {
-        id: Joi.string()
-      }
-    }
-  }
-
-  /**
-   * @return {Object}
-   */
-  store () {
-    return {
-      payload: {
-        event: Joi.string().valid(this.events).required(),
-        target: Joi.string().required().uri(),
-        enabled: Joi.boolean().default(true),
-        conditions: Joi.array().items(Joi.object({
-          key: Joi.string(),
-          value: Joi.string(),
-          condition: Joi.string().valid(this.conditions)
-        }))
-      }
-    }
-  }
-
-  /**
-   * @return {Object}
-   */
-  update () {
-    return {
-      payload: {
-        event: Joi.string().valid(this.events),
-        target: Joi.string().uri(),
-        enabled: Joi.boolean(),
-        conditions: Joi.array().items(Joi.object({
-          key: Joi.string(),
-          value: Joi.string(),
-          condition: Joi.string().valid(this.conditions)
-        }))
-      }
-    }
-  }
-
-  /**
-   * @return {Object}
-   */
-  destroy () {
-    return {
-      params: {
-        id: Joi.string()
-      }
-    }
+exports.index = {
+  query: {
+    page: Joi.number().integer(),
+    limit: Joi.number().integer()
   }
 }
 
 /**
- * @type {Schema}
+ * @return {Object}
  */
-module.exports = new Schema()
+exports.show = {
+  params: {
+    id: Joi.string()
+  }
+}
+
+/**
+ * @return {Object}
+ */
+exports.store = {
+  payload: {
+    event: Joi.string().valid(events).required(),
+    target: Joi.string().required().uri(),
+    enabled: Joi.boolean().default(true),
+    conditions: Joi.array().items(Joi.object({
+      key: Joi.string(),
+      value: Joi.string(),
+      condition: Joi.string().valid(conditions)
+    }))
+  }
+}
+
+/**
+ * @return {Object}
+ */
+exports.update = {
+  payload: {
+    event: Joi.string().valid(events),
+    target: Joi.string().uri(),
+    enabled: Joi.boolean(),
+    conditions: Joi.array().items(Joi.object({
+      key: Joi.string(),
+      value: Joi.string(),
+      condition: Joi.string().valid(conditions)
+    }))
+  }
+}
+
+/**
+ * @return {Object}
+ */
+exports.destroy = {
+  params: {
+    id: Joi.string()
+  }
+}

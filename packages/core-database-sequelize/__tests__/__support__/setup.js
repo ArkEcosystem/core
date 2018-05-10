@@ -8,7 +8,7 @@ exports.setUp = async () => {
 
   container.init({ data: '~/.ark', config }, {
     exclude: [
-      '@arkecosystem/core-api-p2p',
+      '@arkecosystem/core-p2p',
       '@arkecosystem/core-transaction-pool',
       '@arkecosystem/core-transaction-pool-redis',
       '@arkecosystem/core-database-sequelize',

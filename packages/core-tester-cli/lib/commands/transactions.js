@@ -12,8 +12,9 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
   await utils.request.post('/peer/transactions', {transactions}, true)
 
-  logger.info('Waiting 30 seconds to apply transfer transactions')
-  await delay(config.transactionDelay)
+  const delaySeconds = await utils.getTransactionDelay(transactions)
+  logger.info(`Waiting ${delaySeconds} seconds to apply transfer transactions`)
+  await delay(delaySeconds * 1000)
 
   const walletBalance = await utils.getWalletBalance(primaryAddress)
   logger.info('All transactions have been sent!')

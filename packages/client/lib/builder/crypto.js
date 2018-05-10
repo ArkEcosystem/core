@@ -11,6 +11,17 @@ const feeManager = require('../managers/fee')
 
 class CryptoBuilder {
   /**
+   * Get the byte representation of the transaction.
+   * @param  {Transaction} transaction
+   * @param  {Boolean} skipSignature
+   * @param  {Boolean} skipSecondSignature
+   * @return {String}
+   */
+  getBytes (transaction, skipSignature, skipSecondSignature) {
+    return arkjsv1.crypto.getBytes(transaction, skipSignature, skipSecondSignature)
+  }
+
+  /**
    * Get transaction id.
    * @param  {Transaction} transaction
    * @return {String}
@@ -53,6 +64,10 @@ class CryptoBuilder {
    * @return {Object}
    */
   sign (transaction, keys) {
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.sign(transaction, keys)
+    }
+
     const hash = this.getHash(transaction, false, false)
     const signature = keys.sign(hash).toDER().toString('hex')
 
@@ -70,6 +85,10 @@ class CryptoBuilder {
    * @return {Object}
    */
   secondSign (transaction, keys) {
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.secondSign(transaction, keys)
+    }
+
     const hash = this.getHash(transaction, false, true)
     const signature = keys.sign(hash).toDER().toString('hex')
 
@@ -103,6 +122,10 @@ class CryptoBuilder {
    * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, network) {
+    if (transaction.version === 1) {
+      return arkjsv1.crypto.verifySecondSignature(transaction, publicKey, network)
+    }
+
     const hash = this.getHash(transaction, false, true)
 
     const secondSignatureBuffer = Buffer.from(transaction.secondSignature, 'hex')

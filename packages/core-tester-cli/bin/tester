@@ -7,23 +7,26 @@ app.version(require('../package.json').version)
 app
   .command('transactions')
   .description('send multiple transactions')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-n, --number <number>', 'number of transactions', 10)
   .action(async (options) => require('../lib/commands/transactions')(options))
 
 app
+  .command('signatures')
+  .description('create wallets with second signature')
+  .option('-n, --number <number>', 'number of wallets', 10)
+  .action(async (options) => require('../lib/commands/signatures')(options))
+
+app
   .command('delegates')
   .description('create multiple delegates')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-n, --number <number>', 'number of delegates', 10)
   .action(async (options) => require('../lib/commands/delegates')(options))
 
 app
   .command('votes')
   .description('create multiple votes for a delegate')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-n, --number <number>', 'number of votes', 10)
-  .option('-d, --delegate <delegate>', 'delegate public key')
+  .option('-d, --delegate <delegate>', 'delegate public key', '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
   .action(async (options) => require('../lib/commands/votes')(options))
 
 app

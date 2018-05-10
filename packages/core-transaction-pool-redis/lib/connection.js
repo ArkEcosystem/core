@@ -2,6 +2,7 @@
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
+const async = require('async')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -17,32 +18,38 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
+    if (!this.options.enabled) {
+      logger.warn('Redis transaction pool disabled - please enable if run in production')
+
+      return this
+    }
+
     this.pool = null
     this.subscription = null
-    if (this.options.enabled) {
-      this.pool = new Redis(this.options.redis)
-      this.subscription = new Redis(this.options.redis)
-    }
-
-    this.isConnected = false
     this.keyPrefix = this.options.key
     this.counters = {}
+    this.pool = new Redis(this.options.redis)
+    this.subscription = new Redis(this.options.redis)
+    this.pool.on('connect', () => {
+      logger.info('Redis connection established')
 
-    if (this.pool) {
-      this.pool.on('connect', () => {
-        logger.info('Redis connection established')
-        this.isConnected = true
-        this.pool.config('set', 'notify-keyspace-events', 'Ex')
-        this.subscription.subscribe('__keyevent@0__:expired')
-      })
+      this.__registerTransactionQueue()
 
-      this.subscription.on('message', (channel, message) => {
-        logger.debug(`Received expiration message ${message} from channel ${channel}`)
-        this.removeTransaction(message.split('/')[3])
-      })
-    } else {
-      logger.warn('Could not connect to Redis')
-    }
+      this.pool.config('set', 'notify-keyspace-events', 'Ex')
+
+      this.subscription.subscribe('__keyevent@0__:expired')
+    })
+
+    this.pool.on('error', () => {
+      logger.error('Could not connect to Redis')
+      process.exit(1)
+    })
+
+    this.subscription.on('message', (channel, message) => {
+      logger.debug(`Received expiration message ${message} from channel ${channel}`)
+
+      this.removeTransaction(message.split('/')[3])
+    })
 
     return this
   }
@@ -52,8 +59,20 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async disconnect () {
-    if (this.pool) this.pool.disconnect()
-    if (this.subscription) this.subscription.disconnect()
+    try {
+      if (this.pool) {
+        await this.pool.disconnect()
+      }
+    } catch (error) {
+      logger.warn('Connection already closed')
+    }
+    try {
+      if (this.subscription) {
+        await this.subscription.disconnect()
+      }
+    } catch (error) {
+      logger.warn('Connection already closed')
+    }
   }
 
    /**
@@ -61,7 +80,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Number}
    */
   async getPoolSize () {
-    return this.isConnected ? this.pool.llen(this.__getRedisOrderKey()) : 0
+    return this.__isReady() ? this.pool.llen(this.__getRedisOrderKey()) : 0
   }
 
   /**
@@ -69,8 +88,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    if (!this.isConnected || !(transaction instanceof Transaction)) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "addTransaction".')
+    }
+
+    if (!(transaction instanceof Transaction)) {
+      return logger.warn(`Discarded Transaction ${transaction.id} - Invalid object.`)
     }
 
     try {
@@ -96,16 +119,36 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Add many transaction to the pool.
+   * @param {Array}   transactions
+   * @param {Boolean} isBroadcast
+   */
+  async addTransactions (transactions, isBroadcast) {
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
+    }
+
+    this.queue.push(transactions.map(transaction => {
+      transaction = new Transaction(transaction)
+      transaction.isBroadcast = isBroadcast
+
+      return transaction
+    }))
+  }
+
+  /**
    * Remove a transaction from the pool by transaction object.
    * @param  {Transaction} transaction
    * @return {void}
    */
   async removeTransaction (transaction) {
-    if (this.isConnected) {
-      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-      await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
-      await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransaction".')
     }
+
+    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
+    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
   }
 
   /**
@@ -114,8 +157,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactionById (id) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactionById".')
     }
 
     const publicKey = await this.getPublicKeyById(id)
@@ -130,8 +173,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactions (transactions) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactions".')
     }
 
     try {
@@ -149,8 +192,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
     const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
@@ -164,8 +207,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(String|void)}
    */
   async getPublicKeyById (id) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "getPublicKeyById".')
     }
 
     return this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
@@ -177,8 +220,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Transaction|String|void)}
    */
   async getTransaction (id) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransaction".')
     }
 
     const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
@@ -197,8 +240,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)}
    */
   async getTransactions (start, size) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransactions".')
     }
 
     try {
@@ -223,8 +266,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {(Array|void)}
    */
   async getTransactionsForForging (start, size) {
-    if (!this.isConnected) {
-      return
+    if (!this.__isReady()) {
+      return logger.warn('Transaction Pool is disabled - discarded action "getTransactionsForForging".')
     }
 
     try {
@@ -269,12 +312,22 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Flush the pool.
+   * @return {void}
+   */
+  async flush () {
+    const keys = await this.pool.keys('*')
+
+    keys.forEach(key => this.pool.del(key))
+  }
+
+  /**
    * Get the Redis key for the given transaction.
    * @param  {Number} id
    * @return {String}
    */
   __getRedisTransactionKey (id) {
-    return `${this.keyPrefix}/tx/${id}`
+    return `${this.keyPrefix}:transactions:${id}`
   }
 
   /**
@@ -282,7 +335,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {String}
    */
   __getRedisOrderKey () {
-    return `${this.keyPrefix}/order`
+    return `${this.keyPrefix}:order`
   }
 
   /**
@@ -291,6 +344,34 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {String}
    */
   __getRedisKeyByPublicKey (publicKey) {
-    return `${this.keyPrefix}/publicKey/${publicKey}`
+    return `${this.keyPrefix}:publicKey:${publicKey}`
+  }
+
+  /**
+   * Determine if the pool and subscription are connected.
+   * @return {Boolean}
+   */
+  __isReady () {
+    return this.pool && this.pool.status === 'ready'
+  }
+
+  /**
+   * Register the transaction queue listener.
+   * @return {void}
+   */
+  __registerTransactionQueue () {
+    this.queue = async.queue((transaction, queueCallback) => {
+      if (super.verifyTransaction(transaction)) {
+        this.addTransaction(transaction)
+
+        if (!transaction.isBroadcast) {
+          super.broadcastTransaction(transaction)
+        }
+      } else {
+        logger.warn(`Discarded Transaction ${transaction.id} - Unable to verify.`)
+      }
+
+      queueCallback()
+    }, 1)
   }
 }

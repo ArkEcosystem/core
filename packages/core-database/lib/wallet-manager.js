@@ -35,6 +35,15 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Index the given wallets.
+   * @param  {Array} wallets
+   * @return {void}
+   */
+  index (wallets) {
+    wallets.forEach(wallet => this.reindex(wallet))
+  }
+
+  /**
    * Reindex the given wallet.
    * @param  {Wallet} wallet
    * @return {void}
@@ -187,7 +196,6 @@ module.exports = class WalletManager {
     } else if (config.network.exceptions[transactionData.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
     } else if (!sender.canApply(transactionData)) {
-      // TODO: What is this logging? Reduce?
       logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(transactionData))
       logger.debug('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
 

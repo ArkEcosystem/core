@@ -19,7 +19,7 @@ module.exports = class BlocksRepository {
    * @param  {Boolean} count
    * @return {Object}
    */
-  findAll (params, count = true) {
+  findAll (params = {}, count = true) {
     let whereStatement = {}
     let orderBy = []
 
@@ -86,18 +86,14 @@ module.exports = class BlocksRepository {
     let where = { timestamp: {} }
 
     if (from) {
-      where.timestamp[Op.lte] = to
-    }
-
-    if (to) {
       where.timestamp[Op.gte] = from
     }
 
-    if (!where.timestamp.length) {
-      delete where.timestamp
+    if (to) {
+      where.timestamp[Op.lte] = to
     }
 
-    return this.connection.models.block.findAll({
+    return this.connection.models.block.findAndCountAll({
       attributes: ['totalFee', 'reward'], where
     })
   }
@@ -121,9 +117,9 @@ module.exports = class BlocksRepository {
    * @param  {String} generatorPublicKey
    * @return {Object}
    */
-  totalsByGenerator (generatorPublicKey) {
-    return this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") AS rewards, SUM("reward"+"totalFee") AS forged FROM "blocks" WHERE "generatorPublicKey" = '${generatorPublicKey}'`, {
-      type: Sequelize.QueryTypes.SELECT
-    })
+  async totalsByGenerator (generatorPublicKey) {
+    const rows = await this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") AS rewards, SUM("reward"+"totalFee") AS forged FROM "blocks" WHERE "generatorPublicKey" = '${generatorPublicKey}'`, { type: Sequelize.QueryTypes.SELECT })
+
+    return rows[0]
   }
 }

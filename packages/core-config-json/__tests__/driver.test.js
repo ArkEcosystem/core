@@ -14,7 +14,6 @@ const stubConfig = {
 describe('JSON Driver', () => {
   it('should fail without a config', async () => {
     try {
-      console.log(stubConfigPath)
       const driver = new JsonDriver({ config: stubConfigPath })
       await driver.make()
     } catch (error) {
