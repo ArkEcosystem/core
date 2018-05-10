@@ -3,6 +3,7 @@
 module.exports = `
   scalar JSON
   scalar Limit
+  scalar Offset
   scalar Arktoshi
   scalar Address
 
@@ -24,11 +25,18 @@ module.exports = `
   }
 
   input TransactionFilter {
-    amount: Arktoshi
-    fee: Arktoshi
+    fee: Int!
     senderPublicKey: String
     recipientId: Address
     type: TransactionType
+  }
+
+  input BlockFilter {
+    generatorPublicKey: String
+  }
+
+  input WalletFilter {
+    vote: String
   }
 
   input OrderByInput {

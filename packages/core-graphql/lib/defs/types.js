@@ -15,32 +15,24 @@ module.exports = `
     payloadHash: String
     generatorPublicKey: String
     blockSignature: String
-    transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
+    transactions(limit: Limit, offset: Offset, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
     generator: Wallet
   }
 
   type Transaction {
     id: String
     version: Int!
-    blockId: String
     timestamp: Int!
     senderPublicKey: String
     recipientId: String
     type: Int!
-    vendorFieldHex: String
-    amount: Arktoshi
-    fee: Arktoshi
-    serialized: String
+    vendorField: String
+    amount: Int!
+    fee: Int!
+    signature: String
     block: Block
     recipient: Wallet
     sender: Wallet
-  }
-
-  type Round {
-    id: Int!
-    publicKey: String
-    balance: String
-    round: String
   }
 
   type Wallet {
@@ -49,8 +41,8 @@ module.exports = `
     secondPublicKey: String
     vote: String
     username: String
-    balance: Arktoshi
-    votebalance: Arktoshi
+    balance: Int!
+    votebalance: Int!
     producedBlocks: Int!
     missedBlocks: Int!
     transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]

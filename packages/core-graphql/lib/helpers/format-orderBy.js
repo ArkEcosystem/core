@@ -1,13 +1,11 @@
 'use strict';
 
 module.exports = (orderByInput, defaultInput) => {
-  let order = []
+  let order
 
   if (orderByInput) {
-    order.push([orderByInput.field, orderByInput.direction])
-  } else if (defaultInput) {
-    order.push(defaultInput)
+    order = `${orderByInput.field}:${orderByInput.direction}`
   }
 
-  return order
+  return order || defaultInput
 }

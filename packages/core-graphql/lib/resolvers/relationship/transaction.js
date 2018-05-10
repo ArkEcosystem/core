@@ -3,9 +3,8 @@
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 
 module.exports = {
-  block: async (transaction) => {
-    const result = await database.connection.models.block.findById(transaction.dataValues.blockId)
-    return result
+  block: (transaction) => {
+    return database.blocks.findById(transaction.dataValues.blockId)
   },
   recipient: async (transaction) => {
     const recipientId = transaction.dataValues.recipientId
