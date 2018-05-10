@@ -3,6 +3,8 @@
 const axios = require('axios')
 
 const app = require('../__support__/setup')
+const genesisBlock = require('../__fixtures__/genesisBlock')
+const genesisTransaction = require('../__fixtures__/genesisTransaction')
 
 beforeAll(async (done) => {
   await app.setUp()
@@ -25,25 +27,39 @@ describe('API - Internal', () => {
       const response = await sendGET('round')
 
       await expect(response.status).toBe(200)
+
       await expect(response.data).toBeObject()
+
+      await expect(response.data).toHaveProperty('success')
+      await expect(response.data.success).toBeTruthy()
     })
   })
 
   describe('POST /block', async () => {
     it('should be ok', async () => {
-      const response = await sendPOST('block')
+      const response = await sendPOST('block', genesisBlock.toBroadcastV1())
 
       await expect(response.status).toBe(200)
+
       await expect(response.data).toBeObject()
+
+      await expect(response.data).toHaveProperty('success')
+      await expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe('POST /verifyTransaction', async () => {
+  describe.skip('POST /verifyTransaction', async () => {
     it('should be ok', async () => {
-      const response = await sendPOST('verifyTransaction')
+      const response = await sendPOST('verifyTransaction', {
+        transaction: genesisTransaction
+      })
 
       await expect(response.status).toBe(200)
+
       await expect(response.data).toBeObject()
+
+      await expect(response.data).toHaveProperty('success')
+      await expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -52,7 +68,11 @@ describe('API - Internal', () => {
       const response = await sendGET('forgingTransactions')
 
       await expect(response.status).toBe(200)
+
       await expect(response.data).toBeObject()
+
+      await expect(response.data).toHaveProperty('success')
+      await expect(response.data.success).toBeTruthy()
     })
   })
 })
