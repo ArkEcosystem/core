@@ -88,7 +88,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (!(transaction instanceof Transaction)) {
-      return logger.warn(`Discarded Transaction ${transaction.id} - Invalid object.`)
+      return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
     try {
