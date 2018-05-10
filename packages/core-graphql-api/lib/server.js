@@ -33,16 +33,17 @@ module.exports = async (config) => {
     }
   })
 
-  // console.log(schema)
-  await server.register({
-    plugin: graphiqlHapi,
-    options: {
-      path: '/graphiql',
-      graphiqlOptions: {
-        endpointURL: config.path
+  if (config.graphiql) {
+    await server.register({
+      plugin: graphiqlHapi,
+      options: {
+        path: '/graphiql',
+        graphiqlOptions: {
+          endpointURL: config.path
+        }
       }
-    }
-  })
+    })
+  }
 
   try {
     await server.start()
