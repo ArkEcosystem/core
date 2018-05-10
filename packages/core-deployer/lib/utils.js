@@ -1,10 +1,9 @@
 'use strict'
 
 const _ = require('lodash')
-const fs = require('fs')
+const fs = require('fs-extra')
 const logger = require('./logger')
 const util = require('util')
-const writeFile = util.promisify(fs.writeFile)
 
 /**
  * Update the contents of the given file.
@@ -13,13 +12,20 @@ const writeFile = util.promisify(fs.writeFile)
  * @return {void}
  */
 exports.updateConfig = async (file, overwrites) => {
-  let config = require(`${process.env.ARK_PATH_CONFIG}/${file}.json`)
+  const configPath = `${process.env.ARK_PATH_CONFIG}/${file}.json`
+  let config
+  if (fs.existsSync(configPath)) {
+    config = require(configPath)
+  } else {
+    config = {}
+  }
 
   for (let key in overwrites) {
     _.set(config, key, overwrites[key])
   }
 
-  writeFile(`${process.env.ARK_PATH_CONFIG}/${file}.json`, JSON.stringify(config, null, 2))
+  fs.ensureFileSync(configPath)
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
 exports.logger = logger
