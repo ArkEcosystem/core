@@ -65,7 +65,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       if (this.subscription) {
         await this.subscription.disconnect()
       }
-    } catch(error) {
+    } catch (error) {
       logger.warn('Connection already closed')
     }
   }
