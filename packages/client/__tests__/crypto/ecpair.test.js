@@ -1,6 +1,4 @@
 const ecurve = require('ecurve')
-const sinon = require('sinon')
-const sinonTestFactory = require('sinon-test')
 const BigInteger = require('bigi')
 
 const ECPair = require('../../lib/crypto/ecpair')
@@ -11,7 +9,6 @@ const fixtures = require('./fixtures/ecpair.json')
 const { NETWORKS, NETWORKS_LIST } = require('../utils/network-list')
 
 const curve = ecdsa.__curve
-const sinonTest = sinonTestFactory(sinon)
 
 beforeEach(() => configManager.setConfig(NETWORKS.mainnet))
 
@@ -71,15 +68,13 @@ describe('ECPair', () => {
       keyPair = new ECPair(BigInteger.ONE)
     })
 
-    it('wraps Q.getEncoded', sinonTest(function () {
-      this
-        .mock(keyPair.Q)
-        .expects('getEncoded')
-        .once()
-        .withArgs(keyPair.compressed)
+    it('wraps Q.getEncoded', () => {
+      keyPair.Q.getEncoded = jest.fn()
 
       keyPair.getPublicKeyBuffer()
-    }))
+
+      expect(keyPair.Q.getEncoded).toHaveBeenCalledWith(keyPair.compressed)
+    })
   })
 
   describe('fromWIF', () => {
@@ -170,24 +165,26 @@ describe('ECPair', () => {
       expect(keyPair.network).toEqual(NETWORKS.devnet)
     })
 
-    it('loops until d is within interval [1, n - 1] : 1', sinonTest(function () {
-      const rng = this.mock()
-      rng.exactly(2)
-      rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // invalid length
-      rng.onCall(1).returns(BigInteger.ONE.toBuffer(32)) // === 1
+    it('loops until d is within interval [1, n - 1] : 1', () => {
+      const rng = jest.fn()
+      rng.mockReturnValueOnce(BigInteger.ZERO.toBuffer(32)) // invalid length
+      rng.mockReturnValue(BigInteger.ONE.toBuffer(32)) // === 1
 
       ECPair.makeRandom({rng})
-    }))
 
-    it('loops until d is within interval [1, n - 1] : n - 1', sinonTest(function () {
-      const rng = this.mock()
-      rng.exactly(3)
-      rng.onCall(0).returns(BigInteger.ZERO.toBuffer(32)) // < 1
-      rng.onCall(1).returns(curve.n.toBuffer(32)) // > n-1
-      rng.onCall(2).returns(curve.n.subtract(BigInteger.ONE).toBuffer(32)) // === n-1
+      expect(rng).toHaveBeenCalledTimes(2)
+    })
+
+    it('loops until d is within interval [1, n - 1] : n - 1', () => {
+      const rng = jest.fn()
+      rng.mockReturnValueOnce(BigInteger.ZERO.toBuffer(32)) // < 1
+      rng.mockReturnValueOnce(curve.n.toBuffer(32)) // > n-1
+      rng.mockReturnValue(curve.n.subtract(BigInteger.ONE).toBuffer(32)) // === n-1
 
       ECPair.makeRandom({rng})
-    }))
+
+      expect(rng).toHaveBeenCalledTimes(3)
+    })
   })
 
   describe('getAddress', () => {

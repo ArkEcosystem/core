@@ -1,5 +1,3 @@
-const sinon = require('sinon')
-const sinonTestFactory = require('sinon-test')
 const BigInteger = require('bigi')
 
 const ecdsa = require('../../lib/crypto/ecdsa')
@@ -9,7 +7,6 @@ const ECSignature = require('../../lib/crypto/ecsignature')
 const fixtures = require('./fixtures/ecdsa.json')
 
 const curve = ecdsa.__curve
-const sinonTest = sinonTestFactory(sinon)
 
 describe('ecdsa', () => {
   describe('deterministicGenerateK', () => {
@@ -27,43 +24,41 @@ describe('ecdsa', () => {
       })
     })
 
-    it('loops until an appropriate k value is found', sinonTest(function () {
-      this
-        .mock(BigInteger)
-        .expects('fromBuffer')
-        .exactly(3)
-        .onCall(0).returns(new BigInteger('0')) // < 1
-        .onCall(1).returns(curve.n) // > n-1
-        .onCall(2).returns(new BigInteger('42')) // valid
+    it('loops until an appropriate k value is found', () => {
+      BigInteger.fromBuffer = jest.fn()
+      BigInteger.fromBuffer.mockReturnValueOnce(new BigInteger('0')) // < 1
+      BigInteger.fromBuffer.mockReturnValueOnce(curve.n) // > n-1
+      BigInteger.fromBuffer.mockReturnValue(new BigInteger('42')) // valid
 
       const x = new BigInteger('1').toBuffer(32)
       const h1 = Buffer.alloc(32)
       const k = ecdsa.deterministicGenerateK(h1, x, checkSig)
 
       expect(k.toString()).toBe('42')
-    }))
 
-    it('loops until a suitable signature is found', sinonTest(function () {
-      this
-        .mock(BigInteger)
-        .expects('fromBuffer')
-        .exactly(4)
-        .onCall(0).returns(new BigInteger('0')) // < 1
-        .onCall(1).returns(curve.n) // > n-1
-        .onCall(2).returns(new BigInteger('42')) // valid, but 'bad' signature
-        .onCall(3).returns(new BigInteger('53')) // valid, good signature
+      expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(3)
+    })
 
-      const checkSig = this.mock()
-      checkSig.exactly(2)
-      checkSig.onCall(0).returns(false) // bad signature
-      checkSig.onCall(1).returns(true) // good signature
+    it('loops until a suitable signature is found', () => {
+      BigInteger.fromBuffer = jest.fn()
+      BigInteger.fromBuffer.mockReturnValueOnce(new BigInteger('0')) // < 1
+      BigInteger.fromBuffer.mockReturnValueOnce(curve.n) // > n-1
+      BigInteger.fromBuffer.mockReturnValueOnce(new BigInteger('42')) // valid, but 'bad' signature
+      BigInteger.fromBuffer.mockReturnValue(new BigInteger('53')) // valid, good signature
+
+      const checkSig = jest.fn()
+      checkSig.mockReturnValueOnce(false) // bad signature
+      checkSig.mockReturnValue(true) // good signature
 
       const x = new BigInteger('1').toBuffer(32)
       const h1 = Buffer.alloc(32)
       const k = ecdsa.deterministicGenerateK(h1, x, checkSig)
 
       expect(k.toString()).toBe('53')
-    }))
+
+      expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(4)
+      expect(checkSig).toHaveBeenCalledTimes(2)
+    })
 
     fixtures.valid.rfc6979.forEach((f) => {
       it(`produces the expected k values for "${f.message}" if k wasn't suitable`, () => {

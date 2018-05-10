@@ -20,13 +20,13 @@ describe('IPFS Transaction', () => {
   })
 
   it('should not have the IPFS hash yet', () => {
-    expect(tx).not.toHaveProperty('ipfshash')
+    expect(tx).not.toHaveProperty('ipfsHash')
   })
 
   describe('create', () => {
     it('establishes the IPFS hash', () => {
       tx.create('zyx')
-      expect(tx.ipfshash).toBe('zyx')
+      expect(tx.ipfsHash).toBe('zyx')
     })
   })
 })
