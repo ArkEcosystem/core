@@ -12,7 +12,6 @@ const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
 commander
   .version(require('../package.json').version)
-  .option('-h, --help', 'help', false)
   .option('--network <value>', 'Network to initially copy', 'mainnet')
   .option('--name <value>', 'Name', 'Bridgechain')
   .option('--nodeIp <value>', 'IP for node', '0.0.0.0')
@@ -49,10 +48,6 @@ const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { 
 if (error) {
   error.details.forEach(detail => logger.error(detail.message))
   process.exit(1)
-}
-
-if (!commander.help) {
-  commander.outputHelp();
 }
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
