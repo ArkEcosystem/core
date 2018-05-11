@@ -68,7 +68,9 @@ module.exports = {
       port: 4203
     },
     '@arkecosystem/core-graphql': {},
-    '@arkecosystem/core-graphql-api': {},
+    '@arkecosystem/core-graphql-api': {
+      port: 4205
+    },
     '@arkecosystem/core-forger': {}
   }
 }
