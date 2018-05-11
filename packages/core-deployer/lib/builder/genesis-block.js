@@ -12,7 +12,7 @@ module.exports = class GenesisBlockBuilder {
    */
   constructor (network, options) {
     this.network = network
-    this.prefixHash = options.prefixHash
+    this.prefixHash = network.pubKeyHash
     this.totalPremine = options.totalPremine
     this.activeDelegates = options.activeDelegates
     ark.crypto.setNetworkVersion(this.prefixHash)
