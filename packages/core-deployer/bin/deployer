@@ -38,6 +38,7 @@ commander
   .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   .option('--wifPrefix <value>', 'Prefix for generating a WIF [rand(1, 255)]', getRandomNumber(1, 255))
+  .option('--overwriteConfig', 'Overwrite current deployer config files [off]', false)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
@@ -54,10 +55,15 @@ if (error) {
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
 const deployerConfigPath = `${process.env.ARK_PATH_CONFIG}/deployer`
-if (!fs.existsSync(deployerConfigPath)) {
-  fs.ensureDirSync(deployerConfigPath)
-  fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), deployerConfigPath)
+if (fs.existsSync(deployerConfigPath) && options.overwriteConfig) {
+  fs.removeSync(deployerConfigPath)
+} else if (!options.overwriteConfig) {
+  logger.error(`Deployer config already exists in '${deployerConfigPath}' - to overwrite, use the '--overwriteConfig' flag`)
+  process.exit(1)
 }
+
+fs.ensureDirSync(deployerConfigPath)
+fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), deployerConfigPath)
 
 let networkConfig = {
   name: options.name.toLowerCase(),
