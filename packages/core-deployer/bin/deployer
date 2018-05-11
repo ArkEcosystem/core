@@ -10,6 +10,8 @@ const path = require('path')
 const { getRandomNumber, logger, updateConfig } = require('../lib/utils')
 const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
+process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
+
 commander
   .version(require('../package.json').version)
   .option('--network <value>', 'Network to initially copy', 'mainnet')
@@ -38,10 +40,11 @@ commander
   .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   .option('--wifPrefix <value>', 'Prefix for generating a WIF [rand(1, 255)]', getRandomNumber(1, 255))
-  .option('--overwriteConfig', 'Overwrite current deployer config files [off]', false)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
+  .option('--overwriteConfig', 'Overwrite current deployer config files [off]', false)
+  .option('--configPath <value>', 'Deployer config path destination [~/.ark/deployer]', `${process.env.ARK_PATH_CONFIG}/deployer`)
   .parse(process.argv)
 
 const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true, convert: true })
@@ -52,18 +55,16 @@ if (error) {
   process.exit(1)
 }
 
-process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
-
-const deployerConfigPath = `${process.env.ARK_PATH_CONFIG}/deployer`
-if (fs.existsSync(deployerConfigPath) && options.overwriteConfig) {
-  fs.removeSync(deployerConfigPath)
-} else if (!options.overwriteConfig) {
-  logger.error(`Deployer config already exists in '${deployerConfigPath}' - to overwrite, use the '--overwriteConfig' flag`)
-  process.exit(1)
+if (fs.existsSync(options.configPath)) {
+  if (options.overwriteConfig) {
+    fs.removeSync(options.configPath)
+  } else {
+    logger.error(`Deployer config already exists in '${options.configPath}' - to overwrite, use the '--overwriteConfig' flag`)
+    process.exit(1)
+  }
 }
-
-fs.ensureDirSync(deployerConfigPath)
-fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), deployerConfigPath)
+fs.ensureDirSync(options.configPath)
+fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), options.configPath)
 
 let networkConfig = {
   name: options.name.toLowerCase(),
