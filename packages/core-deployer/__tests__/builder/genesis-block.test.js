@@ -11,9 +11,9 @@ let delegateWallets
 let delegateTransactions
 const transactionAmount = 10
 let transferTransaction
-let delegateTransaction
-let formattedTransaction
-let genesisBlock
+// let delegateTransaction
+// let formattedTransaction
+// let genesisBlock
 
 beforeAll(() => {
   builder = new GenesisBlockBuilder(network, {
@@ -27,7 +27,7 @@ beforeAll(() => {
   delegateTransactions = builder.__buildDelegateTransactions(delegateWallets)
 
   transferTransaction = builder.__createTransferTransaction(delegateWallet, wallet, transactionAmount)
-  delegateTransaction = builder.__createDelegateTransaction(delegateWallet)
+  // delegateTransaction = builder.__createDelegateTransaction(delegateWallet)
   // formattedTransaction = builder.__formatGenesisTransaction({}, delegateWallets)
   // genesisBlock = builder.__createGenesisBlock(delegateWallets)
 })
@@ -130,7 +130,7 @@ describe('Genesis Block Builder', () => {
         ['type', 0],
         ['amount', transactionAmount],
         ['fee', 0],
-        ['recipientId', wallet.address],
+        ['recipientId', wallet.address]
       ])
     })
   })
