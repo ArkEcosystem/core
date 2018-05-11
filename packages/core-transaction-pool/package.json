@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
-    "Brian Faust <brian@ark.io>"
+    "Brian Faust <brian@ark.io>",
+    "Alex Barnsley <alex@ark.io>"
   ],
   "license": "MIT",
   "main": "lib/index.js",
