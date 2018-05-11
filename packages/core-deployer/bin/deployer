@@ -56,7 +56,7 @@ process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 const deployerConfigPath = `${process.env.ARK_PATH_CONFIG}/deployer`
 if (!fs.existsSync(deployerConfigPath)) {
   fs.ensureDirSync(deployerConfigPath)
-  fs.copySync(path.resolve(`../core-config/lib/networks/${options.network}`), deployerConfigPath)
+  fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), deployerConfigPath)
 }
 
 let networkConfig = {
