@@ -41,6 +41,14 @@ module.exports = class TransactionGuard {
     }
   }
 
+  has (type, count) {
+    return this.hasAny(type) === count
+  }
+
+  hasAny (type) {
+    return this[type].length
+  }
+
   __prepareTransactions (transactions) {
     this.transactions = transactions
       .map(transaction => Transaction.serialize(transaction).toString('hex'))
