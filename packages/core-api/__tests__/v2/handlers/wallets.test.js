@@ -43,7 +43,7 @@ describe('API 2.0 - Wallets', () => {
 
     it('should return ResourceNotFound error', async () => {
       try {
-        await utils.request('GET', `wallets/dummy`)
+        await utils.request('GET', 'wallets/dummy')
       } catch (error) {
         await expect(error.message).toEqual('Not Found')
       }
@@ -118,29 +118,29 @@ describe('API 2.0 - Wallets', () => {
       await expect(wallet.publicKey).toBe(publicKey)
     })
 
-    it.skip('should POST a search for wallets with the exact specified secondPublicKey', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+    // it('should POST a search for wallets with the exact specified secondPublicKey', async () => {
+    //   const res = await utils.request('POST', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
+    //   await utils.assertSuccessful(res)
+    //   await utils.assertCollection(res)
 
-      await expect(res.body.data).toHaveLength(1)
+    //   await expect(res.body.data).toHaveLength(1)
 
-      const wallet = res.body.data[0]
-      await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressSecondPassphrase)
-    })
+    //   const wallet = res.body.data[0]
+    //   await utils.assertWallet(wallet)
+    //   await expect(wallet.address).toBe(addressSecondPassphrase)
+    // })
 
-    it.skip('should POST a search for wallets with the exact specified vote', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: address, vote })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+    // it('should POST a search for wallets with the exact specified vote', async () => {
+    //   const res = await utils.request('POST', 'wallets/search', { address: address, vote })
+    //   await utils.assertSuccessful(res)
+    //   await utils.assertCollection(res)
 
-      await expect(res.body.data).toHaveLength(1)
+    //   await expect(res.body.data).toHaveLength(1)
 
-      const wallet = res.body.data[0]
-      await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(address)
-    })
+    //   const wallet = res.body.data[0]
+    //   await utils.assertWallet(wallet)
+    //   await expect(wallet.address).toBe(address)
+    // })
 
     it('should POST a search for wallets with the exact specified username', async () => {
       const res = await utils.request('POST', 'wallets/search', { address: address, username })
