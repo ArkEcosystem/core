@@ -10,8 +10,6 @@ module.exports = class TransactionGuard {
    */
   constructor (pool) {
     this.pool = pool
-
-    this.__reset()
   }
 
   /**
@@ -26,7 +24,7 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
-    this.__determineExcessTransactions()
+    await this.__determineExcessTransactions()
   }
 
   /**
