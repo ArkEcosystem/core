@@ -45,6 +45,10 @@ module.exports = class TransactionGuard {
     return this.hasAny(type) === count
   }
 
+  hasAtLeast (type, count) {
+    return this.hasAny(type) >= count
+  }
+
   hasAny (type) {
     return this[type].length
   }
