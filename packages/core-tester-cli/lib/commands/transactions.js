@@ -1,8 +1,8 @@
 'use strict'
 
 const ark = require('arkjs')
-const config = require('../config')
 const delay = require('delay')
+const config = require('../config')
 const utils = require('../utils')
 const logger = utils.logger
 
@@ -54,6 +54,10 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
+
+  if (options.copy) {
+    utils.copyToClipboard(transactions)
+  }
 
   const expectedSenderBalance = walletBalance - totalDeductions
   logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
