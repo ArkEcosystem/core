@@ -2,12 +2,9 @@
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
-const async = require('async')
-
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchain = container.resolvePlugin('blockchain')
-
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
@@ -18,36 +15,37 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {TransactionPool}
    */
   make () {
+    if (!this.options.enabled) {
+      logger.warn('Redis transaction pool disabled - please enable if run in production')
+
+      return this
+    }
+
     this.pool = null
     this.subscription = null
-
-    if (this.options.enabled) {
-      this.pool = new Redis(this.options.redis)
-      this.subscription = new Redis(this.options.redis)
-    }
-
     this.keyPrefix = this.options.key
     this.counters = {}
+    this.pool = new Redis(this.options.redis)
+    this.subscription = new Redis(this.options.redis)
 
-    if (this.pool) {
-      this.pool.on('connect', () => {
-        logger.info('Redis connection established')
+    this.pool.on('connect', () => {
+      logger.info('Redis connection established')
 
-        this.__registerTransactionQueue()
+      this.pool.config('set', 'notify-keyspace-events', 'Ex')
 
-        this.pool.config('set', 'notify-keyspace-events', 'Ex')
+      this.subscription.subscribe('__keyevent@0__:expired')
+    })
 
-        this.subscription.subscribe('__keyevent@0__:expired')
-      })
+    this.pool.on('error', () => {
+      logger.error('Could not connect to Redis. If you do not wish to use the transaction pool, please disable it and restart, otherwise fix the issue.')
+      process.exit(1)
+    })
 
-      this.subscription.on('message', (channel, message) => {
-        logger.debug(`Received expiration message ${message} from channel ${channel}`)
+    this.subscription.on('message', (channel, message) => {
+      logger.debug(`Received expiration message ${message} from channel ${channel}`)
 
-        this.removeTransaction(message.split('/')[3])
-      })
-    } else {
-      logger.warn('Could not connect to Redis')
-    }
+      this.removeTransaction(message.split('/')[3])
+    })
 
     return this
   }
@@ -61,7 +59,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       if (this.pool) {
         await this.pool.disconnect()
       }
-
+    } catch (error) {
+      logger.warn('Connection already closed')
+    }
+    try {
       if (this.subscription) {
         await this.subscription.disconnect()
       }
@@ -119,17 +120,23 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {Array}   transactions
    * @param {Boolean} isBroadcast
    */
-  async addTransactions (transactions, isBroadcast) {
+  addTransactions (transactions, isBroadcast) {
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
     }
 
-    this.queue.push(transactions.map(transaction => {
+    return transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
+      this.addTransaction(transaction)
+
+      if (isBroadcast) {
+        super.broadcastTransaction(transaction)
+      }
+
       return transaction
-    }))
+    })
   }
 
   /**
@@ -348,26 +355,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {Boolean}
    */
   __isReady () {
-    return this.pool.status === 'ready'
-  }
-
-  /**
-   * Register the transaction queue listener.
-   * @return {void}
-   */
-  __registerTransactionQueue () {
-    this.queue = async.queue((transaction, queueCallback) => {
-      if (super.verifyTransaction(transaction)) {
-        this.addTransaction(transaction)
-
-        if (!transaction.isBroadcast) {
-          super.broadcastTransaction(transaction)
-        }
-      } else {
-        logger.warn(`Discarded Transaction ${transaction.id} - Unable to verify.`)
-      }
-
-      queueCallback()
-    }, 1)
+    return this.pool && this.pool.status === 'ready'
   }
 }

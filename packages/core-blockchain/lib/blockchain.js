@@ -1,8 +1,6 @@
 'use strict'
 
-const client = require('@arkecosystem/client')
-const { slots } = client
-
+const { slots } = require('@arkecosystem/client')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')
@@ -53,20 +51,24 @@ module.exports = class Blockchain {
 
       logger.error(`No action '${actionKey}' found`)
     })
+
+    return nextState
   }
 
   /**
    * Start the blockchain and wait for it to be ready.
    * @return {void}
    */
-  async start () {
+  async start (skipStartedCheck = false) {
     logger.info('Starting Blockchain Manager...')
 
     this.dispatch('START')
 
-    /**
-     * TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
-     */
+    if (skipStartedCheck) {
+      return true
+    }
+
+    // TODO: this state needs to be set after the state.lastBlock is available if ARK_ENV=test
     while (!stateMachine.state.started) {
       await delay(1000)
     }
@@ -83,7 +85,7 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async updateNetworkStatus () {
-    await this.p2p.updateNetworkStatus()
+    return this.p2p.updateNetworkStatus()
   }
 
   /**
@@ -110,8 +112,9 @@ module.exports = class Blockchain {
       lastDownloadedBlock: null
     }
 
-    this.queue.resume()
-    return this.start()
+    // this.queue.resume()
+
+    // return this.start()
   }
 
   /**
@@ -136,6 +139,7 @@ module.exports = class Blockchain {
 
     if (stateMachine.state.started) {
       this.processQueue.push(block)
+      console.log('here')
       stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     } else {
       logger.info('Block disregarded because blockchain is not ready')
@@ -368,8 +372,6 @@ module.exports = class Blockchain {
   }
 
   /**
-   * TODO: refactor to "get lastBlock()"
-   *
    * Get the last block of the blockchain.
    * @return {Object}
    */
@@ -421,12 +423,12 @@ module.exports = class Blockchain {
 
   /**
    * Check if the given block is in order.
-   * @param  {Block}  block
+   * @param  {Block}  previousBlock
    * @param  {Block}  nextBlock
    * @return {Boolean}
    */
-  __isChained (block, nextBlock) {
-    return nextBlock.data.previousBlock === block.data.id && nextBlock.data.timestamp > block.data.timestamp && nextBlock.data.height === block.data.height + 1
+  __isChained (previousBlock, nextBlock) {
+    return nextBlock.data.previousBlock === previousBlock.data.id && nextBlock.data.timestamp > previousBlock.data.timestamp && nextBlock.data.height === previousBlock.data.height + 1
   }
 
   /**

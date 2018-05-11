@@ -20,7 +20,7 @@ afterAll(async (done) => {
   done()
 })
 
-describe('TransactionPoolInterface Interface', () => {
+describe('Transaction Pool Interface', () => {
   it('should be an object', async () => {
     await expect(poolInterface).toBeObject()
   })
@@ -121,47 +121,33 @@ describe('TransactionPoolInterface Interface', () => {
     })
   })
 
-  describe('determineExceededTransactions', async () => {
+  describe('determineExcessTransactions', async () => {
     it('should be a function', async () => {
-      await expect(poolInterface.determineExceededTransactions).toBeFunction()
+      await expect(poolInterface.determineExcessTransactions).toBeFunction()
     })
 
-    it('should have 2 acceptable / 0 excess transactions', async () => {
+    it('should have 2 accept / 0 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => false)
 
-      const ids = await poolInterface.determineExceededTransactions([dummy1, dummy2])
+      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
       await expect(ids).toBeObject()
-      await expect(ids).toHaveProperty('acceptable')
-      await expect(ids.acceptable).toHaveLength(2)
+      await expect(ids).toHaveProperty('accept')
+      await expect(ids.accept).toHaveLength(2)
       await expect(ids).toHaveProperty('excess')
       await expect(ids.excess).toHaveLength(0)
     })
 
-    it('should have 0 acceptable / 2 excess transactions', async () => {
+    it('should have 0 accept / 2 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => true)
 
-      const ids = await poolInterface.determineExceededTransactions([dummy1, dummy2])
+      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
       await expect(ids).toBeObject()
-      await expect(ids).toHaveProperty('acceptable')
-      await expect(ids.acceptable).toHaveLength(0)
+      await expect(ids).toHaveProperty('accept')
+      await expect(ids.accept).toHaveLength(0)
       await expect(ids).toHaveProperty('excess')
       await expect(ids.excess).toHaveLength(2)
-    })
-  })
-
-  describe('verifyTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.verifyTransaction).toBeFunction()
-    })
-
-    it('should be truthy if can apply', async () => {
-      await expect(await poolInterface.verifyTransaction(dummy1)).toBeTruthy()
-    })
-
-    it('should be fasly if can not apply', async () => {
-      await expect(await poolInterface.verifyTransaction(dummy2)).toBeFalsy()
     })
   })
 })

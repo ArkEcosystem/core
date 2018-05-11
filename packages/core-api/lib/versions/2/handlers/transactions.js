@@ -2,15 +2,12 @@
 
 const Boom = require('boom')
 
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
 const transactionPool = container.resolvePlugin('transactionPool')
-
-const client = require('@arkecosystem/client')
-const { Transaction } = client.models
-const { TRANSACTION_TYPES } = client.constants
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -41,22 +38,26 @@ exports.store = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const transactions = request.payload.transactions
-      .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
+    await transactionPool.guard.validate(request.payload.transactions)
 
-    const poolThrottle = await transactionPool.determineExceededTransactions(transactions)
-    blockchain.postTransactions(poolThrottle.acceptable)
+    if (transactionPool.guard.hasAny('accept')) {
+      blockchain.postTransactions(transactionPool.guard.accept)
+    }
 
     return {
-      success: true,
-      transactionIds: poolThrottle.acceptable.map(tx => tx.id),
-      excess: poolThrottle.excess.map(tx => tx.id)
+      data: {
+        accept: transactionPool.guard.getIds('accept'),
+        excess: transactionPool.guard.getIds('excess'),
+        invalid: transactionPool.guard.getIds('invalid')
+      }
     }
   },
   options: {
     validate: schema.store,
     plugins: {
-      pagination: false
+      pagination: {
+        enabled: false
+      }
     }
   }
 }

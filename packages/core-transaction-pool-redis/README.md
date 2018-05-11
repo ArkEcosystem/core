@@ -16,6 +16,7 @@ If you discover a security vulnerability within this package, please send an e-m
 
 - [Kristjan Košič](https://github.com/kristjank)
 - [Brian Faust](https://github.com/faustbrian)
+- [Alex Barnsley](https://github.com/alexbarnsley)
 - [All Contributors](../../../../contributors)
 
 ## License

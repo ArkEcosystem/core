@@ -1,10 +1,9 @@
 'use strict'
+
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const emitter = container.resolvePlugin('event-emitter')
-const logger = container.resolvePlugin('logger')
-const client = require('@arkecosystem/client')
-const { crypto } = client
+const TransactionGuard = require('./guard')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -14,10 +13,7 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = blockchain.database.walletManager
-
-    if (!this.options.enabled) {
-      logger.warn('Transaction pool is disabled - please enable if run in production')
-    }
+    this.guard = new TransactionGuard(this)
   }
 
   /**
@@ -32,7 +28,7 @@ module.exports = class TransactionPoolInterface {
    * Broadcast transaction to additional peers.
    * @param {Transaction} transaction
    */
-  async broadcastTransaction (transaction) {
+  broadcastTransaction (transaction) {
     emitter.emit('broadcastTransactions', [transaction])
   }
 
@@ -140,9 +136,9 @@ module.exports = class TransactionPoolInterface {
    * @param  {Transactions[]} transactions
    * @return {Object}
    */
-  async determineExceededTransactions (transactions) {
+  async determineExcessTransactions (transactions) {
     const response = {
-      acceptable: [],
+      accept: [],
       excess: []
     }
 
@@ -151,7 +147,7 @@ module.exports = class TransactionPoolInterface {
 
       await this.hasExceededMaxTransactions(transaction)
         ? response.excess.push(transaction)
-        : response.acceptable.push(transaction)
+        : response.accept.push(transaction)
     }
 
     return response
@@ -168,16 +164,5 @@ module.exports = class TransactionPoolInterface {
     forgedIds.forEach(element => this.removeTransactionById(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
-  }
-
-  /**
-   * Verify the given transaction.
-   * @param  {Transaction} transaction
-   * @return {Boolean}
-   */
-  verifyTransaction (transaction) {
-    const wallet = this.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-
-    return crypto.verify(transaction) && wallet.canApply(transaction)
   }
 }

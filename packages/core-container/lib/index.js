@@ -111,9 +111,16 @@ class Container {
    * @return {void}
    */
   __registerExitHandler () {
+    let shuttingDown = false
     const handleExit = async () => {
-      this.resolvePlugin('logger').info('SIGINT handled, trying to shut down gracefully')
-      this.resolvePlugin('logger').info('Stopping ARK Core...')
+      if (shuttingDown) {
+        return
+      }
+      shuttingDown = true
+
+      const logger = this.resolvePlugin('logger')
+      logger.info('EXIT handled, trying to shut down gracefully')
+      logger.info('Stopping ARK Core...')
 
       // await this.resolvePlugin('database').saveWallets(true)
 
@@ -129,8 +136,8 @@ class Container {
       process.exit()
     }
 
-    // Handle CTRL + C
-    ['SIGINT'].forEach(eventType => process.on(eventType, handleExit))
+    // Handle exit events
+    ['SIGINT', 'exit'].forEach(eventType => process.on(eventType, handleExit))
   }
 }
 

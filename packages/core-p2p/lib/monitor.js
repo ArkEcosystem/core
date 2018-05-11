@@ -21,8 +21,10 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
 
-    if (!config.peers.list) {
-      throw new Error('No seed peers defined in peers.json')
+    if (!this.config.peers.list) {
+      logger.error('No seed peers defined in peers.json')
+
+      process.exit(1)
     }
 
     this.config.peers.list
