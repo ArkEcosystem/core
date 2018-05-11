@@ -121,15 +121,15 @@ describe('TransactionPoolInterface Interface', () => {
     })
   })
 
-  describe('determineExceededTransactions', async () => {
+  describe('determineExcessTransactions', async () => {
     it('should be a function', async () => {
-      await expect(poolInterface.determineExceededTransactions).toBeFunction()
+      await expect(poolInterface.determineExcessTransactions).toBeFunction()
     })
 
     it('should have 2 acceptable / 0 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => false)
 
-      const ids = await poolInterface.determineExceededTransactions([dummy1, dummy2])
+      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
       await expect(ids).toBeObject()
       await expect(ids).toHaveProperty('acceptable')
@@ -141,7 +141,7 @@ describe('TransactionPoolInterface Interface', () => {
     it('should have 0 acceptable / 2 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => true)
 
-      const ids = await poolInterface.determineExceededTransactions([dummy1, dummy2])
+      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
       await expect(ids).toBeObject()
       await expect(ids).toHaveProperty('acceptable')
