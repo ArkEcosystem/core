@@ -7,7 +7,7 @@ const Joi = require('joi')
 const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
-const { logger, updateConfig } = require('../lib/utils')
+const { getRandomNumber, logger, updateConfig } = require('../lib/utils')
 const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
 commander
@@ -38,6 +38,7 @@ commander
   .option('--symbol <value>', 'Symbol for Token [C]', 'C')
   .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
+  .option('--wifPrefix <value>', 'Prefix for generating a WIF [rand(1, 255)]', getRandomNumber(1, 255))
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
@@ -60,14 +61,11 @@ if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
   fs.copySync(`../core-config/lib/networks/${commander.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
 }
 
-const genesis = (new genesisBlockBuilder(commander)).generate()
-
-const networkConfig = {
+let networkConfig = {
   name: commander.name.toLowerCase(),
   messagePrefix: `${commander.token} message:\n`,
   pubKeyHash: commander.prefixHash,
-  nethash: genesis.genesisBlock.payloadHash,
-  // wif: wif, TODO
+  wif: commander.wifPrefix,
   'constants[0].blocktime': commander.blocktime,
   'constants[0].block.maxTransactions': commander.transactionsPerBlock,
   'constants[0].epoch': commander.epoch,
@@ -78,20 +76,28 @@ const networkConfig = {
   'constants[0].fees.delegate': commander.feeDelegate,
   'constants[0].fees.multisignature': commander.feeMultisignature,
   'client.token': commander.token,
-  'client.symbol': commander.symbol
-  // 'client.explorer': commander.explorerUrl, TODO
+  'client.symbol': commander.symbol,
+  'client.explorer': commander.explorerUrl,
+  exceptions: {}
 }
 
+const network = updateConfig('network', networkConfig)
+
+const genesis = (new genesisBlockBuilder(network, commander)).generate()
+
+network.nethash = genesis.genesisBlock.payloadHash
+
 if (commander.rewardHeight === 1) {
-  networkConfig['constants[0].height'] = commander.rewardHeight
-  networkConfig['constants[0].reward'] = commander.rewardPerBlock
-  // delete networkConfig.constants[1]
+  network.constants[0].height = commander.rewardHeight
+  network.constants[0].reward = commander.rewardPerBlock
+  delete network.constants[1]
 } else {
-  networkConfig['constants[1].height'] = commander.rewardHeight
-  networkConfig['constants[1].reward'] = commander.rewardPerBlock
+  network.constants[1].height = commander.rewardHeight
+  network.constants[1].reward = commander.rewardPerBlock
 }
 
 updateConfig('network', networkConfig)
+
 updateConfig('genesisWallet', {
   address: genesis.genesisWallet.address,
   passphrase: genesis.genesisWallet.passphrase
@@ -105,4 +111,4 @@ updateConfig('server', {
   'database.options.dialect': 'postgres'
 })
 
-updateConfig('api/public', { port: commander.pubPort })
+updateConfig('api/public', { port: commander.apiPort })

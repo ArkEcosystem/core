@@ -10,7 +10,8 @@ module.exports = class GenesisBlockBuilder {
    * @param  {Object} options
    * @return {void}
    */
-  constructor (options) {
+  constructor (network, options) {
+    this.network = network
     this.prefixHash = options.prefixHash
     this.totalPremine = options.totalPremine
     this.activeDelegates = options.activeDelegates
@@ -48,7 +49,7 @@ module.exports = class GenesisBlockBuilder {
    */
   __createWallet () {
     const passphrase = bip39.generateMnemonic()
-    const keys = ark.crypto.getKeys(passphrase)
+    const keys = ark.crypto.getKeys(passphrase, {network: this.network})
 
     return {
       address: ark.crypto.getAddress(keys.publicKey, this.prefixHash),

@@ -3,15 +3,25 @@
 const _ = require('lodash')
 const fs = require('fs-extra')
 
+/**
+ * Get a random number from range.
+ * @param  {Number} min
+ * @param  {Number} max
+ * @return {Number}
+ */
+exports.getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min) + min)
+}
+
 exports.logger = require('./logger')
 
 /**
- * Update the contents of the given file.
+ * Update the contents of the given file and return config.
  * @param  {String} file
  * @param  {Object} values
- * @return {void}
+ * @return {Object}
  */
-exports.updateConfig = async (file, values, forceOverwrite) => {
+exports.updateConfig = (file, values, forceOverwrite) => {
   const configPath = `${process.env.ARK_PATH_CONFIG}/deployer/${file}.json`
   let config
   if (fs.existsSync(configPath) && !forceOverwrite) {
@@ -26,4 +36,6 @@ exports.updateConfig = async (file, values, forceOverwrite) => {
 
   fs.ensureFileSync(configPath)
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+  return config
 }

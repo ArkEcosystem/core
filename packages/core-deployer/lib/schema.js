@@ -26,5 +26,6 @@ module.exports = Joi.object().keys({
   symbol: Joi.string().required(),
   prefixHash: Joi.number().required(),
   transactionsPerBlock: Joi.number().required(),
+  wifPrefix: Joi.number().min(1).max(255).required(),
   totalPremine: Joi.number().required()
 })
