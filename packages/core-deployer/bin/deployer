@@ -60,11 +60,13 @@ if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
   fs.copySync(`../core-config/lib/networks/${commander.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
 }
 
+const genesis = (new genesisBlockBuilder(commander)).generate()
+
 const networkConfig = {
   name: commander.name.toLowerCase(),
   messagePrefix: `${commander.token} message:\n`,
   pubKeyHash: commander.prefixHash,
-  // nethash: commander.nethash, TODO
+  nethash: genesis.genesisBlock.payloadHash,
   // wif: wif, TODO
   'constants[0].blocktime': commander.blocktime,
   'constants[0].block.maxTransactions': commander.transactionsPerBlock,
@@ -88,8 +90,6 @@ if (commander.rewardHeight === 1) {
   networkConfig['constants[1].height'] = commander.rewardHeight
   networkConfig['constants[1].reward'] = commander.rewardPerBlock
 }
-
-const genesis = (new genesisBlockBuilder(commander)).generate()
 
 updateConfig('network', networkConfig)
 updateConfig('genesisWallet', {
