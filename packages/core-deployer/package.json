@@ -20,6 +20,7 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
+    "@arkecosystem/core-config": "^1.0.0",
     "arkjs": "^0.2.1",
     "bigi": "^1.4.2",
     "bytebuffer": "^5.0.1",
