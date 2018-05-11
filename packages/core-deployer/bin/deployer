@@ -53,8 +53,10 @@ if (error) {
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
-if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
-  fs.copySync(`../core-config/lib/networks/${options.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
+const deployerConfigPath = `${process.env.ARK_PATH_CONFIG}/deployer`
+if (!fs.existsSync(deployerConfigPath)) {
+  fs.ensureDirSync(deployerConfigPath)
+  fs.copySync(path.resolve(`../core-config/lib/networks/${options.network}`), deployerConfigPath)
 }
 
 let networkConfig = {
