@@ -43,7 +43,8 @@ commander
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
   .parse(process.argv)
 
-const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true })
+const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true, convert: true })
+const options = value
 
 if (error) {
   error.details.forEach(detail => logger.error(detail.message))
@@ -53,42 +54,44 @@ if (error) {
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
 if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
-  fs.copySync(`../core-config/lib/networks/${commander.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
+  fs.copySync(`../core-config/lib/networks/${options.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
 }
 
 let networkConfig = {
-  name: commander.name.toLowerCase(),
-  messagePrefix: `${commander.token} message:\n`,
-  pubKeyHash: commander.prefixHash,
-  wif: commander.wifPrefix,
-  'constants[0].blocktime': commander.blocktime,
-  'constants[0].block.maxTransactions': commander.transactionsPerBlock,
-  'constants[0].epoch': commander.epoch,
-  'constants[0].activeDelegates': commander.activeDelegates,
-  'constants[0].fees.send': commander.feeSend,
-  'constants[0].fees.vote': commander.feeVote,
-  'constants[0].fees.secondsignature': commander.feeSecondSignature,
-  'constants[0].fees.delegate': commander.feeDelegate,
-  'constants[0].fees.multisignature': commander.feeMultisignature,
-  'client.token': commander.token,
-  'client.symbol': commander.symbol,
-  'client.explorer': commander.explorerUrl,
+  name: options.name.toLowerCase(),
+  messagePrefix: `${options.token} message:\n`,
+  pubKeyHash: options.prefixHash,
+  wif: options.wifPrefix,
+  'constants[0].blocktime': options.blocktime,
+  'constants[0].block.maxTransactions': options.transactionsPerBlock,
+  'constants[0].epoch': options.epoch,
+  'constants[0].activeDelegates': options.activeDelegates,
+  'constants[0].fees.send': options.feeSend,
+  'constants[0].fees.vote': options.feeVote,
+  'constants[0].fees.secondsignature': options.feeSecondSignature,
+  'constants[0].fees.delegate': options.feeDelegate,
+  'constants[0].fees.multisignature': options.feeMultisignature,
+  'client.token': options.token,
+  'client.symbol': options.symbol,
+  'client.explorer': options.explorerUrl,
   exceptions: {}
 }
 
 const network = updateConfig('network', networkConfig)
 
-const genesis = (new genesisBlockBuilder(network, commander)).generate()
+const genesis = (new genesisBlockBuilder(network, options)).generate()
 
 network.nethash = genesis.genesisBlock.payloadHash
 
-if (commander.rewardHeight === 1) {
-  network.constants[0].height = commander.rewardHeight
-  network.constants[0].reward = commander.rewardPerBlock
-  delete network.constants[1]
+if (options.rewardHeight === 1) {
+  network.constants = [
+    network.constants[0]
+  ]
+  network.constants[0].height = options.rewardHeight
+  network.constants[0].reward = options.rewardPerBlock
 } else {
-  network.constants[1].height = commander.rewardHeight
-  network.constants[1].reward = commander.rewardPerBlock
+  network.constants[1].height = options.rewardHeight
+  network.constants[1].reward = options.rewardPerBlock
 }
 
 updateConfig('network', networkConfig)
@@ -101,9 +104,9 @@ updateConfig('genesisBlock', genesis.genesisBlock, true)
 updateConfig('delegates', {secrets: genesis.delegatePassphrases}, true)
 
 updateConfig('server', {
-  port: commander.p2pPort,
-  'database.options.uri': `postgres://${commander.dbUsername}:${commander.dbPassword}@${commander.dbHost}:${commander.dbPort}/${commander.dbDatabase}`,
+  port: options.p2pPort,
+  'database.options.uri': `postgres://${options.dbUsername}:${options.dbPassword}@${options.dbHost}:${options.dbPort}/${options.dbDatabase}`,
   'database.options.dialect': 'postgres'
 })
 
-updateConfig('api/public', { port: commander.apiPort })
+updateConfig('api/public', { port: options.apiPort })
