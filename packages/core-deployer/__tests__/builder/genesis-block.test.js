@@ -3,13 +3,6 @@
 const GenesisBlockBuilder = require('../../lib/builder/genesis-block')
 const network = require('../../../core-config/lib/networks/testnet/network')
 
-// TODO:
-// Refactor beforeAll - too error-prone
-//
-// __createDelegateTransaction
-// __formatGenesisTransaction
-// __createGenesisBlock
-
 let builder
 let genesis
 let wallet
@@ -18,9 +11,8 @@ let delegateWallets
 let delegateTransactions
 const transactionAmount = 10
 let transferTransaction
-// let delegateTransaction
-// let formattedTransaction
-// let genesisBlock
+let delegateTransaction
+let genesisBlock
 
 beforeAll(() => {
   builder = new GenesisBlockBuilder(network, {
@@ -34,9 +26,13 @@ beforeAll(() => {
   delegateTransactions = builder.__buildDelegateTransactions(delegateWallets)
 
   transferTransaction = builder.__createTransferTransaction(delegateWallet, wallet, transactionAmount)
-  // delegateTransaction = builder.__createDelegateTransaction(delegateWallet)
-  // formattedTransaction = builder.__formatGenesisTransaction({}, delegateWallets)
-  // genesisBlock = builder.__createGenesisBlock(delegateWallets)
+  delegateTransaction = builder.__createDelegateTransaction(delegateWallet)
+
+  genesisBlock = builder.__createGenesisBlock({
+    keys: wallet.keys,
+    transactions: [...delegateTransactions, transferTransaction],
+    timestamp: 0
+  })
 })
 
 describe('Genesis Block Builder', () => {
@@ -132,8 +128,8 @@ describe('Genesis Block Builder', () => {
       await expect(builder.__createTransferTransaction).toBeFunction()
     })
 
-    xit('should return a transaction object', async () => {
-      await expect(transferTransaction).toContainAllEntries([
+    it('should return a transaction object', async () => {
+      await expect(transferTransaction).toContainEntries([
         ['type', 0],
         ['amount', transactionAmount],
         ['fee', 0],
