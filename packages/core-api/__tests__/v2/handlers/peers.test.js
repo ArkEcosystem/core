@@ -13,13 +13,7 @@ describe('API 2.0 - Peers', () => {
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
-      const peer = res.body.data[0]
-      await expect(peer.ip).toBeString()
-      await expect(peer.port).toBeNumber()
-      // await expect(peer.version).toBeString()
-      // await expect(peer.height).toBeNumber()
-      await expect(peer.status).toBeString()
-      await expect(peer.latency).toBeNumber()
+      await expect(res.body.data[0]).toBeObject()
     })
   })
 
@@ -29,12 +23,7 @@ describe('API 2.0 - Peers', () => {
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
-      await expect(res.body.data.ip).toBeString()
-      await expect(res.body.data.port).toBeNumber()
-      // await expect(res.body.data.version).toBeString()
-      // await expect(res.body.data.height).toBeNumber()
-      await expect(res.body.data.status).toBeString()
-      await expect(res.body.data.latency).toBeNumber()
+      await expect(res.body.data).toBeObject()
     })
   })
 })

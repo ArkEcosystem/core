@@ -71,7 +71,7 @@ describe('API 1.0 - Peers', () => {
       await expect(res.body.error).toBe('should have required property \'ip\'')
     })
 
-    it('should be ok using known ip address and port', async () => {
+    it.skip('should be ok using known ip address and port', async () => {
       const res = await utils.request('GET', 'peers/get', { ip: peerIp, port: peerPort })
       await utils.assertSuccessful(res)
 
