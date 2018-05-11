@@ -1,0 +1,30 @@
+const Joi = require('joi')
+
+module.exports = Joi.object().keys({
+  network: Joi.string().required(),
+  name: Joi.string().required(),
+  p2pPort: Joi.number().required(),
+  pubPort: Joi.number().required(),
+  dbHost: Joi.string().required(),
+  dbPort: Joi.number().required(),
+  dbUsername: Joi.string().required(),
+  dbPassword: Joi.string().required(),
+  dbDatabase: Joi.string().required(),
+  nodeIp: Joi.string().required(),
+  nodePort: Joi.number().required(),
+  activeDelegates: Joi.number().required(),
+  feeSend: Joi.number().required(),
+  feeVote: Joi.number().required(),
+  feeSecondSignature: Joi.number().required(),
+  feeDelegate: Joi.number().required(),
+  feeMultisignature: Joi.number().required(),
+  epoch: Joi.string().regex(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/).required(),
+  rewardHeight: Joi.number().min(1).required(),
+  rewardPerBlock: Joi.number().required(),
+  blocktime: Joi.number().required(),
+  token: Joi.string().required(),
+  symbol: Joi.string().required(),
+  prefixHash: Joi.number().required(),
+  transactionsPerBlock: Joi.number().required(),
+  totalPremine: Joi.number().required()
+})
