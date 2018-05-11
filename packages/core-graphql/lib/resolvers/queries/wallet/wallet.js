@@ -2,6 +2,7 @@
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 
-module.exports = async (_, args) => {
-  return database.connection.models.wallet.findOne({ where: { ...args } })
+module.exports = (_, args) => {
+  const id = args.address || args.publicKey || args.username
+  return database.wallets.findById(id)
 }

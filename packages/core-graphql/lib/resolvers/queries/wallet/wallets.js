@@ -4,11 +4,12 @@ const database = require('@arkecosystem/core-container').resolvePlugin('database
 const { formatOrderBy } = require('../../../helpers')
 
 module.exports = async (_, args) => {
-  const { limit, orderBy, ...params } = args
+  const { orderBy, filter, ...params } = args
 
-  let order = formatOrderBy(orderBy, ['balance', 'DESC'])
+  const order = formatOrderBy(orderBy, 'height:DESC')
+  const result = await database.wallets.findAll({ ...filter, orderBy: order, ...params })
 
-  const where = params
+  if (!result) return []
 
-  return database.connection.models.wallet.findAll({ limit, order, where })
+  return result.rows
 }
