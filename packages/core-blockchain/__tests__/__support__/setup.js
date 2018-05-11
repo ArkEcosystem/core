@@ -12,7 +12,8 @@ exports.setUp = async () => {
 
   await container.plugins.registerGroup('init', {config})
   await container.plugins.registerGroup('beforeCreate')
-  // await container.plugins.registerGroup('beforeMount')
+
+  return container
 }
 
 exports.tearDown = async () => container.tearDown()
