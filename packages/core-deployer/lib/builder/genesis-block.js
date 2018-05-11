@@ -63,7 +63,7 @@ module.exports = class GenesisBlockBuilder {
    * @param  {String} username
    * @return {Object}
    */
-  __createDelegate (username) {
+  __createDelegateWallet (username) {
     const wallet = this.__createWallet()
     wallet.username = username
 
@@ -77,7 +77,7 @@ module.exports = class GenesisBlockBuilder {
   __buildDelegates () {
     const wallets = []
     for (let i = 0; i < this.activeDelegates; i++) {
-      wallets.push(this.__createDelegate(`genesis_${i + 1}`))
+      wallets.push(this.__createDelegateWallet(`genesis_${i + 1}`))
     }
 
     return wallets
