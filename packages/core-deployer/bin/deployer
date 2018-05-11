@@ -8,6 +8,7 @@ const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const { logger, updateConfig } = require('../lib/utils')
+const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
 commander
   .version(require('../package.json').version)
@@ -35,7 +36,7 @@ commander
   .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)
   .option('--token <value>', 'Token Name [CHAIN]', 'CHAIN')
   .option('--symbol <value>', 'Symbol for Token [C]', 'C')
-  .option('--prefixHash <value>', 'Address Prefix Hash [28]', '28')
+  .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
@@ -45,9 +46,7 @@ commander
 const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true })
 
 if (error) {
-  error.details.forEach(detail => {
-    logger.error(detail.message)
-  })
+  error.details.forEach(detail => logger.error(detail.message))
   process.exit(1)
 }
 
@@ -84,13 +83,21 @@ const networkConfig = {
 if (commander.rewardHeight === 1) {
   networkConfig['constants[0].height'] = commander.rewardHeight
   networkConfig['constants[0].reward'] = commander.rewardPerBlock
-  delete networkConfig.constants[1]
+  // delete networkConfig.constants[1]
 } else {
   networkConfig['constants[1].height'] = commander.rewardHeight
   networkConfig['constants[1].reward'] = commander.rewardPerBlock
 }
 
+const genesis = (new genesisBlockBuilder(commander)).generate()
+
 updateConfig('network', networkConfig)
+updateConfig('genesisWallet', {
+  address: genesis.genesisWallet.address,
+  passphrase: genesis.genesisWallet.passphrase
+}, true)
+updateConfig('genesisBlock', genesis.genesisBlock, true)
+updateConfig('delegates', {secrets: genesis.delegatePassphrases}, true)
 
 updateConfig('server', {
   port: commander.p2pPort,

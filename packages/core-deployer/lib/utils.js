@@ -8,20 +8,20 @@ exports.logger = require('./logger')
 /**
  * Update the contents of the given file.
  * @param  {String} file
- * @param  {Object} overwrites
+ * @param  {Object} values
  * @return {void}
  */
-exports.updateConfig = async (file, overwrites) => {
+exports.updateConfig = async (file, values, forceOverwrite) => {
   const configPath = `${process.env.ARK_PATH_CONFIG}/deployer/${file}.json`
   let config
-  if (fs.existsSync(configPath)) {
+  if (fs.existsSync(configPath) && !forceOverwrite) {
     config = require(configPath)
   } else {
     config = {}
   }
 
-  for (let key in overwrites) {
-    _.set(config, key, overwrites[key])
+  for (let key in values) {
+    _.set(config, key, values[key])
   }
 
   fs.ensureFileSync(configPath)
