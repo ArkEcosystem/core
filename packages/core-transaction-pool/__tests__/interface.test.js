@@ -20,7 +20,7 @@ afterAll(async (done) => {
   done()
 })
 
-describe('TransactionPoolInterface Interface', () => {
+describe('Transaction Pool Interface', () => {
   it('should be an object', async () => {
     await expect(poolInterface).toBeObject()
   })
@@ -148,20 +148,6 @@ describe('TransactionPoolInterface Interface', () => {
       await expect(ids.accept).toHaveLength(0)
       await expect(ids).toHaveProperty('excess')
       await expect(ids.excess).toHaveLength(2)
-    })
-  })
-
-  describe('verifyTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.verifyTransaction).toBeFunction()
-    })
-
-    it('should be truthy if can apply', async () => {
-      await expect(await poolInterface.verifyTransaction(dummy1)).toBeTruthy()
-    })
-
-    it('should be fasly if can not apply', async () => {
-      await expect(await poolInterface.verifyTransaction(dummy2)).toBeFalsy()
     })
   })
 })

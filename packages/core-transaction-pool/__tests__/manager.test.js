@@ -8,7 +8,7 @@ class FakeDriver {
   }
 }
 
-describe('Config Transaction Pool Manager', () => {
+describe('Transaction Pool Manager', () => {
   it('should be an object', async () => {
     expect(transactionPoolManager).toBeObject()
   })

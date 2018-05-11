@@ -53,6 +53,10 @@ module.exports = class TransactionGuard {
    * @return {Object}
    */
   getTransactions (type = null) {
+    if (type) {
+      return this[type]
+    }
+
     return {
       transactions: this.transactions,
       accept: this.accept,
@@ -107,8 +111,7 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
-      const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-      const verified = crypto.verify(transaction) && wallet.canApply(transaction)
+      const verified = this.__verifyTransaction(transaction)
 
       if (!verified) {
         this.invalid.push(transaction)
@@ -127,6 +130,17 @@ module.exports = class TransactionGuard {
 
     this.accept = transactions.accept
     this.excess = transactions.excess
+  }
+
+  /**
+   * Verify if the transactions is valid and if the sender has sufficient funds.
+   * @param  {Object} transaction
+   * @return {Boolean}
+   */
+  __verifyTransaction (transaction) {
+    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+
+    return crypto.verify(transaction) && wallet.canApply(transaction)
   }
 
   /**
