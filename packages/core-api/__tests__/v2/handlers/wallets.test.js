@@ -4,17 +4,10 @@ require('../../__support__/setup')
 
 const utils = require('../utils')
 
-const addressActive = 'DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN'
-const addressCold = 'DCs3EeTAME7W61fx5YiJKe9nhWn61YpRMJ'
-const addressSecondPassphrase = 'DR23FuR1M9GPaknEFSP6QCbsaHnTMdgkFu'
-const publicKey = '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d'
-const secondPublicKey = '027c0dc4da12a3842981d37240a4da48eea435299191609d5f446176ff18024df6'
-const vote = '033716320f2fcc0c29a2b8c76b3aabb34516a3aad226fb97ef4a55dee1f2dc3077'
-const username = 'boldninja'
-const wrongUsername = 'alexbarnsley'
-const votebalance = 0
-const votebalanceFrom = -1
-const votebalanceTo = 1
+const username = 'genesis_9'
+const address = 'AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo'
+const publicKey = '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
+const balance = 245098000000000
 
 describe('API 2.0 - Wallets', () => {
   describe('GET /wallets', () => {
@@ -23,7 +16,7 @@ describe('API 2.0 - Wallets', () => {
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
-      await utils.assertWallet(res.body.data[1])
+      await utils.assertWallet(res.body.data[0])
     })
   })
 
@@ -39,18 +32,18 @@ describe('API 2.0 - Wallets', () => {
 
   describe('GET /wallets/:id', () => {
     it('should GET a wallet by the given identifier', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}`)
+      const res = await utils.request('GET', `wallets/${address}`)
       await utils.assertSuccessful(res)
       await utils.assertResource(res)
 
       const wallet = res.body.data
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
 
     it('should return ResourceNotFound error', async () => {
       try {
-        await utils.request('GET', `wallets/${addressCold}`)
+        await utils.request('GET', 'wallets/dummy')
       } catch (error) {
         await expect(error.message).toEqual('Not Found')
       }
@@ -59,7 +52,7 @@ describe('API 2.0 - Wallets', () => {
 
   describe('GET /wallets/:id/transactions', () => {
     it('should GET all the transactions for the given wallet by id', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}/transactions`)
+      const res = await utils.request('GET', `wallets/${address}/transactions`)
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -69,19 +62,19 @@ describe('API 2.0 - Wallets', () => {
 
   describe('GET /wallets/:id/transactions/sent', () => {
     it('should GET all the send transactions for the given wallet by id', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}/transactions/sent`)
+      const res = await utils.request('GET', `wallets/${address}/transactions/sent`)
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
       const transaction = res.body.data[0]
       await utils.assertTransaction(transaction)
-      await expect(transaction.sender).toBe(addressActive)
+      await expect(transaction.sender).toBe(address)
     })
   })
 
   describe('GET /wallets/:id/transactions/received', () => {
     it('should GET all the received transactions for the given wallet by id', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}/transactions/received`)
+      const res = await utils.request('GET', `wallets/${address}/transactions/received`)
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -91,26 +84,17 @@ describe('API 2.0 - Wallets', () => {
 
   describe('GET /wallets/:id/votes', () => {
     it('should GET all the votes for the given wallet by id', async () => {
-      const res = await utils.request('GET', `wallets/${addressActive}/votes`)
+      const res = await utils.request('GET', `wallets/${address}/votes`)
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
-      const vote = res.body.data[0]
-      await expect(vote.id).toBeString()
-      await expect(vote.type).toBeNumber()
-      await expect(vote.amount).toBeNumber()
-      await expect(vote.fee).toBeNumber()
-      await expect(vote.sender).toBe(addressActive)
-      await expect(vote.recipient).toBeString()
-      await expect(vote.signature).toBeString()
-      await expect(vote.asset).toBeObject()
-      await expect(vote.asset.votes).toBeArray()
+      await expect(res.body.data[0]).toBeObject()
     })
   })
 
   describe('POST /wallets/search', () => {
     it('should POST a search for wallets with the exact specified address', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive })
+      const res = await utils.request('POST', 'wallets/search', { address: address })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -118,11 +102,11 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
 
     it('should POST a search for wallets with the exact specified publicKey', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive, publicKey })
+      const res = await utils.request('POST', 'wallets/search', { address: address, publicKey })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -130,36 +114,36 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
       await expect(wallet.publicKey).toBe(publicKey)
     })
 
-    it('should POST a search for wallets with the exact specified secondPublicKey', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+    // it('should POST a search for wallets with the exact specified secondPublicKey', async () => {
+    //   const res = await utils.request('POST', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
+    //   await utils.assertSuccessful(res)
+    //   await utils.assertCollection(res)
 
-      await expect(res.body.data).toHaveLength(1)
+    //   await expect(res.body.data).toHaveLength(1)
 
-      const wallet = res.body.data[0]
-      await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressSecondPassphrase)
-    })
+    //   const wallet = res.body.data[0]
+    //   await utils.assertWallet(wallet)
+    //   await expect(wallet.address).toBe(addressSecondPassphrase)
+    // })
 
-    it('should POST a search for wallets with the exact specified vote', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive, vote })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+    // it('should POST a search for wallets with the exact specified vote', async () => {
+    //   const res = await utils.request('POST', 'wallets/search', { address: address, vote })
+    //   await utils.assertSuccessful(res)
+    //   await utils.assertCollection(res)
 
-      await expect(res.body.data).toHaveLength(1)
+    //   await expect(res.body.data).toHaveLength(1)
 
-      const wallet = res.body.data[0]
-      await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
-    })
+    //   const wallet = res.body.data[0]
+    //   await utils.assertWallet(wallet)
+    //   await expect(wallet.address).toBe(address)
+    // })
 
     it('should POST a search for wallets with the exact specified username', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive, username })
+      const res = await utils.request('POST', 'wallets/search', { address: address, username })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -167,13 +151,10 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
 
     it('should POST a search for wallets with the exact specified balance', async () => {
-      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
-      const balance = 4858470000000
-
       const res = await utils.request('POST', 'wallets/search', {
         address,
         balance: {
@@ -193,16 +174,11 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should POST a search for wallets with the specified balance range', async () => {
-      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
-      const balance = 4858470000000
-      const balanceFrom = 4858460000000
-      const balanceTo = 4858480000000
-
       const res = await utils.request('POST', 'wallets/search', {
         address,
         balance: {
-          from: balanceFrom,
-          to: balanceTo
+          from: balance,
+          to: balance
         }
       })
       await utils.assertSuccessful(res)
@@ -218,10 +194,10 @@ describe('API 2.0 - Wallets', () => {
 
     it('should POST a search for wallets with the exact specified votebalance', async () => {
       const res = await utils.request('POST', 'wallets/search', {
-        address: addressActive,
+        address: address,
         votebalance: {
-          from: votebalance,
-          to: votebalance
+          from: 0,
+          to: 0
         }
       })
       await utils.assertSuccessful(res)
@@ -231,15 +207,15 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
 
     it('should POST a search for wallets with the specified votebalance range', async () => {
       const res = await utils.request('POST', 'wallets/search', {
-        address: addressActive,
+        address: address,
         votebalance: {
-          from: votebalanceFrom,
-          to: votebalanceTo
+          from: 0,
+          to: 0
         }
       })
       await utils.assertSuccessful(res)
@@ -249,11 +225,11 @@ describe('API 2.0 - Wallets', () => {
 
       const wallet = res.body.data[0]
       await utils.assertWallet(wallet)
-      await expect(wallet.address).toBe(addressActive)
+      await expect(wallet.address).toBe(address)
     })
 
     it('should POST a search for wallets with the wrong specified username', async () => {
-      const res = await utils.request('POST', 'wallets/search', { address: addressActive, username: wrongUsername })
+      const res = await utils.request('POST', 'wallets/search', { address: address, username: 'dummy' })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)
 
@@ -261,19 +237,8 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should POST a search for wallets with the specific criteria', async () => {
-      const address = 'DDgKyKqdA6SuamB1eW77WvFu6RQFMZoU36'
-      const publicKey = '0223ac52179903e79865b9a98cf0b52ddc1ab46180c157e8f6bd1e63e7f14fcf31'
-      const username = 'genesis_48'
-      const balanceFrom = 4858470000000
-      const balanceTo = 4858470000000
-
       const res = await utils.request('POST', 'wallets/search', {
-        publicKey,
-        username,
-        balance: {
-          from: balanceFrom,
-          to: balanceTo
-        }
+        publicKey, username
       })
       await utils.assertSuccessful(res)
       await utils.assertCollection(res)

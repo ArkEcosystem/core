@@ -4,10 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchain = container.resolvePlugin('blockchain')
 const transactionPool = container.resolvePlugin('transactionPool')
-
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Transaction } = client.models
+const { slots } = require('@arkecosystem/client')
 
 /**
  * @type {Object}
@@ -20,13 +17,11 @@ exports.getPeers = {
    */
   handler: async (request, h) => {
     try {
-      const peers = await request.server.app.p2p.getPeers()
-
-      const rpeers = peers
+      const peers = request.server.app.p2p.getPeers()
         .map(peer => peer.toBroadcastInfo())
         .sort(() => Math.random() - 0.5)
 
-      return {success: true, peers: rpeers}
+      return {success: true, peers}
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
@@ -43,10 +38,12 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
+    const lastBlock = blockchain.getLastBlock(true)
+
     return {
       success: true,
-      height: blockchain.getLastBlock(true).height,
-      id: blockchain.getLastBlock(true).id
+      height: lastBlock.height,
+      id: lastBlock.id
     }
   }
 }
@@ -168,17 +165,16 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const transactions = request.payload.transactions
-      .map(transaction => Transaction.deserialize(Transaction.serialize(transaction).toString('hex')))
-    const isBroadcast = request.payload.broadcast
+    await transactionPool.guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
-    const poolThrottle = await transactionPool.determineExceededTransactions(transactions)
-    blockchain.postTransactions(poolThrottle.acceptable, isBroadcast)
+    if (transactionPool.guard.hasAny('accept')) {
+      blockchain.postTransactions(transactionPool.guard.accept, request.payload.broadcast)
+    }
 
     return {
       success: true,
-      transactionIds: poolThrottle.acceptable.map(tx => tx.id)
+      transactionIds: transactionPool.guard.getIds('accept')
     }
   }
 }

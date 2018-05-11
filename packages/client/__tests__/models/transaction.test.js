@@ -13,40 +13,47 @@ const createRandomTx = type => {
 
   switch (type) {
     case 0: // transfer
-      tx = builder.transfer(
-        'AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX',
-        ~~(Math.random() * Math.pow(10, 10)),
-        Math.random().toString(36),
-        Math.random().toString(36),
-        Math.random().toString(36)
-      )
+      tx = builder
+        .transfer()
+        .create('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX', 1000 * Math.pow(10, 10))
+        .setVendorField(Math.random().toString(36))
+        .sign(Math.random().toString(36))
+        .secondSign(Math.random().toString(36))
       break
 
     case 1: // second signature
-      tx = builder.secondSignature(Math.random().toString(36), Math.random().toString(36))
+      tx = builder
+        .secondSignature()
+        .create()
+        .sign(Math.random().toString(36))
+        .secondSign(Math.random().toString(36))
       break
 
     case 2: // delegate registration
-      tx = builder.delegate(Math.random().toString(36), Math.random().toString(12))
+      tx = builder
+        .delegate()
+        .create(Math.random().toString(36))
+        .sign(Math.random().toString(36))
       break
 
     case 3: // vote registration
-      tx = builder.vote(Math.random().toString(36), ['+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760'])
+      tx = builder
+        .vote()
+        .create(['+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760'])
+        .sign(Math.random().toString(36))
       break
 
     case 4: // multisignature registration
-      const ECkeys = [1, 2, 3].map(() => {
-        return cryptoBuilder.getKeys(Math.random().toString(36))
-      })
+      const ECkeys = [1, 2, 3].map(() => cryptoBuilder.getKeys(Math.random().toString(36)))
 
-      tx = builder.multiSignature(Math.random().toString(36), '', ECkeys.map(k => k.Q), 48, 2)
+      tx = builder
+        .multiSignature()
+        .create(ECkeys.map(k => k.Q), 48, 2)
+        .sign(Math.random().toString(36))
+        .secondSign('')
+
       const hash = cryptoBuilder.getHash(tx, true, true)
-      tx.signatures = ECkeys.slice(1).map(k => {
-        k
-          .sign(hash)
-          .toDER()
-          .toString('hex')
-      })
+      tx.signatures = ECkeys.slice(1).map(k => k.sign(hash).toDER().toString('hex'))
   }
 
   tx.recipientId = txData.recipientId
@@ -125,6 +132,6 @@ describe('Models - Transaction', () => {
   it('Signatures are not malleable', () => {
     [0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
-      .map(tx => expect(verifyEcdsaNonMalleability(tx)).toBeTruthy())
+      .forEach(tx => expect(verifyEcdsaNonMalleability(tx)).toBeTruthy())
   })
 })

@@ -2,12 +2,9 @@
 
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
-const async = require('async')
-
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const blockchain = container.resolvePlugin('blockchain')
-
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
@@ -30,10 +27,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     this.counters = {}
     this.pool = new Redis(this.options.redis)
     this.subscription = new Redis(this.options.redis)
+
     this.pool.on('connect', () => {
       logger.info('Redis connection established')
-
-      this.__registerTransactionQueue()
 
       this.pool.config('set', 'notify-keyspace-events', 'Ex')
 
@@ -41,7 +37,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     })
 
     this.pool.on('error', () => {
-      logger.error('Could not connect to Redis')
+      logger.error('Could not connect to Redis. If you do not wish to use the transaction pool, please disable it and restart, otherwise fix the issue.')
       process.exit(1)
     })
 
@@ -123,17 +119,23 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {Array}   transactions
    * @param {Boolean} isBroadcast
    */
-  async addTransactions (transactions, isBroadcast) {
+  addTransactions (transactions, isBroadcast) {
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
     }
 
-    this.queue.push(transactions.map(transaction => {
+    return transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
+      this.addTransaction(transaction)
+
+      if (isBroadcast) {
+        super.broadcastTransaction(transaction)
+      }
+
       return transaction
-    }))
+    })
   }
 
   /**
@@ -353,25 +355,5 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   __isReady () {
     return this.pool && this.pool.status === 'ready'
-  }
-
-  /**
-   * Register the transaction queue listener.
-   * @return {void}
-   */
-  __registerTransactionQueue () {
-    this.queue = async.queue((transaction, queueCallback) => {
-      if (super.verifyTransaction(transaction)) {
-        this.addTransaction(transaction)
-
-        if (!transaction.isBroadcast) {
-          super.broadcastTransaction(transaction)
-        }
-      } else {
-        logger.warn(`Discarded Transaction ${transaction.id} - Unable to verify.`)
-      }
-
-      queueCallback()
-    }, 1)
   }
 }
