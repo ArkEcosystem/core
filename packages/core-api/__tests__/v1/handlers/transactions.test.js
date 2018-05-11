@@ -3,25 +3,12 @@
 require('../../__support__/setup')
 
 const utils = require('../utils')
+const genesisBlock = require('../../__support__/config/genesisBlock.json')
 
-const Address1 = 'DQUjMT6fhJWbwhaYL5pPdX9v5qPiRcAzRb'
-const Address2 = 'DGihocTkwDygiFvmg6aG8jThYTic47GzU9'
+const Address1 = 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
+const Address2 = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
 
-const transactionList = [{
-  'id': '3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9',
-  'blockid': '9635341524063110283',
-  'type': 0,
-  'timestamp': 6070813,
-  'amount': 10000000000,
-  'fee': 10000000,
-  'recipientId': 'DSZpph3ANnFw9D7NK4fAdLkigkYWPDBqk6',
-  'senderId': 'DBi2HdDY8TqMCD2aFLVomEF92gzeDmEHmR',
-  'senderPublicKey': '03bd4f16e39aaba5cba6a87b7498b08ce540f279be367e68ae96fb05dfabe203ad',
-  'signature': '3045022100c8932300eb39829bf8178728bf8ab96e4b3085f876073e18e18087d61a3a5360022061749eaa3a20a02a362f358c16a681b46b03c60a07972996386d92e65790af4f',
-  'confirmations': 0
-}]
-
-// let offsetTimestamp = 0
+const transactionList = genesisBlock.transactions
 
 describe('API 1.0 - Transactions', () => {
   describe('GET /transactions', () => {
@@ -49,7 +36,7 @@ describe('API 1.0 - Transactions', () => {
 
       for (let i = 0; i < res.body.transactions.length; i++) {
         if (res.body.transactions[i]) {
-        await expect(res.body.transactions[i]).toHaveProperty('type', type)
+          await expect(res.body.transactions[i]).toHaveProperty('type', type)
         }
       }
     })
