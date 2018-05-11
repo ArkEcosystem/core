@@ -40,7 +40,7 @@ exports.store = {
   handler: async (request, h) => {
     await transactionPool.guard.validate(request.payload.transactions)
 
-    if (transactionPool.guard.accept.length) {
+    if (transactionPool.guard.hasAny('accept')) {
       blockchain.postTransactions(transactionPool.guard.accept)
     }
 

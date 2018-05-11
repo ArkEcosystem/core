@@ -168,7 +168,7 @@ exports.postTransactions = {
     await transactionPool.guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
-    if (transactionPool.guard.accept.length) {
+    if (transactionPool.guard.hasAny('accept')) {
       blockchain.postTransactions(transactionPool.guard.accept, request.payload.broadcast)
     }
 

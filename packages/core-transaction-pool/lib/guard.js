@@ -3,22 +3,37 @@ const { crypto } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 
 module.exports = class TransactionGuard {
+  /**
+   * Create a new transaction guard instance.
+   * @param  {TransactionPoolInterface} pool
+   * @return {void}
+   */
   constructor (pool) {
     this.pool = pool
 
     this.__reset()
   }
 
+  /**
+   * Validate the specified transactions.
+   * @param  {Array} transactions
+   * @return {void}
+   */
   async validate (transactions) {
     this.__reset()
 
-    this.__prepareTransactions(transactions)
+    this.__transformTransactions(transactions)
 
     this.__determineInvalidTransactions()
 
     this.__determineExcessTransactions()
   }
 
+  /**
+   * Get a list of transaction ids.
+   * @param  {String} type
+   * @return {Object}
+   */
   getIds (type = null) {
     if (type) {
       return this[type].map(transaction => transaction.id)
@@ -32,6 +47,11 @@ module.exports = class TransactionGuard {
     }
   }
 
+  /**
+   * Get a list of transaction objects.
+   * @param  {String} type
+   * @return {Object}
+   */
   getTransactions (type = null) {
     return {
       transactions: this.transactions,
@@ -41,12 +61,50 @@ module.exports = class TransactionGuard {
     }
   }
 
-  __prepareTransactions (transactions) {
+  /**
+   * Check if there are N transactions of the specified type.
+   * @param  {String}  type
+   * @param  {Number}  count
+   * @return {Boolean}
+   */
+  has (type, count) {
+    return this.hasAny(type) === count
+  }
+
+  /**
+   * Check if there are at least N transactions of the specified type.
+   * @param  {String}  type
+   * @param  {Number}  count
+   * @return {Boolean}
+   */
+  hasAtLeast (type, count) {
+    return this.hasAny(type) >= count
+  }
+
+  /**
+   * Check if there are any transactions of the specified type.
+   * @param  {String}  type
+   * @return {Boolean}
+   */
+  hasAny (type) {
+    return this[type].length
+  }
+
+  /**
+   * Transform the specified transactions to models.
+   * @param  {Array} transactions
+   * @return {void}
+   */
+  __transformTransactions (transactions) {
     this.transactions = transactions
       .map(transaction => Transaction.serialize(transaction).toString('hex'))
       .map(transaction => Transaction.deserialize(transaction))
   }
 
+  /**
+   * Determine any invalid transactions, usually caused by invalid crypto or insufficient funds.
+   * @return {void}
+   */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
       const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
@@ -60,6 +118,10 @@ module.exports = class TransactionGuard {
     })
   }
 
+  /**
+   * Determine transactions that exceed the rate-limit.
+   * @return {void}
+   */
   async __determineExcessTransactions () {
     const transactions = await this.pool.determineExcessTransactions(this.transactions)
 
@@ -67,6 +129,10 @@ module.exports = class TransactionGuard {
     this.excess = transactions.excess
   }
 
+  /**
+   * Reset all indices.
+   * @return {void}
+   */
   __reset () {
     this.transactions = []
     this.accept = []

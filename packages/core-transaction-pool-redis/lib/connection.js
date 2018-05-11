@@ -126,10 +126,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     transactions.forEach(transaction => {
       transaction = new Transaction(transaction)
+      transaction.isBroadcast = isBroadcast
 
       this.addTransaction(transaction)
 
-      if (transaction.isBroadcast) {
+      if (isBroadcast) {
         super.broadcastTransaction(transaction)
       }
     })
