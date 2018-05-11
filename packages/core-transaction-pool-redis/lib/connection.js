@@ -124,7 +124,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
     }
 
-    transactions.forEach(transaction => {
+    return transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
@@ -133,6 +133,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       if (isBroadcast) {
         super.broadcastTransaction(transaction)
       }
+
+      return transaction
     })
   }
 
