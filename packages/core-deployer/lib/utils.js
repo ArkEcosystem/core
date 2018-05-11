@@ -2,7 +2,8 @@
 
 const _ = require('lodash')
 const fs = require('fs-extra')
-const logger = require('./logger')
+
+exports.logger = require('./logger')
 
 /**
  * Update the contents of the given file.
@@ -26,5 +27,3 @@ exports.updateConfig = async (file, overwrites) => {
   fs.ensureFileSync(configPath)
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
-
-exports.logger = logger
