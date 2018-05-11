@@ -17,7 +17,7 @@ describe('API 1.0 - Delegates', () => {
 
   describe('GET /delegates/get', () => {
     it('should be ok using a username', async () => {
-      const res = await utils.request('GET', 'delegates/get', { username: 'arkxdev' })
+      const res = await utils.request('GET', 'delegates/get', { username: 'genesis_9' })
       await utils.assertSuccessful(res)
 
       await expect(res.body).toBeObject()
@@ -26,7 +26,7 @@ describe('API 1.0 - Delegates', () => {
 
     it('should be ok using a publicKey', async () => {
       const res = await utils.request('GET', 'delegates/get', {
-        publicKey: '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d'
+        publicKey: '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
       })
       await utils.assertSuccessful(res)
 
@@ -48,20 +48,20 @@ describe('API 1.0 - Delegates', () => {
   describe('GET /delegates/search', () => {
     it('should be ok searching a username', async () => {
       const res = await utils.request('GET', 'delegates/search', {
-        q: 'arkxdev'
+        q: 'genesis_9'
       })
       await utils.assertSuccessful(res)
 
       await expect(res.body).toBeObject()
       await utils.assertDelegate(res.body.delegates[0])
-      await expect(res.body.delegates[0].username).toBe('arkxdev')
+      await expect(res.body.delegates[0].username).toBe('genesis_9')
     })
   })
 
   describe('GET /delegates/voters', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'delegates/voters', {
-        publicKey: '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d'
+        publicKey: '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
       })
       await utils.assertSuccessful(res)
 
@@ -80,10 +80,10 @@ describe('API 1.0 - Delegates', () => {
     })
   })
 
-  describe('GET /delegates/forging/getForgedByAccount', () => {
+  describe.skip('GET /delegates/forging/getForgedByAccount', () => {
     it('should be ok', async () => {
       const res = await utils.request('GET', 'delegates/forging/getForgedByAccount', {
-        generatorPublicKey: '022cca9529ec97a772156c152a00aad155ee6708243e65c9d211a589cb5d43234d'
+        generatorPublicKey: '0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647'
       })
       await utils.assertSuccessful(res)
 
