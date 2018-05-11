@@ -8,6 +8,10 @@ const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
+const delay = require('delay')
+
+
+
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -108,6 +112,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       if (transaction.data.expiration > 0) {
         logger.debug('Setting expiration')
+        logger.debug(slots.getTime())
+        await delay(1000)
+        logger.debug(slots.getTime())
+        await delay(1000)
+        logger.debug(slots.getTime())
+        await delay(1000)
         await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
       }
     } catch (error) {

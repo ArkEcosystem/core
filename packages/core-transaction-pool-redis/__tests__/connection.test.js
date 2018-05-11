@@ -68,15 +68,22 @@ describe('Connection', () => {
     })
   })
 
-  describe('addTransaction - expiration', async () => {
+  describe('addTransactions - expiration', async () => {
     it('should add the transactions to the pool and they should expire', async () => {
       await expect(await connection.getPoolSize()).toBe(0)
 
-      await connection.addTransaction(dummyExp1)
-      await connection.addTransaction(dummyExp2)
+
+      connection.addTransactions = jest.fn(async (transactions) => {
+        for (let i = 0; i < transactions.length; i++) {
+          await connection.addTransaction(transactions[i])
+        }
+      })
+
+     // await connection.addTransaction(new Transaction(dummyExp1))
+      //await connection.addTransaction(new Transaction(dummyExp2))
 
       await expect(await connection.getPoolSize()).toBe(2)
-      await delay(5000)
+      await delay(8000)
       await expect(await connection.getPoolSize()).toBe(0)
     })
   })
