@@ -3,6 +3,13 @@
 const GenesisBlockBuilder = require('../../lib/builder/genesis-block')
 const network = require('../../../core-config/lib/networks/testnet/network')
 
+// TODO:
+// Refactor beforeAll - too error-prone
+//
+// __createDelegateTransaction
+// __formatGenesisTransaction
+// __createGenesisBlock
+
 let builder
 let genesis
 let wallet
