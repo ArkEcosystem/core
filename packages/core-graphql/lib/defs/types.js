@@ -45,7 +45,7 @@ module.exports = `
     votebalance: Int!
     producedBlocks: Int!
     missedBlocks: Int!
-    transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
+    transactions(limit: Limit, orderBy: OrderByInput): [Transaction]
     blocks(limit: Limit, orderBy: OrderByInput): [Block]
   }
 `

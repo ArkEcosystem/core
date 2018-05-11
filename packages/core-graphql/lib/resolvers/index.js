@@ -3,6 +3,7 @@
 const queries = require('./queries')
 const Block = require('./relationship/block')
 const Transaction = require('./relationship/transaction')
+const Wallet = require('./relationship/wallet')
 const GraphQLTypes = require('graphql-tools-types')
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
 
   Query: queries,
   Block,
-  Transaction
+  Transaction,
+  Wallet
 }
