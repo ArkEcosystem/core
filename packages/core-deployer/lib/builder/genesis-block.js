@@ -53,7 +53,7 @@ module.exports = class GenesisBlockBuilder {
     return {
       address: ark.crypto.getAddress(keys.publicKey, this.prefixHash),
       passphrase,
-      keys,
+      keys
     }
   }
 
@@ -152,7 +152,6 @@ module.exports = class GenesisBlockBuilder {
     let payloadLength = 0
     let totalFee = 0
     let totalAmount = 0
-    let blockTransactions = []
     let payloadHash = crypto.createHash('sha256')
 
     transactions.forEach(transaction => {
@@ -196,7 +195,7 @@ module.exports = class GenesisBlockBuilder {
    */
   __getBlockId (block) {
     let hash = this.__getHash(block)
-    let blockBuffer = new Buffer(8)
+    let blockBuffer = Buffer.alloc(8)
     for (let i = 0; i < 8; i++) {
       blockBuffer[i] = hash[7 - i]
     }
@@ -213,7 +212,7 @@ module.exports = class GenesisBlockBuilder {
   __signBlock (block, keys) {
     var hash = this.__getHash(block)
 
-    return keys.sign(hash).toDER().toString("hex")
+    return keys.sign(hash).toDER().toString('hex')
   }
 
   /**
@@ -258,18 +257,18 @@ module.exports = class GenesisBlockBuilder {
 
       byteBuffer.writeInt(block.payloadLength)
 
-      var payloadHashBuffer = new Buffer(block.payloadHash, 'hex')
+      var payloadHashBuffer = Buffer.from(block.payloadHash, 'hex')
       for (let i = 0; i < payloadHashBuffer.length; i++) {
         byteBuffer.writeByte(payloadHashBuffer[i])
       }
 
-      var generatorPublicKeyBuffer = new Buffer(block.generatorPublicKey, 'hex')
+      var generatorPublicKeyBuffer = Buffer.from(block.generatorPublicKey, 'hex')
       for (let i = 0; i < generatorPublicKeyBuffer.length; i++) {
         byteBuffer.writeByte(generatorPublicKeyBuffer[i])
       }
 
       if (block.blockSignature) {
-        var blockSignatureBuffer = new Buffer(block.blockSignature, 'hex')
+        var blockSignatureBuffer = Buffer.from(block.blockSignature, 'hex')
         for (let i = 0; i < blockSignatureBuffer.length; i++) {
           byteBuffer.writeByte(blockSignatureBuffer[i])
         }
@@ -282,7 +281,5 @@ module.exports = class GenesisBlockBuilder {
     } catch (error) {
       throw error
     }
-
-    return
   }
 }
