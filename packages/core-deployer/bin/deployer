@@ -4,7 +4,7 @@
 
 const commander = require('commander')
 const Joi = require('joi')
-const fs = require('fs')
+const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const { logger, updateConfig } = require('../lib/utils')
@@ -57,8 +57,8 @@ if (!commander.help) {
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
-if (!fs.existsSync(process.env.ARK_PATH_CONFIG)) {
-  fs.copy(`./config/${commander.network}`, process.env.ARK_PATH_CONFIG)
+if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
+  fs.copySync(`../core-config/lib/networks/${commander.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
 }
 
 const networkConfig = {

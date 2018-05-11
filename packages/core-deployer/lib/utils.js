@@ -12,7 +12,7 @@ exports.logger = require('./logger')
  * @return {void}
  */
 exports.updateConfig = async (file, overwrites) => {
-  const configPath = `${process.env.ARK_PATH_CONFIG}/${file}.json`
+  const configPath = `${process.env.ARK_PATH_CONFIG}/deployer/${file}.json`
   let config
   if (fs.existsSync(configPath)) {
     config = require(configPath)
