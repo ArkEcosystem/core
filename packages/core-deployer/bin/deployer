@@ -3,90 +3,110 @@
 'use strict'
 
 const commander = require('commander')
-const assert = require('assert-plus')
-const fs = require('fs')
+const Joi = require('joi')
+const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
-const { updateConfig } = require('../lib/utils')
+const { getRandomNumber, logger, updateConfig } = require('../lib/utils')
+const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
 commander
   .version(require('../package.json').version)
-  .option('--network <value>', 'Network')
-  .option('--p2pPort <value>', 'P2P API Port')
-  .option('--pubPort <value>', 'Public P2P Port')
-  .option('--dbHost <value>', 'Database host')
-  .option('--dbPort <value>', 'Database port')
-  .option('--dbUsername <value>', 'Database username')
-  .option('--dbPassword <value>', 'Database password')
-  .option('--dbDatabase <value>', 'Database name')
-  .option('--nodeIp <value>', 'IP for node')
-  .option('--nodePort <value>', 'Port for node')
-  .option('--activeDelegates <value>', 'How many forgers for the network [51]')
-  .option('--feeSend <value>', 'Fee for sending Transaction')
-  .option('--feeVote <value>', 'Fee for Vote Transaction')
-  .option('--feeSecondSignature <value>', 'Fee for Second Passphrase Transaction')
-  .option('--feeDelegate <value>', 'Fee for Register Delegate Transaction')
-  .option('--feeMultisig <value>', 'Fee for Multisignature Transaction')
-  .option('--epoch <value>', 'Set Epoch based on time the chain was created')
-  .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [75600]')
-  .option('--rewardBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]')
-  .option('--blocktime <value>', 'Time per block (seconds) [8]')
-  .option('--token <value>', 'Token Name [MINE]')
-  .option('--symbol <value>', 'Symbol for Token [M]')
-  .option('--prefix <value>', 'Address Prefix [M]')
-  .option('--transactionsPerBlock <value>', 'Max Transaciton count per Block [50]')
+  .option('--network <value>', 'Network to initially copy', 'mainnet')
+  .option('--name <value>', 'Name', 'Bridgechain')
+  .option('--nodeIp <value>', 'IP for node', '0.0.0.0')
+  .option('--p2pPort <value>', 'P2P API Port', 4102)
+  .option('--apiPort <value>', 'Public P2P Port', 4103)
+  .option('--dbHost <value>', 'Database host', 'localhost')
+  .option('--dbPort <value>', 'Database port', 5432)
+  .option('--dbUsername <value>', 'Database username', 'node')
+  .option('--dbPassword <value>', 'Database password', 'password')
+  .option('--dbDatabase <value>', 'Database name', `ark_${commander.name}`)
+  .option('--explorerUrl <value>', 'URL to link to explorer', 'http://localhost:4200')
+  .option('--activeDelegates <value>', 'How many forgers for the network [51]', 51)
+  .option('--feeSend <value>', 'Fee for sending Transaction', 10000000)
+  .option('--feeVote <value>', 'Fee for Vote Transaction', 100000000)
+  .option('--feeSecondSignature <value>', 'Fee for Second Passphrase Transaction', 500000000)
+  .option('--feeDelegate <value>', 'Fee for Register Delegate Transaction', 2500000000)
+  .option('--feeMultisignature <value>', 'Fee for Multisignature Transaction', 500000000)
+  .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21T13:00:00.000Z')
+  .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [1]', 1)
+  .option('--rewardPerBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
+  .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)
+  .option('--token <value>', 'Token Name [CHAIN]', 'CHAIN')
+  .option('--symbol <value>', 'Symbol for Token [C]', 'C')
+  .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
+  .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
+  .option('--wifPrefix <value>', 'Prefix for generating a WIF [rand(1, 255)]', getRandomNumber(1, 255))
   // .option('--max-votes', 'Max Votes per Wallet [1]')
-  // .option('--total-premine', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]')
+  .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
   .parse(process.argv)
 
-assert.number(commander.feeSend)
-assert.number(commander.feeVote)
-assert.number(commander.feeSecondSignature)
-assert.number(commander.feeDelegate)
-assert.number(commander.feeMultisignature)
+const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true, convert: true })
+const options = value
 
-if (!process.argv.slice(2).length) {
-  commander.outputHelp();
+if (error) {
+  error.details.forEach(detail => logger.error(detail.message))
+  process.exit(1)
 }
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
-if (!fs.existsSync(process.env.ARK_PATH_CONFIG)) {
-  fs.copy(`./config/${commander.network}`, process.env.ARK_PATH_CONFIG)
+if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
+  fs.copySync(`../core-config/lib/networks/${options.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
 }
 
-const networkConfig = {
-  'constants[0].activeDelegates': commander.activeDelegates,
-  'constants[0].fees.send': commander.feeSend,
-  'constants[0].fees.vote': commander.feeVote,
-  'constants[0].fees.secondsignature': commander.feeSecondSignature,
-  'constants[0].fees.delegate': commander.feeDelegate,
-  'constants[0].fees.multisignature': commander.feeMultisignature,
-  'constants[0].epoch': commander.epoch,
-  'constants[0].blocktime': commander.blocktime,
-  'client.token': commander.token,
-  'client.symbol': commander.symbol,
-  pubKeyHash: commander.prefix,
-  nethash: commander.nethash,
-  'constants[0].block.maxTransactions': commander.transactionsPerBlock
+let networkConfig = {
+  name: options.name.toLowerCase(),
+  messagePrefix: `${options.token} message:\n`,
+  pubKeyHash: options.prefixHash,
+  wif: options.wifPrefix,
+  'constants[0].blocktime': options.blocktime,
+  'constants[0].block.maxTransactions': options.transactionsPerBlock,
+  'constants[0].epoch': options.epoch,
+  'constants[0].activeDelegates': options.activeDelegates,
+  'constants[0].fees.send': options.feeSend,
+  'constants[0].fees.vote': options.feeVote,
+  'constants[0].fees.secondsignature': options.feeSecondSignature,
+  'constants[0].fees.delegate': options.feeDelegate,
+  'constants[0].fees.multisignature': options.feeMultisignature,
+  'client.token': options.token,
+  'client.symbol': options.symbol,
+  'client.explorer': options.explorerUrl,
+  exceptions: {}
 }
 
-if (commander.rewardHeight === 1) {
-  networkConfig['constants[0].height'] = commander.rewardHeight
-  networkConfig['constants[0].reward'] = commander.rewardBlock
-  delete networkConfig.constants[1]
+const network = updateConfig('network', networkConfig)
+
+const genesis = (new genesisBlockBuilder(network, options)).generate()
+
+network.nethash = genesis.genesisBlock.payloadHash
+
+if (options.rewardHeight === 1) {
+  network.constants = [
+    network.constants[0]
+  ]
+  network.constants[0].height = options.rewardHeight
+  network.constants[0].reward = options.rewardPerBlock
 } else {
-  networkConfig['constants[1].height'] = commander.rewardHeight
-  networkConfig['constants[1].reward'] = commander.rewardBlock
+  network.constants[1].height = options.rewardHeight
+  network.constants[1].reward = options.rewardPerBlock
 }
 
 updateConfig('network', networkConfig)
 
+updateConfig('genesisWallet', {
+  address: genesis.genesisWallet.address,
+  passphrase: genesis.genesisWallet.passphrase
+}, true)
+updateConfig('genesisBlock', genesis.genesisBlock, true)
+updateConfig('delegates', {secrets: genesis.delegatePassphrases}, true)
+
 updateConfig('server', {
-  port: commander.p2pPort,
-  'database.options.uri': `postgres://${commander.dbUsername}:${commander.dbPassword}@${commander.dbHost}:${commander.dbPort}/${commander.dbDatabase}`,
+  port: options.p2pPort,
+  'database.options.uri': `postgres://${options.dbUsername}:${options.dbPassword}@${options.dbHost}:${options.dbPort}/${options.dbDatabase}`,
   'database.options.dialect': 'postgres'
 })
 
-updateConfig('api/public', { port: commander.pubPort })
+updateConfig('api/public', { port: options.apiPort })

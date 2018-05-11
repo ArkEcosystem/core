@@ -1,22 +1,41 @@
 'use strict'
 
 const _ = require('lodash')
-const fs = require('fs')
-const util = require('util')
-const writeFile = util.promisify(fs.writeFile)
+const fs = require('fs-extra')
 
 /**
- * Update the contents of the given file.
- * @param  {String} file
- * @param  {Object} overwrites
- * @return {void}
+ * Get a random number from range.
+ * @param  {Number} min
+ * @param  {Number} max
+ * @return {Number}
  */
-exports.updateConfig = async (file, overwrites) => {
-  let config = require(`${process.env.ARK_PATH_CONFIG}/${file}.json`)
+exports.getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min) + min)
+}
 
-  for (let key in overwrites) {
-    _.set(config, key, overwrites[key])
+exports.logger = require('./logger')
+
+/**
+ * Update the contents of the given file and return config.
+ * @param  {String} file
+ * @param  {Object} values
+ * @return {Object}
+ */
+exports.updateConfig = (file, values, forceOverwrite) => {
+  const configPath = `${process.env.ARK_PATH_CONFIG}/deployer/${file}.json`
+  let config
+  if (fs.existsSync(configPath) && !forceOverwrite) {
+    config = require(configPath)
+  } else {
+    config = {}
   }
 
-  writeFile(`${process.env.ARK_PATH_CONFIG}/${file}.json`, JSON.stringify(config, null, 2))
+  for (let key in values) {
+    _.set(config, key, values[key])
+  }
+
+  fs.ensureFileSync(configPath)
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+  return config
 }
