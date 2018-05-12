@@ -36,10 +36,10 @@ module.exports = {
       snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
-      dialect: 'sqlite'
-        // uri: 'postgres://node:password@localhost:5432/ark_mainnet',
-        // dialect: 'postgres'
+      // uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
+      // dialect: 'sqlite'
+      uri: `postgres://node:password@localhost:5432/ark_${process.env.ARK_NETWORK}`,
+      dialect: 'postgres'
     },
     '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {
