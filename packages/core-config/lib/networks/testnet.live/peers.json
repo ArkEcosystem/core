@@ -1,0 +1,34 @@
+{
+  "minimumNetworkReach": 20,
+  "blackList": [],
+  "discoveryTimeout": 10000,
+  "list": [
+    {
+      "ip": "51.255.100.0",
+      "port": 4000
+    },
+    {
+      "ip": "51.255.100.1",
+      "port": 4000
+    },
+    {
+      "ip": "51.255.100.2",
+      "port": 4000
+    },
+    {
+      "ip": "51.255.100.3",
+      "port": 4000
+    },
+    {
+      "ip": "51.255.100.4",
+      "port": 4000
+    },
+    {
+      "ip": "51.255.100.5",
+      "port": 4000
+    }
+  ],
+  "sources": [
+    "https://test-explorer.arknet.cloud/testnet.json"
+  ]
+}
