@@ -104,6 +104,14 @@ if (options.rewardHeight === 1) {
 }
 
 updateConfig('network', networkConfig, options.configPath)
+updateConfig('peers', {
+  minimumNetworkReach: 1,
+  list: [{
+    ip: '127.0.0.1',
+    port: options.p2pPort
+  }],
+  sources: []
+}, options.configPath)
 
 updateConfig('genesisWallet', {
   address: genesis.genesisWallet.address,
