@@ -86,7 +86,7 @@ let networkConfig = {
   exceptions: {}
 }
 
-const network = updateConfig('network', networkConfig)
+const network = updateConfig('network', networkConfig, options.configPath)
 
 const genesis = (new genesisBlockBuilder(network, options)).generate()
 
