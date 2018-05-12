@@ -219,7 +219,6 @@ module.exports = class Monitor {
    * @return {Number}
    */
   getNetworkHeight () {
-    console.log(this.peers)
     const median = Object.values(this.peers)
       .filter(peer => peer.state.height)
       .map(peer => peer.state.height)
