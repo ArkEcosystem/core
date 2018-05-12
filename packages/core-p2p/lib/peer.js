@@ -1,7 +1,9 @@
 'use strict'
 
 const popsicle = require('popsicle')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const config = container.resolvePlugin('config')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/workers/download.js`)
 
@@ -81,7 +83,7 @@ module.exports = class Peer {
           broadcast: true
         },
         headers: this.headers,
-        timeout: 5000
+        timeout: 8000
       }).use(popsicle.plugins.parse('json'))
 
       this.__parseHeaders(response)
@@ -130,7 +132,7 @@ module.exports = class Peer {
    * @throws {Error} If fail to get peer status.
    */
   async ping (delay) {
-    const body = await this.__get('/peer/status', delay || 5000)
+    const body = await this.__get('/peer/status', delay || config.peers.discoveryTimeout)
 
     if (body) {
       this.state = body
@@ -148,7 +150,7 @@ module.exports = class Peer {
   async getPeers () {
     logger.info(`Fetching a fresh peer list from ${this.url}`)
 
-    await this.ping(5000)
+    await this.ping(config.peers.discoveryTimeout)
 
     const body = await this.__get('/peer/list')
 
@@ -169,7 +171,7 @@ module.exports = class Peer {
         method: 'GET',
         url: this.url + endpoint,
         headers: this.headers,
-        timeout: timeout || 10000
+        timeout: timeout || config.peers.discoveryTimeout
       }).use(popsicle.plugins.parse('json'))
 
       this.delay = new Date().getTime() - temp
