@@ -135,7 +135,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   __verifyTransaction (transaction) {
-    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
 
     return crypto.verify(transaction) && wallet.canApply(transaction)
   }
