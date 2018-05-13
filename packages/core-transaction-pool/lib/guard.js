@@ -99,8 +99,7 @@ module.exports = class TransactionGuard {
    */
   __transformTransactions (transactions) {
     this.transactions = transactions
-      .map(transaction => Transaction.serialize(transaction).toString('hex'))
-      .map(transaction => Transaction.deserialize(transaction))
+      .map(transaction => new Transaction(transaction))
   }
 
   /**

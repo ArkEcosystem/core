@@ -282,7 +282,7 @@ module.exports = class Monitor {
    */
   broadcastTransactions (transactions) {
     const peers = Object.values(this.peers)
-    logger.info(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
+    logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
     const transactionsV1 = []
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))

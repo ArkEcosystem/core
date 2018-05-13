@@ -8,6 +8,7 @@ const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -43,8 +44,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     this.subscription.on('message', (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
-
-      this.removeTransaction(message.split('/')[3])
+      this.removeTransactionById(message.split(':')[2])
     })
 
     return this
@@ -89,25 +89,20 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (!(transaction instanceof Transaction)) {
-      return logger.warn(`Discarded Transaction ${transaction.id} - Invalid object.`)
+      return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
     try {
-      const senderPublicKey = transaction.data.senderPublicKey
       await this.pool.hmset(
         this.__getRedisTransactionKey(transaction.id),
-        'serialized', transaction.serialized.toString('hex'),
-        'timestamp', transaction.data.timestamp,
-        'expiration', transaction.data.expiration,
-        'senderPublicKey', senderPublicKey,
-        'timelock', transaction.data.timelock,
-        'timelocktype', transaction.data.timelocktype
-      )
+          'serialized', transaction.serialized.toString('hex'),
+          'senderPublicKey', transaction.senderPublicKey
+        )
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
-      await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.id)
+      await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), transaction.id)
 
-      if (transaction.data.expiration > 0) {
-        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
+      if (transaction.expiration > 0) {
+        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.expiration - transaction.timestamp)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -149,7 +144,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), 1, transaction.id)
     await this.pool.del(this.__getRedisTransactionKey(transaction.id))
   }
 
@@ -278,32 +273,33 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       let transactions = []
       for (const id of transactionIds) {
-        const transaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+        const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
 
-        if (!transaction[0]) {
+        if (!serializedTransaction[0]) {
           await this.removeTransaction(id)
           break
         }
-
-        if (transaction[2]) { // timelock is defined
+        const transaction = Transaction.fromBytes(serializedTransaction[0])
+        // TODO: refactor and improve
+        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
             0: () => { // timestamp lock defined
-              if (parseInt(transaction[2]) <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction[2]}`)
-                transactions.push(transaction[0])
+              if (transaction.timelock <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
+                transactions.push(serializedTransaction[0])
               }
             },
             1: () => { // block height time lock
-              if (parseInt(transaction[2]) <= blockchain.getLastBlock(true).height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
-                transactions.push(transaction[0])
+              if (transaction.timelock <= blockchain.getLastBlock(true).height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
+                transactions.push(serializedTransaction[0])
               }
             }
           }
 
-          actions[parseInt(transaction[3])]()
+          actions[transaction.timelocktype]()
         } else {
-          transactions.push(transaction[0])
+          transactions.push(serializedTransaction[0])
         }
       }
 
