@@ -99,8 +99,7 @@ class Slots {
   isForgingAllowed (epochTime) {
     if (epochTime === undefined) epochTime = this.getTime()
 
-    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) /
-                                                                     this.getConstant('blocktime'))
+    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) / this.getConstant('blocktime')) // eslint-disable-line max-len
   }
 }
 
