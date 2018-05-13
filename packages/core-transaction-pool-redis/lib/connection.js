@@ -94,15 +94,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     try {
       await this.pool.hmset(
-        this.__getRedisTransactionKey(transaction.data.id),
+        this.__getRedisTransactionKey(transaction.id),
           'serialized', transaction.serialized.toString('hex'),
-          'senderPublicKey', transaction.data.senderPublicKey
+          'senderPublicKey', transaction.senderPublicKey
         )
-      await this.pool.rpush(this.__getRedisOrderKey(), transaction.data.id)
-      await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), transaction.data.id)
+      await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
+      await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), transaction.id)
 
-      if (transaction.data.expiration > 0) {
-        await this.pool.expire(this.__getRedisTransactionKey(transaction.data.id), transaction.data.expiration - transaction.data.timestamp)
+      if (transaction.expiration > 0) {
+        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.expiration - transaction.timestamp)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -143,9 +143,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "removeTransaction".')
     }
 
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.data.id)
-    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.data.id)
-    await this.pool.del(this.__getRedisTransactionKey(transaction.data.id))
+    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), 1, transaction.id)
+    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
   }
 
   /**
@@ -193,7 +193,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
-    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey))
+    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
 
     return count >= this.options.maxTransactionsPerSender
   }
@@ -281,23 +281,23 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         }
         const transaction = Transaction.fromBytes(serializedTransaction[0])
         // TODO: refactor and improve
-        if (transaction.data.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
+        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
             0: () => { // timestamp lock defined
-              if (transaction.data.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.data.timelock}`)
+              if (transaction.timelock <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
                 transactions.push(serializedTransaction[0])
               }
             },
             1: () => { // block height time lock
-              if (transaction.data.timelock <= blockchain.getLastBlock(true).height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.data.timelock}`)
+              if (transaction.timelock <= blockchain.getLastBlock(true).height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
                 transactions.push(serializedTransaction[0])
               }
             }
           }
 
-          actions[transaction.data.timelocktype]()
+          actions[transaction.timelocktype]()
         } else {
           transactions.push(serializedTransaction[0])
         }
