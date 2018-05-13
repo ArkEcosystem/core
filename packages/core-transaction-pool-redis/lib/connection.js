@@ -8,10 +8,6 @@ const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
-const delay = require('delay')
-
-
-
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -47,8 +43,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     this.subscription.on('message', (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
-
-      this.removeTransaction(message.split('/')[3])
+      this.removeTransactionById(message.split(':')[2])
     })
 
     return this
@@ -99,7 +94,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     try {
       const senderPublicKey = transaction.data.senderPublicKey
       await this.pool.hmset(
-        this.__getRedisTransactionKey(transaction.id),
+        this.__getRedisTransactionKey(transaction.data.id),
         'serialized', transaction.serialized.toString('hex'),
         'timestamp', transaction.data.timestamp,
         'expiration', transaction.data.expiration,
@@ -107,18 +102,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         'timelock', transaction.data.timelock,
         'timelocktype', transaction.data.timelocktype
       )
-      await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
-      await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.id)
+      await this.pool.rpush(this.__getRedisOrderKey(), transaction.data.id)
+      await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.data.id)
 
       if (transaction.data.expiration > 0) {
-        logger.debug('Setting expiration')
-        logger.debug(slots.getTime())
-        await delay(1000)
-        logger.debug(slots.getTime())
-        await delay(1000)
-        logger.debug(slots.getTime())
-        await delay(1000)
-        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.data.expiration - transaction.data.timestamp)
+        await this.pool.expire(this.__getRedisTransactionKey(transaction.data.id), transaction.data.expiration - transaction.data.timestamp)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -159,9 +147,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "removeTransaction".')
     }
 
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.id)
-    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.data.id)
+    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), 1, transaction.data.id)
+    await this.pool.del(this.__getRedisTransactionKey(transaction.data.id))
   }
 
   /**
@@ -289,7 +277,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       let transactions = []
       for (const id of transactionIds) {
-        const transaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expired', 'timelock', 'timelocktype')
+        const transaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expiration', 'timelock', 'timelocktype')
 
         if (!transaction[0]) {
           await this.removeTransaction(id)
