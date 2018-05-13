@@ -100,8 +100,6 @@ module.exports = class TransactionGuard {
   __transformTransactions (transactions) {
     this.transactions = transactions
       .map(transaction => new Transaction(transaction))
-
-    console.log(this.transactions)
   }
 
   /**
