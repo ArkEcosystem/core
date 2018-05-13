@@ -57,6 +57,18 @@ class Slots {
   }
 
   /**
+   * Checks if forging is allowed
+   * @param  {Number} epochTime
+   * @return {Boolean}
+   */
+  isForgingAllowed (epochTime) {
+    if (epochTime === undefined) epochTime = this.getTime()
+
+    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) /
+                                                                     this.getConstant('blocktime'))
+  }
+
+  /**
    * Get the current slot time.
    * @param  {Number} slot
    * @return {Number}
