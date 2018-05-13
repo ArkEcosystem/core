@@ -8,6 +8,7 @@ const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
+const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -92,18 +93,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      const senderPublicKey = transaction.data.senderPublicKey
-      await this.pool.hmset(
-        this.__getRedisTransactionKey(transaction.data.id),
-        'serialized', transaction.serialized.toString('hex'),
-        'timestamp', transaction.data.timestamp,
-        'expiration', transaction.data.expiration,
-        'senderPublicKey', senderPublicKey,
-        'timelock', transaction.data.timelock,
-        'timelocktype', transaction.data.timelocktype
-      )
+      await this.pool.hmset(this.__getRedisTransactionKey(transaction.data.id), 'serialized', transaction.serialized.toString('hex'))
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.data.id)
-      await this.pool.rpush(this.__getRedisKeyByPublicKey(senderPublicKey), transaction.data.id)
+      await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), transaction.data.id)
 
       if (transaction.data.expiration > 0) {
         await this.pool.expire(this.__getRedisTransactionKey(transaction.data.id), transaction.data.expiration - transaction.data.timestamp)
@@ -197,7 +189,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
-    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
+    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey))
 
     return count >= this.options.maxTransactionsPerSender
   }
@@ -277,14 +269,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       let transactions = []
       for (const id of transactionIds) {
-        const transaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized', 'expiration', 'timelock', 'timelocktype')
+        const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
 
-        if (!transaction[0]) {
+        if (!serializedTransaction[0]) {
           await this.removeTransaction(id)
           break
         }
-
-        if (transaction[2]) { // timelock is defined
+        const transaction = Transaction.fromBytes(serializedTransaction)
+        // TODO: refactor and improve
+        if (transaction.data.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
             0: () => { // timestamp lock defined
               if (parseInt(transaction[2]) <= slots.getTime()) {
@@ -300,9 +293,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
             }
           }
 
-          actions[parseInt(transaction[3])]()
+          actions[transaction.data.timelocktype]()
         } else {
-          transactions.push(transaction[0])
+          transactions.push(serializedTransaction[0])
         }
       }
 
