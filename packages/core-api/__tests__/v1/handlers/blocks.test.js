@@ -3,11 +3,12 @@
 require('../../__support__/setup')
 
 const utils = require('../utils')
+const genesisBlock = require('../../__support__/config/genesisBlock.json')
 
 describe('API 1.0 - Blocks', () => {
   describe('GET /blocks/get?id', () => {
     it('should return blocks based on id', async () => {
-      const res = await utils.request('GET', 'blocks/get', { id: '1877716674628308671' })
+      const res = await utils.request('GET', 'blocks/get', { id: genesisBlock.id })
       await utils.assertSuccessful(res)
 
       await expect(res.body.block).toBeObject()
@@ -24,11 +25,11 @@ describe('API 1.0 - Blocks', () => {
   })
 
   describe('GET /blocks?limit=XX', () => {
-    it('should return 5 blocks', async () => {
-      const res = await utils.request('GET', 'blocks', { limit: 5 })
+    it('should return 1 blocks', async () => {
+      const res = await utils.request('GET', 'blocks', { limit: 1 })
       await utils.assertSuccessful(res)
 
-      await expect(res.body.blocks).toHaveLength(5)
+      await expect(res.body.blocks).toHaveLength(1)
     })
 
     it('should return limit error info', async () => {
@@ -51,9 +52,7 @@ describe('API 1.0 - Blocks', () => {
       const blockchain = container.resolvePlugin('blockchain')
       const config = container.resolvePlugin('config')
 
-      await expect(res.body.fees).toEqual(
-        config.getConstants(blockchain.getLastBlock(true).height).fees
-      )
+      await expect(res.body.fees).toEqual(config.getConstants(blockchain.getLastBlock(true).height).fees)
     })
   })
 

@@ -23,6 +23,7 @@
     }
   ],
   "blackList": [],
+  "discoveryTimeout": 10000,
   "sources": [
     "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
   ]

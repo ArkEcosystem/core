@@ -101,4 +101,14 @@ describe('Slots', () => {
       expect(slots.getConstant('epoch')).toBe('2017-03-21T13:00:00.000Z')
     })
   })
+
+  describe('isForgingAllowed', () => {
+    it('should be a function', () => {
+      expect(slots.isForgingAllowed).toBeFunction()
+    })
+
+    it('returns boolean', () => {
+      expect(slots.isForgingAllowed()).toBeDefined()
+    })
+  })
 })

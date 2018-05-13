@@ -186,7 +186,7 @@ module.exports = class Block {
    * @return {Object}
    */
   toBroadcastV1 () {
-    return this.data
+    return this.toRawJson()
   }
 
   /*

@@ -29,6 +29,10 @@ module.exports = async (options) => {
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (${wallet.username})`)
   })
 
+  if (options.copy) {
+    utils.copyToClipboard(transactions)
+  }
+
   const expectedDelegates = delegates.length + wallets.length
   logger.info(`Expected end delegate count: ${expectedDelegates}`)
 

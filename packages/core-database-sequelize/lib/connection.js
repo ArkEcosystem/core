@@ -487,7 +487,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         height: {
           [Sequelize.Op.between]: [offset, last]
         }
-      }
+      },
+      order: [['height', 'ASC']]
     })
 
     const nblocks = blocks.map(block => {

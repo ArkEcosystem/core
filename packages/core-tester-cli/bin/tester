@@ -8,18 +8,21 @@ app
   .command('transactions')
   .description('send multiple transactions')
   .option('-n, --number <number>', 'number of transactions', 10)
+  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/transactions')(options))
 
 app
   .command('signatures')
   .description('create wallets with second signature')
   .option('-n, --number <number>', 'number of wallets', 10)
+  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/signatures')(options))
 
 app
   .command('delegates')
   .description('create multiple delegates')
   .option('-n, --number <number>', 'number of delegates', 10)
+  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/delegates')(options))
 
 app

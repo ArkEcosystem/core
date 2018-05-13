@@ -86,7 +86,7 @@ module.exports = class Monitor {
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping(fast ? 1000 : 5000)
+        await this.peers[ip].ping(fast ? 1000 : config.peers.discoveryTimeout)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++

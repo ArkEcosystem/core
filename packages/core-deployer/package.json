@@ -20,7 +20,13 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
+    "arkjs": "^0.2.1",
+    "bigi": "^1.4.2",
+    "bytebuffer": "^5.0.1",
     "commander": "^2.15.1",
-    "lodash": "^4.17.10"
+    "fs-extra": "^6.0.1",
+    "joi": "^13.2.0",
+    "lodash": "^4.17.10",
+    "pino": "^4.16.1"
   }
 }

@@ -22,6 +22,10 @@ module.exports = async (options) => {
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
+  if (options.copy) {
+    utils.copyToClipboard(transactions)
+  }
+
   const expectedVoters = voters.length + wallets.length
   logger.info(`Expected end voters: ${expectedVoters}`)
 

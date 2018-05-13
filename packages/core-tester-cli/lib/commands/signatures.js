@@ -18,6 +18,10 @@ module.exports = async (options) => {
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
+  if (options.copy) {
+    utils.copyToClipboard(transactions)
+  }
+
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 

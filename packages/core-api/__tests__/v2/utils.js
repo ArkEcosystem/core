@@ -64,12 +64,12 @@ class Helpers {
 
   assertTransaction (transaction) {
     expect(transaction).toBeObject()
-    expect(transaction.id).toBeString()
-    expect(transaction.blockId).toBeString()
-    expect(transaction.type).toBeNumber()
-    expect(transaction.amount).toBeNumber()
-    expect(transaction.fee).toBeNumber()
-    expect(transaction.sender).toBeString()
+    expect(transaction).toHaveProperty('id')
+    expect(transaction).toHaveProperty('blockId')
+    expect(transaction).toHaveProperty('type')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('fee')
+    expect(transaction).toHaveProperty('sender')
 
     if ([1, 2].indexOf(transaction.type) === -1) {
       expect(transaction.recipient).toBeString()
@@ -81,31 +81,28 @@ class Helpers {
 
   assertBlock (block) {
     expect(block).toBeObject()
-    expect(block.id).toBeString()
-    expect(block.version).toBeNumber()
-    expect(block.height).toBeNumber()
-    // expect(block.previous).toBeString()
-
-    expect(block.forged).toBeObject()
-    expect(block.forged.reward).toBeNumber()
-    expect(block.forged.fee).toBeNumber()
-
-    expect(block.payload).toBeObject()
-    expect(block.payload.length).toBeNumber()
-    expect(block.payload.hash).toBeString()
-
-    expect(block.generator).toBeObject()
-    expect(block.generator.publicKey).toBeString()
-
-    expect(block.signature).toBeString()
-    expect(block.transactions).toBeNumber()
+    expect(block).toHaveProperty('id')
+    expect(block).toHaveProperty('version')
+    expect(block).toHaveProperty('height')
+    expect(block).toHaveProperty('previous')
+    expect(block).toHaveProperty('forged')
+    expect(block.forged).toHaveProperty('reward')
+    expect(block.forged).toHaveProperty('fee')
+    expect(block).toHaveProperty('payload')
+    expect(block.payload).toHaveProperty('length')
+    expect(block.payload).toHaveProperty('hash')
+    expect(block).toHaveProperty('generator')
+    expect(block.generator).toHaveProperty('publicKey')
+    expect(block).toHaveProperty('signature')
+    expect(block).toHaveProperty('transactions')
   }
 
   assertWallet (wallet) {
-    expect(wallet.address).toBeString()
-    expect(wallet.publicKey).toBeString()
-    expect(wallet.balance).toBeNumber()
-    expect(wallet.isDelegate).toBeBoolean()
+    expect(wallet).toBeObject()
+    expect(wallet).toHaveProperty('address')
+    expect(wallet).toHaveProperty('publicKey')
+    expect(wallet).toHaveProperty('balance')
+    expect(wallet).toHaveProperty('isDelegate')
   }
 }
 

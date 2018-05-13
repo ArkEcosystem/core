@@ -8,7 +8,7 @@ const genesisBlock = require('./__fixtures__/genesisBlock')
 
 let blockchain
 
-beforeAll(async(done) => {
+beforeAll(async (done) => {
   const container = await app.setUp()
 
   // manually register the blockchain
@@ -30,13 +30,13 @@ beforeAll(async(done) => {
   done()
 })
 
-afterAll(async(done) => {
+afterAll(async (done) => {
   await app.tearDown()
 
   done()
 })
 
-afterEach(async(done) => {
+afterEach(async (done) => {
   await blockchain.resetState()
 
   done()
@@ -64,7 +64,7 @@ describe('Blockchain', () => {
       expect(blockchain.start).toBeFunction()
     })
 
-    it('should be ok', async() => {
+    it('should be ok', async () => {
       const started = await blockchain.start(true)
 
       expect(started).toBeTruthy()
@@ -102,7 +102,7 @@ describe('Blockchain', () => {
       expect(blockchain.resetState).toBeFunction()
     })
 
-    it('should be ok', async() => {
+    it('should be ok', async () => {
       await blockchain.resetState()
 
       expect(blockchain.stateMachine.state).toEqual({
@@ -119,7 +119,7 @@ describe('Blockchain', () => {
       expect(blockchain.postTransactions).toBeFunction()
     })
 
-    it('should be ok', async() => {
+    it('should be ok', async () => {
       const response = await blockchain.postTransactions(genesisBlock.transactions, false)
 
       expect(genesisBlock.transactions.length).toBe(52)
@@ -132,7 +132,7 @@ describe('Blockchain', () => {
       expect(blockchain.queueBlock).toBeFunction()
     })
 
-    it('should be ok', async() => {
+    it('should be ok', async () => {
       blockchain.queueBlock = jest.fn(block => (blockchain.stateMachine.state.lastDownloadedBlock = block))
 
       await blockchain.queueBlock(genesisBlock)
