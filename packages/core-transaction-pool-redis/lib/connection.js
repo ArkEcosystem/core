@@ -93,7 +93,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      await this.pool.hmset(this.__getRedisTransactionKey(transaction.data.id), 'serialized', transaction.serialized.toString('hex'))
+      await this.pool.hmset(
+        this.__getRedisTransactionKey(transaction.data.id),
+          'serialized', transaction.serialized.toString('hex'),
+          'senderPublicKey', transaction.data.senderPublicKey
+        )
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.data.id)
       await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.data.senderPublicKey), transaction.data.id)
 
@@ -275,20 +279,20 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
           await this.removeTransaction(id)
           break
         }
-        const transaction = Transaction.fromBytes(serializedTransaction)
+        const transaction = Transaction.fromBytes(serializedTransaction[0])
         // TODO: refactor and improve
         if (transaction.data.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
             0: () => { // timestamp lock defined
-              if (parseInt(transaction[2]) <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction[2]}`)
-                transactions.push(transaction[0])
+              if (transaction.data.timelock <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.data.timelock}`)
+                transactions.push(serializedTransaction[0])
               }
             },
             1: () => { // block height time lock
-              if (parseInt(transaction[2]) <= blockchain.getLastBlock(true).height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction[2]}`)
-                transactions.push(transaction[0])
+              if (transaction.data.timelock <= blockchain.getLastBlock(true).height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.data.timelock}`)
+                transactions.push(serializedTransaction[0])
               }
             }
           }
