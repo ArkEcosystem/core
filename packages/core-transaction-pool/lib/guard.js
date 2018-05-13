@@ -100,6 +100,8 @@ module.exports = class TransactionGuard {
   __transformTransactions (transactions) {
     this.transactions = transactions
       .map(transaction => new Transaction(transaction))
+
+    console.log(this.transactions)
   }
 
   /**
@@ -135,8 +137,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   __verifyTransaction (transaction) {
-    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
-
+    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
     return crypto.verify(transaction) && wallet.canApply(transaction)
   }
 
