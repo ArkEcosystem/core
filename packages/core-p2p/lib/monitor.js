@@ -86,7 +86,7 @@ module.exports = class Monitor {
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping(fast ? 1000 : 5000)
+        await this.peers[ip].ping(fast ? 1000 : config.peers.discoveryTimeout)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
@@ -282,7 +282,7 @@ module.exports = class Monitor {
    */
   broadcastTransactions (transactions) {
     const peers = Object.values(this.peers)
-    logger.info(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
+    logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
     const transactionsV1 = []
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))

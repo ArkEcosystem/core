@@ -90,6 +90,17 @@ class Slots {
   getConstant (key) {
     return configManager.getConstants(1)[key]
   }
+
+  /**
+   * Checks if forging is allowed
+   * @param  {Number} epochTime
+   * @return {Boolean}
+   */
+  isForgingAllowed (epochTime) {
+    if (epochTime === undefined) epochTime = this.getTime()
+
+    return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) / this.getConstant('blocktime')) // eslint-disable-line max-len
+  }
 }
 
 module.exports = new Slots()

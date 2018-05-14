@@ -22,7 +22,7 @@ module.exports = {
         package: 'winston-daily-rotate-file',
         constructor: 'DailyRotateFile',
         options: {
-          filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/testnet.2/`) + '%DATE%.log',
+          filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/testnet.live/`) + '%DATE%.log',
           datePattern: 'YYYY-MM-DD',
           level: 'debug',
           zippedArchive: true
@@ -33,10 +33,10 @@ module.exports = {
   },
   beforeMount: {
     '@arkecosystem/core-database': {
-      snapshots: `${process.env.ARK_PATH_DATA}/testnet.2/snapshots`
+      snapshots: `${process.env.ARK_PATH_DATA}/testnet.live/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.2.sqlite`,
+      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.live.sqlite`,
       dialect: 'sqlite'
         // uri: 'postgres://node:password@localhost:5432/ark_testnet',
         // dialect: 'postgres'
@@ -53,24 +53,22 @@ module.exports = {
       }
     },
     '@arkecosystem/core-p2p': {
-      port: 4201,
+      port: 4000,
       remoteinterface: true
     }
   },
   mounted: {
     '@arkecosystem/core-api': {
       enabled: true,
-      port: 4202
+      port: 4102
     },
     '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-webhooks-api': {
       enabled: true,
-      port: 4203
+      port: 4103
     },
     '@arkecosystem/core-graphql': {},
-    '@arkecosystem/core-graphql-api': {
-      port: 4205
-    },
+    '@arkecosystem/core-graphql-api': {},
     '@arkecosystem/core-forger': {}
   }
 }

@@ -17,5 +17,6 @@ exports.setUp = async () => {
   await container.plugins.registerGroup('beforeCreate')
   await container.plugins.registerGroup('beforeMount')
 }
+jest.setTimeout(30000)
 
 exports.tearDown = async () => container.tearDown()

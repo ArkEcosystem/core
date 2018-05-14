@@ -128,8 +128,8 @@ exports.getStatus = {
     } else {
       return {
         success: true,
-        height: lastBlock.height,
-        forgingAllowed: slots.getSlotNumber() === slots.getSlotNumber(slots.getTime() + slots.interval / 2),
+        height: lastBlock.data.height,
+        forgingAllowed: slots.isForgingAllowed(),
         currentSlot: slots.getSlotNumber(),
         header: lastBlock.getHeader()
       }
