@@ -4,7 +4,6 @@ module.exports = `
   scalar JSON
   scalar Limit
   scalar Offset
-  scalar Arktoshi
   scalar Address
 
   enum OrderDirection {
@@ -25,7 +24,8 @@ module.exports = `
   }
 
   input TransactionFilter {
-    fee: Int!
+    fee: Float
+    blockId: String
     senderPublicKey: String
     recipientId: Address
     type: TransactionType

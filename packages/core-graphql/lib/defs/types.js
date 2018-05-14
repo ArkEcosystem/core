@@ -8,9 +8,9 @@ module.exports = `
     previousBlock: String
     height: Int!
     numberOfTransactions: Int!
-    totalAmount: String
-    totalFee: String
-    reward: String
+    totalAmount: Float
+    totalFee: Float
+    reward: Float
     payloadLength: Int!
     payloadHash: String
     generatorPublicKey: String
@@ -27,8 +27,8 @@ module.exports = `
     recipientId: String
     type: Int!
     vendorField: String
-    amount: Int!
-    fee: Int!
+    amount: Float
+    fee: Float
     signature: String
     block: Block
     recipient: Wallet
@@ -41,11 +41,11 @@ module.exports = `
     secondPublicKey: String
     vote: String
     username: String
-    balance: Int!
-    votebalance: Int!
-    producedBlocks: Int!
-    missedBlocks: Int!
-    transactions(limit: Limit, orderBy: OrderByInput): [Transaction]
-    blocks(limit: Limit, orderBy: OrderByInput): [Block]
+    balance: Float
+    votebalance: Float
+    producedBlocks: Float
+    missedBlocks: Float
+    transactions(limit: Limit, offset: Offset, orderBy: OrderByInput): [Transaction]
+    blocks(limit: Limit, offset: Offset, orderBy: OrderByInput): [Block]
   }
 `
