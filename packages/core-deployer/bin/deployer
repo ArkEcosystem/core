@@ -86,7 +86,7 @@ let networkConfig = {
   exceptions: {}
 }
 
-const network = updateConfig('network', networkConfig, options.configPath)
+const network = updateConfig('network.json', networkConfig, options.configPath)
 
 const genesis = (new genesisBlockBuilder(network, options)).generate()
 
@@ -103,8 +103,8 @@ if (options.rewardHeight === 1) {
   network.constants[1].reward = options.rewardPerBlock
 }
 
-updateConfig('network', networkConfig, options.configPath)
-updateConfig('peers', {
+updateConfig('network.json', networkConfig, options.configPath)
+updateConfig('peers.json', {
   minimumNetworkReach: 1,
   list: [{
     ip: '127.0.0.1',
@@ -113,18 +113,18 @@ updateConfig('peers', {
   sources: []
 }, options.configPath)
 
-updateConfig('genesisWallet', {
+updateConfig('genesisWallet.json', {
   address: genesis.genesisWallet.address,
   passphrase: genesis.genesisWallet.passphrase
 }, options.configPath, true)
-updateConfig('genesisBlock', genesis.genesisBlock, options.configPath, true)
-updateConfig('delegates', {
+updateConfig('genesisBlock.json', genesis.genesisBlock, options.configPath, true)
+updateConfig('delegates.json', {
   secrets: genesis.delegatePassphrases
 }, options.configPath, true)
 
-updateConfig('server', {
+updateConfig('server.json', {
   port: options.p2pPort,
   fastRebuild: false
 }, options.configPath)
 
-updateConfig('api/public', { port: options.apiPort }, options.configPath)
+updateConfig('api/public.json', { port: options.apiPort }, options.configPath)

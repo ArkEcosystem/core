@@ -24,7 +24,7 @@ exports.logger = require('./logger')
  */
 exports.updateConfig = (file, values, configPath, forceOverwrite) => {
   configPath = (configPath || `${process.env.ARK_PATH_CONFIG}/deployer`)
-  configPath = path.resolve(configPath, `${file}.json`)
+  configPath = path.resolve(configPath, file)
   let config
   if (fs.existsSync(configPath) && !forceOverwrite) {
     config = require(configPath)
