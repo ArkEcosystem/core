@@ -7,7 +7,7 @@ const Joi = require('joi')
 const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
-const { getRandomNumber, logger, updateConfig } = require('../lib/utils')
+const { getRandomNumber, logger, updateConfig, writeEnv } = require('../lib/utils')
 const genesisBlockBuilder = require('../lib/builder/genesis-block')
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
@@ -129,8 +129,8 @@ updateConfig('server.json', {
 
 updateConfig('api/public.json', { port: options.apiPort }, options.configPath)
 
-updateConfig('.env', {
+writeEnv({
   P2P_PORT: options.p2pPort,
   API_PORT: options.apiPort,
   DB_PORT: options.dbPort
-}, process.env.ARK_PATH_CONFIG, true)
+}, '~/.ark/.env')

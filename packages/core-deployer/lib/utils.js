@@ -1,6 +1,8 @@
 'use strict'
 
 const _ = require('lodash')
+const envfile = require('envfile')
+const expandHomeDir = require('expand-home-dir')
 const fs = require('fs-extra')
 const path = require('path')
 
@@ -40,4 +42,14 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
   return config
+}
+
+/**
+ * Write Environment variables to file.
+ * @param  {Object} object
+ * @param  {String} path
+ * @return {void}
+ */
+exports.writeEnv = (object, path) => {
+  fs.writeFileSync(expandHomeDir(path), envfile.stringifySync(object))
 }
