@@ -38,6 +38,14 @@ module.exports = class TransactionsRepository {
       whereStatement[elem] = filter(Object.keys(fields)).reduce((prev, val) => prev.concat({ [val]: fields[val] }), [])
     })
 
+    if (params['senderId']) {
+      let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
+
+      if (wallet) {
+        whereStatement['senderPublicKey'] = wallet.publicKey
+      }
+    }
+
     params.orderBy
       ? orderBy.push([params.orderBy.split(':')])
       : orderBy.push([['timestamp', 'DESC']])
