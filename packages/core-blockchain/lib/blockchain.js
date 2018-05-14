@@ -185,10 +185,10 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async removeBlocks (nblocks) {
-    const undoLastBlock = async () => {
+    const revertLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
 
-      await this.database.undoBlock(lastBlock)
+      await this.database.revertBlock(lastBlock)
       await this.database.deleteBlock(lastBlock)
       await this.transactionPool.addTransactions(lastBlock.transactions)
 
@@ -204,7 +204,7 @@ module.exports = class Blockchain {
 
       logger.info(`Undoing block ${this.getLastBlock(true).height}`)
 
-      await undoLastBlock()
+      await revertLastBlock()
       await __removeBlocks(nblocks - 1)
     }
 

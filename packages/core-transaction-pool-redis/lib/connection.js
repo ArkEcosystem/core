@@ -4,6 +4,7 @@ const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-poo
 const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -44,7 +45,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     this.subscription.on('message', (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
+
       this.removeTransactionById(message.split(':')[2])
+
+      emitter.emit('transaction.expired', message.split(':')[2])
     })
 
     return this

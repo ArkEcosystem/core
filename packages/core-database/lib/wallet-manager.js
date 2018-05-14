@@ -125,9 +125,9 @@ module.exports = class WalletManager {
 
       return delegate.applyBlock(block.data)
     } catch (error) {
-      logger.error('Failed to apply all transactions in block - undoing previous transactions')
+      logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
-      await Promise.each(appliedTransactions, tx => this.undoTransaction(tx))
+      await Promise.each(appliedTransactions, tx => this.revertTransaction(tx))
 
       throw error
     }
@@ -138,7 +138,7 @@ module.exports = class WalletManager {
    * @param  {Block} block
    * @return {void}
    */
-  async undoBlock (block) {
+  async revertBlock (block) {
     let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
@@ -150,20 +150,20 @@ module.exports = class WalletManager {
       this.reindex(delegate)
     }
 
-    const undoneTransactions = []
+    const revertedTransactions = []
 
     try {
       await Promise.each(block.transactions, async (tx) => {
-        await this.undoTransaction(tx)
+        await this.revertTransaction(tx)
 
-        undoneTransactions.push(tx)
+        revertedTransactions.push(tx)
       })
 
-      return delegate.undoBlock(block.data)
+      return delegate.revertBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
 
-      await Promise.each(undoneTransactions, async (tx) => this.applyTransaction(tx))
+      await Promise.each(revertedTransactions, async (tx) => this.applyTransaction(tx))
 
       throw error
     }
@@ -224,14 +224,14 @@ module.exports = class WalletManager {
    * @param  {Object} data
    * @return {Transaction}
    */
-  async undoTransaction ({ type, data }) {
+  async revertTransaction ({ type, data }) {
     const sender = this.getWalletByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.getWalletByAddress(data.recipientId)
 
-    sender.undoTransactionToSender(data)
+    sender.revertTransactionForSender(data)
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.undoTransactionToRecipient(data)
+      recipient.revertTransactionForRecipient(data)
     }
 
     return data

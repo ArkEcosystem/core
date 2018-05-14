@@ -52,14 +52,6 @@ module.exports = class ConfigInterface {
   }
 
   /**
-   * Expose some variables to the environment.
-   * @return {void}
-   */
-  _exposeEnvironmentVariables () {
-    process.env.ARK_NETWORK = this.network.name
-  }
-
-  /**
    * Validate crucial parts of the configuration.
    * @return {void}
    */

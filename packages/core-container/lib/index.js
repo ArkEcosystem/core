@@ -1,5 +1,6 @@
 'use strict'
 
+const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 const PluginRegistrar = require('./registrars/plugin')
 const { createContainer } = require('awilix')
@@ -22,7 +23,7 @@ class Container {
    * @return {void}
    */
   init (paths, options = {}) {
-    this.__exportPaths(paths)
+    this._exposeEnvironmentVariables(paths)
 
     /**
      * TODO: Move this out eventually - not really it's responsiblity
@@ -96,14 +97,17 @@ class Container {
   }
 
   /**
-   * Export path variables before we bootstrap anything.
-   * @param  {Object} paths
+   * Expose some variables to the environment.
    * @return {void}
    */
-  __exportPaths (paths) {
+  _exposeEnvironmentVariables (paths) {
     for (let [key, value] of Object.entries(paths)) {
       process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
     }
+
+    const network = path.resolve(expandHomeDir(`${paths.config}/network.json`))
+
+    process.env.ARK_NETWORK = require(network).name
   }
 
   /**

@@ -80,7 +80,7 @@ describe('Wallet Manager', () => {
     })
 
     describe('1 transaction fails while applying it', () => {
-      it('should undo all transactions of the block', () => {
+      it('should revert all transactions of the block', () => {
 
       })
     })
@@ -100,16 +100,16 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe.skip('undoBlock', async () => {
+  describe.skip('revertBlock', async () => {
     it('should be a function', async () => {
-      await expect(walletManager.undoBlock).toBeFunction()
+      await expect(walletManager.revertBlock).toBeFunction()
     })
 
-    it('should undo all transactions of the block', () => {
+    it('should revert all transactions of the block', () => {
 
     })
 
-    it('should undo the block of the delegate', () => {
+    it('should revert the block of the delegate', () => {
 
     })
   })
@@ -149,12 +149,12 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('undoTransaction', async () => {
+  describe('revertTransaction', async () => {
     it('should be a function', async () => {
-      await expect(walletManager.undoTransaction).toBeFunction()
+      await expect(walletManager.revertTransaction).toBeFunction()
     })
 
-    it('should undo the transaction from the sender & recipient', async () => {
+    it('should revert the transaction from the sender & recipient', async () => {
       const transaction = new Transaction({
         type: 0,
         amount: 245098000000000,
@@ -177,7 +177,7 @@ describe('Wallet Manager', () => {
       await expect(sender.balance).toBe(0)
       await expect(recipient.balance).toBe(transaction.data.amount)
 
-      await manager.undoTransaction(transaction)
+      await manager.revertTransaction(transaction)
 
       await expect(sender.balance).toBe(transaction.data.amount)
       await expect(recipient.balance).toBe(0)
