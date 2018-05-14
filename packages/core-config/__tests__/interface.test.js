@@ -41,18 +41,6 @@ describe('Config Interface', () => {
     })
   })
 
-  describe('_exposeEnvironmentVariables', async () => {
-    it('should be a function', async () => {
-      await expect(instance._exposeEnvironmentVariables).toBeFunction()
-    })
-
-    it('should expose environment variables', async () => {
-      instance._exposeEnvironmentVariables()
-
-      await expect(process.env.ARK_NETWORK).toBe('testnet')
-    })
-  })
-
   describe('_validateConfig', async () => {
     it('should be a function', async () => {
       await expect(instance._validateConfig).toBeFunction()

@@ -29,10 +29,7 @@ class WebhookManager {
 
         this
           .getMatchingWebhooks(webhooks, payload)
-          .forEach((webhook) => this.queue.add({
-            webhook: webhook,
-            payload: payload
-          }))
+          .forEach((webhook) => this.queue.add({ webhook, payload }))
       })
     })
 
@@ -45,7 +42,7 @@ class WebhookManager {
             event: job.data.webhook.event
           },
           headers: {
-            'Authorization': job.data.webhook.token
+            Authorization: job.data.webhook.token
           }
         })
 

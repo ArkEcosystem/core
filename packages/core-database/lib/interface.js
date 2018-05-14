@@ -220,7 +220,7 @@ module.exports = class ConnectionInterface {
    * @param  {Number} height
    * @return {void}
    */
-  async undoRound (height) {
+  async revertRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
     const nextHeight = height + 1
 
@@ -274,6 +274,7 @@ module.exports = class ConnectionInterface {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
+    emitter.emit('block.applied', block)
   }
 
   /**
@@ -281,10 +282,10 @@ module.exports = class ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async undoBlock (block) {
-    await this.undoRound(block.data.height)
-    await this.walletManager.undoBlock(block)
-    emitter.emit('block.removed', block)
+  async revertBlock (block) {
+    await this.revertRound(block.data.height)
+    await this.walletManager.revertBlock(block)
+    emitter.emit('block.reverted', block)
   }
 
   /**
@@ -312,8 +313,10 @@ module.exports = class ConnectionInterface {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  applyTransaction (transaction) {
-    return this.walletManager.applyTransaction(transaction)
+  async applyTransaction (transaction) {
+    await this.walletManager.applyTransaction(transaction)
+
+    emitter.emit('transaction.applied', transaction)
   }
 
   /**
@@ -321,8 +324,10 @@ module.exports = class ConnectionInterface {
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
-  undoTransaction (transaction) {
-    return this.walletManager.undoTransaction(transaction)
+  async revertTransaction (transaction) {
+    await this.walletManager.revertTransaction(transaction)
+
+    emitter.emit('transaction.reverted', transaction)
   }
 
   /**

@@ -4,7 +4,7 @@ module.exports = {
     analysing: {
       onEntry: ['analyseFork'],
       on: {
-        REBUILD: 'undoBlocks',
+        REBUILD: 'revertBlocks',
         NOFORK: 'exit'
       }
     },
@@ -15,7 +15,7 @@ module.exports = {
         FAILURE: 'reset'
       }
     },
-    undoBlocks: {
+    revertBlocks: {
     },
     exit: {
       onEntry: ['forkRecovered']
