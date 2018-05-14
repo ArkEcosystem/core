@@ -273,6 +273,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
+          wallet.forged += block.totalAmount
 
           emitter.emit('block.forged', block)
         }

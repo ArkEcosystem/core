@@ -27,7 +27,8 @@ exports.index = {
     }
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks, 'block')
+      blocks: utils.toCollection(request, blocks, 'block'),
+      count: blocks.length
     })
   },
   config: {

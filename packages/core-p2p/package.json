@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-p2p",
   "description": "P2P API for ARK Core",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -19,8 +19,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-container": "^1.0.0",
+    "@arkecosystem/client": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.0",
     "ajv": "^6.4.0",
     "hapi": "^17.4.0",
     "lodash": "^4.17.10",

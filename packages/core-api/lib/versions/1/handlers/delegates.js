@@ -21,7 +21,8 @@ exports.index = {
     const delegates = await database.delegates.findAll()
 
     return utils.respondWith({
-      delegates: utils.toCollection(request, delegates, 'delegate')
+      delegates: utils.toCollection(request, delegates, 'delegate'),
+      totalCount: delegates.length
     })
   },
   config: {
@@ -150,7 +151,7 @@ exports.forged = {
   handler: async (request, h) => {
     const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
 
-    return utils.respondWith(totals[0])
+    return utils.respondWith(totals)
   },
   config: {
     plugins: {

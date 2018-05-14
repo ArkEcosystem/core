@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-logger-winston",
   "description": "Winston Logger for ARK Core",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -17,7 +17,7 @@
     "depcheck": "depcheck ./ --ignores=winston-daily-rotate-file"
   },
   "dependencies": {
-    "@arkecosystem/core-logger": "^1.0.0",
+    "@arkecosystem/core-logger": "^0.1.0",
     "chalk": "^2.4.1",
     "colors": "^1.2.3",
     "expand-home-dir": "^0.0.3",
