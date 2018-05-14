@@ -9,4 +9,8 @@ module.exports = `
     wallet(address: Address, publicKey: String, username: String): Wallet
     wallets(limit: Limit, orderBy: OrderByInput, filter: WalletFilter): [Wallet]
   }
+
+  schema {
+    query: Query
+  }
 `
