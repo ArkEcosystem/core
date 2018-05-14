@@ -148,9 +148,12 @@ exports.postBlock = {
    */
   handler: (request, h) => {
     // console.log(request.payload)
-    if (!request.payload.block) return { success: false }
+    if (!request.payload.block) {
+      return { success: false }
+    }
 
     blockchain.queueBlock(request.payload.block)
+
     return { success: true }
   }
 }

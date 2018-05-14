@@ -28,7 +28,7 @@ module.exports = class Client {
   async broadcast (block) {
     logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
 
-    const response = await axios.post(`${this.host}/internal/block`, { block }, {
+    const response = await axios.post(`${this.host}/internal/block`, block, {
       headers: this.headers,
       timeout: 2000
     })
