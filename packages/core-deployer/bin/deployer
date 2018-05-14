@@ -128,3 +128,9 @@ updateConfig('server.json', {
 }, options.configPath)
 
 updateConfig('api/public.json', { port: options.apiPort }, options.configPath)
+
+updateConfig('.env', {
+  P2P_PORT: options.p2pPort,
+  API_PORT: options.apiPort,
+  DB_PORT: options.dbPort
+}, process.env.ARK_PATH_CONFIG, true)
