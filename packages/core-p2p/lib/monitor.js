@@ -93,6 +93,7 @@ module.exports = class Monitor {
 
         delete this.peers[ip]
 
+        logger.debug(`Removed peer from peer list ${this.peers[ip]}`)
         emitter.emit('peer.removed', this.peers[ip])
 
         return null
