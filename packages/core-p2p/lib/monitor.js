@@ -126,7 +126,7 @@ module.exports = class Monitor {
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
     try {
-      await npeer.ping()
+      await npeer.ping(2000)
 
       this.peers[peer.ip] = npeer
 

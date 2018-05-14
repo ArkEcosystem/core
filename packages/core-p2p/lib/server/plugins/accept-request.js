@@ -1,6 +1,6 @@
 'use strict'
 
-const requestIp = require('request-ip')
+// const requestIp = require('request-ip')
 const isLocalhost = require('../../utils/is-localhost')
 
 /**
@@ -24,7 +24,8 @@ const register = async (server, options) => {
 
       if (request.path.startsWith('/peer')) {
         const peer = {}
-        peer.ip = requestIp.getClientIp(request);
+        // peer.ip = requestIp.getClientIp(request);
+        peer.ip = request.info.remoteAddress
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 
         try {
