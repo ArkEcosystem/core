@@ -22,9 +22,9 @@
     "@arkecosystem/client": "^0.1.0",
     "@arkecosystem/core-container": "^0.1.0",
     "ajv": "^6.4.0",
+    "axios": "^0.18.0",
     "hapi": "^17.4.0",
     "lodash": "^4.17.10",
-    "popsicle": "^9.2.0",
     "request-ip": "^2.0.2",
     "sntp": "^3.0.1",
     "threads": "^0.11.0"

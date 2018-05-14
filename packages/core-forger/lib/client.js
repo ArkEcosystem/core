@@ -1,6 +1,6 @@
 'use strict'
 
-const popsicle = require('popsicle')
+const axios = require('axios')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -28,15 +28,12 @@ module.exports = class Client {
   async broadcast (block) {
     logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
 
-    const response = await popsicle.request({
-      method: 'POST',
-      url: this.host + '/internal/block',
-      body: block,
+    const response = await axios.post(`${this.host}/internal/block`, { block }, {
       headers: this.headers,
       timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
+    })
 
-    return response.body.success
+    return response.data.success
   }
 
   /**
@@ -44,14 +41,12 @@ module.exports = class Client {
    * @return {Object}
    */
   async getRound () {
-    const response = await popsicle.request({
-      method: 'GET',
-      url: this.host + '/internal/round',
+    const response = await axios.get(`${this.host}/internal/round`, {
       headers: this.headers,
       timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
+    })
 
-    return response.body.round
+    return response.data.round
   }
 
   /**
@@ -59,13 +54,11 @@ module.exports = class Client {
    * @return {Object}
    */
   async getTransactions () {
-    const response = await popsicle.request({
-      method: 'GET',
-      url: this.host + '/internal/forgingTransactions',
+    const response = await axios.get(`${this.host}/internal/forgingTransactions`, {
       headers: this.headers,
       timeout: 2000
-    }).use(popsicle.plugins.parse('json'))
+    })
 
-    return response.body.data || {}
+    return response.data.data || {}
   }
 }
