@@ -101,15 +101,15 @@ module.exports = class Peer {
     }
 
     try {
-      const response = await thread.send(message).promise()
+      const blocks = await thread.send(message).promise()
 
-      const size = response.data.blocks.length
+      const size = blocks.length
 
       if (size === 100 || size === 400) {
         this.downloadSize = size
       }
 
-      return response.data.blocks
+      return blocks
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
 
