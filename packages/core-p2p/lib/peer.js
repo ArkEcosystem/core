@@ -144,7 +144,7 @@ module.exports = class Peer {
   async getPeers () {
     logger.info(`Fetching a fresh peer list from ${this.url}`)
 
-    await this.ping(2000)
+    await this.ping(1000)
 
     const body = await this.__get('/peer/list')
 
