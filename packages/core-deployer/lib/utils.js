@@ -51,6 +51,6 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
  * @return {void}
  */
 exports.writeEnv = (object, filePath) => {
-  fs.ensureDirSync(path.dirname(filePath))
+  fs.ensureDirSync(expandHomeDir(path.dirname(filePath)))
   fs.writeFileSync(expandHomeDir(filePath), envfile.stringifySync(object))
 }
