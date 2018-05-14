@@ -5,7 +5,7 @@ const { formatOrderBy, unserializeTransactions } = require('../../helpers')
 
 module.exports = {
   transactions: async (wallet, args) => {
-    const { orderBy, filter } = args
+    const { orderBy, filter, ...params } = args
 
     const order = formatOrderBy(orderBy, 'timestamp:DESC')
     const walletOr = { $or: [{
@@ -13,7 +13,7 @@ module.exports = {
     }, {
       recipientId: wallet.address
     }]}
-    const result = await database.transactions.findAllByWallet({ ...filter, orderBy: order, ...walletOr }, false)
+    const result = await database.transactions.findAll({ ...filter, orderBy: order, ...walletOr, ...params }, false)
 
     return unserializeTransactions(result)
   },
