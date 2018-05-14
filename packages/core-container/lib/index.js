@@ -105,7 +105,7 @@ class Container {
       process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
     }
 
-    require('dotenv').config({ path: `${paths.data}/.env` })
+    require('dotenv').config({ path: expandHomeDir(`${paths.data}/.env`) })
 
     const network = path.resolve(expandHomeDir(`${paths.config}/network.json`))
 
