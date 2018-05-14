@@ -16,7 +16,7 @@ module.exports = {
     package: 'winston-daily-rotate-file',
     constructor: 'DailyRotateFile',
     options: {
-      filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/devnet/`) + '%DATE%.log',
+      filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK}/`) + '%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       level: 'debug',
       zippedArchive: true
