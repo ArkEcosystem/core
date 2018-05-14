@@ -8,21 +8,44 @@ module.exports = `
     previousBlock: String
     height: Int!
     numberOfTransactions: Int!
-    transactions(limit: Limit, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
+    totalAmount: Float
+    totalFee: Float
+    reward: Float
+    payloadLength: Int!
+    payloadHash: String
+    generatorPublicKey: String
+    blockSignature: String
+    transactions(limit: Limit, offset: Offset, orderBy: OrderByInput, filter: TransactionFilter): [Transaction]
+    generator: Wallet
   }
 
   type Transaction {
     id: String
     version: Int!
-    blockId: String
     timestamp: Int!
     senderPublicKey: String
     recipientId: String
     type: Int!
-    vendorFieldHex: String
-    amount: Arktoshi
-    fee: Arktoshi
-    serialized: String
+    vendorField: String
+    amount: Float
+    fee: Float
+    signature: String
     block: Block
+    recipient: Wallet
+    sender: Wallet
+  }
+
+  type Wallet {
+    address: String
+    publicKey: String
+    secondPublicKey: String
+    vote: String
+    username: String
+    balance: Float
+    votebalance: Float
+    producedBlocks: Float
+    missedBlocks: Float
+    transactions(limit: Limit, offset: Offset, orderBy: OrderByInput): [Transaction]
+    blocks(limit: Limit, offset: Offset, orderBy: OrderByInput): [Block]
   }
 `

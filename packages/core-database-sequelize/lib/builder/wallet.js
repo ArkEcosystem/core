@@ -85,7 +85,7 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildBlockRewards () {
-    const data = await this.connection.query('select "generatorPublicKey", sum("reward"+"totalFee") as reward, count(*) as produced from blocks group by "generatorPublicKey"', {
+    const data = await this.connection.query('SELECT "generatorPublicKey", sum("reward"+"totalFee") AS reward, COUNT(*) AS produced FROM blocks GROUP BY "generatorPublicKey"', {
       type: Sequelize.QueryTypes.SELECT
     })
 
@@ -100,7 +100,7 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildLastForgedBlocks () {
-    const data = await this.connection.query(`select id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${this.activeDelegates}`, {
+    const data = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${this.activeDelegates}`, {
       type: Sequelize.QueryTypes.SELECT
     })
 
@@ -205,7 +205,8 @@ module.exports = class WalletBuilder {
         generatorPublicKey: {
           [Sequelize.Op.in]: transactions.map(transaction => transaction.senderPublicKey)
         }
-      }
+      },
+      group: 'generatorPublicKey'
     })
 
     for (let i = 0; i < delegates.length; i++) {

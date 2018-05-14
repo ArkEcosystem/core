@@ -3,7 +3,9 @@
   "name": "@arkecosystem/core-container",
   "description": "Container for ARK Core",
   "version": "0.1.0",
-  "contributors": ["Brian Faust <brian@ark.io>"],
+  "contributors": [
+    "Brian Faust <brian@ark.io>"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
@@ -15,6 +17,7 @@
   },
   "dependencies": {
     "awilix": "^3.0.7",
+    "dotenv": "^5.0.1",
     "expand-home-dir": "^0.0.3",
     "hoek": "^5.0.3",
     "lodash": "^4.17.10",

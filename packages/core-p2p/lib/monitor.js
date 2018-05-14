@@ -86,13 +86,14 @@ module.exports = class Monitor {
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping(fast ? 1000 : config.peers.discoveryTimeout)
+        await this.peers[ip].ping(fast ? 1000 : config.peers.globalTimeout)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
 
         delete this.peers[ip]
 
+        logger.debug(`Removed peer from peer list ${this.peers[ip]}`)
         emitter.emit('peer.removed', this.peers[ip])
 
         return null
@@ -126,13 +127,14 @@ module.exports = class Monitor {
     const npeer = new Peer(peer.ip, peer.port, this.config)
 
     try {
-      await npeer.ping()
+      await npeer.ping(1500)
 
       this.peers[peer.ip] = npeer
+      logger.debug(`Accepted new peer ${npeer}`)
 
       emitter.emit('peer.added', npeer)
     } catch (error) {
-      logger.debug(`Could not connect to peer '${npeer}' - ${error}`)
+      logger.debug(`Could not accept new peer '${npeer}' - ${error}`)
     }
   }
 

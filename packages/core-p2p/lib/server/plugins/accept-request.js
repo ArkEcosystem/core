@@ -24,7 +24,8 @@ const register = async (server, options) => {
 
       if (request.path.startsWith('/peer')) {
         const peer = {}
-        peer.ip = requestIp.getClientIp(request);
+        peer.ip = requestIp.getClientIp(request)
+
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 
         try {
