@@ -2,17 +2,15 @@
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { constants } = require('@arkecosystem/client')
+const { formatOrderBy, unserializeTransactions } = require('../../../helpers')
 
 module.exports = async (root, args) => {
   const { orderBy, filter, ...params } = args
-  if (root && root.dataValues.id) filter.blockId = root.dataValues.id
 
-  let order = []
-  orderBy ? order.push([orderBy.field, orderBy.direction]) : order.push(['timestamp', 'DESC'])
+  const order = formatOrderBy(orderBy, 'timestamp:DESC')
+  if (params.type) params.type = constants.TRANSACTION_TYPES[params.type]
 
-  const where = { ...filter }
-  if (where.type) where.type = constants.TRANSACTION_TYPES[where.type]
+  const result = await database.transactions.findAll({ ...filter, orderBy: order, ...params }, false)
 
-  const result = await database.connection.models.transaction.findAll({ where, ...params, order })
-  return result
+  return unserializeTransactions(result)
 }
