@@ -2,13 +2,14 @@
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')
+const { Op } = require('sequelize')
 
 module.exports = {
   transactions: async (wallet, args) => {
     const { orderBy, filter, ...params } = args
 
     const order = formatOrderBy(orderBy, 'timestamp:DESC')
-    const walletOr = { $or: [{
+    const walletOr = { [Op.or]: [{
       senderPublicKey: wallet.publicKey
     }, {
       recipientId: wallet.address
