@@ -118,12 +118,13 @@ updateConfig('genesisWallet', {
   passphrase: genesis.genesisWallet.passphrase
 }, options.configPath, true)
 updateConfig('genesisBlock', genesis.genesisBlock, options.configPath, true)
-updateConfig('delegates', {secrets: genesis.delegatePassphrases}, options.configPath, true)
+updateConfig('delegates', {
+  secrets: genesis.delegatePassphrases
+}, options.configPath, true)
 
 updateConfig('server', {
   port: options.p2pPort,
-  'database.options.uri': `postgres://${options.dbUsername}:${options.dbPassword}@${options.dbHost}:${options.dbPort}/${options.dbDatabase}`,
-  'database.options.dialect': 'postgres'
+  fastRebuild: false
 }, options.configPath)
 
 updateConfig('api/public', { port: options.apiPort }, options.configPath)
