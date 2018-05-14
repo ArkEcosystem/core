@@ -76,18 +76,10 @@ module.exports = class WalletsRepository {
    * @param  {Boolean} legacy
    * @return {Object}
    */
-  top (params = {}, legacy = false) {
+  top (params = {}) {
     let wallets = this.findAll()
 
     wallets = _.sortBy(wallets, 'balance').reverse()
-
-    if (legacy) {
-      return wallets
-    }
-
-    if (!Object.keys(params).length) {
-      return wallets
-    }
 
     wallets = wallets.slice(params.offset, params.offset + params.limit)
 

@@ -1,20 +1,23 @@
 'use strict'
 
+const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
+
 /**
  * Turns a "delegate" object into a generic object.
- * @param  {Object} model
+ * @param  {Object} delegate
  * @return {Object}
  */
-module.exports = (model) => {
+module.exports = (delegate) => {
   return {
-    username: model.username,
-    address: model.address,
-    publicKey: model.publicKey,
-    vote: model.vote,
-    producedblocks: model.producedblocks,
-    missedblocks: model.missedblocks,
-    rate: model.rate,
-    approval: model.approval,
-    productivity: model.productivity
+    username: delegate.username,
+    address: delegate.address,
+    publicKey: delegate.publicKey,
+    vote: delegate.vote,
+    producedblocks: delegate.producedBlocks,
+    missedblocks: delegate.missedBlocks,
+    forged: delegate.forged,
+    rate: delegate.rate,
+    approval: +calculateApproval(delegate),
+    productivity: +calculateProductivity(delegate)
   }
 }

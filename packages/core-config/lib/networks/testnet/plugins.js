@@ -38,8 +38,8 @@ module.exports = {
     '@arkecosystem/core-database-sequelize': {
       uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.sqlite`,
       dialect: 'sqlite'
-        // uri: 'postgres://node:password@localhost:5432/ark_testnet',
-        // dialect: 'postgres'
+      // uri: 'postgres://node:password@localhost:5432/ark_testnet',
+      // dialect: 'postgres'
     },
     '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {

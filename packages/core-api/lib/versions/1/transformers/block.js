@@ -18,6 +18,7 @@ module.exports = (model) => {
     height: model.height,
     numberOfTransactions: model.numberOfTransactions,
     totalAmount: model.totalAmount,
+    totalForged: model.totalAmount + model.totalFee,
     totalFee: model.totalFee,
     reward: model.reward,
     payloadLength: model.payloadLength,

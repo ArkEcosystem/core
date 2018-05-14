@@ -163,6 +163,7 @@ exports.delegates = {
         vote: delegate.balance + '',
         producedblocks: account.producedBlocks,
         missedblocks: account.missedBlocks,
+        forged: account.forged,
         rate: delegateRank + 1,
         approval: calculateApproval(delegate),
         productivity: calculateProductivity(account)
@@ -188,12 +189,12 @@ exports.top = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    let accounts = await database.wallets.top(utils.paginator(request), true)
+    let accounts = database.wallets.top(utils.paginator(request))
 
-    accounts = accounts.map((a) => ({
-      address: a.address,
-      balance: a.balance,
-      publicKey: a.publicKey
+    accounts = accounts.rows.map(account => ({
+      address: account.address,
+      balance: account.balance,
+      publicKey: account.publicKey
     }))
 
     return utils.respondWith({ accounts })

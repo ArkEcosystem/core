@@ -184,7 +184,7 @@ module.exports = class ConnectionInterface {
    * @return {void}
    * @throws Error
    */
-  async updateDelegateStats (delegates) {
+  async updateDelegateStats (blocks, delegates) {
     throw new Error('Method [updateDelegateStats] not implemented!')
   }
 

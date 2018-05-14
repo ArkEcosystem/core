@@ -159,7 +159,8 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildDelegates () {
-    const data = await this.models.transaction.findAll({
+    // Register...
+    const transactions = await this.models.transaction.findAll({
       attributes: [
         'senderPublicKey',
         'serialized'
@@ -169,12 +170,55 @@ module.exports = class WalletBuilder {
       }
     })
 
-    data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-      wallet.username = Transaction.deserialize(row.serialized.toString('hex')).asset.delegate.username
+    for (let i = 0; i < transactions.length; i++) {
+      const wallet = this.walletManager.getWalletByPublicKey(transactions[i].senderPublicKey)
+      wallet.username = Transaction.deserialize(transactions[i].serialized.toString('hex')).asset.delegate.username
 
       this.walletManager.reindex(wallet)
+    }
+
+    // Rate...
+    const delegates = await this.models.wallet.findAll({
+      attributes: [
+        'publicKey',
+        'votebalance'
+      ],
+      where: {
+        publicKey: {
+          [Sequelize.Op.in]: transactions.map(transaction => transaction.senderPublicKey)
+        }
+      },
+      order: [
+        ['votebalance', 'DESC'],
+        ['publicKey', 'ASC']
+      ],
+      limit: 51
     })
+
+    // Forged Blocks...
+    const forgedBlocks = await this.models.block.findAll({
+      attributes: [
+        'generatorPublicKey',
+        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalForged']
+      ],
+      where: {
+        generatorPublicKey: {
+          [Sequelize.Op.in]: transactions.map(transaction => transaction.senderPublicKey)
+        }
+      }
+    })
+
+    for (let i = 0; i < delegates.length; i++) {
+      const forgedBlock = forgedBlocks.filter(block => {
+        return block.generatorPublicKey === delegates[i].publicKey
+      })[0]
+
+      const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
+      wallet.rate = i + 1
+      wallet.forged = forgedBlock ? forgedBlock.totalForged : 0
+
+      this.walletManager.reindex(wallet)
+    }
   }
 
   /**
