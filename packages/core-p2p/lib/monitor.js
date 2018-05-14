@@ -129,10 +129,11 @@ module.exports = class Monitor {
       await npeer.ping(1000)
 
       this.peers[peer.ip] = npeer
+      logger.debug(`Accepted new peer ${npeer}`)
 
       emitter.emit('peer.added', npeer)
     } catch (error) {
-      logger.debug(`Could not connect to peer '${npeer}' - ${error}`)
+      logger.debug(`Could not accept new peer '${npeer}' - ${error}`)
     }
   }
 
