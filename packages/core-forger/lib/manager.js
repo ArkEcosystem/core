@@ -5,6 +5,7 @@ const delay = require('delay')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
+const emitter = container.resolvePlugin('event-emitter')
 
 const client = require('@arkecosystem/client')
 const { slots } = client
@@ -92,6 +93,8 @@ module.exports = class ForgerManager {
         return this.__monitor(round, transactionData, data)
       }
 
+      emitter.emit('forging.started', delegate)
+
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
       logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize}`)
@@ -102,6 +105,9 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
+      emitter.emit('block.forged', block)
+      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction))
+
       this.client.broadcast(block.toRawJson())
       await delay(7800) // we will check at next slot
 
@@ -111,6 +117,8 @@ module.exports = class ForgerManager {
       // console.log(round)
       // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
+
+      emitter.emit('forging.failed', error.message)
 
       return this.__monitor(round, transactionData, data)
     }
