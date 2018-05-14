@@ -53,23 +53,23 @@ module.exports = {
       }
     },
     '@arkecosystem/core-p2p': {
-      port: 4201,
+      port: 4000,
       remoteinterface: true
     }
   },
   mounted: {
     '@arkecosystem/core-api': {
       enabled: true,
-      port: 4202
+      port: 4102
     },
     '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-webhooks-api': {
       enabled: true,
-      port: 4203
+      port: 4103
     },
     '@arkecosystem/core-graphql': {},
     '@arkecosystem/core-graphql-api': {
-      port: 4205
+      port: 4105
     },
     '@arkecosystem/core-forger': {}
   }
