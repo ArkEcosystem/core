@@ -1,6 +1,6 @@
 'use strict'
 
-const popsicle = require('popsicle')
+const axios = require('axios')
 
 /**
  * Download the latest blocks.
@@ -10,16 +10,13 @@ const popsicle = require('popsicle')
  */
 module.exports = async (message, done) => {
   if (message.height) {
-    const response = await popsicle
-      .request({
-        method: 'GET',
-        url: message.url + '/peer/blocks?lastBlockHeight=' + message.height,
-        headers: message.headers,
-        timeout: 60000
-      })
-      .use(popsicle.plugins.parse('json'))
+    const response = await axios.get(`${message.url}/peer/blocks`, {
+      params: { lastBlockHeight: message.height },
+      headers: message.headers,
+      timeout: 60000
+    })
 
-    return done(response)
+    return done(response.data.blocks)
   }
 
   return done()

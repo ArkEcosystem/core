@@ -35,7 +35,6 @@ exports.postInternalBlock = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    // console.log(request.payload)
     blockchain.queueBlock(request.payload)
 
     return { success: true }

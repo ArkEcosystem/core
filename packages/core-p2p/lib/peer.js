@@ -1,6 +1,6 @@
 'use strict'
 
-const popsicle = require('popsicle')
+const axios = require('axios')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -50,17 +50,14 @@ module.exports = class Peer {
    */
   async postBlock (block) {
     try {
-      const response = await popsicle.request({
-        method: 'POST',
-        url: this.url + '/peer/blocks',
-        body: {block},
+      const response = await axios.post(`${this.url}/peer/blocks`, { block }, {
         headers: this.headers,
         timeout: 5000
-      }).use(popsicle.plugins.parse('json'))
+      })
 
       this.__parseHeaders(response)
 
-      return response.body
+      return response.data
     } catch (error) {
       // logger.debug('Peer unreachable', this.url + '/peer/blocks/', error.code)
 
@@ -75,20 +72,17 @@ module.exports = class Peer {
    */
   async postTransactions (transactions) {
     try {
-      const response = await popsicle.request({
-        method: 'POST',
-        url: this.url + '/peer/transactions',
-        body: {
-          transactions,
-          broadcast: true
-        },
+      const response = await axios.post(`${this.url}/peer/transactions`, {
+        transactions,
+        broadcast: true
+      }, {
         headers: this.headers,
         timeout: 8000
-      }).use(popsicle.plugins.parse('json'))
+      })
 
       this.__parseHeaders(response)
 
-      return response.body
+      return response.data
     } catch (error) {
       this.status = error.code
     }
@@ -107,15 +101,15 @@ module.exports = class Peer {
     }
 
     try {
-      const response = await thread.send(message).promise()
+      const blocks = await thread.send(message).promise()
 
-      const size = response.body.blocks.length
+      const size = blocks.length
 
       if (size === 100 || size === 400) {
         this.downloadSize = size
       }
 
-      return response.body.blocks
+      return blocks
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
 
@@ -167,18 +161,16 @@ module.exports = class Peer {
     const temp = new Date().getTime()
 
     try {
-      const response = await popsicle.request({
-        method: 'GET',
-        url: this.url + endpoint,
+      const response = await axios.get(`${this.url}${endpoint}`, {
         headers: this.headers,
         timeout: timeout || config.peers.discoveryTimeout
-      }).use(popsicle.plugins.parse('json'))
+      })
 
       this.delay = new Date().getTime() - temp
 
       this.__parseHeaders(response)
 
-      return response.body
+      return response.data
     } catch (error) {
       this.status = error.code
     }
