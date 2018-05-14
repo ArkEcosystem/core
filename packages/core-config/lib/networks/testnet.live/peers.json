@@ -1,7 +1,7 @@
 {
   "minimumNetworkReach": 10,
   "blackList": [],
-  "discoveryTimeout": 3000,
+  "globalTimeout": 3000,
   "list": [
     {
       "ip": "51.255.100.0",

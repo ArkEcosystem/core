@@ -7,5 +7,5 @@
     "ip": "127.0.0.1",
     "port": 4201
   }],
-  "discoveryTimeout": 2000
+  "globalTimeout": 2000
 }
