@@ -2,6 +2,6 @@
   "minimumNetworkReach": 20,
   "list": [],
   "blackList": [],
-  "discoveryTimeout": 10000,
+  "discoveryTimeout": 3000,
   "sources": ["https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"]
 }

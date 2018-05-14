@@ -1,7 +1,7 @@
 {
   "minimumNetworkReach": 20,
   "blackList": [],
-  "discoveryTimeout": 10000,
+  "discoveryTimeout": 1000,
   "list": [{
     "ip": "127.0.0.1",
     "port": 4000
