@@ -113,7 +113,7 @@ module.exports = class Peer {
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
 
-      this.ban = new Date().getTime() + 60 * 60000
+      this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
 
       throw error
     }
