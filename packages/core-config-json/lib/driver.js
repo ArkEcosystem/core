@@ -18,8 +18,6 @@ module.exports = class Config extends ConfigInterface {
 
     super._buildConstants()
 
-    super._exposeEnvironmentVariables()
-
     return this
   }
 
