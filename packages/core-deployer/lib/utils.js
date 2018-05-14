@@ -50,6 +50,7 @@ exports.updateConfig = (file, values, configPath, forceOverwrite) => {
  * @param  {String} path
  * @return {void}
  */
-exports.writeEnv = (object, path) => {
-  fs.writeFileSync(expandHomeDir(path), envfile.stringifySync(object))
+exports.writeEnv = (object, filePath) => {
+  fs.ensureDirSync(path.dirname(filePath))
+  fs.writeFileSync(expandHomeDir(filePath), envfile.stringifySync(object))
 }
