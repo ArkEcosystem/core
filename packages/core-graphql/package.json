@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-graphql",
   "description": "GraphQL wrapper for ARK Core",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "contributors": [
     "Lúcio Rubens <lucio@ark.io>"
   ],
@@ -16,8 +16,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/client": "^2.0.0",
-    "@arkecosystem/core-container": "^1.0.0",
+    "@arkecosystem/client": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.0",
     "graphql-tools": "^3.0.0",
     "graphql-tools-types": "^1.1.19"
   }
