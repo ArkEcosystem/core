@@ -75,7 +75,7 @@ module.exports = class Wallet {
    * Remove this wallet as the sender of a transaction.
    * @param {Transaction} transaction
    */
-  undoTransactionToSender (transaction) {
+  revertTransactionForSender (transaction) {
     if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
       this.balance += transaction.amount + transaction.fee
 
@@ -112,7 +112,7 @@ module.exports = class Wallet {
    * Remove transaction balance from this wallet.
    * @param {Transaction} transaction
    */
-  undoTransactionToRecipient (transaction) {
+  revertTransactionForRecipient (transaction) {
     if (transaction.recipientId === this.address) {
       this.balance -= transaction.amount
       this.dirty = true
@@ -136,7 +136,7 @@ module.exports = class Wallet {
    * Remove block data from this wallet.
    * @param {Block} block
    */
-  undoBlock (block) {
+  revertBlock (block) {
     if (block.generatorPublicKey === this.publicKey || cryptoBuilder.getAddress(block.generatorPublicKey) === this.address) {
       this.balance -= block.reward + block.totalFee
       this.producedBlocks--

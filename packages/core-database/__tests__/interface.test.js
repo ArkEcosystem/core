@@ -201,9 +201,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe.skip('undoRound', async () => {
+  describe.skip('revertRound', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.undoRound).toBeFunction()
+      await expect(ConnectionInterface.revertRound).toBeFunction()
     })
   })
 
@@ -225,9 +225,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe.skip('undoBlock', async () => {
+  describe.skip('revertBlock', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.undoBlock).toBeFunction()
+      await expect(ConnectionInterface.revertBlock).toBeFunction()
     })
   })
 
@@ -243,9 +243,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe.skip('undoTransaction', async () => {
+  describe.skip('revertTransaction', async () => {
     it('should be a function', async () => {
-      await expect(ConnectionInterface.undoTransaction).toBeFunction()
+      await expect(ConnectionInterface.revertTransaction).toBeFunction()
     })
   })
 
