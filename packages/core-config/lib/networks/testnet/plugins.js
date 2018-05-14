@@ -22,7 +22,7 @@ module.exports = {
         package: 'winston-daily-rotate-file',
         constructor: 'DailyRotateFile',
         options: {
-          filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/testnet/`) + '%DATE%.log',
+          filename: expandHomeDir(`${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK}/`) + '%DATE%.log',
           datePattern: 'YYYY-MM-DD',
           level: 'debug',
           zippedArchive: true
@@ -33,10 +33,10 @@ module.exports = {
   },
   beforeMount: {
     '@arkecosystem/core-database': {
-      snapshots: `${process.env.ARK_PATH_DATA}/testnet/snapshots`
+      snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/testnet.sqlite`,
+      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
       dialect: 'sqlite'
       // uri: 'postgres://node:password@localhost:5432/ark_testnet',
       // dialect: 'postgres'
