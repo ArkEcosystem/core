@@ -219,4 +219,19 @@ module.exports = class TransactionsRepository {
       }
     })
   }
+
+  /**
+   * Get all transactions that have a vendor field.
+   * @return {Object}
+   */
+  findWithVendorField () {
+    return this.connection.models.transaction.findAll({
+      attributes: ['serialized'],
+      where: {
+        vendorFieldHex: {
+          [Op.ne]: null
+        }
+      }
+    })
+  }
 }
