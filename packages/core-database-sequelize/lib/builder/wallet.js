@@ -89,7 +89,6 @@ module.exports = class WalletBuilder {
       type: Sequelize.QueryTypes.SELECT
     })
 
-
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
       wallet.balance += parseInt(row.reward)

@@ -113,7 +113,7 @@ module.exports = class Peer {
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
 
-      this.ban = new Date().getTime() + 60 * 60000
+      this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
 
       throw error
     }
@@ -126,7 +126,7 @@ module.exports = class Peer {
    * @throws {Error} If fail to get peer status.
    */
   async ping (delay) {
-    const body = await this.__get('/peer/status', delay || config.peers.discoveryTimeout)
+    const body = await this.__get('/peer/status', delay || config.peers.globalTimeout)
 
     if (body) {
       this.state = body
@@ -144,7 +144,7 @@ module.exports = class Peer {
   async getPeers () {
     logger.info(`Fetching a fresh peer list from ${this.url}`)
 
-    await this.ping(config.peers.discoveryTimeout)
+    await this.ping(2000)
 
     const body = await this.__get('/peer/list')
 
@@ -163,7 +163,7 @@ module.exports = class Peer {
     try {
       const response = await axios.get(`${this.url}${endpoint}`, {
         headers: this.headers,
-        timeout: timeout || config.peers.discoveryTimeout
+        timeout: timeout || config.peers.globalTimeout
       })
 
       this.delay = new Date().getTime() - temp
