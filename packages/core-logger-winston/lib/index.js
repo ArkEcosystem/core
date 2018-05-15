@@ -14,13 +14,6 @@ exports.plugin = {
     const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new WinstonDriver(options))
 
-    if (process.env.NODE_ENV === 'test') {
-      const winston = require('winston')
-      logManager.driver().remove(new winston.transports.Console())
-      logManager.driver().printTracker = () => {}
-      logManager.driver().stopTracker = () => {}
-    }
-
     return logManager.driver()
   }
 }

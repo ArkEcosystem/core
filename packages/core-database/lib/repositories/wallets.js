@@ -73,7 +73,6 @@ module.exports = class WalletsRepository {
   /**
    * Get all wallets sorted by balance.
    * @param  {Object}  params
-   * @param  {Boolean} legacy
    * @return {Object}
    */
   top (params = {}) {

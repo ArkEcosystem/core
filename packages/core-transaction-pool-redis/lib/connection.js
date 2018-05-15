@@ -5,7 +5,6 @@ const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
-const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { slots } = client
 const { Transaction } = client.models
@@ -282,7 +281,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
               }
             },
             1: () => { // block height time lock
-              if (transaction.timelock <= blockchain.getLastBlock(true).height) {
+              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock(true).height) {
                 logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
                 transactions.push(serializedTransaction[0])
               }

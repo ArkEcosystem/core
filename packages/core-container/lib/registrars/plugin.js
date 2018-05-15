@@ -14,16 +14,23 @@ module.exports = class PluginRegistrars {
    */
   constructor (container, options = {}) {
     this.container = container
-    this.groups = this.__loadPlugins()
+    this.plugins = this.__loadPlugins()
     this.options = options
     this.deregister = []
-    this.plugins = {}
+  }
 
-    Object.keys(this.groups).forEach((key) => {
-      typeof this.groups[key] === 'object'
-        ? Object.assign(this.plugins, this.groups[key])
-        : this.plugins[key] = this.groups[key]
-    })
+  /**
+   * Set up all available plugins.
+   * @return {void}
+   */
+  async setUp () {
+    for (let [name, options] of Object.entries(this.plugins)) {
+      await this.register(name, options)
+
+      if (this.options.exit && this.options.exit.includes(name)) {
+        break
+      }
+    }
   }
 
   /**
@@ -45,21 +52,15 @@ module.exports = class PluginRegistrars {
    * @return {void}
    */
   async register (name, options = {}) {
-    return this.__registerWithContainer(name, Hoek.applyToDefaults(this.plugins[name], options))
-  }
-
-  /**
-   * Register a group of plugins.
-   * @param  {String} name
-   * @param  {Object} options
-   * @return {void}
-   */
-  async registerGroup (name, options = {}) {
-    for (let [pluginName, pluginOptions] of Object.entries(this.groups[name])) {
-      if (this.__shouldBeRegistered(pluginName)) {
-        await this.__registerWithContainer(pluginName, Hoek.applyToDefaults(pluginOptions, options))
-      }
+    if (!this.__shouldBeRegistered(name)) {
+      return
     }
+
+    if (this.plugins[name]) {
+      options = Hoek.applyToDefaults(this.plugins[name], options)
+    }
+
+    return this.__registerWithContainer(name, options)
   }
 
   /**

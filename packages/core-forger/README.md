@@ -8,6 +8,16 @@
 yarn add @arkecosystem/core-forger
 ```
 
+## Configuration
+
+### Defaults
+
+```js
+module.exports = {
+  host: 'http://127.0.0.1'
+}
+```
+
 ## Security
 
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.

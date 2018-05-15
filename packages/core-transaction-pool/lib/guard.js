@@ -1,4 +1,5 @@
 const reject = require('lodash/reject')
+const container = require('@arkecosystem/core-container')
 const { crypto } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 
@@ -10,6 +11,8 @@ module.exports = class TransactionGuard {
    */
   constructor (pool) {
     this.pool = pool
+
+    this.__reset()
   }
 
   /**
@@ -135,7 +138,11 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   __verifyTransaction (transaction) {
-    const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+    const wallet = container
+      .resolvePlugin('blockchain')
+      .database
+      .walletManager
+      .getWalletByPublicKey(transaction.senderPublicKey)
 
     return crypto.verify(transaction) && wallet.canApply(transaction)
   }
