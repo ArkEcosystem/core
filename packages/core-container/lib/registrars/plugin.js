@@ -52,6 +52,10 @@ module.exports = class PluginRegistrars {
    * @return {void}
    */
   async register (name, options = {}) {
+    if (!this.__shouldBeRegistered(name)) {
+      return
+    }
+
     if (this.plugins[name]) {
       options = Hoek.applyToDefaults(this.plugins[name], options)
     }
