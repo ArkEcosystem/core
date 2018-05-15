@@ -8,6 +8,20 @@
 yarn add @arkecosystem/core-graphql-api
 ```
 
+## Configuration
+
+### Defaults
+
+```js
+module.exports = {
+  enabled: true,
+  port: 4005,
+  path: '/graphql',
+  graphiql: true,
+  pretty: true
+}
+```
+
 ## Security
 
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.

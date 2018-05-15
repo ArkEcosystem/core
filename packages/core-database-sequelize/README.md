@@ -8,6 +8,18 @@
 yarn add @arkecosystem/core-database-sequelize
 ```
 
+## Configuration
+
+### Defaults
+
+```js
+module.exports = {
+  uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
+  dialect: 'sqlite',
+  logging: false
+}
+```
+
 ## Security
 
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.
