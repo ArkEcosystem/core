@@ -269,13 +269,13 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         if (idx === -1) {
           wallet.missedBlocks++
 
-          emitter.emit('forging.missing', block)
+          emitter.emit('forging.missing', block.data)
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[idx]
           wallet.forged += block.totalAmount
 
-          emitter.emit('block.forged', block)
+          emitter.emit('block.forged', block.data)
         }
       })
     } catch (error) {

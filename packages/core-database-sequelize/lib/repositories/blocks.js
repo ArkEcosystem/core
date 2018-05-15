@@ -122,4 +122,12 @@ module.exports = class BlocksRepository {
 
     return rows[0]
   }
+
+  /**
+   * Count all blocks.
+   * @return {Number}
+   */
+  count () {
+    return this.connection.models.block.count()
+  }
 }
