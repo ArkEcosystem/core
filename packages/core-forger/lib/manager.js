@@ -105,8 +105,8 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      emitter.emit('block.forged', block)
-      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction))
+      emitter.emit('block.forged', block.data)
+      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
 
       this.client.broadcast(block.toRawJson())
       await delay(7800) // we will check at next slot
