@@ -43,12 +43,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       process.exit(1)
     })
 
-    this.subscription.on('message', (channel, message) => {
+    this.subscription.on('message', async (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
 
-      this.removeTransactionById(message.split(':')[2])
+      const transactionId = message.split(':')[2]
+      const transaction = await this.getTransaction(transactionId)
 
-      emitter.emit('transaction.expired', message.split(':')[2])
+      emitter.emit('transaction.expired', transaction.data)
+
+      this.removeTransactionById(transactionId)
     })
 
     return this

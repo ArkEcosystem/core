@@ -36,7 +36,7 @@ module.exports = class WalletBuilder {
     logger.printTracker('SPV Building', 3, 8, 'Last Forged Blocks')
     await this.__buildLastForgedBlocks()
 
-    logger.printTracker('SPV Building', 4, 8, 'Sent Sransactions')
+    logger.printTracker('SPV Building', 4, 8, 'Sent Transactions')
     await this.__buildSentTransactions()
 
     logger.printTracker('SPV Building', 5, 8, 'Second Signatures')

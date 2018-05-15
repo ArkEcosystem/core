@@ -5,6 +5,4 @@ module.exports = (transactions) => {
   clipboardy.writeSync(JSON.stringify(transactions))
 
   logger.info(`Copied ${transactions.length} transactions`)
-
-  process.exit()
 }

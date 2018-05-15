@@ -234,4 +234,12 @@ module.exports = class TransactionsRepository {
       }
     })
   }
+
+  /**
+   * Count all transactions.
+   * @return {Number}
+   */
+  count () {
+    return this.connection.models.transaction.count()
+  }
 }
