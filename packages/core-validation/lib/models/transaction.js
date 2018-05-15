@@ -1,15 +1,15 @@
 'use strict'
 
-const container = require('@arkecosystem/core-container')
-const blockchain = container.resolvePlugin('blockchain')
+// const container = require('@arkecosystem/core-container')
+// const blockchain = container.resolvePlugin('blockchain')
 const client = require('@arkecosystem/client')
 const { TRANSACTION_TYPES } = client.constants
-const addressRule = require('../lib/rules/address')
+// const addressRule = require('../lib/rules/address')
 const transferRule = require('../lib/rules/models/transactions/transfer')
 const signatureRule = require('../lib/rules/models/transactions/signature')
 const delegateRule = require('../lib/rules/models/transactions/delegate')
 const voteRule = require('../lib/rules/models/transactions/vote')
-const walletManager = blockchain.database.walletManager
+// const walletManager = blockchain.database.walletManager
 
 module.exports = class TransactionValidator {
   validate (transaction) {
@@ -35,11 +35,11 @@ module.exports = class TransactionValidator {
   }
 
   __validateSignature (transaction) {
-    return secondSignatureRule(transaction).passes
+    return signatureRule(transaction).passes
   }
 
   __validateDelegate (transaction) {
-    return delegateRegistrationRule(transaction).passes
+    return delegateRule(transaction).passes
   }
 
   __validateVote (transaction) {
