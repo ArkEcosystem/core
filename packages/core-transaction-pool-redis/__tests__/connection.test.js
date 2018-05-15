@@ -66,6 +66,26 @@ describe('Connection', () => {
     })
   })
 
+  describe('addTransactions', async () => {
+    it('should be a function', async () => {
+      await expect(connection.addTransactions).toBeFunction()
+    })
+
+    it('should add the transactions to the pool', async () => {
+      await expect(await connection.getPoolSize()).toBe(0)
+
+      connection.addTransactions = jest.fn(async (transactions) => {
+        for (let i = 0; i < transactions.length; i++) {
+          await connection.addTransaction(transactions[i])
+        }
+      })
+
+      await connection.addTransactions([dummy1, dummy2])
+
+      await expect(await connection.getPoolSize()).toBe(2)
+    })
+  })
+
   describe('addTransactions with expiration', async () => {
     it('should add the transactions to the pool and they should expire', async () => {
       await expect(await connection.getPoolSize()).toBe(0)
@@ -84,26 +104,6 @@ describe('Connection', () => {
       await expect(await connection.getPoolSize()).toBe(2)
       await delay(7000)
       await expect(await connection.getPoolSize()).toBe(0)
-    })
-  })
-
-  describe('addTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(connection.addTransactions).toBeFunction()
-    })
-
-    it('should add the transactions to the pool', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
-
-      connection.addTransactions = jest.fn(async (transactions) => {
-        for (let i = 0; i < transactions.length; i++) {
-          await connection.addTransaction(transactions[i])
-        }
-      })
-
-      await connection.addTransactions([dummy1, dummy2])
-
-      await expect(await connection.getPoolSize()).toBe(2)
     })
   })
 

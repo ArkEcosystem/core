@@ -50,10 +50,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       const transactionId = message.split(':')[2]
       const transaction = await this.getTransaction(transactionId)
 
-      console.log(transaction)
       emitter.emit('transaction.expired', transaction.data)
 
-      this.removeTransaction(transaction)
+      await this.removeTransaction(transaction)
     })
 
     return this
@@ -93,6 +92,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
+    console.log(`adding ${transaction.id}`)
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "addTransaction".')
     }
@@ -102,17 +102,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      await this.pool.hmset(
-        this.__getRedisTransactionKey(transaction.id),
-          'serialized', transaction.serialized.toString('hex'),
-          'senderPublicKey', transaction.senderPublicKey
-        )
+      await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
+        'serialized', transaction.serialized.toString('hex'),
+        'senderPublicKey', transaction.senderPublicKey
+      )
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
       await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
 
       if (transaction.expiration > 0) {
-        await this.pool.set(this.__getRedisExpirationKey(transaction.id), transaction.id)
-        await this.pool.expire(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp)
+        await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -155,8 +153,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
     await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
-    await this.pool.del(this.__getRedisExpirationKey(transaction.id))
-    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
   }
 
   /**
@@ -219,11 +216,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "getTransaction".')
     }
-
-    const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
-    console.log(serialized)
-    if (serialized) {
-      return Transaction.fromBytes(serialized)
+    console.log(`getting transaction ${id}`)
+    const serialized = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
+    console.log(serialized[0])
+    if (serialized[0]) {
+      return Transaction.fromBytes(serialized[0])
     }
 
     return 'Error: Non existing transaction'
