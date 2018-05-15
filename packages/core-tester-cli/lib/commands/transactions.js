@@ -57,6 +57,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   if (options.copy) {
     utils.copyToClipboard(transactions)
+    process.exit() // eslint-disable-line no-unreachable
   }
 
   const expectedSenderBalance = walletBalance - totalDeductions
