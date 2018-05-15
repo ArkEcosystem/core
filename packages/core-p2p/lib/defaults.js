@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  port: 4002,
+  port: process.env.ARK_P2P_PORT || 4002,
   remoteinterface: true,
   dns: [
     // Google

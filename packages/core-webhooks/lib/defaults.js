@@ -7,8 +7,8 @@ module.exports = {
     logging: false
   },
   redis: {
-    host: 'localhost',
-    port: 6379
+    host: process.env.ARK_REDIS_HOST || 'localhost',
+    port: process.env.ARK_REDIS_PORT || 6379
   },
   events: [{
     name: 'forging.started',

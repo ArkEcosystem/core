@@ -6,7 +6,7 @@ module.exports = {
   maxTransactionsPerSender: 100,
   whiteList: [],
   redis: {
-    host: 'localhost',
-    port: 6379
+    host: process.env.ARK_REDIS_HOST || 'localhost',
+    port: process.env.ARK_REDIS_PORT || 6379
   }
 }
