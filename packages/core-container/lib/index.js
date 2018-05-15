@@ -1,5 +1,6 @@
 'use strict'
 
+const fs = require('fs')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
 const PluginRegistrar = require('./registrars/plugin')
@@ -105,7 +106,11 @@ class Container {
       process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
     }
 
-    require('dotenv').config({ path: expandHomeDir(`${paths.data}/.env`) })
+    const envPath = expandHomeDir(`${paths.data}/.env`)
+    if (fs.existsSync(envPath)) {
+      const env = require('envfile').parseFileSync(envPath)
+      Object.keys(env).forEach(key => (process.env[key] = env[key]))
+    }
 
     const network = path.resolve(expandHomeDir(`${paths.config}/network.json`))
 
