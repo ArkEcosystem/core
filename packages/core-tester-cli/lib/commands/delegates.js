@@ -8,7 +8,7 @@ const superheroes = require('superheroes')
 const transactionCommand = require('./transactions')
 
 module.exports = async (options) => {
-  const wallets = utils.generateWallet(options.number)
+  const wallets = utils.generateWallets(options.number)
   await transactionCommand(options, wallets, 50, true)
 
   const delegates = await utils.getDelegates()

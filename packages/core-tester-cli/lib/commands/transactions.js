@@ -38,7 +38,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
 module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) => {
   if (wallets === undefined) {
-    wallets = utils.generateWallet(options.number)
+    wallets = utils.generateWallets(options.number)
   }
   const walletBalance = await utils.getWalletBalance(primaryAddress)
 

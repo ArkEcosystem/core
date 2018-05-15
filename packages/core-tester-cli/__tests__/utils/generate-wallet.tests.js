@@ -1,21 +1,21 @@
 'use strict'
 
-const generateWallet = require('../../lib/utils/generate-wallet')
+const generateWallets = require('../../lib/utils/generate-wallets')
 const arkjs = require('arkjs')
 
-describe('generateWallet', () => {
+describe('generateWallets', () => {
   it('should be a function', () => {
-    expect(generateWallet).toBeFunction()
+    expect(generateWallets).toBeFunction()
   })
 
   it('should generate 4 wallets', () => {
-    const wallets = generateWallet(4)
+    const wallets = generateWallets(4)
 
     expect(wallets.length).toBe(4)
   })
 
   it('should have wallet with passphrase and address', () => {
-    const wallet = generateWallet(1)[0]
+    const wallet = generateWallets(1)[0]
 
     expect(wallet).toContainAllKeys([
       'address',
@@ -24,13 +24,13 @@ describe('generateWallet', () => {
   })
 
   it('should give a wallet with a valid address', () => {
-    const wallet = generateWallet(1)[0]
+    const wallet = generateWallets(1)[0]
 
     expect(arkjs.crypto.validateAddress(wallet.address)).toBeTruthy()
   })
 
   it('should give a wallet with a valid passphrase', () => {
-    const wallet = generateWallet(1)[0]
+    const wallet = generateWallets(1)[0]
     const keys = arkjs.crypto.getKeys(wallet.passphrase)
 
     expect(keys).toContainKeys([
