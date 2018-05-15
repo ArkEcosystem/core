@@ -38,7 +38,7 @@ module.exports = {
     '@arkecosystem/core-database-sequelize': {
       uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
       dialect: 'sqlite'
-      // uri: 'postgres://node:password@localhost:5432/ark_testnet',
+      // uri: `postgres://node:password@localhost:${process.env.DB_PORT || 5432}/ark_testnet`,
       // dialect: 'postgres'
     },
     '@arkecosystem/core-transaction-pool': {},
@@ -49,23 +49,23 @@ module.exports = {
       whiteList: [],
       redis: {
         host: 'localhost',
-        port: 6379
+        port: process.env.REDIS_PORT || 6379
       }
     },
     '@arkecosystem/core-p2p': {
-      port: 4000,
+      port: process.env.P2P_PORT || 4000,
       remoteinterface: true
     }
   },
   mounted: {
     '@arkecosystem/core-api': {
       enabled: true,
-      port: 4102
+      port: process.env.API_PORT || 4102
     },
     '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-webhooks-api': {
       enabled: true,
-      port: 4103
+      port: process.env.WEBHOOKS_PORT || 4103
     },
     '@arkecosystem/core-graphql': {},
     '@arkecosystem/core-graphql-api': {},

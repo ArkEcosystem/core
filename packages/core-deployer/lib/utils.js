@@ -1,7 +1,10 @@
 'use strict'
 
 const _ = require('lodash')
+const envfile = require('envfile')
+const expandHomeDir = require('expand-home-dir')
 const fs = require('fs-extra')
+const path = require('path')
 
 /**
  * Get a random number from range.
@@ -21,8 +24,9 @@ exports.logger = require('./logger')
  * @param  {Object} values
  * @return {Object}
  */
-exports.updateConfig = (file, values, forceOverwrite) => {
-  const configPath = `${process.env.ARK_PATH_CONFIG}/deployer/${file}.json`
+exports.updateConfig = (file, values, configPath, forceOverwrite) => {
+  configPath = (configPath || `${process.env.ARK_PATH_CONFIG}/deployer`)
+  configPath = path.resolve(configPath, file)
   let config
   if (fs.existsSync(configPath) && !forceOverwrite) {
     config = require(configPath)
@@ -38,4 +42,16 @@ exports.updateConfig = (file, values, forceOverwrite) => {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
   return config
+}
+
+/**
+ * Write Environment variables to file.
+ * @param  {Object} object
+ * @param  {String} path
+ * @return {void}
+ */
+exports.writeEnv = (object, filePath) => {
+  filePath = expandHomeDir(filePath)
+  fs.ensureDirSync(path.dirname(filePath))
+  fs.writeFileSync(filePath, envfile.stringifySync(object))
 }

@@ -20,10 +20,13 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
+    "@arkecosystem/core-config": "^0.1.0",
     "arkjs": "^0.2.1",
     "bigi": "^1.4.2",
     "bytebuffer": "^5.0.1",
     "commander": "^2.15.1",
+    "envfile": "^2.3.0",
+    "expand-home-dir": "0.0.3",
     "fs-extra": "^6.0.1",
     "joi": "^13.2.0",
     "lodash": "^4.17.10",

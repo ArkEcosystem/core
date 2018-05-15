@@ -36,10 +36,10 @@ module.exports = {
       snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}/snapshots`
     },
     '@arkecosystem/core-database-sequelize': {
-      uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
-      dialect: 'sqlite'
-        // uri: 'postgres://node:password@localhost:5432/ark_mainnet',
-        // dialect: 'postgres'
+      // uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
+      // dialect: 'sqlite'
+      uri: `postgres://node:password@localhost:${process.env.DB_PORT || 5432}/ark_${process.env.ARK_NETWORK}`,
+      dialect: 'postgres'
     },
     '@arkecosystem/core-transaction-pool': {},
     '@arkecosystem/core-transaction-pool-redis': {
@@ -49,23 +49,23 @@ module.exports = {
       whiteList: [],
       redis: {
         host: 'localhost',
-        port: 6379
+        port: process.env.REDIS_PORT || 6379
       }
     },
     '@arkecosystem/core-p2p': {
-      port: 4002,
+      port: process.env.P2P_PORT || 4002,
       remoteinterface: true
     }
   },
   mounted: {
     '@arkecosystem/core-api': {
       enabled: true,
-      port: 4003
+      port: process.env.API_PORT || 4003
     },
     '@arkecosystem/core-webhooks': {},
     '@arkecosystem/core-webhooks-api': {
       enabled: true,
-      port: 4004
+      port: process.env.WEBHOOKS_PORT || 4004
     },
     '@arkecosystem/core-graphql': {},
     '@arkecosystem/core-graphql-api': {},
