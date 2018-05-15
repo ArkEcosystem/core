@@ -154,18 +154,58 @@ describe('Wallet Repository', () => {
       await expect(repository.top).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should be ok without params', () => {
       walletManager.reindex({ address: 'dummy-1', balance: 1000 })
       walletManager.reindex({ address: 'dummy-2', balance: 2000 })
       walletManager.reindex({ address: 'dummy-3', balance: 3000 })
 
-      const wallets = repository.top({ offset: 0, limit: 2 })
+      const { count, rows } = repository.top()
 
-      expect(wallets).toBeObject()
-      expect(wallets.count).toBe(2)
-      expect(wallets.rows[0].balance).toBe(3000)
-      expect(wallets.rows[1].balance).toBe(2000)
-      expect(wallets.rows[2]).toBeUndefined()
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
+    })
+
+    it('should be ok with params', () => {
+      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
+      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
+      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+
+      const { count, rows } = repository.top({ offset: 1, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(2000)
+      expect(rows[1].balance).toBe(1000)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
+      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
+      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+
+      const { count, rows } = repository.top({ offset: 0, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+    })
+
+    it('should be ok with legacy', () => {
+      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
+      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
+      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+
+      const { count, rows } = repository.top({}, true)
+
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
     })
   })
 
