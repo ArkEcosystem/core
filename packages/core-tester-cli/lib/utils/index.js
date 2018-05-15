@@ -1,6 +1,6 @@
 module.exports = {
     copyToClipboard: require('./copy-to-clipboard'),
-    generateWallet: require('./generate-wallet'),
+    generateWallets: require('./generate-wallets'),
     getConstants: require('./get-constants'),
     getDelegates: require('./get-delegates'),
     getTransactionDelay: require('./get-transaction-delay'),

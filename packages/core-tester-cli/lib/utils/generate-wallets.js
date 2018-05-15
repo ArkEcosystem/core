@@ -11,5 +11,5 @@ module.exports = (quantity = 1) => {
       wallets.push({ address, passphrase })
   }
 
-  return wallets.length > 1 ? wallets : wallets[0]
+  return wallets
 }
