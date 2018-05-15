@@ -79,22 +79,22 @@ module.exports = class Monitor {
     let keys = Object.keys(this.peers)
     let count = 0
     let wrongpeers = 0
-
+    const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
     logger.info(`Checking ${max} peers`)
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping(fast ? 1000 : config.peers.globalTimeout)
+        await this.peers[ip].ping(pingDelay)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongpeers++
 
-        delete this.peers[ip]
-
-        logger.debug(`Removed peer from peer list ${this.peers[ip]}`)
+        logger.debug(`Removed peer ${ip} from peer list. Peer didn't respond to ping (peer/status) call with delay of ${pingDelay}`)
         emitter.emit('peer.removed', this.peers[ip])
+
+        delete this.peers[ip]
 
         return null
       }
