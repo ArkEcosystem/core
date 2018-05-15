@@ -1,3 +1,5 @@
+'use strict'
+
 const clipboardy = require('clipboardy')
 const copyToClipboard = require('../../lib/utils/copy-to-clipboard')
 
