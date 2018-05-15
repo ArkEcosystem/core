@@ -162,18 +162,6 @@ describe('Connection', () => {
     })
   })
 
-  describe('getPublicKeyById', async () => {
-    it('should be a function', async () => {
-      await expect(connection.getPublicKeyById).toBeFunction()
-    })
-
-    it('should return the sender public key', async () => {
-      await connection.addTransaction(dummy1)
-
-      await expect(await connection.getPublicKeyById(dummy1.id)).toBe(dummy1.senderPublicKey)
-    })
-  })
-
   describe('getTransaction', async () => {
     it('should be a function', async () => {
       await expect(connection.getTransaction).toBeFunction()
