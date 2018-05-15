@@ -45,11 +45,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     this.subscription.on('message', async (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
-      console.log(`Received expiration message ${message} from channel ${channel}`)
 
       const transactionId = message.split(':')[2]
       const transaction = await this.getTransaction(transactionId)
-
       emitter.emit('transaction.expired', transaction.data)
 
       await this.removeTransaction(transaction)
@@ -92,7 +90,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    console.log(`adding ${transaction.id}`)
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "addTransaction".')
     }
@@ -216,11 +213,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return logger.warn('Transaction Pool is disabled - discarded action "getTransaction".')
     }
-    console.log(`getting transaction ${id}`)
-    const serialized = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
-    console.log(serialized[0])
-    if (serialized[0]) {
-      return Transaction.fromBytes(serialized[0])
+
+    const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
+    if (serialized) {
+      return Transaction.fromBytes(serialized)
     }
 
     return 'Error: Non existing transaction'
