@@ -20,6 +20,7 @@ module.exports = async (options) => {
 
   if (options.copy) {
     utils.copyToClipboard(transactions)
+    process.exit() // eslint-disable-line no-unreachable
   }
 
   try {
