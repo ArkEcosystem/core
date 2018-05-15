@@ -1,9 +1,12 @@
+const engine = require('./engine')
+
 class Validator {
   /**
    * Create a new validator instance.
    */
   constructor () {
     this.rules = require('./rules')
+    this.engine = engine
   }
 
   /**
@@ -93,7 +96,7 @@ class Validator {
    * @return {void}
    */
   __validateWithJoi (attributes, rules) {
-    const { error, value } = require('./utils/validate-with-joi')(attributes, rules)
+    const { error, value } = this.engine.validate(attributes, rules)
 
     this.results = {
       data: value,

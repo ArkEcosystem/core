@@ -1,8 +1,7 @@
-const Joi = require('joi')
-const validate = require('../utils/validate-with-joi')
+const engine = require('../engine')
 
 module.exports = (attributes) => {
-  const { error, value } = validate(attributes, Joi.string().alphanum())
+  const { error, value } = engine.validate(attributes, engine.joi.arkUsername())
 
   return {
     data: value,
