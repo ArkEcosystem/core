@@ -124,15 +124,6 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Get a sender public key by transaction id.
-   * @param  {Number} id
-   * @return {(String|void)}
-   */
-  async getPublicKeyById (id) {
-    throw new Error('Method [getPublicKeyById] not implemented!')
-  }
-
-  /**
-   * Get a sender public key by transaction id.
    * @param  {Transactions[]} transactions
    * @return {Object}
    */

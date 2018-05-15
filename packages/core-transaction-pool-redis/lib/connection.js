@@ -48,10 +48,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       const transactionId = message.split(':')[2]
       const transaction = await this.getTransaction(transactionId)
-
       emitter.emit('transaction.expired', transaction.data)
 
-      this.removeTransactionById(transactionId)
+      await this.removeTransaction(transaction)
     })
 
     return this
@@ -100,16 +99,15 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     try {
-      await this.pool.hmset(
-        this.__getRedisTransactionKey(transaction.id),
-          'serialized', transaction.serialized.toString('hex'),
-          'senderPublicKey', transaction.senderPublicKey
-        )
+      await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
+        'serialized', transaction.serialized.toString('hex'),
+        'senderPublicKey', transaction.senderPublicKey
+      )
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
-      await this.pool.rpush(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), transaction.id)
+      await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
 
       if (transaction.expiration > 0) {
-        await this.pool.expire(this.__getRedisTransactionKey(transaction.id), transaction.expiration - transaction.timestamp)
+        await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -151,8 +149,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-    await this.pool.lrem(this.__getRedisKeyByPublicKey(transaction.senderPublicKey), 1, transaction.id)
-    await this.pool.del(this.__getRedisTransactionKey(transaction.id))
+    await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+    await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
   }
 
   /**
@@ -165,9 +163,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "removeTransactionById".')
     }
 
-    const publicKey = await this.getPublicKeyById(id)
+    const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
+
+    await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
     await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
-    await this.pool.lrem(this.__getRedisKeyByPublicKey(publicKey), 1, id)
+    await this.pool.del(this.__getRedisExpirationKey(id))
     await this.pool.del(this.__getRedisTransactionKey(id))
   }
 
@@ -200,22 +200,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
-    const count = await this.pool.llen(this.__getRedisKeyByPublicKey(transaction.senderPublicKey))
-
-    return count >= this.options.maxTransactionsPerSender
-  }
-
-  /**
-   * Get a sender public key by transaction id.
-   * @param  {Number} id
-   * @return {(String|void)}
-   */
-  async getPublicKeyById (id) {
-    if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "getPublicKeyById".')
-    }
-
-    return this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
+    const count = await this.pool.get(this.__getRedisThrottleKey(transaction.senderPublicKey))
+    return count ? count >= this.options.maxTransactionsPerSender : false
   }
 
   /**
@@ -229,7 +215,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
-
     if (serialized) {
       return Transaction.fromBytes(serialized)
     }
@@ -254,7 +239,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       let transactions = []
       for (const id of transactionIds) {
         const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
-        serializedTransaction ? transactions.push(serializedTransaction[0]) : await this.removeTransaction(id)
+        serializedTransaction ? transactions.push(serializedTransaction[0]) : await this.removeTransactionById(id)
       }
 
       return transactions
@@ -283,7 +268,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
 
         if (!serializedTransaction[0]) {
-          await this.removeTransaction(id)
+          await this.removeTransactionById(id)
           break
         }
         const transaction = Transaction.fromBytes(serializedTransaction[0])
@@ -321,9 +306,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async flush () {
-    const keys = await this.pool.keys('*')
-
-    keys.forEach(key => this.pool.del(key))
+    await this.pool.flushall()
   }
 
   /**
@@ -344,12 +327,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get the Redis key for the transactions associated with a public key.
+   * Get the Redis key for the transactions expiration
    * @param  {String} publicKey
    * @return {String}
    */
-  __getRedisKeyByPublicKey (publicKey) {
-    return `${this.keyPrefix}:publicKey:${publicKey}`
+  __getRedisExpirationKey (transactionId) {
+    return `${this.keyPrefix}:expiration:${transactionId}`
+  }
+
+    /**
+   * Get the Redis key for searching/counting transactions related to and public key
+   * @param  {String} publicKey
+   * @return {String}
+   */
+  __getRedisThrottleKey (publicKey) {
+    return `${this.keyPrefix}:throttle:${publicKey}`
   }
 
   /**
