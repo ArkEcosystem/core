@@ -2,7 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const blockchain = container.resolvePlugin('blockchain')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/client')
 
@@ -38,7 +37,7 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = blockchain.getLastBlock(true)
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock(true)
 
     return {
       success: true,
@@ -58,6 +57,8 @@ exports.getCommonBlock = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
+    const blockchain = container.resolvePlugin('blockchain')
+
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
@@ -87,7 +88,7 @@ exports.getTransactionsFromIds = {
     const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await blockchain.database.getTransactionsFromIds(txids)
+      const transactions = await container.resolvePlugin('blockchain').database.getTransactionsFromIds(txids)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -120,7 +121,7 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = blockchain.getLastBlock()
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
     if (!lastBlock) {
       return {
         success: false
@@ -152,7 +153,7 @@ exports.postBlock = {
       return { success: false }
     }
 
-    blockchain.queueBlock(request.payload.block)
+    container.resolvePlugin('blockchain').queueBlock(request.payload.block)
 
     return { success: true }
   }
@@ -172,7 +173,7 @@ exports.postTransactions = {
 
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
-      blockchain.postTransactions(transactionPool.guard.accept, request.payload.broadcast)
+      container.resolvePlugin('blockchain').postTransactions(transactionPool.guard.accept, request.payload.broadcast)
     }
 
     return {
@@ -193,7 +194,7 @@ exports.getBlocks = {
    */
   handler: async (request, h) => {
     try {
-      const blocks = await blockchain.database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await container.resolvePlugin('blockchain').database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

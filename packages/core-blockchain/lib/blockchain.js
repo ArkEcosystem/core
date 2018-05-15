@@ -64,7 +64,7 @@ module.exports = class Blockchain {
 
     this.dispatch('START')
 
-    if (skipStartedCheck) {
+    if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
       return true
     }
 

@@ -1,7 +1,6 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
 
 const client = require('@arkecosystem/client')
@@ -19,7 +18,7 @@ exports.postVerifyTransaction = {
    */
   handler: async (request, h) => {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await blockchain.database.verifyTransaction(transaction)
+    const result = await container.resolvePlugin('blockchain').database.verifyTransaction(transaction)
 
     return { success: result }
   }
@@ -35,7 +34,7 @@ exports.postInternalBlock = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    blockchain.queueBlock(request.payload)
+    container.resolvePlugin('blockchain').queueBlock(request.payload)
 
     return { success: true }
   }
@@ -51,6 +50,8 @@ exports.getRound = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
+    const blockchain = container.resolvePlugin('blockchain')
+
     const lastBlock = await blockchain.getLastBlock()
 
     try {
@@ -93,6 +94,8 @@ exports.getTransactionsForForging = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
+    const blockchain = container.resolvePlugin('blockchain')
+
     const height = blockchain.getLastBlock(true).height
     const blockSize = config.getConstants(height).block.maxTransactions
 

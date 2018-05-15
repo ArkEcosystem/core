@@ -1,7 +1,6 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const blockchain = container.resolvePlugin('blockchain')
 const emitter = container.resolvePlugin('event-emitter')
 const TransactionGuard = require('./guard')
 
@@ -12,7 +11,6 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = blockchain.database.walletManager
     this.guard = new TransactionGuard(this)
   }
 
@@ -160,7 +158,7 @@ module.exports = class TransactionPoolInterface {
    * @return {Array}
    */
   async removeForgedAndGetPending (transactionIds) {
-    const forgedIds = await blockchain.database.getForgedTransactionsIds(transactionIds)
+    const forgedIds = await container.resolvePlugin('blockchain').database.getForgedTransactionsIds(transactionIds)
     forgedIds.forEach(element => this.removeTransactionById(element))
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)

@@ -8,17 +8,21 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  const config = options.config
-
-  container.init({ data: options.data, config }, {
+  await container.start({
+    data: options.data,
+    config: options.config
+  }, {
     include: [
+      '@arkecosystem/core-event-emitter',
+      '@arkecosystem/core-validation',
+      '@arkecosystem/core-config',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',
       '@arkecosystem/core-logger-winston',
-      '@arkecosystem/core-blockchain',
       '@arkecosystem/core-database',
-      '@arkecosystem/core-database-sequelize'
+      '@arkecosystem/core-database-sequelize',
+      '@arkecosystem/core-blockchain'
     ],
     options: {
       '@arkecosystem/core-blockchain': {
@@ -26,10 +30,6 @@ module.exports = async (options) => {
       }
     }
   })
-
-  await container.plugins.registerGroup('init', { config: options.config })
-  await container.plugins.registerGroup('beforeCreate')
-  await container.plugins.registerGroup('beforeMount')
 
   container.resolvePlugin('database').snapshot()
 }

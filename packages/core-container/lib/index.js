@@ -22,13 +22,18 @@ class Container {
    * @param  {Object} options
    * @return {void}
    */
-  init (paths, options = {}) {
+  async start (paths, options = {}) {
     this._exposeEnvironmentVariables(paths)
+
+    if (options.skipPlugins) {
+      return
+    }
 
     /**
      * TODO: Move this out eventually - not really it's responsiblity
      */
     this.plugins = new PluginRegistrar(this, options)
+    await this.plugins.setUp()
   }
 
   /**

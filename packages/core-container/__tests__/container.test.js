@@ -4,13 +4,17 @@ const path = require('path')
 const { asValue } = require('awilix')
 
 let container
-beforeEach(() => {
+beforeEach(async (done) => {
   container = require('../lib')
 
-  container.init({
+  await container.start({
     data: 'fake-path',
     config: path.resolve(__dirname, '../../core-config/lib/networks/testnet')
+  }, {
+    skipPlugins: true
   })
+
+  done()
 })
 
 describe('Container', () => {

@@ -8,9 +8,10 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  const config = options.config
-
-  container.init({ data: options.data, config }, {
+  await container.start({
+    data: options.data,
+    config: options.config
+  }, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-blockchain': {
@@ -18,11 +19,4 @@ module.exports = async (options) => {
       }
     }
   })
-
-  await container.plugins.registerGroup('init', { config: options.config })
-  await container.plugins.registerGroup('beforeCreate')
-  await container.plugins.registerGroup('beforeMount')
-  await container.resolvePlugin('blockchain').start()
-
-  container.plugins.registerGroup('mounted')
 }

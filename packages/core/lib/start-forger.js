@@ -8,9 +8,10 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  const config = options.config
-
-  container.init({ data: options.data, config }, {
+  await container.start({
+    data: options.data,
+    config: options.config
+  }, {
     include: [
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
@@ -29,10 +30,4 @@ module.exports = async (options) => {
       }
     }
   })
-
-  await container.plugins.registerGroup('init', { config: options.config })
-  await container.plugins.registerGroup('beforeCreate')
-  await container.plugins.registerGroup('beforeMount')
-
-  container.plugins.registerGroup('mounted')
 }
