@@ -150,15 +150,17 @@ describe('Wallet Repository', () => {
   })
 
   describe('top', async () => {
+    beforeEach(() => {
+      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
+      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
+      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+    })
+
     it('should be a function', async () => {
       await expect(repository.top).toBeFunction()
     })
 
     it('should be ok without params', () => {
-      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
-      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
-      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
-
       const { count, rows } = repository.top()
 
       expect(count).toBe(3)
@@ -169,10 +171,6 @@ describe('Wallet Repository', () => {
     })
 
     it('should be ok with params', () => {
-      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
-      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
-      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
-
       const { count, rows } = repository.top({ offset: 1, limit: 2 })
 
       expect(count).toBe(2)
@@ -182,10 +180,6 @@ describe('Wallet Repository', () => {
     })
 
     it('should be ok with params (no offset)', () => {
-      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
-      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
-      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
-
       const { count, rows } = repository.top({ offset: 0, limit: 2 })
 
       expect(count).toBe(2)
@@ -195,10 +189,6 @@ describe('Wallet Repository', () => {
     })
 
     it('should be ok with legacy', () => {
-      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
-      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
-      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
-
       const { count, rows } = repository.top({}, true)
 
       expect(count).toBe(3)
