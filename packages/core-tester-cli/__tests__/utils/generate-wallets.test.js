@@ -3,7 +3,7 @@
 const generateWallets = require('../../lib/utils/generate-wallets')
 const arkjs = require('arkjs')
 
-describe('generateWallets', () => {
+describe('Utils - Generate Wallets', () => {
   it('should be a function', () => {
     expect(generateWallets).toBeFunction()
   })
