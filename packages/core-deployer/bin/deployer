@@ -7,8 +7,10 @@ const Joi = require('joi')
 const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
-const { getRandomNumber, logger, updateConfig } = require('../lib/utils')
+const { getRandomNumber, logger, updateConfig, writeEnv } = require('../lib/utils')
 const genesisBlockBuilder = require('../lib/builder/genesis-block')
+
+process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
 commander
   .version(require('../package.json').version)
@@ -41,6 +43,8 @@ commander
   // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
+  .option('--overwriteConfig', 'Overwrite current deployer config files [off]', false)
+  .option('--configPath <value>', 'Deployer config path destination [~/.ark/deployer]', `${process.env.ARK_PATH_CONFIG}/deployer`)
   .parse(process.argv)
 
 const { error, value } = Joi.validate(commander, require('../lib/schema.js'), { allowUnknown: true, convert: true })
@@ -51,11 +55,16 @@ if (error) {
   process.exit(1)
 }
 
-process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
-
-if (!fs.existsSync(`${process.env.ARK_PATH_CONFIG}/deployer`)) {
-  fs.copySync(`../core-config/lib/networks/${options.network}`, `${process.env.ARK_PATH_CONFIG}/deployer`)
+if (fs.existsSync(options.configPath)) {
+  if (options.overwriteConfig) {
+    fs.removeSync(options.configPath)
+  } else {
+    logger.error(`Deployer config already exists in '${options.configPath}' - to overwrite, use the '--overwriteConfig' flag`)
+    process.exit(1)
+  }
 }
+fs.ensureDirSync(options.configPath)
+fs.copySync(path.resolve(__dirname, `../../core-config/lib/networks/${options.network}`), options.configPath)
 
 let networkConfig = {
   name: options.name.toLowerCase(),
@@ -77,7 +86,7 @@ let networkConfig = {
   exceptions: {}
 }
 
-const network = updateConfig('network', networkConfig)
+const network = updateConfig('network.json', networkConfig, options.configPath)
 
 const genesis = (new genesisBlockBuilder(network, options)).generate()
 
@@ -94,19 +103,34 @@ if (options.rewardHeight === 1) {
   network.constants[1].reward = options.rewardPerBlock
 }
 
-updateConfig('network', networkConfig)
+updateConfig('network.json', networkConfig, options.configPath)
+updateConfig('peers.json', {
+  minimumNetworkReach: 1,
+  list: [{
+    ip: '127.0.0.1',
+    port: options.p2pPort
+  }],
+  sources: []
+}, options.configPath)
 
-updateConfig('genesisWallet', {
+updateConfig('genesisWallet.json', {
   address: genesis.genesisWallet.address,
   passphrase: genesis.genesisWallet.passphrase
-}, true)
-updateConfig('genesisBlock', genesis.genesisBlock, true)
-updateConfig('delegates', {secrets: genesis.delegatePassphrases}, true)
+}, options.configPath, true)
+updateConfig('genesisBlock.json', genesis.genesisBlock, options.configPath, true)
+updateConfig('delegates.json', {
+  secrets: genesis.delegatePassphrases
+}, options.configPath, true)
 
-updateConfig('server', {
+updateConfig('server.json', {
   port: options.p2pPort,
-  'database.options.uri': `postgres://${options.dbUsername}:${options.dbPassword}@${options.dbHost}:${options.dbPort}/${options.dbDatabase}`,
-  'database.options.dialect': 'postgres'
-})
+  fastRebuild: false
+}, options.configPath)
 
-updateConfig('api/public', { port: options.apiPort })
+updateConfig('api/public.json', { port: options.apiPort }, options.configPath)
+
+writeEnv({
+  P2P_PORT: options.p2pPort,
+  API_PORT: options.apiPort,
+  DB_PORT: options.dbPort
+}, '~/.ark/.env')

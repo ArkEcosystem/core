@@ -13,6 +13,8 @@ module.exports = async (options) => {
     config: options.config
   }, {
     include: [
+      '@arkecosystem/core-event-emitter',
+      '@arkecosystem/core-validation',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',
