@@ -12,6 +12,7 @@ module.exports = async (options) => {
 
   container.init({ data: options.data, config }, {
     include: [
+      '@arkecosystem/core-event-emitter',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',
