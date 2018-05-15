@@ -13,15 +13,8 @@ module.exports = class PluginRegistrars {
    * @param  {Object} options
    */
   constructor (container, options = {}) {
-    const plugins = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
-
-    if (!fs.existsSync(plugins)) {
-      throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
-      process.exit(1) // eslint-disable-line no-unreachable
-    }
-
     this.container = container
-    this.groups = require(plugins)
+    this.groups = this.__loadPlugins()
     this.options = options
     this.deregister = []
     this.plugins = {}
@@ -147,5 +140,26 @@ module.exports = class PluginRegistrars {
     }
 
     return register
+  }
+
+  /**
+   * Load plugins from any of the available files.
+   * @return {[Object|void]}
+   */
+  __loadPlugins () {
+    const primary = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
+
+    if (fs.existsSync(primary)) {
+      return require(primary)
+    }
+
+    const secondary = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.json`))
+
+    if (fs.existsSync(secondary)) {
+      return require(secondary)
+    }
+
+    throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+    process.exit(1) // eslint-disable-line no-unreachable
   }
 }
