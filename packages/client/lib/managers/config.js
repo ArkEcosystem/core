@@ -1,3 +1,4 @@
+const arkjsv1 = require('arkjsv1')
 const _ = require('lodash')
 const deepmerge = require('deepmerge')
 const feeManager = require('./fee')
@@ -22,6 +23,8 @@ class ConfigManager {
     for (const [key, value] of Object.entries(config)) {
       this.config[key] = value
     }
+
+    arkjsv1.crypto.setNetworkVersion(this.config.pubKeyHash) // make sure ark.js v1 uses our config
 
     this.__buildConstants()
     this.__buildFees()
