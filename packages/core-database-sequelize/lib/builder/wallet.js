@@ -246,6 +246,8 @@ module.exports = class WalletBuilder {
       if (!wallet.voted && !wallet.votesExceeded) {
         let transaction = Transaction.deserialize(row.serialized.toString('hex'))
 
+        // TODO: check if we need to use a different method in case transaction
+        // are applied before this as this deducts balances
         wallet.applyTransactionToSender(transaction)
 
         wallet.voted = true

@@ -189,10 +189,18 @@ module.exports = class WalletManager {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
       throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
-    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
+    } else if (transactionData.type === TRANSACTION_TYPES.VOTE) {
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
+      // TODO: do we fail the whole transaction if 1 of N delegates doesn't exist or just log
+      transactionData.asset.votes.forEach(vote => {
+        const delegate = this.walletsByPublicKey[vote.slice(1)]
+
+        if(!delegate.username) {
+          logger.warn(`Partially can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
+          // throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
+        }
+      })
     } else if (config.network.exceptions[transactionData.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
     } else if (!sender.canApply(transactionData)) {
