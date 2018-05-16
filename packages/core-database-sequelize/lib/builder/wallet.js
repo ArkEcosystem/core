@@ -243,10 +243,10 @@ module.exports = class WalletBuilder {
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
 
-      if (!wallet.voted) {
-        let votes = Transaction.deserialize(row.serialized.toString('hex')).asset.votes
+      if (!wallet.voted && !wallet.votesExceeded) {
+        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
 
-        votes.forEach(vote => wallet.votes.push(vote.slice(1)))
+        wallet.applyTransactionToSender(transaction)
 
         wallet.voted = true
       }
