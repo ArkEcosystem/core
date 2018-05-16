@@ -2,10 +2,12 @@
 
 const rule = require('../../../../lib/rules/models/transactions/transfer')
 const { transactionBuilder } = require('@arkecosystem/client')
-let transaction
 const address = 'APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi'
 const arktoshi = Math.pow(10, 8)
+const fee = 1 * arktoshi
+const amount = 10 * arktoshi
 
+let transaction
 beforeEach(() => {
   transaction = transactionBuilder.transfer()
 })
@@ -16,21 +18,28 @@ describe('Transfer Transaction Rule', () => {
   })
 
   it('should be valid', () => {
-    transaction.create(address, 10 * arktoshi)
+    transaction.create(address, amount)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).fails).toBeFalsy()
   })
 
-  it('should be valid with full data', () => {
-    transaction.create(address, 10 * arktoshi)
-               .setFee(1 * arktoshi)
-               .setVendorField('Hioo')
+  it('should be valid with correct data', () => {
+    transaction.create(address, amount)
+               .setFee(fee)
+               .setVendorField('Ahoy')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).fails).toBeFalsy()
   })
 
-  it('should be invalid due to tx amount', () => {
+  it('should be invalid due to zero amount', () => {
     transaction.create(address, 0)
+               .sign('passphrase')
+    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+  })
+
+  it('should be invalid due to zero fee', () => {
+    transaction.create(address, 0)
+               .setFee(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
   })
