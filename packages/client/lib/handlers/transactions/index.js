@@ -22,7 +22,7 @@ class TransactionHandler {
    * [canApply description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {Boolean}
    */
   canApply (wallet, transaction) {
     return this.handlers[transaction.type].canApply(wallet, transaction)
@@ -32,7 +32,7 @@ class TransactionHandler {
    * [apply description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   apply (wallet, transaction) {
     return this.handlers[transaction.type].apply(wallet, transaction)
@@ -42,7 +42,7 @@ class TransactionHandler {
    * [applyTransactionToSender description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   applyTransactionToSender (wallet, transaction) {
     return this.handlers[transaction.type].applyTransactionToSender(wallet, transaction)
@@ -52,7 +52,7 @@ class TransactionHandler {
    * [applyTransactionToRecipient description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   applyTransactionToRecipient (wallet, transaction) {
     return this.handlers[transaction.type].applyTransactionToRecipient(wallet, transaction)
@@ -62,7 +62,7 @@ class TransactionHandler {
    * [revert description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   revert (wallet, transaction) {
     return this.handlers[transaction.type].revert(wallet, transaction)
@@ -72,7 +72,7 @@ class TransactionHandler {
    * [revertTransactionForSender description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   revertTransactionForSender (wallet, transaction) {
     return this.handlers[transaction.type].revertTransactionForSender(wallet, transaction)
@@ -82,7 +82,7 @@ class TransactionHandler {
    * [revertTransactionForRecipient description]
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {[type]}
+   * @return {void}
    */
   revertTransactionForRecipient (wallet, transaction) {
     return this.handlers[transaction.type].revertTransactionForRecipient(wallet, transaction)

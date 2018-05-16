@@ -34,7 +34,7 @@ class VoteHandler extends Handler {
    * Apply the transaction to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   apply (wallet, transaction) {
     sortVotes(transaction.asset.votes).forEach(vote => {
@@ -56,7 +56,7 @@ class VoteHandler extends Handler {
    * Revert the transaction from the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   revert (wallet, transaction) {
     sortVotes(transaction.asset.votes).forEach(vote => {

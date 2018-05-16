@@ -24,7 +24,7 @@ class MultiSignatureHandler extends Handler {
    * Apply the transaction to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   apply (wallet, transaction) {
     wallet.multisignature = transaction.asset.multisignature
@@ -34,7 +34,7 @@ class MultiSignatureHandler extends Handler {
    * Revert the transaction from the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   revert (wallet, transaction) {
     wallet.multisignature = null

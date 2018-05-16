@@ -21,7 +21,7 @@ class MultiPaymentHandler extends Handler {
    * Apply the transaction to the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   apply (wallet, transaction) {
     //
@@ -31,7 +31,7 @@ class MultiPaymentHandler extends Handler {
    * Revert the transaction from the wallet.
    * @param  {Wallet} wallet
    * @param  {Transaction} transaction
-   * @return {Boolean}
+   * @return {void}
    */
   revert (wallet, transaction) {
     //

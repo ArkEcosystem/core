@@ -27,6 +27,7 @@ module.exports = class TransactionHandler {
    * Associate this wallet as the sender of a transaction.
    * @param {Wallet} wallet
    * @param {Transaction} transaction
+   * @return {void}
    */
   applyTransactionToSender (wallet, transaction) {
     if (transaction.senderPublicKey === wallet.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === wallet.address) {
@@ -42,6 +43,7 @@ module.exports = class TransactionHandler {
    * Remove this wallet as the sender of a transaction.
    * @param {Wallet} wallet
    * @param {Transaction} transaction
+   * @return {void}
    */
   revertTransactionForSender (wallet, transaction) {
     if (transaction.senderPublicKey === wallet.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === wallet.address) {
@@ -57,6 +59,7 @@ module.exports = class TransactionHandler {
    * Add transaction balance to this wallet.
    * @param {Wallet} wallet
    * @param {Transaction} transaction
+   * @return {void}
    */
   applyTransactionToRecipient (wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
@@ -69,6 +72,7 @@ module.exports = class TransactionHandler {
    * Remove transaction balance from this wallet.
    * @param {Wallet} wallet
    * @param {Transaction} transaction
+   * @return {void}
    */
   revertTransactionForRecipient (wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
