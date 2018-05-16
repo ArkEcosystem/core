@@ -64,19 +64,7 @@ module.exports = class Wallet {
       }
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        sortVotes(transaction.asset.votes).forEach(vote => {
-          this.__determineExcessiveVotes()
-
-          if (vote.startsWith('+') && this.__canVoteFor(vote.slice(1))) {
-            this.votes.push(vote.slice(1))
-          }
-
-          if (vote.startsWith('-')) {
-            this.votes = this.votes.filter(item => (item !== vote.slice(1)))
-          }
-
-          this.__determineExcessiveVotes()
-        })
+        this.applyVotes(transaction.asset.votes)
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
@@ -104,19 +92,7 @@ module.exports = class Wallet {
       }
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        sortVotes(transaction.asset.votes).forEach(vote => {
-          this.__determineExcessiveVotes()
-
-          if (vote.startsWith('+')) {
-            this.votes = this.votes.filter(item => (item !== vote.slice(1)))
-          }
-
-          if (vote.startsWith('-') && this.__canVoteFor(vote.slice(1))) {
-            this.votes.push(vote.slice(1))
-          }
-
-          this.__determineExcessiveVotes()
-        })
+        this.revertVotes(transaction.asset.votes)
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
@@ -346,6 +322,48 @@ module.exports = class Wallet {
     const ecsignature = ECSignature.fromDER(signSignatureBuffer)
 
     return ecpair.verify(hash, ecsignature)
+  }
+
+  /**
+   * Evaluate and apply all of the given votes.
+   * @param  {Array} transaction
+   * @return {void}
+   */
+  applyVotes (transaction) {
+    sortVotes(transaction.asset.votes).forEach(vote => {
+      this.__determineExcessiveVotes()
+
+      if (vote.startsWith('+') && this.__canVoteFor(vote.slice(1))) {
+        this.votes.push(vote.slice(1))
+      }
+
+      if (vote.startsWith('-')) {
+        this.votes = this.votes.filter(item => (item !== vote.slice(1)))
+      }
+
+      this.__determineExcessiveVotes()
+    })
+  }
+
+  /**
+   * Evaluate and revert all of the given votes.
+   * @param  {Array} transaction
+   * @return {void}
+   */
+  revertVotes (transaction) {
+    sortVotes(transaction.asset.votes).forEach(vote => {
+      this.__determineExcessiveVotes()
+
+      if (vote.startsWith('+')) {
+        this.votes = this.votes.filter(item => (item !== vote.slice(1)))
+      }
+
+      if (vote.startsWith('-') && this.__canVoteFor(vote.slice(1))) {
+        this.votes.push(vote.slice(1))
+      }
+
+      this.__determineExcessiveVotes()
+    })
   }
 
   /**

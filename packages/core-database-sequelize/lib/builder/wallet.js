@@ -246,9 +246,7 @@ module.exports = class WalletBuilder {
       if (!wallet.voted && !wallet.votesExceeded) {
         let transaction = Transaction.deserialize(row.serialized.toString('hex'))
 
-        // TODO: check if we need to use a different method in case transaction
-        // are applied before this as this deducts balances
-        wallet.applyTransactionToSender(transaction)
+        wallet.applyVotes(transaction)
 
         // TODO: this currently prevents multiple votes that are spread out over multiple transactions
         // if we have a limit of 5 votes and all 5 votes are in this 1 transaction it is no problem,
