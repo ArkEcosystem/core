@@ -197,9 +197,13 @@ module.exports = class WalletManager {
         const delegate = this.walletsByPublicKey[vote.slice(1)]
 
         if (!delegate.username) {
-          logger.warn(`Partially can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
-          // throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
+          throw new Error(`Can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
         }
+
+        // TODO: faster way to maintain active delegate list (ie instead of db queries)
+        // this
+        //   .getWalletByAddress(crypto.getAddress(vote.slice(1)))
+        //   .applyVote(sender, vote)
       })
     } else if (config.network.exceptions[transactionData.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
@@ -215,13 +219,6 @@ module.exports = class WalletManager {
     if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(transactionData)
     }
-
-    // TODO: faster way to maintain active delegate list (ie instead of db queries)
-    // if (sender.vote) {
-    //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-    //   const delegate = this.localwallets[delegateAdress]
-    //   delegate.applyVote(sender, transaction.data.asset.votes[0])
-    // }
 
     return transaction
   }
