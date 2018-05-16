@@ -98,7 +98,7 @@ module.exports = class Transaction {
   sign (passphrase) {
     const keys = cryptoBuilder.getKeys(passphrase)
     this.senderPublicKey = keys.publicKey
-    this.signature = cryptoBuilder.sign(this, keys)
+    this.signature = cryptoBuilder.sign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -119,8 +119,8 @@ module.exports = class Transaction {
    */
   getStruct () {
     return {
-      hex: cryptoBuilder.getBytes(this).toString('hex'),
-      id: cryptoBuilder.getId(this),
+      // hex: cryptoBuilder.getBytes(this).toString('hex'),
+      id: cryptoBuilder.getId(this).toString('hex'),
       signature: this.signature,
       secondSignature: this.secondSignature,
       timestamp: this.timestamp,
@@ -129,5 +129,21 @@ module.exports = class Transaction {
       fee: this.fee,
       senderPublicKey: this.senderPublicKey
     }
+  }
+
+  /**
+   * Get a valid object used to sign a transaction.
+   * @return {Object}
+   */
+  __getSigningObject () {
+    const transaction = { ...this }
+
+    Object.keys(transaction).forEach(key =>  {
+      if (['model', 'network', 'id'].includes(key)) {
+        delete transaction[key]
+      }
+    })
+
+    return transaction
   }
 }
