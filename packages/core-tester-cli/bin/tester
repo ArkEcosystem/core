@@ -31,6 +31,7 @@ app
   .option('-n, --number <number>', 'number of votes', 10)
   .option('-d, --delegate <delegate>', 'delegate public key')
   .option('-q, --quantity <number>', 'quantity of delegates to vote for if `-d` is omitted', 1)
+  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/votes')(options))
 
 app
