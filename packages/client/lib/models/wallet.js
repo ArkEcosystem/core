@@ -55,19 +55,27 @@ module.exports = class Wallet {
 
       if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
         this.secondPublicKey = transaction.asset.signature.publicKey
-      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = transaction.asset.delegate.username
-      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.asset.votes.forEach(vote => {
           if (vote.startsWith('+')) {
-            this.votes.push(vote.slice(1))
+            if (this.votes.length < configManager.getConstant('activeVotes')) {
+              this.votes.push(vote.slice(1))
+            }
           }
 
           if (vote.startsWith('-')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
         })
-      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         this.multisignature = transaction.asset.multisignature
       }
 
@@ -85,19 +93,27 @@ module.exports = class Wallet {
 
       if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
         this.secondPublicKey = null
-      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = null
-      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.asset.votes.forEach(vote => {
           if (vote.startsWith('+')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
 
           if (vote.startsWith('-')) {
-            this.votes.push(vote.slice(1))
+            if (this.votes.length < configManager.getConstant('activeVotes')) {
+              this.votes.push(vote.slice(1))
+            }
           }
         })
-      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         this.multisignature = null
       }
 
