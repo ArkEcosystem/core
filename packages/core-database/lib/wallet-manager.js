@@ -190,17 +190,15 @@ module.exports = class WalletManager {
 
       throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
     } else if (transactionData.type === TRANSACTION_TYPES.VOTE) {
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
-
-      // TODO: do we fail the whole transaction if 1 of N delegates doesn't exist or just log
       transactionData.asset.votes.forEach(vote => {
         const delegate = this.walletsByPublicKey[vote.slice(1)]
 
         if (!delegate.username) {
+          logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
           throw new Error(`Can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
         }
 
-        // TODO: faster way to maintain active delegate list (ie instead of db queries)
+        // TODO: faster way to maintain active delegate list (i.e. instead of db queries)
         // this
         //   .getWalletByAddress(crypto.getAddress(vote.slice(1)))
         //   .applyVote(sender, vote)

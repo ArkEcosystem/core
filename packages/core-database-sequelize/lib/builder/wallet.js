@@ -244,7 +244,7 @@ module.exports = class WalletBuilder {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
 
       if (!wallet.votesExceeded) {
-        wallet.applyVotes(Transaction.deserialize(row.serialized.toString('hex')))
+        wallet.apply(Transaction.deserialize(row.serialized.toString('hex')))
       }
     })
   }

@@ -173,7 +173,9 @@ exports.postTransactions = {
 
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
-      container.resolvePlugin('blockchain').postTransactions(transactionPool.guard.accept, request.payload.broadcast)
+      container
+        .resolvePlugin('blockchain')
+        .postTransactions(transactionPool.guard.accept, request.payload.broadcast)
     }
 
     return {
