@@ -31,7 +31,7 @@ module.exports = class Config extends ConfigInterface {
       dest = `${process.env.ARK_PATH_DATA}/config`
     }
 
-    await fs.ensureDir(process.env.ARK_PATH_CONFIG)
+    await fs.ensureDir(dest)
 
     return fs.copy(process.env.ARK_PATH_CONFIG, dest)
   }
