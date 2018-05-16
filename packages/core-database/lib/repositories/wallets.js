@@ -97,7 +97,7 @@ module.exports = class WalletsRepository {
     let wallets = this.findAll()
 
     wallets = filterObject(wallets, params, {
-      exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+      exact: ['address', 'publicKey', 'secondPublicKey', 'votes', 'username'],
       between: ['balance', 'votebalance']
     })
 

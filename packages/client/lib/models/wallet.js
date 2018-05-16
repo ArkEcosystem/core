@@ -58,15 +58,11 @@ module.exports = class Wallet {
       } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = transaction.asset.delegate.username
       } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        const votes = transaction.asset.votes
-
-        votes.forEach(vote => {
-          // vote
+        transaction.asset.votes.forEach(vote => {
           if (vote.startsWith('+')) {
             this.votes.push(vote.slice(1))
           }
 
-          // unvote
           if (vote.startsWith('-')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
@@ -92,15 +88,11 @@ module.exports = class Wallet {
       } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = null
       } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        const votes = transaction.asset.votes
-
-        votes.forEach(vote => {
-          // vote
+        transaction.asset.votes.forEach(vote => {
           if (vote.startsWith('+')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
 
-          // unvote
           if (vote.startsWith('-')) {
             this.votes.push(vote.slice(1))
           }
