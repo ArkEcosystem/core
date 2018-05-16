@@ -87,16 +87,6 @@ class TransactionHandler {
   revertTransactionForRecipient (wallet, transaction) {
     return this.handlers[transaction.type].revertTransactionForRecipient(wallet, transaction)
   }
-
-  /**
-   * [validate description]
-   * @param  {Wallet} wallet
-   * @param  {Transaction} transaction
-   * @return {[type]}
-   */
-  validate (wallet, transaction) {
-    return this.handlers[transaction.type].validate(wallet, transaction)
-  }
 }
 
 module.exports = new TransactionHandler()
