@@ -36,6 +36,7 @@ module.exports = class Wallet {
     this.secondPublicKey = null
     this.balance = 0
     this.votes = []
+    this.votesExceeded = false
     this.username = null
     this.lastBlock = null
     this.votebalance = 0
@@ -64,7 +65,7 @@ module.exports = class Wallet {
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.asset.votes.forEach(vote => {
           if (vote.startsWith('+')) {
-            if (this.votes.length < configManager.getConstant('activeVotes')) {
+            if (!this.__hasExceededVotes()) {
               this.votes.push(vote.slice(1))
             }
           }
@@ -72,6 +73,8 @@ module.exports = class Wallet {
           if (vote.startsWith('-')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
+
+          this.__hasExceededVotes()
         })
       }
 
@@ -106,10 +109,12 @@ module.exports = class Wallet {
           }
 
           if (vote.startsWith('-')) {
-            if (this.votes.length < configManager.getConstant('activeVotes')) {
+            if (!this.__hasExceededVotes()) {
               this.votes.push(vote.slice(1))
             }
           }
+
+          this.__hasExceededVotes()
         })
       }
 
@@ -313,5 +318,15 @@ module.exports = class Wallet {
    */
   toString () {
     return `${this.address}=${this.balance / ARKTOSHI}`
+  }
+
+  /**
+   * Check whether the wallet has exceeded the number of active votes.
+   * @return {Boolean}
+   */
+  __hasExceededVotes () {
+    this.votesExceeded = this.votes.length >= configManager.getConstant('activeVotes')
+
+    return this.votesExceeded
   }
 }
