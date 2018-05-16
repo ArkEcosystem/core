@@ -66,7 +66,7 @@ module.exports = class Wallet {
         transaction.asset.votes.forEach(vote => {
           this.__determineExcessiveVotes()
 
-          if (vote.startsWith('+') && !this.votesExceeded) {
+          if (vote.startsWith('+') && this.__canVoteFor(vote.slice(1))) {
             this.votes.push(vote.slice(1))
           }
 
@@ -110,7 +110,7 @@ module.exports = class Wallet {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
 
-          if (vote.startsWith('-') && !this.votesExceeded) {
+          if (vote.startsWith('-') && this.__canVoteFor(vote.slice(1))) {
             this.votes.push(vote.slice(1))
           }
 
@@ -356,5 +356,13 @@ module.exports = class Wallet {
    */
   __determineExcessiveVotes () {
     this.votesExceeded = this.votes.length >= configManager.getConstant('activeVotes')
+  }
+
+  /**
+   * Determine whether the wallet is voting for the given public key.
+   * @return {Boolean}
+   */
+  __canVoteFor (publicKey) {
+    return !this.votes.includes(publicKey) && !this.votesExceeded
   }
 }

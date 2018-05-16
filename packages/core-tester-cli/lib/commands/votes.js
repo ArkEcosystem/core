@@ -2,6 +2,7 @@
 
 const ark = require('arkjs')
 const delay = require('delay')
+const sampleSize = require('lodash/sampleSize')
 const utils = require('../utils')
 const logger = utils.logger
 const transactionCommand = require('./transactions')
@@ -13,12 +14,12 @@ module.exports = async (options) => {
   let delegateVotes = []
   if (!options.delegate) {
     const delegates = await utils.getDelegates()
-    for (let i = 0; i < options.quantity; i++) {
-      const randomKey = Math.floor(Math.random() * delegates.length)
-      const randomDelegate = delegates.slice(randomKey, randomKey + 1).pop()
+    const chosen = sampleSize(delegates, options.quantity)
+
+    for (let i = 0; i < chosen.length; i++) {
       delegateVotes.push({
-        delegate: randomDelegate,
-        voters: await utils.getVoters(randomDelegate.publicKey)
+        delegate: chosen[i],
+        voters: await utils.getVoters(chosen[i].publicKey)
       })
     }
   }
