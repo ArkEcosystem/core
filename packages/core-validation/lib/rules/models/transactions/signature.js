@@ -8,7 +8,7 @@ module.exports = (transaction) => {
     timestamp: engine.joi.number().min(0).required(),
     amount: engine.joi.number().valid(0),
     fee: engine.joi.number().min(1).required(),
-    senderId: engine.joi.arkAddress().required(),
+    senderId: engine.joi.arkAddress(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
     secondSignature: engine.joi.empty(),
