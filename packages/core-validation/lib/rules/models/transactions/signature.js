@@ -1,23 +1,22 @@
-const Joi = require('joi')
-const validate = require('../utils/validate-with-joi')
+const engine = require('../../../engine')
 
 module.exports = (transaction) => {
-  const { error, value } = validate(transaction, Joi.object({
-    id: Joi.string().alphanum().required(),
-    blockid: Joi.number(),
-    type: Joi.number().valid(1),
-    timestamp: Joi.number().min(0).required(),
-    amount: Joi.number().valid(0),
-    fee: Joi.number().min(1).required(),
-    senderId: Joi.string().alphanum().length(34).required(),
-    senderPublicKey: Joi.string().alphanum().length(66).required(),
-    signature: Joi.string().alphanum().required(),
-    asset: Joi.object({
-      signature: Joi.object({
-        publicKey: Joi.string().alphanum().length(66).required()
+  const { error, value } = engine.validate(transaction, engine.joi.object({
+    id: engine.joi.string().alphanum().required(),
+    blockid: engine.joi.number(),
+    type: engine.joi.number().valid(1),
+    timestamp: engine.joi.number().min(0).required(),
+    amount: engine.joi.number().valid(0),
+    fee: engine.joi.number().min(1).required(),
+    senderId: engine.joi.arkAddress().required(),
+    senderPublicKey: engine.joi.arkPublicKey().required(),
+    signature: engine.joi.string().alphanum().required(),
+    asset: engine.joi.object({
+      signature: engine.joi.object({
+        publicKey: engine.joi.arkPublicKey().required()
       })
     }).required(),
-    confirmations: Joi.number().min(0)
+    confirmations: engine.joi.number().min(0)
   }))
 
   return {
