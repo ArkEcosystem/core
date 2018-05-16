@@ -233,7 +233,7 @@ module.exports = class WalletBuilder {
         'serialized'
       ],
       order: [
-        ['createdAt', 'DESC']
+        ['createdAt', 'ASC']
       ],
       where: {
         type: TRANSACTION_TYPES.VOTE
