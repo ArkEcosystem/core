@@ -109,7 +109,7 @@ module.exports = class Transaction {
    */
   secondSign (secondPassphrase) {
     const keys = cryptoBuilder.getKeys(secondPassphrase)
-    this.secondSignature = cryptoBuilder.secondSign(this, keys)
+    this.signSignature = cryptoBuilder.secondSign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -122,7 +122,7 @@ module.exports = class Transaction {
       // hex: cryptoBuilder.getBytes(this).toString('hex'),
       id: cryptoBuilder.getId(this).toString('hex'),
       signature: this.signature,
-      secondSignature: this.secondSignature,
+      signSignature: this.signSignature,
       timestamp: this.timestamp,
 
       type: this.type,
