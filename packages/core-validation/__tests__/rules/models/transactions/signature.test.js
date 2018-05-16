@@ -2,7 +2,6 @@
 
 const rule = require('../../../../lib/rules/models/transactions/signature')
 const { transactionBuilder } = require('@arkecosystem/client')
-const address = 'APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi'
 const arktoshi = Math.pow(10, 8)
 
 let transaction

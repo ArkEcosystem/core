@@ -2,7 +2,6 @@
 
 const rule = require('../../../../lib/rules/models/transactions/vote')
 const { transactionBuilder } = require('@arkecosystem/client')
-const address = 'APnDzjtDb1FthuqcLMeL5XMWb1uD1KeMGi'
 const arktoshi = Math.pow(10, 8)
 const votes = [
   '+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9',

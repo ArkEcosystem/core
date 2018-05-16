@@ -15,7 +15,7 @@ module.exports = (transaction) => {
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       votes: engine.joi.array().items(
-        engine.joi.string().length(67).regex(/^(\+|\-)[a-zA-Z0-9]+$/)
+        engine.joi.string().length(67).regex(/^(\+|-)[a-zA-Z0-9]+$/)
       ).min(1).required() // TODO: Max - maxvotes constant
     }).required(),
     confirmations: engine.joi.number().min(0)
