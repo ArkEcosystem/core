@@ -196,7 +196,7 @@ module.exports = class WalletManager {
       transactionData.asset.votes.forEach(vote => {
         const delegate = this.walletsByPublicKey[vote.slice(1)]
 
-        if(!delegate.username) {
+        if (!delegate.username) {
           logger.warn(`Partially can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
           // throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
         }
