@@ -1,6 +1,6 @@
 const feeManager = require('../../managers/fee')
-const Transaction = require('../transaction')
 const { TRANSACTION_TYPES } = require('../../constants')
+const Transaction = require('./transaction')
 
 module.exports = class TimelockTransfer extends Transaction {
   /**

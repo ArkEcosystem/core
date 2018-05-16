@@ -7,6 +7,7 @@ const txData = require('./fixtures/transaction')
 
 const configManager = require('../../lib/managers/config')
 const network = require('../../lib/networks/ark/devnet.json')
+const networkMainnet = require('../../lib/networks/ark/mainnet.json')
 
 const createRandomTx = type => {
   let tx
@@ -24,8 +25,7 @@ const createRandomTx = type => {
     case 1: // second signature
       tx = builder
         .secondSignature()
-        .create()
-        .sign(Math.random().toString(36))
+        .create(Math.random().toString(36))
         .secondSign(Math.random().toString(36))
       break
 
@@ -58,7 +58,7 @@ const createRandomTx = type => {
 
   tx.recipientId = txData.recipientId
   tx.senderPublicKey = txData.senderPublicKey
-  tx.network = 0x17
+  tx.network = networkMainnet
 
   return tx
 }
