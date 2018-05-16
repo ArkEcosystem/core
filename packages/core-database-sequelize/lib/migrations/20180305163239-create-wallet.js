@@ -1,4 +1,4 @@
-'use strict'
+ 'use strict'
 
 /**
  * The wallets migration.
@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.STRING(66)
       },
       secondPublicKey: Sequelize.STRING(66),
-      vote: Sequelize.STRING(66),
+      votes: Sequelize.JSON,
       username: Sequelize.STRING(64),
       balance: Sequelize.BIGINT,
       votebalance: Sequelize.BIGINT,
@@ -41,7 +41,7 @@ module.exports = {
       }
     })
 
-    queryInterface.addIndex('wallets', ['address', 'publicKey', 'vote', 'username'])
+    queryInterface.addIndex('wallets', ['address', 'publicKey', 'votes', 'username'])
   },
   /**
    * Reverse the migrations.

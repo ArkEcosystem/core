@@ -35,7 +35,7 @@ module.exports = class Wallet {
     this.publicKey = null
     this.secondPublicKey = null
     this.balance = 0
-    this.vote = null
+    this.votes = []
     this.username = null
     this.lastBlock = null
     this.votebalance = 0
@@ -58,11 +58,19 @@ module.exports = class Wallet {
       } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = transaction.asset.delegate.username
       } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        if (transaction.asset.votes[0].startsWith('+')) {
-          this.vote = transaction.asset.votes[0].slice(1)
-        } else if (transaction.asset.votes[0].startsWith('-')) {
-          this.vote = null
-        }
+        const votes = transaction.asset.votes
+
+        votes.forEach(vote => {
+          // vote
+          if (vote.startsWith('+')) {
+            this.votes.push(vote.slice(1))
+          }
+
+          // unvote
+          if (vote.startsWith('-')) {
+            this.votes = this.votes.filter(item => (item !== vote.slice(1)))
+          }
+        })
       } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         this.multisignature = transaction.asset.multisignature
       }
@@ -84,11 +92,19 @@ module.exports = class Wallet {
       } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
         this.username = null
       } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        if (transaction.asset.votes[0].startsWith('+')) {
-          this.vote = null
-        } else if (transaction.asset.votes[0].startsWith('-')) {
-          this.vote = transaction.asset.votes[0].slice(1)
-        }
+        const votes = transaction.asset.votes
+
+        votes.forEach(vote => {
+          // vote
+          if (vote.startsWith('+')) {
+            this.votes = this.votes.filter(item => (item !== vote.slice(1)))
+          }
+
+          // unvote
+          if (vote.startsWith('-')) {
+            this.votes.push(vote.slice(1))
+          }
+        })
       } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         this.multisignature = null
       }
