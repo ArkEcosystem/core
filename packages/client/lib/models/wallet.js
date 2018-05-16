@@ -64,17 +64,17 @@ module.exports = class Wallet {
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.asset.votes.forEach(vote => {
-          if (vote.startsWith('+')) {
-            if (!this.__hasExceededVotes()) {
-              this.votes.push(vote.slice(1))
-            }
+          this.__determineExcessiveVotes()
+
+          if (vote.startsWith('+') && !this.votesExceeded) {
+            this.votes.push(vote.slice(1))
           }
 
           if (vote.startsWith('-')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
 
-          this.__hasExceededVotes()
+          this.__determineExcessiveVotes()
         })
       }
 
@@ -104,17 +104,17 @@ module.exports = class Wallet {
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
         transaction.asset.votes.forEach(vote => {
+          this.__determineExcessiveVotes()
+
           if (vote.startsWith('+')) {
             this.votes = this.votes.filter(item => (item !== vote.slice(1)))
           }
 
-          if (vote.startsWith('-')) {
-            if (!this.__hasExceededVotes()) {
-              this.votes.push(vote.slice(1))
-            }
+          if (vote.startsWith('-') && !this.votesExceeded) {
+            this.votes.push(vote.slice(1))
           }
 
-          this.__hasExceededVotes()
+          this.__determineExcessiveVotes()
         })
       }
 
@@ -321,12 +321,10 @@ module.exports = class Wallet {
   }
 
   /**
-   * Check whether the wallet has exceeded the number of active votes.
+   * Determine whether the wallet has exceeded the number of active votes.
    * @return {Boolean}
    */
-  __hasExceededVotes () {
+  __determineExcessiveVotes () {
     this.votesExceeded = this.votes.length >= configManager.getConstant('activeVotes')
-
-    return this.votesExceeded
   }
 }
