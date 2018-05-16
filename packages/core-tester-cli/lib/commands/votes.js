@@ -47,7 +47,12 @@ module.exports = async (options) => {
     process.exit() // eslint-disable-line no-unreachable
   }
 
-  const expectedVoters = voters + (wallets.length * options.quantity)
+  const constants = await utils.getConstants()
+
+  const expectedVoters = (options.quantity > constants.activeVotes)
+    ? voters + (wallets.length * constants.activeVotes)
+    : voters + (wallets.length * options.quantity)
+
   logger.info(`Expected end voters: ${expectedVoters}`)
 
   try {
