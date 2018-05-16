@@ -35,9 +35,9 @@ module.exports = class Transfer extends Transaction {
    * @param {Number}             type
    * @return {Transfer}
    */
-  setVendorField (data) {
-    this.vendorField = datas
-    this.vendorFieldHex = Buffer.from(data, type).toString('hex') // v2
+  setVendorField (data, type) {
+    this.vendorField = data
+    // this.vendorFieldHex = Buffer.from(data, type).toString('hex') // v2
     return this
   }
 
@@ -51,7 +51,7 @@ module.exports = class Transfer extends Transaction {
     struct.recipientId = this.recipientId
     struct.asset = this.asset
     struct.vendorField = this.vendorField
-    struct.vendorFieldHex = this.vendorFieldHex // v2
+    // struct.vendorFieldHex = this.vendorFieldHex // v2
     return struct
   }
 }
