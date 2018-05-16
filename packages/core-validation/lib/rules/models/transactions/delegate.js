@@ -18,7 +18,9 @@ module.exports = (transaction) => {
       })
     }).required(),
     confirmations: engine.joi.number().min(0)
-  }))
+  }), {
+    allowUnknown: true
+  })
 
   return {
     data: value,

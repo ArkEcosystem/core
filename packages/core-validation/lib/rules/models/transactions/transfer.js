@@ -14,7 +14,9 @@ module.exports = (transaction) => {
     signature: engine.joi.string().alphanum().required(),
     asset: engine.joi.object().empty(),
     confirmations: engine.joi.number().min(0),
-  }))
+  }), {
+    allowUnknown: true
+  })
 
   return {
     data: value,

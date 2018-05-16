@@ -16,7 +16,9 @@ module.exports = (transaction) => {
       votes: engine.joi.array().required()
     }).required(),
     confirmations: engine.joi.number().min(0)
-  }))
+  }), {
+    allowUnknown: true
+  })
 
   return {
     data: value,
