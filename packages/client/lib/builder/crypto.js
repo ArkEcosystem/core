@@ -1,5 +1,5 @@
 const bs58check = require('bs58check')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 const arkjsv1 = require('arkjsv1')
 // const { Buffer } = require('buffer/')
 

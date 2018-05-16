@@ -23,9 +23,8 @@ module.exports = class SecondSignature extends Transaction {
    * @param  {String}          passphrase
    * @return {SecondSignature}
    */
-  create (passphrase, secondPassphrase) {
+  create (secondPassphrase) {
     this.asset.signature.publicKey = cryptoBuilder.getKeys(secondPassphrase).publicKey
-    super.sign(passphrase)
     return this
   }
 

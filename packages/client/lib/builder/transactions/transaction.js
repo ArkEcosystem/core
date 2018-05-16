@@ -119,7 +119,7 @@ module.exports = class Transaction {
    */
   getStruct () {
     return {
-      // hex: cryptoBuilder.getBytes(this).toString('hex'),
+      // hex: cryptoBuilder.getBytes(this).toString('hex'), // v2
       id: cryptoBuilder.getId(this).toString('hex'),
       signature: this.signature,
       signSignature: this.signSignature,
@@ -138,7 +138,7 @@ module.exports = class Transaction {
   __getSigningObject () {
     const transaction = { ...this }
 
-    Object.keys(transaction).forEach(key =>  {
+    Object.keys(transaction).forEach(key => {
       if (['model', 'network', 'id'].includes(key)) {
         delete transaction[key]
       }
