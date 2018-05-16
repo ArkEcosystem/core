@@ -243,16 +243,8 @@ module.exports = class WalletBuilder {
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
 
-      if (!wallet.voted && !wallet.votesExceeded) {
-        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
-
-        wallet.applyVotes(transaction)
-
-        // TODO: this currently prevents multiple votes that are spread out over multiple transactions
-        // if we have a limit of 5 votes and all 5 votes are in this 1 transaction it is no problem,
-        // but if we have 3 transactions with 1 + 2 + 2 the issue is that the "voted" will be true
-        // after the firs transaction that only contained 1 vote
-        wallet.voted = true
+      if (!wallet.votesExceeded) {
+        wallet.applyVotes(Transaction.deserialize(row.serialized.toString('hex')))
       }
     })
   }
