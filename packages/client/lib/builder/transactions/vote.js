@@ -1,7 +1,7 @@
 const feeManager = require('../../managers/fee')
 const cryptoBuilder = require('../crypto')
-const Transaction = require('../transaction')
 const { TRANSACTION_TYPES } = require('../../constants')
+const Transaction = require('./transaction')
 
 module.exports = class Vote extends Transaction {
   /**
@@ -34,8 +34,8 @@ module.exports = class Vote extends Transaction {
    * @return {Vote}
    */
   sign (passphrase) {
+    this.recipientId = cryptoBuilder.getAddress(cryptoBuilder.getKeys(passphrase).publicKey)
     super.sign(passphrase)
-    this.recipientId = cryptoBuilder.getAddress(this.senderPublicKey)
     return this
   }
 

@@ -28,12 +28,12 @@ module.exports = class Config extends ConfigInterface {
    */
   async copyFiles (dest) {
     if (!dest) {
-      dest = `${process.env.ARK_PATH_CONFIG}/config`
+      dest = `${process.env.ARK_PATH_DATA}/config`
     }
 
-    await fs.ensureDir(this.options.config)
+    await fs.ensureDir(dest)
 
-    return fs.copy(this.options.config, dest)
+    return fs.copy(process.env.ARK_PATH_CONFIG, dest)
   }
 
   /**
@@ -64,7 +64,7 @@ module.exports = class Config extends ConfigInterface {
    * @return {Object}
    */
   __getFiles () {
-    const basePath = path.resolve(this.options.config)
+    const basePath = path.resolve(process.env.ARK_PATH_CONFIG)
 
     if (!fs.existsSync(basePath)) {
       throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')

@@ -18,12 +18,6 @@ describe('Plugin Registrar', () => {
     await expect(instance).toBeObject()
   })
 
-  it('should register a hook', async () => {
-    await instance.registerGroup('init')
-
-    await expect(instance.container.has('stub-plugin')).toBeTruthy()
-  })
-
   it('should register a plugin', async () => {
     const pluginName = './__tests__/__stubs__/plugin'
 

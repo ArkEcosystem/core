@@ -9,25 +9,14 @@ const activeDelegates = require('../__fixtures__/delegates.json')
 jest.setTimeout(60000)
 
 beforeAll(async (done) => {
-  const config = path.resolve(__dirname, './config')
+  process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
-  container.init({ data: '~/.ark', config }, {
-    exclude: [
-      '@arkecosystem/core-webhooks',
-      '@arkecosystem/core-webhooks-api',
-      '@arkecosystem/core-graphql',
-      '@arkecosystem/core-graphql-api',
-      '@arkecosystem/core-forger'
-    ]
+  await container.start({
+    data: '~/.ark',
+    config: path.resolve(__dirname, './config')
+  }, {
+    exit: '@arkecosystem/core-api'
   })
-
-  await container.plugins.registerGroup('init', {config})
-  await container.plugins.registerGroup('beforeCreate')
-  await container.plugins.registerGroup('beforeMount')
-
-  await container.resolvePlugin('blockchain').start(true)
-
-  await container.plugins.registerGroup('mounted')
 
   // seed
   const connection = container.resolvePlugin('database')

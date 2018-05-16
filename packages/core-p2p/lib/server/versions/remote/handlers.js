@@ -1,6 +1,6 @@
 'use strict'
 
-const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
+const container = require('@arkecosystem/core-container')
 
 /**
  * Respond with a blockchain event.
@@ -13,6 +13,8 @@ exports.sendBlockchainEvent = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
+    const blockchain = container.resolvePlugin('blockchain')
+
     if (!blockchain[request.params.event]) {
       return h.response({
         success: false,

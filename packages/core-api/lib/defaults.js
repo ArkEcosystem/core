@@ -2,7 +2,7 @@
 
 module.exports = {
   enabled: true,
-  port: 4003,
+  port: process.env.ARK_API_PORT || 4003,
   versions: {
     default: 1,
     valid: [1, 2]
@@ -12,8 +12,8 @@ module.exports = {
     options: {
       name: 'redisCache',
       engine: 'catbox-redis',
-      host: 'localhost',
-      port: 6379,
+      host: process.env.ARK_REDIS_HOST || 'localhost',
+      port: process.env.ARK_REDIS_PORT || 6379,
       partition: 'cache',
       expiresIn: 60000
     }

@@ -6,10 +6,23 @@ const { slots } = require('@arkecosystem/client')
 const app = require('./__support__/setup')
 const genesisBlock = require('./__fixtures__/genesisBlock')
 
+let container
 let blockchain
 
 beforeAll(async (done) => {
-  const container = await app.setUp()
+  container = await app.setUp()
+
+  done()
+})
+
+afterAll(async (done) => {
+  await app.tearDown()
+
+  done()
+})
+
+beforeEach(async (done) => {
+  process.env.ARK_SKIP_BLOCKCHAIN = true
 
   // manually register the blockchain
   const plugin = require('../lib').plugin
@@ -25,18 +38,12 @@ beforeAll(async (done) => {
     options: {}
   }))
 
-  await container.plugins.registerGroup('beforeMount')
-
-  done()
-})
-
-afterAll(async (done) => {
-  await app.tearDown()
-
   done()
 })
 
 afterEach(async (done) => {
+  process.env.ARK_SKIP_BLOCKCHAIN = false
+
   await blockchain.resetState()
 
   done()
@@ -65,6 +72,8 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
+      process.env.ARK_SKIP_BLOCKCHAIN = false
+
       const started = await blockchain.start(true)
 
       expect(started).toBeTruthy()

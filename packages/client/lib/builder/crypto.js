@@ -1,5 +1,5 @@
 const bs58check = require('bs58check')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 const arkjsv1 = require('arkjsv1')
 // const { Buffer } = require('buffer/')
 
@@ -32,7 +32,7 @@ class CryptoBuilder {
     }
 
     // TODO: Enable AIP11 id here
-    return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
+    // return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
   }
 
   /**
@@ -45,6 +45,7 @@ class CryptoBuilder {
       return arkjsv1.crypto.getHash(transaction, skipSignature, skipSecondSignature)
     }
 
+    // TODO: Enable AIP11 id here
     // return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
   }
 
