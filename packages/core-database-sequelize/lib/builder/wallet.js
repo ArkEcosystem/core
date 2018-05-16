@@ -250,6 +250,10 @@ module.exports = class WalletBuilder {
         // are applied before this as this deducts balances
         wallet.applyTransactionToSender(transaction)
 
+        // TODO: this currently prevents multiple votes that are spread out over multiple transactions
+        // if we have a limit of 5 votes and all 5 votes are in this 1 transaction it is no problem,
+        // but if we have 3 transactions with 1 + 2 + 2 the issue is that the "voted" will be true
+        // after the firs transaction that only contained 1 vote
         wallet.voted = true
       }
     })
