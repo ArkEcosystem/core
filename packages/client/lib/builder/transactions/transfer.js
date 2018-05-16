@@ -1,6 +1,6 @@
 const feeManager = require('../../managers/fee')
-const Transaction = require('../transaction')
 const { TRANSACTION_TYPES } = require('../../constants')
+const Transaction = require('./transaction')
 
 module.exports = class Transfer extends Transaction {
   /**
@@ -35,8 +35,9 @@ module.exports = class Transfer extends Transaction {
    * @param {Number}             type
    * @return {Transfer}
    */
-  setVendorField (data, type) {
-    this.vendorFieldHex = Buffer.from(data, type).toString('hex')
+  setVendorField (data) {
+    this.vendorField = datas
+    this.vendorFieldHex = Buffer.from(data, type).toString('hex') // v2
     return this
   }
 
@@ -49,7 +50,8 @@ module.exports = class Transfer extends Transaction {
     struct.amount = this.amount
     struct.recipientId = this.recipientId
     struct.asset = this.asset
-    struct.vendorFieldHex = this.vendorFieldHex
+    struct.vendorField = this.vendorField
+    struct.vendorFieldHex = this.vendorFieldHex // v2
     return struct
   }
 }
