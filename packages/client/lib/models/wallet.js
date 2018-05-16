@@ -158,6 +158,7 @@ module.exports = class Wallet {
       this.producedBlocks++
       this.lastBlock = block
     }
+
     this.dirty = true
   }
 
@@ -172,6 +173,7 @@ module.exports = class Wallet {
       // TODO: get it back from database?
       this.lastBlock = null
     }
+
     this.dirty = true
   }
 
@@ -197,37 +199,65 @@ module.exports = class Wallet {
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
       return true
-    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      if (transaction.asset.votes[0].startsWith('-')) return this.vote === transaction.asset.votes[0].slice(1)
-      if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      if (transaction.asset.votes[0].startsWith('-')) {
+        return this.vote === transaction.asset.votes[0].slice(1)
+      }
+
+      if (transaction.asset.votes[0].startsWith('+') && !this.vote) {
+        return true
+      }
+
       return false
-    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       return !this.secondPublicKey
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
       const username = transaction.asset.delegate.username
+
       return !this.username && username && username === username.toLowerCase()
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       const keysgroup = transaction.asset.multisignature.keysgroup
+
       return !this.multisignature &&
         keysgroup.length >= transaction.asset.multisignature.min &&
         keysgroup.length === transaction.signatures.length &&
         this.verifySignatures(transaction, transaction.asset.multisignature)
-    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.IPFS) {
       return true
-    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       return true
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
+
       return this.balance - amount - transaction.fee > -1
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
       return !!this.username
     }
+
     return false
   }
 
   auditApply (transaction) {
     const audit = []
+
     audit.push({'Network': configManager.config})
+
     if (this.multisignature) {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
