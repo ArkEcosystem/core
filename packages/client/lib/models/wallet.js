@@ -203,7 +203,7 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const applicableVotes = 0
+      let applicableVotes = 0
       const votes = sortVotes(transaction.asset.votes)
 
       votes.forEach(vote => {
