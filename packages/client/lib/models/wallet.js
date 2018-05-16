@@ -3,6 +3,7 @@ const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
+const sortVotes = require('../utils/sort-votes')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -63,7 +64,7 @@ module.exports = class Wallet {
       }
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        transaction.asset.votes.forEach(vote => {
+        sortVotes(transaction.asset.votes).forEach(vote => {
           this.__determineExcessiveVotes()
 
           if (vote.startsWith('+') && this.__canVoteFor(vote.slice(1))) {
@@ -103,7 +104,7 @@ module.exports = class Wallet {
       }
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        transaction.asset.votes.forEach(vote => {
+        sortVotes(transaction.asset.votes).forEach(vote => {
           this.__determineExcessiveVotes()
 
           if (vote.startsWith('+')) {
@@ -202,15 +203,20 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      if (transaction.asset.votes[0].startsWith('-')) {
-        return this.vote === transaction.asset.votes[0].slice(1)
-      }
+      const applicableVotes = 0
+      const votes = sortVotes(transaction.asset.votes)
 
-      if (transaction.asset.votes[0].startsWith('+') && !this.vote) {
-        return true
-      }
+      votes.forEach(vote => {
+        if (vote.startsWith('-') && this.votes.includes(vote.slice(1))) {
+          applicableVotes++
+        }
 
-      return false
+        if (vote.startsWith('+') && !this.votesExceeded) {
+          applicableVotes++
+        }
+      })
+
+      return applicableVotes === votes.length
     }
 
     if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
