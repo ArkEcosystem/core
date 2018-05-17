@@ -23,8 +23,8 @@ class WebhookManager {
 
     await this.__registerQueue()
 
-    map(this.config.events, 'name').forEach((event) => {
-      emitter.on(event, async (payload) => {
+    map(this.config.events, 'name').forEach(event => {
+      emitter.on(event, async payload => {
         const webhooks = await database.findByEvent(event)
 
         this
@@ -36,11 +36,10 @@ class WebhookManager {
     this.queue.process(async (job) => {
       try {
         const response = await axios.post(job.data.webhook.target, {
-          formParams: {
-            timestamp: +new Date(),
-            data: job.data.payload,
-            event: job.data.webhook.event
-          },
+          timestamp: +new Date(),
+          data: job.data.payload,
+          event: job.data.webhook.event
+        }, {
           headers: {
             Authorization: job.data.webhook.token
           }
@@ -72,7 +71,7 @@ class WebhookManager {
   getMatchingWebhooks (webhooks, payload) {
     const matches = []
 
-    webhooks.forEach((webhook) => {
+    webhooks.forEach(webhook => {
       if (!webhook.conditions) {
         webhooks.push(webhook)
       }

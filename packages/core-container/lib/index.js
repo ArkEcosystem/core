@@ -126,10 +126,12 @@ class Container {
    */
   __registerExitHandler () {
     let shuttingDown = false
+
     const handleExit = async () => {
       if (shuttingDown) {
         return
       }
+
       shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
