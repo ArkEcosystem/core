@@ -217,7 +217,6 @@ describe('Connection', () => {
       await connection.addTransaction(dummy1)
 
       let transactions = await connection.getTransactionsForForging(0, 6)
-      console.log(transactions)
       transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
       await expect(transactions[0]).toBeObject()
