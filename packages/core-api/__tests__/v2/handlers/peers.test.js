@@ -13,7 +13,7 @@ describe('API 2.0 - Peers', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data[0]).toBeObject()
+      expect(response.data.data[0]).toBeObject()
     })
   })
 
@@ -23,7 +23,7 @@ describe('API 2.0 - Peers', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data).toBeObject()
+      expect(response.data.data).toBeObject()
     })
   })
 })

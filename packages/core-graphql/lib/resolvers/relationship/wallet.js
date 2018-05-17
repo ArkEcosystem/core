@@ -9,6 +9,7 @@ module.exports = {
     const { orderBy, filter, ...params } = args
 
     const order = formatOrderBy(orderBy, 'timestamp:DESC')
+    // TODO: refactor this as it leaks implementation details
     const walletOr = { [Op.or]: [{
       senderPublicKey: wallet.publicKey
     }, {

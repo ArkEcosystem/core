@@ -10,7 +10,7 @@ describe('API 1.0 - Signatures', () => {
       const response = await utils.request('GET', 'signatures/fee')
       utils.expectSuccessful(response)
 
-      expect(response.body.fee).toBeNumber()
+      expect(response.data.fee).toBeNumber()
     })
   })
 })

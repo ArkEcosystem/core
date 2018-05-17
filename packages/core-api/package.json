@@ -23,8 +23,6 @@
     "bignumber.js": "^7.0.1",
     "boom": "^7.2.0",
     "bs58check": "^2.1.1",
-    "chai": "^4.1.2",
-    "chai-http": "^4.0.0",
     "hapi": "^17.4.0",
     "hapi-api-version": "https://github.com/faustbrian/hapi-api-version",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",

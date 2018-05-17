@@ -13,7 +13,7 @@ describe('API 2.0 - Blocks', () => {
       utils.expectCollection(response)
       utils.expectPaginator(response)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
     })
   })
@@ -24,7 +24,7 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      const block = response.body.data;
+      const block = response.data.data;
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -36,7 +36,7 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.blockId).toBe(genesisBlock.id)
     })
@@ -50,9 +50,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -64,9 +64,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.version).toBe(genesisBlock.version)
@@ -79,9 +79,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.previous).toBe(genesisBlock.previousBlock)
@@ -94,9 +94,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.payload.length).toBe(genesisBlock.payloadLength)
@@ -110,9 +110,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.generator.publicKey).toBe(genesisBlock.generatorPublicKey)
@@ -125,9 +125,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.signature).toBe(genesisBlock.blockSignature)
@@ -144,9 +144,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -162,9 +162,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.height).toBe(genesisBlock.height)
@@ -181,9 +181,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.height).toBe(genesisBlock.height)
@@ -200,9 +200,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.transactions).toBe(genesisBlock.numberOfTransactions)
@@ -219,9 +219,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.transactions).toBe(genesisBlock.numberOfTransactions)
@@ -236,9 +236,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -251,9 +251,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -266,9 +266,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(+block.forged.fee).toBe(genesisBlock.totalFee)
@@ -282,9 +282,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(+block.forged.fee).toBe(genesisBlock.totalFee)
@@ -301,9 +301,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(+block.forged.reward).toBe(genesisBlock.reward)
@@ -320,9 +320,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(+block.forged.reward).toBe(genesisBlock.reward)
@@ -339,9 +339,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.payload.length).toBe(genesisBlock.payloadLength)
@@ -358,9 +358,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
       expect(block.payload.length).toBe(genesisBlock.payloadLength)
@@ -373,7 +373,7 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(0)
+      expect(response.data.data).toHaveLength(0)
     })
 
     it('should POST a search for blocks with the specific criteria', async () => {
@@ -388,9 +388,9 @@ describe('API 2.0 - Blocks', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const block = response.body.data[0]
+      const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })

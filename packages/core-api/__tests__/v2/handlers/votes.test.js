@@ -14,8 +14,8 @@ describe('API 2.0 - Votes', () => {
       utils.expectCollection(response)
       utils.expectPaginator(response)
 
-      expect(response.body.data[0]).toBeObject()
-      expect(response.body.meta.count).toBeNumber()
+      expect(response.data.data[0]).toBeObject()
+      expect(response.data.meta.count).toBeNumber()
     })
   })
 
@@ -25,8 +25,8 @@ describe('API 2.0 - Votes', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data).toBeObject()
-      expect(response.body.data.id).toBe(voteId)
+      expect(response.data.data).toBeObject()
+      expect(response.data.data.id).toBe(voteId)
     })
   })
 })

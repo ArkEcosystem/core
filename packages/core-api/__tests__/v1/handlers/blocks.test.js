@@ -11,16 +11,16 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/get', { id: genesisBlock.id })
       utils.expectSuccessful(response)
 
-      expect(response.body.block).toBeObject()
-      expect(response.body.block.id).toBeString()
-      expect(response.body.block.height).toBeNumber()
+      expect(response.data.block).toBeObject()
+      expect(response.data.block.id).toBeString()
+      expect(response.data.block.height).toBeNumber()
     })
 
     it('should return block not found', async () => {
       const response = await utils.request('GET', 'blocks/get', { id: '18777we16674628308671' })
       utils.expectError(response)
 
-      expect(response.body.error).toContain('not found')
+      expect(response.data.error).toContain('not found')
     })
   })
 
@@ -29,15 +29,15 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks', { limit: 1 })
       utils.expectSuccessful(response)
 
-      expect(response.body.blocks).toHaveLength(1)
+      expect(response.data.blocks).toHaveLength(1)
     })
 
     it('should return limit error info', async () => {
       const response = await utils.request('GET', 'blocks', { limit: 500 })
       utils.expectError(response)
 
-      expect(response.body.success).toBeFalsy()
-      expect(response.body.error).toContain('should be <= 100')
+      expect(response.data.success).toBeFalsy()
+      expect(response.data.error).toContain('should be <= 100')
     })
   })
 
@@ -46,13 +46,13 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getFees')
       utils.expectSuccessful(response)
 
-      expect(response.body.fees).toBeObject()
+      expect(response.data.fees).toBeObject()
 
       const container = require('@arkecosystem/core-container')
       const blockchain = container.resolvePlugin('blockchain')
       const config = container.resolvePlugin('config')
 
-      expect(response.body.fees).toEqual(config.getConstants(blockchain.getLastBlock(true).height).fees)
+      expect(response.data.fees).toEqual(config.getConstants(blockchain.getLastBlock(true).height).fees)
     })
   })
 
@@ -61,12 +61,12 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getNethash')
       utils.expectSuccessful(response)
 
-      expect(response.body.nethash).toBeString()
+      expect(response.data.nethash).toBeString()
 
       const container = require('@arkecosystem/core-container')
       const config = container.resolvePlugin('config')
 
-      expect(response.body.nethash).toBe(config.network.nethash)
+      expect(response.data.nethash).toBe(config.network.nethash)
     })
   })
 
@@ -75,7 +75,7 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getMilestone')
       utils.expectSuccessful(response)
 
-      expect(response.body.milestone).toBeNumber()
+      expect(response.data.milestone).toBeNumber()
     })
   })
 
@@ -84,7 +84,7 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getReward')
       utils.expectSuccessful(response)
 
-      expect(response.body.reward).toBeNumber()
+      expect(response.data.reward).toBeNumber()
     })
   })
 
@@ -93,7 +93,7 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getSupply')
       utils.expectSuccessful(response)
 
-      expect(response.body.supply).toBeNumber()
+      expect(response.data.supply).toBeNumber()
     })
   })
 
@@ -102,13 +102,13 @@ describe('API 1.0 - Blocks', () => {
       const response = await utils.request('GET', 'blocks/getStatus')
       utils.expectSuccessful(response)
 
-      expect(response.body.epoch).toBeString()
-      expect(response.body.height).toBeNumber()
-      expect(response.body.fee).toBeNumber()
-      expect(response.body.milestone).toBeNumber()
-      expect(response.body.nethash).toBeString()
-      expect(response.body.reward).toBeNumber()
-      expect(response.body.supply).toBeNumber()
+      expect(response.data.epoch).toBeString()
+      expect(response.data.height).toBeNumber()
+      expect(response.data.fee).toBeNumber()
+      expect(response.data.milestone).toBeNumber()
+      expect(response.data.nethash).toBeString()
+      expect(response.data.reward).toBeNumber()
+      expect(response.data.supply).toBeNumber()
     })
   })
 })

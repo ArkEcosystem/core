@@ -16,7 +16,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      utils.expectWallet(response.body.data[0])
+      utils.expectWallet(response.data.data[0])
     })
   })
 
@@ -26,7 +26,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      utils.expectWallet(response.body.data[0])
+      utils.expectWallet(response.data.data[0])
     })
   })
 
@@ -36,7 +36,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      const wallet = response.body.data
+      const wallet = response.data.data
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })
@@ -45,7 +45,7 @@ describe('API 2.0 - Wallets', () => {
       try {
         await utils.request('GET', 'wallets/dummy')
       } catch (error) {
-        expect(error.message).toEqual('Not Found')
+        expect(error.status).toEqual(404)
       }
     })
   })
@@ -56,7 +56,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      utils.expectTransaction(response.body.data[0])
+      utils.expectTransaction(response.data.data[0])
     })
   })
 
@@ -66,7 +66,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.sender).toBe(address)
     })
@@ -78,7 +78,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      utils.expectTransaction(response.body.data[0])
+      utils.expectTransaction(response.data.data[0])
     })
   })
 
@@ -88,7 +88,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data[0]).toBeObject()
+      expect(response.data.data[0]).toBeObject()
     })
   })
 
@@ -98,9 +98,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })
@@ -110,9 +110,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
       expect(wallet.publicKey).toBe(publicKey)
@@ -123,9 +123,9 @@ describe('API 2.0 - Wallets', () => {
     //   utils.expectSuccessful(response)
     //   utils.expectCollection(response)
 
-    //   expect(response.body.data).toHaveLength(1)
+    //   expect(response.data.data).toHaveLength(1)
 
-    //   const wallet = response.body.data[0]
+    //   const wallet = response.data.data[0]
     //   utils.expectWallet(wallet)
     //   expect(wallet.address).toBe(addressSecondPassphrase)
     // })
@@ -135,9 +135,9 @@ describe('API 2.0 - Wallets', () => {
     //   utils.expectSuccessful(response)
     //   utils.expectCollection(response)
 
-    //   expect(response.body.data).toHaveLength(1)
+    //   expect(response.data.data).toHaveLength(1)
 
-    //   const wallet = response.body.data[0]
+    //   const wallet = response.data.data[0]
     //   utils.expectWallet(wallet)
     //   expect(wallet.address).toBe(address)
     // })
@@ -147,9 +147,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })
@@ -165,9 +165,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
       expect(wallet.balance).toBe(balance)
@@ -184,9 +184,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
       expect(wallet.balance).toBe(balance)
@@ -203,9 +203,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })
@@ -221,9 +221,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })
@@ -233,7 +233,7 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(0)
+      expect(response.data.data).toHaveLength(0)
     })
 
     it('should POST a search for wallets with the specific criteria', async () => {
@@ -243,9 +243,9 @@ describe('API 2.0 - Wallets', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const wallet = response.body.data[0]
+      const wallet = response.data.data[0]
       utils.expectWallet(wallet)
       expect(wallet.address).toBe(address)
     })

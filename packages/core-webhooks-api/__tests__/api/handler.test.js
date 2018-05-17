@@ -44,7 +44,7 @@ describe('API 2.0 - Webhooks', () => {
     it('should GET a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('GET', `webhooks/${webhook.body.data.id}`, authorization)
+      const response = await utils.request('GET', `webhooks/${webhook.data.data.id}`, authorization)
       utils.expectSuccessful(response)
       utils.expectResource(response)
     })
@@ -54,8 +54,8 @@ describe('API 2.0 - Webhooks', () => {
     it('should PUT a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('PUT', `webhooks/${webhook.body.data.id}`, authorization, postData)
-      utils.expectSuccessful(response, 204)
+      const response = await utils.request('PUT', `webhooks/${webhook.data.data.id}`, authorization, postData)
+      utils.expectStatus(response, 204)
     })
   })
 
@@ -63,8 +63,8 @@ describe('API 2.0 - Webhooks', () => {
     it('should DELETE a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const response = await utils.request('DELETE', `webhooks/${webhook.body.data.id}`, authorization)
-      utils.expectSuccessful(response, 204)
+      const response = await utils.request('DELETE', `webhooks/${webhook.data.data.id}`, authorization)
+      utils.expectStatus(response, 204)
     })
   })
 
