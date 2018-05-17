@@ -31,7 +31,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     if (this.config.dialect === 'sqlite') {
-      await fs.ensureFile(config.storage)
+      await fs.ensureFile(this.config.storage)
     }
 
     this.connection = new Sequelize({
