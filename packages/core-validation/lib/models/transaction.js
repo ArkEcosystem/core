@@ -21,7 +21,7 @@ module.exports = class TransactionValidator {
       return this.__validateSignature(transaction)
     }
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       return this.__validateDelegate(transaction)
     }
 
