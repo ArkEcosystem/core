@@ -166,7 +166,7 @@ module.exports = class Blockchain {
       return
     }
 
-    const newHeigth = previousRound * maxDelegates
+    const newHeight = previousRound * maxDelegates
     logger.info(`Removing ${height - newHeigth} blocks to reset current round`)
     let count = 0
     const max = this.getLastBlock(true).height - newHeigth
