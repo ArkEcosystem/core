@@ -1,10 +1,5 @@
 const transactionValidator = require('../../lib/validators/transaction')
 
-// for (let k of transactionValidator) {
-//   console.log(transactionValidator[k])
-// }
-console.log(transactionValidator.constructor)
-
 describe('Validators - Transaction', () => {
   it('should be instantiated', () => {
     expect(transactionValidator.constructor.name).toBe('TransactionValidator')
