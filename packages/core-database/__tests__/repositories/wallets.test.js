@@ -48,7 +48,7 @@ function generateFullWallets () {
       address,
       publicKey: `publicKey-${address}`,
       secondPublicKey: `secondPublicKey-${address}`,
-      vote: `vote-${address}`,
+      votes: [`vote-${address}`],
       username: `username-${address}`,
       balance: 100,
       votebalance: 200
@@ -224,11 +224,11 @@ describe('Wallet Repository', () => {
       expectSearch({ secondPublicKey: wallets[0].secondPublicKey })
     })
 
-    it('should search wallets by the specified vote', () => {
+    it('should search wallets by the specified votes', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      expectSearch({ vote: wallets[0].vote }, 52)
+      expectSearch({ votes: wallets[0].votes }, 1)
     })
 
     it('should search wallets by the specified username', () => {

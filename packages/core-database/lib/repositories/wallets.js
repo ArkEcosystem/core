@@ -32,10 +32,7 @@ module.exports = class WalletsRepository {
       returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
     }
 
-    return {
-      count: wallets.length,
-      rows: returnWallets
-    }
+    return wrapRows(wallets)
   }
 
   /**
@@ -57,10 +54,7 @@ module.exports = class WalletsRepository {
       returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
     }
 
-    return {
-      count: wallets.length,
-      rows: returnWallets
-    }
+    return wrapRows(wallets)
   }
 
   /**
@@ -103,20 +97,13 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   search (params) {
-    const wallets = filterObject(this.findAll(), params, {
-      exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+    let wallets = this.findAll()
+
+    wallets = filterObject(wallets, params, {
+      exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
       between: ['balance', 'votebalance']
     })
 
-    let returnWallets = wallets
-
-    if (params.hasOwnProperty('offset') && params.limit) {
-      returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
-    }
-
-    return {
-      count: wallets.length,
-      rows: returnWallets
-    }
+    return wrapRows(wallets)
   }
 }
