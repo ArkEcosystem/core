@@ -103,19 +103,17 @@ module.exports = class Config extends ConfigInterface {
       if (source.startsWith('/')) {
         output.list = require(source)
 
-        // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
         fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
 
         break
       }
 
-      // URLs...
+      // URL...
       try {
         const response = await axios.get(source)
 
         output.list = response.data
 
-        // TODO: for now we will write into the core-config files, this will later on be ~/.ark/config/peers.json
         fs.writeFileSync(configFile, JSON.stringify(output, null, 2))
 
         break

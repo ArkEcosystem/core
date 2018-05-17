@@ -30,9 +30,7 @@ class Container {
       return
     }
 
-    /**
-     * TODO: Move this out eventually - not really it's responsiblity
-     */
+    // TODO: Move this out eventually - not really the responsiblity of the container
     this.plugins = new PluginRegistrar(this, options)
     await this.plugins.setUp()
   }

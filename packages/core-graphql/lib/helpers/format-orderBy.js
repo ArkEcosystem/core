@@ -1,11 +1,11 @@
 'use strict';
 
-module.exports = (orderByInput, defaultInput) => {
+module.exports = (parameter, defaultValue) => {
   let order
 
-  if (orderByInput) {
-    order = `${orderByInput.field}:${orderByInput.direction}`
+  if (parameter) {
+    order = `${parameter.field}:${parameter.direction}`
   }
 
-  return order || defaultInput
+  return order || defaultValue
 }
