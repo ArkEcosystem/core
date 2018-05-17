@@ -166,7 +166,7 @@ module.exports = class WalletBuilder {
         'serialized'
       ],
       where: {
-        type: TRANSACTION_TYPES.DELEGATE
+        type: TRANSACTION_TYPES.DELEGATE_REGISTRATION
       }
     })
 

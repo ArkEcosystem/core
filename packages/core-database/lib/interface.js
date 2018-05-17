@@ -323,7 +323,7 @@ module.exports = class ConnectionInterface {
 
     emitter.emit('transaction.applied', transaction.data)
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
         emitter.emit('delegate.registered', transaction.data)
     }
 

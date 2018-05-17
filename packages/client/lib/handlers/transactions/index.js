@@ -8,7 +8,7 @@ class TransactionHandler {
     this.handlers = {
       [TRANSACTION_TYPES.TRANSFER]: require('./transfer'),
       [TRANSACTION_TYPES.SECOND_SIGNATURE]: require('./second-signature'),
-      [TRANSACTION_TYPES.DELEGATE]: require('./delegate'),
+      [TRANSACTION_TYPES.DELEGATE_REGISTRATION]: require('./delegate-registration'),
       [TRANSACTION_TYPES.VOTE]: require('./vote'),
       [TRANSACTION_TYPES.MULTI_SIGNATURE]: require('./multi-signature'),
       [TRANSACTION_TYPES.IPFS]: require('./ipfs'),

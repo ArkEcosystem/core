@@ -5,7 +5,7 @@ const transactionTests = require('./__shared__/transaction')
 let tx
 
 beforeEach(() => {
-  tx = ark.getBuilder().delegate()
+  tx = ark.getBuilder().delegateRegistration()
 
   global.tx = tx
 })

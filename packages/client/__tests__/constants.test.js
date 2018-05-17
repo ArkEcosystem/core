@@ -16,8 +16,8 @@ describe('Constants', () => {
     expect(constants.TRANSACTION_TYPES.SECOND_SIGNATURE).toBeDefined()
     expect(constants.TRANSACTION_TYPES.SECOND_SIGNATURE).toBe(1)
 
-    expect(constants.TRANSACTION_TYPES.DELEGATE).toBeDefined()
-    expect(constants.TRANSACTION_TYPES.DELEGATE).toBe(2)
+    expect(constants.TRANSACTION_TYPES.DELEGATE_REGISTRATION).toBeDefined()
+    expect(constants.TRANSACTION_TYPES.DELEGATE_REGISTRATION).toBe(2)
 
     expect(constants.TRANSACTION_TYPES.VOTE).toBeDefined()
     expect(constants.TRANSACTION_TYPES.VOTE).toBe(3)
