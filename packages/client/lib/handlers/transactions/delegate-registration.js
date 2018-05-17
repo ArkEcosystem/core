@@ -1,6 +1,6 @@
 const Handler = require('./handler')
 
-class DelegateHandler extends Handler {
+class DelegateRegistrationHandler extends Handler {
   /**
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
@@ -38,4 +38,4 @@ class DelegateHandler extends Handler {
   }
 }
 
-module.exports = new DelegateHandler()
+module.exports = new DelegateRegistrationHandler()

@@ -14,7 +14,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
   assert.ok([
     TRANSACTION_TYPES.TRANSFER,
     TRANSACTION_TYPES.SECOND_SIGNATURE,
-    TRANSACTION_TYPES.DELEGATE,
+    TRANSACTION_TYPES.DELEGATE_REGISTRATION,
     TRANSACTION_TYPES.VOTE
   ].includes(type), 'Invalid transaction type')
 
@@ -36,7 +36,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
       )
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       transaction = ark.signature.createSignature(passphrase, passphrase)
-    } else if (type === TRANSACTION_TYPES.DELEGATE) {
+    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const username = superheroes.random().toLowerCase().replace(/[^a-z0-9]/g, '_')
       transaction = ark.delegate.createDelegate(passphrase, username)
     } else if (type === TRANSACTION_TYPES.VOTE) {

@@ -31,7 +31,7 @@ const createRandomTx = type => {
 
     case 2: // delegate registration
       tx = builder
-        .delegate()
+        .delegateRegistration()
         .create(Math.random().toString(36))
         .sign(Math.random().toString(36))
       break

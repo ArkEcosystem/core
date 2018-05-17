@@ -15,7 +15,7 @@ exports.ARKTOSHI = Math.pow(10, 8)
 exports.TRANSACTION_TYPES = Object.freeze({
   TRANSFER: 0,
   SECOND_SIGNATURE: 1,
-  DELEGATE: 2,
+  DELEGATE_REGISTRATION: 2,
   VOTE: 3,
   MULTI_SIGNATURE: 4,
   IPFS: 5,

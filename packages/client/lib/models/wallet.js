@@ -165,8 +165,13 @@ module.exports = class Wallet {
 
     for (let i in transaction.signatures) {
       if (!this.verify(transaction, transaction.signatures[i], publicKey)) {
-        if (index++ > transaction.signatures.length - 1) return false
-        else if (index < multisignature.keysgroup.length) publicKey = multisignature.keysgroup[index].slice(1)
+        if (index++ > transaction.signatures.length - 1) {
+          return false
+        }
+
+        if (index < multisignature.keysgroup.length) {
+          publicKey = multisignature.keysgroup[index].slice(1)
+        }
       }
     }
 
@@ -204,7 +209,7 @@ module.exports = class Wallet {
       audit.push({'Second public key': this.secondPublicKey})
     }
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const username = transaction.asset.delegate.username
       audit.push({'Current username': this.username})
       audit.push({'New username': username})

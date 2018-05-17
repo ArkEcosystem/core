@@ -75,7 +75,7 @@ module.exports = class Transaction {
    * @return {Object}
    */
   toBroadcastV1 () {
-    if (this.type === TRANSACTION_TYPES.DELEGATE) {
+    if (this.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       return {
         id: this.id,
         type: this.type,
@@ -135,7 +135,7 @@ module.exports = class Transaction {
       bb.append(transaction.asset.signature.publicKey, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
@@ -252,7 +252,7 @@ module.exports = class Transaction {
       Transaction.parseSignatures(hexString, tx, assetOffset + 66)
     }
 
-    if (tx.type === TRANSACTION_TYPES.DELEGATE) {
+    if (tx.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
 
       tx.asset = {
