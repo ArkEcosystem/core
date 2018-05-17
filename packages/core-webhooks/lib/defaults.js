@@ -55,5 +55,11 @@ module.exports = {
   }, {
     name: 'transaction.reverted',
     description: 'n/a'
+  }, {
+    name: 'wallet.vote',
+    description: 'n/a'
+  }, {
+    name: 'wallet.unvote',
+    description: 'n/a'
   }]
 }
