@@ -3,6 +3,7 @@ const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const cryptoBuilder = require('../builder/crypto')
+const transactionHandler = require('../handlers/transactions')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -35,7 +36,8 @@ module.exports = class Wallet {
     this.publicKey = null
     this.secondPublicKey = null
     this.balance = 0
-    this.vote = null
+    this.votes = []
+    this.votesExceeded = false
     this.username = null
     this.lastBlock = null
     this.votebalance = 0
@@ -46,29 +48,38 @@ module.exports = class Wallet {
   }
 
   /**
+   * Check if can apply a transaction to the wallet.
+   * @param  {Transaction} transaction
+   * @return {Boolean}
+   */
+  canApply (transaction) {
+    return transactionHandler.canApply(this, transaction)
+  }
+
+  /**
+   * Apply the specified transaction to this wallet.
+   * @param  {Transaction} transaction
+   * @return {Boolean}
+   */
+  apply (transaction) {
+    return transactionHandler.apply(this, transaction)
+  }
+
+  /**
+   * Revert the specified transaction from this wallet.
+   * @param  {Transaction} transaction
+   * @return {Boolean}
+   */
+  revert (transaction) {
+    return transactionHandler.revert(this, transaction)
+  }
+
+  /**
    * Associate this wallet as the sender of a transaction.
    * @param {Transaction} transaction
    */
   applyTransactionToSender (transaction) {
-    if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
-      this.balance -= transaction.amount + transaction.fee
-
-      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        this.secondPublicKey = transaction.asset.signature.publicKey
-      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
-        this.username = transaction.asset.delegate.username
-      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        if (transaction.asset.votes[0].startsWith('+')) {
-          this.vote = transaction.asset.votes[0].slice(1)
-        } else if (transaction.asset.votes[0].startsWith('-')) {
-          this.vote = null
-        }
-      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        this.multisignature = transaction.asset.multisignature
-      }
-
-      this.dirty = true
-    }
+    return transactionHandler.applyTransactionToSender(this, transaction)
   }
 
   /**
@@ -76,25 +87,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   revertTransactionForSender (transaction) {
-    if (transaction.senderPublicKey === this.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === this.address) {
-      this.balance += transaction.amount + transaction.fee
-
-      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        this.secondPublicKey = null
-      } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
-        this.username = null
-      } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        if (transaction.asset.votes[0].startsWith('+')) {
-          this.vote = null
-        } else if (transaction.asset.votes[0].startsWith('-')) {
-          this.vote = transaction.asset.votes[0].slice(1)
-        }
-      } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        this.multisignature = null
-      }
-
-      this.dirty = true
-    }
+    return transactionHandler.revertTransactionForSender(this, transaction)
   }
 
   /**
@@ -102,10 +95,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   applyTransactionToRecipient (transaction) {
-    if (transaction.recipientId === this.address) {
-      this.balance += transaction.amount
-      this.dirty = true
-    }
+    return transactionHandler.applyTransactionToRecipient(this, transaction)
   }
 
   /**
@@ -113,10 +103,7 @@ module.exports = class Wallet {
    * @param {Transaction} transaction
    */
   revertTransactionForRecipient (transaction) {
-    if (transaction.recipientId === this.address) {
-      this.balance -= transaction.amount
-      this.dirty = true
-    }
+    return transactionHandler.revertTransactionForRecipient(this, transaction)
   }
 
   /**
@@ -129,6 +116,7 @@ module.exports = class Wallet {
       this.producedBlocks++
       this.lastBlock = block
     }
+
     this.dirty = true
   }
 
@@ -143,106 +131,25 @@ module.exports = class Wallet {
       // TODO: get it back from database?
       this.lastBlock = null
     }
+
     this.dirty = true
   }
 
   /**
-   * Check if can apply a transaction to the wallet.
+   * Verify the wallet.
    * @param  {Transaction} transaction
+   * @param  {String}      signature
+   * @param  {String}      publicKey
    * @return {Boolean}
    */
-  canApply (transaction) {
-    let check = true
+  verify (transaction, signature, publicKey) {
+    const hash = cryptoBuilder.getHash(transaction)
+    const signSignatureBuffer = Buffer.from(signature, 'hex')
+    const publicKeyBuffer = Buffer.from(publicKey, 'hex')
+    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
+    const ecsignature = ECSignature.fromDER(signSignatureBuffer)
 
-    if (this.multisignature) {
-      check = check && this.verifySignatures(transaction, this.multisignature)
-    } else {
-      check = check && (transaction.senderPublicKey === this.publicKey) && (this.balance - transaction.amount - transaction.fee > -1)
-      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      check = check && (!this.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config)) // eslint-disable-line max-len
-    }
-
-    if (!check) {
-      return false
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      return true
-    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      if (transaction.asset.votes[0].startsWith('-')) return this.vote === transaction.asset.votes[0].slice(1)
-      if (transaction.asset.votes[0].startsWith('+') && !this.vote) return true
-      return false
-    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      return !this.secondPublicKey
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
-      const username = transaction.asset.delegate.username
-      return !this.username && username && username === username.toLowerCase()
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      const keysgroup = transaction.asset.multisignature.keysgroup
-      return !this.multisignature &&
-        keysgroup.length >= transaction.asset.multisignature.min &&
-        keysgroup.length === transaction.signatures.length &&
-        this.verifySignatures(transaction, transaction.asset.multisignature)
-    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
-      return true
-    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      return true
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
-      const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
-      return this.balance - amount - transaction.fee > -1
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      return !!this.username
-    }
-    return false
-  }
-
-  auditApply (transaction) {
-    const audit = []
-    audit.push({'Network': configManager.config})
-    if (this.multisignature) {
-      audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
-    } else {
-      audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
-      audit.push({'Signature validation': cryptoBuilder.verify(transaction)})
-      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
-      if (this.secondPublicKey) {
-        audit.push({
-          'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
-        })
-      }
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      audit.push({'Transfert': true})
-    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      audit.push({'Second public key': this.secondPublicKey})
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
-      const username = transaction.asset.delegate.username
-      audit.push({'Current username': this.username})
-      audit.push({'New username': username})
-    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      audit.push({'Current vote': this.vote})
-      audit.push({'New vote': transaction.asset.votes[0]})
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      const keysgroup = transaction.asset.multisignature.keysgroup
-      audit.push({'Multisignature not yet registered': !this.multisignature})
-      audit.push({'Multisignature enough keys': keysgroup.length >= transaction.asset.multisignature.min})
-      audit.push({'Multisignature all keys signed': keysgroup.length === transaction.signatures.length})
-      audit.push({'Multisignature verification': this.verifySignatures(transaction, transaction.asset.multisignature)})
-    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
-      audit.push({'IPFS': true})
-    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      audit.push({'Timelock': true})
-    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
-      const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
-      audit.push({'Multipayment remaining amount': amount})
-    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      audit.push({'Resignate Delegate': this.username})
-    } else {
-      audit.push({'Unknown Type': true})
-    }
-
-    return audit
+    return ecpair.verify(hash, ecsignature)
   }
 
   /**
@@ -267,20 +174,81 @@ module.exports = class Wallet {
   }
 
   /**
-   * Verify the wallet.
+   * Audit the specified transaction.
    * @param  {Transaction} transaction
-   * @param  {String}      signature
-   * @param  {String}      publicKey
-   * @return {Boolean}
+   * @return {[type]}
    */
-  verify (transaction, signature, publicKey) {
-    const hash = cryptoBuilder.getHash(transaction)
-    const signSignatureBuffer = Buffer.from(signature, 'hex')
-    const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
-    const ecsignature = ECSignature.fromDER(signSignatureBuffer)
+  auditApply (transaction) {
+    const audit = []
 
-    return ecpair.verify(hash, ecsignature)
+    audit.push({'Network': configManager.config})
+
+    if (this.multisignature) {
+      audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
+    } else {
+      audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
+      audit.push({'Signature validation': cryptoBuilder.verify(transaction)})
+      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
+      if (this.secondPublicKey) {
+        audit.push({
+          'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
+        })
+      }
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+      audit.push({'Transfert': true})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      audit.push({'Second public key': this.secondPublicKey})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE) {
+      const username = transaction.asset.delegate.username
+      audit.push({'Current username': this.username})
+      audit.push({'New username': username})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      audit.push({'Current vote': this.vote})
+      audit.push({'New vote': transaction.asset.votes[0]})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      const keysgroup = transaction.asset.multisignature.keysgroup
+      audit.push({'Multisignature not yet registered': !this.multisignature})
+      audit.push({'Multisignature enough keys': keysgroup.length >= transaction.asset.multisignature.min})
+      audit.push({'Multisignature all keys signed': keysgroup.length === transaction.signatures.length})
+      audit.push({'Multisignature verification': this.verifySignatures(transaction, transaction.asset.multisignature)})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.IPFS) {
+      audit.push({'IPFS': true})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+      audit.push({'Timelock': true})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+      const amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
+      audit.push({'Multipayment remaining amount': amount})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      audit.push({'Resignate Delegate': this.username})
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      audit.push({'Resignate Delegate': this.username})
+    }
+
+    if (!Object.keys(TRANSACTION_TYPES).includes(transaction.type)) {
+      audit.push({'Unknown Type': true})
+    }
+
+    return audit
   }
 
   /**

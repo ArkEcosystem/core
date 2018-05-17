@@ -160,14 +160,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
+
     let data = await this.models.wallet.findAll({
       attributes: [
-        ['vote', 'publicKey'],
+        'publicKey',
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
-      group: 'vote',
       where: {
-        vote: {
+        votes: {
           [Sequelize.Op.ne]: null
         }
       }

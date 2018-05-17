@@ -1,9 +1,9 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
+const cryptoBuilder = require('../builder/crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
-const arkjsv1 = require('arkjsv1')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -36,7 +36,7 @@ module.exports = class Transaction {
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
 
     if (this.data.version === 1) {
-      this.verified = arkjsv1.crypto.verify(this.data)
+      this.verified = cryptoBuilder.verify(this.data)
 
       if (!this.verified) {
         // fix on issue of non homogeneus transaction type 1 payload
@@ -44,11 +44,11 @@ module.exports = class Transaction {
           if (this.data.recipientId) {
             delete this.data.recipientId
           } else {
-            this.data.recipientId = arkjsv1.crypto.getAddress(this.data.senderPublicKey, this.data.network)
+            this.data.recipientId = cryptoBuilder.getAddress(this.data.senderPublicKey, this.data.network)
           }
 
-          this.verified = arkjsv1.crypto.verify(this.data)
-          this.data.id = arkjsv1.crypto.getId(this.data)
+          this.verified = cryptoBuilder.verify(this.data)
+          this.data.id = cryptoBuilder.getId(this.data)
         }
       }
     } else {
@@ -67,8 +67,7 @@ module.exports = class Transaction {
   }
 
   verify () {
-    if (!this.verified) return false
-    return true
+    return this.verified
   }
 
   /*
@@ -93,9 +92,9 @@ module.exports = class Transaction {
         },
         signature: this.signature
       }
-    } else {
-      return this.data
     }
+
+    return this.data
   }
 
   // AIP11 serialization
@@ -329,11 +328,11 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.VOTE) {
-        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = cryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       }
 
       if (tx.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = cryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
       }
 
       if (tx.vendorFieldHex) {
@@ -341,12 +340,12 @@ module.exports = class Transaction {
       }
 
       if (tx.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        tx.recipientId = arkjsv1.crypto.getAddress(tx.senderPublicKey, tx.network)
+        tx.recipientId = cryptoBuilder.getAddress(tx.senderPublicKey, tx.network)
         tx.asset.multisignature.keysgroup = tx.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!tx.id) {
-        tx.id = arkjsv1.crypto.getId(tx)
+        tx.id = cryptoBuilder.getId(tx)
       }
     }
 
@@ -393,11 +392,17 @@ module.exports = class Transaction {
 
       signatures = signatures.slice(2)
       tx.signatures = []
+
       let moreSignatures = true
       while (moreSignatures) {
         const mlength = parseInt('0x' + signatures.substring(2, 4), 16) + 2
-        if (mlength > 0) tx.signatures.push(signatures.substring(0, mlength * 2))
-        else moreSignatures = false
+
+        if (mlength > 0) {
+          tx.signatures.push(signatures.substring(0, mlength * 2))
+        } else {
+          moreSignatures = false
+        }
+
         signatures = signatures.substring(mlength * 2)
       }
     }

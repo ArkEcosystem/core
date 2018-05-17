@@ -39,7 +39,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAllByVote (publicKey, params = {}) {
-    let wallets = this.findAll().filter(a => a.vote === publicKey)
+    let wallets = this.findAll().filter(wallet => wallet.votes.includes(publicKey))
 
     if (!Object.keys(params).length) {
       return wallets
@@ -59,7 +59,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.findAll().find(a => (a.address === id || a.publicKey === id || a.username === id))
+    return this.findAll().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
   }
 
   /**
@@ -97,7 +97,7 @@ module.exports = class WalletsRepository {
     let wallets = this.findAll()
 
     wallets = filterObject(wallets, params, {
-      exact: ['address', 'publicKey', 'secondPublicKey', 'vote', 'username'],
+      exact: ['address', 'publicKey', 'secondPublicKey', 'votes', 'username'],
       between: ['balance', 'votebalance']
     })
 

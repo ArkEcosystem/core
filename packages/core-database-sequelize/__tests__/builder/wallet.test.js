@@ -167,11 +167,11 @@ describe('Wallet Builder', () => {
     it('should apply the transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
-      await expect(getWallet('AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD').vote).toBeNull()
+      await expect(getWallet('AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD').votes[0]).toBeNull()
 
       await builder.__buildVotes()
 
-      await expect(getWallet('AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD').vote).toBe('02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a')
+      await expect(getWallet('AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD').votes[0]).toBe('02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a')
     })
   })
 
