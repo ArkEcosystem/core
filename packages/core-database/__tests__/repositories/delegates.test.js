@@ -49,47 +49,108 @@ describe('Delegate Repository', () => {
   })
 
   describe('findAll', () => {
-    it('should be a function', () => {
-      expect(repository.findAll).toBeFunction()
-    })
-
-    it('should be ok', () => {
+    it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.findAll()
-      expect(results.length).toBe(52)
+      const { count, rows } = repository.findAll()
+      expect(count).toBe(52)
+      expect(rows).toHaveLength(52)
+    })
+
+    it('should be ok with params', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 10, limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (offset = 0)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 0, limit: 12 })
+      expect(count).toBe(12)
+      expect(rows).toHaveLength(12)
+    })
+
+    it('should be ok with params (no limit)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 10 })
+      expect(count).toBe(42)
+      expect(rows).toHaveLength(42)
     })
   })
 
   describe('paginate', () => {
-    it('should be a function', () => {
-      expect(repository.paginate).toBeFunction()
-    })
-
-    it('should be ok', () => {
+    it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.paginate({ offset: 10, limit: 10 })
-      expect(results.count).toBe(10)
-      expect(results.rows).toHaveLength(10)
+      const { count, rows } = repository.paginate()
+      expect(count).toBe(52)
+      expect(rows).toHaveLength(52)
+    })
+
+    it('should be ok with params', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 10, limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (offset = 0)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 0, limit: 12 })
+      expect(count).toBe(12)
+      expect(rows).toHaveLength(12)
+    })
+
+    it('should be ok with params (no limit)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 10 })
+      expect(count).toBe(42)
+      expect(rows).toHaveLength(42)
     })
   })
 
   describe('search', () => {
-    it('should be a function', () => {
-      expect(repository.search).toBeFunction()
-    })
-
     it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.search({ q: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
+      const { count, rows } = repository.search({ q: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
 
-      expect(results.count).toBe(1)
-      expect(results.rows).toHaveLength(1)
+      expect(count).toBe(1)
+      expect(rows).toHaveLength(1)
     })
   })
 
@@ -104,10 +165,6 @@ describe('Delegate Repository', () => {
       expect(wallet.publicKey).toBe(wallets[0].publicKey)
       expect(wallet.username).toBe(wallets[0].username)
     }
-
-    it('should be a function', () => {
-      expect(repository.findById).toBeFunction()
-    })
 
     it('should be ok with an address', () => {
       expectWallet('address')

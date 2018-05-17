@@ -2,6 +2,18 @@
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 
+// TODO refactor (move to utils)
+const limitRows = (rows, params) => {
+  if (params.hasOwnProperty('offset') || params.limit) {
+    const offset = params.offset || 0
+    const limit = params.limit ? offset + params.limit : rows.length
+    return rows.slice(offset, limit)
+  } else {
+    return rows
+  }
+}
+const wrapRows = rows => ({ count: rows.length, rows })
+
 module.exports = class DelegatesRepository {
   /**
    * Create a new delegate repository instance.
@@ -12,12 +24,20 @@ module.exports = class DelegatesRepository {
   }
 
   /**
-   * Get all delegates.
+   * Get all local delegates.
+   * @return {Array}
+   */
+  getLocalDelegates () {
+    return this.connection.walletManager.getLocalWallets().filter(wallet => !!wallet.username)
+  }
+
+  /**
+   * Find all delegates.
    * @param  {Object} params
    * @return {Object}
    */
   findAll (params = {}) {
-    return this.connection.walletManager.getLocalWallets().filter(wallet => !!wallet.username)
+    return wrapRows(limitRows(this.getLocalDelegates(), params))
   }
 
   /**
@@ -26,12 +46,7 @@ module.exports = class DelegatesRepository {
    * @return {Object}
    */
   paginate (params) {
-    const delegates = this.findAll().slice(params.offset, params.offset + params.limit)
-
-    return {
-      count: delegates.length,
-      rows: delegates
-    }
+    return this.findAll(params)
   }
 
   /**
@@ -40,7 +55,7 @@ module.exports = class DelegatesRepository {
    * @return {Object}
    */
   search (params) {
-    let delegates = this.findAll().filter((delegate) => delegate.username.indexOf(params.q) > -1)
+    let delegates = this.getLocalDelegates().filter(delegate => delegate.username.indexOf(params.q) > -1)
 
     if (params.orderBy) {
       const orderByField = params.orderBy.split(':')[0]
@@ -59,29 +74,20 @@ module.exports = class DelegatesRepository {
       })
     }
 
-    if (params.hasOwnProperty('offset') && params.limit) {
-      delegates = delegates.slice(params.offset, params.offset + params.limit)
-    }
-
-    return {
-      count: delegates.length,
-      rows: delegates
-    }
+    return wrapRows(limitRows(delegates, params))
   }
 
   /**
-   * Get a delegate.
+   * Find a delegate.
    * @param  {String} id
    * @return {Object}
    */
   findById (id) {
-    const delegates = this.findAll()
-
-    return delegates.find(a => (a.address === id || a.publicKey === id || a.username === id))
+    return this.getLocalDelegates().find(a => (a.address === id || a.publicKey === id || a.username === id))
   }
 
   /**
-   * Get all active delegates at height.
+   * Find all active delegates at height.
    * @param  {Number} height
    * @return {Array}
    */

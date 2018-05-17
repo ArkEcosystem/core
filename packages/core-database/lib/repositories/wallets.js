@@ -24,33 +24,40 @@ module.exports = class WalletsRepository {
   }
 
   /**
-   * Get all wallets.
+   * Get all local wallets.
+   * @return {Array}
+   */
+  getLocalWallets () {
+    return this.connection.walletManager.getLocalWallets()
+  }
+
+  /**
+   * Find all wallets.
    * @param  {Object} params
    * @return {Object}
    */
   findAll (params = {}) {
-    const wallets = this.connection.walletManager.getLocalWallets()
-    return wrapRows(limitRows(wallets, params))
+    return wrapRows(limitRows(this.getLocalWallets(), params))
   }
 
   /**
-   * Get all wallets for the given vote.
+   * Find all wallets for the given vote.
    * @param  {String} publicKey
    * @param  {Object} params
    * @return {Object}
    */
   findAllByVote (publicKey, params = {}) {
-    const wallets = this.findAll().rows.filter(wallet => wallet.votes.includes(publicKey))
+    const wallets = this.getLocalWallets().filter(wallet => wallet.votes.includes(publicKey))
     return wrapRows(limitRows(wallets, params))
   }
 
   /**
-   * Get a wallet by address, public key or username.
+   * Find a wallet by address, public key or username.
    * @param  {Number} id
    * @return {Object}
    */
   findById (id) {
-    return this.findAll().rows.find(w => (w.address === id || w.publicKey === id || w.username === id))
+    return this.getLocalWallets().find(w => (w.address === id || w.publicKey === id || w.username === id))
   }
 
   /**
@@ -58,16 +65,16 @@ module.exports = class WalletsRepository {
    * @return {Number}
    */
   count () {
-    return this.findAll().count
+    return this.getLocalWallets().length
   }
 
   /**
-   * Get all wallets sorted by balance.
+   * Find all wallets sorted by balance.
    * @param  {Object}  params
    * @return {Object}
    */
   top (params = {}) {
-    const wallets = _.sortBy(this.findAll().rows, 'balance').reverse()
+    const wallets = _.sortBy(this.getLocalWallets(), 'balance').reverse()
     return wrapRows(limitRows(wallets, params))
   }
 
@@ -77,7 +84,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   search (params) {
-    let wallets = this.findAll().rows
+    let wallets = this.getLocalWallets()
 
     wallets = filterObject(wallets, params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
