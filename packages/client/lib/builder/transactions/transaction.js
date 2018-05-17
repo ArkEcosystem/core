@@ -1,7 +1,7 @@
-const Model = require('../models/transaction')
-const cryptoBuilder = require('./crypto')
-const configManager = require('../managers/config')
-const slots = require('../crypto/slots')
+const Model = require('../../models/transaction')
+const cryptoBuilder = require('../crypto')
+const configManager = require('../../managers/config')
+const slots = require('../../crypto/slots')
 
 module.exports = class Transaction {
   /**
@@ -12,7 +12,7 @@ module.exports = class Transaction {
 
     this.id = null
     this.timestamp = slots.getTime()
-    this.version = 0x02
+    this.version = 0x01
     this.network = configManager.get('pubKeyHash')
   }
 
@@ -98,7 +98,7 @@ module.exports = class Transaction {
   sign (passphrase) {
     const keys = cryptoBuilder.getKeys(passphrase)
     this.senderPublicKey = keys.publicKey
-    this.signature = cryptoBuilder.sign(this, keys)
+    this.signature = cryptoBuilder.sign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -109,7 +109,7 @@ module.exports = class Transaction {
    */
   secondSign (secondPassphrase) {
     const keys = cryptoBuilder.getKeys(secondPassphrase)
-    this.secondSignature = cryptoBuilder.secondSign(this, keys)
+    this.signSignature = cryptoBuilder.secondSign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -119,15 +119,31 @@ module.exports = class Transaction {
    */
   getStruct () {
     return {
-      hex: cryptoBuilder.getBytes(this).toString('hex'),
-      id: cryptoBuilder.getId(this),
+      // hex: cryptoBuilder.getBytes(this).toString('hex'), // v2
+      id: cryptoBuilder.getId(this).toString('hex'),
       signature: this.signature,
-      secondSignature: this.secondSignature,
+      signSignature: this.signSignature,
       timestamp: this.timestamp,
 
       type: this.type,
       fee: this.fee,
       senderPublicKey: this.senderPublicKey
     }
+  }
+
+  /**
+   * Get a valid object used to sign a transaction.
+   * @return {Object}
+   */
+  __getSigningObject () {
+    const transaction = { ...this }
+
+    Object.keys(transaction).forEach(key => {
+      if (['model', 'network', 'id'].includes(key)) {
+        delete transaction[key]
+      }
+    })
+
+    return transaction
   }
 }

@@ -18,61 +18,66 @@ afterAll(async (done) => {
   done()
 })
 
-const sendGET = async (endpoint, params = {}) => axios.get(`http://127.0.0.1:4002/internal/${endpoint}`, { params })
-const sendPOST = async (endpoint, params) => axios.post(`http://127.0.0.1:4002/internal/${endpoint}`, params)
+const sendGET = async (endpoint, params = {}) => {
+  return axios.get(`http://127.0.0.1:4002/internal/${endpoint}`, { params })
+}
+
+const sendPOST = async (endpoint, params) => {
+  return axios.post(`http://127.0.0.1:4002/internal/${endpoint}`, params)
+}
 
 describe('API - Internal', () => {
-  describe('GET /round', async () => {
+  describe('GET /round', () => {
     it('should be ok', async () => {
       const response = await sendGET('round')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe('POST /block', async () => {
+  describe('POST /block', () => {
     it('should be ok', async () => {
       const response = await sendPOST('block', genesisBlock.toBroadcastV1())
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe.skip('POST /verifyTransaction', async () => {
+  describe.skip('POST /verifyTransaction', () => {
     it('should be ok', async () => {
       const response = await sendPOST('verifyTransaction', {
         transaction: genesisTransaction
       })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe('GET /forgingTransactions', async () => {
+  describe('GET /forgingTransactions', () => {
     it('should be ok', async () => {
       const response = await sendGET('forgingTransactions')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 })

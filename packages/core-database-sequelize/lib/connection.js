@@ -160,14 +160,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
+
     let data = await this.models.wallet.findAll({
       attributes: [
-        ['vote', 'publicKey'],
+        'publicKey',
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
-      group: 'vote',
       where: {
-        vote: {
+        votes: {
           [Sequelize.Op.ne]: null
         }
       }
@@ -401,7 +401,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -428,25 +428,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
   /**
    * Get transactions for the given IDs.
-   * @param  {Array} txids
+   * @param  {Array} transactionIds
    * @return {Array}
    */
-  async getTransactionsFromIds (txids) {
-    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+  async getTransactionsFromIds (transactionIds) {
+    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
 
-    return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
+    return transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
   }
 
   /**
    * Get forged transactions for the given IDs.
-   * @param  {Array} txids
+   * @param  {Array} transactionIds
    * @return {Array}
    */
-  async getForgedTransactionsIds (txids) {
-    const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+  async getForgedTransactionsIds (transactionIds) {
+    const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
 
-    return rows.map(tx => tx.id)
+    return rows.map(transaction => transaction.id)
   }
 
   /**
@@ -463,7 +463,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     block = block.dataValues
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -493,7 +493,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     const nblocks = blocks.map(block => {
-      block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
+      block.dataValues.transactions = block.dataValues.transactions
+        .map(transaction => transaction.serialized.toString('hex'))
 
       return block.dataValues
     })

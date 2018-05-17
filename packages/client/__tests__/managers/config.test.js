@@ -36,7 +36,7 @@ describe('Configuration', () => {
 
     expect(feeManager.get(TRANSACTION_TYPES.TRANSFER)).toEqual(fees.transfer)
     expect(feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)).toEqual(fees.secondSignature)
-    expect(feeManager.get(TRANSACTION_TYPES.DELEGATE)).toEqual(fees.delegate)
+    expect(feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)).toEqual(fees.delegateRegistration)
     expect(feeManager.get(TRANSACTION_TYPES.VOTE)).toEqual(fees.vote)
     expect(feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)).toEqual(fees.multiSignature)
     expect(feeManager.get(TRANSACTION_TYPES.IPFS)).toEqual(fees.ipfs)

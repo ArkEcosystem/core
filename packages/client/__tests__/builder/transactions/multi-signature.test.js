@@ -3,22 +3,22 @@ const feeManager = require('../../../lib/managers/fee')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().multiSignature()
+  transaction = ark.getBuilder().multiSignature()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Multi Signature Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('amount')
-    expect(tx).toHaveProperty('recipientId')
-    expect(tx).toHaveProperty('senderPublicKey')
-    expect(tx).toHaveProperty('asset')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('recipientId')
+    expect(transaction).toHaveProperty('senderPublicKey')
+    expect(transaction).toHaveProperty('asset')
   })
 
   describe('create', () => {
@@ -27,20 +27,20 @@ describe('Multi Signature Transaction', () => {
     const min = 'TODO'
 
     it('establishes the multi-signature asset', () => {
-      tx.create(keysgroup, lifetime, min)
-      expect(tx.asset.multisignature).toEqual({ keysgroup, lifetime, min })
+      transaction.create(keysgroup, lifetime, min)
+      expect(transaction.asset.multisignature).toEqual({ keysgroup, lifetime, min })
     })
 
     it('calculates and establishes the fee based on the number of key groups', () => {
       const multiSignatureFee = feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
 
-      tx.create(keysgroup, lifetime, min)
-      expect(tx.fee).toEqual(multiSignatureFee)
+      transaction.create(keysgroup, lifetime, min)
+      expect(transaction.fee).toEqual(multiSignatureFee)
 
       keysgroup.push('key 1')
       keysgroup.push('key 2')
-      tx.create(keysgroup, lifetime, min)
-      expect(tx.fee).toEqual(3 * multiSignatureFee)
+      transaction.create(keysgroup, lifetime, min)
+      expect(transaction.fee).toEqual(3 * multiSignatureFee)
     })
   })
 })

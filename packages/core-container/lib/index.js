@@ -138,7 +138,7 @@ class Container {
       logger.info('EXIT handled, trying to shut down gracefully')
       logger.info('Stopping ARK Core...')
 
-      // await this.resolvePlugin('database').saveWallets(true)
+      await this.resolvePlugin('database').saveWallets(true)
 
       // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
 

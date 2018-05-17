@@ -2,6 +2,7 @@
 
 const ark = require('arkjs')
 const delay = require('delay')
+const sampleSize = require('lodash/sampleSize')
 const utils = require('../utils')
 const logger = utils.logger
 const transactionCommand = require('./transactions')
@@ -10,13 +11,32 @@ module.exports = async (options) => {
   const wallets = utils.generateWallets(options.number)
   await transactionCommand(options, wallets, 2, true)
 
-  const voters = await utils.getVoters(options.delegate)
+  let delegateVotes = []
+  if (!options.delegate) {
+    const delegates = await utils.getDelegates()
+    const chosen = sampleSize(delegates, options.quantity)
 
-  logger.info(`Delegate starting voters: ${voters.length}`)
+    for (let i = 0; i < chosen.length; i++) {
+      delegateVotes.push({
+        delegate: chosen[i],
+        voters: await utils.getVoters(chosen[i].publicKey)
+      })
+    }
+  }
+
+  let voters = 0
+  delegateVotes.forEach(detail => {
+    voters += detail.voters.length
+  })
+
+  logger.info(`Delegate starting voters: ${voters}`)
 
   const transactions = []
   wallets.forEach((wallet, i) => {
-    const transaction = ark.vote.createVote(wallet.passphrase, [`+${options.delegate}`])
+    const transaction = ark.vote.createVote(
+      wallet.passphrase,
+      delegateVotes.map(detail => `+${detail.delegate.publicKey}`)
+    )
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
@@ -27,7 +47,12 @@ module.exports = async (options) => {
     process.exit() // eslint-disable-line no-unreachable
   }
 
-  const expectedVoters = voters.length + wallets.length
+  const constants = await utils.getConstants()
+
+  const expectedVoters = (options.quantity > constants.activeVotes)
+    ? voters + (wallets.length * constants.activeVotes)
+    : voters + (wallets.length * options.quantity)
+
   logger.info(`Expected end voters: ${expectedVoters}`)
 
   try {
@@ -37,11 +62,14 @@ module.exports = async (options) => {
     logger.info(`Waiting ${delaySeconds} seconds to apply vote transactions`)
     await delay(delaySeconds * 1000)
 
-    const voters = await utils.getVoters(options.delegate)
-    logger.info(`All transactions have been sent! Total voters: ${voters.length}`)
+    let voters = 0
+    for (const detail of delegateVotes) {
+      voters += (await utils.getVoters(detail.delegate.publicKey)).length
+    }
+    logger.info(`All transactions have been sent! Total voters: ${voters}`)
 
-    if (voters.length !== expectedVoters) {
-      logger.error(`Delegate voter count incorrect. '${voters.length}' but should be '${expectedVoters}'`)
+    if (voters !== expectedVoters) {
+      logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
     }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response.data.message}`)

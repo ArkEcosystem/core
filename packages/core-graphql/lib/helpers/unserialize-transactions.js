@@ -3,11 +3,12 @@
 const { models } = require('@arkecosystem/client')
 
 module.exports = async (data) => {
-  const transform = await data.reduce((acc, value, key) => {
+  return data.reduce((total, value, key) => {
     const serialized = Buffer.from(value.dataValues.serialized).toString('hex')
-    const tx = models.Transaction.deserialize(serialized)
-    acc.push(tx)
-    return acc
+    const transaction = models.Transaction.deserialize(serialized)
+
+    total.push(transaction)
+
+    return total
   }, [])
-  return transform
 }

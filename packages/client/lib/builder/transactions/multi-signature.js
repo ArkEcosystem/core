@@ -1,6 +1,7 @@
 const feeManager = require('../../managers/fee')
-const Transaction = require('../transaction')
+const cryptoBuilder = require('../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
+const Transaction = require('./transaction')
 
 module.exports = class MultiSignature extends Transaction {
   /**
@@ -30,6 +31,17 @@ module.exports = class MultiSignature extends Transaction {
     this.asset.multisignature.min = min
     this.fee = (keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
 
+    return this
+  }
+
+  /**
+   * Overrides the inherited `sign` method to set the sender as the recipient too
+   * @param  {String} passphrase
+   * @return {Vote}
+   */
+  sign (passphrase) {
+    this.recipientId = cryptoBuilder.getAddress(cryptoBuilder.getKeys(passphrase).publicKey)
+    super.sign(passphrase)
     return this
   }
 

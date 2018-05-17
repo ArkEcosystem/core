@@ -15,11 +15,11 @@ class Helpers {
     return request.set('API-Version', '2')
   }
 
-  assertJson (data) {
+  expectJson (data) {
     expect(data.body).toBeObject()
   }
 
-  assertStatus (data, code) {
+  expectStatus (data, code) {
     expect(data.statusCode).toBe(code)
   }
 
@@ -28,15 +28,15 @@ class Helpers {
     expect(data.headers).toHaveProperty('api-version', version)
   }
 
-  assertResource (data) {
+  expectResource (data) {
     expect(data.body.data).toBeObject()
   }
 
-  assertCollection (data) {
+  expectCollection (data) {
     expect(Array.isArray(data.body.data)).toBe(true)
   }
 
-  assertPaginator (data, firstPage = true) {
+  expectPaginator (data, firstPage = true) {
     expect(data.body.meta).toBeObject()
     expect(data.body.meta).toHaveProperty('count')
     expect(data.body.meta).toHaveProperty('pageCount')
@@ -48,21 +48,21 @@ class Helpers {
     expect(data.body.meta).toHaveProperty('last')
   }
 
-  assertSuccessful (res, statusCode = 200) {
-    this.assertStatus(res, statusCode)
-    this.assertJson(res)
-    this.assertVersion(res, '2')
+  expectSuccessful (data, statusCode = 200) {
+    this.expectStatus(data, statusCode)
+    this.expectJson(data)
+    this.assertVersion(data, '2')
   }
 
-  assertError (res, statusCode = 404) {
-    this.assertStatus(res, statusCode)
-    this.assertJson(res)
-    expect(res.body.statusCode).toBeNumber()
-    expect(res.body.error).toBeString()
-    expect(res.body.message).toBeString()
+  expectError (data, statusCode = 404) {
+    this.expectStatus(data, statusCode)
+    this.expectJson(data)
+    expect(data.body.statusCode).toBeNumber()
+    expect(data.body.error).toBeString()
+    expect(data.body.message).toBeString()
   }
 
-  assertTransaction (transaction) {
+  expectTransaction (transaction) {
     expect(transaction).toBeObject()
     expect(transaction).toHaveProperty('id')
     expect(transaction).toHaveProperty('blockId')
@@ -79,7 +79,7 @@ class Helpers {
     expect(transaction.confirmations).toBeNumber()
   }
 
-  assertBlock (block) {
+  expectBlock (block) {
     expect(block).toBeObject()
     expect(block).toHaveProperty('id')
     expect(block).toHaveProperty('version')
@@ -97,7 +97,7 @@ class Helpers {
     expect(block).toHaveProperty('transactions')
   }
 
-  assertWallet (wallet) {
+  expectWallet (wallet) {
     expect(wallet).toBeObject()
     expect(wallet).toHaveProperty('address')
     expect(wallet).toHaveProperty('publicKey')

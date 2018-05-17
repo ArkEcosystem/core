@@ -117,17 +117,17 @@ module.exports = class WalletManager {
     const appliedTransactions = []
 
     try {
-      await Promise.each(block.transactions, async (tx) => {
-        await this.applyTransaction(tx)
+      await Promise.each(block.transactions, async (transaction) => {
+        await this.applyTransaction(transaction)
 
-        appliedTransactions.push(tx)
+        appliedTransactions.push(transaction)
       })
 
       return delegate.applyBlock(block.data)
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
-      await Promise.each(appliedTransactions, tx => this.revertTransaction(tx))
+      await Promise.each(appliedTransactions, transaction => this.revertTransaction(transaction))
 
       throw error
     }
@@ -153,17 +153,17 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
-      await Promise.each(block.transactions, async (tx) => {
-        await this.revertTransaction(tx)
+      await Promise.each(block.transactions, async (transaction) => {
+        await this.revertTransaction(transaction)
 
-        revertedTransactions.push(tx)
+        revertedTransactions.push(transaction)
       })
 
       return delegate.revertBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
 
-      await Promise.each(revertedTransactions, async (tx) => this.applyTransaction(tx))
+      await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
 
       throw error
     }
@@ -189,10 +189,20 @@ module.exports = class WalletManager {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
       throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
-    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
+    } else if (transactionData.type === TRANSACTION_TYPES.VOTE) {
+      transactionData.asset.votes.forEach(vote => {
+        const delegate = this.walletsByPublicKey[vote.slice(1)]
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
+        if (!delegate.username) {
+          logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
+          throw new Error(`Can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
+        }
+
+        // TODO: faster way to maintain active delegate list (i.e. instead of db queries)
+        // this
+        //   .getWalletByAddress(crypto.getAddress(vote.slice(1)))
+        //   .applyVote(sender, vote)
+      })
     } else if (config.network.exceptions[transactionData.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
     } else if (!sender.canApply(transactionData)) {
@@ -207,13 +217,6 @@ module.exports = class WalletManager {
     if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(transactionData)
     }
-
-    // TODO: faster way to maintain active delegate list (ie instead of db queries)
-    // if (sender.vote) {
-    //   const delegateAdress = crypto.getAddress(transaction.data.asset.votes[0].slice(1), config.network.pubKeyHash)
-    //   const delegate = this.localwallets[delegateAdress]
-    //   delegate.applyVote(sender, transaction.data.asset.votes[0])
-    // }
 
     return transaction
   }

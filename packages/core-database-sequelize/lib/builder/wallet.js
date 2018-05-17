@@ -166,7 +166,7 @@ module.exports = class WalletBuilder {
         'serialized'
       ],
       where: {
-        type: TRANSACTION_TYPES.DELEGATE
+        type: TRANSACTION_TYPES.DELEGATE_REGISTRATION
       }
     })
 
@@ -233,7 +233,7 @@ module.exports = class WalletBuilder {
         'serialized'
       ],
       order: [
-        ['createdAt', 'DESC']
+        ['createdAt', 'ASC']
       ],
       where: {
         type: TRANSACTION_TYPES.VOTE
@@ -243,14 +243,8 @@ module.exports = class WalletBuilder {
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
 
-      if (!wallet.voted) {
-        let vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
-
-        if (vote.startsWith('+')) {
-          wallet.vote = vote.slice(1)
-        }
-
-        wallet.voted = true
+      if (!wallet.votesExceeded) {
+        wallet.apply(Transaction.deserialize(row.serialized.toString('hex')))
       }
     })
   }

@@ -1,16 +1,17 @@
 const feeManager = require('../../managers/fee')
-const Transaction = require('../transaction')
 const { TRANSACTION_TYPES } = require('../../constants')
+const Transaction = require('./transaction')
+const cryptoBuilder = require('../crypto')
 
-module.exports = class Delegate extends Transaction {
+module.exports = class DelegateRegistration extends Transaction {
   /**
    * @constructor
    */
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.DELEGATE
-    this.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE)
+    this.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
+    this.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
     this.amount = 0
     this.recipientId = null
     this.senderPublicKey = null
@@ -23,7 +24,7 @@ module.exports = class Delegate extends Transaction {
    * @return {Delegate}
    */
   create (username) {
-    this.username = username
+    this.asset.delegate.username = username
     return this
   }
 
@@ -33,8 +34,8 @@ module.exports = class Delegate extends Transaction {
    * @return {Delegate}
    */
   sign (passphrase) {
+    this.asset.delegate.publicKey = cryptoBuilder.getKeys(passphrase).publicKey
     super.sign(passphrase)
-    this.asset.delegate.publicKey = this.senderPublicKey
     return this
   }
 

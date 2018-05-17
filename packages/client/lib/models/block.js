@@ -135,12 +135,12 @@ module.exports = class Block {
       delete this.data.previousBlock
     }
 
-    // fix on real timestamp, this is overloading tx timestamp with block timestamp for storage only
-    this.transactions = data.transactions.map(tx => {
-      const txx = new Transaction(tx)
-      txx.blockId = this.data.id
-      txx.timestamp = this.data.timestamp
-      return txx
+    // fix on real timestamp, this is overloading transaction timestamp with block timestamp for storage only
+    this.transactions = data.transactions.map(transaction => {
+      const stampedTransaction = new Transaction(transaction)
+      stampedTransaction.blockId = this.data.id
+      stampedTransaction.timestamp = this.data.timestamp
+      return stampedTransaction
     })
 
     delete this.data.transactions
@@ -254,7 +254,7 @@ module.exports = class Block {
     }
 
     try {
-      if (!this.transactions.reduce((acc, tx) => acc && tx.verified, true)) {
+      if (!this.transactions.reduce((wallet, transaction) => wallet && transaction.verified, true)) {
         result.errors.push('One or more transactions are not verified')
       }
 
@@ -378,18 +378,18 @@ module.exports = class Block {
     const length = parseInt('0x' + hexString.substring(104 + 64 + 33 * 2 + 2, 104 + 64 + 33 * 2 + 4), 16) + 2
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
 
-    let txoffset = (104 + 64 + 33 * 2 + length * 2) / 2
+    let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2
     block.transactions = []
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
-      block.transactions.push(buf.readUint32(txoffset))
-      txoffset += 4
+      block.transactions.push(buf.readUint32(transactionOffset))
+      transactionOffset += 4
     }
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
-      const ltx = block.transactions[i]
-      block.transactions[i] = Transaction.deserialize(buf.slice(txoffset, txoffset + ltx).toString('hex'))
-      txoffset += ltx
+      const transactionsLength = block.transactions[i]
+      block.transactions[i] = Transaction.deserialize(buf.slice(transactionOffset, transactionOffset + transactionsLength).toString('hex'))
+      transactionOffset += transactionsLength
     }
 
     return block
@@ -406,9 +406,9 @@ module.exports = class Block {
     applyV1Fix(block)
     buf.append(Block.serialize(block, true))
 
-    const txser = block.transactions.map(tx => Transaction.serialize(tx))
-    txser.forEach(tx => buf.writeUInt32(tx.length))
-    txser.forEach(tx => buf.append(tx))
+    const serializedTransactions = block.transactions.map(transaction => Transaction.serialize(transaction))
+    serializedTransactions.forEach(transaction => buf.writeUInt32(transaction.length))
+    serializedTransactions.forEach(transaction => buf.append(transaction))
     buf.flip()
 
     return buf.toBuffer()
@@ -519,6 +519,6 @@ module.exports = class Block {
   }
 
   toRawJson () {
-    return {...this.data, transactions: this.transactions.map(tx => tx.data)}
+    return {...this.data, transactions: this.transactions.map(transaction => transaction.data)}
   }
 }

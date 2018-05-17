@@ -31,110 +31,110 @@ beforeEach(() => {
 })
 
 describe('Peer', () => {
-  it('should be an object', async () => {
-    await expect(peer).toBeObject()
+  it('should be an object', () => {
+    expect(peer).toBeObject()
   })
 
-  describe('toBroadcastInfo', async () => {
-    it('should be a function', async () => {
-      await expect(peer.toBroadcastInfo).toBeFunction()
+  describe('toBroadcastInfo', () => {
+    it('should be a function', () => {
+      expect(peer.toBroadcastInfo).toBeFunction()
     })
 
     it('should be ok', async () => {
       const struct = peer.toBroadcastInfo()
 
-      await expect(struct).toBeObject()
-      await expect(struct).toHaveProperty('ip')
-      await expect(struct).toHaveProperty('port')
-      await expect(struct).toHaveProperty('version')
-      await expect(struct).toHaveProperty('os')
-      await expect(struct).toHaveProperty('status')
-      await expect(struct).toHaveProperty('height')
-      await expect(struct).toHaveProperty('delay')
+      expect(struct).toBeObject()
+      expect(struct).toHaveProperty('ip')
+      expect(struct).toHaveProperty('port')
+      expect(struct).toHaveProperty('version')
+      expect(struct).toHaveProperty('os')
+      expect(struct).toHaveProperty('status')
+      expect(struct).toHaveProperty('height')
+      expect(struct).toHaveProperty('delay')
     })
   })
 
-  describe.skip('postBlock', async () => {
-    it('should be a function', async () => {
-      await expect(peer.postBlock).toBeFunction()
+  describe.skip('postBlock', () => {
+    it('should be a function', () => {
+      expect(peer.postBlock).toBeFunction()
     })
 
     it('should be ok', async () => {
       const response = await peer.postBlock(genesisBlock.toBroadcastV1())
 
-      await expect(response).toBeObject()
-      await expect(response).toHaveProperty('success')
-      await expect(response.success).toBeTruthy()
+      expect(response).toBeObject()
+      expect(response).toHaveProperty('success')
+      expect(response.success).toBeTruthy()
     })
   })
 
-  describe.skip('postTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(peer.postTransactions).toBeFunction()
+  describe.skip('postTransactions', () => {
+    it('should be a function', () => {
+      expect(peer.postTransactions).toBeFunction()
     })
 
     it('should be ok', async () => {
       const response = await peer.postTransactions([genesisTransaction.toBroadcastV1()])
 
-      await expect(response).toBeObject()
-      await expect(response).toHaveProperty('success')
-      await expect(response.success).toBeTruthy()
+      expect(response).toBeObject()
+      expect(response).toHaveProperty('success')
+      expect(response.success).toBeTruthy()
     })
   })
 
-  describe('downloadBlocks', async () => {
-    it('should be a function', async () => {
-      await expect(peer.downloadBlocks).toBeFunction()
+  describe('downloadBlocks', () => {
+    it('should be a function', () => {
+      expect(peer.downloadBlocks).toBeFunction()
     })
 
     it('should be ok', async () => {
       const blocks = await peer.downloadBlocks(1)
 
-      await expect(blocks).toBeArray()
-      await expect(blocks.length).toBeGreaterThan(10)
+      expect(blocks).toBeArray()
+      expect(blocks.length).toBeGreaterThan(10)
     })
   })
 
-  describe('ping', async () => {
-    it('should be a function', async () => {
-      await expect(peer.ping).toBeFunction()
+  describe('ping', () => {
+    it('should be a function', () => {
+      expect(peer.ping).toBeFunction()
     })
 
     it('should be ok', async () => {
       const response = await peer.ping(5000)
 
-      await expect(response).toBeObject()
-      await expect(response).toHaveProperty('success')
-      await expect(response.success).toBeTruthy()
+      expect(response).toBeObject()
+      expect(response).toHaveProperty('success')
+      expect(response.success).toBeTruthy()
     })
 
     it('should not be ok', async () => {
-      await expect(peer.ping(1)).rejects.toThrowError('is unreachable')
+      expect(peer.ping(1)).rejects.toThrowError('is unreachable')
     })
   })
 
-  describe('getPeers', async () => {
-    it('should be a function', async () => {
-      await expect(peer.getPeers).toBeFunction()
+  describe('getPeers', () => {
+    it('should be a function', () => {
+      expect(peer.getPeers).toBeFunction()
     })
 
     it('should be ok', async () => {
       const peers = await peer.getPeers()
 
-      await expect(peers).toBeArray()
-      await expect(peers.length).toBeGreaterThan(10)
+      expect(peers).toBeArray()
+      expect(peers.length).toBeGreaterThan(10)
     })
   })
 
-  describe('__get', async () => {
-    it('should be a function', async () => {
-      await expect(peer.__get).toBeFunction()
+  describe('__get', () => {
+    it('should be a function', () => {
+      expect(peer.__get).toBeFunction()
     })
   })
 
-  describe('__parseHeaders', async () => {
-    it('should be a function', async () => {
-      await expect(peer.__parseHeaders).toBeFunction()
+  describe('__parseHeaders', () => {
+    it('should be a function', () => {
+      expect(peer.__parseHeaders).toBeFunction()
     })
 
     it('should be ok', async () => {
@@ -146,9 +146,9 @@ describe('Peer', () => {
 
       await peer.__parseHeaders({ headers })
 
-      await expect(peer.nethash).toBe(headers.nethash)
-      await expect(peer.os).toBe(headers.os)
-      await expect(peer.version).toBe(headers.version)
+      expect(peer.nethash).toBe(headers.nethash)
+      expect(peer.os).toBe(headers.os)
+      expect(peer.version).toBe(headers.version)
     })
   })
 })

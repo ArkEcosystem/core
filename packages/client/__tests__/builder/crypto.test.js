@@ -215,13 +215,13 @@ describe('cryptoBuilder.js', () => {
   })
 
   describe('verify', () => {
-    it('should be function', () => {
+    it('should be a function', () => {
       expect(cryptoBuilder.verify).toBeFunction()
     })
   })
 
   describe('verifySecondSignature', () => {
-    it('should be function', () => {
+    it('should be a function', () => {
       expect(cryptoBuilder.verifySecondSignature).toBeFunction()
     })
   })

@@ -33,127 +33,127 @@ beforeEach(async (done) => {
 })
 
 describe('Transaction Repository', () => {
-  it('should be an object', async () => {
-    await expect(repository).toBeObject()
+  it('should be an object', () => {
+    expect(repository).toBeObject()
   })
 
-  describe('findAll', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAll).toBeFunction()
+  describe('findAll', () => {
+    it('should be a function', () => {
+      expect(repository.findAll).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAll()
-      await expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(153)
     })
   })
 
-  describe('findAllByWallet', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByWallet).toBeFunction()
+  describe('findAllByWallet', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByWallet).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByWallet('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
-      await expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(153)
     })
   })
 
-  describe('findAllBySender', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllBySender).toBeFunction()
+  describe('findAllBySender', () => {
+    it('should be a function', () => {
+      expect(repository.findAllBySender).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllBySender('03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe')
-      await expect(transactions.count).toBe(2)
+      expect(transactions.count).toBe(2)
     })
   })
 
-  describe('findAllByRecipient', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByRecipient).toBeFunction()
+  describe('findAllByRecipient', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByRecipient).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByRecipient('AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t')
-      await expect(transactions.count).toBe(1)
+      expect(transactions.count).toBe(1)
     })
   })
 
-  describe('allVotesBySender', async () => {
-    it('should be a function', async () => {
-      await expect(repository.allVotesBySender).toBeFunction()
+  describe('allVotesBySender', () => {
+    it('should be a function', () => {
+      expect(repository.allVotesBySender).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.allVotesBySender('03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
-      await expect(transactions.count).toBe(1)
+      expect(transactions.count).toBe(1)
     })
   })
 
-  describe('findAllByBlock', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByBlock).toBeFunction()
+  describe('findAllByBlock', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByBlock).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
-      await expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(153)
     })
   })
 
-  describe('findAllByType', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByType).toBeFunction()
+  describe('findAllByType', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByType).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByType(2)
-      await expect(transactions.count).toBe(51)
+      expect(transactions.count).toBe(51)
     })
   })
 
-  describe('findById', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findById).toBeFunction()
+  describe('findById', () => {
+    it('should be a function', () => {
+      expect(repository.findById).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findById(genesisTransaction.id)
-      await expect(transaction).toBeObject()
-      await expect(transaction.id).toBe(genesisTransaction.id)
+      expect(transaction).toBeObject()
+      expect(transaction.id).toBe(genesisTransaction.id)
     })
   })
 
-  describe('findByTypeAndId', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findByTypeAndId).toBeFunction()
+  describe('findByTypeAndId', () => {
+    it('should be a function', () => {
+      expect(repository.findByTypeAndId).toBeFunction()
     })
 
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findByTypeAndId(3, '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
-      await expect(transaction).toBeObject()
-      await expect(transaction.id).toBe('96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
-      await expect(transaction.type).toBe(3)
+      expect(transaction).toBeObject()
+      expect(transaction.id).toBe('96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
+      expect(transaction.type).toBe(3)
     })
   })
 
@@ -164,12 +164,12 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(fakeBlock)
 
       const transactions = await repository.findAllByDateAndType(type, from, to)
-      await expect(transactions).toBeArray()
-      await expect(transactions.length).toBe(expected)
+      expect(transactions).toBeArray()
+      expect(transactions.length).toBe(expected)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.findAllByDateAndType).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.findAllByDateAndType).toBeFunction()
     })
 
     it('should find transactions by from -> to range', async () => {
@@ -190,20 +190,20 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.search(params)
-      await expect(transactions).toBeObject()
+      expect(transactions).toBeObject()
 
-      await expect(transactions).toHaveProperty('count')
-      await expect(transactions.count).toBeNumber()
+      expect(transactions).toHaveProperty('count')
+      expect(transactions.count).toBeNumber()
 
-      await expect(transactions).toHaveProperty('rows')
-      await expect(transactions.rows).toBeObject()
-      await expect(transactions.rows).not.toBeEmpty()
+      expect(transactions).toHaveProperty('rows')
+      expect(transactions.rows).toBeObject()
+      expect(transactions.rows).not.toBeEmpty()
 
-      await expect(transactions.count).toBe(expected)
+      expect(transactions.count).toBe(expected)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.search).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.search).toBeFunction()
     })
 
     it('should search transactions by the specified id', async () => {
