@@ -1,6 +1,7 @@
 'use strict'
 
 const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
@@ -36,7 +37,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       operatorsAliases: Sequelize.Op
     }
 
-    // TODO: refactor this do adjust for the test suite
+    // TODO: refactor this to adjust to the test suite
     if (this.config.dialect === 'sqlite') {
       if (this.config.storage === ':memory:') {
         this.connection = new Sequelize('database', 'username', 'password', config)
@@ -523,6 +524,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     return blocks.map(block => Block.serialize(block))
+  }
+
+  /**
+   * Create an OR or AND condition.
+   * @param  {String} type
+   * @param  {Object} params
+   * @return {}
+   */
+  createCondition (type, params) {
+    const validTypes = { 'OR': Op.or, 'AND': Op.or }
+
+    if (!Object.keys(validTypes).include(type.toUpperCase())) {
+      return {}
+    }
+
+    return { [validTypes[type]]: params }
   }
 
   /**

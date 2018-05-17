@@ -7,8 +7,11 @@ module.exports = {
   transactions: async (block, args) => {
     const { orderBy, filter, ...params } = args
 
-    const order = formatOrderBy(orderBy, 'timestamp:DESC')
-    const result = await database.transactions.findAll({ ...filter, orderBy: order, ...params }, false)
+    const result = await database.transactions.findAll({
+      ...filter,
+      orderBy: formatOrderBy(orderBy, 'timestamp:DESC'),
+      ...params
+    }, false)
 
     return unserializeTransactions(result)
   },
