@@ -117,17 +117,24 @@ module.exports = class WalletManager {
     const appliedTransactions = []
 
     try {
+      // TODO Use Promise.all or explain why not
+      // - Promise.each is applied sequentially
+      // - Promise.all is applied in parallel
       await Promise.each(block.transactions, async (transaction) => {
         await this.applyTransaction(transaction)
 
         appliedTransactions.push(transaction)
       })
 
-      return delegate.applyBlock(block.data)
+      delegate.applyBlock(block.data)
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
+      // TODO Use Promise.all or explain why not
+      // - Promise.each is applied sequentially
+      // - Promise.all is applied in parallel
       await Promise.each(appliedTransactions, transaction => this.revertTransaction(transaction))
+      // TODO should revert the delegate applyBlock ?
 
       throw error
     }
@@ -153,16 +160,22 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
+      // TODO Use Promise.all or explain why not
+      // - Promise.each is applied sequentially
+      // - Promise.all is applied in parallel
       await Promise.each(block.transactions, async (transaction) => {
         await this.revertTransaction(transaction)
 
         revertedTransactions.push(transaction)
       })
 
-      return delegate.revertBlock(block.data)
+      delegate.revertBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
 
+      // TODO Use Promise.all or explain why not
+      // - Promise.each is applied sequentially
+      // - Promise.all is applied in parallel
       await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
 
       throw error

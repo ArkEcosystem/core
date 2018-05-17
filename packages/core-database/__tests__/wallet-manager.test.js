@@ -4,8 +4,10 @@ const app = require('./__support__/setup')
 
 let walletManager
 const { Block, Transaction, Wallet } = require('@arkecosystem/client').models
+const { transactionBuilder } = require('@arkecosystem/client') // eslint-disable-line no-unused-vars
 
 const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
+const genesisBlock = require('./__fixtures__/genesisBlock.js') // eslint-disable-line no-unused-vars
 const dummy1 = require('./__fixtures__/wallets.json')[0]
 const dummy2 = require('./__fixtures__/wallets.json')[1]
 const dummyFake = require('./__fixtures__/wallets.json')[2]
@@ -58,26 +60,72 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe.skip('applyBlock', () => {
-    it('should be a function', () => {
-      expect(walletManager.applyBlock).toBeFunction()
+  describe('applyBlock', () => {
+    let manager
+    let delegateMock
+
+    beforeEach(() => {
+      manager = createWalletManager()
+
+      delegateMock = { applyBlock: jest.fn() }
+      manager.getWalletByPublicKey = jest.fn(() => delegateMock)
+      manager.applyTransaction = jest.fn()
     })
 
-    it('should apply transactions of the block', () => {
+    it('should apply transactions of the block', async () => {
+      await manager.applyBlock(block)
 
-    })
-
-    it('should apply the block to the delegate', () => {
-
-    })
-
-    describe('1 transaction fails while applying it', () => {
-      it('should revert all transactions of the block', () => {
-
+      block.transactions.forEach(transaction => {
+        // TODO is order mandatory?
+        expect(manager.applyTransaction).toHaveBeenCalledWith(transaction)
       })
     })
 
-    describe('the delegate of the block is not indexed', () => {
+    it('should apply the block data to the delegate', async () => {
+      await manager.applyBlock(block)
+
+      expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data)
+    })
+
+    describe('when 1 transaction fails while applying it', () => {
+      it('reverts all transactions of the block', async () => {
+        manager.applyTransaction = jest.fn(transaction => {
+          if (transaction === block.transactions[2]) {
+            throw new Error('Fake error')
+          }
+        })
+
+        try {
+          manager.revertTransaction = jest.fn()
+        } catch (error) {
+          block.transactions.push(block.transactions[0])
+          block.transactions.push(block.transactions[0])
+          await manager.applyBlock(block)
+
+          block.transactions.slice(0, 1).forEach(transaction => {
+            // TODO is order mandatory?
+            expect(manager.revertTransaction).toHaveBeenCalledWith(transaction)
+          })
+        }
+      })
+
+      it('throws the Error', async () => {
+        manager.applyTransaction = jest.fn(transaction => {
+          throw new Error('Fake error')
+        })
+
+        try {
+          manager.revertTransaction = jest.fn()
+        } catch (error) {
+          await manager.applyBlock(block)
+
+          expect(error).toBeInstanceOf(Error)
+          expect(error.message).toBe('Fake error')
+        }
+      })
+    })
+
+    xdescribe('the delegate of the block is not indexed', () => {
       describe('not genesis block', () => {
         it('throw an Error', () => {
 
