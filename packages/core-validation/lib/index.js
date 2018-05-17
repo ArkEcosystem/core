@@ -12,4 +12,4 @@ exports.plugin = {
   register: async (container, options) => validator
 }
 
-exports.transactionValidator = new (require('./validators/transaction'))()
+exports.transactionValidator = require('./validators/transaction')

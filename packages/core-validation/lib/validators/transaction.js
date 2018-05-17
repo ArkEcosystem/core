@@ -4,10 +4,10 @@ const client = require('@arkecosystem/client')
 const { TRANSACTION_TYPES } = client.constants
 const transferRule = require('../rules/models/transactions/transfer')
 const signatureRule = require('../rules/models/transactions/signature')
-const delegateRule = require('../rules/models/transactions/delegate')
+const delegateRule = require('../rules/models/transactions/delegate-registration')
 const voteRule = require('../rules/models/transactions/vote')
 
-module.exports = class TransactionValidator {
+class TransactionValidator {
   validate (transaction) {
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
       return this.__validateTransfer(transaction)
@@ -136,3 +136,5 @@ module.exports = class TransactionValidator {
   //   })
   // }
 }
+
+module.exports = new TransactionValidator()
