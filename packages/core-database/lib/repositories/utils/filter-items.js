@@ -17,6 +17,7 @@ module.exports = (items, params, filters) => {
       }
     }
 
+
     if (filters.hasOwnProperty('between')) {
       for (const elem of filters['between']) {
         if (!params[elem]) {
@@ -48,7 +49,7 @@ module.exports = (items, params, filters) => {
     // replaced by `vote`. This filter is kept here just in case
     if (filters.hasOwnProperty('any')) {
       for (const elem of filters['any']) {
-        if (params[elem]) {
+        if (params[elem] && item[elem]) {
           if (Array.isArray(params[elem])) {
             if (item[elem].every(a => params[elem].indexOf(a) === -1)) {
               return false
