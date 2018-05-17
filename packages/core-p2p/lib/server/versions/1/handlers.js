@@ -85,10 +85,10 @@ exports.getTransactionsFromIds = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const txids = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await container.resolvePlugin('blockchain').database.getTransactionsFromIds(txids)
+      const transactions = await container.resolvePlugin('blockchain').database.getTransactionsFromIds(transactionIds)
 
       return { success: true, transactions: transactions }
     } catch (error) {

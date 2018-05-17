@@ -15,16 +15,19 @@ describe('API - 1.0 - Resources - Peers', () => {
 
   it('should call "all" method', async () => {
     const response = await resource.all({})
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "get" method', async () => {
     const response = await resource.get('127.0.0.1', 4001)
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "version" method', async () => {
     const response = await resource.version()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })

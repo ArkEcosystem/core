@@ -27,252 +27,252 @@ const feeTo = fee
 describe('API 2.0 - Transactions', () => {
   describe('GET /transactions', () => {
     it('should GET all the transactions', async () => {
-      const res = await utils.request('GET', 'transactions')
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('GET', 'transactions')
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await utils.assertTransaction(res.body.data[0])
+      utils.expectTransaction(response.body.data[0])
     })
   })
 
   describe('GET /transactions/:id', () => {
     it('should GET a transaction by the given identifier', async () => {
-      const res = await utils.request('GET', `transactions/${transactionId}`)
-      await utils.assertSuccessful(res)
-      await utils.assertResource(res)
+      const response = await utils.request('GET', `transactions/${transactionId}`)
+      utils.expectSuccessful(response)
+      utils.expectResource(response)
 
-      const transaction = res.body.data
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
   })
 
   describe.skip('GET /transactions/unconfirmed', () => {
     it('should GET all the unconfirmed transactions', async () => {
-      const res = await utils.request('GET', 'transactions/unconfirmed')
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('GET', 'transactions/unconfirmed')
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
     })
   })
 
   describe.skip('GET /transactions/unconfirmed/:id', () => {
     it('should GET an unconfirmed transaction by the given identifier', async () => {
-      const res = await utils.request('GET', 'transactions/unconfirmed/:id')
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('GET', 'transactions/unconfirmed/:id')
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
     })
   })
 
   describe('POST /transactions/search', () => {
     it('should POST a search for transactions with the exact specified transactionId', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the exact specified blockId', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, blockId })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, blockId })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
-      await expect(transaction.blockId).toBe(blockId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
+      expect(transaction.blockId).toBe(blockId)
     })
 
     it('should POST a search for transactions with the exact specified type', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, type })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, type })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
-      await expect(transaction.type).toBe(type)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
+      expect(transaction.type).toBe(type)
     })
 
     it('should POST a search for transactions with the exact specified version', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, version })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, version })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, senderPublicKey })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, senderPublicKey })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
-      await expect(transaction.sender).toBe(senderAddress)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
+      expect(transaction.sender).toBe(senderAddress)
     })
 
     it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, recipientId: recipientAddress })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, recipientId: recipientAddress })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
-      await expect(transaction.recipient).toBe(recipientAddress)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
+      expect(transaction.recipient).toBe(recipientAddress)
     })
 
     it('should POST a search for transactions with the exact specified timestamp', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         timestamp: {
           from: timestamp,
           to: timestamp
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the specified timestamp range', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         timestamp: {
           from: timestampFrom,
           to: timestampTo
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the exact specified amount', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         amount: {
           from: amount,
           to: amount
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the specified amount range', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         amount: {
           from: amountFrom,
           to: amountTo
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the exact specified fee', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         fee: {
           from: fee,
           to: fee
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the specified fee range', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         fee: {
           from: feeFrom,
           to: feeTo
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it.skip('should POST a search for transactions with the exact specified vendorFieldHex', async () => {
       const transactionId = '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
       const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
 
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, vendorFieldHex })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, vendorFieldHex })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(1)
+      expect(response.body.data).toHaveLength(1)
 
-      const transaction = res.body.data[0]
-      await utils.assertTransaction(transaction)
-      await expect(transaction.id).toBe(transactionId)
+      const transaction = response.body.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
     })
 
     it('should POST a search for transactions with the wrong specified type', async () => {
-      const res = await utils.request('POST', 'transactions/search', { id: transactionId, type: wrongType })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, type: wrongType })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toHaveLength(0)
+      expect(response.body.data).toHaveLength(0)
     })
 
     it('should POST a search for transactions with the specific criteria', async () => {
-      const res = await utils.request('POST', 'transactions/search', {
+      const response = await utils.request('POST', 'transactions/search', {
         senderPublicKey,
         type,
         timestamp: {
@@ -280,11 +280,11 @@ describe('API 2.0 - Transactions', () => {
           to: timestampTo
         }
       })
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
 
-      await expect(res.body.data).toBeArray()
-      await utils.assertTransaction(res.body.data[0])
+      expect(response.body.data).toBeArray()
+      utils.expectTransaction(response.body.data[0])
     })
   })
 })

@@ -20,93 +20,93 @@ beforeAll(() => {
 })
 
 describe('Logger', () => {
-  it('should be an object', async () => {
-    await expect(logger).toBeInstanceOf(winston.Logger)
+  it('should be an object', () => {
+    expect(logger).toBeInstanceOf(winston.Logger)
   })
 
-  describe('error', async () => {
-    it('should be a function', async () => {
-      await expect(logger.error).toBeFunction()
+  describe('error', () => {
+    it('should be a function', () => {
+      expect(logger.error).toBeFunction()
     })
 
-    it('should log a message', async () => {
+    it('should log a message', () => {
       logger.info('error_message')
 
-      await expect(message).toMatch(/error/)
-      await expect(message).toMatch(/error_message/)
+      expect(message).toMatch(/error/)
+      expect(message).toMatch(/error_message/)
       message = null
     })
   })
 
-  describe('warn', async () => {
-    it('should be a function', async () => {
-      await expect(logger.warn).toBeFunction()
+  describe('warn', () => {
+    it('should be a function', () => {
+      expect(logger.warn).toBeFunction()
     })
 
-    it('should log a message', async () => {
+    it('should log a message', () => {
       logger.info('warning_message')
 
-      await expect(message).toMatch(/warn/)
-      await expect(message).toMatch(/warning_message/)
+      expect(message).toMatch(/warn/)
+      expect(message).toMatch(/warning_message/)
       message = null
     })
   })
 
-  describe('info', async () => {
-    it('should be a function', async () => {
-      await expect(logger.info).toBeFunction()
+  describe('info', () => {
+    it('should be a function', () => {
+      expect(logger.info).toBeFunction()
     })
 
-    it('should log a message', async () => {
+    it('should log a message', () => {
       logger.info('info_message')
 
-      await expect(message).toMatch(/info/)
-      await expect(message).toMatch(/info_message/)
+      expect(message).toMatch(/info/)
+      expect(message).toMatch(/info_message/)
       message = null
     })
   })
 
-  describe('debug', async () => {
-    it('should be a function', async () => {
-      await expect(logger.debug).toBeFunction()
+  describe('debug', () => {
+    it('should be a function', () => {
+      expect(logger.debug).toBeFunction()
     })
 
-    it('should log a message', async () => {
+    it('should log a message', () => {
       logger.info('debug_message')
 
-      await expect(message).toMatch(/debug/)
-      await expect(message).toMatch(/debug_message/)
+      expect(message).toMatch(/debug/)
+      expect(message).toMatch(/debug_message/)
       message = null
     })
   })
 
-  describe('printTracker', async () => {
-    it('should be a function', async () => {
-      await expect(logger.printTracker).toBeFunction()
+  describe('printTracker', () => {
+    it('should be a function', () => {
+      expect(logger.printTracker).toBeFunction()
     })
 
-    it('should print the tracker', async () => {
+    it('should print the tracker', () => {
       logger.printTracker('test_title', 50, 100, 'done')
 
-      await expect(message).toMatch(/test_title/)
-      await expect(message).toMatch(/=========================/)
-      await expect(message).toMatch(/50/)
-      await expect(message).toMatch(/done/)
+      expect(message).toMatch(/test_title/)
+      expect(message).toMatch(/=========================/)
+      expect(message).toMatch(/50/)
+      expect(message).toMatch(/done/)
       message = null
     })
   })
 
-  describe('stopTracker', async () => {
-    it('should be a function', async () => {
-      await expect(logger.stopTracker).toBeFunction()
+  describe('stopTracker', () => {
+    it('should be a function', () => {
+      expect(logger.stopTracker).toBeFunction()
     })
 
-    it('should stop the tracker', async () => {
+    it('should stop the tracker', () => {
       logger.stopTracker('test_title', 50, 100)
 
-      await expect(message).toMatch(/test_title/)
-      await expect(message).toMatch(/=========================/)
-      await expect(message).toMatch(/50/)
+      expect(message).toMatch(/test_title/)
+      expect(message).toMatch(/=========================/)
+      expect(message).toMatch(/50/)
       message = null
     })
   })

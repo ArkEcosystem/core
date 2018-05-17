@@ -15,22 +15,22 @@ class Helpers {
     return request.set('Authorization', authorization)
   }
 
-  assertJson (data) {
+  expectJson (data) {
     expect(data.body).toBeObject()
   }
 
-  assertStatus (data, code) {
+  expectStatus (data, code) {
     expect(data.statusCode).toBe(code)
   }
-  assertResource (data) {
+  expectResource (data) {
     expect(data.body.data).toBeObject()
   }
 
-  assertCollection (data) {
+  expectCollection (data) {
     expect(Array.isArray(data.body.data)).toBe(true)
   }
 
-  assertPaginator (data, firstPage = true) {
+  expectPaginator (data, firstPage = true) {
     expect(data.body.meta).toBeObject()
     expect(data.body.meta).toHaveProperty('count')
     expect(data.body.meta).toHaveProperty('pageCount')
@@ -42,17 +42,17 @@ class Helpers {
     expect(data.body.meta).toHaveProperty('last')
   }
 
-  assertSuccessful (res, statusCode = 200) {
-    this.assertStatus(res, statusCode)
-    this.assertJson(res)
+  expectSuccessful (data, statusCode = 200) {
+    this.expectStatus(data, statusCode)
+    this.expectJson(data)
   }
 
-  assertError (res, statusCode = 404) {
-    this.assertStatus(res, statusCode)
-    this.assertJson(res)
-    expect(res.body.statusCode).toBeInteger()
-    expect(res.body.error).toBeString()
-    expect(res.body.message).toBeString()
+  expectError (data, statusCode = 404) {
+    this.expectStatus(data, statusCode)
+    this.expectJson(data)
+    expect(data.body.statusCode).toBeInteger()
+    expect(data.body.error).toBeString()
+    expect(data.body.message).toBeString()
   }
 }
 

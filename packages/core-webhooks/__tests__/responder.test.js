@@ -13,7 +13,7 @@ describe('REST Hooks', () => {
       { headers: { 'Authorization': fixture.server }
     })
 
-    await expect(response.status).toBe(200)
+    expect(response.status).toBe(200)
   })
 
   it('should respond with 400 with invalid event', async () => {
@@ -24,7 +24,7 @@ describe('REST Hooks', () => {
         { headers: { 'Authorization': fixture.server }
       })
     } catch (error) {
-      await expect(error.response.status).toBe(400)
+      expect(error.response.status).toBe(400)
     }
   })
 
@@ -36,7 +36,7 @@ describe('REST Hooks', () => {
         { headers: { 'Authorization': 'invalid token' }
       })
     } catch (error) {
-      await expect(error.response.status).toBe(401)
+      expect(error.response.status).toBe(401)
     }
   })
 })

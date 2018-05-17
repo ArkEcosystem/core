@@ -39,7 +39,7 @@ describe('Forger Manager', () => {
     it('should be ok with configured delegates', async () => {
       const delegates = await manager.loadDelegates()
 
-      await expect(delegates).toBeArray()
+      expect(delegates).toBeArray()
 
       delegates.forEach(delegate => expect(delegate).toBeInstanceOf(Delegate))
     })
@@ -74,9 +74,9 @@ describe('Forger Manager', () => {
         }
       })
 
-      await expect(delegate).toBeObject()
-      await expect(delegate.username).toBe('arkxdev')
-      await expect(delegate.publicKey).toBe('0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0')
+      expect(delegate).toBeObject()
+      expect(delegate.username).toBe('arkxdev')
+      expect(delegate.publicKey).toBe('0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0')
     })
   })
 })

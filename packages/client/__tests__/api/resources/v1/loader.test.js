@@ -15,16 +15,19 @@ describe('API - 1.0 - Resources - Loader', () => {
 
   it('should call "status" method', async () => {
     const response = await resource.status()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "syncing" method', async () => {
     const response = await resource.syncing()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "configuration" method', async () => {
     const response = await resource.configuration()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })

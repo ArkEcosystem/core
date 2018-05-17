@@ -15,11 +15,11 @@ class Helpers {
     return request.set('API-Version', '1')
   }
 
-  assertJson (data) {
+  expectJson (data) {
     expect(data.body).toBeObject()
   }
 
-  assertStatus (data, code) {
+  expectStatus (data, code) {
     expect(data.statusCode).toBe(code)
   }
 
@@ -28,36 +28,36 @@ class Helpers {
     expect(data.headers).toHaveProperty('api-version', version)
   }
 
-  assertState (data, state) {
+  expectState (data, state) {
     expect(data.body).toHaveProperty('success', state)
   }
 
-  assertSuccessful (res) {
-    this.assertStatus(res, 200)
-    this.assertJson(res)
-    this.assertState(res, true)
-    this.assertVersion(res, '1')
+  expectSuccessful (response) {
+    this.expectStatus(response, 200)
+    this.expectJson(response)
+    this.expectState(response, true)
+    this.assertVersion(response, '1')
   }
 
-  assertError (res) {
-    this.assertStatus(res, 200)
-    this.assertJson(res)
-    this.assertState(res, false)
-    this.assertVersion(res, '1')
+  expectError (response) {
+    this.expectStatus(response, 200)
+    this.expectJson(response)
+    this.expectState(response, false)
+    this.assertVersion(response, '1')
   }
 
-  assertDelegate (res) {
-    expect(res).toHaveProperty('username')
-    expect(res).toHaveProperty('address')
-    expect(res).toHaveProperty('publicKey')
-    expect(res).toHaveProperty('vote')
+  expectDelegate (response) {
+    expect(response).toHaveProperty('username')
+    expect(response).toHaveProperty('address')
+    expect(response).toHaveProperty('publicKey')
+    expect(response).toHaveProperty('votes')
   }
 
-  assertWallet (res) {
-    expect(res).toHaveProperty('username')
-    expect(res).toHaveProperty('address')
-    expect(res).toHaveProperty('publicKey')
-    expect(res).toHaveProperty('balance')
+  expectWallet (response) {
+    expect(response).toHaveProperty('username')
+    expect(response).toHaveProperty('address')
+    expect(response).toHaveProperty('publicKey')
+    expect(response).toHaveProperty('balance')
   }
 }
 

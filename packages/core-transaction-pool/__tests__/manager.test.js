@@ -9,12 +9,12 @@ class FakeDriver {
 }
 
 describe('Transaction Pool Manager', () => {
-  it('should be an object', async () => {
+  it('should be an object', () => {
     expect(transactionPoolManager).toBeObject()
   })
 
-  describe('connection', async () => {
-    it('should be a function', async () => {
+  describe('connection', () => {
+    it('should be a function', () => {
       expect(transactionPoolManager.connection).toBeFunction()
     })
 
@@ -31,8 +31,8 @@ describe('Transaction Pool Manager', () => {
     })
   })
 
-  describe('makeConnection', async () => {
-    it('should be a function', async () => {
+  describe('makeConnection', () => {
+    it('should be a function', () => {
       expect(transactionPoolManager.makeConnection).toBeFunction()
     })
   })

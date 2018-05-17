@@ -29,13 +29,13 @@ function createWalletManager () {
 }
 
 describe('Wallet Manager', () => {
-  it('should be an object', async () => {
-    await expect(walletManager).toBeObject()
+  it('should be an object', () => {
+    expect(walletManager).toBeObject()
   })
 
-  describe('reset', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.reset).toBeFunction()
+  describe('reset', () => {
+    it('should be a function', () => {
+      expect(walletManager.reset).toBeFunction()
     })
 
     it('should reset the index', () => {
@@ -50,9 +50,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('reindex', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.reindex).toBeFunction()
+  describe('reindex', () => {
+    it('should be a function', () => {
+      expect(walletManager.reindex).toBeFunction()
     })
 
     it('should index the wallets', () => {
@@ -66,9 +66,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe.skip('applyBlock', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.applyBlock).toBeFunction()
+  describe.skip('applyBlock', () => {
+    it('should be a function', () => {
+      expect(walletManager.applyBlock).toBeFunction()
     })
 
     it('should apply transactions of the block', () => {
@@ -100,9 +100,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe.skip('revertBlock', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.revertBlock).toBeFunction()
+  describe.skip('revertBlock', () => {
+    it('should be a function', () => {
+      expect(walletManager.revertBlock).toBeFunction()
     })
 
     it('should revert all transactions of the block', () => {
@@ -114,9 +114,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('applyTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.applyTransaction).toBeFunction()
+  describe('applyTransaction', () => {
+    it('should be a function', () => {
+      expect(walletManager.applyTransaction).toBeFunction()
     })
 
     it('should apply the transaction to the sender & recipient', async () => {
@@ -139,19 +139,19 @@ describe('Wallet Manager', () => {
       sender.balance = transaction.data.amount
       const recipient = manager.getWalletByAddress(transaction.data.recipientId)
 
-      await expect(sender.balance).toBe(transaction.data.amount)
-      await expect(recipient.balance).toBe(0)
+      expect(sender.balance).toBe(transaction.data.amount)
+      expect(recipient.balance).toBe(0)
 
       await manager.applyTransaction(transaction)
 
-      await expect(sender.balance).toBe(0)
-      await expect(recipient.balance).toBe(transaction.data.amount)
+      expect(sender.balance).toBe(0)
+      expect(recipient.balance).toBe(transaction.data.amount)
     })
   })
 
-  describe('revertTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.revertTransaction).toBeFunction()
+  describe('revertTransaction', () => {
+    it('should be a function', () => {
+      expect(walletManager.revertTransaction).toBeFunction()
     })
 
     it('should revert the transaction from the sender & recipient', async () => {
@@ -174,19 +174,19 @@ describe('Wallet Manager', () => {
       const recipient = manager.getWalletByAddress(transaction.data.recipientId)
       recipient.balance = transaction.data.amount
 
-      await expect(sender.balance).toBe(0)
-      await expect(recipient.balance).toBe(transaction.data.amount)
+      expect(sender.balance).toBe(0)
+      expect(recipient.balance).toBe(transaction.data.amount)
 
       await manager.revertTransaction(transaction)
 
-      await expect(sender.balance).toBe(transaction.data.amount)
-      await expect(recipient.balance).toBe(0)
+      expect(sender.balance).toBe(transaction.data.amount)
+      expect(recipient.balance).toBe(0)
     })
   })
 
-  describe('getWalletByAddress', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.getWalletByAddress).toBeFunction()
+  describe('getWalletByAddress', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByAddress).toBeFunction()
     })
 
     it('should index it by address', () => {
@@ -206,9 +206,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getWalletByPublicKey', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.getWalletByPublicKey).toBeFunction()
+  describe('getWalletByPublicKey', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByPublicKey).toBeFunction()
     })
 
     it('should index it by publicKey', () => {
@@ -230,9 +230,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getWalletByUsername', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.getWalletByUsername).toBeFunction()
+  describe('getWalletByUsername', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByUsername).toBeFunction()
     })
 
     it('should index it by username', () => {
@@ -254,9 +254,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getLocalWallets', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.getLocalWallets).toBeFunction()
+  describe('getLocalWallets', () => {
+    it('should be a function', () => {
+      expect(walletManager.getLocalWallets).toBeFunction()
     })
 
     it('should return indexed', () => {
@@ -272,9 +272,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('__canBePurged', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.__canBePurged).toBeFunction()
+  describe('__canBePurged', () => {
+    it('should be a function', () => {
+      expect(walletManager.__canBePurged).toBeFunction()
     })
 
     it('should be removed if all criteria are satisfied', async () => {
@@ -308,9 +308,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('purgeEmptyNonDelegates', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.purgeEmptyNonDelegates).toBeFunction()
+  describe('purgeEmptyNonDelegates', () => {
+    it('should be a function', () => {
+      expect(walletManager.purgeEmptyNonDelegates).toBeFunction()
     })
 
     it('should be purged if all criteria are satisfied', async () => {
@@ -385,9 +385,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('isGenesis', async () => {
-    it('should be a function', async () => {
-      await expect(walletManager.isGenesis).toBeFunction()
+  describe('isGenesis', () => {
+    it('should be a function', () => {
+      expect(walletManager.isGenesis).toBeFunction()
     })
 
     it('should be truthy', async () => {

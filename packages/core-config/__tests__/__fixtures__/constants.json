@@ -2,6 +2,7 @@
   "height": 1,
   "reward": 0,
   "activeDelegates": 51,
+  "activeVotes": 1,
   "blocktime": 8,
   "block": {
     "version": 0,
@@ -20,6 +21,7 @@
   "height": 75600,
   "reward": 200000000,
   "activeDelegates": 51,
+  "activeVotes": 1,
   "blocktime": 8,
   "block": {
     "version": 0,

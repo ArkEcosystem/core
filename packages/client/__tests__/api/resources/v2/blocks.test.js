@@ -15,21 +15,25 @@ describe('API - 2.0 - Resources - Blocks', () => {
 
   it('should call "all" method', async () => {
     const response = await resource.all()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "get" method', async () => {
     const response = await resource.get('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "transactions" method', async () => {
     const response = await resource.transactions('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "search" method', async () => {
     const response = await resource.search({})
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })

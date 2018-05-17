@@ -28,6 +28,6 @@ describe('Check NTP', () => {
   it('should be ok', async () => {
     const response = await checker(['time.google.com'])
 
-    await expect(response).toBeObject()
+    expect(response).toBeObject()
   })
 })

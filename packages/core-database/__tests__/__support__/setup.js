@@ -12,9 +12,7 @@ exports.setUp = async () => {
     exclude: [
       '@arkecosystem/core-p2p',
       '@arkecosystem/core-transaction-pool',
-      '@arkecosystem/core-transaction-pool-redis',
-      '@arkecosystem/core-database-sequelize',
-      '@arkecosystem/core-webhooks'
+      '@arkecosystem/core-transaction-pool-redis'
     ]
   })
 

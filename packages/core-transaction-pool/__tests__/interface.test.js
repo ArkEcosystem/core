@@ -21,19 +21,19 @@ afterAll(async (done) => {
 })
 
 describe('Transaction Pool Interface', () => {
-  it('should be an object', async () => {
-    await expect(poolInterface).toBeObject()
+  it('should be an object', () => {
+    expect(poolInterface).toBeObject()
   })
 
-  describe('driver', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.driver).toBeFunction()
+  describe('driver', () => {
+    it('should be a function', () => {
+      expect(poolInterface.driver).toBeFunction()
     })
   })
 
-  describe('getPoolSize', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.getPoolSize).toBeFunction()
+  describe('getPoolSize', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getPoolSize).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -41,9 +41,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('addTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.addTransaction).toBeFunction()
+  describe('addTransaction', () => {
+    it('should be a function', () => {
+      expect(poolInterface.addTransaction).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -51,9 +51,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('removeTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.removeTransaction).toBeFunction()
+  describe('removeTransaction', () => {
+    it('should be a function', () => {
+      expect(poolInterface.removeTransaction).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -61,9 +61,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('removeTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.removeTransactions).toBeFunction()
+  describe('removeTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.removeTransactions).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -71,9 +71,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.getTransaction).toBeFunction()
+  describe('getTransaction', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransaction).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -81,9 +81,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.getTransactions).toBeFunction()
+  describe('getTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactions).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -91,9 +91,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getTransactionsForForging', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.getTransactionsForForging).toBeFunction()
+  describe('getTransactionsForForging', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -101,9 +101,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('hasExceededMaxTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.hasExceededMaxTransactions).toBeFunction()
+  describe('hasExceededMaxTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.hasExceededMaxTransactions).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -111,19 +111,9 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getPublicKeyById', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.getPublicKeyById).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(poolInterface.getPublicKeyById()).rejects.toThrowError('Method [getPublicKeyById] not implemented!')
-    })
-  })
-
-  describe('determineExcessTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(poolInterface.determineExcessTransactions).toBeFunction()
+  describe('determineExcessTransactions', () => {
+    it('should be a function', () => {
+      expect(poolInterface.determineExcessTransactions).toBeFunction()
     })
 
     it('should have 2 accept / 0 excess transactions', async () => {
@@ -131,11 +121,11 @@ describe('Transaction Pool Interface', () => {
 
       const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
-      await expect(ids).toBeObject()
-      await expect(ids).toHaveProperty('accept')
-      await expect(ids.accept).toHaveLength(2)
-      await expect(ids).toHaveProperty('excess')
-      await expect(ids.excess).toHaveLength(0)
+      expect(ids).toBeObject()
+      expect(ids).toHaveProperty('accept')
+      expect(ids.accept).toHaveLength(2)
+      expect(ids).toHaveProperty('excess')
+      expect(ids.excess).toHaveLength(0)
     })
 
     it('should have 0 accept / 2 excess transactions', async () => {
@@ -143,11 +133,11 @@ describe('Transaction Pool Interface', () => {
 
       const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
 
-      await expect(ids).toBeObject()
-      await expect(ids).toHaveProperty('accept')
-      await expect(ids.accept).toHaveLength(0)
-      await expect(ids).toHaveProperty('excess')
-      await expect(ids.excess).toHaveLength(2)
+      expect(ids).toBeObject()
+      expect(ids).toHaveProperty('accept')
+      expect(ids.accept).toHaveLength(0)
+      expect(ids).toHaveProperty('excess')
+      expect(ids.excess).toHaveLength(2)
     })
   })
 })

@@ -166,11 +166,11 @@ module.exports = class Blockchain {
       return
     }
 
-    const newHeigth = previousRound * maxDelegates
-    logger.info(`Removing ${height - newHeigth} blocks to reset current round`)
+    const newHeight = previousRound * maxDelegates
+    logger.info(`Removing ${height - newHeight} blocks to reset current round`)
     let count = 0
-    const max = this.getLastBlock(true).height - newHeigth
-    while (this.getLastBlock(true).height >= newHeigth) {
+    const max = this.getLastBlock(true).height - newHeight
+    while (this.getLastBlock(true).height >= newHeight) {
       logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock(true).id + ', height: ' + this.getLastBlock(true).height)
       await deleteLastBlock()
     }

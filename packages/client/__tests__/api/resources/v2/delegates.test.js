@@ -15,21 +15,25 @@ describe('API - 2.0 - Resources - Delegates', () => {
 
   it('should call "all" method', async () => {
     const response = await resource.all()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "get" method', async () => {
     const response = await resource.get('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "blocks" method', async () => {
     const response = await resource.blocks('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "voters" method', async () => {
     const response = await resource.voters('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })
