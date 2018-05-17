@@ -160,6 +160,15 @@ describe('Connection', () => {
 
       await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeFalsy()
     })
+
+    it('should be allowed to exceed if whitelisted', async () => {
+      connection.options.whitelist = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
+      for (let i = 0; i < 101; i++) {
+        await connection.addTransaction(dummy1)
+      }
+
+      await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeFalsy()
+    })
   })
 
   describe('getTransaction', () => {
