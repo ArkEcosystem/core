@@ -56,6 +56,14 @@ class Validator {
   }
 
   /**
+   * Get the validation errors.
+   * @return {Array}
+   */
+  errors () {
+    return this.results.errors
+  }
+
+  /**
    * Add a new rule to the validator.
    * @return {void}
    */
@@ -100,6 +108,7 @@ class Validator {
 
     this.results = {
       data: value,
+      errors: error.details,
       passes: !error,
       fails: error
     }
