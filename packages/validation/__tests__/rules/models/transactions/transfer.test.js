@@ -19,7 +19,7 @@ describe('Transfer Transaction Rule', () => {
   it('should be valid', () => {
     transaction.create(address, amount)
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).fails).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be valid with correct data', () => {
@@ -27,17 +27,17 @@ describe('Transfer Transaction Rule', () => {
                .setFee(fee)
                .setVendorField('Ahoy')
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).fails).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
-    expect(rule('test').passes).toBeFalsy()
+    expect(rule('test').errors).not.toBeNull()
   })
 
   it('should be invalid due to no address', () => {
     transaction.create(null, amount)
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to invalid address', () => {
@@ -45,26 +45,26 @@ describe('Transfer Transaction Rule', () => {
                .sign('passphrase')
     const struct = transaction.getStruct()
     struct.recipientId = 'woop'
-    expect(rule(struct).passes).toBeFalsy()
+    expect(rule(struct).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero amount', () => {
     transaction.create(address, 0)
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
     transaction.create(address, 0)
                .setFee(0)
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.create('delegate_name')
                .sign('passphrase')
-    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 })

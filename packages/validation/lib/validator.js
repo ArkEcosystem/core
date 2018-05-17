@@ -108,7 +108,7 @@ class Validator {
 
     this.results = {
       data: value,
-      errors: error.details,
+      errors: error ? error.details : null,
       passes: !error,
       fails: error
     }

@@ -24,6 +24,7 @@ module.exports = (transaction) => {
 
   return {
     data: value,
+    errors: error ? error.details : null,
     passes: !error,
     fails: error
   }
