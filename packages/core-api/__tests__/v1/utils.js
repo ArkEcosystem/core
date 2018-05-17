@@ -1,35 +1,33 @@
 'use strict'
 
-const chai = require('chai')
-const chaiHttp = require('chai-http')
-
-chai.use(chaiHttp)
+const axios = require('axios')
 
 class Helpers {
   request (method, path, params = {}) {
-    let request = chai.request('http://localhost:4003/api/')
+    const url = `http://localhost:4003/api/${path}`
+    const headers = { 'API-Version': 1 }
+    const request = axios[method.toLowerCase()]
 
-    request = request[method.toLowerCase()](path)
-    request = (method === 'GET') ? request.query(params) : request.send(params)
-
-    return request.set('API-Version', '1')
+    return ['GET', 'DELETE'].includes(method)
+      ? request(url, { params, headers })
+      : request(url, params, { headers })
   }
 
-  expectJson (data) {
-    expect(data.body).toBeObject()
+  expectJson (response) {
+    expect(response.data).toBeObject()
   }
 
-  expectStatus (data, code) {
-    expect(data.statusCode).toBe(code)
+  expectStatus (response, code) {
+    expect(response.status).toBe(code)
   }
 
-  assertVersion (data, version) {
-    expect(data.headers).toBeObject()
-    expect(data.headers).toHaveProperty('api-version', version)
+  assertVersion (response, version) {
+    expect(response.headers).toBeObject()
+    expect(response.headers).toHaveProperty('api-version', version)
   }
 
-  expectState (data, state) {
-    expect(data.body).toHaveProperty('success', state)
+  expectState (response, state) {
+    expect(response.data).toHaveProperty('success', state)
   }
 
   expectSuccessful (response) {

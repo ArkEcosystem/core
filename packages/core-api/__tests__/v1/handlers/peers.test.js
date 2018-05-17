@@ -13,7 +13,7 @@ describe('API 1.0 - Peers', () => {
       const response = await utils.request('GET', 'peers/version')
       utils.expectSuccessful(response)
 
-      expect(response.body.version).toBeString()
+      expect(response.data.version).toBeString()
     })
   })
 
@@ -30,14 +30,14 @@ describe('API 1.0 - Peers', () => {
       })
       utils.expectError(response)
 
-      expect(response.body.error).toContain('should be string')
+      expect(response.data.error).toContain('should be string')
     })
 
     it('should fail using limit > 100', async () => {
       const response = await utils.request('GET', 'peers', { limit: 101 })
       utils.expectError(response)
 
-      expect(response.body.error)
+      expect(response.data.error)
     })
 
     it('should fail using invalid parameters', async () => {
@@ -52,7 +52,7 @@ describe('API 1.0 - Peers', () => {
       })
       utils.expectError(response)
 
-      expect(response.body.error).not.toBeNull()
+      expect(response.data.error).not.toBeNull()
     })
   })
 
@@ -61,28 +61,28 @@ describe('API 1.0 - Peers', () => {
       const response = await utils.request('GET', 'peers/get?ip=127.0.0.1')
       utils.expectError(response)
 
-      expect(response.body.error).toBe('should have required property \'port\'')
+      expect(response.data.error).toBe('should have required property \'port\'')
     })
 
     it('should fail using valid port with no ip address', async () => {
       const response = await utils.request('GET', 'peers/get', { port: 4002 })
       utils.expectError(response)
 
-      expect(response.body.error).toBe('should have required property \'ip\'')
+      expect(response.data.error).toBe('should have required property \'ip\'')
     })
 
     it.skip('should be ok using known ip address and port', async () => {
       const response = await utils.request('GET', 'peers/get', { ip: peerIp, port: peerPort })
       utils.expectSuccessful(response)
 
-      expect(response.body.peer).toBeObject()
+      expect(response.data.peer).toBeObject()
     })
 
     it('should fail using unknown ip address and port', async () => {
       const response = await utils.request('GET', 'peers/get', { ip: '99.99.99.99', port: peerPort })
       utils.expectError(response)
 
-      expect(response.body.error).toBe(`Peer 99.99.99.99:${peerPort} not found`)
+      expect(response.data.error).toBe(`Peer 99.99.99.99:${peerPort} not found`)
     })
   })
 })

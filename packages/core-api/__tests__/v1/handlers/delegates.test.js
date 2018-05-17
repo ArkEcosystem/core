@@ -10,8 +10,8 @@ describe('API 1.0 - Delegates', () => {
       const response = await utils.request('GET', 'delegates')
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      utils.expectDelegate(response.body.delegates[0])
+      expect(response.data).toBeObject()
+      utils.expectDelegate(response.data.delegates[0])
     })
   })
 
@@ -20,8 +20,8 @@ describe('API 1.0 - Delegates', () => {
       const response = await utils.request('GET', 'delegates/get', { username: 'genesis_9' })
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      utils.expectDelegate(response.body.delegate)
+      expect(response.data).toBeObject()
+      utils.expectDelegate(response.data.delegate)
     })
 
     it('should be ok using a publicKey', async () => {
@@ -30,8 +30,8 @@ describe('API 1.0 - Delegates', () => {
       })
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      utils.expectDelegate(response.body.delegate)
+      expect(response.data).toBeObject()
+      utils.expectDelegate(response.data.delegate)
     })
   })
 
@@ -40,8 +40,8 @@ describe('API 1.0 - Delegates', () => {
       const response = await utils.request('GET', 'delegates/count')
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      expect(response.body).toHaveProperty('count')
+      expect(response.data).toBeObject()
+      expect(response.data).toHaveProperty('count')
     })
   })
 
@@ -52,9 +52,9 @@ describe('API 1.0 - Delegates', () => {
       })
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      utils.expectDelegate(response.body.delegates[0])
-      expect(response.body.delegates[0].username).toBe('genesis_9')
+      expect(response.data).toBeObject()
+      utils.expectDelegate(response.data.delegates[0])
+      expect(response.data.delegates[0].username).toBe('genesis_9')
     })
   })
 
@@ -65,8 +65,8 @@ describe('API 1.0 - Delegates', () => {
       })
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      utils.expectWallet(response.body.accounts[0])
+      expect(response.data).toBeObject()
+      utils.expectWallet(response.data.accounts[0])
     })
   })
 
@@ -75,8 +75,8 @@ describe('API 1.0 - Delegates', () => {
       const response = await utils.request('GET', 'delegates/fee')
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      expect(response.body).toHaveProperty('fee')
+      expect(response.data).toBeObject()
+      expect(response.data).toHaveProperty('fee')
     })
   })
 
@@ -87,10 +87,10 @@ describe('API 1.0 - Delegates', () => {
       })
       utils.expectSuccessful(response)
 
-      expect(response.body).toBeObject()
-      expect(response.body).toHaveProperty('fees')
-      expect(response.body).toHaveProperty('rewards')
-      expect(response.body).toHaveProperty('forged')
+      expect(response.data).toBeObject()
+      expect(response.data).toHaveProperty('fees')
+      expect(response.data).toHaveProperty('rewards')
+      expect(response.data).toHaveProperty('forged')
     })
   })
 })

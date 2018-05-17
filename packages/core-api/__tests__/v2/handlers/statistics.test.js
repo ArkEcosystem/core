@@ -11,25 +11,25 @@ describe.skip('API 2.0 - Statistics', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data.supply).toBeObject()
-      expect(response.body.data.supply.initial).toBeNumber()
-      expect(response.body.data.supply.current).toBeNumber()
+      expect(response.data.data.supply).toBeObject()
+      expect(response.data.data.supply.initial).toBeNumber()
+      expect(response.data.data.supply.current).toBeNumber()
 
-      expect(response.body.data.blocks).toBeObject()
-      expect(response.body.data.blocks.forged).toBeNumber()
-      expect(response.body.data.blocks.rewards).toBeNumber()
+      expect(response.data.data.blocks).toBeObject()
+      expect(response.data.data.blocks.forged).toBeNumber()
+      expect(response.data.data.blocks.rewards).toBeNumber()
 
-      expect(response.body.data.rewards).toBeObject()
-      expect(response.body.data.rewards.start).toBeNumber()
-      expect(response.body.data.rewards.total).toBeNumber()
+      expect(response.data.data.rewards).toBeObject()
+      expect(response.data.data.rewards.start).toBeNumber()
+      expect(response.data.data.rewards.total).toBeNumber()
 
-      expect(response.body.data.productivity).toBeObject()
-      expect(response.body.data.productivity.best.username).toBeString()
-      expect(response.body.data.productivity.best.productivity).toBeString()
+      expect(response.data.data.productivity).toBeObject()
+      expect(response.data.data.productivity.best.username).toBeString()
+      expect(response.data.data.productivity.best.productivity).toBeString()
 
-      expect(response.body.data.productivity.worst).toBeObject()
-      expect(response.body.data.productivity.worst.username).toBeString()
-      expect(response.body.data.productivity.worst.productivity).toBeString()
+      expect(response.data.data.productivity.worst).toBeObject()
+      expect(response.data.data.productivity.worst.username).toBeString()
+      expect(response.data.data.productivity.worst.productivity).toBeString()
     })
   })
 
@@ -40,9 +40,9 @@ describe.skip('API 2.0 - Statistics', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data.count).toBeNumber()
-      expect(response.body.data.amount).toBeNumber()
-      expect(response.body.data.fees).toBeNumber()
+      expect(response.data.data.count).toBeNumber()
+      expect(response.data.data.amount).toBeNumber()
+      expect(response.data.data.fees).toBeNumber()
     })
   })
 
@@ -53,9 +53,9 @@ describe.skip('API 2.0 - Statistics', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data.count).toBeNumber()
-      expect(response.body.data.rewards).toBeNumber()
-      expect(response.body.data.fees).toBeNumber()
+      expect(response.data.data.count).toBeNumber()
+      expect(response.data.data.rewards).toBeNumber()
+      expect(response.data.data.fees).toBeNumber()
     })
   })
 
@@ -65,9 +65,9 @@ describe.skip('API 2.0 - Statistics', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data.count).toBeNumber()
-      expect(response.body.data.amount).toBeNumber()
-      expect(response.body.data.fees).toBeNumber()
+      expect(response.data.data.count).toBeNumber()
+      expect(response.data.data.amount).toBeNumber()
+      expect(response.data.data.fees).toBeNumber()
     })
   })
 
@@ -77,9 +77,9 @@ describe.skip('API 2.0 - Statistics', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      expect(response.body.data.count).toBeNumber()
-      expect(response.body.data.amount).toBeNumber()
-      expect(response.body.data.fees).toBeNumber()
+      expect(response.data.data.count).toBeNumber()
+      expect(response.data.data.amount).toBeNumber()
+      expect(response.data.data.fees).toBeNumber()
     })
   })
 })

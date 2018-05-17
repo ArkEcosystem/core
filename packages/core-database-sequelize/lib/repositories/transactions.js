@@ -27,6 +27,7 @@ module.exports = class TransactionsRepository {
     let whereStatement = {}
     let orderBy = []
 
+    // TODO: clean up this mess
     const conditions = [Op.or, Op.and]
     const filter = (args) => args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
 

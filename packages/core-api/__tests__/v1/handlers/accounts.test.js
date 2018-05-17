@@ -13,7 +13,7 @@ describe('API 1.0 - Wallets', () => {
       utils.expectSuccessful(response)
 
       const expected = ['address', 'publicKey', 'secondPublicKey', 'votes', 'username', 'balance', 'votebalance']
-      expect(Object.keys(response.body.account)).toEqual(expect.arrayContaining(expected))
+      expect(Object.keys(response.data.account)).toEqual(expect.arrayContaining(expected))
     })
   })
 
@@ -22,8 +22,8 @@ describe('API 1.0 - Wallets', () => {
       const response = await utils.request('GET', 'accounts/getBalance', { address })
       utils.expectSuccessful(response)
 
-      expect(response.body.balance).toBeNumber()
-      expect(response.body.unconfirmedBalance).toBeNumber()
+      expect(response.data.balance).toBeNumber()
+      expect(response.data.unconfirmedBalance).toBeNumber()
     })
   })
 
@@ -32,7 +32,7 @@ describe('API 1.0 - Wallets', () => {
       const response = await utils.request('GET', 'accounts/getPublicKey', { address })
       utils.expectSuccessful(response)
 
-      expect(response.body.publicKey).toBeString()
+      expect(response.data.publicKey).toBeString()
     })
   })
 
@@ -41,8 +41,8 @@ describe('API 1.0 - Wallets', () => {
       const response = await utils.request('GET', 'accounts/delegates', { address })
       utils.expectSuccessful(response)
 
-      expect(response.body.delegates).toBeArray()
-      expect(response.body.delegates[0].producedblocks).toBeNumber()
+      expect(response.data.delegates).toBeArray()
+      expect(response.data.delegates[0].producedblocks).toBeNumber()
     })
   })
 })

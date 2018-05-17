@@ -31,7 +31,7 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      utils.expectTransaction(response.body.data[0])
+      utils.expectTransaction(response.data.data[0])
     })
   })
 
@@ -41,7 +41,7 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
-      const transaction = response.body.data
+      const transaction = response.data.data
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -69,9 +69,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -81,9 +81,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
       expect(transaction.blockId).toBe(blockId)
@@ -94,9 +94,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
       expect(transaction.type).toBe(type)
@@ -107,9 +107,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -119,9 +119,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
       expect(transaction.sender).toBe(senderAddress)
@@ -132,9 +132,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
       expect(transaction.recipient).toBe(recipientAddress)
@@ -151,9 +151,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -169,9 +169,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -187,9 +187,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -205,9 +205,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -223,9 +223,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -241,9 +241,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -256,9 +256,9 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(1)
 
-      const transaction = response.body.data[0]
+      const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
@@ -268,7 +268,7 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toHaveLength(0)
+      expect(response.data.data).toHaveLength(0)
     })
 
     it('should POST a search for transactions with the specific criteria', async () => {
@@ -283,8 +283,8 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.body.data).toBeArray()
-      utils.expectTransaction(response.body.data[0])
+      expect(response.data.data).toBeArray()
+      utils.expectTransaction(response.data.data[0])
     })
   })
 })
