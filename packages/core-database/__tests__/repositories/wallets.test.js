@@ -36,7 +36,7 @@ function generateWallets () {
 function generateVotes () {
   return genesisBlock.transactions.map(transaction => ({
     address: crypto.getAddress(transaction.senderPublicKey),
-    vote: transaction.senderPublicKey
+    votes: [transaction.senderPublicKey]
   }))
 }
 
@@ -62,10 +62,6 @@ describe('Wallet Repository', () => {
   })
 
   describe('findAll', () => {
-    it('should be a function', () => {
-      expect(repository.findAll).toBeFunction()
-    })
-
     it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -85,15 +81,11 @@ describe('Wallet Repository', () => {
   })
 
   describe('findAllByVote', () => {
-    it('should be a function', () => {
-      expect(repository.findAllByVote).toBeFunction()
-    })
-
     it('should be ok without params', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const results = repository.findAllByVote(wallets[0].vote)
+      const results = repository.findAllByVote(wallets[0].votes[0])
       expect(results.length).toBe(1)
     })
 
@@ -119,10 +111,6 @@ describe('Wallet Repository', () => {
       expect(wallet.username).toBe(wallets[0].username)
     }
 
-    it('should be a function', () => {
-      expect(repository.findById).toBeFunction()
-    })
-
     it('should be ok with an address', () => {
       expectWallet('address')
     })
@@ -137,10 +125,6 @@ describe('Wallet Repository', () => {
   })
 
   describe('count', () => {
-    it('should be a function', () => {
-      expect(repository.count).toBeFunction()
-    })
-
     it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -154,10 +138,6 @@ describe('Wallet Repository', () => {
       walletManager.reindex({ address: 'dummy-1', balance: 1000 })
       walletManager.reindex({ address: 'dummy-2', balance: 2000 })
       walletManager.reindex({ address: 'dummy-3', balance: 3000 })
-    })
-
-    it('should be a function', () => {
-      expect(repository.top).toBeFunction()
     })
 
     it('should be ok without params', () => {
@@ -179,8 +159,17 @@ describe('Wallet Repository', () => {
       expect(rows[1].balance).toBe(1000)
     })
 
-    it('should be ok with params (no offset)', () => {
+    it('should be ok with params (offset = 0)', () => {
       const { count, rows } = repository.top({ offset: 0, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const { count, rows } = repository.top({ limit: 2 })
 
       expect(count).toBe(2)
       expect(count).toBe(rows.length)
@@ -213,10 +202,6 @@ describe('Wallet Repository', () => {
 
       expect(wallets.count).toBe(expected)
     }
-
-    it('should be a function', () => {
-      expect(repository.search).toBeFunction()
-    })
 
     it('should search wallets by the specified address', () => {
       const wallets = generateFullWallets()

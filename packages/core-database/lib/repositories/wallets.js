@@ -3,6 +3,8 @@
 const _ = require('lodash')
 const filterObject = require('./utils/filter-object')
 
+const wrapRows = rows => ({ count: rows.length, rows })
+
 module.exports = class WalletsRepository {
   /**
    * Create a new wallet repository instance.
@@ -67,7 +69,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.findAll().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
+    return this.findAll().find(w => (w.address === id || w.publicKey === id || w.username === id))
   }
 
   /**
@@ -86,16 +88,13 @@ module.exports = class WalletsRepository {
   top (params = {}) {
     let wallets = _.sortBy(this.findAll(), 'balance').reverse()
 
-    let returnWallets = wallets
-
-    if (params.hasOwnProperty('offset') && params.limit) {
-      returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
+    if (params.hasOwnProperty('offset') || params.limit) {
+      const offset = params.offset || 0
+      const limit = params.limit ? offset + params.limit : -1
+      wallets = wallets.slice(offset, limit)
     }
 
-    return {
-      count: wallets.length,
-      rows: returnWallets
-    }
+    return wrapRows(wallets)
   }
 
   /**
