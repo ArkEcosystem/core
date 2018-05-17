@@ -5,6 +5,7 @@ module.exports = (attributes) => {
 
   return {
     data: value,
+    errors: error.details,
     passes: !error,
     fails: error
   }
