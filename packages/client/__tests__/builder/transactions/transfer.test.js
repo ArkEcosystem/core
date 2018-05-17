@@ -1,32 +1,33 @@
 const ark = require('../../../lib/client')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().transfer()
+  transaction = ark.getBuilder().transfer()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Transfer Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('amount')
-    expect(tx).toHaveProperty('recipientId')
-    expect(tx).toHaveProperty('senderPublicKey')
-    expect(tx).toHaveProperty('expiration')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('recipientId')
+    expect(transaction).toHaveProperty('senderPublicKey')
+    expect(transaction).toHaveProperty('expiration')
   })
 
   describe('create', () => {
     it('establishes the recipient id', () => {
-      tx.create('homer')
-      expect(tx.recipientId).toBe('homer')
+      transaction.create('homer')
+      expect(transaction.recipientId).toBe('homer')
     })
+
     it('establishes the amount', () => {
-      tx.create(null, 'a lot of ARK')
-      expect(tx.amount).toBe('a lot of ARK')
+      transaction.create(null, 'a lot of ARK')
+      expect(transaction.amount).toBe('a lot of ARK')
     })
   })
 })

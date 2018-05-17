@@ -24,15 +24,8 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   findAll (params = {}, count = true) {
-    let whereStatement = {}
+    let whereStatement = this.__formatConditions(params)
     let orderBy = []
-
-    const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
-    for (const elem of filter) {
-      if (params[elem]) {
-        whereStatement[elem] = params[elem]
-      }
-    }
 
     if (params['senderId']) {
       let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
@@ -241,5 +234,30 @@ module.exports = class TransactionsRepository {
    */
   count () {
     return this.connection.models.transaction.count()
+  }
+
+  /**
+   * Format any raw conditions.
+   * @param  {Object} params
+   * @return {Object}
+   */
+  __formatConditions (params) {
+    let statement = {}
+
+    const conditions = [Op.or, Op.and]
+    const filter = (args) => args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+
+    filter(Object.keys(params)).map(col => (statement[col] = params[col]))
+
+    conditions.map(elem => {
+      if (!params[elem]) {
+        return
+      }
+
+      const fields = Object.assign({}, ...params[elem])
+      statement[elem] = filter(Object.keys(fields)).reduce((prev, val) => prev.concat({ [val]: fields[val] }), [])
+    })
+
+    return statement
   }
 }

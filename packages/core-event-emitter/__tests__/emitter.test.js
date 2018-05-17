@@ -9,13 +9,13 @@ beforeAll(() => {
 })
 
 describe('Event Manager', () => {
-  it('should be an object', async () => {
-    await expect(emitter).toBeInstanceOf(EventEmitter)
+  it('should be an instance', () => {
+    expect(emitter).toBeInstanceOf(EventEmitter)
   })
 
-  it('should be an object', async () => {
+  it('should emit the event', () => {
     emitter.emit('fake', 'news')
 
-    await expect(lastEmit).toBe('news')
+    expect(lastEmit).toBe('news')
   })
 })

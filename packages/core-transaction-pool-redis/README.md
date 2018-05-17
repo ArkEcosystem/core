@@ -17,10 +17,10 @@ module.exports = {
   enabled: true,
   key: 'ark/pool',
   maxTransactionsPerSender: 100,
-  whiteList: [],
+  whitelist: [],
   redis: {
-    host: 'localhost',
-    port: 6379
+    host: process.env.ARK_REDIS_HOST || 'localhost',
+    port: process.env.ARK_REDIS_PORT || 6379
   }
 }
 ```

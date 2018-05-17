@@ -18,29 +18,29 @@ beforeEach(async (done) => {
 })
 
 describe('Container', () => {
-  it('should be an object', async () => {
-    await expect(container).toBeObject()
+  it('should be an object', () => {
+    expect(container).toBeObject()
   })
 
-  it('should add a new registration', async () => {
+  it('should add a new registration', () => {
     container.register('fake', asValue('value'))
 
-    await expect(container.container.registrations['fake']).toBeTruthy()
+    expect(container.container.registrations['fake']).toBeTruthy()
   })
 
-  it('should resolve a registration', async () => {
+  it('should resolve a registration', () => {
     container.register('fake', asValue('value'))
 
-    await expect(container.resolve('fake')).toBe('value')
+    expect(container.resolve('fake')).toBe('value')
   })
 
-  it('should determine if a registration exists', async () => {
+  it('should determine if a registration exists', () => {
     container.register('fake', asValue('value'))
 
-    await expect(container.has('fake')).toBeTruthy()
+    expect(container.has('fake')).toBeTruthy()
   })
 
-  it('should export paths', async () => {
-    await expect(process.env.ARK_PATH_DATA).toEqual('fake-path')
+  it('should export paths', () => {
+    expect(process.env.ARK_PATH_DATA).toEqual('fake-path')
   })
 })

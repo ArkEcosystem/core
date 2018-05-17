@@ -22,35 +22,35 @@ beforeEach(() => {
 })
 
 describe('Monitor', () => {
-  it('should be an object', async () => {
-    await expect(monitor).toBeObject()
+  it('should be an object', () => {
+    expect(monitor).toBeObject()
   })
 
-  describe.skip('updateNetworkStatus', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.updateNetworkStatus).toBeFunction()
+  describe.skip('updateNetworkStatus', () => {
+    it('should be a function', () => {
+      expect(monitor.updateNetworkStatus).toBeFunction()
     })
   })
 
-  describe('cleanPeers', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.cleanPeers).toBeFunction()
+  describe('cleanPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.cleanPeers).toBeFunction()
     })
 
     it('should be a function', async () => {
-      await monitor.discoverPeers()
+      monitor.discoverPeers()
 
       const previousLength = Object.keys(monitor.peers).length
 
       await monitor.cleanPeers(true)
 
-      await expect(Object.keys(monitor.peers).length).toBeLessThan(previousLength)
+      expect(Object.keys(monitor.peers).length).toBeLessThan(previousLength)
     })
   })
 
-  describe('acceptNewPeer', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.acceptNewPeer).toBeFunction()
+  describe('acceptNewPeer', () => {
+    it('should be a function', () => {
+      expect(monitor.acceptNewPeer).toBeFunction()
     })
 
     it('should be ok', async () => {
@@ -64,15 +64,15 @@ describe('Monitor', () => {
 
       await monitor.acceptNewPeer(peer)
 
-      await expect(monitor.peers[peer.ip]).toBeObject()
+      expect(monitor.peers[peer.ip]).toBeObject()
 
       process.env.ARK_ENV = 'test'
     })
   })
 
-  describe('getPeers', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.getPeers).toBeFunction()
+  describe('getPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.getPeers).toBeFunction()
     })
 
     it('should be ok', async () => {
@@ -80,108 +80,104 @@ describe('Monitor', () => {
 
       const peers = monitor.getPeers()
 
-      await expect(peers).toBeArray()
-      await expect(peers.length).toBeGreaterThan(10)
+      expect(peers).toBeArray()
+      expect(peers.length).toBeGreaterThan(10)
     })
   })
 
-  describe('getRandomPeer', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.getRandomPeer).toBeFunction()
+  describe('getRandomPeer', () => {
+    it('should be a function', () => {
+      expect(monitor.getRandomPeer).toBeFunction()
     })
 
     it('should be ok', async () => {
       const peers = monitor.getRandomPeer()
 
-      await expect(peers).toBeObject()
-      await expect(peers).toHaveProperty('ip')
-      await expect(peers).toHaveProperty('port')
+      expect(peers).toBeObject()
+      expect(peers).toHaveProperty('ip')
+      expect(peers).toHaveProperty('port')
     })
   })
 
-  describe('getRandomDownloadBlocksPeer', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.getRandomDownloadBlocksPeer).toBeFunction()
+  describe('getRandomDownloadBlocksPeer', () => {
+    it('should be a function', () => {
+      expect(monitor.getRandomDownloadBlocksPeer).toBeFunction()
     })
 
     it('should be ok', async () => {
       const peers = monitor.getRandomDownloadBlocksPeer()
 
-      await expect(peers).toBeObject()
-      await expect(peers).toHaveProperty('ip')
-      await expect(peers).toHaveProperty('port')
+      expect(peers).toBeObject()
+      expect(peers).toHaveProperty('ip')
+      expect(peers).toHaveProperty('port')
     })
   })
 
-  describe('discoverPeers', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.discoverPeers).toBeFunction()
+  describe('discoverPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.discoverPeers).toBeFunction()
     })
 
     it('should be ok', async () => {
       const peers = await monitor.discoverPeers()
 
-      await expect(peers).toBeObject()
-      await expect(Object.keys(peers).length).toBeGreaterThan(10)
+      expect(peers).toBeObject()
+      expect(Object.keys(peers).length).toBeGreaterThan(10)
     })
   })
 
-  describe('getNetworkHeight', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.getNetworkHeight).toBeFunction()
+  describe('getNetworkHeight', () => {
+    it('should be a function', () => {
+      expect(monitor.getNetworkHeight).toBeFunction()
     })
 
     it('should be ok', async () => {
       await monitor.discoverPeers()
 
-      const status = await monitor.getNetworkHeight()
-
-      await expect(status).toBeNumber()
+      await expect(monitor.getNetworkHeight()).resolves.toBeNumber()
     })
   })
 
-  describe('getPBFTForgingStatus', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.getPBFTForgingStatus).toBeFunction()
+  describe('getPBFTForgingStatus', () => {
+    it('should be a function', () => {
+      expect(monitor.getPBFTForgingStatus).toBeFunction()
     })
 
     it('should be ok', async () => {
       await monitor.discoverPeers()
 
-      const status = await monitor.getPBFTForgingStatus()
-
-      await expect(status).toBeNumber()
+      await expect(monitor.getPBFTForgingStatus()).resolves.toBeNumber()
     })
   })
 
-  describe('downloadBlocks', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.downloadBlocks).toBeFunction()
+  describe('downloadBlocks', () => {
+    it('should be a function', () => {
+      expect(monitor.downloadBlocks).toBeFunction()
     })
 
     it('should be ok', async () => {
       const blocks = await monitor.downloadBlocks(1)
 
-      await expect(blocks).toBeArray()
-      await expect(blocks.length).toBeGreaterThan(10)
+      expect(blocks).toBeArray()
+      expect(blocks.length).toBeGreaterThan(10)
     })
   })
 
-  describe('broadcastBlock', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.broadcastBlock).toBeFunction()
+  describe('broadcastBlock', () => {
+    it('should be a function', () => {
+      expect(monitor.broadcastBlock).toBeFunction()
     })
   })
 
-  describe('broadcastTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(monitor.broadcastTransactions).toBeFunction()
+  describe('broadcastTransactions', () => {
+    it('should be a function', () => {
+      expect(monitor.broadcastTransactions).toBeFunction()
     })
 
-    it('should be ok', async () => {
-      await expect(monitor.broadcastTransactions).toBeFunction()
+    it('should be ok', () => {
+      expect(monitor.broadcastTransactions).toBeFunction()
 
-      await expect(monitor.toBroadcastV1)
+      expect(monitor.toBroadcastV1)
     })
   })
 })

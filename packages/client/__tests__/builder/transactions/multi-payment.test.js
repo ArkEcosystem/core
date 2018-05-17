@@ -1,36 +1,36 @@
 const ark = require('../../../lib/client')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().multiPayment()
+  transaction = ark.getBuilder().multiPayment()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Multi Payment Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('payments')
-    expect(tx).toHaveProperty('vendorFieldHex')
+    expect(transaction).toHaveProperty('payments')
+    expect(transaction).toHaveProperty('vendorFieldHex')
   })
 
   describe('setVendorField', () => {
     xit('should generate and set the vendorFieldHex', () => {
-      tx.setVendorField('fake')
-      expect(tx.vendorFieldHex).toBe('fake')
+      transaction.setVendorField('fake')
+      expect(transaction.vendorFieldHex).toBe('fake')
     })
   })
 
   describe('addPayment', () => {
     it('should add new payments', () => {
-      tx.addPayment('address', 'amount')
-      tx.addPayment('address', 'amount')
-      tx.addPayment('address', 'amount')
+      transaction.addPayment('address', 'amount')
+      transaction.addPayment('address', 'amount')
+      transaction.addPayment('address', 'amount')
 
-      expect(tx.payments).toEqual({
+      expect(transaction.payments).toEqual({
         address1: 'address',
         address2: 'address',
         address3: 'address',

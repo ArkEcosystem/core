@@ -11,8 +11,8 @@ class TransactionBuilder {
    * Create new delegate transaction type.
    * @return {Delegate}
    */
-  delegate () {
-    return this.__getTransaction('delegate')
+  delegateRegistration () {
+    return this.__getTransaction('delegate-registration')
   }
 
   /**

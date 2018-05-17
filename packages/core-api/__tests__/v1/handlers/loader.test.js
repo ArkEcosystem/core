@@ -7,41 +7,41 @@ const utils = require('../utils')
 describe('API 1.0 - Loader', () => {
   describe('GET /loader/status', () => {
     it('should be ok', async () => {
-      const res = await utils.request('GET', 'loader/status')
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'loader/status')
+      utils.expectSuccessful(response)
 
-      await expect(res.body).toBeObject()
-      await expect(res.body).toHaveProperty('loaded')
-      await expect(res.body).toHaveProperty('now')
-      await expect(res.body).toHaveProperty('blocksCount')
+      expect(response.data).toBeObject()
+      expect(response.data).toHaveProperty('loaded')
+      expect(response.data).toHaveProperty('now')
+      expect(response.data).toHaveProperty('blocksCount')
     })
   })
 
   describe('GET /loader/status/sync', () => {
     it('should be ok', async () => {
-      const res = await utils.request('GET', 'loader/status/sync')
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'loader/status/sync')
+      utils.expectSuccessful(response)
 
-      await expect(res.body).toBeObject()
-      await expect(res.body).toHaveProperty('syncing')
-      await expect(res.body).toHaveProperty('blocks')
-      await expect(res.body).toHaveProperty('height')
-      await expect(res.body).toHaveProperty('id')
+      expect(response.data).toBeObject()
+      expect(response.data).toHaveProperty('syncing')
+      expect(response.data).toHaveProperty('blocks')
+      expect(response.data).toHaveProperty('height')
+      expect(response.data).toHaveProperty('id')
     })
   })
 
   describe('GET /loader/autoconfigure', () => {
     it('should be ok', async () => {
-      const res = await utils.request('GET', 'loader/autoconfigure')
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'loader/autoconfigure')
+      utils.expectSuccessful(response)
 
-      await expect(res.body).toBeObject()
-      await expect(res.body.network).toBeObject()
-      await expect(res.body.network).toHaveProperty('nethash')
-      await expect(res.body.network).toHaveProperty('token')
-      await expect(res.body.network).toHaveProperty('symbol')
-      await expect(res.body.network).toHaveProperty('explorer')
-      await expect(res.body.network).toHaveProperty('version')
+      expect(response.data).toBeObject()
+      expect(response.data.network).toBeObject()
+      expect(response.data.network).toHaveProperty('nethash')
+      expect(response.data.network).toHaveProperty('token')
+      expect(response.data.network).toHaveProperty('symbol')
+      expect(response.data.network).toHaveProperty('explorer')
+      expect(response.data.network).toHaveProperty('version')
     })
   })
 })

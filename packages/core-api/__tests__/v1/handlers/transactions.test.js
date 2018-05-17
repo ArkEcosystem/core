@@ -13,7 +13,7 @@ const transactionList = genesisBlock.transactions
 describe('API 1.0 - Transactions', () => {
   describe('GET /transactions', () => {
     it('should be ok using valid parameters', async () => {
-      const res = await utils.request('GET', 'transactions', {
+      const response = await utils.request('GET', 'transactions', {
         'blockId': '9635341524063110283',
         'senderId': Address1,
         'recipientId': Address2,
@@ -21,34 +21,34 @@ describe('API 1.0 - Transactions', () => {
         'offset': 0,
         'orderBy': 'amount:asc'
       })
-      await utils.assertSuccessful(res)
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
     })
 
     it('should be ok using type', async () => {
       const type = 1
 
-      const res = await utils.request('GET', 'transactions', {type})
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions', {type})
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
 
-      for (let i = 0; i < res.body.transactions.length; i++) {
-        if (res.body.transactions[i]) {
-          await expect(res.body.transactions[i]).toHaveProperty('type', type)
+      for (let i = 0; i < response.data.transactions.length; i++) {
+        if (response.data.transactions[i]) {
+          expect(response.data.transactions[i]).toHaveProperty('type', type)
         }
       }
     })
 
     it('should be ok using no params', async () => {
-      const res = await utils.request('GET', 'transactions')
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions')
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
 
-      for (let i = 0; i < res.body.transactions.length - 1; i++) {
-      await expect(res.body.transactions[i].amount).toBeNumber()
+      for (let i = 0; i < response.data.transactions.length - 1; i++) {
+      expect(response.data.transactions[i].amount).toBeNumber()
       }
     })
 
@@ -59,26 +59,26 @@ describe('API 1.0 - Transactions', () => {
       let limit = 101
       let params = 'limit=' + limit
 
-      const res = await utils.request('GET', 'transactions?' + params)
-      await utils.assertError(res)
+      const response = await utils.request('GET', 'transactions?' + params)
+      utils.expectError(response)
 
-      await expect(res.body.error).toBeString()
+      expect(response.data.error).toBeString()
     })
 
     it('should be ok ordered by ascending timestamp', async () => {
-      const res = await utils.request('GET', 'transactions', { orderBy: 'timestamp:asc' })
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions', { orderBy: 'timestamp:asc' })
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
 
       let flag = 0;
-      for (let i = 0; i < res.body.transactions.length; i++) {
-        if (res.body.transactions[i + 1]) {
-          // await res.body.transactions[i].toHaveProperty('timestamp').which.is.at.most(res.body.transactions[i + 1].timestamp)
-          await expect(res.body.transactions[i]).toHaveProperty('timestamp')
+      for (let i = 0; i < response.data.transactions.length; i++) {
+        if (response.data.transactions[i + 1]) {
+          // await response.data.transactions[i].toHaveProperty('timestamp').which.is.at.most(response.data.transactions[i + 1].timestamp)
+          expect(response.data.transactions[i]).toHaveProperty('timestamp')
 
           if (flag === 0) {
-            // offsetTimestamp = res.body.transactions[i + 1].timestamp
+            // offsetTimestamp = response.data.transactions[i + 1].timestamp
             flag = 1
           }
         }
@@ -86,21 +86,21 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should be ok using offset == 1', async () => {
-      const res = await utils.request('GET', 'transactions', { offset: 1 })
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions', { offset: 1 })
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
     })
 
     it('should fail using offset == "one"', async () => {
-      const res = await utils.request('GET', 'transactions', { offset: 'one' })
-      await utils.assertError(res)
+      const response = await utils.request('GET', 'transactions', { offset: 'one' })
+      utils.expectError(response)
 
-      await expect(res.body.error).toBeString()
+      expect(response.data.error).toBeString()
     })
 
     it('should fail using completely invalid fields', async () => {
-      const res = await utils.request('GET', 'transactions', {
+      const response = await utils.request('GET', 'transactions', {
         blockId: 'invalid',
         senderId: 'invalid',
         recipientId: 'invalid',
@@ -108,13 +108,13 @@ describe('API 1.0 - Transactions', () => {
         offset: 'invalid',
         orderBy: 'invalid'
       })
-      await utils.assertError(res)
+      utils.expectError(response)
 
-      await expect(res.body.error).toBeString()
+      expect(response.data.error).toBeString()
     })
 
     it('should fail using partially invalid fields', async () => {
-      const res = await utils.request('GET', 'transactions', {
+      const response = await utils.request('GET', 'transactions', {
         blockId: 'invalid',
         senderId: 'invalid',
         recipientId: Address1,
@@ -122,9 +122,9 @@ describe('API 1.0 - Transactions', () => {
         offset: 'invalid',
         orderBy: 'invalid'
       })
-      await utils.assertError(res)
+      utils.expectError(response)
 
-      await expect(res.body.error).toBeString()
+      expect(response.data.error).toBeString()
     })
   })
 
@@ -132,25 +132,25 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid id', async () => {
       let transactionInCheck = transactionList[0]
 
-      const res = await utils.request('GET', `transactions/get?id=${transactionInCheck.id}`)
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', `transactions/get?id=${transactionInCheck.id}`)
+      utils.expectSuccessful(response)
 
-      await expect(res.body.transaction).toBeObject()
-      await expect(res.body.transaction).toHaveProperty('id', transactionInCheck.id)
-        // expect(res.body.transaction).toHaveProperty('amount', transactionInCheck.netSent)
-        // expect(res.body.transaction).toHaveProperty('fee', transactionInCheck.fee)
-      await expect(res.body.transaction).toHaveProperty('recipientId', transactionInCheck.recipientId)
-      await expect(res.body.transaction).toHaveProperty('senderId', transactionInCheck.senderId)
-      await expect(res.body.transaction).toHaveProperty('type', transactionInCheck.type)
+      expect(response.data.transaction).toBeObject()
+      expect(response.data.transaction).toHaveProperty('id', transactionInCheck.id)
+        // expect(response.data.transaction).toHaveProperty('amount', transactionInCheck.netSent)
+        // expect(response.data.transaction).toHaveProperty('fee', transactionInCheck.fee)
+      expect(response.data.transaction).toHaveProperty('recipientId', transactionInCheck.recipientId)
+      expect(response.data.transaction).toHaveProperty('senderId', transactionInCheck.senderId)
+      expect(response.data.transaction).toHaveProperty('type', transactionInCheck.type)
     })
 
     it('should fail using invalid id', async () => {
       let params = 'id=invalid';
 
-      const res = await utils.request('GET', 'transactions/get?' + params)
-      await utils.assertError(res)
+      const response = await utils.request('GET', 'transactions/get?' + params)
+      utils.expectError(response)
 
-      await expect(res.body.error).toBeString()
+      expect(response.data.error).toBeString()
     })
   })
 
@@ -158,24 +158,24 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid id', async () => {
       let params = 'id=' + transactionList[transactionList.length - 1].id
 
-      const res = await utils.request('GET', 'transactions/unconfirmed/get?' + params)
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions/unconfirmed/get?' + params)
+      utils.expectSuccessful(response)
 
-      if (res.body.success && res.body.transaction != null) {
-        await expect(res.body.transaction).toBeObject()
-        await expect(res.body.transaction).toHaveProperty('id', transactionList[transactionList.length - 1].id)
+      if (response.data.success && response.data.transaction != null) {
+        expect(response.data.transaction).toBeObject()
+        expect(response.data.transaction).toHaveProperty('id', transactionList[transactionList.length - 1].id)
       } else {
-        await expect(res.body.error).toBeString()
+        expect(response.data.error).toBeString()
       }
     })
   })
 
   describe.skip('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
-      const res = await utils.request('GET', 'transactions/unconfirmed')
-      await utils.assertSuccessful(res)
+      const response = await utils.request('GET', 'transactions/unconfirmed')
+      utils.expectSuccessful(response)
 
-      await expect(Array.isArray(res.body.transactions)).toBe(true)
+      expect(Array.isArray(response.data.transactions)).toBe(true)
     })
   })
 })

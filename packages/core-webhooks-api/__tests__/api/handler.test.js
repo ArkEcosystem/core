@@ -26,17 +26,17 @@ function createWebhook () {
 describe('API 2.0 - Webhooks', () => {
   describe('GET /webhooks', () => {
     it('should GET all the webhooks', async () => {
-      const res = await utils.request('GET', 'webhooks', authorization)
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('GET', 'webhooks', authorization)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
     })
   })
 
   describe('POST /webhooks', () => {
     it('should POST a new webhook', async () => {
-      const res = await createWebhook()
-      await utils.assertSuccessful(res, 201)
-      await utils.assertResource(res)
+      const response = await createWebhook()
+      utils.expectSuccessful(response, 201)
+      utils.expectResource(response)
     })
   })
 
@@ -44,9 +44,9 @@ describe('API 2.0 - Webhooks', () => {
     it('should GET a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const res = await utils.request('GET', `webhooks/${webhook.body.data.id}`, authorization)
-      await utils.assertSuccessful(res)
-      await utils.assertResource(res)
+      const response = await utils.request('GET', `webhooks/${webhook.data.data.id}`, authorization)
+      utils.expectSuccessful(response)
+      utils.expectResource(response)
     })
   })
 
@@ -54,8 +54,8 @@ describe('API 2.0 - Webhooks', () => {
     it('should PUT a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const res = await utils.request('PUT', `webhooks/${webhook.body.data.id}`, authorization, postData)
-      await utils.assertSuccessful(res, 204)
+      const response = await utils.request('PUT', `webhooks/${webhook.data.data.id}`, authorization, postData)
+      utils.expectStatus(response, 204)
     })
   })
 
@@ -63,16 +63,16 @@ describe('API 2.0 - Webhooks', () => {
     it('should DELETE a webhook by the given id', async () => {
       const webhook = await createWebhook()
 
-      const res = await utils.request('DELETE', `webhooks/${webhook.body.data.id}`, authorization)
-      await utils.assertSuccessful(res, 204)
+      const response = await utils.request('DELETE', `webhooks/${webhook.data.data.id}`, authorization)
+      utils.expectStatus(response, 204)
     })
   })
 
   describe('GET /webhooks/events', () => {
     it('should GET all the webhook events', async () => {
-      const res = await utils.request('GET', 'webhooks/events', authorization)
-      await utils.assertSuccessful(res)
-      await utils.assertCollection(res)
+      const response = await utils.request('GET', 'webhooks/events', authorization)
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
     })
   })
 })

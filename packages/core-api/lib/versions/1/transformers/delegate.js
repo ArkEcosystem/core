@@ -12,7 +12,7 @@ module.exports = (delegate) => {
     username: delegate.username,
     address: delegate.address,
     publicKey: delegate.publicKey,
-    vote: delegate.vote,
+    votes: delegate.votes,
     producedblocks: delegate.producedBlocks,
     missedblocks: delegate.missedBlocks,
     forged: delegate.forged,

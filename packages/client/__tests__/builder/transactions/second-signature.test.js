@@ -2,30 +2,30 @@ const ark = require('../../../lib/client')
 const cryptoBuilder = require('../../../lib/builder/crypto')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().secondSignature()
+  transaction = ark.getBuilder().secondSignature()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Second Signature Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('amount')
-    expect(tx).toHaveProperty('recipientId')
-    expect(tx).toHaveProperty('senderPublicKey')
-    expect(tx).toHaveProperty('asset')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('recipientId')
+    expect(transaction).toHaveProperty('senderPublicKey')
+    expect(transaction).toHaveProperty('asset')
   })
 
   describe('sign', () => {
     xit('establishes the signature on the asset', () => {
       cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       cryptoBuilder.sign = jest.fn()
-      tx.sign('bad pass')
-      expect(tx.asset.signature).toBe('bad pass public key')
+      transaction.sign('bad pass')
+      expect(transaction.asset.signature).toBe('bad pass public key')
     })
   })
 })

@@ -117,7 +117,8 @@ exports.votes = {
    */
   handler: async (request, h) => {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
-    transactions = transactions.filter(v => v.asset.votes[0].startsWith('+'))
+    // TODO: refactor to loop over asset.votes
+    transactions = transactions.filter(transaction => transaction.asset.votes[0].startsWith('+'))
 
     return {
       data: {
@@ -143,7 +144,8 @@ exports.unvotes = {
    */
   handler: async (request, h) => {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
-    transactions = transactions.filter(v => v.asset.votes[0].startsWith('-'))
+    // TODO: refactor to loop over asset.votes
+    transactions = transactions.filter(transaction => transaction.asset.votes[0].startsWith('-'))
 
     return {
       data: {

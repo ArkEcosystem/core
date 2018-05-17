@@ -1,7 +1,7 @@
 'use strict'
 
 const async = require('async')
-const { crypto, slots } = require('@arkecosystem/client')
+const { crypto, slots, TRANSACTION_TYPES } = require('@arkecosystem/client')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -98,7 +98,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * Commit the given block (async version).
-   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    * @throws Error
@@ -230,8 +230,9 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round}`)
 
-      this.activedelegates = await this.getActiveDelegates(height) // active delegate list from database round
-      await this.deleteRound(nextRound) // remove round delegate list
+      this.activedelegates = await this.getActiveDelegates(height)
+
+      await this.deleteRound(nextRound)
     }
   }
 
@@ -245,12 +246,16 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
+    if (forgingDelegate) {
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
+    }
+
     if (!forgingDelegate) {
       logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
-    } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+    }
+
+    if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
-    } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
     }
 
     return true
@@ -317,6 +322,23 @@ module.exports = class ConnectionInterface {
     await this.walletManager.applyTransaction(transaction)
 
     emitter.emit('transaction.applied', transaction.data)
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+        emitter.emit('delegate.registered', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+        emitter.emit('delegate.resigned', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      transaction.asset.votes.forEach(vote => {
+        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+          delegate: vote,
+          transaction: transaction.data
+        })
+      })
+    }
   }
 
   /**

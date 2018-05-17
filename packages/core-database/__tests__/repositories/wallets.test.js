@@ -57,8 +57,8 @@ function generateFullWallets () {
 }
 
 describe('Wallet Repository', () => {
-  it('should be an object', async () => {
-    await expect(repository).toBeObject()
+  it('should be an object', () => {
+    expect(repository).toBeObject()
   })
 
   describe('findAll', () => {
@@ -84,9 +84,9 @@ describe('Wallet Repository', () => {
     })
   })
 
-  describe('findAllByVote', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByVote).toBeFunction()
+  describe('findAllByVote', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByVote).toBeFunction()
     })
 
     it('should be ok without params', () => {
@@ -101,7 +101,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const results = repository.findAllByVote(wallets[0].vote, { offset: 0, limit: 1 })
+      const results = repository.findAllByVote(wallets[0].votes[0], { offset: 0, limit: 1 })
       expect(results.count).toBe(1)
       expect(results.rows).toHaveLength(1)
     })
@@ -119,8 +119,8 @@ describe('Wallet Repository', () => {
       expect(wallet.username).toBe(wallets[0].username)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.findById).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.findById).toBeFunction()
     })
 
     it('should be ok with an address', () => {
@@ -136,9 +136,9 @@ describe('Wallet Repository', () => {
     })
   })
 
-  describe('count', async () => {
-    it('should be a function', async () => {
-      await expect(repository.count).toBeFunction()
+  describe('count', () => {
+    it('should be a function', () => {
+      expect(repository.count).toBeFunction()
     })
 
     it('should be ok', () => {
@@ -149,23 +149,53 @@ describe('Wallet Repository', () => {
     })
   })
 
-  describe('top', async () => {
-    it('should be a function', async () => {
-      await expect(repository.top).toBeFunction()
-    })
-
-    it('should be ok', () => {
+  describe('top', () => {
+    beforeEach(() => {
       walletManager.reindex({ address: 'dummy-1', balance: 1000 })
       walletManager.reindex({ address: 'dummy-2', balance: 2000 })
       walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+    })
 
-      const wallets = repository.top({ offset: 0, limit: 2 })
+    it('should be a function', () => {
+      expect(repository.top).toBeFunction()
+    })
 
-      expect(wallets).toBeObject()
-      expect(wallets.count).toBe(2)
-      expect(wallets.rows[0].balance).toBe(3000)
-      expect(wallets.rows[1].balance).toBe(2000)
-      expect(wallets.rows[2]).toBeUndefined()
+    it('should be ok without params', () => {
+      const { count, rows } = repository.top()
+
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
+    })
+
+    it('should be ok with params', () => {
+      const { count, rows } = repository.top({ offset: 1, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(2000)
+      expect(rows[1].balance).toBe(1000)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const { count, rows } = repository.top({ offset: 0, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+    })
+
+    it('should be ok with legacy', () => {
+      const { count, rows } = repository.top({}, true)
+
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
     })
   })
 
@@ -184,50 +214,50 @@ describe('Wallet Repository', () => {
       expect(wallets.count).toBe(expected)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.search).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.search).toBeFunction()
     })
 
-    it('should search wallets by the specified address', async () => {
+    it('should search wallets by the specified address', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({ address: wallets[0].address })
+      expectSearch({ address: wallets[0].address })
     })
 
-    it('should search wallets by the specified publicKey', async () => {
+    it('should search wallets by the specified publicKey', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({ publicKey: wallets[0].publicKey })
+      expectSearch({ publicKey: wallets[0].publicKey })
     })
 
-    it('should search wallets by the specified secondPublicKey', async () => {
+    it('should search wallets by the specified secondPublicKey', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({ secondPublicKey: wallets[0].secondPublicKey })
+      expectSearch({ secondPublicKey: wallets[0].secondPublicKey })
     })
 
-    it('should search wallets by the specified vote', async () => {
+    it('should search wallets by the specified vote', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({ vote: wallets[0].vote })
+      expectSearch({ vote: wallets[0].vote }, 52)
     })
 
-    it('should search wallets by the specified username', async () => {
+    it('should search wallets by the specified username', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({ username: wallets[0].username })
+      expectSearch({ username: wallets[0].username })
     })
 
-    it('should search wallets by the specified balance', async () => {
+    it('should search wallets by the specified balance', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({
+      expectSearch({
         balance: {
           from: generateFullWallets()[0].balance,
           to: generateFullWallets()[0].balance
@@ -235,11 +265,11 @@ describe('Wallet Repository', () => {
       }, 52)
     })
 
-    it('should search wallets by the specified votebalance', async () => {
+    it('should search wallets by the specified votebalance', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      await expectSearch({
+      expectSearch({
         votebalance: {
           from: generateFullWallets()[0].votebalance,
           to: generateFullWallets()[0].votebalance

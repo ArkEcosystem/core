@@ -59,7 +59,7 @@ module.exports = class DelegatesRepository {
       })
     }
 
-    if (params.offset && params.limit) {
+    if (params.hasOwnProperty('offset') && params.limit) {
       delegates = delegates.slice(params.offset, params.offset + params.limit)
     }
 

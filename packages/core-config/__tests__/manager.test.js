@@ -9,13 +9,13 @@ class FakeDriver {
 }
 
 describe('Config Manager', () => {
-  it('should be an object', async () => {
+  it('should be an object', () => {
     expect(configManager).toBeObject()
     expect(configManager.drivers).toBeDefined()
   })
 
-  describe('driver', async () => {
-    it('should be a function', async () => {
+  describe('driver', () => {
+    it('should be a function', () => {
       expect(configManager.driver).toBeFunction()
     })
 
@@ -26,8 +26,8 @@ describe('Config Manager', () => {
     })
   })
 
-  describe('makeDriver', async () => {
-    it('should be a function', async () => {
+  describe('makeDriver', () => {
+    it('should be a function', () => {
       expect(configManager.makeDriver).toBeFunction()
     })
   })

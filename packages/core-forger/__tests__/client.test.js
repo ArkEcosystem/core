@@ -30,7 +30,7 @@ describe('Client', () => {
     })
 
     it('should be truthy if broadcasts', async () => {
-      await expect(await client.broadcast(block)).toBeTruthy()
+      await expect(client.broadcast(block)).resolves.toBeTruthy()
     })
   })
 
@@ -42,12 +42,12 @@ describe('Client', () => {
     it('should be ok', async () => {
       const round = await client.getRound(block)
 
-      await expect(round).toHaveProperty('current')
-      await expect(round).toHaveProperty('reward')
-      await expect(round).toHaveProperty('timestamp')
-      await expect(round).toHaveProperty('delegates')
-      await expect(round).toHaveProperty('lastBlock')
-      await expect(round).toHaveProperty('canForge')
+      expect(round).toHaveProperty('current')
+      expect(round).toHaveProperty('reward')
+      expect(round).toHaveProperty('timestamp')
+      expect(round).toHaveProperty('delegates')
+      expect(round).toHaveProperty('lastBlock')
+      expect(round).toHaveProperty('canForge')
     })
   })
 
@@ -58,12 +58,12 @@ describe('Client', () => {
 
     it('should be ok', async () => {
       const response = await client.getTransactions()
-      await expect(response).toHaveProperty('count')
-      await expect(response.count).toBeNumber()
-      await expect(response).toHaveProperty('poolSize')
-      await expect(response.poolSize).toBeNumber()
-      await expect(response).toHaveProperty('transactions')
-      await expect(response.transactions).toBeArray()
+      expect(response).toHaveProperty('count')
+      expect(response.count).toBeNumber()
+      expect(response).toHaveProperty('poolSize')
+      expect(response.poolSize).toBeNumber()
+      expect(response).toHaveProperty('transactions')
+      expect(response.transactions).toBeArray()
     })
   })
 })

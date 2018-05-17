@@ -14,11 +14,13 @@ yarn add @arkecosystem/core-database-sequelize
 
 ```js
 module.exports = {
-  uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
   dialect: 'sqlite',
+  storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
   logging: false
 }
 ```
+
+If you want to see all available configuration properties head over to http://docs.sequelizejs.com/manual/installation/usage.html#options.
 
 ## Security
 

@@ -30,9 +30,7 @@ class Container {
       return
     }
 
-    /**
-     * TODO: Move this out eventually - not really it's responsiblity
-     */
+    // TODO: Move this out eventually - not really the responsiblity of the container
     this.plugins = new PluginRegistrar(this, options)
     await this.plugins.setUp()
   }
@@ -128,17 +126,19 @@ class Container {
    */
   __registerExitHandler () {
     let shuttingDown = false
+
     const handleExit = async () => {
       if (shuttingDown) {
         return
       }
+
       shuttingDown = true
 
       const logger = this.resolvePlugin('logger')
       logger.info('EXIT handled, trying to shut down gracefully')
       logger.info('Stopping ARK Core...')
 
-      // await this.resolvePlugin('database').saveWallets(true)
+      await this.resolvePlugin('database').saveWallets(true)
 
       // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
 

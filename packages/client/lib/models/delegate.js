@@ -117,17 +117,17 @@ module.exports = class Delegate {
    */
   forge (transactions, options) {
     if (!options.version && (this.encryptedKeys || !this.bip38)) {
-      const txstats = {
+      const transactionData = {
         amount: 0,
         fee: 0,
         sha256: crypto.createHash('sha256')
       }
 
-      const txs = sortTransactions(transactions)
-      txs.forEach(tx => {
-        txstats.amount += tx.amount
-        txstats.fee += tx.fee
-        txstats.sha256.update(Buffer.from(tx.id, 'hex'))
+      const sortedTransactions = sortTransactions(transactions)
+      sortedTransactions.forEach(transaction => {
+        transactionData.amount += transaction.amount
+        transactionData.fee += transaction.fee
+        transactionData.sha256.update(Buffer.from(transaction.id, 'hex'))
       })
 
       const data = {
@@ -137,13 +137,13 @@ module.exports = class Delegate {
         previousBlock: options.previousBlock.id,
         previousBlockHex: options.previousBlock.idHex,
         height: options.previousBlock.height + 1,
-        numberOfTransactions: txs.length,
-        totalAmount: txstats.amount,
-        totalFee: txstats.fee,
+        numberOfTransactions: sortedTransactions.length,
+        totalAmount: transactionData.amount,
+        totalFee: transactionData.fee,
         reward: options.reward,
-        payloadLength: 32 * txs.length,
-        payloadHash: txstats.sha256.digest().toString('hex'),
-        transactions: txs
+        payloadLength: 32 * sortedTransactions.length,
+        payloadHash: transactionData.sha256.digest().toString('hex'),
+        transactions: sortedTransactions
       }
 
       if (this.bip38) {

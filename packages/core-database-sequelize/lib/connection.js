@@ -1,12 +1,12 @@
 'use strict'
 
 const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
 const path = require('path')
 const fs = require('fs-extra')
-const expandHomeDir = require('expand-home-dir')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
@@ -30,28 +30,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       throw new Error('Already initialised')
     }
 
-    let config = {
-      dialect: this.config.dialect,
-      logging: this.config.logging,
-      operatorsAliases: Sequelize.Op
-    }
-
-    // TODO: refactor this do adjust for the test suite
     if (this.config.dialect === 'sqlite') {
-      if (this.config.storage === ':memory:') {
-        this.connection = new Sequelize('database', 'username', 'password', config)
-      } else {
-        const databasePath = expandHomeDir(this.config.uri.substring(7))
-
-        this.config.uri = `sqlite:${databasePath}`
-
-        await fs.ensureFile(databasePath)
-
-        this.connection = new Sequelize(this.config.uri, config)
-      }
-    } else {
-      this.connection = new Sequelize(this.config.uri, config)
+      await fs.ensureFile(this.config.storage)
     }
+
+    this.connection = new Sequelize({
+      ...this.config,
+      ...{ operatorsAliases: Op }
+    })
 
     this.asyncTransaction = null
 
@@ -160,14 +146,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (height > 1 && height % maxDelegates !== 1) {
       throw new Error('Trying to build delegates outside of round change')
     }
+
     let data = await this.models.wallet.findAll({
       attributes: [
-        ['vote', 'publicKey'],
+        'publicKey',
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
-      group: 'vote',
       where: {
-        vote: {
+        votes: {
           [Sequelize.Op.ne]: null
         }
       }
@@ -263,19 +249,17 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" FROM blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
 
       delegates.forEach(delegate => {
-        let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let index = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        if (idx === -1) {
+        if (index === -1) {
           wallet.missedBlocks++
 
           emitter.emit('forging.missing', block.data)
         } else {
           wallet.producedBlocks++
-          wallet.lastBlock = lastBlockGenerators[idx]
+          wallet.lastBlock = lastBlockGenerators[index]
           wallet.forged += block.totalAmount
-
-          emitter.emit('block.forged', block.data)
         }
       })
     } catch (error) {
@@ -401,7 +385,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -428,25 +412,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
   /**
    * Get transactions for the given IDs.
-   * @param  {Array} txids
+   * @param  {Array} transactionIds
    * @return {Array}
    */
-  async getTransactionsFromIds (txids) {
-    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+  async getTransactionsFromIds (transactionIds) {
+    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
     const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
 
-    return txids.map((tx, i) => (txids[i] = transactions.find(tx2 => tx2.id === txids[i])))
+    return transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
   }
 
   /**
    * Get forged transactions for the given IDs.
-   * @param  {Array} txids
+   * @param  {Array} transactionIds
    * @return {Array}
    */
-  async getForgedTransactionsIds (txids) {
-    const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${txids.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
+  async getForgedTransactionsIds (transactionIds) {
+    const rows = await this.connection.query(`SELECT id FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
 
-    return rows.map(tx => tx.id)
+    return rows.map(transaction => transaction.id)
   }
 
   /**
@@ -463,7 +447,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     block = block.dataValues
 
     const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(tx => Transaction.deserialize(tx.serialized.toString('hex')))
+    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -493,7 +477,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     const nblocks = blocks.map(block => {
-      block.dataValues.transactions = block.dataValues.transactions.map(tx => tx.serialized.toString('hex'))
+      block.dataValues.transactions = block.dataValues.transactions
+        .map(transaction => transaction.serialized.toString('hex'))
 
       return block.dataValues
     })
@@ -522,6 +507,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     })
 
     return blocks.map(block => Block.serialize(block))
+  }
+
+  /**
+   * Create an OR or AND condition.
+   * @param  {String} type
+   * @param  {Object} params
+   * @return {}
+   */
+  createCondition (type, params) {
+    const validTypes = { 'OR': Op.or, 'AND': Op.or }
+
+    if (!Object.keys(validTypes).include(type.toUpperCase())) {
+      return {}
+    }
+
+    return { [validTypes[type]]: params }
   }
 
   /**

@@ -14,8 +14,8 @@ beforeEach(() => {
 })
 
 describe('Plugin Registrar', () => {
-  it('should be an object', async () => {
-    await expect(instance).toBeObject()
+  it('should be an object', () => {
+    expect(instance).toBeObject()
   })
 
   it('should register a plugin', async () => {
@@ -23,6 +23,6 @@ describe('Plugin Registrar', () => {
 
     await instance.register(pluginName, { enabled: false })
 
-    await expect(instance.container.has('stub-plugin')).toBeTruthy()
+    expect(instance.container.has('stub-plugin')).toBeTruthy()
   })
 })
