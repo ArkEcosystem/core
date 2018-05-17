@@ -42,6 +42,8 @@ class TransactionValidator {
     return voteRule(transaction).passes
   }
 
+  // TODO: Test all below rules from ark-node (v1) against new rules
+  //
   // __validateSecondSignature (transaction) {
   //   if (!transaction.asset || !transaction.asset.signature) {
   //     return cb('Invalid transaction asset')
