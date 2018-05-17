@@ -17,10 +17,12 @@ module.exports = {
     snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}.live/snapshots`
   },
   '@arkecosystem/core-database-sequelize': {
-    uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.live.sqlite`,
-    dialect: 'sqlite'
-    // uri: 'postgres://node:password@localhost:5432/ark_testnet',
-    // dialect: 'postgres'
+    dialect: 'sqlite',
+    storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.live.sqlite`
+    // dialect: 'postgres',
+    // username: 'node',
+    // password: 'password',
+    // database: 'ark_testnet'
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},

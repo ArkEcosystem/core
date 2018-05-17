@@ -7,7 +7,6 @@ const Umzug = require('umzug')
 const glob = require('tiny-glob')
 const path = require('path')
 const fs = require('fs-extra')
-const expandHomeDir = require('expand-home-dir')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
@@ -31,28 +30,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       throw new Error('Already initialised')
     }
 
-    let config = {
-      dialect: this.config.dialect,
-      logging: this.config.logging,
-      operatorsAliases: Sequelize.Op
-    }
-
-    // TODO: refactor this to adjust to the test suite
     if (this.config.dialect === 'sqlite') {
-      if (this.config.storage === ':memory:') {
-        this.connection = new Sequelize('database', 'username', 'password', config)
-      } else {
-        const databasePath = expandHomeDir(this.config.uri.substring(7))
-
-        this.config.uri = `sqlite:${databasePath}`
-
-        await fs.ensureFile(databasePath)
-
-        this.connection = new Sequelize(this.config.uri, config)
-      }
-    } else {
-      this.connection = new Sequelize(this.config.uri, config)
+      await fs.ensureFile(config.storage)
     }
+
+    this.connection = new Sequelize({
+      ...this.config,
+      ...{ operatorsAliases: Op }
+    })
 
     this.asyncTransaction = null
 

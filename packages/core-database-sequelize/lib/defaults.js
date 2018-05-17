@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  uri: `sqlite:${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
   dialect: 'sqlite',
+  storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
   logging: false
 }
