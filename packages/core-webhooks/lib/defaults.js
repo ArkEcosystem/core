@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = {
+  enabled: true,
   database: {
     dialect: 'sqlite',
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
@@ -12,9 +13,6 @@ module.exports = {
   },
   events: [{
     name: 'block.applied',
-    description: 'n/a'
-  }, {
-    name: 'block.forged',
     description: 'n/a'
   }, {
     name: 'block.forged',

@@ -249,19 +249,17 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" FROM blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
 
       delegates.forEach(delegate => {
-        let idx = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let index = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        if (idx === -1) {
+        if (index === -1) {
           wallet.missedBlocks++
 
           emitter.emit('forging.missing', block.data)
         } else {
           wallet.producedBlocks++
-          wallet.lastBlock = lastBlockGenerators[idx]
+          wallet.lastBlock = lastBlockGenerators[index]
           wallet.forged += block.totalAmount
-
-          emitter.emit('block.forged', block.data)
         }
       })
     } catch (error) {

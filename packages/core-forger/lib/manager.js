@@ -93,7 +93,7 @@ module.exports = class ForgerManager {
         return this.__monitor(round, transactionData, data)
       }
 
-      emitter.emit('forging.started', delegate)
+      emitter.emit('forging.started', delegate.publicKey)
 
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
@@ -106,6 +106,7 @@ module.exports = class ForgerManager {
       const block = await delegate.forge(transactions, data)
 
       emitter.emit('block.forged', block.data)
+
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
 
       this.client.broadcast(block.toRawJson())
