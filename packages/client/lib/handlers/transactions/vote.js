@@ -1,5 +1,5 @@
+const sortBy = require('lodash/sortBy')
 const configManager = require('../../managers/config')
-const sortVotes = require('../../utils/sort-votes')
 const Handler = require('./handler')
 
 class VoteHandler extends Handler {
@@ -15,7 +15,7 @@ class VoteHandler extends Handler {
     }
 
     let applicableVotes = 0
-    const votes = sortVotes(transaction.asset.votes)
+    const votes = this.__sort(transaction)
 
     votes.forEach(vote => {
       if (vote.startsWith('-') && wallet.votes.includes(vote.slice(1))) {
@@ -37,7 +37,7 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   apply (wallet, transaction) {
-    sortVotes(transaction.asset.votes).forEach(vote => {
+    this.__sort(transaction).forEach(vote => {
       this.__determineExcessiveVotes(wallet)
 
       if (vote.startsWith('+') && this.__canVoteFor(wallet, vote.slice(1))) {
@@ -59,7 +59,7 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   revert (wallet, transaction) {
-    sortVotes(transaction.asset.votes).forEach(vote => {
+    this.__sort(transaction).forEach(vote => {
       this.__determineExcessiveVotes(wallet)
 
       if (vote.startsWith('+')) {
@@ -91,6 +91,16 @@ class VoteHandler extends Handler {
    */
   __canVoteFor (wallet, publicKey) {
     return !wallet.votes.includes(publicKey) && !wallet.votesExceeded
+  }
+
+  /**
+   * Sort the votes of the transaction from unvotes to votes.
+   * @return {[type]} [description]
+   */
+  __sort (transaction) {
+    return sortBy(transaction.asset.votes, [vote => {
+      return vote.startsWith('+')
+    }])
   }
 }
 

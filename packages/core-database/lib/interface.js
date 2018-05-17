@@ -230,8 +230,9 @@ module.exports = class ConnectionInterface {
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round}`)
 
-      this.activedelegates = await this.getActiveDelegates(height) // active delegate list from database round
-      await this.deleteRound(nextRound) // remove round delegate list
+      this.activedelegates = await this.getActiveDelegates(height)
+
+      await this.deleteRound(nextRound)
     }
   }
 
@@ -245,12 +246,16 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
+    if (forgingDelegate) {
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
+    }
+
     if (!forgingDelegate) {
       logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
-    } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+    }
+
+    if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
       throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
-    } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
     }
 
     return true
