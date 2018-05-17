@@ -24,7 +24,9 @@ module.exports = class WalletsRepository {
       return wallets
     }
 
-    wallets = wallets.slice(params.offset, params.offset + params.limit)
+    if (params.hasOwnProperty('offset') && params.limit) {
+      wallets = wallets.slice(params.offset, params.offset + params.limit)
+    }
 
     return {
       count: wallets.length,
@@ -45,7 +47,9 @@ module.exports = class WalletsRepository {
       return wallets
     }
 
-    wallets = wallets.slice(params.offset, params.offset + params.limit)
+    if (params.hasOwnProperty('offset') && params.limit) {
+      wallets = wallets.slice(params.offset, params.offset + params.limit)
+    }
 
     return {
       count: wallets.length,
@@ -80,7 +84,9 @@ module.exports = class WalletsRepository {
 
     wallets = _.sortBy(wallets, 'balance').reverse()
 
-    wallets = wallets.slice(params.offset, params.offset + params.limit)
+    if (params.hasOwnProperty('offset') && params.limit) {
+      wallets = wallets.slice(params.offset, params.offset + params.limit)
+    }
 
     return {
       count: wallets.length,

@@ -150,22 +150,52 @@ describe('Wallet Repository', () => {
   })
 
   describe('top', () => {
+    beforeEach(() => {
+      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
+      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
+      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+    })
+
     it('should be a function', () => {
       expect(repository.top).toBeFunction()
     })
 
-    it('should be ok', () => {
-      walletManager.reindex({ address: 'dummy-1', balance: 1000 })
-      walletManager.reindex({ address: 'dummy-2', balance: 2000 })
-      walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+    it('should be ok without params', () => {
+      const { count, rows } = repository.top()
 
-      const wallets = repository.top({ offset: 0, limit: 2 })
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
+    })
 
-      expect(wallets).toBeObject()
-      expect(wallets.count).toBe(2)
-      expect(wallets.rows[0].balance).toBe(3000)
-      expect(wallets.rows[1].balance).toBe(2000)
-      expect(wallets.rows[2]).toBeUndefined()
+    it('should be ok with params', () => {
+      const { count, rows } = repository.top({ offset: 1, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(2000)
+      expect(rows[1].balance).toBe(1000)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const { count, rows } = repository.top({ offset: 0, limit: 2 })
+
+      expect(count).toBe(2)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+    })
+
+    it('should be ok with legacy', () => {
+      const { count, rows } = repository.top({}, true)
+
+      expect(count).toBe(3)
+      expect(count).toBe(rows.length)
+      expect(rows[0].balance).toBe(3000)
+      expect(rows[1].balance).toBe(2000)
+      expect(rows[2].balance).toBe(1000)
     })
   })
 
