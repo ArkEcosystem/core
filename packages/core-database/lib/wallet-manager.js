@@ -117,17 +117,17 @@ module.exports = class WalletManager {
     const appliedTransactions = []
 
     try {
-      await Promise.each(block.transactions, async (tx) => {
-        await this.applyTransaction(tx)
+      await Promise.each(block.transactions, async (transaction) => {
+        await this.applyTransaction(transaction)
 
-        appliedTransactions.push(tx)
+        appliedTransactions.push(transaction)
       })
 
       return delegate.applyBlock(block.data)
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
-      await Promise.each(appliedTransactions, tx => this.revertTransaction(tx))
+      await Promise.each(appliedTransactions, transaction => this.revertTransaction(transaction))
 
       throw error
     }
@@ -153,17 +153,17 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
-      await Promise.each(block.transactions, async (tx) => {
-        await this.revertTransaction(tx)
+      await Promise.each(block.transactions, async (transaction) => {
+        await this.revertTransaction(transaction)
 
-        revertedTransactions.push(tx)
+        revertedTransactions.push(transaction)
       })
 
       return delegate.revertBlock(block.data)
     } catch (error) {
       logger.error(error.stack)
 
-      await Promise.each(revertedTransactions, async (tx) => this.applyTransaction(tx))
+      await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
 
       throw error
     }

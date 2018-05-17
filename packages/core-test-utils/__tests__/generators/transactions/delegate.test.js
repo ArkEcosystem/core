@@ -4,8 +4,8 @@ const createDelegate = require('../../../lib/generators/transactions/delegate')
 const { TRANSACTION_TYPES } = require('../../../../client/lib/constants')
 
 describe('Delegate transaction', () => {
-  it('should be function', async () => {
-    await expect(createDelegate).toBeFunction()
+  it('should be a function', () => {
+    expect(createDelegate).toBeFunction()
   })
 
   const quantity = 4
@@ -15,13 +15,13 @@ describe('Delegate transaction', () => {
     quantity
   )
 
-  it('should return an array', async () => {
-    await expect(transactions).toBeArrayOfSize(quantity)
+  it('should return an array', () => {
+    expect(transactions).toBeArrayOfSize(quantity)
   })
 
-  it('should return an array of 4 delegate objects', async () => {
+  it('should return an array of 4 delegate objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      await expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.DELEGATE_REGISTRATION})
+      expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.DELEGATE_REGISTRATION})
     }
   })
 })

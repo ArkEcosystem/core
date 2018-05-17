@@ -10,7 +10,11 @@ exports.setUp = async () => {
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
   }, {
-    exit: '@arkecosystem/core-transaction-pool'
+    exit: '@arkecosystem/core-blockchain',
+    exclude: [
+      '@arkecosystem/core-transaction-pool-redis',
+      '@arkecosystem/core-p2p'
+    ]
   })
 }
 

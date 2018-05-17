@@ -12,38 +12,38 @@ beforeAll(() => {
 });
 
 describe('Config Interface', () => {
-  it('should be an object', async () => {
-    await expect(instance).toBeObject()
+  it('should be an object', () => {
+    expect(instance).toBeObject()
   })
 
-  describe('getConstants', async () => {
-    it('should be a function', async () => {
-      await expect(instance.getConstants).toBeFunction()
+  describe('getConstants', () => {
+    it('should be a function', () => {
+      expect(instance.getConstants).toBeFunction()
     })
 
     it('should return valid constants', async () => {
       instance._buildConstants()
 
-      await expect(instance.getConstants(1)).toEqual(fixture[0])
-      await expect(instance.getConstants(75600)).toEqual(fixture[1])
+      expect(instance.getConstants(1)).toEqual(fixture[0])
+      expect(instance.getConstants(75600)).toEqual(fixture[1])
     })
   })
 
-  describe('_buildConstants', async () => {
-    it('should be a function', async () => {
-      await expect(instance._buildConstants).toBeFunction()
+  describe('_buildConstants', () => {
+    it('should be a function', () => {
+      expect(instance._buildConstants).toBeFunction()
     })
 
     it('should build valid constants', async () => {
       instance._buildConstants()
 
-      await expect(instance.constants).toEqual(fixture)
+      expect(instance.constants).toEqual(fixture)
     })
   })
 
-  describe('_validateConfig', async () => {
-    it('should be a function', async () => {
-      await expect(instance._validateConfig).toBeFunction()
+  describe('_validateConfig', () => {
+    it('should be a function', () => {
+      expect(instance._validateConfig).toBeFunction()
     })
 
     it('should not throw on valid config', async () => {

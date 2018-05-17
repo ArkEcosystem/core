@@ -22,28 +22,28 @@ beforeEach(() => {
 })
 
 describe('Transaction Guard', () => {
-  it('should be an object', async () => {
-    await expect(guard).toBeObject()
+  it('should be an object', () => {
+    expect(guard).toBeObject()
   })
 
-  describe('validate', async () => {
-    it('should be a function', async () => {
-      await expect(guard.validate).toBeFunction()
+  describe('validate', () => {
+    it('should be a function', () => {
+      expect(guard.validate).toBeFunction()
     })
   })
 
-  describe('getIds', async () => {
-    it('should be a function', async () => {
-      await expect(guard.getIds).toBeFunction()
+  describe('getIds', () => {
+    it('should be a function', () => {
+      expect(guard.getIds).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       guard.transactions = [{ id: 1 }]
       guard.accept = [{ id: 2 }]
       guard.excess = [{ id: 3 }]
       guard.invalid = [{ id: 4 }]
 
-      await expect(guard.getIds()).toEqual({
+      expect(guard.getIds()).toEqual({
         transactions: [1],
         accept: [2],
         excess: [3],
@@ -51,25 +51,25 @@ describe('Transaction Guard', () => {
       })
     })
 
-    it('should be ok using a type', async () => {
+    it('should be ok using a type', () => {
       guard.excess = [{ id: 3 }]
 
-      await expect(guard.getIds('excess')).toEqual([3])
+      expect(guard.getIds('excess')).toEqual([3])
     })
   })
 
-  describe('getTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(guard.getTransactions).toBeFunction()
+  describe('getTransactions', () => {
+    it('should be a function', () => {
+      expect(guard.getTransactions).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       guard.transactions = [{ id: 1 }]
       guard.accept = [{ id: 2 }]
       guard.excess = [{ id: 3 }]
       guard.invalid = [{ id: 4 }]
 
-      await expect(guard.getTransactions()).toEqual({
+      expect(guard.getTransactions()).toEqual({
         transactions: [{ id: 1 }],
         accept: [{ id: 2 }],
         excess: [{ id: 3 }],
@@ -77,69 +77,69 @@ describe('Transaction Guard', () => {
       })
     })
 
-    it('should be ok using a type', async () => {
+    it('should be ok using a type', () => {
       guard.excess = [{ id: 3 }]
 
-      await expect(guard.getTransactions('excess')).toEqual([{ id: 3 }])
+      expect(guard.getTransactions('excess')).toEqual([{ id: 3 }])
     })
   })
 
-  describe('has', async () => {
-    it('should be a function', async () => {
-      await expect(guard.has).toBeFunction()
+  describe('has', () => {
+    it('should be a function', () => {
+      expect(guard.has).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      await expect(guard.has('excess', 2)).toBeTruthy()
+      expect(guard.has('excess', 2)).toBeTruthy()
     })
 
-    it('should not be ok', async () => {
+    it('should not be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      await expect(guard.has('excess', 1)).toBeFalsy()
+      expect(guard.has('excess', 1)).toBeFalsy()
     })
   })
 
-  describe('hasAtLeast', async () => {
-    it('should be a function', async () => {
-      await expect(guard.hasAtLeast).toBeFunction()
+  describe('hasAtLeast', () => {
+    it('should be a function', () => {
+      expect(guard.hasAtLeast).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       guard.excess = [{ id: 1 }, { id: 2 }]
 
-      await expect(guard.hasAtLeast('excess', 2)).toBeTruthy()
+      expect(guard.hasAtLeast('excess', 2)).toBeTruthy()
     })
 
-    it('should not be ok', async () => {
+    it('should not be ok', () => {
       guard.excess = [{ id: 1 }]
 
-      await expect(guard.hasAtLeast('excess', 2)).toBeFalsy()
+      expect(guard.hasAtLeast('excess', 2)).toBeFalsy()
     })
   })
 
-  describe('hasAny', async () => {
-    it('should be a function', async () => {
-      await expect(guard.hasAny).toBeFunction()
+  describe('hasAny', () => {
+    it('should be a function', () => {
+      expect(guard.hasAny).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       guard.excess = [{ id: 1 }]
 
-      await expect(guard.hasAny('excess')).toBeTruthy()
+      expect(guard.hasAny('excess')).toBeTruthy()
     })
 
-    it('should not be ok', async () => {
+    it('should not be ok', () => {
       guard.excess = []
 
-      await expect(guard.hasAny('excess')).toBeFalsy()
+      expect(guard.hasAny('excess')).toBeFalsy()
     })
   })
 
-  describe('__transformTransactions', async () => {
-    it('should be a function', async () => {
+  describe('__transformTransactions', () => {
+    it('should be a function', () => {
       expect(guard.__transformTransactions).toBeFunction()
     })
   })

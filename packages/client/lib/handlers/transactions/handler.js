@@ -16,7 +16,7 @@ module.exports = class TransactionHandler {
     } else {
       check = check && (transaction.senderPublicKey === wallet.publicKey) && (wallet.balance - transaction.amount - transaction.fee > -1) // eslint-disable-line max-len
 
-      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
+      // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       check = check && (!wallet.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, wallet.secondPublicKey, configManager.config)) // eslint-disable-line max-len
     }
 

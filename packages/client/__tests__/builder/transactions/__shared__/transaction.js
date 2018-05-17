@@ -1,55 +1,55 @@
-const Transaction = require('../../../../lib/builder/transaction')
+const Transaction = require('../../../../lib/builder/transactions/transaction')
 const cryptoBuilder = require('../../../../lib/builder/crypto')
 
 module.exports = () => {
-  let tx
+  let transaction
 
   beforeEach(() => {
-    tx = global.tx
+    transaction = global.transaction
   })
 
   describe('inherits = require(Transaction', () => {
     it('as an instance', () => {
-      expect(tx).toBeInstanceOf(Transaction)
+      expect(transaction).toBeInstanceOf(Transaction)
     })
 
     it('should have the essential properties', () => {
-      expect(tx).toHaveProperty('model')
+      expect(transaction).toHaveProperty('model')
 
-      expect(tx).toHaveProperty('id')
-      expect(tx).toHaveProperty('timestamp')
-      expect(tx).toHaveProperty('version')
-      expect(tx).toHaveProperty('network')
+      expect(transaction).toHaveProperty('id')
+      expect(transaction).toHaveProperty('timestamp')
+      expect(transaction).toHaveProperty('version')
+      expect(transaction).toHaveProperty('network')
 
-      expect(tx).toHaveProperty('type')
-      expect(tx).toHaveProperty('fee')
+      expect(transaction).toHaveProperty('type')
+      expect(transaction).toHaveProperty('fee')
     })
 
     describe('setFee', () => {
       it('should set the fee', () => {
-        tx.setFee('fake')
-        expect(tx.fee).toBe('fake')
+        transaction.setFee('fake')
+        expect(transaction.fee).toBe('fake')
       })
     })
 
     describe('setAmount', () => {
       it('should set the amount', () => {
-        tx.setAmount('fake')
-        expect(tx.amount).toBe('fake')
+        transaction.setAmount('fake')
+        expect(transaction.amount).toBe('fake')
       })
     })
 
     describe('setRecipientId', () => {
       it('should set the recipient id', () => {
-        tx.setRecipientId('fake')
-        expect(tx.recipientId).toBe('fake')
+        transaction.setRecipientId('fake')
+        expect(transaction.recipientId).toBe('fake')
       })
     })
 
     describe('setSenderPublicKey', () => {
       it('should set the sender public key', () => {
-        tx.setSenderPublicKey('fake')
-        expect(tx.senderPublicKey).toBe('fake')
+        transaction.setSenderPublicKey('fake')
+        expect(transaction.senderPublicKey).toBe('fake')
       })
     })
   })
@@ -62,17 +62,17 @@ module.exports = () => {
         return keys
       })
       cryptoBuilder.sign = jest.fn()
-      tx.sign('bad pass')
+      transaction.sign('bad pass')
 
       expect(cryptoBuilder.getKeys).toHaveBeenCalledWith('bad pass')
-      expect(cryptoBuilder.sign).toHaveBeenCalledWith(tx, keys)
+      expect(cryptoBuilder.sign).toHaveBeenCalledWith(transaction, keys)
     })
 
     it('establishes the public key of the sender', () => {
       cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       cryptoBuilder.sign = jest.fn()
-      tx.sign('my real pass')
-      expect(tx.senderPublicKey).toBe('my real pass public key')
+      transaction.sign('my real pass')
+      expect(transaction.senderPublicKey).toBe('my real pass public key')
     })
   })
 
@@ -84,10 +84,10 @@ module.exports = () => {
         return keys
       })
       cryptoBuilder.secondSign = jest.fn()
-      tx.secondSign('my very real second pass')
+      transaction.secondSign('my very real second pass')
 
       expect(cryptoBuilder.getKeys).toHaveBeenCalledWith('my very real second pass')
-      expect(cryptoBuilder.secondSign).toHaveBeenCalledWith(tx, keys)
+      expect(cryptoBuilder.secondSign).toHaveBeenCalledWith(transaction, keys)
     })
   })
 }

@@ -32,61 +32,61 @@ beforeEach(async (done) => {
 })
 
 describe('Block Repository', () => {
-  it('should be an object', async () => {
-    await expect(repository).toBeObject()
+  it('should be an object', () => {
+    expect(repository).toBeObject()
   })
 
-  describe('findAll', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAll).toBeFunction()
+  describe('findAll', () => {
+    it('should be a function', () => {
+      expect(repository.findAll).toBeFunction()
     })
 
     it('should find all blocks', async () => {
       await connection.saveBlock(genesisBlock)
 
       const blocks = await repository.findAll()
-      await expect(blocks.count).toBe(1)
+      expect(blocks.count).toBe(1)
     })
   })
 
-  describe('findAllByGenerator', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findAllByGenerator).toBeFunction()
+  describe('findAllByGenerator', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByGenerator).toBeFunction()
     })
 
     it('should find all blocks by the public key of the forger', async () => {
       await connection.saveBlock(genesisBlock)
 
       const blocks = await repository.findAllByGenerator(genesisBlock.data.generatorPublicKey)
-      await expect(blocks.count).toBe(1)
+      expect(blocks.count).toBe(1)
     })
   })
 
-  describe('findById', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findById).toBeFunction()
+  describe('findById', () => {
+    it('should be a function', () => {
+      expect(repository.findById).toBeFunction()
     })
 
     it('should find a block by id', async () => {
       await connection.saveBlock(genesisBlock)
 
       const block = await repository.findById(genesisBlock.data.id)
-      await expect(block).toBeObject()
-      await expect(block.id).toBe(genesisBlock.data.id)
+      expect(block).toBeObject()
+      expect(block.id).toBe(genesisBlock.data.id)
     })
   })
 
-  describe('findLastByPublicKey', async () => {
-    it('should be a function', async () => {
-      await expect(repository.findLastByPublicKey).toBeFunction()
+  describe('findLastByPublicKey', () => {
+    it('should be a function', () => {
+      expect(repository.findLastByPublicKey).toBeFunction()
     })
 
     it('should find the last forged block by public key', async () => {
       await connection.saveBlock(genesisBlock)
 
       const block = await repository.findLastByPublicKey(genesisBlock.data.generatorPublicKey)
-      await expect(block).toBeObject()
-      await expect(block.id).toBe(genesisBlock.data.id)
+      expect(block).toBeObject()
+      expect(block.id).toBe(genesisBlock.data.id)
     })
   })
 
@@ -97,19 +97,19 @@ describe('Block Repository', () => {
       await connection.saveBlock(fakeBlock)
 
       const blocks = await repository.findAllByDateTimeRange(from, to)
-      await expect(blocks).toBeObject()
+      expect(blocks).toBeObject()
 
-      await expect(blocks).toHaveProperty('count')
-      await expect(blocks.count).toBeNumber()
+      expect(blocks).toHaveProperty('count')
+      expect(blocks.count).toBeNumber()
 
-      await expect(blocks).toHaveProperty('rows')
-      await expect(blocks.rows).toBeObject()
+      expect(blocks).toHaveProperty('rows')
+      expect(blocks.rows).toBeObject()
 
-      await expect(blocks.count).toBe(expected)
+      expect(blocks.count).toBe(expected)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.findAllByDateTimeRange).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.findAllByDateTimeRange).toBeFunction()
     })
 
     it('should find blocks by from -> to range', async () => {
@@ -130,20 +130,20 @@ describe('Block Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const blocks = await repository.search(params)
-      await expect(blocks).toBeObject()
+      expect(blocks).toBeObject()
 
-      await expect(blocks).toHaveProperty('count')
-      await expect(blocks.count).toBeNumber()
+      expect(blocks).toHaveProperty('count')
+      expect(blocks.count).toBeNumber()
 
-      await expect(blocks).toHaveProperty('rows')
-      await expect(blocks.rows).toBeObject()
-      await expect(blocks.rows).not.toBeEmpty()
+      expect(blocks).toHaveProperty('rows')
+      expect(blocks.rows).toBeObject()
+      expect(blocks.rows).not.toBeEmpty()
 
-      await expect(blocks.count).toBe(1)
+      expect(blocks.count).toBe(1)
     }
 
-    it('should be a function', async () => {
-      await expect(repository.search).toBeFunction()
+    it('should be a function', () => {
+      expect(repository.search).toBeFunction()
     })
 
     it('should search blocks by the specified id', async () => {
@@ -240,25 +240,25 @@ describe('Block Repository', () => {
     })
   })
 
-  describe('totalsByGenerator', async () => {
-    it('should be a function', async () => {
-      await expect(repository.totalsByGenerator).toBeFunction()
+  describe('totalsByGenerator', () => {
+    it('should be a function', () => {
+      expect(repository.totalsByGenerator).toBeFunction()
     })
 
     it('should return the total fees and rewards', async () => {
       await connection.saveBlock(genesisBlock)
 
       const totals = await repository.totalsByGenerator(genesisBlock.data.generatorPublicKey)
-      await expect(totals).toBeObject()
+      expect(totals).toBeObject()
 
-      await expect(totals).toHaveProperty('fees')
-      await expect(totals.fees).toBeNumber()
+      expect(totals).toHaveProperty('fees')
+      expect(totals.fees).toBeNumber()
 
-      await expect(totals).toHaveProperty('forged')
-      await expect(totals.forged).toBeNumber()
+      expect(totals).toHaveProperty('forged')
+      expect(totals.forged).toBeNumber()
 
-      await expect(totals).toHaveProperty('rewards')
-      await expect(totals.rewards).toBeNumber()
+      expect(totals).toHaveProperty('rewards')
+      expect(totals.rewards).toBeNumber()
     })
   })
 })

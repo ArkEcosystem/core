@@ -30,49 +30,49 @@ beforeEach(async (done) => {
 })
 
 describe('Connection', () => {
-  it('should be an object', async () => {
-    await expect(connection).toBeObject()
+  it('should be an object', () => {
+    expect(connection).toBeObject()
   })
 
-  describe('getPoolSize', async () => {
-    it('should be a function', async () => {
-      await expect(connection.getPoolSize).toBeFunction()
+  describe('getPoolSize', () => {
+    it('should be a function', () => {
+      expect(connection.getPoolSize).toBeFunction()
     })
 
     it('should return 0 if no transactions were added', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
     })
 
     it('should return 2 if transactions were added', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
 
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.getPoolSize()).toBe(1)
+      await expect(connection.getPoolSize()).resolves.toBe(1)
     })
   })
 
-  describe('addTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(connection.addTransaction).toBeFunction()
+  describe('addTransaction', () => {
+    it('should be a function', () => {
+      expect(connection.addTransaction).toBeFunction()
     })
 
     it('should add the transaction to the pool', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
 
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.getPoolSize()).toBe(1)
+      await expect(connection.getPoolSize()).resolves.toBe(1)
     })
   })
 
-  describe('addTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(connection.addTransactions).toBeFunction()
+  describe('addTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.addTransactions).toBeFunction()
     })
 
     it('should add the transactions to the pool', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
 
       connection.addTransactions = jest.fn(async (transactions) => {
         for (let i = 0; i < transactions.length; i++) {
@@ -82,13 +82,13 @@ describe('Connection', () => {
 
       await connection.addTransactions([dummy1, dummy2])
 
-      await expect(await connection.getPoolSize()).toBe(2)
+      await expect(connection.getPoolSize()).resolves.toBe(2)
     })
   })
 
-  describe('addTransactions with expiration', async () => {
+  describe('addTransactions with expiration', () => {
     it('should add the transactions to the pool and they should expire', async () => {
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
 
       const trx1 = new Transaction(dummyExp1)
       const trx2 = new Transaction(dummyExp2)
@@ -101,48 +101,48 @@ describe('Connection', () => {
 
       await connection.addTransactions([trx1, trx2])
 
-      await expect(await connection.getPoolSize()).toBe(2)
+      await expect(connection.getPoolSize()).resolves.toBe(2)
       await delay(7000)
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
     })
   })
 
-  describe('removeTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(connection.removeTransaction).toBeFunction()
+  describe('removeTransaction', () => {
+    it('should be a function', () => {
+      expect(connection.removeTransaction).toBeFunction()
     })
 
     it('should remove the specified transaction from the pool', async () => {
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.getPoolSize()).toBe(1)
+      await expect(connection.getPoolSize()).resolves.toBe(1)
 
       await connection.removeTransaction(dummy1)
 
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
     })
   })
 
-  describe('removeTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(connection.removeTransactions).toBeFunction()
+  describe('removeTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.removeTransactions).toBeFunction()
     })
 
     it('should remove the specified transactions from the pool', async () => {
       await connection.addTransaction(dummy1)
       await connection.addTransaction(dummy2)
 
-      await expect(await connection.getPoolSize()).toBe(2)
+      await expect(connection.getPoolSize()).resolves.toBe(2)
 
       await connection.removeTransactions([dummy1, dummy2])
 
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
     })
   })
 
-  describe('hasExceededMaxTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(connection.hasExceededMaxTransactions).toBeFunction()
+  describe('hasExceededMaxTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.hasExceededMaxTransactions).toBeFunction()
     })
 
     it('should be truthy if exceeded', async () => {
@@ -152,19 +152,19 @@ describe('Connection', () => {
 
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.hasExceededMaxTransactions(dummy1)).toBeTruthy()
+      await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeTruthy()
     })
 
     it('should be falsy if not exceeded', async () => {
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.hasExceededMaxTransactions(dummy1)).toBeFalsy()
+      await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeFalsy()
     })
   })
 
-  describe('getTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(connection.getTransaction).toBeFunction()
+  describe('getTransaction', () => {
+    it('should be a function', () => {
+      expect(connection.getTransaction).toBeFunction()
     })
 
     it('should return the specified transaction', async () => {
@@ -176,9 +176,9 @@ describe('Connection', () => {
     })
   })
 
-  describe('getTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(connection.getTransactions).toBeFunction()
+  describe('getTransactions', () => {
+    it('should be a function', () => {
+      expect(connection.getTransactions).toBeFunction()
     })
 
     it('should return transactions within the specified range', async () => {
@@ -193,9 +193,9 @@ describe('Connection', () => {
     })
   })
 
-  describe('getTransactionsForForging', async () => {
-    it('should be a function', async () => {
-      await expect(connection.getTransactionsForForging).toBeFunction()
+  describe('getTransactionsForForging', () => {
+    it('should be a function', () => {
+      expect(connection.getTransactionsForForging).toBeFunction()
     })
 
     it('should return an array of transactions', async () => {
@@ -207,6 +207,7 @@ describe('Connection', () => {
       await connection.addTransaction(dummy1)
 
       let transactions = await connection.getTransactionsForForging(0, 6)
+      console.log(transactions)
       transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
       await expect(transactions[0]).toBeObject()
@@ -219,29 +220,29 @@ describe('Connection', () => {
     })
   })
 
-  describe('flush', async () => {
-    it('should be a function', async () => {
-      await expect(connection.flush).toBeFunction()
+  describe('flush', () => {
+    it('should be a function', () => {
+      expect(connection.flush).toBeFunction()
     })
 
     it('should flush the pool', async () => {
       await connection.addTransaction(dummy1)
 
-      await expect(await connection.getPoolSize()).toBe(1)
+      await expect(connection.getPoolSize()).resolves.toBe(1)
 
       await connection.flush()
 
-      await expect(await connection.getPoolSize()).toBe(0)
+      await expect(connection.getPoolSize()).resolves.toBe(0)
     })
   })
 
-  describe('__isReady', async () => {
-    it('should be a function', async () => {
-      await expect(connection.__isReady).toBeFunction()
+  describe('__isReady', () => {
+    it('should be a function', () => {
+      expect(connection.__isReady).toBeFunction()
     })
 
     it('should be truthy if connected', async () => {
-      await expect(await connection.__isReady()).toBeTruthy()
+      expect(connection.__isReady()).toBeTruthy()
     })
   })
 })

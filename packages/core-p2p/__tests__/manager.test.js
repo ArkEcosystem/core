@@ -21,73 +21,73 @@ beforeEach(() => {
 })
 
 describe('Peer Manager', () => {
-  it('should be an object', async () => {
-    await expect(manager).toBeObject()
+  it('should be an object', () => {
+    expect(manager).toBeObject()
   })
 
-  describe('start', async () => {
-    it('should be a function', async () => {
-      await expect(manager.start).toBeFunction()
+  describe('start', () => {
+    it('should be a function', () => {
+      expect(manager.start).toBeFunction()
     })
   })
 
-  describe('stop', async () => {
-    it('should be a function', async () => {
-      await expect(manager.stop).toBeFunction()
+  describe('stop', () => {
+    it('should be a function', () => {
+      expect(manager.stop).toBeFunction()
     })
   })
 
-  describe('updateNetworkStatus', async () => {
-    it('should be a function', async () => {
-      await expect(manager.updateNetworkStatus).toBeFunction()
+  describe('updateNetworkStatus', () => {
+    it('should be a function', () => {
+      expect(manager.updateNetworkStatus).toBeFunction()
     })
   })
 
-  describe('downloadBlocks', async () => {
-    it('should be a function', async () => {
-      await expect(manager.downloadBlocks).toBeFunction()
+  describe('downloadBlocks', () => {
+    it('should be a function', () => {
+      expect(manager.downloadBlocks).toBeFunction()
     })
   })
 
-  describe('broadcastBlock', async () => {
-    it('should be a function', async () => {
-      await expect(manager.broadcastBlock).toBeFunction()
+  describe('broadcastBlock', () => {
+    it('should be a function', () => {
+      expect(manager.broadcastBlock).toBeFunction()
     })
   })
 
-  describe('broadcastTransactions', async () => {
-    it('should be a function', async () => {
-      await expect(manager.broadcastTransactions).toBeFunction()
+  describe('broadcastTransactions', () => {
+    it('should be a function', () => {
+      expect(manager.broadcastTransactions).toBeFunction()
     })
   })
 
-  describe('acceptNewPeer', async () => {
-    it('should be a function', async () => {
-      await expect(manager.acceptNewPeer).toBeFunction()
+  describe('acceptNewPeer', () => {
+    it('should be a function', () => {
+      expect(manager.acceptNewPeer).toBeFunction()
     })
   })
 
-  describe('getPeers', async () => {
-    it('should be a function', async () => {
-      await expect(manager.getPeers).toBeFunction()
+  describe('getPeers', () => {
+    it('should be a function', () => {
+      expect(manager.getPeers).toBeFunction()
     })
   })
 
-  describe('getNetworkHeight', async () => {
-    it('should be a function', async () => {
-      await expect(manager.getNetworkHeight).toBeFunction()
+  describe('getNetworkHeight', () => {
+    it('should be a function', () => {
+      expect(manager.getNetworkHeight).toBeFunction()
     })
   })
 
-  describe('__checkDNSConnectivity', async () => {
-    it('should be a function', async () => {
-      await expect(manager.__checkDNSConnectivity).toBeFunction()
+  describe('__checkDNSConnectivity', () => {
+    it('should be a function', () => {
+      expect(manager.__checkDNSConnectivity).toBeFunction()
     })
   })
 
-  describe('__checkNTPConnectivity', async () => {
-    it('should be a function', async () => {
-      await expect(manager.__checkNTPConnectivity).toBeFunction()
+  describe('__checkNTPConnectivity', () => {
+    it('should be a function', () => {
+      expect(manager.__checkNTPConnectivity).toBeFunction()
     })
   })
 })

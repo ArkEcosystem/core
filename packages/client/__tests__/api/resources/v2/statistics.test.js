@@ -15,26 +15,31 @@ describe('API - 2.0 - Resources - Statistics', () => {
 
   it('should call "blockchain" method', async () => {
     const response = await resource.blockchain()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "transactions" method', async () => {
     const response = await resource.transactions()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "blocks" method', async () => {
     const response = await resource.blocks()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "votes" method', async () => {
     const response = await resource.votes()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "unvotes" method', async () => {
     const response = await resource.unvotes()
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })

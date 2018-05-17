@@ -98,7 +98,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * Commit the given block (async version).
-   * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    * @throws Error

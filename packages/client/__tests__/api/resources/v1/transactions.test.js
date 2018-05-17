@@ -15,21 +15,25 @@ describe('API - 1.0 - Resources - Transactions', () => {
 
   it('should call "all" method', async () => {
     const response = await resource.all({})
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "get" method', async () => {
     const response = await resource.get('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "allUnconfirmed" method', async () => {
     const response = await resource.allUnconfirmed({})
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 
   it('should call "getUnconfirmed" method', async () => {
     const response = await resource.getUnconfirmed('123')
-    await expect(response.status).toBe(200)
+
+    expect(response.status).toBe(200)
   })
 })

@@ -124,17 +124,17 @@ module.exports = class Monitor {
       throw new Error('Localhost peer not accepted')
     }
 
-    const npeer = new Peer(peer.ip, peer.port, this.config)
+    const newPeer = new Peer(peer.ip, peer.port, this.config)
 
     try {
-      await npeer.ping(1500)
+      await newPeer.ping(1500)
 
-      this.peers[peer.ip] = npeer
-      logger.debug(`Accepted new peer ${npeer}`)
+      this.peers[peer.ip] = newPeer
+      logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
-      emitter.emit('peer.added', npeer)
+      emitter.emit('peer.added', newPeer)
     } catch (error) {
-      logger.debug(`Could not accept new peer '${npeer}' - ${error}`)
+      logger.debug(`Could not accept new peer '${newPeer}' - ${error}`)
     }
   }
 

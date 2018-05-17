@@ -1,44 +1,44 @@
 const ark = require('../../../lib/client')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().timelockTransfer()
+  transaction = ark.getBuilder().timelockTransfer()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Timelock Transfer Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('amount')
-    expect(tx).toHaveProperty('recipientId')
-    expect(tx).toHaveProperty('senderPublicKey')
-    expect(tx).toHaveProperty('timelockType')
-    expect(tx).toHaveProperty('timelock')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('recipientId')
+    expect(transaction).toHaveProperty('senderPublicKey')
+    expect(transaction).toHaveProperty('timelockType')
+    expect(transaction).toHaveProperty('timelock')
   })
 
   describe('create', () => {
     it('establishes the recipient id', () => {
-      tx.create('homer')
-      expect(tx.recipientId).toBe('homer')
+      transaction.create('homer')
+      expect(transaction.recipientId).toBe('homer')
     })
 
     it('establishes the amount', () => {
-      tx.create(null, 'a lot of ARK')
-      expect(tx.amount).toBe('a lot of ARK')
+      transaction.create(null, 'a lot of ARK')
+      expect(transaction.amount).toBe('a lot of ARK')
     })
 
     it('establishes the time lock', () => {
-      tx.create(null, null, 'time lock')
-      expect(tx.timelock).toBe('time lock')
+      transaction.create(null, null, 'time lock')
+      expect(transaction.timelock).toBe('time lock')
     })
 
     it('establishes the time lock type', () => {
-      tx.create(null, null, null, 'time lock type')
-      expect(tx.timelockType).toBe('time lock type')
+      transaction.create(null, null, null, 'time lock type')
+      expect(transaction.timelockType).toBe('time lock type')
     })
   })
 })

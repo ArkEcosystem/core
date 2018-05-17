@@ -1,12 +1,12 @@
 const ark = require('../../../lib/client')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().delegateResignation()
+  transaction = ark.getBuilder().delegateResignation()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('Delegate Resignation Transaction', () => {

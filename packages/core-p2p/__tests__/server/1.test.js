@@ -18,158 +18,163 @@ afterAll(async (done) => {
   done()
 })
 
-const sendGET = async (endpoint, params = {}) => axios.get(`http://127.0.0.1:4002/${endpoint}`, { params })
-const sendPOST = async (endpoint, params) => axios.post(`http://127.0.0.1:4002/${endpoint}`, params)
+const sendGET = async (endpoint, params = {}) => {
+  return axios.get(`http://127.0.0.1:4002/${endpoint}`, { params })
+}
+
+const sendPOST = async (endpoint, params) => {
+  return axios.post(`http://127.0.0.1:4002/${endpoint}`, params)
+}
 
 describe('API - Version 1', () => {
-  describe('GET /peer/list', async () => {
+  describe('GET /peer/list', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/list')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('peers')
-      await expect(response.data.peers).toBeArray()
+      expect(response.data).toHaveProperty('peers')
+      expect(response.data.peers).toBeArray()
     })
   })
 
-  describe('GET /peer/blocks', async () => {
+  describe('GET /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/blocks', { lastBlockHeight: 1 })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('blocks')
-      await expect(response.data.blocks).toBeArray()
+      expect(response.data).toHaveProperty('blocks')
+      expect(response.data.blocks).toBeArray()
     })
   })
 
-  describe('GET /peer/transactionsFromIds', async () => {
+  describe('GET /peer/transactionsFromIds', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/transactionsFromIds', {
         ids: 'e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8'
       })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('transactions')
-      await expect(response.data.transactions).toBeArray()
+      expect(response.data).toHaveProperty('transactions')
+      expect(response.data.transactions).toBeArray()
     })
   })
 
-  describe('GET /peer/height', async () => {
+  describe('GET /peer/height', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/height')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('height')
-      await expect(response.data.height).toBeNumber()
+      expect(response.data).toHaveProperty('height')
+      expect(response.data.height).toBeNumber()
 
-      await expect(response.data).toHaveProperty('id')
-      await expect(response.data.id).toBeNumber()
+      expect(response.data).toHaveProperty('id')
+      expect(response.data.id).toBeNumber()
     })
   })
 
-  describe('GET /peer/transactions', async () => {
+  describe('GET /peer/transactions', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/transactions')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('transactions')
-      await expect(response.data.transactions).toBeArray()
+      expect(response.data).toHaveProperty('transactions')
+      expect(response.data.transactions).toBeArray()
     })
   })
 
-  describe('GET /peer/blocks/common', async () => {
+  describe('GET /peer/blocks/common', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/blocks/common', {
         ids: '13149578060728881902'
       })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      await expect(response.data).toHaveProperty('common')
-      await expect(response.data.common).toBeObject()
-      await expect(response.data.common.height).toBe(1)
-      await expect(response.data.common.id).toBe('13149578060728881902')
+      expect(response.data).toHaveProperty('common')
+      expect(response.data.common).toBeObject()
+      expect(response.data.common.height).toBe(1)
+      expect(response.data.common.id).toBe('13149578060728881902')
 
-      await expect(response.data).toHaveProperty('lastBlockHeight')
-      await expect(response.data.lastBlockHeight).toBeNumber()
+      expect(response.data).toHaveProperty('lastBlockHeight')
+      expect(response.data.lastBlockHeight).toBeNumber()
     })
   })
 
-  describe('GET /peer/status', async () => {
+  describe('GET /peer/status', () => {
     it('should be ok', async () => {
       const response = await sendGET('peer/status')
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe('POST /peer/blocks', async () => {
+  describe('POST /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await sendPOST('peer/blocks', {
         block: genesisBlock.toBroadcastV1()
       })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
-  describe('POST /peer/transactions', async () => {
+  describe('POST /peer/transactions', () => {
     it('should be ok', async () => {
       const response = await sendPOST('peer/transactions', {
         transactions: [genesisTransaction.toBroadcastV1()]
       })
 
-      await expect(response.status).toBe(200)
+      expect(response.status).toBe(200)
 
-      await expect(response.data).toBeObject()
+      expect(response.data).toBeObject()
 
-      await expect(response.data).toHaveProperty('success')
-      await expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 })

@@ -10,7 +10,7 @@ module.exports = (model) => {
     address: model.address,
     publicKey: model.publicKey,
     secondPublicKey: model.secondPublicKey,
-    vote: model.vote,
+    votes: model.votes,
     username: model.username,
     balance: model.balance,
     votebalance: model.votebalance

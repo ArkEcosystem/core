@@ -1,32 +1,32 @@
 const ark = require('../../../lib/client')
 const transactionTests = require('./__shared__/transaction')
 
-let tx
+let transaction
 
 beforeEach(() => {
-  tx = ark.getBuilder().ipfs()
+  transaction = ark.getBuilder().ipfs()
 
-  global.tx = tx
+  global.transaction = transaction
 })
 
 describe('IPFS Transaction', () => {
   transactionTests()
 
   it('should have its specific properties', () => {
-    expect(tx).toHaveProperty('amount')
-    expect(tx).toHaveProperty('vendorFieldHex')
-    expect(tx).toHaveProperty('senderPublicKey')
-    expect(tx).toHaveProperty('asset')
+    expect(transaction).toHaveProperty('amount')
+    expect(transaction).toHaveProperty('vendorFieldHex')
+    expect(transaction).toHaveProperty('senderPublicKey')
+    expect(transaction).toHaveProperty('asset')
   })
 
   it('should not have the IPFS hash yet', () => {
-    expect(tx).not.toHaveProperty('ipfsHash')
+    expect(transaction).not.toHaveProperty('ipfsHash')
   })
 
   describe('create', () => {
     it('establishes the IPFS hash', () => {
-      tx.create('zyx')
-      expect(tx.ipfsHash).toBe('zyx')
+      transaction.create('zyx')
+      expect(transaction.ipfsHash).toBe('zyx')
     })
   })
 })

@@ -19,25 +19,25 @@ afterAll(async (done) => {
 })
 
 describe('Connection Interface', () => {
-  it('should be an object', async () => {
-    await expect(ConnectionInterface).toBeInstanceOf(require('../lib/interface'))
+  it('should be an object', () => {
+    expect(ConnectionInterface).toBeInstanceOf(require('../lib/interface'))
   })
 
-  describe('getConnection', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.getConnection).toBeFunction()
+  describe('getConnection', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getConnection).toBeFunction()
     })
 
-    it('should return the set connection', async () => {
+    it('should return the set connection', () => {
       ConnectionInterface.connection = 'fake-connection'
 
-      await expect(ConnectionInterface.getConnection()).toBe('fake-connection')
+      expect(ConnectionInterface.getConnection()).toBe('fake-connection')
     })
   })
 
-  describe('connect', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.connect).toBeFunction()
+  describe('connect', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.connect).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -45,9 +45,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('disconnect', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.disconnect).toBeFunction()
+  describe('disconnect', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.disconnect).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -55,9 +55,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('getActiveDelegates', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.getActiveDelegates).toBeFunction()
+  describe('getActiveDelegates', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getActiveDelegates).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -65,9 +65,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('buildDelegates', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.buildDelegates).toBeFunction()
+  describe('buildDelegates', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.buildDelegates).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -75,9 +75,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('buildWallets', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.buildWallets).toBeFunction()
+  describe('buildWallets', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.buildWallets).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -85,9 +85,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveWallets', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.saveWallets).toBeFunction()
+  describe('saveWallets', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.saveWallets).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -95,9 +95,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.saveBlock).toBeFunction()
+  describe('saveBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.saveBlock).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -105,9 +105,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveBlockAsync', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.saveBlockAsync).toBeFunction()
+  describe('saveBlockAsync', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.saveBlockAsync).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -115,9 +115,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveBlockCommit', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.saveBlockCommit).toBeFunction()
+  describe('saveBlockCommit', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.saveBlockCommit).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -125,9 +125,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('deleteBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.deleteBlock).toBeFunction()
+  describe('deleteBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.deleteBlock).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -135,9 +135,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('getBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.getBlock).toBeFunction()
+  describe('getBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getBlock).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -145,9 +145,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('getLastBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.getLastBlock).toBeFunction()
+  describe('getLastBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getLastBlock).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -155,9 +155,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('getBlocks', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.getBlocks).toBeFunction()
+  describe('getBlocks', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getBlocks).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -165,9 +165,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveRound', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.saveRound).toBeFunction()
+  describe('saveRound', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.saveRound).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -175,9 +175,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('deleteRound', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.deleteRound).toBeFunction()
+  describe('deleteRound', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.deleteRound).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -185,9 +185,9 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('updateDelegateStats', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.updateDelegateStats).toBeFunction()
+  describe('updateDelegateStats', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.updateDelegateStats).toBeFunction()
     })
 
     it('should throw an exception', async () => {
@@ -195,83 +195,83 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe.skip('applyRound', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.applyRound).toBeFunction()
+  describe.skip('applyRound', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.applyRound).toBeFunction()
     })
   })
 
-  describe.skip('revertRound', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.revertRound).toBeFunction()
+  describe.skip('revertRound', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.revertRound).toBeFunction()
     })
   })
 
-  describe.skip('validateDelegate', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.validateDelegate).toBeFunction()
+  describe.skip('validateDelegate', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.validateDelegate).toBeFunction()
     })
   })
 
-  describe.skip('validateForkedBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.validateForkedBlock).toBeFunction()
+  describe.skip('validateForkedBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.validateForkedBlock).toBeFunction()
     })
   })
 
-  describe.skip('applyBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.applyBlock).toBeFunction()
+  describe.skip('applyBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.applyBlock).toBeFunction()
     })
   })
 
-  describe.skip('revertBlock', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.revertBlock).toBeFunction()
+  describe.skip('revertBlock', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.revertBlock).toBeFunction()
     })
   })
 
-  describe.skip('verifyTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.verifyTransaction).toBeFunction()
+  describe.skip('verifyTransaction', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.verifyTransaction).toBeFunction()
     })
   })
 
-  describe.skip('applyTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.applyTransaction).toBeFunction()
+  describe.skip('applyTransaction', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.applyTransaction).toBeFunction()
     })
   })
 
-  describe.skip('revertTransaction', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.revertTransaction).toBeFunction()
+  describe.skip('revertTransaction', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.revertTransaction).toBeFunction()
     })
   })
 
-  describe.skip('snapshot', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface.snapshot).toBeFunction()
+  describe.skip('snapshot', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.snapshot).toBeFunction()
     })
   })
 
-  describe('_registerWalletManager', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface._registerWalletManager).toBeFunction()
+  describe('_registerWalletManager', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface._registerWalletManager).toBeFunction()
     })
 
-    it('should register the wallet manager', async () => {
-      await expect(ConnectionInterface).not.toHaveProperty('walletManager')
+    it('should register the wallet manager', () => {
+      expect(ConnectionInterface).not.toHaveProperty('walletManager')
 
       ConnectionInterface._registerWalletManager()
 
-      await expect(ConnectionInterface).toHaveProperty('walletManager')
+      expect(ConnectionInterface).toHaveProperty('walletManager')
     })
   })
 
-  describe('_registerRepositories', async () => {
-    it('should be a function', async () => {
-      await expect(ConnectionInterface._registerRepositories).toBeFunction()
+  describe('_registerRepositories', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface._registerRepositories).toBeFunction()
     })
 
     it('should register the repositories', async () => {

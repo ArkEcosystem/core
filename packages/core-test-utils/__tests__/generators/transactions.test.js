@@ -4,11 +4,11 @@ const generateTransactions = require('../../lib/generators/transactions')
 const { TRANSACTION_TYPES } = require('../../../client/lib/constants')
 
 describe('generateTransactions', () => {
-  it('should be function', async () => {
-    await expect(generateTransactions).toBeFunction()
+  it('should be a function', () => {
+    expect(generateTransactions).toBeFunction()
   })
 
-  it('should create transfer transactions for devnet', async () => {
+  it('should create transfer transactions for devnet', () => {
     const devnetAddress = 'DJQL8LWj81nRJNv9bbUgNXXELcB3q5qjZH'
     const transactions = generateTransactions(
       'devnet',
@@ -16,8 +16,9 @@ describe('generateTransactions', () => {
       undefined,
       devnetAddress
     )
+
     for (let i = 0; i < transactions.length; i++) {
-      await expect(transactions[i]).toMatchObject({recipientId: devnetAddress})
+      expect(transactions[i]).toMatchObject({recipientId: devnetAddress})
     }
   })
 })

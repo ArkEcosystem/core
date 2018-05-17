@@ -193,7 +193,7 @@ module.exports = class Wallet {
     } else {
       audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
       audit.push({'Signature validation': cryptoBuilder.verify(transaction)})
-      // TODO: this can blow up if 2nd phrase and other tx are in the wrong order
+      // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
           'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
