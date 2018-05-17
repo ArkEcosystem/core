@@ -1,10 +1,10 @@
 'use strict'
 
 const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 const Umzug = require('umzug')
 const path = require('path')
 const fs = require('fs-extra')
-const expandHomeDir = require('expand-home-dir')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 class Database {
@@ -19,17 +19,12 @@ class Database {
     }
 
     if (config.dialect === 'sqlite') {
-      const databasePath = expandHomeDir(config.uri.substring(7))
-
-      config.uri = `sqlite:${databasePath}`
-
-      await fs.ensureFile(databasePath)
+      await fs.ensureFile(config.storage)
     }
 
-    this.connection = new Sequelize(config.uri, {
-      dialect: config.dialect,
-      logging: !!config.logging,
-      operatorsAliases: Sequelize.Op
+    this.connection = new Sequelize({
+      ...config,
+      ...{ operatorsAliases: Op }
     })
 
     try {

@@ -2,8 +2,8 @@
 
 module.exports = {
   database: {
-    uri: `sqlite:${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
     dialect: 'sqlite',
+    storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
     logging: false
   },
   redis: {
@@ -11,43 +11,49 @@ module.exports = {
     port: process.env.ARK_REDIS_PORT || 6379
   },
   events: [{
-    name: 'forging.started',
-    description: 'Emitted when the current delegate starts forging.'
-  }, {
-    name: 'forging.stopped',
-    description: 'Emitted when the current delegate stops forging.'
-  }, {
-    name: 'forging.missing',
-    description: 'Emitted when the current delegate is missing blocks.'
+    name: 'block.applied',
+    description: 'n/a'
   }, {
     name: 'block.forged',
-    description: 'Emitted when a blocks is forged.'
+    description: 'n/a'
   }, {
-    name: 'block.removed',
-    description: 'Emitted when a blocks is removed.'
+    name: 'block.forged',
+    description: 'n/a'
   }, {
-    name: 'transaction.forged',
-    description: 'Emitted when a transaction is forged.'
+    name: 'block.reverted',
+    description: 'n/a'
   }, {
-    name: 'transaction.removed',
-    description: 'Emitted when a transaction is removed.'
+    name: 'delegate.registered',
+    description: 'n/a'
   }, {
-    name: 'transaction.expired',
-    description: 'Emitted when a transaction expired.'
+    name: 'delegate.resigned',
+    description: 'n/a'
   }, {
-    name: 'vote.created',
-    description: 'Emitted when a vote is created.'
+    name: 'forging.failed',
+    description: 'n/a'
   }, {
-    name: 'vote.removed',
-    description: 'Emitted when a vote is removed.'
+    name: 'forging.missing',
+    description: 'n/a'
+  }, {
+    name: 'forging.started',
+    description: 'n/a'
   }, {
     name: 'peer.added',
-    description: 'Emitted when a peer is added.'
+    description: 'n/a'
   }, {
     name: 'peer.removed',
-    description: 'Emitted when a peer is removed.'
+    description: 'n/a'
   }, {
-    name: 'peer.banned',
-    description: 'Emitted when a peer is banned.'
+    name: 'transaction.applied',
+    description: 'n/a'
+  }, {
+    name: 'transaction.expired',
+    description: 'n/a'
+  }, {
+    name: 'transaction.forged',
+    description: 'n/a'
+  }, {
+    name: 'transaction.reverted',
+    description: 'n/a'
   }]
 }

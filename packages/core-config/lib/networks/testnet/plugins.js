@@ -7,8 +7,10 @@ module.exports = {
   '@arkecosystem/core-logger-winston': {},
   '@arkecosystem/core-database': {},
   '@arkecosystem/core-database-sequelize': {
-    // uri: 'postgres://node:password@localhost:5432/ark_testnet',
-    // dialect: 'postgres'
+    // dialect: 'postgres',
+    // username: 'node',
+    // password: 'password',
+    // database: 'ark_testnet'
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},
