@@ -27,12 +27,16 @@ module.exports = class TransactionsRepository {
     let whereStatement = {}
     let orderBy = []
 
-    const filter = ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId']
-    for (const elem of filter) {
-      if (params[elem]) {
-        whereStatement[elem] = params[elem]
-      }
-    }
+    const conditions = [Op.or, Op.and]
+    const filter = (args) => args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+
+    filter(Object.keys(params)).map(col => (whereStatement[col] = params[col]))
+
+    conditions.map(elem => {
+      if (!params[elem]) return
+      const fields = Object.assign({}, ...params[elem])
+      whereStatement[elem] = filter(Object.keys(fields)).reduce((prev, val) => prev.concat({ [val]: fields[val] }), [])
+    })
 
     if (params['senderId']) {
       let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
