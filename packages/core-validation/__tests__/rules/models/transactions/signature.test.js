@@ -27,6 +27,10 @@ describe('Second Signature Transaction Rule', () => {
     expect(rule(transaction.getStruct()).fails).toBeFalsy()
   })
 
+  it('should be invalid due to no transaction as object', () => {
+    expect(rule('test').passes).toBeFalsy()
+  })
+
   it('should be invalid due to non-zero amount', () => {
     transaction.create('second passphrase')
                .setAmount(10 * arktoshi)

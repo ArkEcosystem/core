@@ -31,6 +31,24 @@ describe('Transfer Transaction Rule', () => {
     expect(rule(transaction.getStruct()).fails).toBeFalsy()
   })
 
+  it('should be invalid due to no transaction as object', () => {
+    expect(rule('test').passes).toBeFalsy()
+  })
+
+  it('should be invalid due to no address', () => {
+    transaction.create(null, amount)
+               .sign('passphrase')
+    expect(rule(transaction.getStruct()).passes).toBeFalsy()
+  })
+
+  it('should be invalid due to invalid address', () => {
+    transaction.create(address, amount)
+               .sign('passphrase')
+    const struct = transaction.getStruct()
+    struct.recipientId = 'woop'
+    expect(rule(struct).passes).toBeFalsy()
+  })
+
   it('should be invalid due to zero amount', () => {
     transaction.create(address, 0)
                .sign('passphrase')
