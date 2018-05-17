@@ -199,6 +199,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
     }
 
+    if (this.options.whitelist.includes(transaction.senderPublicKey)) {
+      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      return false
+    }
+
     const count = await this.pool.get(this.__getRedisThrottleKey(transaction.senderPublicKey))
     return count ? count >= this.options.maxTransactionsPerSender : false
   }
