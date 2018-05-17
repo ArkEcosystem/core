@@ -1,8 +1,7 @@
 'use strict'
 
 const rule = require('../../../../lib/rules/models/transactions/vote')
-const { transactionBuilder } = require('@arkecosystem/client')
-const arktoshi = Math.pow(10, 8)
+const { constants, transactionBuilder } = require('@arkecosystem/client')
 const vote = '+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9'
 const unvote = '-0326580718fc86ba609799ac95fcd2721af259beb5afa81bfce0ab7d9fe95de991'
 const votes = [
@@ -50,7 +49,7 @@ describe('Vote Transaction Rule', () => {
 
   it('should be invalid due to non-zero amount', () => {
     transaction.create(votes)
-               .setAmount(10 * arktoshi)
+               .setAmount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
   })

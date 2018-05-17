@@ -1,8 +1,7 @@
 'use strict'
 
 const rule = require('../../../../lib/rules/models/transactions/delegate-registration')
-const { transactionBuilder } = require('@arkecosystem/client')
-const arktoshi = Math.pow(10, 8)
+const { constants, transactionBuilder } = require('@arkecosystem/client')
 
 let transaction
 beforeEach(() => {
@@ -26,7 +25,7 @@ describe('Delegate Registration Transaction Rule', () => {
 
   it('should be invalid due to non-zero amount', () => {
     transaction.create('delegate1')
-               .setAmount(10 * arktoshi)
+               .setAmount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
   })
@@ -58,7 +57,7 @@ describe('Delegate Registration Transaction Rule', () => {
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.transfer()
-    transaction.create(null, 10 * arktoshi)
+    transaction.create(null, 10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
   })

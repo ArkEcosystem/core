@@ -1,8 +1,7 @@
 'use strict'
 
 const rule = require('../../../../lib/rules/models/transactions/signature')
-const { transactionBuilder } = require('@arkecosystem/client')
-const arktoshi = Math.pow(10, 8)
+const { constants, transactionBuilder } = require('@arkecosystem/client')
 
 let transaction
 beforeEach(() => {
@@ -22,7 +21,7 @@ describe('Second Signature Transaction Rule', () => {
 
   it('should be valid with correct data', () => {
     transaction.create('second passphrase')
-               .setFee(1 * arktoshi)
+               .setFee(1 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).fails).toBeFalsy()
   })
@@ -33,7 +32,7 @@ describe('Second Signature Transaction Rule', () => {
 
   it('should be invalid due to non-zero amount', () => {
     transaction.create('second passphrase')
-               .setAmount(10 * arktoshi)
+               .setAmount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
   })
