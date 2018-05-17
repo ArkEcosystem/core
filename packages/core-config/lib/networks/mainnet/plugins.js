@@ -1,6 +1,6 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
-  '@arkecosystem/core-validation': {},
+  '@arkecosystem/validation': {},
   '@arkecosystem/core-config': {},
   '@arkecosystem/core-config-json': {},
   '@arkecosystem/core-logger': {},
