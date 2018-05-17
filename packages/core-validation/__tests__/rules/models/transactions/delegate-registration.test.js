@@ -1,12 +1,12 @@
 'use strict'
 
-const rule = require('../../../../lib/rules/models/transactions/delegate')
+const rule = require('../../../../lib/rules/models/transactions/delegate-registration')
 const { transactionBuilder } = require('@arkecosystem/client')
 const arktoshi = Math.pow(10, 8)
 
 let transaction
 beforeEach(() => {
-  transaction = transactionBuilder.delegate()
+  transaction = transactionBuilder.delegateRegistration()
 })
 
 describe('Delegate Registration Transaction Rule', () => {
