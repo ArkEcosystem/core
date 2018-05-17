@@ -14,7 +14,7 @@ module.exports = async (options) => {
   }, {
     include: [
       '@arkecosystem/core-event-emitter',
-      '@arkecosystem/core-validation',
+      '@arkecosystem/validation',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',

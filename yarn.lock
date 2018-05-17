@@ -5370,7 +5370,7 @@ js-nacl@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/js-nacl/-/js-nacl-1.2.2.tgz#c4633dbfa67dc62f6b73033e5118e564e5abb987"
 
-"js-nacl@github:tonyg/js-nacl#6dc1417":
+js-nacl@tonyg/js-nacl#6dc1417:
   version "1.2.1"
   resolved "https://codeload.github.com/tonyg/js-nacl/tar.gz/6dc1417057cd81381d332b370e82ceab1f2416af"
 

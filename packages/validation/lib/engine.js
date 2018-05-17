@@ -6,10 +6,10 @@ class Engine {
     this.joi = Joi.extend(extensions)
   }
 
-  validate (attributes, rules) {
-    return this.joi.validate(attributes, rules, {
+  validate (attributes, rules, options) {
+    return this.joi.validate(attributes, rules, Object.assign({
       convert: true
-    })
+    }, options))
   }
 }
 
