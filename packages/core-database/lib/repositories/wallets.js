@@ -3,6 +3,15 @@
 const _ = require('lodash')
 const filterItems = require('./utils/filter-items')
 
+const limitRows = (rows, params) => {
+  if (params.hasOwnProperty('offset') || params.limit) {
+    const offset = params.offset || 0
+    const limit = params.limit ? offset + params.limit : rows.length
+    return rows.slice(offset, limit)
+  } else {
+    return rows
+  }
+}
 const wrapRows = rows => ({ count: rows.length, rows })
 
 module.exports = class WalletsRepository {
@@ -20,19 +29,8 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    let wallets = this.connection.walletManager.getLocalWallets()
-
-    if (!Object.keys(params).length) {
-      return wallets
-    }
-
-    let returnWallets = wallets
-
-    if (params.hasOwnProperty('offset') && params.limit) {
-      returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
-    }
-
-    return wrapRows(wallets)
+    const wallets = this.connection.walletManager.getLocalWallets()
+    return wrapRows(limitRows(wallets, params))
   }
 
   /**
@@ -42,19 +40,8 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAllByVote (publicKey, params = {}) {
-    let wallets = this.findAll().filter(wallet => (wallet.vote === publicKey))
-
-    if (!Object.keys(params).length) {
-      return wallets
-    }
-
-    let returnWallets = wallets
-
-    if (params.hasOwnProperty('offset') && params.limit) {
-      returnWallets = returnWallets.slice(params.offset, params.offset + params.limit)
-    }
-
-    return wrapRows(wallets)
+    const wallets = this.findAll().rows.filter(wallet => wallet.votes.includes(publicKey))
+    return wrapRows(limitRows(wallets, params))
   }
 
   /**
@@ -63,7 +50,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.findAll().find(w => (w.address === id || w.publicKey === id || w.username === id))
+    return this.findAll().rows.find(w => (w.address === id || w.publicKey === id || w.username === id))
   }
 
   /**
@@ -71,7 +58,7 @@ module.exports = class WalletsRepository {
    * @return {Number}
    */
   count () {
-    return this.findAll().length
+    return this.findAll().count
   }
 
   /**
@@ -80,15 +67,8 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   top (params = {}) {
-    let wallets = _.sortBy(this.findAll(), 'balance').reverse()
-
-    if (params.hasOwnProperty('offset') || params.limit) {
-      const offset = params.offset || 0
-      const limit = params.limit ? offset + params.limit : -1
-      wallets = wallets.slice(offset, limit)
-    }
-
-    return wrapRows(wallets)
+    const wallets = _.sortBy(this.findAll().rows, 'balance').reverse()
+    return wrapRows(limitRows(wallets, params))
   }
 
   /**
@@ -97,7 +77,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   search (params) {
-    let wallets = this.findAll()
+    let wallets = this.findAll().rows
 
     wallets = filterObject(wallets, params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
