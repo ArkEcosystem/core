@@ -63,7 +63,7 @@ describe('Transfer Transaction Rule', () => {
   })
 
   it('should be invalid due to wrong transaction type', () => {
-    transaction = transactionBuilder.delegate()
+    transaction = transactionBuilder.delegateRegistration()
     transaction.create('delegate_name')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).passes).toBeFalsy()
