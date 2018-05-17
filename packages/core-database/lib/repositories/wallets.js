@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const filterObject = require('./utils/filter-object')
+const filterItems = require('./utils/filter-items')
 
 const wrapRows = rows => ({ count: rows.length, rows })
 
