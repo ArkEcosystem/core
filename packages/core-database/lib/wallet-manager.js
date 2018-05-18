@@ -123,7 +123,8 @@ module.exports = class WalletManager {
       await Promise.each(block.transactions, async (transaction) => {
         await this.applyTransaction(transaction)
 
-        appliedTransactions.push(transaction)
+        // Keep the applied transactions from last to first to revert them if necessary
+        appliedTransactions.unshift(transaction)
       })
 
       delegate.applyBlock(block.data)
@@ -133,7 +134,10 @@ module.exports = class WalletManager {
       // TODO Use Promise.all or explain why not
       // - Promise.each is applied sequentially
       // - Promise.all is applied in parallel
-      await Promise.each(appliedTransactions, transaction => this.revertTransaction(transaction))
+      await Promise.each(appliedTransactions, transaction => {
+        this.revertTransaction(transaction)
+      })
+
       // TODO should revert the delegate applyBlock ?
 
       throw error
