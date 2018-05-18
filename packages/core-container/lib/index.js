@@ -80,7 +80,8 @@ class Container {
     try {
       return this.container.resolve(key).plugin
     } catch (err) {
-      throw new Error(err.message)
+      console.log(err.message)
+      return null
     }
   }
 
