@@ -99,19 +99,24 @@ blockchainMachine.actionMap = blockchain => {
         return blockchain.dispatch('FAILURE')
       }
     },
+
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
+
     syncingComplete: () => {
       logger.info('Blockchain download complete :unicorn_face:')
       blockchain.dispatch('SYNCFINISHED')
     },
+
     rebuildingComplete: () => {
       logger.info('Blockchain rebuild complete :unicorn_face:')
       blockchain.dispatch('REBUILDFINISHED')
     },
+
     exitApp: () => {
       logger.error('Failed to startup blockchain, exiting...')
       process.exit(1)
     },
+
     init: async () => {
       try {
         let block = await blockchain.database.getLastBlock()
@@ -178,6 +183,7 @@ blockchainMachine.actionMap = blockchain => {
         return blockchain.dispatch('FAILURE')
       }
     },
+
     rebuildBlocks: async () => {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
@@ -200,6 +206,7 @@ blockchainMachine.actionMap = blockchain => {
         }
       }
     },
+
     downloadBlocks: async () => {
       const block = state.lastDownloadedBlock || state.lastBlock
 
@@ -221,9 +228,11 @@ blockchainMachine.actionMap = blockchain => {
         }
       }
     },
+
     analyseFork: async () => {
       logger.info('Analysing fork')
     },
+
     startForkRecovery: async () => {
       logger.info('Starting fork recovery 🍴')
       // state.forked = true

@@ -65,6 +65,16 @@ describe('State Machine', () => {
       actionMap = stateMachine.actionMap(blockchain)
     })
 
+    describe('checkLater', () => {
+      it('should be a function', () => {
+        expect(actionMap.checkLater).toBeFunction()
+      })
+
+      xit('should dispatch the event "WAKEUP" after a delay', async () => {
+        await expect(() => actionMap.checkLater()).toCall([blockchain, 'dispatch', 'WAKEUP'])
+      })
+    })
+
     describe('checkLastBlockSynced', () => {
       it('should be a function', () => {
         expect(actionMap.checkLastBlockSynced).toBeFunction()
@@ -94,6 +104,72 @@ describe('State Machine', () => {
       it('should dispatch the event "NOTSYNCED" if the blockchain is not synced after a rebuild', () => {
         blockchain.isRebuildSynced = jest.fn(() => false)
         expect(() => actionMap.checkRebuildBlockSynced()).toCall([blockchain, 'dispatch', 'NOTSYNCED'])
+      })
+    })
+
+    describe('checkLastDownloadedBlockSynced', () => {
+      it('should be a function', () => {
+        expect(actionMap.checkLastDownloadedBlockSynced).toBeFunction()
+      })
+    })
+
+    describe('downloadFinished', () => {
+      it('should be a function', () => {
+        expect(actionMap.downloadFinished).toBeFunction()
+      })
+    })
+
+    describe('rebuildFinished', () => {
+      it('should be a function', () => {
+        expect(actionMap.rebuildFinished).toBeFunction()
+      })
+    })
+
+    describe('downloadPaused', () => {
+      it('should be a function', () => {
+        expect(actionMap.downloadPaused).toBeFunction()
+      })
+    })
+
+    describe('rebuildingComplete', () => {
+      it('should be a function', () => {
+        expect(actionMap.rebuildingComplete).toBeFunction()
+      })
+    })
+
+    describe('exitApp', () => {
+      it('should be a function', () => {
+        expect(actionMap.exitApp).toBeFunction()
+      })
+    })
+
+    describe('init', () => {
+      it('should be a function', () => {
+        expect(actionMap.init).toBeFunction()
+      })
+    })
+
+    describe('rebuildBlocks', () => {
+      it('should be a function', () => {
+        expect(actionMap.rebuildBlocks).toBeFunction()
+      })
+    })
+
+    describe('downloadBlocks', () => {
+      it('should be a function', () => {
+        expect(actionMap.downloadBlocks).toBeFunction()
+      })
+    })
+
+    describe('analyseFork', () => {
+      it('should be a function', () => {
+        expect(actionMap.analyseFork).toBeFunction()
+      })
+    })
+
+    describe('startForkRecovery', () => {
+      it('should be a function', () => {
+        expect(actionMap.startForkRecovery).toBeFunction()
       })
     })
   })
