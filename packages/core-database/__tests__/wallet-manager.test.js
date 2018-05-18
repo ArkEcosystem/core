@@ -75,11 +75,11 @@ describe('Wallet Manager', () => {
 
     const tx1 = transactionBuilder
       .vote()
-      .create(["+036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef"])
+      .create(['+036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
       .sign(Math.random().toString(36))
     const tx2 = transactionBuilder
       .vote()
-      .create(["-036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef"])
+      .create(['-036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
       .sign(Math.random().toString(36))
 
     beforeEach(() => {
