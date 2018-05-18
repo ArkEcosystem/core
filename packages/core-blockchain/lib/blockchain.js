@@ -336,20 +336,20 @@ module.exports = class Blockchain {
    * @return {Object}
    */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
-    let retItems = forForging
+    const transactions = forForging
       ? await this.transactionPool.getTransactionsForForging(0, blockSize)
       : await this.transactionPool.getTransactions(0, blockSize)
 
     return {
-      transactions: retItems,
+      transactions,
       poolSize: await this.transactionPool.getPoolSize(),
-      count: retItems ? retItems.length : -1
+      count: transactions ? transactions.length : -1
     }
   }
 
   /**
    * Determine if the blockchain is synced.
-   * @param  {Block}  block
+   * @param  {Block} [block=getLastBlock()]  block
    * @return {Boolean}
    */
   isSynced (block) {

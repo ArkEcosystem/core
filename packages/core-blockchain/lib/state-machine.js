@@ -33,15 +33,23 @@ blockchainMachine.state = state
  * @param  {Blockchain} blockchain
  * @return {Object}
  */
-blockchainMachine.actionMap = (blockchain) => {
+blockchainMachine.actionMap = blockchain => {
   return {
     blockchainReady: () => (state.started = true),
-    checkLater: async () => {
+
+    async checkLater () {
       await delay(60000)
       return blockchain.dispatch('WAKEUP')
     },
-    checkLastBlockSynced: () => blockchain.dispatch(blockchain.isSynced(blockchain.getLastBlock(true)) ? 'SYNCED' : 'NOTSYNCED'),
-    checkRebuildBlockSynced: () => blockchain.dispatch(blockchain.isRebuildSynced(blockchain.getLastBlock(true)) ? 'SYNCED' : 'NOTSYNCED'),
+
+    checkLastBlockSynced () {
+      return blockchain.dispatch(blockchain.isSynced() ? 'SYNCED' : 'NOTSYNCED')
+    },
+
+    checkRebuildBlockSynced () {
+      return blockchain.dispatch(blockchain.isRebuildSynced() ? 'SYNCED' : 'NOTSYNCED')
+    },
+
     checkLastDownloadedBlockSynced: () => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
@@ -64,6 +72,7 @@ blockchainMachine.actionMap = (blockchain) => {
 
       blockchain.dispatch(event)
     },
+
     downloadFinished: () => {
       logger.info('Blockchain download finished :rocket:')
 
@@ -73,6 +82,7 @@ blockchainMachine.actionMap = (blockchain) => {
         blockchain.dispatch('SYNCFINISHED')
       }
     },
+
     rebuildFinished: async () => {
       try {
         logger.info('Blockchain rebuild finished :chains:')
