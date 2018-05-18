@@ -16,6 +16,7 @@ const accounts = require('./handlers/accounts')
  */
 const register = async (server, options) => {
   server.route([
+    // TODO Deprecated?
     { method: 'GET', path: '/accounts/getAllAccounts', ...accounts.index },
     { method: 'GET', path: '/accounts', ...accounts.show },
     { method: 'GET', path: '/accounts/', ...accounts.show }, // v1 inconsistency
@@ -25,6 +26,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/accounts/delegates', ...accounts.delegates },
     { method: 'GET', path: '/accounts/delegates/', ...accounts.delegates }, // v1 inconsistency
     { method: 'GET', path: '/accounts/top', ...accounts.top },
+    // TODO Deprecated?
     { method: 'GET', path: '/accounts/count', ...accounts.count },
 
     { method: 'GET', path: '/blocks', ...blocks.index },
