@@ -22,7 +22,7 @@ beforeEach(() => {
     senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     recipientId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     senderPublicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
-    signature: '304402204da11f2677ea67ad3718520020eb2e2d43b5c83f947490d2b454ce3ec0f1dcba022011a00e3c3febdaf531a404d728b111812647c2f0e33df439c7cbae01dcb702ba',
+    signature: '304402204da11f2677ea67ad3718520020eb2e2d43b5c83f947490d2b454ce3ec0f1dcba022011a00e3c3febdaf531a404d728b111812647c2f0e33df439c7cbae01dcb702ba', // eslint-disable-line max-len
     asset: {
       votes: [
         '+0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'

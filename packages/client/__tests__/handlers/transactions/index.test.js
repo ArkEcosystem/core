@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const handler = require('../../../lib/handlers/transactions')
 
 let wallet
