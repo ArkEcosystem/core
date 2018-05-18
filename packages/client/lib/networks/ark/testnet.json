@@ -13,14 +13,11 @@
     "symbol": "TѦ",
     "explorer": "http://texplorer.ark.io"
   },
-  "peers": [{
-    "ip": "127.0.0.1",
-    "port": 4000
-  }],
   "constants": [{
     "height": 1,
     "reward": 0,
     "activeDelegates": 51,
+    "activeVotes": 1,
     "blocktime": 8,
     "block": {
       "version": 0,

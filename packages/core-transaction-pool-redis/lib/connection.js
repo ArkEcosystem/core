@@ -90,7 +90,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async addTransaction (transaction) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "addTransaction".')
+      return
     }
 
     if (!(transaction instanceof Transaction)) {
@@ -120,7 +120,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   addTransactions (transactions, isBroadcast) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "addTransactions".')
+      return
     }
 
     return transactions.map(transaction => {
@@ -144,7 +144,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async removeTransaction (transaction) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "removeTransaction".')
+      return
     }
 
     await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
@@ -159,7 +159,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async removeTransactionById (id) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactionById".')
+      return
     }
 
     const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
@@ -177,7 +177,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async removeTransactions (transactions) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "removeTransactions".')
+      return
     }
 
     try {
@@ -196,7 +196,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async hasExceededMaxTransactions (transaction) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "hasExceededMaxTransactions".')
+      return
     }
 
     if (this.options.whitelist.includes(transaction.senderPublicKey)) {
@@ -215,7 +215,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransaction (id) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "getTransaction".')
+      return
     }
 
     const serialized = await this.pool.hget(this.__getRedisTransactionKey(id), 'serialized')
@@ -234,7 +234,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransactions (start, size) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "getTransactions".')
+      return
     }
 
     try {
@@ -260,7 +260,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransactionsForForging (start, size) {
     if (!this.__isReady()) {
-      return logger.warn('Transaction Pool is disabled - discarded action "getTransactionsForForging".')
+      return
     }
 
     try {

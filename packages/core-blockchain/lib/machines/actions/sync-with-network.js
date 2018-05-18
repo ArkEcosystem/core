@@ -4,9 +4,9 @@ module.exports = {
     syncing: {
       onEntry: ['checkLastDownloadedBlockSynced'],
       on: {
-        SYNCED: 'downloadfinished',
+        SYNCED: 'downloadFinished',
         NOTSYNCED: 'downloadBlocks',
-        PAUSED: 'downloadpaused'
+        PAUSED: 'downloadPaused'
       }
     },
     idle: {
@@ -21,19 +21,19 @@ module.exports = {
         NOBLOCK: 'syncing'
       }
     },
-    downloadfinished: {
+    downloadFinished: {
       onEntry: ['downloadFinished'],
       on: {
-        PROCESSFINISHED: 'processfinished'
+        PROCESSFINISHED: 'processFinished'
       }
     },
-    downloadpaused: {
+    downloadPaused: {
       onEntry: ['downloadPaused'],
       on: {
-        PROCESSFINISHED: 'processfinished'
+        PROCESSFINISHED: 'processFinished'
       }
     },
-    processfinished: {
+    processFinished: {
       onEntry: ['checkLastBlockSynced'],
       on: {
         SYNCED: 'end',

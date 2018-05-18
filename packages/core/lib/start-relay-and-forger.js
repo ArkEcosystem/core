@@ -8,10 +8,7 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  await container.start({
-    data: options.data,
-    config: options.config
-  }, {
+  await container.start(options, {
     options: {
       '@arkecosystem/core-p2p': {
         networkStart: options.networkStart

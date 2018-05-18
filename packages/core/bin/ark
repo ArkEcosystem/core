@@ -8,7 +8,9 @@ app
   .command('start')
   .description('start a relay and forging node')
   .option('-d, --data <data>', 'data directory', '~/.ark')
-  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-c, --config <config>', 'core config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
@@ -20,6 +22,8 @@ app
   .description('start a relay node')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
   .action(async (options) => require('../lib/start-relay')(options))
 
 app
@@ -27,6 +31,8 @@ app
   .description('start a forging node')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
   .option('-b, --bip38 <bip38>', 'forger bip38')
   .option('-a, --address <address>', 'forger address')
   .option('-p, --password <password>', 'forger password')
@@ -38,6 +44,8 @@ app
   .description('take a snapshot of the database')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
   .action(async (options) => require('../lib/snapshot')(options))
 
 app

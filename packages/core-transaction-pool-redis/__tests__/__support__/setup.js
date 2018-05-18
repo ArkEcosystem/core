@@ -8,7 +8,9 @@ jest.setTimeout(30000)
 exports.setUp = async () => {
   await container.start({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
+    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet'),
+    token: 'ark',
+    network: 'testnet'
   }, {
     exit: '@arkecosystem/core-blockchain',
     exclude: [

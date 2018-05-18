@@ -14,7 +14,7 @@ yarn add @arkecosystem/core-database
 
 ```js
 module.exports = {
-  snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}/snapshots`
+  snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK_NAME}/snapshots`
 }
 ```
 

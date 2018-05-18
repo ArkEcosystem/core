@@ -11,6 +11,7 @@ module.exports = class ConfigInterface {
    */
   constructor (options) {
     this.options = options
+    this.network = JSON.parse(process.env.ARK_NETWORK)
   }
 
   /**

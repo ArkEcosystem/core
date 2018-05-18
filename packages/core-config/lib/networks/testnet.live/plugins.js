@@ -1,6 +1,5 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
-  '@arkecosystem/validation': {},
   '@arkecosystem/core-config': {},
   '@arkecosystem/core-config-json': {},
   '@arkecosystem/core-logger': {},
@@ -8,17 +7,17 @@ module.exports = {
     transports: {
       dailyRotate: {
         options: {
-          filename: `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK}.live/%DATE%.log`
+          filename: `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}.live/%DATE%.log`
         }
       }
     }
   },
   '@arkecosystem/core-database': {
-    snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK}.live/snapshots`
+    snapshots: `${process.env.ARK_PATH_DATA}/${process.env.ARK_NETWORK_NAME}.live/snapshots`
   },
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
-    storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.live.sqlite`
+    storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.live.sqlite`
     // dialect: 'postgres',
     // username: 'node',
     // password: 'password',
