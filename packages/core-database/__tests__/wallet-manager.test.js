@@ -100,7 +100,7 @@ describe('Wallet Manager', () => {
     })
 
     describe('when 1 transaction fails while applying it', () => {
-      it('reverts all transactions of the block', async () => {
+      it('should revert all transactions of the block', async () => {
         manager.applyTransaction = jest.fn(transaction => {
           if (transaction === block.transactions[2]) {
             throw new Error('Fake error')
