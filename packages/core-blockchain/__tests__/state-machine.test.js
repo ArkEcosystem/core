@@ -117,6 +117,27 @@ describe('State Machine', () => {
       it('should be a function', () => {
         expect(actionMap.downloadFinished).toBeFunction()
       })
+
+      xdescribe('if the network has started', () => {
+        it('should dispatch the event "SYNCFINISHED"', () => {
+          stateMachine.state.networkStart = true
+          expect(() => actionMap.downloadFinished()).toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+        })
+
+        it('should toggle its state', () => {
+          stateMachine.state.networkStart = true
+          actionMap.downloadFinished()
+          expect(stateMachine.state.networkStart).toBe(false)
+        })
+      })
+
+      describe('if the network has not started', () => {
+        it('should not do anything', () => {
+          stateMachine.state.networkStart = false
+          expect(() => actionMap.downloadFinished()).not.toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+          expect(stateMachine.state.networkStart).toBe(false)
+        })
+      })
     })
 
     describe('rebuildFinished', () => {
@@ -131,9 +152,23 @@ describe('State Machine', () => {
       })
     })
 
+    describe('downloadPaused', () => {
+      it('should be a function', () => {
+        expect(actionMap.downloadPaused).toBeFunction()
+      })
+
+      it('should dispatch the event "SYNCFINISHED"', () => {
+        expect(() => actionMap.syncingComplete()).toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+      })
+    })
+
     describe('rebuildingComplete', () => {
       it('should be a function', () => {
         expect(actionMap.rebuildingComplete).toBeFunction()
+      })
+
+      it('should dispatch the event "REBUILDFINISHED"', () => {
+        expect(() => actionMap.rebuildingComplete()).toCall([blockchain, 'dispatch', 'REBUILDFINISHED'])
       })
     })
 

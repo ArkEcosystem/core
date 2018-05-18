@@ -50,7 +50,7 @@ blockchainMachine.actionMap = blockchain => {
       return blockchain.dispatch(blockchain.isRebuildSynced() ? 'SYNCED' : 'NOTSYNCED')
     },
 
-    checkLastDownloadedBlockSynced: () => {
+    checkLastDownloadedBlockSynced () {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
 
@@ -73,7 +73,7 @@ blockchainMachine.actionMap = blockchain => {
       blockchain.dispatch(event)
     },
 
-    downloadFinished: () => {
+    downloadFinished () {
       logger.info('Blockchain download finished :rocket:')
 
       if (state.networkStart) {
@@ -83,7 +83,7 @@ blockchainMachine.actionMap = blockchain => {
       }
     },
 
-    rebuildFinished: async () => {
+    async rebuildFinished () {
       try {
         logger.info('Blockchain rebuild finished :chains:')
         state.rebuild = false
@@ -102,22 +102,22 @@ blockchainMachine.actionMap = blockchain => {
 
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
-    syncingComplete: () => {
+    syncingComplete () {
       logger.info('Blockchain download complete :unicorn_face:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
-    rebuildingComplete: () => {
+    rebuildingComplete () {
       logger.info('Blockchain rebuild complete :unicorn_face:')
       blockchain.dispatch('REBUILDFINISHED')
     },
 
-    exitApp: () => {
+    exitApp () {
       logger.error('Failed to startup blockchain, exiting...')
       process.exit(1)
     },
 
-    init: async () => {
+    async init () {
       try {
         let block = await blockchain.database.getLastBlock()
 
@@ -184,7 +184,7 @@ blockchainMachine.actionMap = blockchain => {
       }
     },
 
-    rebuildBlocks: async () => {
+    async rebuildBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
       tickSyncTracker(block)
@@ -207,7 +207,7 @@ blockchainMachine.actionMap = blockchain => {
       }
     },
 
-    downloadBlocks: async () => {
+    async downloadBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
 
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
@@ -229,7 +229,7 @@ blockchainMachine.actionMap = blockchain => {
       }
     },
 
-    analyseFork: async () => {
+    async analyseFork () {
       logger.info('Analysing fork')
     },
 
