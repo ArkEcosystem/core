@@ -4,9 +4,9 @@ module.exports = {
     rebuilding: {
       onEntry: ['checkLastDownloadedBlockSynced'],
       on: {
-        SYNCED: 'waitingfinished',
+        SYNCED: 'waitingFinished',
         NOTSYNCED: 'rebuildBlocks',
-        PAUSED: 'rebuildpaused'
+        PAUSED: 'rebuildPaused'
       }
     },
     idle: {
@@ -21,21 +21,21 @@ module.exports = {
         NOBLOCK: 'rebuilding'
       }
     },
-    waitingfinished: {
+    waitingFinished: {
       on: {
-        REBUILDFINISHED: 'rebuildfinished'
+        REBUILDFINISHED: 'rebuildFinished'
       }
     },
-    rebuildfinished: {
+    rebuildFinished: {
       onEntry: ['rebuildFinished']
     },
-    rebuildpaused: {
+    rebuildPaused: {
       onEntry: ['downloadPaused'],
       on: {
-        REBUILDFINISHED: 'processfinished'
+        REBUILDFINISHED: 'processFinished'
       }
     },
-    processfinished: {
+    processFinished: {
       onEntry: ['checkRebuildBlockSynced'],
       on: {
         SYNCED: 'end',
