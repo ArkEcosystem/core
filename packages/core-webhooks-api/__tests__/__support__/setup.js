@@ -8,7 +8,9 @@ const defaults = require('../__stubs__/defaults.json')
 module.exports = async () => {
   await container.start({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet')
+    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet'),
+    token: 'ark',
+    network: 'testnet'
   }, {
     exclude: [
       '@arkecosystem/core-blockchain',
