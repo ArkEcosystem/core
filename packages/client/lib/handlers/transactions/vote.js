@@ -1,5 +1,3 @@
-const sortBy = require('lodash/sortBy')
-const configManager = require('../../managers/config')
 const Handler = require('./handler')
 
 class VoteHandler extends Handler {
@@ -14,20 +12,17 @@ class VoteHandler extends Handler {
       return false
     }
 
-    let applicableVotes = 0
-    const votes = this.__sort(transaction)
+    const vote = transaction.asset.votes[0]
 
-    votes.forEach(vote => {
-      if (vote.startsWith('-') && wallet.votes.includes(vote.slice(1))) {
-        applicableVotes++
-      }
+    if (vote.startsWith('-') && (wallet.vote === vote.slice(1))) {
+      return true
+    }
 
-      if (vote.startsWith('+') && !wallet.votesExceeded) {
-        applicableVotes++
-      }
-    })
+    if (vote.startsWith('+') && !wallet.vote) {
+      return true
+    }
 
-    return applicableVotes === votes.length
+    return false
   }
 
   /**
@@ -37,19 +32,17 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   apply (wallet, transaction) {
-    this.__sort(transaction).forEach(vote => {
-      this.__determineExcessiveVotes(wallet)
+    const vote = transaction.asset.votes[0]
 
-      if (vote.startsWith('+') && this.__canVoteFor(wallet, vote.slice(1))) {
-        wallet.votes.push(vote.slice(1))
-      }
+    if (vote.startsWith('+')) {
+      wallet.vote = vote.slice(1)
+    }
 
-      if (vote.startsWith('-')) {
-        wallet.votes = wallet.votes.filter(item => (item !== vote.slice(1)))
-      }
+    if (vote.startsWith('-')) {
+      wallet.vote = null
+    }
 
-      this.__determineExcessiveVotes(wallet)
-    })
+    console.log(wallet.vote)
   }
 
   /**
@@ -59,48 +52,15 @@ class VoteHandler extends Handler {
    * @return {void}
    */
   revert (wallet, transaction) {
-    this.__sort(transaction).forEach(vote => {
-      this.__determineExcessiveVotes(wallet)
+    const vote = transaction.asset.votes[0]
 
-      if (vote.startsWith('+')) {
-        wallet.votes = wallet.votes.filter(item => (item !== vote.slice(1)))
-      }
+    if (vote.startsWith('+')) {
+      wallet.vote = null
+    }
 
-      if (vote.startsWith('-') && this.__canVoteFor(wallet, vote.slice(1))) {
-        wallet.votes.push(vote.slice(1))
-      }
-
-      this.__determineExcessiveVotes(wallet)
-    })
-  }
-
-  /**
-   * Determine whether the wallet has exceeded the number of active votes.
-   * @param  {Wallet} wallet
-   * @return {void}
-   */
-  __determineExcessiveVotes (wallet) {
-    wallet.votesExceeded = wallet.votes.length >= configManager.getConstant('activeVotes')
-  }
-
-  /**
-   * Determine whether the wallet can vote for the given delegate.
-   * @param  {Wallet} wallet
-   * @param  {String} publicKey
-   * @return {Boolean}
-   */
-  __canVoteFor (wallet, publicKey) {
-    return !wallet.votes.includes(publicKey) && !wallet.votesExceeded
-  }
-
-  /**
-   * Sort the votes of the transaction from unvotes to votes.
-   * @return {[type]} [description]
-   */
-  __sort (transaction) {
-    return sortBy(transaction.asset.votes, [vote => {
-      return vote.startsWith('+')
-    }])
+    if (vote.startsWith('-')) {
+      wallet.vote = vote.slice(1)
+    }
   }
 }
 

@@ -147,11 +147,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     let data = await this.models.wallet.findAll({
       attributes: [
-        'publicKey',
+        ['vote', 'publicKey'],
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
       where: {
-        votes: {
+        vote: {
           [Sequelize.Op.ne]: null
         }
       }

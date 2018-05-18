@@ -148,9 +148,9 @@ blockchainMachine.actionMap = (blockchain) => {
         if (state.fastRebuild) {
           return blockchain.dispatch('REBUILD')
         }
-
         // removing blocks up to the last round to compute active delegate list later if needed
-        if (!blockchain.database.getActiveDelegates(block.data.height)) {
+        const activeDelegates = await blockchain.database.getActiveDelegates(block.data.height)
+        if (!activeDelegates) {
           await blockchain.rollbackCurrentRound()
         }
 

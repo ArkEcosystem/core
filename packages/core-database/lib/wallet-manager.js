@@ -189,20 +189,10 @@ module.exports = class WalletManager {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
       throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
-    } else if (transactionData.type === TRANSACTION_TYPES.VOTE) {
-      transactionData.asset.votes.forEach(vote => {
-        const delegate = this.walletsByPublicKey[vote.slice(1)]
+    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-        if (!delegate.username) {
-          logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
-          throw new Error(`Can't apply transaction ${transactionData.id}: delegate ${delegate.username} does not exist`)
-        }
-
-        // TODO: faster way to maintain active delegate list (i.e. instead of db queries)
-        // this
-        //   .getWalletByAddress(crypto.getAddress(vote.slice(1)))
-        //   .applyVote(sender, vote)
-      })
+      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
     } else if (config.network.exceptions[transactionData.id]) {
       logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
     } else if (!sender.canApply(transactionData)) {

@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(66)
     },
     secondPublicKey: DataTypes.STRING(66),
-    votes: DataTypes.JSON,
+    vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
     balance: DataTypes.BIGINT,
     votebalance: DataTypes.BIGINT,

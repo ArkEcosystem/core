@@ -50,21 +50,21 @@ describe('VoteHandler', () => {
     })
 
     it('should be ok', () => {
-      expect(wallet.votes).toHaveLength(0)
+      expect(wallet.vote).toBeull()
 
       handler.apply(wallet, transaction)
 
-      expect(wallet.votes).toHaveLength(1)
+      expect(wallet.vote).not.toBeNull()
     })
 
     it('should not be ok', () => {
-      wallet.votes = ['0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0']
+      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
-      expect(wallet.votes).toHaveLength(1)
+      expect(wallet.vote).not.toBeNull()
 
       handler.apply(wallet, transaction)
 
-      expect(wallet.votes).toHaveLength(1)
+      expect(wallet.vote).not.toBeNull()
     })
   })
 
@@ -74,68 +74,25 @@ describe('VoteHandler', () => {
     })
 
     it('should be ok', () => {
-      wallet.votes = ['0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0']
+      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
-      expect(wallet.votes).toHaveLength(1)
+      expect(wallet.vote).not.toBeNull()
 
       handler.revert(wallet, transaction)
 
-      expect(wallet.votes).toHaveLength(0)
+      expect(wallet.vote).toBeull()
     })
 
     it('should not be ok', () => {
-      wallet.votes = ['0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0']
+      wallet.vote = '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0'
 
-      expect(wallet.votes).toHaveLength(1)
+      expect(wallet.vote).not.toBeNull()
 
       transaction.asset.votes = ['+fake-publiKey']
 
       handler.revert(wallet, transaction)
 
-      expect(wallet.votes).toHaveLength(1)
-    })
-  })
-
-  describe('__determineExcessiveVotes', () => {
-    it('should be a function', () => {
-      expect(handler.__determineExcessiveVotes).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      wallet.votes = ['0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0']
-
-      handler.__determineExcessiveVotes(wallet, transaction)
-
-      expect(wallet.votesExceeded).toBeTruthy()
-    })
-  })
-
-  describe('__canVoteFor', () => {
-    it('should be a function', () => {
-      expect(handler.__canVoteFor).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      expect(handler.__canVoteFor(wallet, transaction.asset.votes[0].slice(1))).toBeTruthy()
-    })
-
-    it('should not be ok', () => {
-      wallet.votes = ['0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0']
-
-      expect(handler.__canVoteFor(wallet, transaction.asset.votes[0].slice(1))).toBeFalsy()
-    })
-  })
-
-  describe('__sort', () => {
-    it('should be a function', () => {
-      expect(handler.__sort).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      const sorted = handler.__sort(transaction)
-
-      expect(sorted).toBeArray()
-      expect(sorted).not.toBeEmpty()
+      expect(wallet.vote).not.toBeNull()
     })
   })
 })
