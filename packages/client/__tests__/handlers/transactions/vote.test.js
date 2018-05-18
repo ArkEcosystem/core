@@ -13,6 +13,7 @@ beforeEach(() => {
   }
 
   transaction = {
+    version: 1,
     id: '44d6f5ac5fbb6104ee250f6b5cb43401961114263499fd067922f3e2a9cb9d24',
     blockid: '5273958469976113749',
     type: 3,
@@ -67,7 +68,7 @@ describe('VoteHandler', () => {
     })
   })
 
-  describe.only('revert', () => {
+  describe('revert', () => {
     it('should be a function', () => {
       expect(handler.revert).toBeFunction()
     })

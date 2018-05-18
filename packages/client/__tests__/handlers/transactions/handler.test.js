@@ -15,6 +15,7 @@ beforeEach(() => {
   }
 
   transaction = {
+    version: 1,
     id: '943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4',
     blockid: '11233167632577333611',
     type: 0,
