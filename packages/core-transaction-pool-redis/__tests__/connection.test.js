@@ -90,14 +90,14 @@ describe('Connection', () => {
     it('should add the transactions to the pool and they should expire', async () => {
       await expect(connection.getPoolSize()).resolves.toBe(0)
 
-      const trx1 = new Transaction(dummyExp1)
-      const trx2 = new Transaction(dummyExp2)
-
       connection.addTransactions = jest.fn(async (transactions) => {
         for (let i = 0; i < transactions.length; i++) {
           await connection.addTransaction(transactions[i])
         }
       })
+
+      const trx1 = new Transaction(dummyExp1)
+      const trx2 = new Transaction(dummyExp2)
 
       await connection.addTransactions([trx1, trx2])
 
@@ -160,6 +160,16 @@ describe('Connection', () => {
 
       await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeFalsy()
     })
+
+    it('should be allowed to exceed if whitelisted', async () => {
+      await connection.flush()
+      connection.options.whitelist = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
+      for (let i = 0; i < 104; i++) {
+        await connection.addTransaction(dummy1)
+      }
+      await expect(connection.getPoolSize()).resolves.toBe(104)
+      await expect(connection.hasExceededMaxTransactions(dummy1)).resolves.toBeFalsy()
+    })
   })
 
   describe('getTransaction', () => {
@@ -207,7 +217,6 @@ describe('Connection', () => {
       await connection.addTransaction(dummy1)
 
       let transactions = await connection.getTransactionsForForging(0, 6)
-      console.log(transactions)
       transactions = transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
 
       await expect(transactions[0]).toBeObject()

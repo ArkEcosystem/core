@@ -12,6 +12,6 @@ describe('Username Rule', () => {
   })
 
   it('should be falsy', () => {
-    expect(rule('_boldninja_').passes).toBeFalsy()
+    expect(rule('bold ninja').passes).toBeFalsy()
   })
 })

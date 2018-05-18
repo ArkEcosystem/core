@@ -1,10 +1,11 @@
 {
   "private": true,
-  "name": "@arkecosystem/core-validation",
+  "name": "@arkecosystem/validation",
   "description": "Validation for ARK Core",
   "version": "0.1.0",
   "contributors": [
-    "Brian Faust <brian@ark.io>"
+    "Brian Faust <brian@ark.io>",
+    "Alex Barnsley <alex@ark.io>"
   ],
   "license": "MIT",
   "main": "lib/index.js",

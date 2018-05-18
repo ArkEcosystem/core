@@ -24,6 +24,7 @@
     "depcheck": "depcheck ./ --ignores=webpack*,babel*,regenerator-runtime,buffer"
   },
   "dependencies": {
+    "@arkecosystem/validation": "^0.1.0",
     "arkjsv1": "arkecosystem/ark-js#master",
     "axios": "^0.18.0",
     "bigi": "^1.4.2",
