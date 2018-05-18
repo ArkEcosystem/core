@@ -48,7 +48,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.getLocalWallets().find(w => (w.address === id || w.publicKey === id || w.username === id))
+    return this.getLocalWallets().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
   }
 
   /**

@@ -17,7 +17,6 @@ module.exports = (rows, params, filters) => {
       }
     }
 
-
     if (filters.hasOwnProperty('between')) {
       for (const elem of filters['between']) {
         if (!params[elem]) {
