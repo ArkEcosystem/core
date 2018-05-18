@@ -71,7 +71,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     try {
       await this.saveBlockCommit()
     } catch (error) {
-      logger.warn('Block already commited.')
+      logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
     }
 
