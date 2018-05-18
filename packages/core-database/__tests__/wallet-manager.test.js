@@ -36,6 +36,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('reset', () => {
+    it('should be a function', () => {
+      expect(walletManager.reset).toBeFunction()
+    })
+
     it('should reset the index', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
@@ -49,6 +53,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('reindex', () => {
+    it('should be a function', () => {
+      expect(walletManager.reindex).toBeFunction()
+    })
+
     it('should index the wallets', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
@@ -70,6 +78,10 @@ describe('Wallet Manager', () => {
       delegateMock = { applyBlock: jest.fn() }
       manager.getWalletByPublicKey = jest.fn(() => delegateMock)
       manager.applyTransaction = jest.fn()
+    })
+
+    it('should be a function', () => {
+      expect(walletManager.applyBlock).toBeFunction()
     })
 
     it('should apply transactions of the block', async () => {
@@ -154,6 +166,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('applyTransaction', () => {
+    it('should be a function', () => {
+      expect(walletManager.applyTransaction).toBeFunction()
+    })
+
     it('should apply the transaction to the sender & recipient', async () => {
       const transaction = new Transaction({
         type: 0,
@@ -185,6 +201,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('revertTransaction', () => {
+    it('should be a function', () => {
+      expect(walletManager.revertTransaction).toBeFunction()
+    })
+
     it('should revert the transaction from the sender & recipient', async () => {
       const transaction = new Transaction({
         type: 0,
@@ -216,6 +236,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('getWalletByAddress', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByAddress).toBeFunction()
+    })
+
     it('should index it by address', () => {
       const wallet = new Wallet(dummy1.address)
       const manager = createWalletManager()
@@ -234,6 +258,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('getWalletByPublicKey', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByPublicKey).toBeFunction()
+    })
+
     it('should index it by publicKey', () => {
       const wallet = new Wallet(dummy1.address)
       wallet.publicKey = dummy1.publicKey
@@ -254,6 +282,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('getWalletByUsername', () => {
+    it('should be a function', () => {
+      expect(walletManager.getWalletByUsername).toBeFunction()
+    })
+
     it('should index it by username', () => {
       const wallet = new Wallet(dummy1.address)
       wallet.username = 'dummy-username'
@@ -274,6 +306,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('getLocalWallets', () => {
+    it('should be a function', () => {
+      expect(walletManager.getLocalWallets).toBeFunction()
+    })
+
     it('should return indexed', () => {
       const manager = createWalletManager()
 
@@ -320,6 +356,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('purgeEmptyNonDelegates', () => {
+    it('should be a function', () => {
+      expect(walletManager.purgeEmptyNonDelegates).toBeFunction()
+    })
+
     it('should be purged if all criteria are satisfied', async () => {
       const manager = createWalletManager()
 
@@ -393,6 +433,10 @@ describe('Wallet Manager', () => {
   })
 
   describe('isGenesis', () => {
+    it('should be a function', () => {
+      expect(walletManager.isGenesis).toBeFunction()
+    })
+
     it('should be truthy', async () => {
       const wallet = new Wallet(dummy1.address)
 
