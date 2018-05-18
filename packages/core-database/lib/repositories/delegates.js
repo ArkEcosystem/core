@@ -1,18 +1,8 @@
 'use strict'
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
-
-// TODO refactor (move to utils)
-const limitRows = (rows, params) => {
-  if (params.hasOwnProperty('offset') || params.limit) {
-    const offset = params.offset || 0
-    const limit = params.limit ? offset + params.limit : rows.length
-    return rows.slice(offset, limit)
-  } else {
-    return rows
-  }
-}
-const wrapRows = rows => ({ count: rows.length, rows })
+const limitRows = require('./utils/limit-rows')
+const wrapRows = require('./utils/wrap-rows')
 
 module.exports = class DelegatesRepository {
   /**
