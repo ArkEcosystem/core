@@ -61,7 +61,20 @@ describe('Wallet Repository', () => {
     expect(repository).toBeObject()
   })
 
+  describe('getLocalWallets', () => {
+    it('should be a function', () => {
+      expect(repository.getLocalWallets).toBeFunction()
+    })
+
+    xit('should return the local wallets of the connection', () => {
+    })
+  })
+
   describe('findAll', () => {
+    it('should be a function', () => {
+      expect(repository.findAll).toBeFunction()
+    })
+
     it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -109,6 +122,10 @@ describe('Wallet Repository', () => {
   })
 
   describe('findAllByVote', () => {
+    it('should be a function', () => {
+      expect(repository.findAllByVote).toBeFunction()
+    })
+
     it('should be ok without params', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
@@ -167,6 +184,10 @@ describe('Wallet Repository', () => {
       expect(wallet.username).toBe(wallets[0].username)
     }
 
+    it('should be a function', () => {
+      expect(repository.findById).toBeFunction()
+    })
+
     it('should be ok with an address', () => {
       expectWallet('address')
     })
@@ -181,6 +202,10 @@ describe('Wallet Repository', () => {
   })
 
   describe('count', () => {
+    it('should be a function', () => {
+      expect(repository.count).toBeFunction()
+    })
+
     it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -194,6 +219,10 @@ describe('Wallet Repository', () => {
       walletManager.reindex({ address: 'dummy-1', balance: 1000 })
       walletManager.reindex({ address: 'dummy-2', balance: 2000 })
       walletManager.reindex({ address: 'dummy-3', balance: 3000 })
+    })
+
+    it('should be a function', () => {
+      expect(repository.top).toBeFunction()
     })
 
     it('should be ok without params', () => {
@@ -267,6 +296,10 @@ describe('Wallet Repository', () => {
 
       expect(wallets.count).toBe(expected)
     }
+
+    it('should be a function', () => {
+      expect(repository.search).toBeFunction()
+    })
 
     it('should search wallets by the specified address', () => {
       const wallets = generateFullWallets()

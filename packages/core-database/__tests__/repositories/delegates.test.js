@@ -48,7 +48,20 @@ describe('Delegate Repository', () => {
     expect(repository).toBeObject()
   })
 
+  describe('getLocalDelegates', () => {
+    it('should be a function', () => {
+      expect(repository.getLocalDelegates).toBeFunction()
+    })
+
+    xit('should return the local wallets of the connection that are delegates', () => {
+    })
+  })
+
   describe('findAll', () => {
+    it('should be a function', () => {
+      expect(repository.findAll).toBeFunction()
+    })
+
     it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -96,6 +109,10 @@ describe('Delegate Repository', () => {
   })
 
   describe('paginate', () => {
+    it('should be a function', () => {
+      expect(repository.paginate).toBeFunction()
+    })
+
     it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -143,6 +160,10 @@ describe('Delegate Repository', () => {
   })
 
   describe('search', () => {
+    it('should be a function', () => {
+      expect(repository.search).toBeFunction()
+    })
+
     it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
@@ -165,6 +186,10 @@ describe('Delegate Repository', () => {
       expect(wallet.publicKey).toBe(wallets[0].publicKey)
       expect(wallet.username).toBe(wallets[0].username)
     }
+
+    it('should be a function', () => {
+      expect(repository.findById).toBeFunction()
+    })
 
     it('should be ok with an address', () => {
       expectWallet('address')
