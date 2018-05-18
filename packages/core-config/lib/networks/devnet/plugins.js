@@ -1,6 +1,5 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
-  '@arkecosystem/validation': {},
   '@arkecosystem/core-config': {},
   '@arkecosystem/core-config-json': {},
   '@arkecosystem/core-logger': {},
@@ -13,7 +12,9 @@ module.exports = {
     // database: 'ark_devnet'
   },
   '@arkecosystem/core-transaction-pool': {},
-  '@arkecosystem/core-transaction-pool-redis': {},
+  '@arkecosystem/core-transaction-pool-redis': {
+    enabled: false
+  },
   '@arkecosystem/core-p2p': {
     port: 4002
   },

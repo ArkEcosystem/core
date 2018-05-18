@@ -1,9 +1,7 @@
 'use strict'
 
-const fs = require('fs')
-const path = require('path')
-const expandHomeDir = require('expand-home-dir')
 const PluginRegistrar = require('./registrars/plugin')
+const Environment = require('./environment')
 const { createContainer } = require('awilix')
 
 class Container {
@@ -19,12 +17,13 @@ class Container {
 
   /**
    * Initialise the container.
-   * @param  {Object} paths
+   * @param  {Object} variables
    * @param  {Object} options
    * @return {void}
    */
-  async start (paths, options = {}) {
-    this._exposeEnvironmentVariables(paths)
+  async start (variables, options = {}) {
+    this.env = new Environment(variables)
+    this.env.setUp()
 
     if (options.skipPlugins) {
       return
@@ -98,26 +97,6 @@ class Container {
     } catch (err) {
       return false
     }
-  }
-
-  /**
-   * Expose some variables to the environment.
-   * @return {void}
-   */
-  _exposeEnvironmentVariables (paths) {
-    for (let [key, value] of Object.entries(paths)) {
-      process.env[`ARK_PATH_${key.toUpperCase()}`] = expandHomeDir(value)
-    }
-
-    const envPath = expandHomeDir(`${paths.data}/.env`)
-    if (fs.existsSync(envPath)) {
-      const env = require('envfile').parseFileSync(envPath)
-      Object.keys(env).forEach(key => (process.env[key] = env[key]))
-    }
-
-    const network = path.resolve(expandHomeDir(`${paths.config}/network.json`))
-
-    process.env.ARK_NETWORK = require(network).name
   }
 
   /**

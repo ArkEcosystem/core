@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const get = require('lodash/get')
 const networks = require('../networks')
 
 module.exports = class NetworkManager {
@@ -11,12 +11,12 @@ module.exports = class NetworkManager {
   }
 
   /**
-   * Find network by coin and name.
+   * Find network by token and name.
    * @param  {String} name
-   * @param  {String} [coin=ark]
+   * @param  {String} [token=ark]
    * @return {Object}
    */
-  static findByName (name, coin = 'ark') {
-    return _.get(networks, `${coin}.${name}`)
+  static findByName (name, token = 'ark') {
+    return get(networks, `${token.toLowerCase()}.${name}`)
   }
 }

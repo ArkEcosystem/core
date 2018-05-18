@@ -8,13 +8,9 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  await container.start({
-    data: options.data,
-    config: options.config
-  }, {
+  await container.start(options, {
     include: [
       '@arkecosystem/core-event-emitter',
-      '@arkecosystem/validation',
       '@arkecosystem/core-config',
       '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',

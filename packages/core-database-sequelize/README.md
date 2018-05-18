@@ -15,7 +15,7 @@ yarn add @arkecosystem/core-database-sequelize
 ```js
 module.exports = {
   dialect: 'sqlite',
-  storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK}.sqlite`,
+  storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
   logging: false
 }
 ```
