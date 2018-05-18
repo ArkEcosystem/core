@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const filterItems = require('./utils/filter-items')
+const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
 const wrapRows = require('./utils/wrap-rows')
 
@@ -77,7 +77,7 @@ module.exports = class WalletsRepository {
   search (params) {
     let wallets = this.getLocalWallets()
 
-    wallets = filterObject(wallets, params, {
+    wallets = filterRows(wallets, params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
       between: ['balance', 'votebalance']
     })

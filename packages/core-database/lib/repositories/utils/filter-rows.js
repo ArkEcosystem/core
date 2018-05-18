@@ -2,13 +2,13 @@
 
 /**
  * Filter an Array of Objects based on the given parameters.
- * @param  {Array} items
+ * @param  {Array} rows
  * @param  {Object} params
  * @param  {Object} filters
  * @return {Object}
  */
-module.exports = (items, params, filters) => {
-  return items.filter(item => {
+module.exports = (rows, params, filters) => {
+  return rows.filter(item => {
     if (filters.hasOwnProperty('exact')) {
       for (const elem of filters['exact']) {
         if (params[elem] && item[elem] !== params[elem]) {
