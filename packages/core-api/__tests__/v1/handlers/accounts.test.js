@@ -12,7 +12,7 @@ describe('API 1.0 - Wallets', () => {
       const response = await utils.request('GET', 'accounts', { address })
       utils.expectSuccessful(response)
 
-      const expected = ['address', 'publicKey', 'secondPublicKey', 'votes', 'username', 'balance', 'votebalance']
+      const expected = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance']
       expect(Object.keys(response.data.account)).toEqual(expect.arrayContaining(expected))
     })
   })
