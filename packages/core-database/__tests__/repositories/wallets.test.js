@@ -66,7 +66,10 @@ describe('Wallet Repository', () => {
       expect(repository.getLocalWallets).toBeFunction()
     })
 
-    xit('should return the local wallets of the connection', () => {
+    it('should return the local wallets of the connection', () => {
+      repository.connection.walletManager.getLocalWallets = jest.fn()
+      repository.getLocalWallets()
+      expect(repository.connection.walletManager.getLocalWallets).toHaveBeenCalled()
     })
   })
 
