@@ -197,11 +197,25 @@ describe('Blockchain', () => {
       expect(blockchain.isSynced).toBeFunction()
     })
 
-    it('should be ok', () => {
-      expect(blockchain.isSynced({
-        timestamp: slots.getTime() - genesisBlock.data.timestamp,
-        height: genesisBlock.data.height
-      })).toBeTruthy()
+    describe('with a block param', () => {
+      it('should be ok', () => {
+        expect(blockchain.isSynced({
+          timestamp: slots.getTime() - genesisBlock.data.timestamp,
+          height: genesisBlock.data.height
+        })).toBeTruthy()
+      })
+    })
+
+    // TODO check that works well with Redis fixed
+    xdescribe('without a block param', () => {
+      it('should use the last block', () => {
+        blockchain.getLastBlock = jest.fn(() => ({
+          timestamp: slots.getTime() - genesisBlock.data.timestamp,
+          height: genesisBlock.data.height
+        }))
+        expect(blockchain.isSynced()).toBeTruthy()
+        expect(blockchain.getLastBlock()).toHaveBeenCalledWith(true)
+      })
     })
   })
 
@@ -210,11 +224,25 @@ describe('Blockchain', () => {
       expect(blockchain.isRebuildSynced).toBeFunction()
     })
 
-    it('should be ok', () => {
-      expect(blockchain.isRebuildSynced({
-        timestamp: slots.getTime() - genesisBlock.data.timestamp,
-        height: genesisBlock.data.height
-      })).toBeTruthy()
+    describe('with a block param', () => {
+      it('should be ok', () => {
+        expect(blockchain.isRebuildSynced({
+          timestamp: slots.getTime() - genesisBlock.data.timestamp,
+          height: genesisBlock.data.height
+        })).toBeTruthy()
+      })
+    })
+
+    // TODO check that works well with Redis fixed
+    xdescribe('without a block param', () => {
+      it('should use the last block', () => {
+        blockchain.getLastBlock = jest.fn(() => ({
+          timestamp: slots.getTime() - genesisBlock.data.timestamp,
+          height: genesisBlock.data.height
+        }))
+        expect(blockchain.isRebuildSynced()).toBeTruthy()
+        expect(blockchain.getLastBlock()).toHaveBeenCalledWith(true)
+      })
     })
   })
 
