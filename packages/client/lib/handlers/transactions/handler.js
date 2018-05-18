@@ -1,9 +1,8 @@
 const cryptoBuilder = require('../../builder/crypto')
 const configManager = require('../../managers/config')
-// TODO: implement TransactionValidator
-// const transactionValidator = require('@arkecosystem/validation').transactionValidator
+const { transactionValidator } = require('@arkecosystem/validation')
 
-module.exports = class TransactionHandler {
+module.exports = class Handler {
   /**
    * Check if the transaction can be applied to the wallet.
    * @param  {Wallet} wallet
@@ -11,14 +10,14 @@ module.exports = class TransactionHandler {
    * @return {Boolean}
    */
   canApply (wallet, transaction) {
-    // if (!transactionValidator.validate(transaction)) {
-    //   return false
-    // }
+    if (transactionValidator.validate(transaction).fails) {
+      return false
+    }
 
     let check = true
 
     if (wallet.multisignature) {
-      check = check && wallet.verifySignatures(transaction, wallet.multisignature)
+      check = check && wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
     } else {
       check = check && (transaction.senderPublicKey === wallet.publicKey) && (wallet.balance - transaction.amount - transaction.fee > -1) // eslint-disable-line max-len
 

@@ -12,12 +12,21 @@ class MultiSignatureHandler extends Handler {
       return false
     }
 
+    if (wallet.multisignature) {
+      return false
+    }
+
     const keysgroup = transaction.asset.multisignature.keysgroup
 
-    return !wallet.multisignature &&
-      keysgroup.length >= transaction.asset.multisignature.min &&
-      keysgroup.length === transaction.signatures.length &&
-      wallet.verifySignatures(transaction, transaction.asset.multisignature)
+    if (keysgroup.length <= transaction.asset.multisignature.min) {
+      return false
+    }
+
+    if (keysgroup.length !== transaction.signatures.length) {
+      return false
+    }
+
+    return wallet.verifySignatures(transaction, transaction.asset.multisignature)
   }
 
   /**

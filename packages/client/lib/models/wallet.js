@@ -159,7 +159,10 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verifySignatures (transaction, multisignature) {
-    if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) return false
+    if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) {
+      return false
+    }
+
     let index = 0
     let publicKey = multisignature.keysgroup[index].slice(1)
 
