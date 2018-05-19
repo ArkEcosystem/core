@@ -3,6 +3,7 @@ const container = require('@arkecosystem/core-container')
 const { crypto } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
@@ -120,12 +121,14 @@ module.exports = class TransactionGuard {
         const dynamicFee = transaction.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier)
         if (dynamicFee > transaction.fee) {
           this.feeNotAccepted.push(transaction)
+          logger.debug(`Fee not accepted. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
           return true
         } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.feeNotAccepted.push(transaction)
+          logger.debug(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
         } else {
-          // logger.debug(`Dynamic fee active. Calculated fee for transaction ${transaction.id}: ${sdynamicFee}`)
+          logger.debug(`Dynamic fee active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
           return false
         }
       }

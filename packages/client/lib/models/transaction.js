@@ -407,4 +407,15 @@ module.exports = class Transaction {
       }
     }
   }
+
+  /** Calculates delegate fee for processing and forging if transaction
+  * @constructor
+  * @param {Number} ARKTOSCHI fee price per byte
+  */
+  calculateFee (feeMultiplier) {
+    console.log('----------------------')
+    console.log(`Calculating dynamic fee with feeMultiplier ${feeMultiplier} atktoshi/byte for tx len ${(this.serialized.length / 2)}`)
+    console.log('----------------------')
+    return feeMultiplier * (this.serialized.length / 2)
+  }
 }
