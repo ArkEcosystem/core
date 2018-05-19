@@ -24,10 +24,12 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Broadcast transaction to additional peers.
-   * @param {Transaction} transaction
+   * @param {Transactions[]} transaction
    */
-  broadcastTransaction (transaction) {
-    emitter.emit('broadcastTransactions', [transaction])
+  broadcastTransaction (transactions) {
+    emitter.emit('broadcastTransactions', transactions)
+
+    container.resolvePlugin('blockchain').p2p.broadcastTransaction(transactions)
   }
 
    /**
