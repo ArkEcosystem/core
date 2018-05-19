@@ -121,7 +121,7 @@ module.exports = class TransactionGuard {
         const dynamicFee = transaction.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier)
         if (dynamicFee > transaction.fee) {
           this.feeNotAccepted.push(transaction)
-          logger.debug(`Fee not accepted. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
+          logger.debug(`Fee not accepted. Delegate requests minimum ${dynamicFee}ARKTOSHI fee for transaction ${transaction.id}`)
           return true
         } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.feeNotAccepted.push(transaction)
