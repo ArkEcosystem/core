@@ -41,8 +41,6 @@ class VoteHandler extends Handler {
     if (vote.startsWith('-')) {
       wallet.vote = null
     }
-
-    console.log(wallet.vote)
   }
 
   /**
