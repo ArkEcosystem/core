@@ -1,6 +1,8 @@
 'use strict'
 
 const Op = require('sequelize').Op
+const fn = require('sequelize').fn
+const col = require('sequelize').col
 
 const client = require('@arkecosystem/client')
 const { Transaction } = client.models
@@ -234,6 +236,22 @@ module.exports = class TransactionsRepository {
    */
   count () {
     return this.connection.models.transaction.count()
+  }
+
+  /**
+   * Calculates min, max and average fee statistics based on transactions table
+   * @return {Object}
+   */
+  getFeeStatistics () {
+    return this.connection.models.transaction.findAll({
+    attributes: [
+      'type',
+      [fn('MAX', col('fee')), 'maxFee'],
+      [fn('MIN', col('fee')), 'minFee'],
+      [fn('AVG', col('fee')), 'avgFee']
+    ],
+    group: 'type'
+    })
   }
 
   /**
