@@ -140,9 +140,9 @@ module.exports = class TransactionGuard {
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
       const verified = this.__verifyTransaction(transaction)
+
       if (!verified) {
         this.invalid.push(transaction)
-        logger.debug('failed verify')
       }
 
       return !verified
