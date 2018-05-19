@@ -1,6 +1,6 @@
 {
   "dynamicFees": {
-    "feeConstantMultiplier": 4000,
+    "feeConstantMultiplier": 10000,
     "minAcceptableFee": 300000
   },
   "secrets": [
