@@ -28,8 +28,6 @@ module.exports = class TransactionPoolInterface {
    */
   broadcastTransaction (transactions) {
     emitter.emit('broadcastTransactions', transactions)
-
-    container.resolvePlugin('blockchain').p2p.broadcastTransaction(transactions)
   }
 
    /**
