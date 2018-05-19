@@ -8,6 +8,7 @@ app
   .command('transactions')
   .description('send multiple transactions')
   .option('-n, --number <number>', 'number of transactions', 10)
+  .option('-f, --fee <number>', 'transaction fee', 10000000)
   .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/transactions')(options))
 
@@ -15,6 +16,7 @@ app
   .command('signatures')
   .description('create wallets with second signature')
   .option('-n, --number <number>', 'number of wallets', 10)
+  .option('-f, --fee <number>', 'transaction fee', 500000000)
   .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/signatures')(options))
 
@@ -22,6 +24,7 @@ app
   .command('delegates')
   .description('create multiple delegates')
   .option('-n, --number <number>', 'number of delegates', 10)
+  .option('-f, --fee <number>', 'transaction fee', 2500000000)
   .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/delegates')(options))
 
@@ -29,6 +32,7 @@ app
   .command('votes')
   .description('create multiple votes for a delegate')
   .option('-n, --number <number>', 'number of votes', 10)
+  .option('-f, --fee <number>', 'transaction fee', 100000000)
   .option('-d, --delegate <delegate>', 'delegate public key')
   .option('-q, --quantity <number>', 'quantity of delegates to vote for if `-d` is omitted', 1)
   .option('-c, --copy', 'copy the transactions to the clipboard', false)
