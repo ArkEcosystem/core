@@ -2,6 +2,8 @@ const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
 const { crypto } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
@@ -27,6 +29,8 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
+    this.__determineFeeMatchingTransactions()
+
     await this.__determineExcessTransactions()
   }
 
@@ -44,7 +48,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id),
+      feeNotAccepted: this.feeNotAccepted.map(transaction => transaction.id)
     }
   }
 
@@ -62,7 +67,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid
+      invalid: this.invalid,
+      feeNotAccepted: this.feeNotAccepted
     }
   }
 
@@ -101,7 +107,30 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   __transformTransactions (transactions) {
-    this.transactions = transactions.map(transaction => new Transaction(transaction))
+     this.transactions = transactions.map(transaction => new Transaction(transaction))
+  }
+
+  /**
+   * Determine any transactions that do not match the accepted fee by delegate  or max fee set by sender
+   * @return {void}
+   */
+  __determineFeeMatchingTransactions () {
+    const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
+    this.transactions = reject(this.transactions, transaction => {
+      if (feeConstants.dynamicFeeCalculation) {
+        const dynamicFee = transaction.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier)
+        if (dynamicFee > transaction.fee) {
+          this.feeNotAccepted.push(transaction)
+          return true
+        } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
+          this.feeNotAccepted.push(transaction)
+          return true
+        } else {
+          // logger.debug(`Dynamic fee active. Calculated fee for transaction ${transaction.id}: ${sdynamicFee}`)
+          return false
+        }
+      }
+    })
   }
 
   /**
@@ -111,9 +140,9 @@ module.exports = class TransactionGuard {
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
       const verified = this.__verifyTransaction(transaction)
-
       if (!verified) {
         this.invalid.push(transaction)
+        logger.debug('failed verify')
       }
 
       return !verified
@@ -155,5 +184,6 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
+    this.feeNotAccepted = []
   }
 }
