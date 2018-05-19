@@ -3,7 +3,6 @@ const container = require('@arkecosystem/core-container')
 const { crypto } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
