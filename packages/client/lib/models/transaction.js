@@ -413,6 +413,7 @@ module.exports = class Transaction {
   * @param {Number} ARKTOSCHI fee price per byte
   */
   calculateFee (feeMultiplier) {
+    // TODO: T offset still missing for different transaction type. Need to define
     return feeMultiplier * (this.serialized.length / 2)
   }
 }
