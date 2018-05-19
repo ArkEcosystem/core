@@ -47,7 +47,6 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   const transactions = []
   let totalDeductions = 0
   const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
-  console.log('-----', options.fee)
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase, config.secondPassPhrase, config.publicKeyHash, parseInt(options.fee))
     transactions.push(transaction)
