@@ -440,6 +440,6 @@ module.exports = class Transaction {
         offsetT = 500
         break
     }
-    return (offsetT + (this.serialized.length / 2)) * feeMultiplier
+    return (offsetT + (this.serialized.length)) * feeMultiplier
   }
 }
