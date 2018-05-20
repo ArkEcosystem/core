@@ -123,7 +123,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    const processedTransactions = transactions.map(transaction => {
+    transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
@@ -133,7 +133,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     })
 
     if (isBroadcast) {
-      super.broadcastTransactions(processedTransactions)
+      super.broadcastTransactions(transactions)
     }
   }
 
