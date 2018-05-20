@@ -123,18 +123,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    return transactions.map(transaction => {
+    const processedTransactions = transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
       this.addTransaction(transaction)
 
-      if (isBroadcast) {
-        super.broadcastTransaction(transaction)
-      }
-
       return transaction
     })
+
+    if (isBroadcast) {
+      super.broadcastTransactions(processedTransactions)
+    }
   }
 
   /**
