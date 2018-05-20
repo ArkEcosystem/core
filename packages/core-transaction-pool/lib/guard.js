@@ -48,8 +48,7 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id),
-      feeNotAccepted: this.feeNotAccepted.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id)
     }
   }
 
@@ -67,8 +66,7 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid,
-      feeNotAccepted: this.feeNotAccepted
+      invalid: this.invalid
     }
   }
 
@@ -120,11 +118,11 @@ module.exports = class TransactionGuard {
       if (feeConstants.dynamicFeeCalculation) {
         const dynamicFee = transaction.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier)
         if (dynamicFee > transaction.fee) {
-          this.feeNotAccepted.push(transaction)
+          this.invalid.push(transaction)
           logger.debug(`Fee not accepted. Delegate requests minimum ${dynamicFee}ARKTOSHI fee for transaction ${transaction.id}`)
           return true
         } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
-          this.feeNotAccepted.push(transaction)
+          this.invalid.push(transaction)
           logger.debug(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
         } else {
@@ -186,6 +184,5 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
-    this.feeNotAccepted = []
   }
 }
