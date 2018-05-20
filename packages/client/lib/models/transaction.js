@@ -416,7 +416,7 @@ module.exports = class Transaction {
     let offsetT = 0
     switch (this.type) {
       case TRANSACTION_TYPES.TRANSFER:
-        offsetT = 100
+        offsetT = 0
         break
       case TRANSACTION_TYPES.SECOND_SIGNATURE:
         offsetT = 500
