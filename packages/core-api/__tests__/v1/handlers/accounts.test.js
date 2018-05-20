@@ -7,7 +7,6 @@ const utils = require('../utils')
 const address = 'AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo'
 
 describe('API 1.0 - Wallets', () => {
-  // TODO Deprecated?
   describe('GET api/accounts/getAllAccounts', () => {
     it('should return all the wallets', async () => {
       const response = await utils.request('GET', 'accounts/getAllAccounts')
@@ -76,7 +75,6 @@ describe('API 1.0 - Wallets', () => {
     })
   })
 
-  // TODO Deprecated?
   describe('GET api/accounts/count', () => {
     it('should return the total number of wallets', async () => {
       const response = await utils.request('GET', 'accounts/count')
