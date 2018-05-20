@@ -3,7 +3,7 @@ const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const cryptoBuilder = require('../builder/crypto')
 const configManager = require('../managers/config')
-const { TRANSACTION_TYPES } = require('../constants')
+const { TRANSACTION_TYPES, ARKTOSHI } = require('../constants')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -409,11 +409,37 @@ module.exports = class Transaction {
   }
 
   /** Calculates delegate fee for processing and forging if transaction
-  * @constructor
-  * @param {Number} ARKTOSCHI fee price per byte
+  * @param {Number} ARKTOSHI fee price per byte
+  * @returns {Number} ARKTOSHI calculated price
   */
   calculateFee (feeMultiplier) {
-    // TODO: T offset still missing for different transaction type. Need to define
-    return feeMultiplier * (this.serialized.length / 2)
+    let offsetT = 0
+    switch (this.type) {
+      case TRANSACTION_TYPES.TRANSFER:
+        offsetT = 100
+        break
+      case TRANSACTION_TYPES.SECOND_SIGNATURE:
+        offsetT = 500
+        break
+      case TRANSACTION_TYPES.VOTE:
+        offsetT = 100
+        break
+      case TRANSACTION_TYPES.MULTI_SIGNATURE:
+        offsetT = this.asset.multisignature.keysgroup.length * 100
+        break
+      case TRANSACTION_TYPES.IPFS:
+        offsetT = 250
+        break
+      case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
+        offsetT = 500
+        break
+      case TRANSACTION_TYPES.MULTI_PAYMENT:
+        offsetT = 500
+        break
+      case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
+        offsetT = 500
+        break
+    }
+    return (offsetT / ARKTOSHI + (this.serialized.length)) * feeMultiplier
   }
 }

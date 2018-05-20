@@ -36,18 +36,3 @@ exports.CONFIGURATIONS = Object.freeze({
   }
 })
 
-/**
- * Current transactions offsets. Used in dynamic fee price calculation.
- * @type {Object}
- */
-exports.TRANSACTION_OFFSETS = Object.freeze({
-  TRANSFER: 0,
-  SECOND_SIGNATURE: 0,
-  DELEGATE_REGISTRATION: 250,
-  VOTE: 100,
-  MULTI_SIGNATURE: 400,
-  IPFS: 250,
-  TIMELOCK_TRANSFER: 400,
-  MULTI_PAYMENT: 400,
-  DELEGATE_RESIGNATION: 400
-})
