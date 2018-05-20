@@ -38,7 +38,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAllByVote (publicKey, params = {}) {
-    const wallets = this.getLocalWallets().filter(wallet => wallet.votes.includes(publicKey))
+    const wallets = this.getLocalWallets().filter(wallet => wallet.vote === publicKey)
     return wrapRows(limitRows(wallets, params))
   }
 

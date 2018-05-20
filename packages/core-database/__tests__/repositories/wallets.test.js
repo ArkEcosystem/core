@@ -36,7 +36,7 @@ function generateWallets () {
 function generateVotes () {
   return genesisBlock.transactions.map(transaction => ({
     address: crypto.getAddress(transaction.senderPublicKey),
-    votes: [genesisBlock.transactions[0].senderPublicKey]
+    vote: genesisBlock.transactions[0].senderPublicKey
   }))
 }
 
@@ -48,7 +48,7 @@ function generateFullWallets () {
       address,
       publicKey: `publicKey-${address}`,
       secondPublicKey: `secondPublicKey-${address}`,
-      votes: [`vote-${address}`],
+      vote: `vote-${address}`,
       username: `username-${address}`,
       balance: 100,
       votebalance: 200
@@ -133,7 +133,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.findAllByVote(wallets[0].votes[0])
+      const { count, rows } = repository.findAllByVote(wallets[0].vote)
       expect(count).toBe(52)
       expect(rows).toHaveLength(52)
     })
@@ -142,7 +142,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.findAllByVote(wallets[0].votes[0], { offset: 10, limit: 10 })
+      const { count, rows } = repository.findAllByVote(wallets[0].vote, { offset: 10, limit: 10 })
       expect(count).toBe(10)
       expect(rows).toHaveLength(10)
     })
@@ -151,7 +151,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.findAllByVote(wallets[0].votes[0], { limit: 10 })
+      const { count, rows } = repository.findAllByVote(wallets[0].vote, { limit: 10 })
       expect(count).toBe(10)
       expect(rows).toHaveLength(10)
     })
@@ -160,7 +160,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.findAllByVote(wallets[0].votes[0], { offset: 0, limit: 1 })
+      const { count, rows } = repository.findAllByVote(wallets[0].vote, { offset: 0, limit: 1 })
       expect(count).toBe(1)
       expect(rows).toHaveLength(1)
     })
@@ -169,7 +169,7 @@ describe('Wallet Repository', () => {
       const wallets = generateVotes()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.findAllByVote(wallets[10].votes[0], { offset: 30 })
+      const { count, rows } = repository.findAllByVote(wallets[10].vote, { offset: 30 })
       expect(count).toBe(22)
       expect(rows).toHaveLength(22)
     })
@@ -325,11 +325,11 @@ describe('Wallet Repository', () => {
       expectSearch({ secondPublicKey: wallets[0].secondPublicKey })
     })
 
-    it('should search wallets by the specified votes', () => {
+    it('should search wallets by the specified vote', () => {
       const wallets = generateFullWallets()
       walletManager.index(wallets)
 
-      expectSearch({ votes: wallets[0].votes })
+      expectSearch({ vote: wallets[0].vote })
     })
 
     it('should search wallets by the specified username', () => {
