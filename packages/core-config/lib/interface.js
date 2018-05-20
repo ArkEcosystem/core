@@ -1,5 +1,6 @@
 'use strict'
 
+const container = require('@arkecosystem/core-container')
 const deepmerge = require('deepmerge')
 const ow = require('ow')
 
@@ -20,6 +21,10 @@ module.exports = class ConfigInterface {
    * @return {void}
    */
   getConstants (height) {
+    if (!height) {
+      height = container.resolvePlugin('blockchain').getLastBlock(true).height
+    }
+
     while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
       this.constant.index++
       this.constant.data = this.constants[this.constant.index]
