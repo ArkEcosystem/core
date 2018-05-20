@@ -165,3 +165,19 @@ exports.types = {
     }
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.fees = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  handler: async (request, h) => {
+    return {
+      data: config.getConstants().fees
+    }
+  }
+}

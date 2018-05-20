@@ -514,13 +514,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {}
    */
   createCondition (type, params) {
-    const validTypes = { 'OR': Op.or, 'AND': Op.or }
-
-    if (!Object.keys(validTypes).include(type.toUpperCase())) {
+    if (!Object.keys(Sequelize.Op).includes(type)) {
       return {}
     }
 
-    return { [validTypes[type]]: params }
+    return { [Sequelize.Op[type]]: params }
   }
 
   /**

@@ -41,7 +41,7 @@ module.exports = class PluginRegistrars {
     const plugins = this.deregister.reverse()
 
     for (let i = 0; i < plugins.length; i++) {
-      await plugins[i].deregister(this.container)
+      await plugins[i].plugin.deregister(this.container, plugins[i].options)
     }
   }
 
@@ -97,7 +97,7 @@ module.exports = class PluginRegistrars {
     this.container.register(alias || name, asValue({ name, version, plugin, options }))
 
     if (item.plugin.hasOwnProperty('deregister')) {
-      this.deregister.push(item.plugin)
+      this.deregister.push({ plugin: item.plugin, options })
     }
   }
 
