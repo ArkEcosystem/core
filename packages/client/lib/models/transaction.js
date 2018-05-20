@@ -3,7 +3,7 @@ const ByteBuffer = require('bytebuffer')
 const crypto = require('crypto')
 const cryptoBuilder = require('../builder/crypto')
 const configManager = require('../managers/config')
-const { TRANSACTION_TYPES, ARKTOSHI } = require('../constants')
+const { TRANSACTION_TYPES } = require('../constants')
 
 /**
  * TODO copy some parts to ArkDocs
@@ -409,8 +409,8 @@ module.exports = class Transaction {
   }
 
   /** Calculates delegate fee for processing and forging if transaction
-  * @param {Number} ARKTOSHI fee price per byte
-  * @returns {Number} ARKTOSHI calculated price
+  * @param {Number} ARKTOSHI fee price per byte as set by forger/delegate
+  * @returns {Number} ARKTOSHI calculated dynamic fee
   */
   calculateFee (feeMultiplier) {
     let offsetT = 0
@@ -440,6 +440,6 @@ module.exports = class Transaction {
         offsetT = 500
         break
     }
-    return (offsetT / ARKTOSHI + (this.serialized.length)) * feeMultiplier
+    return (offsetT + (this.serialized.length)) * feeMultiplier
   }
 }
