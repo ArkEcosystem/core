@@ -250,7 +250,9 @@ module.exports = class TransactionsRepository {
       [fn('MIN', col('fee')), 'minFee'],
       [fn('AVG', col('fee')), 'avgFee']
     ],
-    group: 'type'
+    group: 'type',
+    order: [['timestamp', 'DESC']],
+    limit: 1000
     })
   }
 
