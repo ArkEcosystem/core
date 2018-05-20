@@ -38,10 +38,13 @@
   },
   {
     "height": 10,
-    "reward": 200000000,
     "fees":{
       "dynamicFeeCalculation" : true
     }
+  },
+  {
+    "height": 75600,
+    "reward": 200000000
   }
 ],
   "exceptions": {}
