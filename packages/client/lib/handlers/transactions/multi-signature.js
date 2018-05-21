@@ -18,7 +18,7 @@ class MultiSignatureHandler extends Handler {
 
     const keysgroup = transaction.asset.multisignature.keysgroup
 
-    if (keysgroup.length <= transaction.asset.multisignature.min) {
+    if (keysgroup.length < transaction.asset.multisignature.min) {
       return false
     }
 
