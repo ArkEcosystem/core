@@ -13,7 +13,7 @@ class DynamicFeeManager {
   * @param {Number} ARKTOSHI fee price per byte as set by forger/delegate
   * @returns {Number} ARKTOSHI calculated dynamic fee
   */
-  static calculateFee (feeMultiplier, transaction) {
+  calculateFee (feeMultiplier, transaction) {
     if (feeMultiplier === 0) {
       feeMultiplier = 1
     }
@@ -56,7 +56,7 @@ class DynamicFeeManager {
     this.__setOffset(TRANSACTION_TYPES.TRANSFER, 100)
     this.__setOffset(TRANSACTION_TYPES.SECOND_SIGNATURE, 500)
     this.__setOffset(TRANSACTION_TYPES.VOTE, 100)
-    this.__setOffset(TRANSACTION_TYPES.MULTI_SIGNATURE, 100)
+    this.__setOffset(TRANSACTION_TYPES.MULTI_SIGNATURE, 500)
     this.__setOffset(TRANSACTION_TYPES.IPFS, 250)
     this.__setOffset(TRANSACTION_TYPES.TIMELOCK_TRANSFER, 500)
     this.__setOffset(TRANSACTION_TYPES.MULTI_PAYMENT, 500)

@@ -1,6 +1,6 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto, feeManager } = require('@arkecosystem/client')
+const { crypto, feeManager, dynamicFeeManager } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -116,21 +116,21 @@ module.exports = class TransactionGuard {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
     this.transactions = reject(this.transactions, transaction => {
       if (feeConstants.dynamicFeeCalculation) {
-        const dynamicFee = transaction.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier)
+        const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier, transaction)
         if (dynamicFee > transaction.fee) {
           this.invalid.push(transaction)
-          logger.debug(`Fee not accepted. Delegate requests minimum ${dynamicFee} ARKTOSHI fee for transaction ${transaction.id}`)
+          logger.verbose(`Fee not accepted. Delegate requests minimum ${dynamicFee} ARKTOSHI fee for transaction ${transaction.id}`)
           return true
         } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.invalid.push(transaction)
-          logger.debug(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
+          logger.verbose(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
         } else {
-          logger.debug(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
+          logger.verbose(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
           return false
         }
       } else if (transaction.fee !== feeManager.get(transaction.type)) {
-          logger.debug(`Dynamic fees are NOT active. Received transaction fee ${transaction.fee} is different from default specified ${feeManager.get(transaction.type)}`)
+          logger.warn(`Dynamic fees are NOT active. Received transaction fee ${transaction.fee} is different from default specified ${feeManager.get(transaction.type)}`)
           this.invalid.push(transaction)
           return true
       } else {
