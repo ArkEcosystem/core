@@ -7,7 +7,6 @@ describe('Accounts', () => {
   describe('GET /mainnet/accounts/{address}', () => {
     it('should GET account with a given address on mainnet', async () => {
       const response = await request('accounts.info', {
-        network: 'mainnet',
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
@@ -18,7 +17,6 @@ describe('Accounts', () => {
   describe('GET /mainnet/accounts/{address}/transactions', () => {
     it('should GET last account transactions on mainnet', async () => {
       const response = await request('accounts.transactions', {
-        network: 'mainnet',
         address: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv'
       })
 
@@ -30,7 +28,6 @@ describe('Accounts', () => {
   describe('POST /mainnet/accounts/*', () => {
     it('should create an account on mainnet', async () => {
       const response = await request('accounts.create', {
-        network: 'mainnet',
         passphrase: 'this is a test'
       })
 
@@ -43,7 +40,6 @@ describe('Accounts', () => {
 
     it('should create an account on mainnet using bip38 encryption', async () => {
       const response = await request('accounts.bip38.create', {
-        network: 'mainnet',
         bip38: 'master password',
         userId
       })
@@ -56,8 +52,7 @@ describe('Accounts', () => {
     })
 
     it('should find bip38 backup from userId', async () => {
-      const response = await request('accounts.bip38.info', {
-        network: 'mainnet', userId
+      const response = await request('accounts.bip38.info', { userId
       })
 
       await expect(response.data.result).toHaveProperty('wif')
@@ -66,7 +61,6 @@ describe('Accounts', () => {
 
     it('should create transaction from bip38 backup using userId', async () => {
       const response = await request('transactions.bip38.create', {
-        network: 'mainnet',
         bip38: 'master password',
         userId,
         amount: 1000000000,

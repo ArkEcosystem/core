@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const arkjs = require('arkjs')
+const ark = require('@arkecosystem/client')
 const bip39 = require('bip39')
 const bip38 = require('bip38')
 const database = require('../../../services/database')
@@ -17,10 +17,10 @@ module.exports = {
         wif: account.wif
       }
     } catch (error) {
-      const keys = arkjs.crypto.getKeys(bip39.generateMnemonic())
+      const keys = ark.crypto.getKeys(bip39.generateMnemonic())
 
       const encryptedWif = bip38.encrypt(keys.d.toBuffer(32), true, params.bip38 + params.userId)
-      database.setUTF8(arkjs.crypto.sha256(Buffer.from(params.userId)).toString('hex'), encryptedWif)
+      database.setUTF8(ark.crypto.sha256(Buffer.from(params.userId)).toString('hex'), encryptedWif)
 
       return {
         publicKey: keys.getPublicKeyBuffer().toString('hex'),

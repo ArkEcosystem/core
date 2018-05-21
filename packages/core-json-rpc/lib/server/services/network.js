@@ -1,28 +1,26 @@
 const axios = require('axios')
-const arkjs = require('arkjs')
+const ark = require('@arkecosystem/client')
 const isUrl = require('is-url')
 const isReachable = require('is-reachable')
 const { sample, orderBy } = require('lodash')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
-const networks = require('../config/networks')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const p2p = container.resolvePlugin('p2p')
+const config = container.resolvePlugin('config')
 
 class Network {
-  async setNetwork (network) {
-    this.network = networks[network]
+  setNetwork (network) {
+    this.network = config.network
 
-    await this.__loadRemotePeers()
+    this.__loadRemotePeers()
 
-    arkjs.crypto.setNetworkVersion(this.network.version)
+    ark.setConfig(config.network)
 
     return this.network
   }
 
-  async setServer (server) {
-    if (!server) {
-      server = await this.__getRandomPeer()
-    }
-
-    this.server = server
+  setServer (server) {
+    this.server = server || this.__getRandomPeer()
 
     return this.server
   }
@@ -31,7 +29,7 @@ class Network {
     const nethash = this.network ? this.network.nethash : null
 
     if (!this.peer && !this.server) {
-      await this.setServer()
+      this.setServer()
     }
 
     peer = await this.__selectResponsivePeer(peer || this.server)
@@ -132,20 +130,21 @@ class Network {
     }
   }
 
-  async __getRandomPeer () {
-    await this.__loadRemotePeers()
+  __getRandomPeer () {
+    this.__loadRemotePeers()
 
     return sample(this.network.peers)
   }
 
-  async __loadRemotePeers () {
+  __loadRemotePeers () {
     if (isUrl(this.network.peers)) {
-      const response = await axios.get(this.network.peers)
+      const response = p2p.getPeers()
 
       this.network.peers = response.data.map(peer => `${peer.ip}:${peer.port}`)
     }
   }
 
+  // TODO: adjust this to core-p2p
   __filterPeers (peers) {
     let filteredPeers = peers
       .filter(peer => peer.status === 'OK')
@@ -169,9 +168,7 @@ class Network {
     if (!reachable) {
       logger.warn(`${peer} is unresponsive. Choosing new peer.`)
 
-      const randomPeer = await this.__getRandomPeer()
-
-      return this.__selectResponsivePeer(randomPeer)
+      return this.__selectResponsivePeer(this.__getRandomPeer())
     }
 
     return peer
