@@ -27,7 +27,8 @@
     "jsdoc": "^3.5.5",
     "lerna": "^2.11.0",
     "request-promise": "^4.2.2",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "uuid": "^3.2.1"
   },
   "workspaces": [
     "packages/*"
