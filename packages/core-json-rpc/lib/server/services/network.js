@@ -1,6 +1,5 @@
 const axios = require('axios')
 const ark = require('@arkecosystem/client')
-const isUrl = require('is-url')
 const isReachable = require('is-reachable')
 const { sample, orderBy } = require('lodash')
 const container = require('@arkecosystem/core-container')
@@ -9,18 +8,18 @@ const p2p = container.resolvePlugin('p2p')
 const config = container.resolvePlugin('config')
 
 class Network {
-  setNetwork (network) {
+  setNetwork () {
     this.network = config.network
 
     this.__loadRemotePeers()
 
-    ark.setConfig(config.network)
+    ark.client.setConfig(config.network)
 
     return this.network
   }
 
-  setServer (server) {
-    this.server = server || this.__getRandomPeer()
+  setServer () {
+    this.server = this.__getRandomPeer()
 
     return this.server
   }
@@ -28,7 +27,7 @@ class Network {
   async getFromNode (url, params = {}, peer = null) {
     const nethash = this.network ? this.network.nethash : null
 
-    if (!this.peer && !this.server) {
+    if (!peer && !this.server) {
       this.setServer()
     }
 
@@ -97,25 +96,25 @@ class Network {
     const peers = this.network.peers.slice(0, 10)
 
     for (let i = 0; i < peers.length; i++) {
+      // console.log(transaction, peers[i])
+
       logger.info(`Broadcasting to ${peers[i]}`)
 
       await this.postTransaction(transaction, peers[i])
     }
   }
 
-  async connect (network) {
+  async connect () {
     if (this.server) {
       logger.info(`Server is already configured as "${this.server}"`)
     }
 
-    if (this.network && this.network.name === network) {
+    if (this.network) {
       logger.info(`Network is already configured as "${this.network.name}"`)
     }
 
-    const configured = this.server && this.network && (this.network.name && this.network.name === network)
-
-    if (!configured) {
-      this.setNetwork(network)
+    if (!this.server || !this.network) {
+      this.setNetwork()
       this.setServer()
 
       await this.findAvailablePeers()
@@ -125,7 +124,7 @@ class Network {
 
         this.network.config = response.data.network
       } catch (error) {
-        return this.connect(network)
+        return this.connect()
       }
     }
   }
@@ -137,11 +136,9 @@ class Network {
   }
 
   __loadRemotePeers () {
-    if (isUrl(this.network.peers)) {
-      const response = p2p.getPeers()
+    const response = p2p.getPeers()
 
-      this.network.peers = response.data.map(peer => `${peer.ip}:${peer.port}`)
-    }
+    this.network.peers = response.map(peer => `${peer.ip}:${peer.port}`)
   }
 
   // TODO: adjust this to core-p2p

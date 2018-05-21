@@ -1,11 +1,12 @@
 const request = require('./__support__/request')
-const arkjs = require('arkjs')
+const ark = require('@arkecosystem/client')
 
 require('./__support__/setup')
 
 describe('Transactions', () => {
   describe('POST /mainnet/transactions', () => {
     let transaction
+
     it('should create tx on mainnet and tx should verify', async () => {
       const response = await request('transactions.create', {
         amount: 100000000,
@@ -14,7 +15,7 @@ describe('Transactions', () => {
       })
 
       await expect(response.data.result.recipientId).toBe('AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv')
-      await expect(arkjs.crypto.verify(response.data.result)).toBeTruthy()
+      await expect(ark.crypto.verify(response.data.result)).toBeTruthy()
 
       transaction = response.data.result
     })
@@ -24,7 +25,7 @@ describe('Transactions', () => {
         transactions: [transaction]
       })
 
-      await expect(arkjs.crypto.verify(response.data.result[0])).toBeTruthy()
+      await expect(ark.crypto.verify(response.data.result[0])).toBeTruthy()
     })
 
     it('should broadcast tx on mainnet using the new method', async () => {
@@ -32,7 +33,7 @@ describe('Transactions', () => {
         id: transaction.id
       })
 
-      await expect(arkjs.crypto.verify(response.data.result)).toBeTruthy()
+      await expect(ark.crypto.verify(response.data.result)).toBeTruthy()
     })
   })
 })

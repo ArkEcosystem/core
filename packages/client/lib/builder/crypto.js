@@ -1,3 +1,4 @@
+const createHash = require('create-hash')
 const bs58check = require('bs58check')
 // const crypto = require('crypto')
 const arkjsv1 = require('arkjsv1')
@@ -11,6 +12,15 @@ const feeManager = require('../managers/fee')
 
 class CryptoBuilder {
   /**
+   * Get transaction fee.
+   * @param  {Transaction} transaction
+   * @return {Number}
+   */
+  getFee (transaction) {
+    return feeManager.get(transaction.type)
+  }
+
+  /**
    * Get the byte representation of the transaction.
    * @param  {Transaction} transaction
    * @param  {Boolean} skipSignature
@@ -18,7 +28,9 @@ class CryptoBuilder {
    * @return {String}
    */
   getBytes (transaction, skipSignature, skipSecondSignature) {
-    return arkjsv1.crypto.getBytes(transaction, skipSignature, skipSecondSignature)
+    if (!transaction.version || transaction.version === 1) {
+      return arkjsv1.crypto.getBytes(transaction, skipSignature, skipSecondSignature)
+    }
   }
 
   /**
@@ -47,15 +59,6 @@ class CryptoBuilder {
 
     // TODO: Enable AIP11 id here
     // return crypto.createHash('sha256').update(this.getBytes(transaction)).digest()
-  }
-
-  /**
-   * Get transaction fee.
-   * @param  {Transaction} transaction
-   * @return {Number}
-   */
-  getFee (transaction) {
-    return feeManager.get(transaction.type)
   }
 
   /**
@@ -206,6 +209,51 @@ class CryptoBuilder {
     } catch (e) {
       return false
     }
+  }
+
+  /**
+   * Create a "ripemd160" buffer.
+   * @param  {Buffer} buffer
+   * @return {Buffer}
+   */
+  ripemd160 (buffer) {
+    return createHash('rmd160').update(buffer).digest()
+  }
+
+  /**
+   * Create a "sha1" buffer.
+   * @param  {Buffer} buffer
+   * @return {Buffer}
+   */
+  sha1 (buffer) {
+    return createHash('sha1').update(buffer).digest()
+  }
+
+  /**
+   * Create a "sha256" buffer.
+   * @param  {Buffer} buffer
+   * @return {Buffer}
+   */
+  sha256 (buffer) {
+    return createHash('sha256').update(buffer).digest()
+  }
+
+  /**
+   * Create a "hash160" buffer.
+   * @param  {Buffer} buffer
+   * @return {Buffer}
+   */
+  hash160 (buffer) {
+    return this.ripemd160(this.sha256(buffer))
+  }
+
+  /**
+   * Create a "hash256" buffer.
+   * @param  {Buffer} buffer
+   * @return {Buffer}
+   */
+  hash256 (buffer) {
+    return this.sha256(this.sha256(buffer))
   }
 }
 

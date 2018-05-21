@@ -5,12 +5,10 @@ const database = require('../../services/database')
 module.exports = {
   name: 'transactions.create',
   method: async (params) => {
-    const amount = parseInt(params.amount)
-
     const transaction = ark
       .transactionBuilder
       .transfer()
-      .create(params.recipientId, amount)
+      .create(params.recipientId, parseInt(params.amount))
       .sign(params.passphrase)
       .getStruct()
 
