@@ -116,7 +116,7 @@ module.exports = class TransactionGuard {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
     this.transactions = reject(this.transactions, transaction => {
       if (transaction.fee > feeManager.get(transaction.type)) {
-        logger.warn(`Received transaction fee ${transaction.fee} is MUCH HIGHER from default static specified  fees ${feeManager.get(transaction.type)}`)
+        logger.warn(`Received transaction fee ${transaction.fee} is HIGHER from default static specified fee ${feeManager.get(transaction.type)}`)
         this.invalid.push(transaction)
         return true
       }
