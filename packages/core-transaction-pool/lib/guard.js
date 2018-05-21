@@ -30,7 +30,7 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
-    this.__broadCastTransactions(true)
+    this.__broadCastTransactions(isBroadcast)
 
     this.__determineFeeMatchingTransactions()
 
@@ -117,7 +117,7 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   __broadCastTransactions (isBroadcast) {
-    if (isBroadcast) {
+    if (!isBroadcast) {
       container.resolvePlugin('p2p').broadcastTransactions(this.transactions)
     }
   }

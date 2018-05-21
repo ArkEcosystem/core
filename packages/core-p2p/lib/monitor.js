@@ -291,13 +291,4 @@ module.exports = class Monitor {
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
   }
-
-  /**
-   * Register event listeners for manager.
-   * @TODO: rethink placement
-   * @return {void}
-   */
-  __registerListeners () {
-    emitter.on('broadcastTransactions', async transactions => this.broadcastTransactions(transactions))
-  }
 }
