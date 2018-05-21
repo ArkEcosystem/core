@@ -54,7 +54,8 @@ class DynamicFeeManager {
 
   __setDefaultOffsetValues () {
     this.__setOffset(TRANSACTION_TYPES.TRANSFER, 100)
-    this.__setOffset(TRANSACTION_TYPES.SECOND_SIGNATURE, 500)
+    this.__setOffset(TRANSACTION_TYPES.SECOND_SIGNATURE, 250)
+    this.__setOffset(TRANSACTION_TYPES.DELEGATE_REGISTRATION, 500)
     this.__setOffset(TRANSACTION_TYPES.VOTE, 100)
     this.__setOffset(TRANSACTION_TYPES.MULTI_SIGNATURE, 500)
     this.__setOffset(TRANSACTION_TYPES.IPFS, 250)
