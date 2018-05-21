@@ -94,6 +94,10 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
+    if (this.pool.exists(this.__getRedisTransactionKey(transaction.id))) {
+      return
+    }
+
     if (!(transaction instanceof Transaction)) {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
