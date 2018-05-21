@@ -122,7 +122,7 @@ module.exports = class TransactionGuard {
       }
 
       if (feeConstants.dynamicFeeCalculation) {
-        const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier, transaction)
+        const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
 
         if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.invalid.push(transaction)

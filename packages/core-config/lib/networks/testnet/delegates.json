@@ -1,7 +1,7 @@
 {
   "dynamicFees": {
-    "feeConstantMultiplier": 10000,
-    "minAcceptableFee": 300000
+    "feeMultiplier": 4000,
+    "minAcceptableFee": 400000
   },
   "secrets": [
     "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
