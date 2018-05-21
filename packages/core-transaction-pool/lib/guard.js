@@ -132,7 +132,7 @@ module.exports = class TransactionGuard {
 
         if (dynamicFee > transaction.fee) {
           this.invalid.push(transaction)
-          logger.verbose(`Fee not accepted. Delegate requested payment: ${dynamicFee} is higher then acceptable sender transaction fee: ${transaction.fee} ARKTOSHI fee for transaction ${transaction.id}`)
+          logger.verbose(`Fee not accepted. Delegate requested: ${dynamicFee} > sender fee: ${transaction.fee} ARKTOSHI fee for transaction ${transaction.id}`)
           return true
         }
 
