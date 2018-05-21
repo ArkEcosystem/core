@@ -35,4 +35,3 @@ exports.CONFIGURATIONS = Object.freeze({
     TESTNET: configTestnet
   }
 })
-
