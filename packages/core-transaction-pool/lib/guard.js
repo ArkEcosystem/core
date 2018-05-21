@@ -18,7 +18,7 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Validate the specified transactions.
+   * Validate the specified transactions. Order of called functions is important
    * @param  {Array} transactions
    * @param  {Boolean} isBroadcast flag
    * @return {void}
@@ -30,7 +30,7 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
-    this.__broadCastTransactions(isBroadcast)
+    this.__broadCastTransactions(true)
 
     this.__determineFeeMatchingTransactions()
 
