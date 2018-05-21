@@ -1,6 +1,6 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto } = require('@arkecosystem/client')
+const { crypto, feeManager } = require('@arkecosystem/client')
 const { Transaction } = require('@arkecosystem/client').models
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -126,9 +126,15 @@ module.exports = class TransactionGuard {
           logger.debug(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
         } else {
-          logger.debug(`Dynamic fee active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
+          logger.debug(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
           return false
         }
+      } else if (transaction.fee !== feeManager.get(transaction.type)) {
+          logger.debug(`Dynamic fees are NOT active. Received transaction fee ${transaction.fee} is different from default specified ${feeManager.get(transaction.type)}`)
+          this.invalid.push(transaction)
+          return true
+      } else {
+        return true
       }
     })
   }
