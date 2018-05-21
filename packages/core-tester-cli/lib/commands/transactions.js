@@ -13,11 +13,11 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   await utils.request.post('/peer/transactions', {transactions}, true)
 
   const delaySeconds = await utils.getTransactionDelay(transactions)
-  logger.info(`Waiting ${delaySeconds} seconds to apply transfer transactions`)
+  logger.info(`Waiting ${delaySeconds} seconds for node to process and forge transfer transactions`)
   await delay(delaySeconds * 1000)
 
   const walletBalance = await utils.getWalletBalance(primaryAddress)
-  logger.info('All transactions have been sent!')
+  logger.info('All transactions have been received and forged!')
 
   if (walletBalance !== expectedSenderBalance) {
     successfulTest = false
