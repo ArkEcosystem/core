@@ -20,7 +20,7 @@ exports.plugin = {
 
     return databaseManager.connection()
   },
-  deregister: async (container) => {
+  deregister: async (container, options) => {
     container.resolvePlugin('logger').info('Closing Database Connection...')
 
     return container.resolvePlugin('database').disconnect()

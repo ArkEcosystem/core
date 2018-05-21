@@ -18,7 +18,7 @@ exports.plugin = {
 
     return transactionPoolManager.connection()
   },
-  deregister: async (container) => {
+  deregister: async (container, options) => {
     container.resolvePlugin('logger').info('Disconnecting from transaction pool...')
 
     return container.resolvePlugin('transactionPool').disconnect()
