@@ -76,7 +76,7 @@ module.exports = class Logger extends LoggerInterface {
       line += '✔️'
     }
 
-    line += '                              \n'
+    line += '                                                     \n'
     process.stdout.write(line)
     tracker = null
   }
