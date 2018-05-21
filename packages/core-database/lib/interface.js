@@ -320,11 +320,11 @@ module.exports = class ConnectionInterface {
     emitter.emit('transaction.applied', transaction.data)
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-        emitter.emit('delegate.registered', transaction.data)
+      emitter.emit('delegate.registered', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-        emitter.emit('delegate.resigned', transaction.data)
+      emitter.emit('delegate.resigned', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {

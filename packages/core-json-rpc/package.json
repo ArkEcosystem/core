@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "name": "@arkecosystem/core-json-rpc",
+  "description": "A JSON-RPC 2.0 Specification compliant server to interact with the ARK blockchain.",
+  "version": "0.1.0",
+  "contributors": [
+    "François-Xavier Thoorens <fx@ark.io>",
+    "Brian Faust <brian@ark.io>"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
+  },
+  "dependencies": {
+    "arkjs": "github:arkecosystem/ark-js#master",
+    "axios": "^0.18.0",
+    "bigi": "^1.4.2",
+    "bip38": "^2.0.2",
+    "bip39": "^2.5.0",
+    "hapi": "^17.4.0",
+    "is-reachable": "^2.4.0",
+    "is-url": "^1.2.4",
+    "joi": "^13.2.0",
+    "leveldown": "^3.0.1",
+    "levelup": "^2.0.2",
+    "lodash": "^4.17.10",
+    "micromatch": "^3.1.10"
+  }
+}

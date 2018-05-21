@@ -24,7 +24,7 @@ exports.index = {
     const wallets = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      wallets: utils.toCollection(request, wallets.rows, 'wallet')
+      accounts: utils.toCollection(request, wallets.rows, 'wallet')
     })
   }
 }
@@ -124,7 +124,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegateRegistration
     })
   }
 }

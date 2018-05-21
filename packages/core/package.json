@@ -57,6 +57,7 @@
     "@arkecosystem/core-forger": "^0.1.0",
     "@arkecosystem/core-graphql": "^0.1.0",
     "@arkecosystem/core-graphql-api": "^0.1.0",
+    "@arkecosystem/core-json-rpc": "^0.1.0",
     "@arkecosystem/core-logger": "^0.1.0",
     "@arkecosystem/core-logger-winston": "^0.1.0",
     "@arkecosystem/core-p2p": "^0.1.0",

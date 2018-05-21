@@ -1,14 +1,14 @@
 'use strict'
 
 /**
- * Filter an object based on the given parameters.
- * @param  {Object} object
+ * Filter an Array of Objects based on the given parameters.
+ * @param  {Array} rows
  * @param  {Object} params
  * @param  {Object} filters
  * @return {Object}
  */
-module.exports = (object, params, filters) => {
-  return object.filter(item => {
+module.exports = (rows, params, filters) => {
+  return rows.filter(item => {
     if (filters.hasOwnProperty('exact')) {
       for (const elem of filters['exact']) {
         if (params[elem] && item[elem] !== params[elem]) {
@@ -40,6 +40,22 @@ module.exports = (object, params, filters) => {
           }
 
           return isLessThan && isMoreThan
+        }
+      }
+    }
+
+    // NOTE: it was used to filter by `votes`, but that field was rejected and
+    // replaced by `vote`. This filter is kept here just in case
+    if (filters.hasOwnProperty('any')) {
+      for (const elem of filters['any']) {
+        if (params[elem] && item[elem]) {
+          if (Array.isArray(params[elem])) {
+            if (item[elem].every(a => params[elem].indexOf(a) === -1)) {
+              return false
+            }
+          } else {
+            throw new Error('Fitering by "any" requires an Array')
+          }
         }
       }
     }
