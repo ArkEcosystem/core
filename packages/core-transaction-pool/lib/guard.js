@@ -127,14 +127,16 @@ module.exports = class TransactionGuard {
           this.invalid.push(transaction)
           logger.verbose(`Fee not accepted. Delegate requests minimum ${dynamicFee} ARKTOSHI fee for transaction ${transaction.id}`)
           return true
-        } else if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
+        }
+
+        if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.invalid.push(transaction)
           logger.verbose(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
-        } else {
-          logger.verbose(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
-          return false
         }
+
+        logger.verbose(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee} ARKTOSHI`)
+        return false
       }
 
       return false
