@@ -2,7 +2,7 @@
 
 module.exports = {
   enabled: true,
-  key: 'ark:pool',
+  key: 'ark',
   maxTransactionsPerSender: 100,
   whitelist: [],
   redis: {
