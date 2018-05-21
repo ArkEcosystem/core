@@ -253,7 +253,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         if (index === -1) {
           wallet.missedBlocks++
 
-          emitter.emit('forging.missing', block.data)
+          emitter.emit('forging.missing', {
+            delegate: wallet,
+            block: block.data
+          })
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
