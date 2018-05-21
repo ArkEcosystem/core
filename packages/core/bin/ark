@@ -6,7 +6,7 @@ app.version(require('../package.json').version)
 
 app
   .command('start')
-  .description('start a relay and forging node')
+  .description('start a relay node and the forger')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'core config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
@@ -27,8 +27,8 @@ app
   .action(async (options) => require('../lib/start-relay')(options))
 
 app
-  .command('forge')
-  .description('start a forging node')
+  .command('forger')
+  .description('start the forger')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
