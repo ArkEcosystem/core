@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@arkecosystem/core-config",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Configuration Manager for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -17,7 +17,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-logger-winston": "^0.1.0",
+    "@arkecosystem/core-logger-winston": "^0.0.1",
     "deepmerge": "^2.1.0",
     "expand-home-dir": "^0.0.3",
     "ow": "^0.3.0"

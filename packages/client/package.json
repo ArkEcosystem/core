@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/client",
   "description": "A JavaScript library to interact with the ARK Blockchain",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "contributors": [
     "François-Xavier Thoorens <fx.thoorens@ark.io>",
     "Brian Faust <brian@ark.io>",
@@ -24,7 +24,7 @@
     "depcheck": "depcheck ./ --ignores=webpack*,babel*,regenerator-runtime,buffer"
   },
   "dependencies": {
-    "@arkecosystem/validation": "^0.1.0",
+    "@arkecosystem/validation": "^0.0.1",
     "arkjsv1": "arkecosystem/ark-js#master",
     "axios": "^0.18.0",
     "bigi": "^1.4.2",
