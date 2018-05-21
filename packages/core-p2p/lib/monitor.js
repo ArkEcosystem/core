@@ -298,8 +298,6 @@ module.exports = class Monitor {
    * @return {void}
    */
   __registerListeners () {
-    emitter.on('broadcastTransactions', async transactions => {
-      this.broadcastTransactions(transactions)
-    })
+    emitter.on('broadcastTransactions', async transactions => this.broadcastTransactions(transactions))
   }
 }

@@ -84,7 +84,7 @@ module.exports = class DelegatesRepository {
   getActiveAtHeight (height) {
     const delegates = this.connection.getActiveDelegates(height)
 
-    return Promise.all(delegates.map(delegate => {
+    return delegates.map(delegate => {
       const wallet = this.connection.wallets.findById(delegate.publicKey)
 
       return {
@@ -92,6 +92,6 @@ module.exports = class DelegatesRepository {
         approval: calculateApproval(delegate, height),
         productivity: calculateProductivity(wallet)
       }
-    }))
+    })
   }
 }

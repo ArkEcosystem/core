@@ -30,7 +30,7 @@ exports.blockchain = {
 
     const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
 
-    let delegates = await database.delegates.getActiveAtHeight(height, totalSupply)
+    let delegates = database.delegates.getActiveAtHeight(height, totalSupply)
     delegates = _.sortBy(delegates, 'productivity')
 
     return h.response({
