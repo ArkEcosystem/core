@@ -139,20 +139,23 @@ module.exports = class TransactionGuard {
         const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
 
         if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
-          this.invalid.push(transaction)
           logger.verbose(`Fee not accepted. Sender fee below threshold of delegate minimum accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
+
+          this.invalid.push(transaction)
           return true
         }
 
         if (dynamicFee > transaction.fee) {
-          this.invalid.push(transaction)
           logger.verbose(`Fee not accepted. Delegate requested: ${dynamicFee} > sender fee: ${transaction.fee} ARKTOSHI fee for transaction ${transaction.id}`)
+
+          this.invalid.push(transaction)
           return true
         }
 
         if (transaction.fee > feeManager.get(transaction.type)) {
-          this.invalid.push(transaction)
           logger.verbose(`Fee not accepted. Sender fee: ${transaction.fee} ARKTOSHI is HIGHER then default static specified fee ${feeManager.get(transaction.type)}`)
+
+          this.invalid.push(transaction)
           return true
         }
 
