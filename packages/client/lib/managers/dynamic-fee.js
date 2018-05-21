@@ -6,14 +6,14 @@ class DynamicFeeManager {
    */
   constructor () {
     this.offsets = {}
-    this.__setDefaultOffsets()
+    this.__setDefaultOffsetValues()
   }
 
   /** Calculates delegate fee for processing and forging if transaction
   * @param {Number} ARKTOSHI fee price per byte as set by forger/delegate
   * @returns {Number} ARKTOSHI calculated dynamic fee
   */
-  calculateFee (feeMultiplier, transaction) {
+  static calculateFee (feeMultiplier, transaction) {
     if (feeMultiplier === 0) {
       feeMultiplier = 1
     }
