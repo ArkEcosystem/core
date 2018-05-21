@@ -20,16 +20,17 @@ module.exports = class TransactionGuard {
   /**
    * Validate the specified transactions.
    * @param  {Array} transactions
+   * @param  {Boolean} isBroadcast flag
    * @return {void}
    */
-  async validate (transactions) {
+  async validate (transactions, isBroadcast) {
     this.__reset()
 
     this.__transformTransactions(transactions)
 
     this.__determineInvalidTransactions()
 
-    this.__broadCastTransactions()
+    this.__broadCastTransactions(isBroadcast)
 
     this.__determineFeeMatchingTransactions()
 
@@ -112,11 +113,13 @@ module.exports = class TransactionGuard {
 
 /**
    * Transform the specified transactions to models.
-   * @param  {Array} transactions
+   * @param  {Boolean} isBroadCast
    * @return {void}
    */
-  __broadCastTransactions () {
-    container.resolvePlugin('p2p').broadcastTransactions(this.transactions)
+  __broadCastTransactions (isBroadcast) {
+    if (isBroadcast) {
+      container.resolvePlugin('p2p').broadcastTransactions(this.transactions)
+    }
   }
 
   /**
