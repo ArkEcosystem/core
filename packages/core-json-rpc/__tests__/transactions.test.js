@@ -8,7 +8,6 @@ describe('Transactions', () => {
     let transaction
     it('should create tx on mainnet and tx should verify', async () => {
       const response = await request('transactions.create', {
-        network: 'mainnet',
         amount: 100000000,
         recipientId: 'AUDud8tvyVZa67p3QY7XPRUTjRGnWQQ9Xv',
         passphrase: 'This is a test'
@@ -22,7 +21,6 @@ describe('Transactions', () => {
 
     it('should broadcast tx on mainnet using the old method', async () => {
       const response = await request('transactions.broadcast', {
-        network: 'mainnet',
         transactions: [transaction]
       })
 
@@ -31,7 +29,6 @@ describe('Transactions', () => {
 
     it('should broadcast tx on mainnet using the new method', async () => {
       const response = await request('transactions.broadcast', {
-        network: 'mainnet',
         id: transaction.id
       })
 

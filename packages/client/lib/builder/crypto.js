@@ -27,7 +27,7 @@ class CryptoBuilder {
    * @return {String}
    */
   getId (transaction) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.getId(transaction)
     }
 
@@ -41,7 +41,7 @@ class CryptoBuilder {
    * @return {Buffer}
    */
   getHash (transaction, skipSignature, skipSecondSignature) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.getHash(transaction, skipSignature, skipSecondSignature)
     }
 
@@ -65,7 +65,7 @@ class CryptoBuilder {
    * @return {Object}
    */
   sign (transaction, keys) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.sign(transaction, keys)
     }
 
@@ -86,7 +86,7 @@ class CryptoBuilder {
    * @return {Object}
    */
   secondSign (transaction, keys) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.secondSign(transaction, keys)
     }
 
@@ -107,7 +107,7 @@ class CryptoBuilder {
    * @return {Boolean}
    */
   verify (transaction, network) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.verify(transaction, network)
     }
 
@@ -123,7 +123,7 @@ class CryptoBuilder {
    * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, network) {
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       return arkjsv1.crypto.verifySecondSignature(transaction, publicKey, network)
     }
 

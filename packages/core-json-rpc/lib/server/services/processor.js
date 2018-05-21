@@ -27,10 +27,6 @@ class Processor {
       let schema = server.app.schemas[method]
 
       if (schema) {
-        schema = Joi.object(Object.assign(schema, {
-            network: Joi.string().valid('mainnet', 'devnet').required()
-        }))
-
         const { error } = Joi.validate(params, schema)
 
         if (error) {

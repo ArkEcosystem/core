@@ -1,14 +1,14 @@
 const Joi = require('joi')
-const arkjs = require('arkjs')
+const ark = require('@arkecosystem/client')
 
 module.exports = {
   name: 'accounts.create',
   method: async (params) => {
-    const account = arkjs.crypto.getKeys(params.passphrase)
+    const account = ark.crypto.getKeys(params.passphrase)
 
     return {
       publicKey: account.publicKey,
-      address: arkjs.crypto.getAddress(account.publicKey)
+      address: ark.crypto.getAddress(account.publicKey)
     }
   },
   schema: {

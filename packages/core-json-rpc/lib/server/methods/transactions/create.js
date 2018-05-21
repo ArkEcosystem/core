@@ -1,12 +1,18 @@
 const Joi = require('joi')
-const arkjs = require('arkjs')
+const ark = require('@arkecosystem/client')
 const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.create',
   method: async (params) => {
     const amount = parseInt(params.amount)
-    const transaction = arkjs.transaction.createTransaction(params.recipientId, amount, null, params.passphrase)
+
+    const transaction = ark
+      .transactionBuilder
+      .transfer()
+      .create(params.recipientId, amount)
+      .sign(params.passphrase)
+      .getStruct()
 
     await database.setObject(transaction.id, transaction)
 
