@@ -115,8 +115,8 @@ module.exports = class TransactionGuard {
   __determineFeeMatchingTransactions () {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
     this.transactions = reject(this.transactions, transaction => {
-      if (transaction.fee > feeManager.get(transaction.type)) {
-        logger.warn(`Received transaction fee ${transaction.fee} is HIGHER from default static specified fee ${feeManager.get(transaction.type)}`)
+      if (transaction.fee !== feeManager.get(transaction.type) && !feeConstants.dynamicFeeCalculation) {
+        logger.warn(`Received transaction fee ${transaction.fee} is not according to default static specified fee ${feeManager.get(transaction.type)}`)
         this.invalid.push(transaction)
         return true
       }
@@ -125,7 +125,7 @@ module.exports = class TransactionGuard {
         const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier, transaction)
         if (dynamicFee > transaction.fee) {
           this.invalid.push(transaction)
-          logger.verbose(`Fee not accepted. Delegate requests minimum ${dynamicFee} ARKTOSHI fee for transaction ${transaction.id}`)
+          logger.verbose(`Fee not accepted. Delegate requests minimum payment of  ${dynamicFee} ARKTOSHI fee for transaction ${transaction.id}`)
           return true
         }
 
@@ -135,7 +135,13 @@ module.exports = class TransactionGuard {
           return true
         }
 
-        logger.verbose(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee} ARKTOSHI`)
+        if (transaction.fee > feeManager.get(transaction.type)) {
+          this.invalid.push(transaction)
+          logger.verbose(`Fee not accepted. Sender error, his own fee is HIGHER then default static specified fee ${feeManager.get(transaction.type)}`)
+          return true
+        }
+
+        logger.verbose(`Transaction accepted. Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee} ARKTOSHI.`)
         return false
       }
 
