@@ -116,26 +116,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add many transaction to the pool.
-   * @param {Array}   transactions
-   * @param {Boolean} isBroadcast
+   * @param {Array}   transactions, already transformed by transaction guard - must have serialized field
    */
-  addTransactions (transactions, isBroadcast) {
+  addTransactions (transactions) {
     if (!this.__isReady()) {
       return
     }
 
-    const processedTransactions = transactions.map(transaction => {
-      transaction = new Transaction(transaction)
-      transaction.isBroadcast = isBroadcast
-
+    transactions.forEach(transaction => {
       this.addTransaction(transaction)
-
-      return transaction
     })
-
-    if (isBroadcast) {
-      super.broadcastTransactions(processedTransactions)
-    }
   }
 
   /**

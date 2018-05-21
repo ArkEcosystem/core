@@ -1,7 +1,6 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const emitter = container.resolvePlugin('event-emitter')
 const TransactionGuard = require('./guard')
 
 module.exports = class TransactionPoolInterface {
@@ -20,14 +19,6 @@ module.exports = class TransactionPoolInterface {
    */
   driver () {
     return this.driver
-  }
-
-  /**
-   * Broadcast transaction to additional peers.
-   * @param {Transactions[]} transactions
-   */
-  broadcastTransactions (transactions) {
-    emitter.emit('broadcastTransactions', transactions)
   }
 
    /**

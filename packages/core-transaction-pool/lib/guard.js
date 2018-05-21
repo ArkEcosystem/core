@@ -29,6 +29,8 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
+    this.__broadCastTransactions()
+
     this.__determineFeeMatchingTransactions()
 
     await this.__determineExcessTransactions()
@@ -106,6 +108,15 @@ module.exports = class TransactionGuard {
    */
   __transformTransactions (transactions) {
      this.transactions = transactions.map(transaction => new Transaction(transaction))
+  }
+
+/**
+   * Transform the specified transactions to models.
+   * @param  {Array} transactions
+   * @return {void}
+   */
+  __broadCastTransactions () {
+    container.resolvePlugin('p2p').broadcastTransactions(this.transactions)
   }
 
   /**
