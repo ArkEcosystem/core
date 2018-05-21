@@ -30,8 +30,6 @@ module.exports = class Monitor {
     this.config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
-
-    this.__registerListeners()
   }
 
   /**
