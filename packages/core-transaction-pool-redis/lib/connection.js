@@ -45,8 +45,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
       if (message.split(':')[0] === this.keyPrefix) {
         const transactionId = message.split(':')[2]
-        console.log('removing', transactionId)
         const transaction = await this.getTransaction(transactionId)
+
         emitter.emit('transaction.expired', transaction.data)
 
         await this.removeTransaction(transaction)
