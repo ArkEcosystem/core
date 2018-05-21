@@ -11,15 +11,14 @@ module.exports = {
     const transaction = ark
       .transactionBuilder
       .transfer()
-      .create(params.recipientId, params.amount)
-      .setVendorField('dummy')
-      .sign(params.passphrase)
+      .create(params.recipientId, parseInt(params.amount))
+      .sign('dummy')
       .getStruct()
 
     transaction.senderPublicKey = account.keys.getPublicKeyBuffer().toString('hex')
 
     delete transaction.signature
-    ark.cryptoBuilder.sign(transaction, account.keys)
+    ark.crypto.sign(transaction, account.keys)
     transaction.id = ark.crypto.getId(transaction)
 
     await database.setObject(transaction.id, transaction)

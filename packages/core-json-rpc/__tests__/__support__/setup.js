@@ -8,16 +8,17 @@ jest.setTimeout(60000)
 beforeAll(async (done) => {
   await container.start({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet'),
+    config: path.resolve(__dirname, '../../../core-config/lib/networks/mainnet'),
     token: 'ark',
-    network: 'testnet'
+    network: 'mainnet'
   }, {
-    include: [
-      '@arkecosystem/core-config',
-      '@arkecosystem/core-config-json',
-      '@arkecosystem/core-logger',
-      '@arkecosystem/core-logger-winston',
-      '@arkecosystem/core-json-rpc'
+    exclude: [
+      '@arkecosystem/core-api',
+      '@arkecosystem/core-webhooks',
+      '@arkecosystem/core-webhooks-api',
+      '@arkecosystem/core-graphql',
+      '@arkecosystem/core-graphql-api',
+      '@arkecosystem/core-forger'
     ]
   })
 

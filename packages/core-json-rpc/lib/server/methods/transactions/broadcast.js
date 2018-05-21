@@ -7,7 +7,9 @@ module.exports = {
   name: 'transactions.broadcast',
   method: async (params) => {
     if (params.transactions) { // old way
-      await Promise.all(params.transactions.map((transaction) => network.broadcast(transaction, () => Promise.resolve(transaction))))
+      for (let i = 0; i < params.transactions.length; i++) {
+        await network.broadcast(params.transactions[i])
+      }
 
       return params.transactions
     }

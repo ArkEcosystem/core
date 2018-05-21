@@ -12,7 +12,7 @@ class Processor {
     })
 
     if (error) {
-      return this.__createErrorResponse(payload ? payload.id : null, -32600, error.message)
+      return this.__createErrorResponse(payload ? payload.id : null, -32600, error)
     }
 
     const { method, params, id } = payload
@@ -30,17 +30,17 @@ class Processor {
         const { error } = Joi.validate(params, schema)
 
         if (error) {
-          return this.__createErrorResponse(id, -32602, error.message)
+          return this.__createErrorResponse(id, -32602, error)
         }
       }
 
-      await network.connect(params.network)
+      await network.connect()
 
       const result = await targetMethod(params)
 
       return this.__createSuccessResponse(id, result)
     } catch (error) {
-      return this.__createErrorResponse(id, -32603, error.message)
+      return this.__createErrorResponse(id, -32603, error)
     }
   }
 
@@ -64,13 +64,14 @@ class Processor {
     }
   }
 
-  __createErrorResponse (id, code, message) {
+  __createErrorResponse (id, code, error) {
     return {
       jsonrpc: '2.0',
       id,
       error: {
         code,
-        message
+        message: error.message,
+        data: error.stack
       }
     }
   }
