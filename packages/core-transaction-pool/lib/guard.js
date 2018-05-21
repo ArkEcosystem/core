@@ -134,7 +134,7 @@ module.exports = class TransactionGuard {
           this.invalid.push(transaction)
           return true
       } else {
-        return true
+        return false
       }
     })
   }

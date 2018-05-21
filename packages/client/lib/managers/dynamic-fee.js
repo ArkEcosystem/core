@@ -18,7 +18,7 @@ class DynamicFeeManager {
       feeMultiplier = 1
     }
 
-    return (this.__getOffset(transaction.type) + (this.serialized.length)) * feeMultiplier
+    return (this.__getOffset(transaction.type) + (transaction.serialized.length)) * feeMultiplier
   }
 
   /**
