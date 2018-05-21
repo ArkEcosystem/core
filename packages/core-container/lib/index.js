@@ -16,12 +16,12 @@ class Container {
   }
 
   /**
-   * Initialise the container.
+   * Set up the container.
    * @param  {Object} variables
    * @param  {Object} options
    * @return {void}
    */
-  async start (variables, options = {}) {
+  async setUp (variables, options = {}) {
     this.env = new Environment(variables)
     this.env.setUp()
 

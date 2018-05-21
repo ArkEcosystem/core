@@ -226,7 +226,7 @@ describe('Delegate Repository', () => {
       expect(repository.getActiveAtHeight).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
@@ -250,7 +250,7 @@ describe('Delegate Repository', () => {
         }
       })
 
-      const results = await repository.getActiveAtHeight(1)
+      const results = repository.getActiveAtHeight(1)
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()

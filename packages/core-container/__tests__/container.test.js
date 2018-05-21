@@ -7,7 +7,7 @@ let container
 beforeEach(async (done) => {
   container = require('../lib')
 
-  await container.start({
+  await container.setUp({
     data: 'fake-path',
     config: path.resolve(__dirname, '../../core-config/lib/networks/testnet'),
     token: 'ark',

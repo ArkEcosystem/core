@@ -6,7 +6,7 @@ const container = require('@arkecosystem/core-container')
 jest.setTimeout(60000)
 
 beforeAll(async (done) => {
-  await container.start({
+  await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core-config/lib/networks/mainnet'),
     token: 'ark',
