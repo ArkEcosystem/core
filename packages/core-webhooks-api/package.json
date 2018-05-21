@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-webhooks-api",
   "description": "Webhooks API for ARK Core",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,8 +17,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.0",
-    "@arkecosystem/core-webhooks": "^0.1.0",
+    "@arkecosystem/core-container": "^0.0.1",
+    "@arkecosystem/core-webhooks": "^0.0.1",
     "argon2": "^0.19.0",
     "boom": "^7.2.0",
     "hapi": "^17.4.0",

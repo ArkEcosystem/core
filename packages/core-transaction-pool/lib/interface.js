@@ -24,10 +24,10 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Broadcast transaction to additional peers.
-   * @param {Transaction} transaction
+   * @param {Transactions[]} transactions
    */
-  broadcastTransaction (transaction) {
-    emitter.emit('broadcastTransactions', [transaction])
+  broadcastTransactions (transactions) {
+    emitter.emit('broadcastTransactions', transactions)
   }
 
    /**

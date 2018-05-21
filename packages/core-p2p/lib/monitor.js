@@ -271,11 +271,11 @@ module.exports = class Monitor {
    * @return {Promise}
    */
   async broadcastBlock (block) {
-    const bpeers = Object.values(this.peers)
+    const peers = Object.values(this.peers)
 
-    logger.info(`Broadcasting block ${block.data.height} to ${bpeers.length} peers`)
+    logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
 
-    await Promise.all(bpeers.map((peer) => peer.postBlock(block.toBroadcastV1())))
+    await Promise.all(peers.map((peer) => peer.postBlock(block.toBroadcastV1())))
   }
 
   /**
@@ -289,7 +289,7 @@ module.exports = class Monitor {
     const transactionsV1 = []
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
-    return Promise.all(peers.map((peer) => peer.postTransactions(transactionsV1)))
+    return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
   }
 
   /**
@@ -298,8 +298,6 @@ module.exports = class Monitor {
    * @return {void}
    */
   __registerListeners () {
-    emitter.on('broadcastTransactions', async transactions => {
-      this.broadcastTransactions(transactions)
-    })
+    emitter.on('broadcastTransactions', async transactions => this.broadcastTransactions(transactions))
   }
 }

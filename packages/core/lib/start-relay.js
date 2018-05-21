@@ -8,7 +8,7 @@ const container = require('@arkecosystem/core-container')
  * @return {void}
  */
 module.exports = async (options) => {
-  await container.start(options, {
+  await container.setUp(options, {
     exclude: ['@arkecosystem/core-forger'],
     options: {
       '@arkecosystem/core-blockchain': {

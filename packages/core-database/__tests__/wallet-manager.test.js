@@ -4,8 +4,10 @@ const app = require('./__support__/setup')
 
 let walletManager
 const { Block, Transaction, Wallet } = require('@arkecosystem/client').models
+const { transactionBuilder } = require('@arkecosystem/client') // eslint-disable-line no-unused-vars
 
 const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
+const genesisBlock = require('./__fixtures__/genesisBlock.js') // eslint-disable-line no-unused-vars
 const dummy1 = require('./__fixtures__/wallets.json')[0]
 const dummy2 = require('./__fixtures__/wallets.json')[1]
 const dummyFake = require('./__fixtures__/wallets.json')[2]
@@ -66,26 +68,84 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe.skip('applyBlock', () => {
+  describe('applyBlock', () => {
+    let manager
+    let delegateMock
+    let block2
+
+    const tx1 = transactionBuilder
+      .vote()
+      .create(['+036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
+      .sign(Math.random().toString(36))
+    const tx2 = transactionBuilder
+      .vote()
+      .create(['-036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
+      .sign(Math.random().toString(36))
+
+    beforeEach(() => {
+      block2 = new Block(block.data)
+      block2.transactions.push(block.transactions[0])
+      block2.transactions.push(tx1)
+      block2.transactions.push(tx2)
+
+      manager = createWalletManager()
+
+      delegateMock = { applyBlock: jest.fn() }
+      manager.getWalletByPublicKey = jest.fn(() => delegateMock)
+      manager.applyTransaction = jest.fn()
+      manager.revertTransaction = jest.fn()
+    })
+
     it('should be a function', () => {
       expect(walletManager.applyBlock).toBeFunction()
     })
 
-    it('should apply transactions of the block', () => {
+    it('should apply sequentially the transactions of the block', async () => {
+      await manager.applyBlock(block2)
 
-    })
-
-    it('should apply the block to the delegate', () => {
-
-    })
-
-    describe('1 transaction fails while applying it', () => {
-      it('should revert all transactions of the block', () => {
-
+      block2.transactions.forEach((transaction, i) => {
+        expect(manager.applyTransaction.mock.calls[i][0]).toBe(block2.transactions[i])
       })
     })
 
-    describe('the delegate of the block is not indexed', () => {
+    it('should apply the block data to the delegate', async () => {
+      await manager.applyBlock(block)
+
+      expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data)
+    })
+
+    describe('when 1 transaction fails while applying it', () => {
+      it('should revert sequentially (from last to first) all the transactions of the block', async () => {
+        manager.applyTransaction = jest.fn(transaction => {
+          if (transaction === block2.transactions[2]) {
+            throw new Error('Fake error')
+          }
+        })
+
+        try {
+          await manager.applyBlock(block2)
+        } catch (_error) {
+          block2.transactions.slice(0, 1).forEach((transaction, i) => {
+            expect(manager.revertTransaction.mock.calls[1 - i][0]).toEqual(block2.transactions[i])
+          })
+        }
+      })
+
+      it('throws the Error', async () => {
+        manager.applyTransaction = jest.fn(transaction => {
+          throw new Error('Fake error')
+        })
+
+        try {
+          await manager.applyBlock(block)
+        } catch (error) {
+          expect(error).toBeInstanceOf(Error)
+          expect(error.message).toBe('Fake error')
+        }
+      })
+    })
+
+    xdescribe('the delegate of the block is not indexed', () => {
       describe('not genesis block', () => {
         it('throw an Error', () => {
 
@@ -106,7 +166,6 @@ describe('Wallet Manager', () => {
     })
 
     it('should revert all transactions of the block', () => {
-
     })
 
     it('should revert the block of the delegate', () => {
@@ -273,10 +332,6 @@ describe('Wallet Manager', () => {
   })
 
   describe('__canBePurged', () => {
-    it('should be a function', () => {
-      expect(walletManager.__canBePurged).toBeFunction()
-    })
-
     it('should be removed if all criteria are satisfied', async () => {
       const wallet = new Wallet(dummy1.address)
 

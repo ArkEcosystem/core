@@ -48,17 +48,80 @@ describe('Delegate Repository', () => {
     expect(repository).toBeObject()
   })
 
+  describe('getLocalDelegates', () => {
+    it('should be a function', () => {
+      expect(repository.getLocalDelegates).toBeFunction()
+    })
+
+    it('should return the local wallets of the connection that are delegates', () => {
+      const delegates = [
+        { username: 'delegate-0' },
+        { username: 'delegate-1' },
+        { username: 'delegate-2' }
+      ]
+      const wallets = [
+        delegates[0],
+        {},
+        delegates[1],
+        { username: '' },
+        delegates[2],
+        {}
+      ]
+      repository.connection.walletManager.getLocalWallets = jest.fn(() => wallets)
+
+      expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates))
+      expect(repository.connection.walletManager.getLocalWallets).toHaveBeenCalled()
+    })
+  })
+
   describe('findAll', () => {
     it('should be a function', () => {
       expect(repository.findAll).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.findAll()
-      expect(results.length).toBe(52)
+      const { count, rows } = repository.findAll()
+      expect(count).toBe(52)
+      expect(rows).toHaveLength(52)
+    })
+
+    it('should be ok with params', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 10, limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (offset = 0)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 0, limit: 12 })
+      expect(count).toBe(12)
+      expect(rows).toHaveLength(12)
+    })
+
+    it('should be ok with params (no limit)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.findAll({ offset: 10 })
+      expect(count).toBe(42)
+      expect(rows).toHaveLength(42)
     })
   })
 
@@ -67,13 +130,49 @@ describe('Delegate Repository', () => {
       expect(repository.paginate).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should be ok without params', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.paginate({ offset: 10, limit: 10 })
-      expect(results.count).toBe(10)
-      expect(results.rows).toHaveLength(10)
+      const { count, rows } = repository.paginate()
+      expect(count).toBe(52)
+      expect(rows).toHaveLength(52)
+    })
+
+    it('should be ok with params', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 10, limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (no offset)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ limit: 10 })
+      expect(count).toBe(10)
+      expect(rows).toHaveLength(10)
+    })
+
+    it('should be ok with params (offset = 0)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 0, limit: 12 })
+      expect(count).toBe(12)
+      expect(rows).toHaveLength(12)
+    })
+
+    it('should be ok with params (no limit)', () => {
+      const wallets = generateWallets()
+      walletManager.index(wallets)
+
+      const { count, rows } = repository.paginate({ offset: 10 })
+      expect(count).toBe(42)
+      expect(rows).toHaveLength(42)
     })
   })
 
@@ -86,10 +185,10 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const results = repository.search({ q: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
+      const { count, rows } = repository.search({ q: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
 
-      expect(results.count).toBe(1)
-      expect(results.rows).toHaveLength(1)
+      expect(count).toBe(1)
+      expect(rows).toHaveLength(1)
     })
   })
 
@@ -127,7 +226,7 @@ describe('Delegate Repository', () => {
       expect(repository.getActiveAtHeight).toBeFunction()
     })
 
-    it('should be ok', async () => {
+    it('should be ok', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
@@ -151,7 +250,7 @@ describe('Delegate Repository', () => {
         }
       })
 
-      const results = await repository.getActiveAtHeight(1)
+      const results = repository.getActiveAtHeight(1)
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()

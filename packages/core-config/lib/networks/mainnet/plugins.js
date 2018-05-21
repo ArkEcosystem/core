@@ -26,5 +26,8 @@ module.exports = {
   },
   '@arkecosystem/core-graphql': {},
   '@arkecosystem/core-graphql-api': {},
-  '@arkecosystem/core-forger': {}
+  '@arkecosystem/core-forger': {},
+  '@arkecosystem/core-json-rpc': {
+    enabled: false
+  }
 }

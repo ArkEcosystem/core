@@ -40,5 +40,8 @@ module.exports = {
   '@arkecosystem/core-graphql-api': {
     port: 4105
   },
-  '@arkecosystem/core-forger': {}
+  '@arkecosystem/core-forger': {},
+  '@arkecosystem/core-json-rpc': {
+    enabled: false
+  }
 }
