@@ -80,7 +80,6 @@ class Container {
     try {
       return this.container.resolve(key).plugin
     } catch (err) {
-      console.log(err.message)
       return null
     }
   }
@@ -118,7 +117,11 @@ class Container {
       logger.info('EXIT handled, trying to shut down gracefully')
       logger.info('Stopping ARK Core...')
 
-      await this.resolvePlugin('database').saveWallets(true)
+      try {
+        await this.resolvePlugin('database').saveWallets(true)
+      } catch(error) {
+        //
+      }
 
       // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
 
