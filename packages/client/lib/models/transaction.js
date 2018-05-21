@@ -407,39 +407,4 @@ module.exports = class Transaction {
       }
     }
   }
-
-  /** Calculates delegate fee for processing and forging if transaction
-  * @param {Number} ARKTOSHI fee price per byte as set by forger/delegate
-  * @returns {Number} ARKTOSHI calculated dynamic fee
-  */
-  calculateFee (feeMultiplier) {
-    let offsetT = 0
-    switch (this.type) {
-      case TRANSACTION_TYPES.TRANSFER:
-        offsetT = 0
-        break
-      case TRANSACTION_TYPES.SECOND_SIGNATURE:
-        offsetT = 500
-        break
-      case TRANSACTION_TYPES.VOTE:
-        offsetT = 100
-        break
-      case TRANSACTION_TYPES.MULTI_SIGNATURE:
-        offsetT = this.asset.multisignature.keysgroup.length * 100
-        break
-      case TRANSACTION_TYPES.IPFS:
-        offsetT = 250
-        break
-      case TRANSACTION_TYPES.TIMELOCK_TRANSFER:
-        offsetT = 500
-        break
-      case TRANSACTION_TYPES.MULTI_PAYMENT:
-        offsetT = 500
-        break
-      case TRANSACTION_TYPES.DELEGATE_RESIGNATION:
-        offsetT = 500
-        break
-    }
-    return (offsetT + (this.serialized.length)) * feeMultiplier
-  }
 }
