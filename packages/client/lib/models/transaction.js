@@ -322,7 +322,7 @@ module.exports = class Transaction {
       transaction.amount = 0
     }
 
-    if (transaction.version === 1) {
+    if (!transaction.version || transaction.version === 1) {
       if (transaction.secondSignature) {
         transaction.signSignature = transaction.secondSignature
       }

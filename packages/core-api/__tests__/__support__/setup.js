@@ -11,7 +11,7 @@ jest.setTimeout(60000)
 beforeAll(async (done) => {
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
-  await container.start({
+  await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, './config')
   }, {

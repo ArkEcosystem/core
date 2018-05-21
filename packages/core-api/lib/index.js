@@ -13,7 +13,7 @@ exports.plugin = {
 
     return require('./server')(options)
   },
-  deregister: async (container) => {
+  deregister: async (container, options) => {
     container.resolvePlugin('logger').info('Stopping Public API...')
 
     return container.resolvePlugin('public-api').stop()

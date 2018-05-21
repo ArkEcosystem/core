@@ -17,5 +17,7 @@ module.exports = {
   toBeSecondSignatureType: require('./transactions/types/second-signature'),
   toBeTimelockTransferType: require('./transactions/types/timelock-transfer'),
   toBeTransferType: require('./transactions/types/transfer'),
-  toBeVoteType: require('./transactions/types/vote')
+  toBeVoteType: require('./transactions/types/vote'),
+
+  toCall: require('./call')
 }

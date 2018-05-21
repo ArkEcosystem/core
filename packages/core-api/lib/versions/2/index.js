@@ -41,6 +41,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed },
     { method: 'POST', path: '/transactions/search', ...transactions.search },
     { method: 'GET', path: '/transactions/types', ...transactions.types },
+    { method: 'GET', path: '/transactions/fees', ...transactions.fees },
 
     { method: 'GET', path: '/votes', ...votes.index },
     { method: 'GET', path: '/votes/{id}', ...votes.show },
