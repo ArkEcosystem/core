@@ -126,7 +126,7 @@ module.exports = class TransactionGuard {
 
         if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
           this.invalid.push(transaction)
-          logger.verbose(`Fee not accepted. Sender fee bellow threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
+          logger.verbose(`Fee not accepted. Sender fee below threshold of accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
           return true
         }
 
