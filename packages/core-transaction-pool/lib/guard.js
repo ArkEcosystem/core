@@ -115,6 +115,12 @@ module.exports = class TransactionGuard {
   __determineFeeMatchingTransactions () {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
     this.transactions = reject(this.transactions, transaction => {
+      if (transaction.fee > feeManager.get(transaction.type)) {
+        logger.warn(`Received transaction fee ${transaction.fee} is MUCH HIGHER from default static specified  fees ${feeManager.get(transaction.type)}`)
+        this.invalid.push(transaction)
+        return true
+      }
+
       if (feeConstants.dynamicFeeCalculation) {
         const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeConstantMultiplier, transaction)
         if (dynamicFee > transaction.fee) {
@@ -129,13 +135,9 @@ module.exports = class TransactionGuard {
           logger.verbose(`Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee}`)
           return false
         }
-      } else if (transaction.fee !== feeManager.get(transaction.type)) {
-          logger.warn(`Dynamic fees are NOT active. Received transaction fee ${transaction.fee} is different from default specified ${feeManager.get(transaction.type)}`)
-          this.invalid.push(transaction)
-          return true
-      } else {
-        return false
       }
+
+      return false
     })
   }
 
