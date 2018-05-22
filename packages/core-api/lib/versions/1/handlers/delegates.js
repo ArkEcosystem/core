@@ -17,8 +17,8 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
-    const delegates = await database.delegates.findAll()
+  async handler (request, h) {
+    const delegates = await database.delegates.getLocalDelegates()
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates, 'delegate'),
@@ -73,9 +73,9 @@ exports.count = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const delegates = await database.delegates.findAll()
+    const { count } = await database.delegates.findAll()
 
-    return utils.respondWith({ count: delegates.length })
+    return utils.respondWith({ count })
   }
 }
 
@@ -89,10 +89,10 @@ exports.search = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const delegates = await database.delegates.search({...request.query, ...utils.paginator(request)})
+    const { rows } = await database.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      delegates: utils.toCollection(request, delegates.rows, 'delegate')
+      delegates: utils.toCollection(request, rows, 'delegate')
     })
   },
   config: {
@@ -118,7 +118,7 @@ exports.voters = {
     const accounts = await database.wallets.findAllByVote(delegate.publicKey)
 
     return utils.respondWith({
-      accounts: utils.toCollection(request, accounts, 'voter')
+      accounts: utils.toCollection(request, accounts.rows, 'voter')
     })
   }
 }
@@ -134,7 +134,7 @@ exports.fee = {
    */
   handler: (request, h) => {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegateRegistration
     })
   }
 }
