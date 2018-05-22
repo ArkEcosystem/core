@@ -20,11 +20,11 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
-    const wallets = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
+  async handler (request, h) {
+    const { rows } = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      accounts: utils.toCollection(request, wallets.rows, 'wallet')
+      accounts: utils.toCollection(request, rows, 'wallet')
     })
   }
 }
@@ -38,7 +38,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -65,7 +65,7 @@ exports.balance = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -95,7 +95,7 @@ exports.publicKey = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -122,7 +122,7 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegateRegistration
     })
@@ -138,7 +138,7 @@ exports.delegates = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     let account = await database.wallets.findById(request.query.address)
 
     if (!account) {
@@ -188,7 +188,7 @@ exports.top = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     let accounts = database.wallets.top(utils.paginator(request))
 
     accounts = accounts.rows.map(account => ({
@@ -217,7 +217,7 @@ exports.count = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const { count } = await database.wallets.findAll()
 
     return utils.respondWith({ count })
