@@ -218,8 +218,8 @@ exports.count = {
    * @return {Hapi.Response}
    */
   handler: async (request, h) => {
-    const accounts = await database.wallets.findAll()
+    const { count } = await database.wallets.findAll()
 
-    return utils.respondWith({ count: accounts.length })
+    return utils.respondWith({ count })
   }
 }
