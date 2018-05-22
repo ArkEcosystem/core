@@ -1,9 +1,9 @@
 'use strict'
 
 module.exports = {
-  enabled: true,
+  enabled: false,
   port: process.env.ARK_WEBHOOKS_PORT || 4004,
-  token: '$argon2id$v=19$m=4096,t=3,p=1$/sUhlZGQp/K+zGLlwWp5Kw$8aNVK5F6DU20zaA8WjBSge/xNf75793BcfBo/zj5Yxw',
+  whitelist: ['127.0.0.1', '192.168.*'],
   pagination: {
     limit: 100,
     include: [

@@ -14,9 +14,9 @@ exports.plugin = {
   register: async (container, options) => {
     container.resolvePlugin('logger').info('Starting Webhooks...')
 
-    await database.init(options.database)
+    await database.setUp(options.database)
 
-    await webhookManager.init(options)
+    await webhookManager.setUp(options)
 
     return webhookManager
   }

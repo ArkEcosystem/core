@@ -10,11 +10,11 @@ const emitter = container.resolvePlugin('event-emitter')
 
 class WebhookManager {
   /**
-   * Initialise the webhook container.
+   * Set up the webhook container.
    * @param  {Object} config
    * @return {void}
    */
-  async init (config) {
+  async setUp (config) {
     this.config = config
 
     if (!this.config.enabled) {
@@ -29,7 +29,7 @@ class WebhookManager {
 
         this
           .getMatchingWebhooks(webhooks, payload)
-          .forEach((webhook) => this.queue.add({ webhook, payload }))
+          .forEach(webhook => this.queue.add({ webhook, payload }))
       })
     })
 
@@ -56,7 +56,7 @@ class WebhookManager {
     })
 
     this.queue.on('completed', (job, result) => {
-      logger.debug(`Job ${job.id} completed! Event [${job.data.webhook.event}] has been transmitted to [${job.data.webhook.target}] with a status of [${result.status}].`)
+      logger.debug(`Webhooks Job ${job.id} completed! Event [${job.data.webhook.event}] has been transmitted to [${job.data.webhook.target}] with a status of [${result.status}].`)
 
       job.remove()
     })
