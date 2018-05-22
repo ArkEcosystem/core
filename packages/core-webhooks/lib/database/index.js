@@ -9,11 +9,11 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 class Database {
   /**
-   * Initialise the database connection.
+   * Set up the database connection.
    * @param  {Object} config
    * @return {void}
    */
-  async init (config) {
+  async setUp (config) {
     if (this.connection) {
       throw new Error('Already initialised')
     }

@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  enabled: true,
+  enabled: false,
   database: {
     dialect: 'sqlite',
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,

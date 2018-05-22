@@ -45,7 +45,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'hapi-p2p-accept-request',
-  version: '1.0.0',
+  name: 'core-p2p-accept-request',
+  version: '0.0.1',
   register
 }

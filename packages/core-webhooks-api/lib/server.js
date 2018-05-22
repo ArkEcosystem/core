@@ -25,8 +25,12 @@ module.exports = async (config) => {
   }
 
   const server = new Hapi.Server(baseConfig)
-  await server.register(require('./plugins/auth'))
-  await server.auth.strategy('webhooks', 'webhooks', { token: config.token })
+  await server.register({
+    plugin: require('./plugins/whitelist'),
+    options: {
+      whitelist: config.whitelist
+    }
+  })
 
   await server.register({
     plugin: require('hapi-pagination'),
