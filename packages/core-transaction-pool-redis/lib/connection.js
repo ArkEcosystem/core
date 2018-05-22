@@ -25,7 +25,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     this.pool = null
     this.subscription = null
     this.keyPrefix = this.options.key
-    this.counters = {}
     this.pool = new Redis(this.options.redis)
     this.subscription = new Redis(this.options.redis)
 
@@ -44,12 +43,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     this.subscription.on('message', async (channel, message) => {
       logger.debug(`Received expiration message ${message} from channel ${channel}`)
+      if (message.split(':')[0] === this.keyPrefix) {
+        const transactionId = message.split(':')[2]
+        const transaction = await this.getTransaction(transactionId)
 
-      const transactionId = message.split(':')[2]
-      const transaction = await this.getTransaction(transactionId)
-      emitter.emit('transaction.expired', transaction.data)
+        emitter.emit('transaction.expired', transaction.data)
 
-      await this.removeTransaction(transaction)
+        await this.removeTransaction(transaction)
+      }
     })
 
     return this
@@ -123,18 +124,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    return transactions.map(transaction => {
+    const processedTransactions = transactions.map(transaction => {
       transaction = new Transaction(transaction)
       transaction.isBroadcast = isBroadcast
 
       this.addTransaction(transaction)
 
-      if (isBroadcast) {
-        super.broadcastTransaction(transaction)
-      }
-
       return transaction
     })
+
+    if (isBroadcast) {
+      super.broadcastTransactions(processedTransactions)
+    }
   }
 
   /**
@@ -310,7 +311,9 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async flush () {
-    await this.pool.flushall()
+    const keys = await this.pool.keys(`${this.keyPrefix}:*`)
+
+    keys.forEach(key => this.pool.del(key))
   }
 
   /**
