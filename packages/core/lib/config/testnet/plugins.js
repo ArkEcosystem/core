@@ -12,9 +12,7 @@ module.exports = {
     // database: 'ark_testnet'
   },
   '@arkecosystem/core-transaction-pool': {},
-  '@arkecosystem/core-transaction-pool-redis': {
-    enabled: false
-  },
+  '@arkecosystem/core-transaction-pool-redis': {},
   '@arkecosystem/core-p2p': {
     port: 4000
   },
