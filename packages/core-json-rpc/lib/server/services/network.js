@@ -86,7 +86,7 @@ class Network {
     }, {
       headers: {
         nethash: this.network.nethash,
-        version: '1.0.0',
+        version: '0.0.1',
         port: 1
       }
     })

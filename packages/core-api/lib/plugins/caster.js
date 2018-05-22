@@ -73,7 +73,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'hapi-caster',
-  version: '1.0.0',
+  name: 'core-caster',
+  version: '0.0.1',
   register
 }
