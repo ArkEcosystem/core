@@ -94,12 +94,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    if (this.pool.exists(this.__getRedisTransactionKey(transaction.id))) {
-      return
-    }
-
     if (!(transaction instanceof Transaction)) {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
+    }
+
+    const exists = await this.pool.hmget(this.__getRedisTransactionKey(transaction.id), 'serialized')
+    if (exists[0]) {
+      logger.debug('Transaction already in pool')
+      return
     }
 
     try {
@@ -128,7 +130,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     transactions.forEach(transaction => {
-      this.addTransaction(transaction)
+        this.addTransaction(transaction)
     })
   }
 
