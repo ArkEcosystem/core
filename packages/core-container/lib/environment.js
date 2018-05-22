@@ -3,7 +3,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
-const { NetworkManager } = require('@arkecosystem/client')
+const { NetworkManager } = require('@arkecosystem/crypto')
 
 module.exports = class Environment {
   /**

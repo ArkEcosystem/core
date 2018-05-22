@@ -1,7 +1,7 @@
 'use strict'
 
 const rule = require('../../../../lib/rules/models/transactions/delegate-registration')
-const { constants, transactionBuilder } = require('@arkecosystem/client')
+const { constants, transactionBuilder } = require('@arkecosystem/crypto')
 
 let transaction
 beforeEach(() => {

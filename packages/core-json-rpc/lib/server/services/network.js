@@ -1,5 +1,5 @@
 const axios = require('axios')
-const ark = require('@arkecosystem/client')
+const { client } = require('@arkecosystem/crypto')
 const isReachable = require('is-reachable')
 const { sample, orderBy } = require('lodash')
 const container = require('@arkecosystem/core-container')
@@ -13,7 +13,7 @@ class Network {
 
     this.__loadRemotePeers()
 
-    ark.client.setConfig(config.network)
+    client.setConfig(config.network)
 
     return this.network
   }

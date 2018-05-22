@@ -4,9 +4,8 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const blockchain = container.resolvePlugin('blockchain')
 
-const client = require('@arkecosystem/client')
-const { crypto } = client
-const { Transaction } = client.models
+const { crypto } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
 
 const formatTimestamp = require('./utils/format-timestamp')
 

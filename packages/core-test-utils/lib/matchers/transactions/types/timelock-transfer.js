@@ -1,6 +1,6 @@
 'use strict'
 
-const { TIMELOCK_TRANSFER } = require('@arkecosystem/client').constants
+const { TIMELOCK_TRANSFER } = require('@arkecosystem/crypto').constants
 
 module.exports = (received) => {
   return {

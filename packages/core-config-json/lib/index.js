@@ -1,7 +1,7 @@
 'use strict'
 
 const JsonDriver = require('./driver')
-const { client } = require('@arkecosystem/client')
+const { client } = require('@arkecosystem/crypto')
 
 /**
  * The struct used by the plugin container.

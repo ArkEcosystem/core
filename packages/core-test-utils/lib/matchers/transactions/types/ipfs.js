@@ -1,6 +1,6 @@
 'use strict'
 
-const { IPFS } = require('@arkecosystem/client').constants
+const { IPFS } = require('@arkecosystem/crypto').constants
 
 module.exports = (received) => {
   return {

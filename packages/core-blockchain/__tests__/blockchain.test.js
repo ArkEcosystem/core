@@ -1,7 +1,7 @@
 'use strict'
 
 const { asValue } = require('awilix')
-const { slots } = require('@arkecosystem/client')
+const { slots } = require('@arkecosystem/crypto')
 
 const app = require('./__support__/setup')
 const genesisBlock = require('./__fixtures__/genesisBlock')

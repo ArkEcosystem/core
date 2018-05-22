@@ -8,7 +8,7 @@ jest.setTimeout(30000)
 exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet'),
+    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
     token: 'ark',
     network: 'testnet'
   }, {

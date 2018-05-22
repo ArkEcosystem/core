@@ -1,4 +1,4 @@
-const { vote } = require('@arkecosystem/client').constants
+const { vote } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeVoteType: require('../../../../lib/matchers/transactions/types/vote')

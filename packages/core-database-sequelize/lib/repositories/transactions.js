@@ -2,9 +2,8 @@
 
 const Op = require('sequelize').Op
 
-const client = require('@arkecosystem/client')
-const { Transaction } = client.models
-const { TRANSACTION_TYPES } = client.constants
+const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const buildFilterQuery = require('./utils/filter-query')
 

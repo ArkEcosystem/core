@@ -3,7 +3,7 @@
 const app = require('../__support__/setup')
 const genesisBlock = require('../__fixtures__/genesisBlock')
 
-const { crypto } = require('@arkecosystem/client')
+const { crypto } = require('@arkecosystem/crypto')
 
 let repository
 let walletManager

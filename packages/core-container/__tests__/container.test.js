@@ -9,7 +9,7 @@ beforeEach(async (done) => {
 
   await container.setUp({
     data: 'fake-path',
-    config: path.resolve(__dirname, '../../core-config/lib/networks/testnet'),
+    config: path.resolve(__dirname, '../../core/lib/config/testnet'),
     token: 'ark',
     network: 'testnet'
   }, {

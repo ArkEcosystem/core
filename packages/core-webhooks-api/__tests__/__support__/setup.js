@@ -8,7 +8,7 @@ const defaults = require('../__stubs__/defaults.json')
 module.exports = async () => {
   await container.setUp({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/testnet'),
+    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
     token: 'ark',
     network: 'testnet'
   }, {

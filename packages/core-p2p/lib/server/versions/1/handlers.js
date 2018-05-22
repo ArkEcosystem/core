@@ -3,7 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
-const { slots } = require('@arkecosystem/client')
+const { slots } = require('@arkecosystem/crypto')
 
 /**
  * @type {Object}

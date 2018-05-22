@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')

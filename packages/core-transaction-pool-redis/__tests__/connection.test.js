@@ -3,7 +3,7 @@
 const app = require('./__support__/setup')
 const delay = require('delay')
 const { dummy1, dummy2, dummyExp1, dummyExp2 } = require('./__fixtures__/transactions')
-const { Transaction } = require('@arkecosystem/client').models
+const { Transaction } = require('@arkecosystem/crypto').models
 
 let connection
 

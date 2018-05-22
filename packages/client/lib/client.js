@@ -1,58 +1,50 @@
-const ApiClient = require('./api')
-const NetworkManager = require('./managers/network')
-const transactionBuilder = require('./builder')
-const configManager = require('./managers/config')
-const feeManager = require('./managers/fee')
+const HttpClient = require('./http')
+const resources = require('./resources')
 
-class Client {
+module.exports = class ApiClient {
   /**
    * @constructor
-   * @param {Object} config
+   * @param {String} host
    */
-  constructor (config) {
-    this.setConfig(config || NetworkManager.findByName('devnet'))
+  constructor (host) {
+    this.setConnection(host)
+
+    this.version = 1
   }
 
   /**
-   * Set config for client.
-   * @param {Object} config
+   * Create a HTTP connection to the API.
+   * @param {String} host
    */
-  setConfig (config) {
-    configManager.setConfig(config)
+  setConnection (host) {
+    this.http = new HttpClient(host, this.version)
   }
 
   /**
-   * Get fee manager.
-   * @return {FeeManager}
+   * Get the HTTP connection to the API.
+   * @return {Object}
    */
-  getFeeManager () {
-    return feeManager
+  getConnection () {
+    return this.http
   }
 
   /**
-   * Get config manager.
-   * @return {ConfigManager}
+   * Set the API Version.
+   * @param {Number} version
    */
-  getConfigManager () {
-    return configManager
+  setVersion (version) {
+    this.version = version
+    this.http.setVersion(version)
+
+    return this
   }
 
   /**
-   * Get transaction builder.
-   * @return {TransactionBuilder}
+   * Create an instance of a version specific resource.
+   * @param  {String}   name
+   * @return {Resource}
    */
-  getBuilder () {
-    return transactionBuilder
-  }
-
-  /**
-   * Get API client.
-   * @param  {String} host
-   * @return {ApiClient}
-   */
-  getClient (host) {
-    return new ApiClient(host)
+  resource (name) {
+    return new resources[`v${this.version}`][name](this.http)
   }
 }
-
-module.exports = new Client()

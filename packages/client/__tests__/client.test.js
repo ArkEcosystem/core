@@ -1,14 +1,29 @@
-const ark = require('../lib/client')
-const ApiClient = require('../lib/api')
+const Client = require('../lib/client')
+const HttpClient = require('../lib/http')
+const ApiResource = require('../lib/resources/v1/transactions')
 
-describe('Client', () => {
+let client
+
+beforeEach(() => {
+  client = (new Client('https://localhost:4003'))
+})
+
+describe('API - Client', () => {
   it('should be instantiated', () => {
-    expect(ark).toBeObject()
+    expect(client).toBeInstanceOf(Client)
   })
 
-  it('returns an api client', () => {
-    const client = ark.getClient('https://localhost:4003')
+  it('should set connection', () => {
+    expect(client.http).toBeInstanceOf(HttpClient)
+  })
 
-    expect(client).toBeInstanceOf(ApiClient)
+  it('should return an API resource', () => {
+    expect(client.resource('transactions')).toBeInstanceOf(ApiResource)
+  })
+
+  it('should set the API version', () => {
+    client.setVersion(2)
+
+    expect(client.version).toBe(2)
   })
 })

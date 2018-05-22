@@ -1,4 +1,4 @@
-const { TRANSFER } = require('@arkecosystem/client').constants
+const { TRANSFER } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeTransferType: require('../../../../lib/matchers/transactions/types/transfer')

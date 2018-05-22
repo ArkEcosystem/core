@@ -16,10 +16,10 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/client": "^0.0.1",
+    "@arkecosystem/crypto": "^0.0.1",
     "@arkecosystem/core-config": "^0.0.1",
     "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
-    "fs-extra": "^6.0.0"
+    "fs-extra": "^6.0.1"
   }
 }

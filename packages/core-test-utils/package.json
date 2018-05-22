@@ -15,7 +15,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/client": "^0.0.1",
+    "@arkecosystem/crypto": "^0.0.1",
     "bip39": "^2.5.0",
     "chalk": "^2.4.1",
     "lodash": "^4.17.10",

@@ -3,9 +3,8 @@
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Transaction } = client.models
+const { slots } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
  * @type {Object}

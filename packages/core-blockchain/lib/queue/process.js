@@ -1,5 +1,5 @@
 const async = require('async')
-const { Block } = require('@arkecosystem/client').models
+const { Block } = require('@arkecosystem/crypto').models
 const QueueInterface = require('./interface')
 
 module.exports = class ProcessQueue extends QueueInterface {

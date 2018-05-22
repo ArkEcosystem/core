@@ -1,4 +1,4 @@
-const { DELEGATE } = require('@arkecosystem/client').constants
+const { DELEGATE } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeDelegateType: require('../../../../lib/matchers/transactions/types/delegate')

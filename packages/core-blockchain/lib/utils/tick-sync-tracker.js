@@ -1,5 +1,5 @@
 const human = require('interval-to-human')
-const { slots } = require('@arkecosystem/client')
+const { slots } = require('@arkecosystem/crypto')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')

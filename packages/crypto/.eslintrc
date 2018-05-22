@@ -1,0 +1,14 @@
+{
+  "env": {
+    "browser": true,
+    "jest": true,
+    "node": true
+  },
+  "extends": [
+    "standard"
+  ],
+  "rules": {
+    "func-names": ["error", "never"],
+    "max-len": ["error", 140, { "ignoreComments": true }]
+  }
+}
