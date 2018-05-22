@@ -1,7 +1,7 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto } = require('@arkecosystem/client')
-const { Transaction } = require('@arkecosystem/client').models
+const { crypto } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = class TransactionGuard {
   /**

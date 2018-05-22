@@ -1,7 +1,7 @@
 const ark = require('arkjs')
 const assert = require('assert')
-const { client, constants, crypto } = require('@arkecosystem/client')
-const TRANSACTION_TYPES = constants.TRANSACTION_TYPES
+const { client, crypto } = require('@arkecosystem/crypto')
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const config = require('../../config')
 const superheroes = require('superheroes')
 

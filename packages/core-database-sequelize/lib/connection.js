@@ -15,8 +15,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
-const client = require('@arkecosystem/client')
-const { Block, Transaction } = client.models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const WalletBuilder = require('./builder/wallet')
 

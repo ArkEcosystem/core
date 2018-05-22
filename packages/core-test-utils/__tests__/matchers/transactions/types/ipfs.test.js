@@ -1,4 +1,4 @@
-const { IPFS } = require('@arkecosystem/client').constants
+const { IPFS } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeIpfsType: require('../../../../lib/matchers/transactions/types/ipfs')

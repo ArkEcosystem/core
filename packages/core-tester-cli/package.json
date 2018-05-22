@@ -24,7 +24,7 @@
     "axios": "^0.18.0",
     "bip39": "^2.5.0",
     "clipboardy": "^1.2.3",
-    "commander": "^2.14.0",
+    "commander": "^2.15.1",
     "delay": "^2.0.0",
     "pino": "^4.16.1",
     "superheroes": "^1.0.0"

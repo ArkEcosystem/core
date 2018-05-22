@@ -2,10 +2,9 @@
 
 const Promise = require('bluebird')
 
-const client = require('@arkecosystem/client')
-const { crypto } = client
-const { Wallet } = client.models
-const { TRANSACTION_TYPES } = client.constants
+const { crypto } = require('@arkecosystem/crypto')
+const { Wallet } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')

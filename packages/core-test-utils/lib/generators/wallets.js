@@ -1,6 +1,6 @@
 const assert = require('assert')
 const bip39 = require('bip39')
-const { client, crypto } = require('@arkecosystem/client')
+const { client, crypto } = require('@arkecosystem/crypto')
 
 module.exports = (network, quantity = 10) => {
   network = network || 'devnet'

@@ -7,9 +7,8 @@ const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 const emitter = container.resolvePlugin('event-emitter')
 
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Delegate, Transaction } = client.models
+const { slots } = require('@arkecosystem/crypto')
+const { Delegate, Transaction } = require('@arkecosystem/crypto').models
 
 const Client = require('./client')
 

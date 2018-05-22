@@ -16,7 +16,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "awilix": "^3.0.7",
+    "awilix": "^3.0.8",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
     "hoek": "^5.0.3",

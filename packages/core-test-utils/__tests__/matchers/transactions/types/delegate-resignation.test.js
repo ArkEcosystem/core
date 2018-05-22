@@ -1,4 +1,4 @@
-const { DELEGATE_RESIGNATION } = require('@arkecosystem/client').constants
+const { DELEGATE_RESIGNATION } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeDelegateResignationType: require('../../../../lib/matchers/transactions/types/delegate-resignation')

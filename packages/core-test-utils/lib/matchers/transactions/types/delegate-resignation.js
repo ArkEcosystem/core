@@ -1,6 +1,6 @@
 'use strict'
 
-const { DELEGATE_RESIGNATION } = require('@arkecosystem/client').constants
+const { DELEGATE_RESIGNATION } = require('@arkecosystem/crypto').constants
 
 module.exports = (received) => {
   return {

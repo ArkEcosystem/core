@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const ark = require('@arkecosystem/client')
+const ark = require('@arkecosystem/crypto')
 const network = require('../../services/network')
 const database = require('../../services/database')
 

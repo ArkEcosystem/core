@@ -3,9 +3,8 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 
-const client = require('@arkecosystem/client')
-const { Transaction } = client.models
-const { TRANSACTION_TYPES } = client.constants
+const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 module.exports = class WalletBuilder {
   /**

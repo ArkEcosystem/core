@@ -1,4 +1,4 @@
-const { MULTI_PAYMENT } = require('@arkecosystem/client').constants
+const { MULTI_PAYMENT } = require('@arkecosystem/crypto').constants
 
 expect.extend({
   toBeMultiPaymentType: require('../../../../lib/matchers/transactions/types/multi-payment')

@@ -1,6 +1,6 @@
 'use strict'
 
-const { crypto } = require('@arkecosystem/client')
+const { crypto } = require('@arkecosystem/crypto')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')

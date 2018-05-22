@@ -1,4 +1,4 @@
-const { Transaction } = require('@arkecosystem/client').models
+const { Transaction } = require('@arkecosystem/crypto').models
 
 exports.dummy1 = new Transaction({
   version: 1,
