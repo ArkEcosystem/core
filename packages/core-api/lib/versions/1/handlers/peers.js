@@ -16,7 +16,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const peers = await blockchain.p2p.getPeers()
 
     if (!peers) {
@@ -63,7 +63,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const peers = await blockchain.p2p.getPeers()
 
     if (!peers) {
@@ -96,7 +96,7 @@ exports.version = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({ version: config.server.version })
   }
 }

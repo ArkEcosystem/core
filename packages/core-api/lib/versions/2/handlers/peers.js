@@ -13,7 +13,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const peers = await blockchain.p2p.getPeers()
 
     let result = peers.sort(() => 0.5 - Math.random())
@@ -49,7 +49,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const peers = await blockchain.p2p.getPeers()
 
     return utils.respondWithResource(request, peers.find(p => p.ip === request.params.ip), 'peer')

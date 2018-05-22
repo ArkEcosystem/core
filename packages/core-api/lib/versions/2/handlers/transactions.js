@@ -21,7 +21,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.findAll(utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -37,7 +37,7 @@ exports.store = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     await transactionPool.guard.validate(request.payload.transactions)
 
     if (transactionPool.guard.hasAny('accept')) {
@@ -71,7 +71,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transaction = await database.transactions.findById(request.params.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
@@ -90,7 +90,7 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -115,7 +115,7 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -136,7 +136,7 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.search({
       ...request.query,
       ...request.payload,
@@ -159,7 +159,7 @@ exports.types = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return {
       data: TRANSACTION_TYPES
     }
@@ -175,7 +175,7 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return {
       data: config.getConstants().fees
     }

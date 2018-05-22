@@ -17,7 +17,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegates = await database.delegates.findAll()
 
     return utils.respondWith({
@@ -43,7 +43,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     if (!request.query.publicKey && !request.query.username) {
       return utils.respondWith('Delegate not found', true)
     }
@@ -72,7 +72,7 @@ exports.count = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegates = await database.delegates.findAll()
 
     return utils.respondWith({ count: delegates.length })
@@ -88,7 +88,7 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegates = await database.delegates.search({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
@@ -113,7 +113,7 @@ exports.voters = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.query.publicKey)
     const accounts = await database.wallets.findAllByVote(delegate.publicKey)
 
@@ -132,7 +132,7 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegate
     })
@@ -148,7 +148,7 @@ exports.forged = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
 
     return utils.respondWith(totals)

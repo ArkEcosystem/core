@@ -19,7 +19,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.findAll({
       ...request.query, ...utils.paginator(request)
     }, false)
@@ -49,7 +49,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const result = await database.transactions.findById(request.query.id)
 
     if (!result) {
@@ -76,7 +76,7 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
@@ -101,7 +101,7 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
     if (!config.server.transactionPool.enabled) {
       return Boom.teapot('Transaction Pool disabled...');
