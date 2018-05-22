@@ -13,16 +13,16 @@
     "test": "ARK_ENV=test jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.0.1",
     "@arkecosystem/core-webhooks": "^0.0.1",
-    "argon2": "^0.19.0",
     "boom": "^7.2.0",
     "hapi": "^17.4.0",
     "hapi-pagination": "^2.0.0",
-    "joi": "^13.2.0"
+    "joi": "^13.2.0",
+    "micromatch": "^3.1.10",
+    "request-ip": "^2.0.2"
   }
 }

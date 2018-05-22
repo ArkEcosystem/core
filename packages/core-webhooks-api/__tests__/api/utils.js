@@ -3,14 +3,13 @@
 const axios = require('axios')
 
 class Helpers {
-  request (method, path, authorization, params = {}) {
+  request (method, path, params = {}) {
     const url = `http://localhost:4004/api/${path}`
-    const headers = { 'Authorization': authorization }
     const request = axios[method.toLowerCase()]
 
     return ['GET', 'DELETE'].includes(method)
-      ? request(url, { params, headers })
-      : request(url, params, { headers })
+      ? request(url, { params })
+      : request(url, params)
   }
 
   expectJson (response) {
