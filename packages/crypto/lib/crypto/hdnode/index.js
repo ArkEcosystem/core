@@ -382,6 +382,7 @@ module.exports = class HDNode {
 
     return splitPath.reduce((prevHd, indexStr) => {
       let index
+      /* eslint quotes: ["error", "single", { avoidEscape: true }] */
       if (indexStr.slice(-1) === "'") {
         index = parseInt(indexStr.slice(0, -1), 10)
         return prevHd.deriveHardened(index)
