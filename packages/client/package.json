@@ -17,6 +17,7 @@
     "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "jest --forceExit",
+    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --forceExit",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "lint": "eslint ./ --fix",
