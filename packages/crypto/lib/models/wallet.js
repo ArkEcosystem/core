@@ -170,27 +170,11 @@ module.exports = class Wallet {
 
     let valid = 0
     for (const publicKey of keysgroup) {
-      if (this.__verifyTransactionSignatures(transaction, signatures, publicKey)) {
+      if (this.__verifyTransactionSignatures(transaction, signatures, publicKey, true)) {
         valid++
         if (valid === multisignature.min) {
           return true
         }
-      }
-    }
-
-    console.log('verifySignatures', keysgroup, valid)
-
-    return false
-  }
-
-  __verifyTransactionSignatures (transaction, signatures, publicKey) {
-    for (let i = 0; i < signatures.length; i++) {
-      const signature = signatures[i]
-      console.log('__verifyTransactionSignatures', signature, publicKey)
-      if (this.verify(transaction, signature, publicKey)) {
-        signatures.splice(i, 1)
-
-        return true
       }
     }
 
@@ -281,5 +265,27 @@ module.exports = class Wallet {
    */
   toString () {
     return `${this.address}=${this.balance / ARKTOSHI}`
+  }
+
+  /**
+   * Goes through signatures to check if public key matches. Can also remove valid signatures.
+   * @param  {Transaction} transaction
+   * @param  {String[]} signatures
+   * @param  {String} publicKey
+   * @return {Boolean}
+   */
+  __verifyTransactionSignatures (transaction, signatures, publicKey, removeOnSuccess) {
+    for (let i = 0; i < signatures.length; i++) {
+      const signature = signatures[i]
+      if (this.verify(transaction, signature, publicKey)) {
+        if (removeOnSuccess) {
+          signatures.splice(i, 1)
+        }
+
+        return true
+      }
+    }
+
+    return false
   }
 }
