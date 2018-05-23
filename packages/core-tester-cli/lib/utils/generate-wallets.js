@@ -6,9 +6,10 @@ module.exports = (quantity = 1) => {
 
   for (let i = 0; i < quantity; i++) {
       const passphrase = bip39.generateMnemonic()
-      const address = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
+      const keys = crypto.getKeys(passphrase)
+      const address = crypto.getAddress(keys.publicKey)
 
-      wallets.push({ address, passphrase })
+      wallets.push({ address, keys, passphrase })
   }
 
   return wallets
