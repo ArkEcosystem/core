@@ -10,7 +10,7 @@ const { client } = require('@arkecosystem/crypto')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
-  register: async (container, options) => {
+  async register (container, options) {
     const configManager = container.resolvePlugin('configManager')
     await configManager.makeDriver(new JsonDriver(options))
 

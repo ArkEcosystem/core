@@ -3,7 +3,7 @@
 const path = require('path')
 const container = require('@arkecosystem/core-container')
 
-const defaults = require('../__stubs__/defaults.json')
+const defaults = require('../__stubs__/defaults')
 
 module.exports = async () => {
   await container.setUp({

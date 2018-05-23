@@ -14,7 +14,7 @@ exports.getPeers = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     try {
       const peers = request.server.app.p2p.getPeers()
         .map(peer => peer.toBroadcastInfo())
@@ -56,7 +56,7 @@ exports.getCommonBlock = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
@@ -84,7 +84,7 @@ exports.getTransactionsFromIds = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
@@ -168,7 +168,7 @@ exports.postTransactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     await transactionPool.guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
@@ -194,7 +194,7 @@ exports.getBlocks = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     try {
       const blocks = await container.resolvePlugin('blockchain').database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 

@@ -9,5 +9,7 @@ const emitter = require('./emitter')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'event-emitter',
-  register: async (container, options) => emitter
+  async register (container, options) {
+    return emitter
+  }
 }

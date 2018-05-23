@@ -19,7 +19,12 @@ beforeAll(async (done) => {
       '@arkecosystem/core-graphql',
       '@arkecosystem/core-graphql-api',
       '@arkecosystem/core-forger'
-    ]
+    ],
+    options: {
+      '@arkecosystem/core-json-rpc': {
+        enabled: true
+      }
+    }
   })
 
   done()

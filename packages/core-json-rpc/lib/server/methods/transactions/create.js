@@ -4,7 +4,7 @@ const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.create',
-  method: async (params) => {
+  async method (params) {
     const transaction = ark
       .transactionBuilder
       .transfer()

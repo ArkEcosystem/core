@@ -4,7 +4,7 @@ const database = require('@arkecosystem/core-container').resolvePlugin('database
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')
 
 module.exports = {
-  transactions: async (wallet, args) => {
+  async transactions (wallet, args) {
     const { orderBy, filter, ...params } = args
 
     const walletOr = database.createCondition('OR', [{
@@ -22,7 +22,7 @@ module.exports = {
 
     return unserializeTransactions(result)
   },
-  blocks: (wallet, args) => {
+  blocks (wallet, args) {
     const { orderBy, ...params } = args
 
     params.generatorPublickKey = wallet.publicKey

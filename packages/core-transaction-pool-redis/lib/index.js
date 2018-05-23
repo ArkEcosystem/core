@@ -10,7 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'transactionPool',
-  register: async (container, options) => {
+  async register (container, options) {
     container.resolvePlugin('logger').info('Connecting to transaction pool...')
 
     const transactionPoolManager = container.resolvePlugin('transactionPoolManager')
@@ -18,7 +18,7 @@ exports.plugin = {
 
     return transactionPoolManager.connection()
   },
-  deregister: async (container, options) => {
+  async deregister (container, options) {
     container.resolvePlugin('logger').info('Disconnecting from transaction pool...')
 
     return container.resolvePlugin('transactionPool').disconnect()

@@ -8,14 +8,14 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'public-api',
-  register: async (container, options) => {
+  async register (container, options) {
     if (options.enabled) {
       container.resolvePlugin('logger').info('Starting Public API...')
 
       return require('./server')(options)
     }
   },
-  deregister: async (container, options) => {
+  async deregister (container, options) {
     if (options.enabled) {
       container.resolvePlugin('logger').info('Stopping Public API...')
 
