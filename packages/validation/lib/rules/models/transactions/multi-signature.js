@@ -18,7 +18,9 @@ module.exports = (transaction) => {
     asset: engine.joi.object({
       multisignature: engine.joi.object({
         min: engine.joi.number().min(2).max(Math.min(transaction.asset.multisignature.keysgroup.length, 16)).required(),
-        keysgroup: engine.joi.array().min(2).required(),
+        keysgroup: engine.joi.array().items(
+          engine.joi.string().length(67).regex(/^(\+|-)/).required()
+        ).min(2).required(),
         lifetime: engine.joi.number().min(1).max(72).required()
       })
     }).required(),
