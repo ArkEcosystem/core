@@ -31,6 +31,14 @@ module.exports = async (options) => {
       options.lifetime,
       min
     )
+    transaction.signatures = []
+    for (let i = 0; i < approvalWallets.length; i++) {
+      const approverSignature = ark.multisignature.signTransaction(
+        transaction,
+        approvalWallets[i].passphrase
+      )
+      transaction.signatures.push(approverSignature)
+    }
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
