@@ -42,6 +42,7 @@ describe('API 1.0 - Delegates', () => {
 
       expect(response.data).toBeObject()
       expect(response.data).toHaveProperty('count')
+      expect(response.data.count).toBeNumber()
     })
   })
 
@@ -77,6 +78,7 @@ describe('API 1.0 - Delegates', () => {
 
       expect(response.data).toBeObject()
       expect(response.data).toHaveProperty('fee')
+      expect(response.data.fee).toBeNumber()
     })
   })
 

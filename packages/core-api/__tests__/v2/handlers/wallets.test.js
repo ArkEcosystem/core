@@ -41,12 +41,14 @@ describe('API 2.0 - Wallets', () => {
       expect(wallet.address).toBe(address)
     })
 
-    it('should return ResourceNotFound error', async () => {
-      try {
-        await utils.request('GET', 'wallets/dummy')
-      } catch (error) {
-        expect(error.status).toEqual(404)
-      }
+    describe('when requesting an unknown address', () => {
+      it('should return ResourceNotFound error', async () => {
+        try {
+          await utils.request('GET', 'wallets/dummy')
+        } catch (error) {
+          expect(error.response.status).toEqual(404)
+        }
+      })
     })
   })
 

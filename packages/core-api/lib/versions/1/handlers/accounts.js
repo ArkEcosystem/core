@@ -21,10 +21,10 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const wallets = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
+    const { rows } = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
 
     return utils.respondWith({
-      accounts: utils.toCollection(request, wallets.rows, 'wallet')
+      accounts: utils.toCollection(request, rows, 'wallet')
     })
   }
 }
@@ -218,8 +218,8 @@ exports.count = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const accounts = await database.wallets.findAll()
+    const { count } = await database.wallets.findAll()
 
-    return utils.respondWith({ count: accounts.length })
+    return utils.respondWith({ count })
   }
 }
