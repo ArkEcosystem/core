@@ -143,7 +143,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verify (transaction, signature, publicKey) {
-    const hash = cryptoBuilder.getHash(transaction)
+    const hash = cryptoBuilder.getHash(transaction, true, true)
     const signSignatureBuffer = Buffer.from(signature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
