@@ -17,7 +17,7 @@ module.exports = class Handler {
     let check = true
 
     if (wallet.multisignature) {
-      check = check && wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
+      check = check && wallet.verifySignatures(transaction, wallet.multisignature)
     } else {
       check = check && (transaction.senderPublicKey === wallet.publicKey) && (wallet.balance - transaction.amount - transaction.fee > -1) // eslint-disable-line max-len
 
