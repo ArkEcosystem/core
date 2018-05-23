@@ -13,6 +13,7 @@ module.exports = (transaction) => {
     recipientId: engine.joi.empty(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
+    signatures: engine.joi.array().min(2).required(),
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       multisignature: engine.joi.object({
