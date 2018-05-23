@@ -3,6 +3,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build:docs": "lerna run build:docs",
+    "changelog": "lerna-changelog",
     "clean": "lerna clean",
     "commit": "git-cz",
     "lint": "lerna run lint",
@@ -32,6 +33,7 @@
     "jest-extended": "^0.7.2",
     "jsdoc": "^3.5.5",
     "lerna": "^2.11.0",
+    "lerna-changelog": "^0.7.0",
     "regenerator-runtime": "^0.11.1",
     "request-promise": "^4.2.2",
     "standard": "^11.0.1",
