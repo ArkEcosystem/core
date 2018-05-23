@@ -13,7 +13,7 @@ const register = async (server, options) => {
 
   server.ext({
     type: 'onRequest',
-    method: async (request, h) => {
+    async method (request, h) {
       let remoteAddress = request.info.remoteAddress
 
       if (remoteAddress.startsWith('::ffff:')) {

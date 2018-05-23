@@ -19,7 +19,9 @@ module.exports = async (config) => {
       auth: 'webhooks',
       cors: true,
       validate: {
-        failAction: async (request, h, err) => { throw err }
+        async failAction (request, h, err) {
+           throw err
+        }
       }
     }
   }

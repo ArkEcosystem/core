@@ -10,7 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'databaseManager',
-  register: async (container, options) => {
+  async register (container, options) {
     container.resolvePlugin('logger').info('Starting Database Manager...')
 
     return databaseManager

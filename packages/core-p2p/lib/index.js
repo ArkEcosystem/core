@@ -10,7 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'p2p',
-  register: async (container, options) => {
+  async register (container, options) {
     container.resolvePlugin('logger').info('Starting P2P Interface...')
 
     const p2p = new PeerManager(options)
@@ -18,7 +18,7 @@ exports.plugin = {
 
     return p2p
   },
-  deregister: async (container, options) => {
+  async deregister (container, options) {
     container.resolvePlugin('logger').info('Stopping P2P Interface...')
 
     return container.resolvePlugin('p2p').stop()

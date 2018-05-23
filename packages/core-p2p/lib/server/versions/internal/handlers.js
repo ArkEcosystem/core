@@ -15,7 +15,7 @@ exports.postVerifyTransaction = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
     const result = await container.resolvePlugin('blockchain').database.verifyTransaction(transaction)
 
@@ -48,7 +48,7 @@ exports.getRound = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
     const lastBlock = await blockchain.getLastBlock()
@@ -92,7 +92,7 @@ exports.getTransactionsForForging = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
     const height = blockchain.getLastBlock(true).height

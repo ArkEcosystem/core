@@ -3,7 +3,7 @@ const network = require('../../services/network')
 
 module.exports = {
   name: 'blocks.info',
-  method: async (params) => {
+  async method (params) {
     const response = await network.getFromNode(`/api/blocks/get?id=${params.id}`)
 
     return response.data.block

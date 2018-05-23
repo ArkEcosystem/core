@@ -4,7 +4,7 @@ const database = require('@arkecosystem/core-container').resolvePlugin('database
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')
 
 module.exports = {
-  transactions: async (block, args) => {
+  async transactions (block, args) {
     const { orderBy, filter, ...params } = args
 
     const result = await database.transactions.findAll({
@@ -15,7 +15,7 @@ module.exports = {
 
     return unserializeTransactions(result)
   },
-  generator: (block) => {
+  generator (block) {
     const generatorPublicKey = block.dataValues.generatorPublicKey
     return database.wallets.findById(generatorPublicKey)
   }

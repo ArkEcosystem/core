@@ -3,7 +3,7 @@ const ark = require('@arkecosystem/crypto')
 
 module.exports = {
   name: 'accounts.create',
-  method: async (params) => {
+  async method (params) {
     const account = ark.crypto.getKeys(params.passphrase)
 
     return {

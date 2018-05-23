@@ -6,5 +6,7 @@
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'graphql',
-  register: async (manager, options) => require('./schema')
+  async register (manager, options) {
+    return require('./schema')
+  }
 }

@@ -3,7 +3,7 @@ const network = require('../../services/network')
 
 module.exports = {
   name: 'accounts.info',
-  method: async (params) => {
+  async method (params) {
     const response = await network.getFromNode(`/api/accounts?address=${params.address}`)
 
     return response.data.account

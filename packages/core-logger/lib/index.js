@@ -9,7 +9,9 @@ const logManager = require('./manager')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'logManager',
-  register: async (container, options) => logManager
+  async register (container, options) {
+    return logManager
+  }
 }
 
 /**

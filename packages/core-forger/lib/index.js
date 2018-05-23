@@ -10,7 +10,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'forger',
-  register: async (container, options) => {
+  async register (container, options) {
     const forgerManager = await new ForgerManager(options)
 
     const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)

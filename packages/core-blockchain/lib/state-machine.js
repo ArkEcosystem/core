@@ -232,7 +232,7 @@ blockchainMachine.actionMap = blockchain => {
       logger.info('Analysing fork')
     },
 
-    startForkRecovery: async () => {
+    async startForkRecovery () {
       logger.info('Starting fork recovery 🍴')
       // state.forked = true
       const random = ~~(4 / Math.random())
