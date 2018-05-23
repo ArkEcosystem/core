@@ -7,7 +7,7 @@ const { transformResource, transformCollection } = require('../../utils/transfor
  * @param  {Hapi.Request} request
  * @return {Object}
  */
-const paginator = (request) => {
+const paginator = request => {
   return {
     offset: request.query.offset || 0,
     limit: request.query.limit || 100
@@ -44,9 +44,7 @@ const toResource = (request, data, transformerClass) => {
  * @param  {String} transformerClass
  * @return {Object}
  */
-const toCollection = (request, data, transformerClass) => {
-  return transformCollection(request, data, transformerClass)
-}
+const toCollection = transformCollection
 
 /**
  * @type {Object}
