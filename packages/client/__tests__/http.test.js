@@ -1,4 +1,4 @@
-const Client = require('../lib/client')
+const Client = require('../lib')
 const HttpClient = require('../lib/http')
 
 let client

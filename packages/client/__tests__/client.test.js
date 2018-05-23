@@ -1,4 +1,4 @@
-const Client = require('../lib/client')
+const Client = require('../lib')
 const HttpClient = require('../lib/http')
 const ApiResource = require('../lib/resources/v1/transactions')
 

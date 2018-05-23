@@ -519,6 +519,8 @@ module.exports = class Block {
   }
 
   toRawJson () {
-    return {...this.data, transactions: this.transactions.map(transaction => transaction.data)}
+    return Object.assign(this.data, {
+      transactions: this.transactions.map(transaction => transaction.data)
+    })
   }
 }

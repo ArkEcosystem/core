@@ -14,6 +14,5 @@ module.exports = {
     '!**/node_modules/**'
   ],
   watchman: false,
-  // setupFiles: ['<rootDir>/../../node_modules/regenerator-runtime/runtime'],
   setupTestFrameworkScriptFile: 'jest-extended'
 }
