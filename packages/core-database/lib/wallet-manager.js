@@ -184,38 +184,43 @@ module.exports = class WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  async applyTransaction (transaction) {
-    const transactionData = transaction.data
-    const recipientId = transactionData.recipientId
+  async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+    const { data } = transaction
+    const { asset, recipientId, senderPublicKey } = data
 
-    const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
+    const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
       emitter.emit('wallet:cold:created', recipient)
-    } else if (transactionData.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[transactionData.asset.delegate.username.toLowerCase()]) {
-      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
-    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
+    } else if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
-    } else if (config.network.exceptions[transactionData.id]) {
-      logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
-    } else if (!sender.canApply(transactionData)) {
-      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(transactionData))
-      logger.debug('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
+      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
-      throw new Error(`Can't apply transaction ${transactionData.id}`)
+    } else if (data.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
+
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: voted delegate does not exist`)
+
+    } else if (config.network.exceptions[data.id]) {
+
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
+
+    } else if (!sender.canApply(data)) {
+
+      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(data))
+      logger.debug('Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      throw new Error(`Can't apply transaction ${data.id}`)
     }
 
-    sender.applyTransactionToSender(transactionData)
+    sender.applyTransactionToSender(data)
 
-    if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.applyTransactionToRecipient(transactionData)
+    if (recipient && data.type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(data)
     }
 
     return transaction
