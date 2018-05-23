@@ -32,7 +32,7 @@ module.exports = async (options) => {
       min
     )
     transaction.signatures = []
-    for (let i = 0; i < approvalWallets.length; i++) {
+    for (let i = approvalWallets.length - 1; i >= 0; i--) {
       const approverSignature = ark.multisignature.signTransaction(
         transaction,
         approvalWallets[i].passphrase
