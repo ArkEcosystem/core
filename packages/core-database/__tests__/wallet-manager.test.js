@@ -177,32 +177,77 @@ describe('Wallet Manager', () => {
     })
 
     it('should apply the transaction to the sender & recipient', async () => {
-      const transaction = new Transaction({
-        type: 0,
-        amount: 245098000000000,
-        fee: 0,
-        recipientId: 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri',
-        timestamp: 0,
-        asset: {},
-        senderPublicKey: '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788',
-        signature: '304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d',
-        id: 'db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd',
-        senderId: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
-      })
+      const balance = 100000000
+      const amount = 96579
 
-      const manager = createWalletManager()
+      // NOTE: the order is important: we sign a transaction with a random pass
+      // to override the sender public key with a fake one
+      // TODO is it possible to use this method to attack the network?
 
-      const sender = manager.getWalletByPublicKey(transaction.data.senderPublicKey)
-      sender.balance = transaction.data.amount
-      const recipient = manager.getWalletByAddress(transaction.data.recipientId)
+      const sender = new Wallet(walletData1.address)
+      sender.balance = balance
+      const recipient = new Wallet(walletData2.address)
+      recipient.publicKey = walletData2.publicKey
 
-      expect(sender.balance).toBe(transaction.data.amount)
+      const transactionData = transactionBuilder
+        .transfer()
+        .setVendorField('dummy A transfer to dummy B')
+        .sign(Math.random().toString(36))
+        .create(recipient.address, amount)
+
+      sender.publicKey = transactionData.senderPublicKey
+
+      walletManager.reindex(sender)
+      walletManager.reindex(recipient)
+
+      const transaction = new Transaction(transactionData)
+
+      expect(sender.balance).toBe(balance)
       expect(recipient.balance).toBe(0)
 
-      await manager.applyTransaction(transaction)
+      await walletManager.applyTransaction(transaction)
 
-      expect(sender.balance).toBe(0)
-      expect(recipient.balance).toBe(transaction.data.amount)
+      expect(sender.balance).toBe(balance - amount - transaction.fee)
+      expect(recipient.balance).toBe(amount)
+    })
+
+    it('should fail if the transaction cannot be applied', async () => {
+      const balance = 1
+      const amount = 96579
+
+      // NOTE: the order is important: we sign a transaction with a random pass
+      // to override the sender public key with a fake one
+
+      const sender = new Wallet(walletData1.address)
+      sender.balance = balance
+      const recipient = new Wallet(walletData2.address)
+      recipient.publicKey = walletData2.publicKey
+
+      const transactionData = transactionBuilder
+        .transfer()
+        .setVendorField('dummy A transfer to dummy B')
+        .sign(Math.random().toString(36))
+        .create(recipient.address, amount)
+
+      sender.publicKey = transactionData.senderPublicKey
+
+      walletManager.reindex(sender)
+      walletManager.reindex(recipient)
+
+      const transaction = new Transaction(transactionData)
+
+      expect(sender.balance).toBe(balance)
+      expect(recipient.balance).toBe(0)
+
+      try {
+        expect(async () => {
+          await walletManager.applyTransaction(transaction)
+        }).toThrowError(/apply transaction/)
+        expect(null).toBe('this should fail if no error is thrown')
+      } catch (error) {
+        expect(sender.balance).toBe(balance)
+        expect(recipient.balance).toBe(0)
+      }
     })
   })
 

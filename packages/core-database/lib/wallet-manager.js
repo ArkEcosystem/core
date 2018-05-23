@@ -201,6 +201,7 @@ module.exports = class WalletManager {
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
+    // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
     } else if (data.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
 
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
