@@ -16,7 +16,7 @@ module.exports = class Config extends ConfigInterface {
 
     super._validateConfig()
 
-    super._buildConstants()
+    super.buildConstants()
 
     return this
   }

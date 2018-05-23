@@ -1,6 +1,7 @@
 'use strict'
 
-const constants = require('@arkecosystem/core-container').resolvePlugin('config').constants
+const container = require('@arkecosystem/core-container')
+const lastBlock = container.resolvePlugin('blockchain').getLastBlock(true)
 
 /**
  * The AJV schema for the delegate endpoints.
@@ -63,7 +64,9 @@ module.exports = {
       limit: {
         type: 'integer',
         minimum: 1,
-        maximum: constants.activeDelegates
+        maximum: lastBlock
+          ? container.resolvePlugin('config').getConstants(lastBlock.height).activeDelegates
+          : 51
       },
       offset: {
         type: 'integer',

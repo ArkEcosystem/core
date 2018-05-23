@@ -1,7 +1,6 @@
 'use strict'
 
-const container = require('@arkecosystem/core-container')
-const deepmerge = require('deepmerge')
+const { configManager } = require('@arkecosystem/crypto')
 const ow = require('ow')
 
 module.exports = class ConfigInterface {
@@ -21,40 +20,15 @@ module.exports = class ConfigInterface {
    * @return {void}
    */
   getConstants (height) {
-    if (!height) {
-      height = container.resolvePlugin('blockchain').getLastBlock(true).height
-    }
-
-    while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
-      this.constant.index++
-      this.constant.data = this.constants[this.constant.index]
-    }
-
-    while (height < this.constants[this.constant.index].height) {
-      this.constant.index--
-      this.constant.data = this.constants[this.constant.index]
-    }
-
-    return this.constant.data
+    return configManager.getConstants(height)
   }
 
   /**
    * Build constants from the config.
    * @return {void}
    */
-  _buildConstants () {
-    this.constants = this.network.constants.sort((a, b) => a.height - b.height)
-    this.constant = {
-      index: 0,
-      data: this.constants[0]
-    }
-
-    let lastmerged = 0
-
-    while (lastmerged < this.constants.length - 1) {
-      this.constants[lastmerged + 1] = deepmerge(this.constants[lastmerged], this.constants[lastmerged + 1])
-      lastmerged++
-    }
+  buildConstants () {
+    configManager.buildConstants()
   }
 
   /**

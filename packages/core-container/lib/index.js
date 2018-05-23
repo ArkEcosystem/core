@@ -119,9 +119,7 @@ class Container {
 
       try {
         await this.resolvePlugin('database').saveWallets(true)
-      } catch (error) {
-        //
-      }
+      } catch (error) {}
 
       // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
 

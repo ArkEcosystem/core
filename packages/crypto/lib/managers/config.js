@@ -26,8 +26,8 @@ class ConfigManager {
 
     arkjsv1.crypto.setNetworkVersion(this.config.pubKeyHash) // make sure ark.js v1 uses our config
 
-    this.__buildConstants()
-    this.__buildFees()
+    this.buildConstants()
+    this.buildFees()
   }
 
   /**
@@ -104,7 +104,7 @@ class ConfigManager {
    * @return {*}
    */
   getConstants (height) {
-    if (this.height) {
+    if (!height && this.height) {
       height = this.height
     }
 
@@ -112,25 +112,25 @@ class ConfigManager {
       height = 1
     }
 
-    while ((this.current.index < this.constants.length - 1) && height >= this.constants[this.current.index + 1].height) {
-      this.current.index++
-      this.current.data = this.constants[this.current.index]
+    while ((this.constant.index < this.constants.length - 1) && height >= this.constants[this.constant.index + 1].height) {
+      this.constant.index++
+      this.constant.data = this.constants[this.constant.index]
     }
 
-    while (height < this.constants[this.current.index].height) {
-      this.current.index--
-      this.current.data = this.constants[this.current.index]
+    while (height < this.constants[this.constant.index].height) {
+      this.constant.index--
+      this.constant.data = this.constants[this.constant.index]
     }
 
-    return this.current.data
+    return this.constant.data
   }
 
   /**
    * Build constant data based on active heights.
    */
-  __buildConstants () {
+  buildConstants () {
     this.constants = this.config.constants.sort((a, b) => a.height - b.height)
-    this.current = {
+    this.constant = {
       index: 0,
       data: this.constants[0]
     }
@@ -146,7 +146,7 @@ class ConfigManager {
   /**
    * Build fees from config constants.
    */
-  __buildFees () {
+  buildFees () {
     Object
       .keys(TRANSACTION_TYPES)
       .forEach(type => feeManager.set(TRANSACTION_TYPES[type], this.getConstant('fees')[_.camelCase(type)]))
