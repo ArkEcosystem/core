@@ -22,7 +22,7 @@ module.exports = async (options) => {
   const multiSignatureWallets = utils.generateWallets(options.number)
   await transactionCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
 
-  const transactions = []
+  let transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.multisignature.createMultisignature(
       wallet.passphrase,
@@ -53,85 +53,224 @@ module.exports = async (options) => {
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
-
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
     await delay(delaySeconds * 1000)
-
-    // let voters = 0
-    // for (const detail of delegateVotes) {
-    //   voters += (await utils.getVoters(detail.delegate.publicKey)).length
-    // }
-    // logger.info(`All transactions have been sent! Total voters: ${voters}`)
-
-    // if (voters !== expectedVoters) {
-    //   logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
-    // }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending multi-signature transactions: ${error.response.data.message}`)
+    process.exit(1)
   }
 
-  // let delegateVotes = []
-  // if (!options.delegate) {
-  //   const delegates = await utils.getDelegates()
-  //   const chosen = sampleSize(delegates, options.quantity)
+  await __testSendWithSignatures(multiSignatureWallets, approvalWallets)
+  await __testSendWithMinSignatures(multiSignatureWallets, approvalWallets, min)
+  await __testSendWithBelowMinSignatures(multiSignatureWallets, approvalWallets, min)
+  await __testSendWithoutSignatures(multiSignatureWallets)
+  await __testSendWithEmptySignatures(multiSignatureWallets)
+}
 
-  //   for (let i = 0; i < chosen.length; i++) {
-  //     delegateVotes.push({
-  //       delegate: chosen[i],
-  //       voters: await utils.getVoters(chosen[i].publicKey)
-  //     })
-  //   }
-  // }
+/**
+ * Send transactions with approver signatures.
+ * @return {void}
+ */
+async function __testSendWithSignatures (multiSignatureWallets, approvalWallets) {
+  const transactions = []
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      2,
+      `TID - with sigs: ${i}`,
+      wallet.passphrase
+    )
+    transaction.signatures = []
+    for (let j = approvalWallets.length - 1; j >= 0; j--) {
+      const approverSignature = ark.multisignature.signTransaction(
+        transaction,
+        approvalWallets[j].passphrase
+      )
+      transaction.signatures.push(approverSignature)
+    }
+    transactions.push(transaction)
+  })
 
-  // let voters = 0
-  // delegateVotes.forEach(detail => {
-  //   voters += detail.voters.length
-  // })
+  try {
+    logger.info('Sending transactions with signatures')
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
 
-  // logger.info(`Delegate starting voters: ${voters}`)
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (!tx) {
+        logger.error(`Transaction '${transactions[i].id}' is be on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
+}
 
-  // const transactions = []
-  // wallets.forEach((wallet, i) => {
-  //   const transaction = ark.vote.createVote(
-  //     wallet.passphrase,
-  //     delegateVotes.map(detail => `+${detail.delegate.publicKey}`)
-  //   )
-  //   transactions.push(transaction)
+/**
+ * Send transactions with min approver signatures.
+ * @return {void}
+ */
+async function __testSendWithMinSignatures (multiSignatureWallets, approvalWallets, min) {
+  const transactions = []
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      2,
+      `TID - with ${min} sigs: ${i}`,
+      wallet.passphrase
+    )
+    transaction.signatures = []
+    for (let j = approvalWallets.length - 1; j >= 0; j--) {
+      const approverSignature = ark.multisignature.signTransaction(
+        transaction,
+        approvalWallets[j].passphrase
+      )
+      transaction.signatures.push(approverSignature)
+      if (transaction.signatures.length == min) {
+        break
+      }
+    }
+    transactions.push(transaction)
+  })
 
-  //   logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
-  // })
+  try {
+    logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
 
-  // if (options.copy) {
-  //   utils.copyToClipboard(transactions)
-  //   process.exit() // eslint-disable-line no-unreachable
-  // }
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (!tx) {
+        logger.error(`Transaction '${transactions[i].id}' should be on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
+}
 
-  // const constants = await utils.getConstants()
+/**
+ * Send transactions with below min approver signatures.
+ * @return {void}
+ */
+async function __testSendWithBelowMinSignatures (multiSignatureWallets, approvalWallets, min) {
+  const transactions = []
+  const max = min - 1
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      2,
+      `TID - with ${max} sigs: ${i}`,
+      wallet.passphrase
+    )
+    transaction.signatures = []
+    for (let j = approvalWallets.length - 1; j >= 0; j--) {
+      const approverSignature = ark.multisignature.signTransaction(
+        transaction,
+        approvalWallets[j].passphrase
+      )
+      transaction.signatures.push(approverSignature)
+      if (transaction.signatures.length == max) {
+        break
+      }
+    }
+    transactions.push(transaction)
+  })
 
-  // const expectedVoters = (options.quantity > constants.activeVotes)
-  //   ? voters + (wallets.length * constants.activeVotes)
-  //   : voters + (wallets.length * options.quantity)
+  try {
+    logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
 
-  // logger.info(`Expected end voters: ${expectedVoters}`)
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (tx) {
+        logger.error(`Transaction '${transactions[i].id}' should not be on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
+}
 
-  // try {
-  //   await utils.request.post('/peer/transactions', {transactions}, true)
+/**
+ * Send transactions without approver signatures.
+ * @return {void}
+ */
+async function __testSendWithoutSignatures (multiSignatureWallets) {
+  const transactions = []
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      2,
+      `TID - without sigs: ${i}`,
+      wallet.passphrase
+    )
+    transactions.push(transaction)
+  })
 
-  //   const delaySeconds = await utils.getTransactionDelay(transactions)
-  //   logger.info(`Waiting ${delaySeconds} seconds to apply vote transactions`)
-  //   await delay(delaySeconds * 1000)
+  try {
+    logger.info('Sending transactions without signatures')
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
 
-  //   let voters = 0
-  //   for (const detail of delegateVotes) {
-  //     voters += (await utils.getVoters(detail.delegate.publicKey)).length
-  //   }
-  //   logger.info(`All transactions have been sent! Total voters: ${voters}`)
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (tx) {
+        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
+}
 
-  //   if (voters !== expectedVoters) {
-  //     logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
-  //   }
-  // } catch (error) {
-  //   logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
-  // }
+/**
+ * Send transactions with empty approver signatures.
+ * @return {void}
+ */
+async function __testSendWithEmptySignatures (multiSignatureWallets) {
+  const transactions = []
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      2,
+      `TID - without sigs: ${i}`,
+      wallet.passphrase
+    )
+    transaction.signatures = []
+    transactions.push(transaction)
+  })
+
+  try {
+    logger.info('Sending transactions with empty signatures')
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
+
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (tx) {
+        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
 }
