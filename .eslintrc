@@ -12,18 +12,9 @@
   },
   "rules": {
     "no-console": "off",
-    "indent": [
-      "off",
-      2
-    ],
+    "indent": ["off", 2],
     "linebreak-style": 0,
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "off",
-      "always"
-    ]
+    "quotes": ["error", "single"],
+    "semi": ["off", "always"]
   }
 }
