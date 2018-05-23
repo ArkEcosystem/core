@@ -42,7 +42,7 @@ describe('Container', () => {
     expect(container.has('fake')).toBeTruthy()
   })
 
-  it('should export paths', () => {
-    expect(process.env.ARK_PATH_DATA).toEqual('fake-path')
+  it('should resolve and export paths', () => {
+    expect(process.env.ARK_PATH_DATA).toEqual(path.resolve('fake-path'))
   })
 })

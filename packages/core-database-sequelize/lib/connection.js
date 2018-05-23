@@ -29,7 +29,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       throw new Error('Already initialised')
     }
 
-    if (this.config.dialect === 'sqlite') {
+    if (this.config.dialect === 'sqlite' && this.config.storage !== ':memory:') {
       await fs.ensureFile(this.config.storage)
     }
 

@@ -17,6 +17,10 @@
     "ark:snapshot": "./bin/ark snapshot"
   },
   "scripts": {
+    "debug:start": "node --inspect-brk ./bin/ark start",
+    "debug:relay": "node --inspect-brk ./bin/ark relay",
+    "debug:forger": "node --inspect-brk ./bin/ark forger",
+    "debug:snapshot": "node --inspect-brk ./bin/ark snapshot",
     "start": "./bin/ark start",
     "start:mainnet": "./bin/ark start --config ./lib/config/mainnet --network mainnet",
     "start:devnet": "./bin/ark start --config ./lib/config/devnet --network devnet",
