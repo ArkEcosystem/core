@@ -28,6 +28,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
+    // TODO rename to by...
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
     this.walletsByUsername = {}

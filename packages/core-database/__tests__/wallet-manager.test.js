@@ -265,7 +265,7 @@ describe('Wallet Manager', () => {
 
     it('should revert the transaction from the sender & recipient', async () => {
       const transaction = new Transaction({
-        type: 0,
+        type: TRANSACTION_TYPES.TRANSFER,
         amount: 245098000000000,
         fee: 0,
         recipientId: 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri',
