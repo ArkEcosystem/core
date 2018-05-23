@@ -26,6 +26,7 @@ describe('ark-js (BIP32)', () => {
   })
 
   it('can create a BIP44, ark, account 0, external address', () => {
+    /* eslint quotes: ["error", "single", { avoidEscape: true }] */
     const path = "m/44'/0'/0'/0/0"
     const root = HDNode.fromSeedHex('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
 
