@@ -11,7 +11,6 @@ beforeAll(async (done) => {
   await app.setUp()
 
   connection = await createConnection()
-  builder = new (require('../../lib/builder/wallet'))(connection)
 
   done()
 })
