@@ -1,22 +1,15 @@
-// const path = require('path')
-
-// function resolve (dir) {
-//   return path.join(__dirname, dir)
-// }
-
 module.exports = {
   module: {
     rules: [{
       test: /\.js$/,
-      loaders: ['babel-loader'],
-      exclude: /node_modules/
+      exclude: /node_modules/,
+      use: {
+        loader: "babel-loader"
+      }
     }]
   },
 
   resolve: {
-    // alias: {
-    //   '@': resolve('../lib')
-    // },
     extensions: ['.js', '.json']
   }
 }

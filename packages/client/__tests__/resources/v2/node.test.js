@@ -1,4 +1,4 @@
-const Client = require('../../../lib/client')
+const Client = require('../../../lib')
 const ApiResource = require('../../../lib/resources/v2/node')
 require('../../mocks/v2')
 

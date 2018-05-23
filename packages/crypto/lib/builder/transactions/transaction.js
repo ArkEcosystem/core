@@ -136,7 +136,7 @@ module.exports = class Transaction {
    * @return {Object}
    */
   __getSigningObject () {
-    const transaction = { ...this }
+    const transaction = this
 
     Object.keys(transaction).forEach(key => {
       if (['model', 'network', 'id'].includes(key)) {
