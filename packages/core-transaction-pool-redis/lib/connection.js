@@ -90,7 +90,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param {(Transaction|void)} transaction
    */
   async addTransaction (transaction) {
-    console.log(transaction)
     if (!this.__isReady()) {
       return
     }

@@ -8,30 +8,23 @@ class MultiSignatureHandler extends Handler {
    * @return {Boolean}
    */
   canApply (wallet, transaction) {
-    console.log('multisig', 'a', transaction, wallet)
-    console.log((new Error()).stack)
     if (!super.canApply(wallet, transaction)) {
       return false
     }
-    console.log('multisig', 'b')
 
     if (wallet.multisignature) {
       return false
     }
-    console.log('multisig', 'c')
 
     const keysgroup = transaction.asset.multisignature.keysgroup
-    console.log('multisig', 'd')
 
     if (keysgroup.length < transaction.asset.multisignature.min) {
       return false
     }
-    console.log('multisig', 'e')
 
     if (keysgroup.length !== transaction.signatures.length) {
       return false
     }
-    console.log('multisig', 'f', keysgroup)
 
     return wallet.verifySignatures(transaction, transaction.asset.multisignature)
   }

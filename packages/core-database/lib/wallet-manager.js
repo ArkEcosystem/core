@@ -212,8 +212,6 @@ module.exports = class WalletManager {
       throw new Error(`Can't apply transaction ${transactionData.id}`)
     }
 
-    logger.error('applyTransaction', transaction)
-
     sender.applyTransactionToSender(transactionData)
 
     if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {

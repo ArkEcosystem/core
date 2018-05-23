@@ -11,28 +11,19 @@ module.exports = class Handler {
    */
   canApply (wallet, transaction) {
     if (transactionValidator.validate(transaction).fails) {
-      console.log('validator fail', transactionValidator.validate(transaction).fails)
       return false
     }
 
     let check = true
-
-    console.log(wallet)
-    console.log(transaction)
 
     if (wallet.multisignature) {
       check = check && wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
     } else {
       check = check && (transaction.senderPublicKey === wallet.publicKey) && (wallet.balance - transaction.amount - transaction.fee > -1) // eslint-disable-line max-len
 
-      console.log(transaction.senderPublicKey === wallet.publicKey)
-      console.log(wallet.balance - transaction.amount - transaction.fee)
-
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       check = check && (!wallet.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, wallet.secondPublicKey, configManager.config)) // eslint-disable-line max-len
     }
-
-    console.log(check)
 
     return check
   }

@@ -149,16 +149,6 @@ module.exports = class Wallet {
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
     const ecsignature = ECSignature.fromDER(signSignatureBuffer)
 
-    console.log('ecpair verify', {
-      hash: hash.toString('hex'),
-      signature,
-      publicKey,
-      signSignatureBuffer: signSignatureBuffer.toString('hex'),
-      publicKeyBuffer: publicKeyBuffer.toString('hex'),
-      config: configManager.config,
-      ecsignature,
-    })
-
     return ecpair.verify(hash, ecsignature)
   }
 
@@ -253,7 +243,7 @@ module.exports = class Wallet {
       const keysgroup = transaction.asset.multisignature.keysgroup
       audit.push({'Multisignature not yet registered': !this.multisignature})
       audit.push({'Multisignature enough keys': keysgroup.length >= transaction.asset.multisignature.min})
-      // audit.push({'Multisignature all keys signed': keysgroup.length === transaction.signatures.length})
+      audit.push({'Multisignature all keys signed': keysgroup.length === transaction.signatures.length})
       audit.push({'Multisignature verification': this.verifySignatures(transaction, transaction.asset.multisignature)})
     }
 
