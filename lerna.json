@@ -5,5 +5,20 @@
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "independent"
+  "version": "independent",
+  "changelog": {
+    "repo": "fix/ark-core",
+    "labels": {
+      "tag: feature": ":sparkles: New Feature",
+      "tag: bug": ":bug: Bug Fix",
+      "tag: enhancement": ":nail_care: Enhancement",
+      "tag: documentation": ":memo: Documentation",
+      "tag: performance": ":zap: Performance",
+      "tag: security": ":lock: Security",
+      "tag: refactor": ":recycle: Refactored",
+      "tag: docker": ":whale: Docker",
+      "tag: hotfix": ":ambulance: Hotfix"
+    },
+    "cacheDir": ".changelog"
+  }
 }
