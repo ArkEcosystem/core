@@ -69,29 +69,34 @@ describe('Wallet Manager', () => {
   })
 
   describe('applyBlock', () => {
-    let manager
     let delegateMock
     let block2
 
+    const delegatePublicKey = '036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'
+
     const tx1 = transactionBuilder
       .vote()
-      .create(['+036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
+      .create([`+${delegatePublicKey}`])
       .sign(Math.random().toString(36))
     const tx2 = transactionBuilder
       .vote()
-      .create(['-036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'])
+      .create([`-${delegatePublicKey}`])
       .sign(Math.random().toString(36))
 
     beforeEach(() => {
-      block2 = new Block(block.data)
-      block2.transactions.push(block.transactions[0])
-      block2.transactions.push(tx1)
-      block2.transactions.push(tx2)
-
-      delegateMock = { applyBlock: jest.fn() }
+      delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey }
       walletManager.getWalletByPublicKey = jest.fn(() => delegateMock)
       walletManager.applyTransaction = jest.fn()
       walletManager.revertTransaction = jest.fn()
+
+      const { data } = block
+      data.transactions = []
+      data.transactions.push(block.transactions[0])
+      data.transactions.push(tx1)
+      data.transactions.push(tx2)
+      block2 = new Block(data)
+
+      walletManager.reindex(delegateMock)
     })
 
     it('should be a function', () => {
@@ -120,9 +125,14 @@ describe('Wallet Manager', () => {
           }
         })
 
+        expect(block2.transactions.length).toBe(3)
+
         try {
           await walletManager.applyBlock(block2)
+
+          expect(null).toBe('this should fail if no error is thrown')
         } catch (_error) {
+          expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2)
           block2.transactions.slice(0, 1).forEach((transaction, i) => {
             expect(walletManager.revertTransaction.mock.calls[1 - i][0]).toEqual(block2.transactions[i])
           })
@@ -136,6 +146,8 @@ describe('Wallet Manager', () => {
 
         try {
           await walletManager.applyBlock(block)
+
+          expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
           expect(error).toBeInstanceOf(Error)
           expect(error.message).toBe('Fake error')
@@ -233,6 +245,7 @@ describe('Wallet Manager', () => {
           expect(async () => {
             await walletManager.applyTransaction(transaction)
           }).toThrowError(/apply transaction/)
+
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
           expect(sender.balance).toBe(balance)
