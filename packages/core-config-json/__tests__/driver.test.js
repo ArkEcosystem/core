@@ -13,6 +13,7 @@ const stubConfig = {
 
 beforeEach(() => {
   process.env.ARK_PATH_CONFIG = stubConfigPath
+  process.env.ARK_NETWORK = JSON.stringify(stubConfig.network)
 })
 
 afterEach(() => {
