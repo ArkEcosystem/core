@@ -159,28 +159,42 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verifySignatures (transaction, multisignature) {
-    if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) {
+    if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
       return false
     }
 
-    const truncatePlus = (publicKey) => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey
+    const keysgroup = multisignature.keysgroup.map(publicKey => {
+      return publicKey.startsWith('+') ? publicKey.slice(1) : publicKey
+    })
+    let signatures = Object.values(transaction.signatures)
 
-    let index = 0
-    let publicKey = truncatePlus(multisignature.keysgroup[index])
-
-    for (let i in transaction.signatures) {
-      if (!this.verify(transaction, transaction.signatures[i], publicKey)) {
-        if (index++ > transaction.signatures.length - 1) {
-          return false
-        }
-
-        if (index < multisignature.keysgroup.length) {
-          publicKey = truncatePlus(multisignature.keysgroup[index])
+    let valid = 0
+    for (const publicKey of keysgroup) {
+      if (this.__verifyTransactionSignatures(transaction, signatures, publicKey)) {
+        valid++
+        if (valid === multisignature.min) {
+          return true
         }
       }
     }
 
-    return true
+    console.log('verifySignatures', keysgroup, valid)
+
+    return false
+  }
+
+  __verifyTransactionSignatures (transaction, signatures, publicKey) {
+    for (let i = 0; i < signatures.length; i++) {
+      const signature = signatures[i]
+      console.log('__verifyTransactionSignatures', signature, publicKey)
+      if (this.verify(transaction, signature, publicKey)) {
+        signatures.splice(i, 1)
+
+        return true
+      }
+    }
+
+    return false
   }
 
   /**
