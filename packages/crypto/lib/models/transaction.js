@@ -283,12 +283,15 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-      transaction.asset = { multisignature: { keysgroup: [] } }
-      transaction.asset.multisignature.min = buf.readInt8(assetOffset / 2) & 0xff
+      transaction.asset = {
+        multisignature: {
+          min: buf.readInt8(assetOffset / 2) & 0xff,
+          keysgroup: [],
+          lifetime: buf.readInt8(assetOffset / 2 + 2) & 0xff
+        }
+      }
 
       const num = buf.readInt8(assetOffset / 2 + 1) & 0xff
-      transaction.asset.multisignature.lifetime = buf.readInt8(assetOffset / 2 + 2) & 0xff
-
       for (let index = 0; index < num; index++) {
         const key = hexString.slice(assetOffset + 6 + index * 66, assetOffset + 6 + (index + 1) * 66)
         transaction.asset.multisignature.keysgroup.push(key)
