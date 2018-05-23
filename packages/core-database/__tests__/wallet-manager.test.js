@@ -176,78 +176,72 @@ describe('Wallet Manager', () => {
       expect(walletManager.applyTransaction).toBeFunction()
     })
 
-    it('should apply the transaction to the sender & recipient', async () => {
-      const balance = 100000000
-      const amount = 96579
-
-      // NOTE: the order is important: we sign a transaction with a random pass
-      // to override the sender public key with a fake one
-      // TODO is it possible to use this method to attack the network?
-
-      const sender = new Wallet(walletData1.address)
-      sender.balance = balance
-      const recipient = new Wallet(walletData2.address)
-      recipient.publicKey = walletData2.publicKey
-
-      const transactionData = transactionBuilder
-        .transfer()
-        .setVendorField('dummy A transfer to dummy B')
-        .sign(Math.random().toString(36))
-        .create(recipient.address, amount)
-
-      sender.publicKey = transactionData.senderPublicKey
-
-      walletManager.reindex(sender)
-      walletManager.reindex(recipient)
-
-      const transaction = new Transaction(transactionData)
-
-      expect(sender.balance).toBe(balance)
-      expect(recipient.balance).toBe(0)
-
-      await walletManager.applyTransaction(transaction)
-
-      expect(sender.balance).toBe(balance - amount - transaction.fee)
-      expect(recipient.balance).toBe(amount)
+    describe('when the recipient is a cold wallet', () => {
     })
 
-    it('should fail if the transaction cannot be applied', async () => {
-      const balance = 1
+    describe('when the transaction is a transfer', () => {
       const amount = 96579
 
-      // NOTE: the order is important: we sign a transaction with a random pass
-      // to override the sender public key with a fake one
+      let sender
+      let recipient
+      let transaction
 
-      const sender = new Wallet(walletData1.address)
-      sender.balance = balance
-      const recipient = new Wallet(walletData2.address)
-      recipient.publicKey = walletData2.publicKey
+      beforeEach(() => {
+        sender = new Wallet(walletData1.address)
+        recipient = new Wallet(walletData2.address)
+        recipient.publicKey = walletData2.publicKey
 
-      const transactionData = transactionBuilder
-        .transfer()
-        .setVendorField('dummy A transfer to dummy B')
-        .sign(Math.random().toString(36))
-        .create(recipient.address, amount)
+        // NOTE: the order is important: we sign a transaction with a random pass
+        // to override the sender public key with a fake one
+        // TODO is it possible to use this method to attack the network?
 
-      sender.publicKey = transactionData.senderPublicKey
+        const transactionData = transactionBuilder
+          .transfer()
+          .setVendorField('dummy A transfer to dummy B')
+          .sign(Math.random().toString(36))
+          .create(recipient.address, amount)
 
-      walletManager.reindex(sender)
-      walletManager.reindex(recipient)
+        sender.publicKey = transactionData.senderPublicKey
 
-      const transaction = new Transaction(transactionData)
+        transaction = new Transaction(transactionData)
 
-      expect(sender.balance).toBe(balance)
-      expect(recipient.balance).toBe(0)
+        walletManager.reindex(sender)
+        walletManager.reindex(recipient)
+      })
 
-      try {
-        expect(async () => {
-          await walletManager.applyTransaction(transaction)
-        }).toThrowError(/apply transaction/)
-        expect(null).toBe('this should fail if no error is thrown')
-      } catch (error) {
+      it('should apply the transaction to the sender & recipient', async () => {
+        const balance = 100000000
+        sender.balance = balance
+
         expect(sender.balance).toBe(balance)
         expect(recipient.balance).toBe(0)
-      }
+
+        await walletManager.applyTransaction(transaction)
+
+        expect(sender.balance).toBe(balance - amount - transaction.fee)
+        expect(recipient.balance).toBe(amount)
+      })
+
+      it('should fail if the transaction cannot be applied', async () => {
+        const balance = 1
+        sender.balance = balance
+
+        expect(sender.balance).toBe(balance)
+        expect(recipient.balance).toBe(0)
+
+        try {
+          expect(async () => {
+            await walletManager.applyTransaction(transaction)
+          }).toThrowError(/apply transaction/)
+          expect(null).toBe('this should fail if no error is thrown')
+        } catch (error) {
+          expect(sender.balance).toBe(balance)
+          expect(recipient.balance).toBe(0)
+        }
+      })
+    })
+
+    describe('when the transaction is not a transfer', () => {
     })
   })
 
