@@ -13,7 +13,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegates = await database.delegates.paginate(utils.paginate(request))
 
     return utils.toPagination(request, delegates, 'delegate')
@@ -32,7 +32,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
 
     return utils.respondWithResource(request, delegate, 'delegate')
@@ -51,7 +51,7 @@ exports.blocks = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
     const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
 
@@ -71,7 +71,7 @@ exports.voters = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
     const wallets = await database.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))
 

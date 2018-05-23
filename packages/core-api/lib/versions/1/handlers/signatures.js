@@ -15,7 +15,7 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock(true).height).fees.secondsignature
     })

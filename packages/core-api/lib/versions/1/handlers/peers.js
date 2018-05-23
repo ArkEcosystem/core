@@ -2,7 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const blockchain = container.resolvePlugin('blockchain')
+const p2p = container.resolvePlugin('p2p')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const allPeers = await blockchain.p2p.getPeers()
+    const allPeers = await p2p.getPeers()
 
     if (!allPeers) {
       return utils.respondWith('No peers found', true)
@@ -63,8 +63,8 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
-    const peers = await blockchain.p2p.getPeers()
+  async handler (request, h) {
+    const peers = await p2p.getPeers()
 
     if (!peers) {
       return utils.respondWith('No peers found', true)
@@ -96,7 +96,7 @@ exports.version = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({ version: config.server.version })
   }
 }

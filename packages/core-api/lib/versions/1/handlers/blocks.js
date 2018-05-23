@@ -17,7 +17,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blocks = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
     }, false)
@@ -49,7 +49,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const block = await database.blocks.findById(request.query.id)
 
     if (!block) {
@@ -76,7 +76,7 @@ exports.epoch = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       epoch: config.getConstants(blockchain.getLastBlock(true).height).epoch
     })
@@ -92,7 +92,7 @@ exports.height = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     const block = blockchain.getLastBlock(true)
 
     return utils.respondWith({ height: block.height, id: block.id })
@@ -108,7 +108,7 @@ exports.nethash = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({ nethash: config.network.nethash })
   }
 }
@@ -122,7 +122,7 @@ exports.fee = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       fee: config.getConstants(blockchain.getLastBlock(true).height).fees.send
     })
@@ -138,7 +138,7 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       fees: config.getConstants(blockchain.getLastBlock(true).height).fees
     })
@@ -154,7 +154,7 @@ exports.milestone = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       milestone: ~~(blockchain.getLastBlock(true).height / 3000000)
     })
@@ -170,7 +170,7 @@ exports.reward = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       reward: config.getConstants(blockchain.getLastBlock(true).height).reward
     })
@@ -186,7 +186,7 @@ exports.supply = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     const lastBlock = blockchain.getLastBlock(true)
     const constants = config.getConstants(lastBlock.height)
 
@@ -205,7 +205,7 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     const lastBlock = blockchain.getLastBlock(true)
     const constants = config.getConstants(lastBlock.height)
 

@@ -13,7 +13,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blocks = await database.blocks.findAll(utils.paginate(request))
 
     return utils.toPagination(request, blocks, 'block')
@@ -32,7 +32,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const block = await database.blocks.findById(request.params.id)
 
     return utils.respondWithResource(request, block, 'block')
@@ -51,7 +51,7 @@ exports.transactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const block = await database.blocks.findById(request.params.id)
     const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))
 
@@ -71,7 +71,7 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blocks = await database.blocks.search({
       ...request.payload,
       ...request.query,
