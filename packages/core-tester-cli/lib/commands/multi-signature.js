@@ -44,7 +44,7 @@ module.exports = async (options) => {
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
-  // console.log(transactions)
+  console.log(transactions)
 
   if (copyTransactions) {
     utils.copyToClipboard(transactions)
