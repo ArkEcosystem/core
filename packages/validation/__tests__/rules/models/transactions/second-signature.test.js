@@ -1,12 +1,14 @@
 'use strict'
 
-const rule = require('../../../../lib/rules/models/transactions/signature')
+const rule = require('../../../../lib/rules/models/transactions/second-signature')
 const { constants, transactionBuilder } = require('@arkecosystem/crypto')
 
 let transaction
 beforeEach(() => {
   transaction = transactionBuilder.secondSignature()
 })
+
+// NOTE some tests aren't strictly about the second signature
 
 describe('Second Signature Transaction Rule', () => {
   it('should be a function', () => {
