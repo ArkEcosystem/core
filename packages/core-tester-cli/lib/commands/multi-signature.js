@@ -131,7 +131,7 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
         approvalWallets[j].passphrase
       )
       transaction.signatures.push(approverSignature)
-      if (transaction.signatures.length == min) {
+      if (transaction.signatures.length === min) {
         break
       }
     }
@@ -178,7 +178,7 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
         approvalWallets[j].passphrase
       )
       transaction.signatures.push(approverSignature)
-      if (transaction.signatures.length == max) {
+      if (transaction.signatures.length === max) {
         break
       }
     }
