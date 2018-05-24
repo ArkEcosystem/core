@@ -209,9 +209,9 @@ module.exports = class WalletBuilder {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.rate = i + 1
-      wallet.forged = forgedBlock ? forgedBlock.totalForged : 0
-      wallet.username = delegates[i].username
-      // wallet.producedBlocks = forgedBlock ? forgedBlock.totalProduced : 0 // TODO: This is breaking & causing a rollback
+      wallet.forged = forgedBlock ? forgedBlock.dataValues.totalForged : 0
+      wallet.username = delegates[i].dataValues.username
+      wallet.producedBlocks = forgedBlock ? forgedBlock.dataValues.totalProduced : 0
 
       this.walletManager.reindex(wallet)
     }
