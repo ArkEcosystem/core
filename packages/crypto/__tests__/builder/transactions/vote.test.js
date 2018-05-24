@@ -1,5 +1,5 @@
 const ark = require('../../../lib/client')
-const cryptoBuilder = require('../../../lib/builder/crypto')
+const crypto = require('../../../lib/crypto/crypto')
 const transactionTests = require('./__shared__/transaction')
 
 let transaction
@@ -18,6 +18,7 @@ describe('Vote Transaction', () => {
     expect(transaction).toHaveProperty('recipientId')
     expect(transaction).toHaveProperty('senderPublicKey')
     expect(transaction).toHaveProperty('asset')
+    expect(transaction.asset).toHaveProperty('votes')
   })
 
   describe('create', () => {
@@ -30,8 +31,8 @@ describe('Vote Transaction', () => {
 
   describe('sign', () => {
     xit('establishes the recipient id', () => {
-      cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
-      cryptoBuilder.sign = jest.fn()
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn()
       transaction.sign('bad pass')
       expect(transaction.recipientId).toBe('bad pass public key')
     })

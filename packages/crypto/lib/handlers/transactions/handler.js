@@ -1,4 +1,4 @@
-const cryptoBuilder = require('../../builder/crypto')
+const { crypto } = require('../../crypto')
 const configManager = require('../../managers/config')
 const { transactionValidator } = require('@arkecosystem/validation')
 
@@ -14,18 +14,19 @@ module.exports = class Handler {
       return false
     }
 
-    let check = true
+    let applicable = true
 
     if (wallet.multisignature) {
-      check = check && wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
+      applicable = wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
     } else {
-      check = check && (transaction.senderPublicKey === wallet.publicKey) && (wallet.balance - transaction.amount - transaction.fee > -1) // eslint-disable-line max-len
+      const enoughBalance = (wallet.balance - transaction.amount - transaction.fee) >= 0
+      applicable = (transaction.senderPublicKey === wallet.publicKey) && enoughBalance
 
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
-      check = check && (!wallet.secondPublicKey || cryptoBuilder.verifySecondSignature(transaction, wallet.secondPublicKey, configManager.config)) // eslint-disable-line max-len
+      applicable = applicable && (!wallet.secondPublicKey || crypto.verifySecondSignature(transaction, wallet.secondPublicKey, configManager.config)) // eslint-disable-line max-len
     }
 
-    return check
+    return applicable
   }
 
   /**
@@ -35,7 +36,7 @@ module.exports = class Handler {
    * @return {void}
    */
   applyTransactionToSender (wallet, transaction) {
-    if (transaction.senderPublicKey === wallet.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === wallet.address) {
+    if (transaction.senderPublicKey === wallet.publicKey || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
       wallet.balance -= transaction.amount + transaction.fee
 
       this.apply(wallet, transaction)
@@ -51,7 +52,7 @@ module.exports = class Handler {
    * @return {void}
    */
   revertTransactionForSender (wallet, transaction) {
-    if (transaction.senderPublicKey === wallet.publicKey || cryptoBuilder.getAddress(transaction.senderPublicKey) === wallet.address) {
+    if (transaction.senderPublicKey === wallet.publicKey || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
       wallet.balance += transaction.amount + transaction.fee
 
       this.revert(wallet, transaction)

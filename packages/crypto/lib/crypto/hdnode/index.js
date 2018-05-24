@@ -5,9 +5,9 @@ const ecurve = require('ecurve')
 const BigInteger = require('bigi')
 
 const configManager = require('../../managers/config')
-const bcrypto = require('../../crypto')
-const types = require('../../crypto/types')
-const ECPair = require('../../crypto/ecpair')
+const utils = require('../utils')
+const types = require('../types')
+const ECPair = require('../ecpair')
 const { HIGHEST_BIT, MASTER_SECRET } = require('./constants')
 
 const curve = ecurve.getCurveByName('secp256k1')
@@ -167,7 +167,7 @@ module.exports = class HDNode {
    * @return {Buffer}
    */
   getIdentifier () {
-    return bcrypto.hash160(this.keyPair.getPublicKeyBuffer())
+    return utils.hash160(this.keyPair.getPublicKeyBuffer())
   }
 
   /**

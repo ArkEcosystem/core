@@ -1,6 +1,6 @@
 const BigInteger = require('bigi')
 const ecdsa = require('../../lib/crypto/ecdsa')
-const bcrypto = require('../../lib/crypto')
+const utils = require('../../lib/crypto/utils')
 const ECSignature = require('../../lib/crypto/ecsignature')
 
 const fixtures = require('./fixtures/ecdsa.json')
@@ -22,7 +22,7 @@ describe('ecdsa', () => {
     fixtures.valid.ecdsa.forEach((f) => {
       it(`for "${f.message}"`, () => {
         const x = BigInteger.fromHex(f.d).toBuffer(32)
-        const h1 = bcrypto.sha256(f.message)
+        const h1 = utils.sha256(f.message)
 
         const k = ecdsa.deterministicGenerateK(h1, x, checkSig)
         expect(k.toHex()).toBe(f.k)
@@ -68,7 +68,7 @@ describe('ecdsa', () => {
     fixtures.valid.rfc6979.forEach((f) => {
       it(`produces the expected k values for "${f.message}" if k wasn't suitable`, () => {
         const x = BigInteger.fromHex(f.d).toBuffer(32)
-        const h1 = bcrypto.sha256(f.message)
+        const h1 = utils.sha256(f.message)
 
         const results = []
         ecdsa.deterministicGenerateK(h1, x, function (k) {
@@ -88,7 +88,7 @@ describe('ecdsa', () => {
     fixtures.valid.ecdsa.forEach((f) => {
       it(`produces a deterministic signature for "${f.message}"`, () => {
         const d = BigInteger.fromHex(f.d)
-        const hash = bcrypto.sha256(f.message)
+        const hash = utils.sha256(f.message)
         const signature = ecdsa.sign(hash, d).toDER()
 
         expect(signature.toString('hex')).toBe(f.signature)
@@ -96,7 +96,7 @@ describe('ecdsa', () => {
     })
 
     it('should sign with low S value', () => {
-      const hash = bcrypto.sha256('Vires in numeris')
+      const hash = utils.sha256('Vires in numeris')
       const sig = ecdsa.sign(hash, BigInteger.ONE)
 
       // See BIP62 for more information
@@ -109,7 +109,7 @@ describe('ecdsa', () => {
     fixtures.valid.ecdsa.forEach((f) => {
       it(`verifies a valid signature for "${f.message}"`, () => {
         const d = BigInteger.fromHex(f.d)
-        const H = bcrypto.sha256(f.message)
+        const H = utils.sha256(f.message)
         const signature = ECSignature.fromDER(Buffer.from(f.signature, 'hex'))
         const Q = curve.G.multiply(d)
 
@@ -119,7 +119,7 @@ describe('ecdsa', () => {
 
     fixtures.invalid.verify.forEach((f) => {
       it(`fails to verify with ${f.description}`, () => {
-        const H = bcrypto.sha256(f.message)
+        const H = utils.sha256(f.message)
         const d = BigInteger.fromHex(f.d)
 
         let signature

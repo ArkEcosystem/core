@@ -50,5 +50,5 @@ volumes:
   ark-core:
     driver_opts:
       type: none
-      device: $PWD/../../../
+      device: $PWD/../../
       o: bind

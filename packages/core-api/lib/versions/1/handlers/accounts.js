@@ -153,7 +153,7 @@ exports.delegates = {
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 
-    account = await database.wallets.findById(crypto.getAddress(account.votes[0], config.network.pubKeyHash))
+    account = await database.wallets.findById(crypto.getAddress(account.vote, config.network.pubKeyHash))
 
     return utils.respondWith({
       delegates: [{
