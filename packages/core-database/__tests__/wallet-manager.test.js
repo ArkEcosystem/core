@@ -3,8 +3,8 @@
 const app = require('./__support__/setup')
 
 let walletManager
-const { Block, Transaction, Wallet } = require('@arkecosystem/client').models
-const { transactionBuilder } = require('@arkecosystem/client') // eslint-disable-line no-unused-vars
+const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
+const { transactionBuilder } = require('@arkecosystem/crypto') // eslint-disable-line no-unused-vars
 
 const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
 const genesisBlock = require('./__fixtures__/genesisBlock.js') // eslint-disable-line no-unused-vars

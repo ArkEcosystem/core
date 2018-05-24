@@ -1,11 +1,11 @@
 const Joi = require('joi')
-const ark = require('@arkecosystem/client')
+const ark = require('@arkecosystem/crypto')
 const database = require('../../../services/database')
 const getBip38Keys = require('../../../utils/bip38-keys')
 
 module.exports = {
   name: 'transactions.bip38.create',
-  method: async (params) => {
+  async method (params) {
     const account = await getBip38Keys(params.userId, params.bip38)
 
     const transaction = ark

@@ -1,6 +1,6 @@
 'use strict';
 
-const { models } = require('@arkecosystem/client')
+const { models } = require('@arkecosystem/crypto')
 
 module.exports = async (data) => {
   return data.reduce((total, value, key) => {

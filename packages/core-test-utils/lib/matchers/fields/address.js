@@ -1,6 +1,6 @@
 'use strict'
 
-const { crypto } = require('@arkecosystem/client')
+const { crypto } = require('@arkecosystem/crypto')
 
 /**
  * Verify if the given value is an ark address.

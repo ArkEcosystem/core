@@ -2,11 +2,13 @@
 
 const ConfigInterface = require('../lib/interface')
 const fixture = require('./__fixtures__/constants.json')
-const networkConfig = require('../lib/networks/testnet/network.json')
+const networkConfig = require('../../crypto/lib/networks/ark/testnet.json')
 
 let instance
 
 beforeAll(() => {
+  process.env.ARK_NETWORK = JSON.stringify(networkConfig)
+
   instance = new ConfigInterface()
   instance.network = networkConfig
 });
@@ -22,22 +24,16 @@ describe('Config Interface', () => {
     })
 
     it('should return valid constants', async () => {
-      instance._buildConstants()
+      instance.buildConstants()
 
       expect(instance.getConstants(1)).toEqual(fixture[0])
       expect(instance.getConstants(75600)).toEqual(fixture[1])
     })
   })
 
-  describe('_buildConstants', () => {
+  describe('buildConstants', () => {
     it('should be a function', () => {
-      expect(instance._buildConstants).toBeFunction()
-    })
-
-    it('should build valid constants', async () => {
-      instance._buildConstants()
-
-      expect(instance.constants).toEqual(fixture)
+      expect(instance.buildConstants).toBeFunction()
     })
   })
 

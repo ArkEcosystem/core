@@ -1,7 +1,7 @@
 'use strict'
 
 const async = require('async')
-const { crypto, slots, TRANSACTION_TYPES } = require('@arkecosystem/client')
+const { crypto, slots, TRANSACTION_TYPES } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')

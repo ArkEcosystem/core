@@ -8,14 +8,18 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'webhooks-api',
-  register: async (container, options) => {
-    container.resolvePlugin('logger').info('Starting Webhook API...')
+  async register (container, options) {
+    if (options.enabled) {
+      container.resolvePlugin('logger').info('Starting Webhook API...')
 
-    return require('./server')(options)
+      return require('./server')(options)
+    }
   },
-  deregister: async (container, options) => {
-    container.resolvePlugin('logger').info('Stopping Webhook API...')
+  async deregister (container, options) {
+    if (options.enabled) {
+      container.resolvePlugin('logger').info('Stopping Webhook API...')
 
-    return container.resolvePlugin('webhooks-api').stop()
+      return container.resolvePlugin('webhooks-api').stop()
+    }
   }
 }

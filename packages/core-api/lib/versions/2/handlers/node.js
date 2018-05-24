@@ -13,7 +13,7 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const lastBlock = blockchain.getLastBlock(true)
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
@@ -36,7 +36,7 @@ exports.syncing = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const lastBlock = blockchain.getLastBlock(true)
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
@@ -60,7 +60,7 @@ exports.configuration = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return {
       data: {
         nethash: config.network.nethash,

@@ -1,10 +1,10 @@
 const Joi = require('joi')
-const ark = require('@arkecosystem/client')
+const ark = require('@arkecosystem/crypto')
 const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.create',
-  method: async (params) => {
+  async method (params) {
     const transaction = ark
       .transactionBuilder
       .transfer()

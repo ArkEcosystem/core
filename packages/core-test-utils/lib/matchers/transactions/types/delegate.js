@@ -1,6 +1,6 @@
 'use strict'
 
-const { DELEGATE } = require('@arkecosystem/client').constants
+const { DELEGATE } = require('@arkecosystem/crypto').constants
 
 module.exports = (received) => {
   return {

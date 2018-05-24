@@ -1,6 +1,6 @@
 'use strict'
 
-const { VOTE } = require('@arkecosystem/client').constants
+const { VOTE } = require('@arkecosystem/crypto').constants
 
 module.exports = (received) => {
   return {

@@ -3,7 +3,7 @@ const network = require('../../services/network')
 
 module.exports = {
   name: 'accounts.transactions',
-  method: async (params) => {
+  async method (params) {
     const response = await network.getFromNode('/api/transactions', {
       offset: params.offset,
       orderBy: 'timestamp:desc',

@@ -11,7 +11,7 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  up: async (queryInterface, Sequelize) => {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('webhooks', {
       id: {
         allowNull: false,
@@ -45,5 +45,7 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('webhooks')
+  async down (queryInterface, Sequelize) {
+    return queryInterface.dropTable('webhooks')
+  }
 }

@@ -2,7 +2,6 @@
   "height": 1,
   "reward": 0,
   "activeDelegates": 51,
-  "activeVotes": 1,
   "blocktime": 8,
   "block": {
     "version": 0,
@@ -11,17 +10,20 @@
   },
   "epoch": "2017-03-21T13:00:00.000Z",
   "fees": {
-    "send": 10000000,
-    "vote": 100000000,
-    "secondsignature": 500000000,
-    "delegateRegistration": 2500000000,
-    "multisignature": 500000000
+      "transfer": 10000000,
+      "secondSignature": 500000000,
+      "delegateRegistration": 2500000000,
+      "vote": 100000000,
+      "multiSignature": 500000000,
+      "ipfs": 0,
+      "timelockTransfer": 0,
+      "multiPayment": 0,
+      "delegateResignation": 0
   }
 }, {
   "height": 75600,
   "reward": 200000000,
   "activeDelegates": 51,
-  "activeVotes": 1,
   "blocktime": 8,
   "block": {
     "version": 0,
@@ -30,10 +32,14 @@
   },
   "epoch": "2017-03-21T13:00:00.000Z",
   "fees": {
-    "send": 10000000,
-    "vote": 100000000,
-    "secondsignature": 500000000,
-    "delegateRegistration": 2500000000,
-    "multisignature": 500000000
+      "transfer": 10000000,
+      "secondSignature": 500000000,
+      "delegateRegistration": 2500000000,
+      "vote": 100000000,
+      "multiSignature": 500000000,
+      "ipfs": 0,
+      "timelockTransfer": 0,
+      "multiPayment": 0,
+      "delegateResignation": 0
   }
 }]

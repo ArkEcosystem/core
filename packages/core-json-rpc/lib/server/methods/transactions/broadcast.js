@@ -1,11 +1,11 @@
 const Joi = require('joi')
-const ark = require('@arkecosystem/client')
+const ark = require('@arkecosystem/crypto')
 const network = require('../../services/network')
 const database = require('../../services/database')
 
 module.exports = {
   name: 'transactions.broadcast',
-  method: async (params) => {
+  async method (params) {
     if (params.transactions) { // old way
       for (let i = 0; i < params.transactions.length; i++) {
         await network.broadcast(params.transactions[i])

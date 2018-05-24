@@ -9,7 +9,7 @@ beforeEach(async (done) => {
 
   await container.setUp({
     data: 'fake-path',
-    config: path.resolve(__dirname, '../../core-config/lib/networks/testnet'),
+    config: path.resolve(__dirname, '../../core/lib/config/testnet'),
     token: 'ark',
     network: 'testnet'
   }, {
@@ -42,7 +42,7 @@ describe('Container', () => {
     expect(container.has('fake')).toBeTruthy()
   })
 
-  it('should export paths', () => {
-    expect(process.env.ARK_PATH_DATA).toEqual('fake-path')
+  it('should resolve and export paths', () => {
+    expect(process.env.ARK_PATH_DATA).toEqual(path.resolve('fake-path'))
   })
 })

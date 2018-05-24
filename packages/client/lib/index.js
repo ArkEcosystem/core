@@ -1,35 +1,50 @@
-module.exports = {
-  // Client...
-  client: require('./client'),
+const HttpClient = require('./http')
+const resources = require('./resources')
 
-  // Models...
-  models: {
-    Block: require('./models/block'),
-    Delegate: require('./models/delegate'),
-    Transaction: require('./models/transaction'),
-    Wallet: require('./models/wallet')
-  },
+module.exports = class ApiClient {
+  /**
+   * @constructor
+   * @param {String} host
+   */
+  constructor (host) {
+    this.setConnection(host)
 
-  // Crypto...
-  transactionBuilder: require('./builder'),
-  crypto: require('./builder/crypto'),
+    this.version = 1
+  }
 
-  // Crypto...
-  ecdsa: require('./crypto/ecdsa'),
-  ECPair: require('./crypto/ecpair'),
-  ECSignature: require('./crypto/ecsignature'),
-  HDNode: require('./crypto/hdnode'),
-  slots: require('./crypto/slots'),
+  /**
+   * Create a HTTP connection to the API.
+   * @param {String} host
+   */
+  setConnection (host) {
+    this.http = new HttpClient(host, this.version)
+  }
 
-  // Managers...
-  configManager: require('./managers/config'),
-  feeManager: require('./managers/fee'),
-  NetworkManager: require('./managers/network'),
-  dynamicFeeManager: require('./managers/dynamic-fee'),
+  /**
+   * Get the HTTP connection to the API.
+   * @return {Object}
+   */
+  getConnection () {
+    return this.http
+  }
 
-  // Constants...
-  constants: require('./constants'),
+  /**
+   * Set the API Version.
+   * @param {Number} version
+   */
+  setVersion (version) {
+    this.version = version
+    this.http.setVersion(version)
 
-  // Utils...
-  sortTransactions: require('./utils/sort-transactions')
+    return this
+  }
+
+  /**
+   * Create an instance of a version specific resource.
+   * @param  {String}   name
+   * @return {Resource}
+   */
+  resource (name) {
+    return new resources[`v${this.version}`][name](this.http)
+  }
 }

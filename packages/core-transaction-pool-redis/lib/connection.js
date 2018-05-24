@@ -5,10 +5,10 @@ const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Transaction } = client.models
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const ark = require('@arkecosystem/crypto')
+const { slots } = ark
+const { Transaction } = ark.models
+const { TRANSACTION_TYPES } = ark.constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**

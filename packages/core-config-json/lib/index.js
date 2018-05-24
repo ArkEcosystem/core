@@ -1,7 +1,7 @@
 'use strict'
 
 const JsonDriver = require('./driver')
-const { client } = require('@arkecosystem/client')
+const { client } = require('@arkecosystem/crypto')
 
 /**
  * The struct used by the plugin container.
@@ -10,7 +10,7 @@ const { client } = require('@arkecosystem/client')
 exports.plugin = {
   pkg: require('../package.json'),
   alias: 'config',
-  register: async (container, options) => {
+  async register (container, options) {
     const configManager = container.resolvePlugin('configManager')
     await configManager.makeDriver(new JsonDriver(options))
 

@@ -14,7 +14,7 @@ const container = require('@arkecosystem/core-container')
 const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
-    method: async (request, h) => {
+    async method (request, h) {
       const address = requestIp.getClientIp(request)
 
       for (let i = 0; i < options.whitelist.length; i++) {

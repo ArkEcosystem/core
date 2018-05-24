@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -19,7 +19,7 @@ exports.blockchain = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const lastBlock = blockchain.getLastBlock(true)
 
     const height = lastBlock.height
@@ -65,7 +65,7 @@ exports.transactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.TRANSFER, request.query.from, request.query.to)
 
     return {
@@ -90,7 +90,7 @@ exports.blocks = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const blocks = await database.blocks.findAllByDateTimeRange(request.query.from, request.query.to)
 
     return {
@@ -115,7 +115,7 @@ exports.votes = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(transaction => transaction.asset.votes[0].startsWith('+'))
 
@@ -141,7 +141,7 @@ exports.unvotes = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     let transactions = await database.transactions.findAllByDateAndType(TRANSACTION_TYPES.VOTE, request.query.from, request.query.to)
     transactions = transactions.filter(transaction => transaction.asset.votes[0].startsWith('-'))
 

@@ -1,6 +1,6 @@
 'use strict'
 
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/votes')
@@ -14,7 +14,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.findAllByType(TRANSACTION_TYPES.VOTE, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -33,7 +33,7 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transaction = await database.transactions.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')

@@ -14,7 +14,7 @@ exports.status = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       loaded: blockchain.isSynced(),
       now: blockchain.state.lastBlock ? blockchain.getLastBlock(true).height : 0,
@@ -32,7 +32,7 @@ exports.syncing = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return utils.respondWith({
       syncing: !blockchain.isSynced(),
       blocks: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock(true).height,
@@ -51,7 +51,7 @@ exports.autoconfigure = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return utils.respondWith({
       network: {
         nethash: config.network.nethash,

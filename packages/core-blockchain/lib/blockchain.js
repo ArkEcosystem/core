@@ -1,6 +1,6 @@
 'use strict'
 
-const { slots } = require('@arkecosystem/client')
+const { slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')

@@ -11,12 +11,13 @@
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "awilix": "^3.0.7",
+    "awilix": "^3.0.8",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
     "hoek": "^5.0.3",

@@ -2,7 +2,7 @@
 
 const Boom = require('boom')
 
-const { TRANSACTION_TYPES } = require('@arkecosystem/client').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
@@ -21,7 +21,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.findAll(utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -37,7 +37,7 @@ exports.store = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     await transactionPool.guard.validate(request.payload.transactions)
 
     if (transactionPool.guard.hasAny('accept')) {
@@ -71,8 +71,12 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transaction = await database.transactions.findById(request.params.id)
+
+    if (!transaction) {
+      return Boom.notFound()
+    }
 
     return utils.respondWithResource(request, transaction, 'transaction')
   },
@@ -90,14 +94,13 @@ exports.unconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
+  async handler (request, h) {
+    if (!container.resolve('transactionPool').options.enabled) {
+      return Boom.teapot()
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await blockchain.transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -115,13 +118,12 @@ exports.showUnconfirmed = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
+  async handler (request, h) {
+    if (!container.resolve('transactionPool').options.enabled) {
+      return Boom.teapot()
     }
 
-    const transaction = await blockchain.transactionPool.getUnconfirmedTransaction(request.param.id)
+    const transaction = await transactionPool.getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }
@@ -136,7 +138,7 @@ exports.search = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const transactions = await database.transactions.search({
       ...request.query,
       ...request.payload,
@@ -159,7 +161,7 @@ exports.types = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return {
       data: TRANSACTION_TYPES
     }
@@ -175,7 +177,7 @@ exports.fees = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     return {
       data: config.getConstants().fees
     }

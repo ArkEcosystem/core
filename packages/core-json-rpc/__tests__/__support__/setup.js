@@ -8,7 +8,7 @@ jest.setTimeout(60000)
 beforeAll(async (done) => {
   await container.setUp({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core-config/lib/networks/mainnet'),
+    config: path.resolve(__dirname, '../../../core/lib/config/mainnet'),
     token: 'ark',
     network: 'mainnet'
   }, {
@@ -19,7 +19,12 @@ beforeAll(async (done) => {
       '@arkecosystem/core-graphql',
       '@arkecosystem/core-graphql-api',
       '@arkecosystem/core-forger'
-    ]
+    ],
+    options: {
+      '@arkecosystem/core-json-rpc': {
+        enabled: true
+      }
+    }
   })
 
   done()

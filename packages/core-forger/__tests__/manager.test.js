@@ -2,7 +2,7 @@
 
 const app = require('./__support__/setup')
 
-const { Delegate } = require('@arkecosystem/client').models
+const { Delegate } = require('@arkecosystem/crypto').models
 
 let manager
 

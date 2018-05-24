@@ -14,23 +14,24 @@
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/client": "^0.0.1",
+    "@arkecosystem/crypto": "^0.0.1",
     "@arkecosystem/core-container": "^0.0.1",
     "@arkecosystem/core-database": "^0.0.1",
     "expand-home-dir": "^0.0.3",
-    "fs-extra": "^6.0.0",
+    "fs-extra": "^6.0.1",
     "mysql2": "^1.5.3",
-    "pg": "^7.4.1",
+    "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^4.37.6",
+    "sequelize": "^4.37.8",
     "sqlite3": "^4.0.0",
-    "tedious": "^2.3.1",
-    "tiny-glob": "^0.2.0",
+    "tedious": "^2.6.1",
+    "tiny-glob": "^0.2.1",
     "umzug": "^2.1.0"
   }
 }

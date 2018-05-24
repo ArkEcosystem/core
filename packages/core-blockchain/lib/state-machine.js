@@ -2,9 +2,8 @@
 
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Block } = client.models
+const { slots } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
 
 const delay = require('delay')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
@@ -233,7 +232,7 @@ blockchainMachine.actionMap = blockchain => {
       logger.info('Analysing fork')
     },
 
-    startForkRecovery: async () => {
+    async startForkRecovery () {
       logger.info('Starting fork recovery 🍴')
       // state.forked = true
       const random = ~~(4 / Math.random())

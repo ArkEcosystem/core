@@ -4,9 +4,8 @@ const Op = require('sequelize').Op
 const fn = require('sequelize').fn
 const col = require('sequelize').col
 
-const client = require('@arkecosystem/client')
-const { Transaction } = client.models
-const { TRANSACTION_TYPES } = client.constants
+const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const buildFilterQuery = require('./utils/filter-query')
 
@@ -26,11 +25,11 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   findAll (params = {}, count = true) {
-    let whereStatement = this.__formatConditions(params)
-    let orderBy = []
+    const whereStatement = this.__formatConditions(params)
+    const orderBy = []
 
     if (params['senderId']) {
-      let wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
+      const wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
 
       if (wallet) {
         whereStatement['senderPublicKey'] = wallet.publicKey
@@ -55,7 +54,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * Get all transactions for the given wallet.
+   * Get all transactions for the given Wallet object.
    * @param  {Wallet} wallet
    * @param  {Object} paginator
    * @return {Object}
@@ -74,7 +73,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * Get all transactions for the given sender.
+   * Get all transactions for the given sender public key.
    * @param  {String} senderPublicKey
    * @param  {Object} paginator
    * @return {Object}
@@ -84,7 +83,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * Get all transactions for the given recipient.
+   * Get all transactions for the given recipient address.
    * @param  {String} recipientId
    * @param  {Object} paginator
    * @return {Object}
@@ -94,7 +93,7 @@ module.exports = class TransactionsRepository {
   }
 
   /**
-   * Get all vote transactions for the given sender.
+   * Get all vote transactions for the given sender public key.
    * @param  {String} senderPublicKey
    * @param  {Object} paginator
    * @return {Object}

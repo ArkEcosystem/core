@@ -1,6 +1,4 @@
-const {
-  Transaction
-} = require('@arkecosystem/client').models
+const { Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = new Transaction({
   id: 'd766f3161566df6e9303fc537c70f08649499b52847b7294526e0cd915d7d890',

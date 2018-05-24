@@ -1,0 +1,7 @@
+{
+  "minimumNetworkReach": 20,
+  "list": [],
+  "blackList": [],
+  "globalTimeout": 3000,
+  "sources": ["https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"]
+}

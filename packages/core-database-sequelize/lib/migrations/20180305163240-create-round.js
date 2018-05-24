@@ -11,7 +11,7 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  up: async (queryInterface, Sequelize) => {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('rounds', {
       id: {
         allowNull: false,
@@ -52,5 +52,7 @@ module.exports = {
    * @param  {Sequelize} Sequelize
    * @return {void}
    */
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('rounds')
+  async down (queryInterface, Sequelize) {
+    return queryInterface.dropTable('rounds')
+  }
 }

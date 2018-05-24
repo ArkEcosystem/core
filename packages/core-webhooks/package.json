@@ -11,6 +11,7 @@
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --forceExit",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
@@ -18,13 +19,13 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.0.1",
     "axios": "^0.18.0",
-    "body-parser": "^1.18.2",
-    "bull": "^3.4.1",
+    "body-parser": "^1.18.3",
+    "bull": "^3.4.2",
     "expand-home-dir": "^0.0.3",
     "express": "^4.16.3",
-    "fs-extra": "^6.0.0",
+    "fs-extra": "^6.0.1",
     "lodash": "^4.17.10",
-    "sequelize": "^4.37.7",
+    "sequelize": "^4.37.8",
     "umzug": "^2.1.0"
   }
 }

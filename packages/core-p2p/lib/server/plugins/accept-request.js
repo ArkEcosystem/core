@@ -14,7 +14,7 @@ const register = async (server, options) => {
 
   server.ext({
     type: 'onRequest',
-    method: async (request, h) => {
+    async method (request, h) {
       if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isLocalhost(request.info.remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',

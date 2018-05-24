@@ -1,6 +1,6 @@
-const client = require('@arkecosystem/client')
-const { slots } = client
-const { Transaction } = client.models
+const ark = require('@arkecosystem/crypto')
+const { slots } = ark
+const { Transaction } = ark.models
 
 exports.dummy1 = new Transaction({
   version: 1,

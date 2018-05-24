@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/delegates')
@@ -13,7 +14,7 @@ exports.index = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegates = await database.delegates.paginate(utils.paginate(request))
 
     return utils.toPagination(request, delegates, 'delegate')
@@ -32,8 +33,12 @@ exports.show = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
 
     return utils.respondWithResource(request, delegate, 'delegate')
   },
@@ -51,8 +56,13 @@ exports.blocks = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
     const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, blocks, 'block')
@@ -71,8 +81,13 @@ exports.voters = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: async (request, h) => {
+  async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
     const wallets = await database.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')

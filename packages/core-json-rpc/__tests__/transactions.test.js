@@ -1,5 +1,5 @@
 const request = require('./__support__/request')
-const ark = require('@arkecosystem/client')
+const ark = require('@arkecosystem/crypto')
 
 require('./__support__/setup')
 

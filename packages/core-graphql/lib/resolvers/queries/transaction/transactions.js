@@ -1,7 +1,7 @@
 'use strict';
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const { constants } = require('@arkecosystem/client')
+const { constants } = require('@arkecosystem/crypto')
 const { formatOrderBy, unserializeTransactions } = require('../../../helpers')
 
 module.exports = async (root, args) => {
