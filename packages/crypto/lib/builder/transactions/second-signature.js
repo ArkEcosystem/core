@@ -1,7 +1,7 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const Transaction = require('./transaction')
-const cryptoBuilder = require('../crypto')
+const { crypto } = require('../../crypto')
 
 module.exports = class SecondSignature extends Transaction {
   /**
@@ -24,7 +24,7 @@ module.exports = class SecondSignature extends Transaction {
    * @return {SecondSignature}
    */
   create (secondPassphrase) {
-    this.asset.signature.publicKey = cryptoBuilder.getKeys(secondPassphrase).publicKey
+    this.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
     return this
   }
 

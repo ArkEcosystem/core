@@ -7,6 +7,11 @@ const genesisTransaction = genesisBlock.transactions[0]
 
 let connection
 let repository
+let builder
+
+const getWallet = address => {
+  return builder.walletManager.getWalletByAddress(address)
+}
 
 beforeAll(async (done) => {
   await app.setUp()
@@ -28,6 +33,7 @@ beforeEach(async (done) => {
 
   connection = await createConnection()
   repository = connection.transactions
+  builder = new (require('../../lib/builder/wallet'))(connection)
 
   done()
 })
@@ -58,8 +64,16 @@ describe('Transaction Repository', () => {
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const transactions = await repository.findAllByWallet('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
-      expect(transactions.count).toBe(153)
+      const receiver = await getWallet('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
+      expect(receiver).toBeObject()
+      const receiverTransactions = await repository.findAllByWallet(receiver)
+      expect(receiverTransactions.count).toBe(1)
+
+      const sender = await getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn')
+      expect(sender).toBeObject()
+      sender.publicKey = '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788'
+      const senderTransactions = await repository.findAllByWallet(sender)
+      expect(senderTransactions.count).toBe(51)
     })
   })
 

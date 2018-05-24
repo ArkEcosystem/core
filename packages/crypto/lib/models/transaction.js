@@ -1,7 +1,7 @@
 const bs58check = require('bs58check')
 const ByteBuffer = require('bytebuffer')
-const crypto = require('crypto')
-const cryptoBuilder = require('../builder/crypto')
+const { createHash } = require('crypto')
+const crypto = require('../crypto/crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
 
@@ -36,7 +36,7 @@ module.exports = class Transaction {
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
 
     if (this.data.version === 1) {
-      this.verified = cryptoBuilder.verify(this.data)
+      this.verified = crypto.verify(this.data)
 
       if (!this.verified) {
         // fix on issue of non homogeneus transaction type 1 payload
@@ -44,11 +44,11 @@ module.exports = class Transaction {
           if (this.data.recipientId) {
             delete this.data.recipientId
           } else {
-            this.data.recipientId = cryptoBuilder.getAddress(this.data.senderPublicKey, this.data.network)
+            this.data.recipientId = crypto.getAddress(this.data.senderPublicKey, this.data.network)
           }
 
-          this.verified = cryptoBuilder.verify(this.data)
-          this.data.id = cryptoBuilder.getId(this.data)
+          this.verified = crypto.verify(this.data)
+          this.data.id = crypto.getId(this.data)
         }
       }
     } else {
@@ -328,11 +328,11 @@ module.exports = class Transaction {
       }
 
       if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
+        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
 
       if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
+        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
 
       if (transaction.vendorFieldHex) {
@@ -340,17 +340,17 @@ module.exports = class Transaction {
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.recipientId = cryptoBuilder.getAddress(transaction.senderPublicKey, transaction.network)
+        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
         transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!transaction.id) {
-        transaction.id = cryptoBuilder.getId(transaction)
+        transaction.id = crypto.getId(transaction)
       }
     }
 
     if (transaction.version === 2) {
-      transaction.id = crypto.createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')
+      transaction.id = createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')
     }
 
     return transaction

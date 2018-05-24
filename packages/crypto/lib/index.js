@@ -10,16 +10,11 @@ module.exports = {
     Wallet: require('./models/wallet')
   },
 
-  // Crypto...
+  // Builder...
   transactionBuilder: require('./builder'),
-  crypto: require('./builder/crypto'),
 
   // Crypto...
-  ecdsa: require('./crypto/ecdsa'),
-  ECPair: require('./crypto/ecpair'),
-  ECSignature: require('./crypto/ecsignature'),
-  HDNode: require('./crypto/hdnode'),
-  slots: require('./crypto/slots'),
+  ...require('./crypto'),
 
   // Managers...
   configManager: require('./managers/config'),

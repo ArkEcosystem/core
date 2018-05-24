@@ -29,7 +29,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       throw new Error('Already initialised')
     }
 
-    if (this.config.dialect === 'sqlite') {
+    if (this.config.dialect === 'sqlite' && this.config.storage !== ':memory:') {
       await fs.ensureFile(this.config.storage)
     }
 
@@ -149,6 +149,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         ['vote', 'publicKey'],
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
+      group: ['vote'],
       where: {
         vote: {
           [Sequelize.Op.ne]: null
@@ -160,8 +161,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (data.length < maxDelegates) {
       const data2 = await this.models.wallet.findAll({
         attributes: [
-          'publicKey'
+          ['vote', 'publicKey'],
         ],
+        group: ['vote'],
         where: {
           username: {
             [Sequelize.Op.ne]: null
