@@ -7,9 +7,15 @@ const { crypto } = require('@arkecosystem/crypto')
 
 let repository
 let walletManager
+let calculateApproval
+let calculateProductivity
 
 beforeAll(async (done) => {
   await app.setUp()
+
+  const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
+  calculateApproval = delegateCalculator.calculateApproval
+  calculateProductivity = delegateCalculator.calculateProductivity
 
   done()
 })
@@ -230,32 +236,28 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      repository.connection.getActiveDelegates = jest.fn(() => {
-        return [{
-          username: 'test',
-          publicKey: 'test',
-          balance: 10000 * Math.pow(10, 8),
-          producedBlocks: 1000,
-          missedBlocks: 500
-        }]
-      })
+      const delegate = {
+        username: 'test',
+        publicKey: 'test',
+        balance: 10000 * Math.pow(10, 8),
+        producedBlocks: 1000,
+        missedBlocks: 500
+      }
+      const height = 1
 
-      repository.connection.wallets = {}
-      repository.connection.wallets.findById = jest.fn(() => {
-        return {
-          username: 'test',
-          balance: 10000 * Math.pow(10, 8),
-          producedBlocks: 1000,
-          missedBlocks: 500
-        }
-      })
+      repository.connection.getActiveDelegates = jest.fn(() => [delegate])
+      repository.connection.wallets = {
+        findById: jest.fn(() => delegate)
+      }
 
-      const results = repository.getActiveAtHeight(1)
+      const results = repository.getActiveAtHeight(height)
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()
-      expect(results[0].approval).toBeNumber()
-      expect(results[0].productivity).toBeNumber()
+      expect(results[0].approval).toBeString() // "0.18"
+      expect(results[0].productivity).toBeString() // "98.97"
+      expect(results[0].approval).toBe(calculateApproval(delegate, height))
+      expect(results[0].productivity).toBe(calculateProductivity(delegate))
     })
   })
 })
