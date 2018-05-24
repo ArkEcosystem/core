@@ -149,6 +149,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         ['vote', 'publicKey'],
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
+      groupBy: 'vote',
       where: {
         vote: {
           [Sequelize.Op.ne]: null
