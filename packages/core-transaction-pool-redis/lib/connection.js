@@ -99,7 +99,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (await this.transactionExists(transaction)) {
-      return logger.debug(`Duplicated Transaction ${transaction} - Transaction already in pool.`)
+      return logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
     }
 
     try {
