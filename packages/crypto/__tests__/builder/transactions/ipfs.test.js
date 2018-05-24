@@ -30,14 +30,14 @@ describe('IPFS Transaction', () => {
     })
   })
 
-  describe('setVendorField', () => {
+  describe('vendorField', () => {
     it('should generate and set the vendorFieldHex', () => {
       const data = 'hash'
       const hex = Buffer.from(data, 0).toString('hex')
       const paddedHex = hex.padStart(128, '0')
 
       transaction.ipfsHash = data
-      transaction.setVendorField(0)
+      transaction.vendorField(0)
       expect(transaction.vendorFieldHex).toBe(paddedHex)
     })
   })

@@ -25,7 +25,7 @@ describe('Transfer Transaction Rule', () => {
   it('should be valid with correct data', () => {
     transaction.create(address, amount)
                .setFee(fee)
-               .setVendorField('Ahoy')
+               .vendorField('Ahoy')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })

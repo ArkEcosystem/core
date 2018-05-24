@@ -44,4 +44,5 @@ class TransferBuilder extends TransactionBuilder {
     return struct
   }
 }
+
 module.exports = vendorField.mixin(TransferBuilder)

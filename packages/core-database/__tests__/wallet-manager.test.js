@@ -209,7 +209,7 @@ describe('Wallet Manager', () => {
 
         const transactionData = transactionBuilder
           .transfer()
-          .setVendorField('dummy A transfer to dummy B')
+          .vendorField('dummy A transfer to dummy B')
           .sign(Math.random().toString(36))
           .create(recipient.address, amount)
 
