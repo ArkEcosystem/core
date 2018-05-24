@@ -62,9 +62,9 @@ module.exports = () => {
         return keys
       })
       crypto.sign = jest.fn()
-      transaction.sign('bad pass')
+      transaction.sign('dummy pass')
 
-      expect(crypto.getKeys).toHaveBeenCalledWith('bad pass')
+      expect(crypto.getKeys).toHaveBeenCalledWith('dummy pass')
       expect(crypto.sign).toHaveBeenCalledWith(transaction, keys)
     })
 

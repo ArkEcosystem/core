@@ -29,7 +29,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
 
   /**
    * Set vendor field from hash.
-   * @param  {String} type
+   * @param  {String} type TODO is it necessary?
    * @return {IPFSBuilder}
    */
   setVendorField (type) {
@@ -37,6 +37,11 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
     while (this.vendorFieldHex.length < 128) {
       this.vendorFieldHex = '00' + this.vendorFieldHex
     }
+
+    // TODO is this right? when is vendorFieldHex.length is odd, it will add 1 more "0" than previous way
+    // const vendorFieldHex = Buffer.from(this.ipfsHash, type).toString('hex')
+    // this.vendorFieldHex = vendorFieldHex.padStart(128, '0')
+
     return this
   }
 

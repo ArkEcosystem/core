@@ -1,8 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const vendorField = require('./mixins/vendor-field')
 
-module.exports = class MultiPaymentBuilder extends TransactionBuilder {
+class MultiPaymentBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -13,18 +14,6 @@ module.exports = class MultiPaymentBuilder extends TransactionBuilder {
     this.fee = feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)
     this.payments = {}
     this.vendorFieldHex = null
-  }
-
-  /**
-   * Set vendor field from data.
-   * @param  {(String|undefined)} data
-   * @param  {Number}             type
-   * @return {MultiPaymentBuilder}
-   */
-  setVendorField (data, type) {
-    this.vendorFieldHex = Buffer.from(data, type).toString('hex')
-
-    return this
   }
 
   /**
@@ -59,3 +48,5 @@ module.exports = class MultiPaymentBuilder extends TransactionBuilder {
     return Object.assign(struct, this.payments)
   }
 }
+
+module.exports = vendorField.mixin(MultiPaymentBuilder)

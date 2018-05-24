@@ -31,6 +31,7 @@ module.exports = class TransferBuilder extends TransactionBuilder {
 
   /**
    * Set vendor field from data.
+   * TODO why is different from others ?
    * @param {(String|undefined)} data
    * @param {Number}             type
    * @return {TransferBuilder}

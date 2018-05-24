@@ -30,4 +30,12 @@ describe('Transfer Transaction', () => {
       expect(transaction.amount).toBe('a lot of ARK')
     })
   })
+
+  describe('setVendorField', () => {
+    it('should set the vendorField', () => {
+      transaction.setVendorField('fake')
+      expect(transaction.vendorField).toBe('fake')
+      expect(transaction.vendorFieldHex).toBeUndefined()
+    })
+  })
 })

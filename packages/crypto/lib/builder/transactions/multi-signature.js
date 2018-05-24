@@ -1,9 +1,9 @@
 const feeManager = require('../../managers/fee')
-const { crypto } = require('../../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const sign = require('./mixins/sign')
 
-module.exports = class MultiSignatureBuilder extends TransactionBuilder {
+class MultiSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -35,17 +35,6 @@ module.exports = class MultiSignatureBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited `sign` method to set the sender as the recipient too
-   * @param  {String} passphrase
-   * @return {MultiSignatureBuilder}
-   */
-  sign (passphrase) {
-    this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
-    super.sign(passphrase)
-    return this
-  }
-
-  /**
    * Overrides the inherited method to return the additional required by this.
    * @return {Object}
    */
@@ -58,3 +47,5 @@ module.exports = class MultiSignatureBuilder extends TransactionBuilder {
     return struct
   }
 }
+
+module.exports = sign.mixin(MultiSignatureBuilder)
