@@ -43,12 +43,10 @@ describe('Timelock Transfer Transaction', () => {
   })
 
   describe('setVendorField', () => {
-    it('should generate and set the vendorFieldHex', () => {
+    it('should set the vendorField', () => {
       const data = 'dummy'
-      const hex = Buffer.from(data, 0).toString('hex')
-
       transaction.setVendorField(data)
-      expect(transaction.vendorFieldHex).toBe(hex)
+      expect(transaction.vendorField).toBe(data)
     })
   })
 })

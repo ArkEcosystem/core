@@ -1,8 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const vendorField = require('./mixins/vendor-field')
 
-module.exports = class TransferBuilder extends TransactionBuilder {
+class TransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -30,19 +31,6 @@ module.exports = class TransferBuilder extends TransactionBuilder {
   }
 
   /**
-   * Set vendor field from data.
-   * TODO why is different from others ?
-   * @param {(String|undefined)} data
-   * @param {Number}             type
-   * @return {TransferBuilder}
-   */
-  setVendorField (data, type) {
-    this.vendorField = data
-    // this.vendorFieldHex = Buffer.from(data, type).toString('hex') // v2
-    return this
-  }
-
-  /**
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
@@ -56,3 +44,4 @@ module.exports = class TransferBuilder extends TransactionBuilder {
     return struct
   }
 }
+module.exports = vendorField.mixin(TransferBuilder)
