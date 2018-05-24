@@ -24,19 +24,19 @@ describe('Delegate Registration Transaction', () => {
     expect(builder).not.toHaveProperty('data.username')
   })
 
-  describe('create', () => {
+  describe('username', () => {
     it('establishes the username', () => {
-      builder.create('homer')
+      builder.username('homer')
       expect(builder.data.asset.delegate.username).toBe('homer')
     })
   })
 
   describe('sign', () => {
-    xit('establishes the public key of the delegate (on the asset property)', () => {
+    it('establishes the public key of the delegate (on the asset property)', () => {
       crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       crypto.sign = jest.fn()
       builder.sign('bad pass')
-      expect(builder.data.senderPublicKey).toBe('bad pass public key')
+      expect(builder.data.asset.delegate.publicKey).toBe('bad pass public key')
     })
   })
 

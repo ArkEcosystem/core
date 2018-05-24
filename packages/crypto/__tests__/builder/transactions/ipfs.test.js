@@ -23,13 +23,6 @@ describe('IPFS Transaction', () => {
     expect(builder).not.toHaveProperty('data.ipfsHash')
   })
 
-  describe('create', () => {
-    it('establishes the IPFS hash', () => {
-      builder.create('zyx')
-      expect(builder.data.ipfsHash).toBe('zyx')
-    })
-  })
-
   describe('ipfsHash', () => {
     it('establishes the IPFS hash', () => {
       builder.ipfsHash('zyx')

@@ -18,16 +18,6 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters.
-   * @param  {String} ipfsHash
-   * @return {IPFSBuilder}
-   */
-  create (ipfsHash) {
-    this.data.ipfsHash = ipfsHash
-    return this
-  }
-
-  /**
    * Set the IPFS hash.
    * @param  {String} ipfsHash
    * @return {IPFSBuilder}

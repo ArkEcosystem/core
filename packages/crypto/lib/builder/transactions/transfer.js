@@ -19,18 +19,6 @@ class TransferBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters
-   * @param  {String} recipientId
-   * @param  {Number} amount
-   * @return {TransferBuilder}
-   */
-  create (recipientId, amount) {
-    this.data.recipientId = recipientId
-    this.data.amount = amount
-    return this
-  }
-
-  /**
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */

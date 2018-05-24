@@ -20,24 +20,14 @@ describe('Timelock Transfer Transaction', () => {
     expect(builder).toHaveProperty('data.timelock')
   })
 
-  describe('create', () => {
-    it('establishes the recipient id', () => {
-      builder.create('homer')
-      expect(builder.data.recipientId).toBe('homer')
-    })
-
-    it('establishes the amount', () => {
-      builder.create(null, 'a lot of ARK')
-      expect(builder.data.amount).toBe('a lot of ARK')
-    })
-
+  describe('timelock', () => {
     it('establishes the time lock', () => {
-      builder.create(null, null, 'time lock')
+      builder.timelock('time lock')
       expect(builder.data.timelock).toBe('time lock')
     })
 
     it('establishes the time lock type', () => {
-      builder.create(null, null, null, 'time lock type')
+      builder.timelock(null, 'time lock type')
       expect(builder.data.timelockType).toBe('time lock type')
     })
   })
