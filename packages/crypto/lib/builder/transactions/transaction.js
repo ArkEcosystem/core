@@ -24,14 +24,6 @@ module.exports = class TransactionBuilder {
   }
 
   /**
-   * Create new instance.
-   * @return {TransactionBuilder}
-   */
-  create () {
-    return this
-  }
-
-  /**
    * Set transaction version.
    * @param {Number} version
    * @return {TransactionBuilder}

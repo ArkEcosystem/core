@@ -19,11 +19,15 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited `sign` method to include the generated second signature.
-   * @param  {String}          passphrase
+   * TODO this should be called `signature`, but is ambiguous. Other ideas:
+   * - `asset` method
+   * - `assetSignature` (and change the other asset methods)
+   *
+   * Set the second signature that would be register on the blockchain.
+   * @param {String} secondPassphrase
    * @return {SecondSignatureBuilder}
    */
-  create (secondPassphrase) {
+  secondSignature (secondPassphrase) {
     this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
     return this
   }

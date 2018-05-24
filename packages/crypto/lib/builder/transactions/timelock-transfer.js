@@ -20,16 +20,12 @@ class TimelockTransferBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters
-   * @param  {String} recipientId
-   * @param  {Number} amount
+   * Set the timelock and the timelock type
    * @param  {Number} timelock
    * @param  {Number} timelockType
    * @return {TimelockTransferBuilder}
    */
-  create (recipientId, amount, timelock, timelockType) {
-    this.data.recipientId = recipientId
-    this.data.amount = amount
+  timelock (timelock, timelockType) {
     this.data.timelock = timelock
     this.data.timelockType = timelockType
     return this

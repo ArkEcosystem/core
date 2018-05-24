@@ -19,11 +19,11 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters.
-   * @param  {String}   username
+   * Set the delegate username
+   * @param  {String} username
    * @return {DelegateRegistrationBuilder}
    */
-  create (username) {
+  username (username) {
     this.data.asset.delegate.username = username
     return this
   }
@@ -32,6 +32,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * Overrides the inherited `sign` method to include the public key of the new delegate.
    * @param  {String}   passphrase
    * @return {DelegateRegistrationBuilder}
+   * TODO rename to `assetDelegate` and merge with username ?
    */
   sign (passphrase) {
     this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey

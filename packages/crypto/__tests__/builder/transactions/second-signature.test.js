@@ -20,12 +20,14 @@ describe('Second Signature Transaction', () => {
     expect(builder).toHaveProperty('data.asset')
   })
 
-  describe('sign', () => {
-    xit('establishes the signature on the asset', () => {
+  describe('secondSignature', () => {
+    it('establishes the signature on the asset', () => {
       crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       crypto.sign = jest.fn()
-      builder.sign('bad pass')
-      expect(builder.data.asset.signature).toBe('bad pass public key')
+
+      builder.secondSignature('bad pass')
+
+      expect(builder.data.asset.signature.publicKey).toBe('bad pass public key')
     })
   })
 })

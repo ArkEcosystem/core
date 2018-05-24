@@ -19,18 +19,6 @@ describe('Transfer Transaction', () => {
     expect(builder).toHaveProperty('data.expiration')
   })
 
-  describe('create', () => {
-    it('establishes the recipient id', () => {
-      builder.create('homer')
-      expect(builder.data.recipientId).toBe('homer')
-    })
-
-    it('establishes the amount', () => {
-      builder.create(null, 'a lot of ARK')
-      expect(builder.data.amount).toBe('a lot of ARK')
-    })
-  })
-
   describe('vendorField', () => {
     it('should set the vendorField', () => {
       builder.vendorField('fake')
