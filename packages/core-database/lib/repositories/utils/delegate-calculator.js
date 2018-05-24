@@ -6,7 +6,7 @@ const config = require('@arkecosystem/core-container').resolvePlugin('config')
  * Calculate the approval for the given delegate.
  * @param  {Delegate} delegate
  * @param  {Number} height
- * @return {Number}
+ * @return {String} Approval, as a String with 2 decimals
  */
 exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
@@ -18,9 +18,9 @@ exports.calculateApproval = (delegate, height) => {
 /**
  * Calculate the productivity of the given delegate.
  * @param  {Delegate} delegate
- * @return {Number}
+ * @return {String} Productivity, as a String with 2 decimals
  */
-exports.calculateProductivity = (delegate) => {
+exports.calculateProductivity = delegate => {
   if (!delegate.missedBlocks && !delegate.producedBlocks) {
     return (0).toFixed(2)
   }
