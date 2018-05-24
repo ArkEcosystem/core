@@ -10,12 +10,12 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.SECOND_SIGNATURE
-    this.fee = feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { signature: {} }
+    this.data.type = TRANSACTION_TYPES.SECOND_SIGNATURE
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.SECOND_SIGNATURE)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { signature: {} }
   }
 
   /**
@@ -24,7 +24,7 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    * @return {SecondSignatureBuilder}
    */
   create (secondPassphrase) {
-    this.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
+    this.data.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey
     return this
   }
 
@@ -34,9 +34,9 @@ module.exports = class SecondSignatureBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
     return struct
   }
 }

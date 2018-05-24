@@ -9,7 +9,7 @@ module.exports = class DelegateResignationBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.DELEGATE_RESIGNATION
-    this.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)
+    this.data.type = TRANSACTION_TYPES.DELEGATE_RESIGNATION
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)
   }
 }

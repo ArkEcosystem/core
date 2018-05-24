@@ -3,13 +3,13 @@ module.exports = {
     return class extends Base {
       /**
        * Set vendor field from data.
-       * @param  {(String|undefined)} data
+       * @param  {(String|undefined)} value
        * @return {TransactionBuilder}
        */
-      vendorField (data) {
-        this.vendorField = data
+      vendorField (value) {
+        this.data.vendorField = value
         // V2
-        // this.vendorFieldHex = Buffer.from(data, type).toString('hex')
+        // this.data.vendorFieldHex = Buffer.from(value, type).toString('hex')
 
         return this
       }
