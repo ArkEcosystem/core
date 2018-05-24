@@ -1,9 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { crypto } = require('../../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class Vote extends Transaction {
+module.exports = class VoteBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -21,7 +21,7 @@ module.exports = class Vote extends Transaction {
   /**
    * Create vote transaction with delegate votes.
    * @param  {Array} delegates
-   * @return {Vote}
+   * @return {VoteBuilder}
    */
   create (delegates) {
     this.asset.votes = delegates
@@ -31,7 +31,7 @@ module.exports = class Vote extends Transaction {
   /**
    * Overrides the inherited `sign` method to set the sender as the recipient too
    * @param  {String} passphrase
-   * @return {Vote}
+   * @return {VoteBuilder}
    */
   sign (passphrase) {
     this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)

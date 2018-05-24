@@ -17,7 +17,7 @@ module.exports = class Transaction {
 
   /**
    * Create new instance.
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   create () {
     return this
@@ -26,7 +26,7 @@ module.exports = class Transaction {
   /**
    * Set transaction version.
    * @param {Number} version
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setVersion (version) {
     this.version = version
@@ -36,7 +36,7 @@ module.exports = class Transaction {
   /**
    * Set transaction fee.
    * @param {Number} fee
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setFee (fee) {
     this.fee = fee
@@ -46,7 +46,7 @@ module.exports = class Transaction {
   /**
    * Set amount to transfer.
    * @param  {Number} amount
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setAmount (amount) {
     this.amount = amount
@@ -56,7 +56,7 @@ module.exports = class Transaction {
   /**
    * Set recipient id.
    * @param  {String} recipientId
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setRecipientId (recipientId) {
     this.recipientId = recipientId
@@ -66,7 +66,7 @@ module.exports = class Transaction {
   /**
    * Set sender public key.
    * @param  {String} publicKey
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setSenderPublicKey (publicKey) {
     this.senderPublicKey = publicKey
@@ -92,7 +92,7 @@ module.exports = class Transaction {
   /**
    * Sign transaction using passphrase.
    * @param  {String} passphrase
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   sign (passphrase) {
     const keys = crypto.getKeys(passphrase)
@@ -104,7 +104,7 @@ module.exports = class Transaction {
   /**
    * Sign transaction with second passphrase.
    * @param  {String} secondPassphrase
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   secondSign (secondPassphrase) {
     const keys = crypto.getKeys(secondPassphrase)

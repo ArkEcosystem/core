@@ -1,8 +1,8 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class IPFS extends Transaction {
+module.exports = class IPFSBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -20,7 +20,7 @@ module.exports = class IPFS extends Transaction {
   /**
    * Overrides the inherited method to add the necessary parameters.
    * @param  {String} ipfsHash
-   * @return {IPFS}
+   * @return {IPFSBuilder}
    */
   create (ipfsHash) {
     this.ipfsHash = ipfsHash
@@ -30,7 +30,7 @@ module.exports = class IPFS extends Transaction {
   /**
    * Set vendor field from hash.
    * @param  {String} type
-   * @return {IPFS}
+   * @return {IPFSBuilder}
    */
   setVendorField (type) {
     this.vendorFieldHex = Buffer.from(this.ipfsHash, type).toString('hex')
