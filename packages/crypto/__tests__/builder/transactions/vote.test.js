@@ -18,7 +18,7 @@ describe('Vote Transaction', () => {
     expect(transaction).toHaveProperty('recipientId')
     expect(transaction).toHaveProperty('senderPublicKey')
     expect(transaction).toHaveProperty('asset')
-    expect(transaction.aset).toHaveProperty('votes')
+    expect(transaction.asset).toHaveProperty('votes')
   })
 
   describe('create', () => {
