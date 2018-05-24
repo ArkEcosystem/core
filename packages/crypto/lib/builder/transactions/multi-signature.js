@@ -1,9 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { crypto } = require('../../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class MultiSignature extends Transaction {
+module.exports = class MultiSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -23,7 +23,7 @@ module.exports = class MultiSignature extends Transaction {
    * @param  {Array} keysgroup
    * @param  {Number} lifetime
    * @param  {Number} min
-   * @return {MultiSignature}
+   * @return {MultiSignatureBuilder}
    */
   create (keysgroup, lifetime, min) {
     this.asset.multisignature.keysgroup = keysgroup
@@ -37,7 +37,7 @@ module.exports = class MultiSignature extends Transaction {
   /**
    * Overrides the inherited `sign` method to set the sender as the recipient too
    * @param  {String} passphrase
-   * @return {Vote}
+   * @return {MultiSignatureBuilder}
    */
   sign (passphrase) {
     this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
