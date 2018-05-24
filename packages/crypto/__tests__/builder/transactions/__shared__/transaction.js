@@ -2,6 +2,7 @@ const TransactionBuilder = require('../../../../lib/builder/transactions/transac
 const crypto = require('../../../../lib/crypto/crypto')
 const { slots } = require('../../../../lib/crypto')
 const configManager = require('../../../../lib/managers/config')
+const Transaction = require('../../../../lib/models/transaction')
 
 module.exports = () => {
   let builder
@@ -23,6 +24,58 @@ module.exports = () => {
 
       expect(builder).toHaveProperty('data.type')
       expect(builder).toHaveProperty('data.fee')
+    })
+
+    describe('builder', () => {
+      let timestamp
+      let data
+
+      beforeEach(() => {
+        timestamp = slots.getTime()
+
+        data = {
+          id: 'fake-id',
+          amount: 1,
+          fee: 1,
+          recipientId: 'DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42',
+          senderPublicKey: '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
+          timestamp,
+          type: 0,
+          version: 0x03
+        }
+      })
+
+      it('should return a Transaction model with the builder data', () => {
+        builder.data = data
+
+        const transaction = builder.build()
+
+        expect(transaction).toBeInstanceOf(Transaction)
+        expect(transaction.amount).toBe(1)
+        expect(transaction.fee).toBe(1)
+        expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
+        expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
+        expect(transaction.timestamp).toBe(timestamp)
+        expect(transaction.type).toBe(0)
+        expect(transaction.version).toBe(0x03)
+      })
+
+      it('could merge and override the builder data', () => {
+        builder.data = data
+
+        const transaction = builder.build({
+          amount: 33,
+          fee: 1000
+        })
+
+        expect(transaction).toBeInstanceOf(Transaction)
+        expect(transaction.amount).toBe(33)
+        expect(transaction.fee).toBe(1000)
+        expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
+        expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
+        expect(transaction.timestamp).toBe(timestamp)
+        expect(transaction.version).toBe(0x03)
+      })
     })
 
     describe('fee', () => {
