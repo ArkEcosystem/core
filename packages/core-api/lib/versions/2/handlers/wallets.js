@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/wallets')
@@ -51,6 +52,10 @@ exports.show = {
   async handler (request, h) {
     const wallet = await database.wallets.findById(request.params.id)
 
+    if (!wallet) {
+      return Boom.notFound()
+    }
+
     return utils.respondWithResource(request, wallet, 'wallet')
   },
   options: {
@@ -69,6 +74,11 @@ exports.transactions = {
    */
   async handler (request, h) {
     const wallet = await database.wallets.findById(request.params.id)
+
+    if (!wallet) {
+      return Boom.notFound()
+    }
+
     const transactions = await database.transactions.findAllByWallet(wallet, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -89,6 +99,11 @@ exports.transactionsSent = {
    */
   async handler (request, h) {
     const wallet = await database.wallets.findById(request.params.id)
+
+    if (!wallet) {
+      return Boom.notFound()
+    }
+
     const transactions = await database.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -109,6 +124,11 @@ exports.transactionsReceived = {
    */
   async handler (request, h) {
     const wallet = await database.wallets.findById(request.params.id)
+
+    if (!wallet) {
+      return Boom.notFound()
+    }
+
     const transactions = await database.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
@@ -129,6 +149,11 @@ exports.votes = {
    */
   async handler (request, h) {
     const wallet = await database.wallets.findById(request.params.id)
+
+    if (!wallet) {
+      return Boom.notFound()
+    }
+
     const transactions = await database.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')

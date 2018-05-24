@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/delegates')
@@ -35,6 +36,10 @@ exports.show = {
   async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
 
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
     return utils.respondWithResource(request, delegate, 'delegate')
   },
   options: {
@@ -53,6 +58,11 @@ exports.blocks = {
    */
   async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
     const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, blocks, 'block')
@@ -73,6 +83,11 @@ exports.voters = {
    */
   async handler (request, h) {
     const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
     const wallets = await database.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))
 
     return utils.toPagination(request, wallets, 'wallet')
