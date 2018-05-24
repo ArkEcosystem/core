@@ -1,8 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const vendorField = require('./mixins/vendor-field')
 
-module.exports = class TimelockTransferBuilder extends TransactionBuilder {
+class TimelockTransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -35,17 +36,6 @@ module.exports = class TimelockTransferBuilder extends TransactionBuilder {
   }
 
   /**
-   * Set vendor field from data.
-   * @param {(String|undefined)} data
-   * @param {Number}             type
-   * @return {TimelockTransferBuilder}
-   */
-  setVendorField (data, type) {
-    this.vendorFieldHex = Buffer.from(data, type).toString('hex')
-    return this
-  }
-
-  /**
    * Overrides the inherited method to return the additional required by this
    * @return {Object}
    */
@@ -60,3 +50,5 @@ module.exports = class TimelockTransferBuilder extends TransactionBuilder {
     return struct
   }
 }
+
+module.exports = vendorField.mixin(TimelockTransferBuilder)

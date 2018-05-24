@@ -23,18 +23,21 @@ describe('Vote Transaction', () => {
 
   describe('create', () => {
     it('establishes the votes asset', () => {
-      const invalidVotes = ['invalid-1', 'invalid-2', 'invalid-3']
-      transaction.create(invalidVotes)
-      expect(transaction.asset.votes).toBe(invalidVotes)
+      const votes = ['+dummy-1']
+      transaction.create(votes)
+      expect(transaction.asset.votes).toBe(votes)
     })
   })
 
   describe('sign', () => {
-    xit('establishes the recipient id', () => {
+    it('establishes the recipient id', () => {
+      const pass = 'dummy pass'
+
       crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       crypto.sign = jest.fn()
-      transaction.sign('bad pass')
-      expect(transaction.recipientId).toBe('bad pass public key')
+
+      transaction.sign(pass)
+      expect(transaction.recipientId).toBe('DKNJwdxrPQg6xXbrpaQLfgi6kC2ndaz8N5')
     })
   })
 })
