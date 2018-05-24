@@ -23,14 +23,14 @@ module.exports = class TransactionGuard {
    * @param  {Boolean} isBroadcast flag
    * @return {void}
    */
-  async validate (transactions, isBroadcast) {
+  async validate (transactions, broadcasted) {
     this.__reset()
 
     this.__transformTransactions(transactions)
 
     this.__determineInvalidTransactions()
 
-    this.__broadCastTransactions(isBroadcast)
+    this.__determineTransactionsForBroadCast(broadcasted)
 
     this.__determineFeeMatchingTransactions()
 
@@ -51,7 +51,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id),
+      broadcast: this.broadcast.map(transaction => transaction.id)
     }
   }
 
@@ -69,7 +70,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid
+      invalid: this.invalid,
+      broadcast: this.broadcast
     }
   }
 
@@ -111,15 +113,18 @@ module.exports = class TransactionGuard {
      this.transactions = transactions.map(transaction => new Transaction(transaction))
   }
 
-/**
-   * Transform the specified transactions to models.
-   * @param  {Boolean} isBroadCast
+  /**
+   * Determine transactions that need to be broadcasted
+   * @param  {Boolean} broadcasted - if true transactions was send from node2node, if false - is from client
    * @return {void}
    */
-  __broadCastTransactions (isBroadcast) {
-    if (!isBroadcast) {
-      container.resolvePlugin('p2p').broadcastTransactions(this.transactions)
-    }
+  __determineTransactionsForBroadCast (broadcasted) {
+    this.transactions.forEach(transaction => {
+      if (!broadcasted) {
+        // transaction.hops = 0 //TODO: rething if we need to count hops, or just send trxses out once to all peers
+        this.broadcast.push(transaction)
+      }
+    })
   }
 
   /**
@@ -218,5 +223,6 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
+    this.broadcast = []
   }
 }

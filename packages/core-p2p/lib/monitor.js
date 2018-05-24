@@ -280,7 +280,7 @@ module.exports = class Monitor {
    * Placeholder method to broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {
+  async broadcastTransactions (transactions) {
     const peers = Object.values(this.peers)
     logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
