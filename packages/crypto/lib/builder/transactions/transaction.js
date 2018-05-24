@@ -68,7 +68,7 @@ module.exports = class Transaction {
    * @param  {String} publicKey
    * @return {TransactionBuilder}
    */
-  setSenderPublicKey (publicKey) {
+  senderPublicKey (publicKey) {
     this.senderPublicKey = publicKey
     return this
   }
@@ -83,6 +83,7 @@ module.exports = class Transaction {
 
   /**
    * Serialize the transaction.
+   * TODO @deprecated when a Transaction model is returned
    * @return {Buffer}
    */
   serialize () {
