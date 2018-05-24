@@ -1,32 +1,39 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().ipfs()
+  builder = ark.getBuilder().ipfs()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('IPFS Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('vendorFieldHex')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('asset')
+    expect(builder).toHaveProperty('data.amount')
+    expect(builder).toHaveProperty('data.vendorFieldHex')
+    expect(builder).toHaveProperty('data.senderPublicKey')
+    expect(builder).toHaveProperty('data.asset')
   })
 
   it('should not have the IPFS hash yet', () => {
-    expect(transaction).not.toHaveProperty('ipfsHash')
+    expect(builder).not.toHaveProperty('data.ipfsHash')
   })
 
   describe('create', () => {
     it('establishes the IPFS hash', () => {
-      transaction.create('zyx')
-      expect(transaction.ipfsHash).toBe('zyx')
+      builder.create('zyx')
+      expect(builder.data.ipfsHash).toBe('zyx')
+    })
+  })
+
+  describe('ipfsHash', () => {
+    it('establishes the IPFS hash', () => {
+      builder.ipfsHash('zyx')
+      expect(builder.data.ipfsHash).toBe('zyx')
     })
   })
 
@@ -36,9 +43,9 @@ describe('IPFS Transaction', () => {
       const hex = Buffer.from(data, 0).toString('hex')
       const paddedHex = hex.padStart(128, '0')
 
-      transaction.ipfsHash = data
-      transaction.vendorField(0)
-      expect(transaction.vendorFieldHex).toBe(paddedHex)
+      builder.data.ipfsHash = data
+      builder.vendorField(0)
+      expect(builder.data.vendorFieldHex).toBe(paddedHex)
     })
   })
 })

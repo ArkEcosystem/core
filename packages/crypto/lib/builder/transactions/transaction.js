@@ -15,8 +15,10 @@ module.exports = class TransactionBuilder {
     }
   }
 
-  build () {
-    return new Transaction()
+  build (data) {
+    // TODO ignore some attrs:
+    // - senderPubicKey
+    return new Transaction({ ...(this.data), ...data })
   }
 
   /**
@@ -82,8 +84,7 @@ module.exports = class TransactionBuilder {
    * @return {Boolean}
    */
   verify () {
-    // TODO
-    return crypto.verify(this)
+    return crypto.verify(this.data)
   }
 
   /**
@@ -126,7 +127,7 @@ module.exports = class TransactionBuilder {
   getStruct () {
     return {
       // hex: crypto.getBytes(this).toString('hex'), // v2
-      id: crypto.getId(this).toString('hex'), // TODO
+      id: crypto.getId(this.data).toString('hex'),
       signature: this.data.signature,
       signSignature: this.data.signSignature,
       timestamp: this.data.timestamp,

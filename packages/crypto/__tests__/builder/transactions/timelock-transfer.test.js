@@ -1,52 +1,52 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().timelockTransfer()
+  builder = ark.getBuilder().timelockTransfer()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Timelock Transfer Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('timelockType')
-    expect(transaction).toHaveProperty('timelock')
+    expect(builder).toHaveProperty('data.amount')
+    expect(builder).toHaveProperty('data.recipientId')
+    expect(builder).toHaveProperty('data.senderPublicKey')
+    expect(builder).toHaveProperty('data.timelockType')
+    expect(builder).toHaveProperty('data.timelock')
   })
 
   describe('create', () => {
     it('establishes the recipient id', () => {
-      transaction.create('homer')
-      expect(transaction.recipientId).toBe('homer')
+      builder.create('homer')
+      expect(builder.data.recipientId).toBe('homer')
     })
 
     it('establishes the amount', () => {
-      transaction.create(null, 'a lot of ARK')
-      expect(transaction.amount).toBe('a lot of ARK')
+      builder.create(null, 'a lot of ARK')
+      expect(builder.data.amount).toBe('a lot of ARK')
     })
 
     it('establishes the time lock', () => {
-      transaction.create(null, null, 'time lock')
-      expect(transaction.timelock).toBe('time lock')
+      builder.create(null, null, 'time lock')
+      expect(builder.data.timelock).toBe('time lock')
     })
 
     it('establishes the time lock type', () => {
-      transaction.create(null, null, null, 'time lock type')
-      expect(transaction.timelockType).toBe('time lock type')
+      builder.create(null, null, null, 'time lock type')
+      expect(builder.data.timelockType).toBe('time lock type')
     })
   })
 
   describe('vendorField', () => {
     it('should set the vendorField', () => {
       const data = 'dummy'
-      transaction.vendorField(data)
-      expect(transaction.vendorField).toBe(data)
+      builder.vendorField(data)
+      expect(builder.data.vendorField).toBe(data)
     })
   })
 })

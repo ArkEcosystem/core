@@ -1,37 +1,37 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().multiPayment()
+  builder = ark.getBuilder().multiPayment()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Multi Payment Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('payments')
-    expect(transaction).toHaveProperty('vendorFieldHex')
+    expect(builder).toHaveProperty('data.payments')
+    expect(builder).toHaveProperty('data.vendorFieldHex')
   })
 
   describe('vendorField', () => {
-    it('should generate and set the vendorFieldHex', () => {
+    it('should set the vendorField', () => {
       const data = 'dummy'
-      transaction.vendorField(data)
-      expect(transaction.vendorField).toBe(data)
+      builder.vendorField(data)
+      expect(builder.data.vendorField).toBe(data)
     })
   })
 
   describe('addPayment', () => {
     it('should add new payments', () => {
-      transaction.addPayment('address', 'amount')
-      transaction.addPayment('address', 'amount')
-      transaction.addPayment('address', 'amount')
+      builder.addPayment('address', 'amount')
+      builder.addPayment('address', 'amount')
+      builder.addPayment('address', 'amount')
 
-      expect(transaction.payments).toEqual({
+      expect(builder.data.payments).toEqual({
         address1: 'address',
         address2: 'address',
         address3: 'address',

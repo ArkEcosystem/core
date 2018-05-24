@@ -1,14 +1,14 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().delegateResignation()
+  builder = ark.getBuilder().delegateResignation()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Delegate Resignation Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 })
