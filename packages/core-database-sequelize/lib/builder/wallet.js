@@ -13,6 +13,7 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   constructor (database) {
+    this.database = database
     this.connection = database.connection
     this.models = database.models
     this.walletManager = database.walletManager
@@ -191,7 +192,8 @@ module.exports = class WalletBuilder {
     const forgedBlocks = await this.models.block.findAll({
       attributes: [
         'generatorPublicKey',
-        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalForged']
+        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalForged'],
+        [Sequelize.fn('COUNT', Sequelize.col('totalAmount')), 'totalProduced']
       ],
       where: {
         generatorPublicKey: {
@@ -210,6 +212,7 @@ module.exports = class WalletBuilder {
       wallet.rate = i + 1
       wallet.forged = forgedBlock ? forgedBlock.totalForged : 0
       wallet.username = delegates[i].username
+      wallet.producedBlocks = forgedBlock ? forgedBlock.totalProduced : 0
 
       this.walletManager.reindex(wallet)
     }
