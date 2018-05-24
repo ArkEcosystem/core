@@ -150,6 +150,8 @@ describe('Connection', () => {
       const trx2 = new Transaction(dummy1)
       await connection.addTransactions([trx1, trx2])
 
+      await delay(500)
+
       const res1 = await connection.transactionExists(trx1)
       expect(res1).toBe(true)
 

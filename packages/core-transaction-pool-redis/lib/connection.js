@@ -98,18 +98,19 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
-    if (this.transactionExists(transaction)) {
-      // return logger.warn(`Duplicated Transaction ${transaction} - Transaction already in pool.`)
-      return
+    if (await this.transactionExists(transaction)) {
+      return logger.debug(`Duplicated Transaction ${transaction} - Transaction already in pool.`)
     }
 
-    logger.debug('AADDDDDDADADAD')
-
     try {
-      await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
+      const res = await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
         'serialized', transaction.serialized.toString('hex'),
         'senderPublicKey', transaction.senderPublicKey
       )
+
+      if (res === 0) {
+        throw new Error('Transaction not added to the pool - await this.pool.hmset failed')
+      }
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
       await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
 
@@ -320,7 +321,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   */
   async transactionExists (transaction) {
     const exists = await this.pool.hexists(this.__getRedisTransactionKey(transaction.id), 'serialized')
-    logger.debug(exists)
     return (exists > 0)
   }
 
