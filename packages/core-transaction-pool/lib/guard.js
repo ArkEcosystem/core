@@ -1,7 +1,7 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto, feeManager, dynamicFeeManager } = require('@arkecosystem/client')
-const { Transaction } = require('@arkecosystem/client').models
+const { crypto, feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
