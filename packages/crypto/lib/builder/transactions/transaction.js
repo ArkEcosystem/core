@@ -15,9 +15,11 @@ module.exports = class TransactionBuilder {
     }
   }
 
+  /**
+   * Build a new Transaction instance.
+   * @return {Transaction}
+   */
   build (data) {
-    // TODO ignore some attrs:
-    // - senderPubicKey
     return new Transaction({ ...(this.data), ...data })
   }
 
