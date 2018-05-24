@@ -46,9 +46,9 @@ module.exports = () => {
       })
     })
 
-    describe('setSenderPublicKey', () => {
+    describe('senderPublicKey', () => {
       it('should set the sender public key', () => {
-        transaction.setSenderPublicKey('fake')
+        transaction.senderPublicKey('fake')
         expect(transaction.senderPublicKey).toBe('fake')
       })
     })
