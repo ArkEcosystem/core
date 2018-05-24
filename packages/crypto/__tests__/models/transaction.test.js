@@ -1,6 +1,6 @@
 const Transaction = require('../../lib/models/transaction')
 const builder = require('../../lib/builder')
-const cryptoBuilder = require('../../lib/builder/crypto')
+const crypto = require('../../lib/crypto/crypto')
 const ECPair = require('../../lib/crypto/ecpair')
 const ECSignature = require('../../lib/crypto/ecsignature')
 const transactionData = require('./fixtures/transaction')
@@ -44,7 +44,7 @@ const createRandomTx = type => {
       break
 
     case 4: // multisignature registration
-      const ECkeys = [1, 2, 3].map(() => cryptoBuilder.getKeys(Math.random().toString(36)))
+      const ECkeys = [1, 2, 3].map(() => crypto.getKeys(Math.random().toString(36)))
 
       transaction = builder
         .multiSignature()
@@ -52,7 +52,7 @@ const createRandomTx = type => {
         .sign(Math.random().toString(36))
         .secondSign('')
 
-      const hash = cryptoBuilder.getHash(transaction, true, true)
+      const hash = crypto.getHash(transaction, true, true)
       transaction.signatures = ECkeys.slice(1).map(k => k.sign(hash).toDER().toString('hex'))
   }
 
@@ -67,7 +67,7 @@ const verifyEcdsaNonMalleability = (transaction) => {
   const ecurve = require('ecurve')
   const secp256k1 = ecurve.getCurveByName('secp256k1')
   const n = secp256k1.n
-  const hash = cryptoBuilder.getHash(transaction, true, true)
+  const hash = crypto.getHash(transaction, true, true)
 
   const signatureBuffer = Buffer.from(transaction.signature, 'hex')
   const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')

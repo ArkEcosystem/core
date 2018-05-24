@@ -1,7 +1,7 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const Transaction = require('./transaction')
-const cryptoBuilder = require('../crypto')
+const { crypto } = require('../../crypto')
 
 module.exports = class DelegateRegistration extends Transaction {
   /**
@@ -34,7 +34,7 @@ module.exports = class DelegateRegistration extends Transaction {
    * @return {Delegate}
    */
   sign (passphrase) {
-    this.asset.delegate.publicKey = cryptoBuilder.getKeys(passphrase).publicKey
+    this.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
     super.sign(passphrase)
     return this
   }
