@@ -112,6 +112,15 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Check whether ransaction is already in pool
+   * @param  {transaction} transaction
+   * @return {Boolean}
+   */
+  async transactionExists (transaction) {
+    throw new Error('Method [transactionExists] not implemented!')
+  }
+
+  /**
    * Get a sender public key by transaction id.
    * @param  {Transactions[]} transactions
    * @return {Object}
