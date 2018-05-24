@@ -10,12 +10,12 @@ class MultiSignatureBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.MULTI_SIGNATURE
-    this.fee = 0
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { multisignature: {} }
+    this.data.type = TRANSACTION_TYPES.MULTI_SIGNATURE
+    this.data.fee = 0
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { multisignature: {} }
   }
 
   /**
@@ -26,10 +26,10 @@ class MultiSignatureBuilder extends TransactionBuilder {
    * @return {MultiSignatureBuilder}
    */
   create (keysgroup, lifetime, min) {
-    this.asset.multisignature.keysgroup = keysgroup
-    this.asset.multisignature.lifetime = lifetime
-    this.asset.multisignature.min = min
-    this.fee = (keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+    this.data.asset.multisignature.keysgroup = keysgroup
+    this.data.asset.multisignature.lifetime = lifetime
+    this.data.asset.multisignature.min = min
+    this.data.fee = (keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
 
     return this
   }
@@ -40,9 +40,9 @@ class MultiSignatureBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
 
     return struct
   }

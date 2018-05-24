@@ -9,7 +9,7 @@ module.exports = {
        * @return {TransactionBuilder}
        */
       sign (passphrase) {
-        this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
+        this.data.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
         super.sign(passphrase)
         return this
       }

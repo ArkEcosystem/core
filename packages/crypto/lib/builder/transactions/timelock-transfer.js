@@ -10,13 +10,13 @@ class TimelockTransferBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
-    this.fee = feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.timelockType = 0x00
-    this.timelock = null
+    this.data.type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.timelockType = 0x00
+    this.data.timelock = null
   }
 
   /**
@@ -28,10 +28,10 @@ class TimelockTransferBuilder extends TransactionBuilder {
    * @return {TimelockTransferBuilder}
    */
   create (recipientId, amount, timelock, timelockType) {
-    this.recipientId = recipientId
-    this.amount = amount
-    this.timelock = timelock
-    this.timelockType = timelockType
+    this.data.recipientId = recipientId
+    this.data.amount = amount
+    this.data.timelock = timelock
+    this.data.timelockType = timelockType
     return this
   }
 
@@ -41,12 +41,12 @@ class TimelockTransferBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.vendorFieldHex = this.vendorFieldHex
-    struct.asset = this.asset
-    struct.timelock = this.timelock
-    struct.timelockType = this.timelockType
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.vendorFieldHex = this.data.vendorFieldHex
+    struct.asset = this.data.asset
+    struct.timelock = this.data.timelock
+    struct.timelockType = this.data.timelockType
     return struct
   }
 }

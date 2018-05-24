@@ -10,12 +10,12 @@ class TransferBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.TRANSFER
-    this.fee = feeManager.get(TRANSACTION_TYPES.TRANSFER)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.expiration = 15 // 15 blocks, 120s
+    this.data.type = TRANSACTION_TYPES.TRANSFER
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.TRANSFER)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.expiration = 15 // 15 blocks, 120s
   }
 
   /**
@@ -25,8 +25,8 @@ class TransferBuilder extends TransactionBuilder {
    * @return {TransferBuilder}
    */
   create (recipientId, amount) {
-    this.recipientId = recipientId
-    this.amount = amount
+    this.data.recipientId = recipientId
+    this.data.amount = amount
     return this
   }
 
@@ -36,10 +36,10 @@ class TransferBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
-    struct.vendorField = this.vendorField
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
+    struct.vendorField = this.data.vendorField
     // struct.vendorFieldHex = this.vendorFieldHex // v2
     return struct
   }

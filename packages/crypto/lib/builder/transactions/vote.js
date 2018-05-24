@@ -10,12 +10,12 @@ class VoteBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.VOTE
-    this.fee = feeManager.get(TRANSACTION_TYPES.VOTE)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { votes: {} }
+    this.data.type = TRANSACTION_TYPES.VOTE
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.VOTE)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { votes: {} }
   }
 
   /**
@@ -24,7 +24,7 @@ class VoteBuilder extends TransactionBuilder {
    * @return {VoteBuilder}
    */
   create (delegates) {
-    this.asset.votes = delegates
+    this.data.asset.votes = delegates
     return this
   }
 
@@ -34,9 +34,9 @@ class VoteBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
     return struct
   }
 }
