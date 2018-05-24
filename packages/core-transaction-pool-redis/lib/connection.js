@@ -98,6 +98,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
+    if (this.transactionExists(transaction)) {
+      // return logger.warn(`Duplicated Transaction ${transaction} - Transaction already in pool.`)
+      return
+    }
+
+    logger.debug('AADDDDDDADADAD')
+
     try {
       await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
         'serialized', transaction.serialized.toString('hex'),
@@ -313,6 +320,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   */
   async transactionExists (transaction) {
     const exists = await this.pool.hexists(this.__getRedisTransactionKey(transaction.id), 'serialized')
+    logger.debug(exists)
     return (exists > 0)
   }
 
