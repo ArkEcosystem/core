@@ -1,16 +1,15 @@
-const configManager = require('../managers/config')
 const base58check = require('bs58check')
-const bcrypto = require('../crypto')
-const ECSignature = require('./ecsignature')
+const BigInteger = require('bigi')
+const ecurve = require('ecurve')
 const randomBytes = require('randombytes')
+const secp256k1native = require('secp256k1')
 const typeforce = require('typeforce')
-const types = require('./types')
 const wif = require('wif')
 
-const BigInteger = require('bigi')
-
-const ecurve = require('ecurve')
-const secp256k1native = require('secp256k1')
+const configManager = require('../managers/config')
+const utils = require('./utils')
+const ECSignature = require('./ecsignature')
+const types = require('./types')
 
 const secp256k1 = ecurve.getCurveByName('secp256k1')
 
@@ -71,7 +70,7 @@ class ECPair {
    * @returns {ECPair}
    */
   static fromSeed (seed, options) {
-    const hash = bcrypto.sha256(Buffer.from(seed, 'utf-8'))
+    const hash = utils.sha256(Buffer.from(seed, 'utf-8'))
     const d = BigInteger.fromBuffer(hash)
 
     if (d.signum() <= 0 || d.compareTo(secp256k1.n) >= 0) {
@@ -138,7 +137,7 @@ class ECPair {
    */
   getAddress () {
     const payload = Buffer.alloc(21)
-    const hash = bcrypto.ripemd160(this.getPublicKeyBuffer())
+    const hash = utils.ripemd160(this.getPublicKeyBuffer())
     const version = this.network.pubKeyHash
     payload.writeUInt8(version, 0)
     hash.copy(payload, 1)

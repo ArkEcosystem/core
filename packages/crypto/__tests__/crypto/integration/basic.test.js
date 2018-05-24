@@ -1,5 +1,5 @@
 const bigi = require('bigi')
-const crypto = require('../../../lib/crypto')
+const utils = require('../../../lib/crypto/utils')
 const ECPair = require('../../../lib/crypto/ecpair')
 
 const configManager = require('../../../lib/managers/config')
@@ -17,7 +17,7 @@ describe('Basic Crypto', () => {
   })
 
   it('can generate an address = require(a SHA256 hash', () => {
-    const hash = crypto.sha256('correct horse battery staple')
+    const hash = utils.sha256('correct horse battery staple')
     const keyPair = new ECPair(bigi.fromBuffer(hash))
 
     expect(keyPair.getAddress()).toBe('AG5AtmiNbgv51eLwAWnRGvkMudVd7anYP2')
