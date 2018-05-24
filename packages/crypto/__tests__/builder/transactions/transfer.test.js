@@ -31,9 +31,9 @@ describe('Transfer Transaction', () => {
     })
   })
 
-  describe('setVendorField', () => {
+  describe('vendorField', () => {
     it('should set the vendorField', () => {
-      transaction.setVendorField('fake')
+      transaction.vendorField('fake')
       expect(transaction.vendorField).toBe('fake')
     })
   })

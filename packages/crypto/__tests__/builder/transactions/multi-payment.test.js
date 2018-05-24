@@ -17,10 +17,10 @@ describe('Multi Payment Transaction', () => {
     expect(transaction).toHaveProperty('vendorFieldHex')
   })
 
-  describe('setVendorField', () => {
+  describe('vendorField', () => {
     it('should generate and set the vendorFieldHex', () => {
       const data = 'dummy'
-      transaction.setVendorField(data)
+      transaction.vendorField(data)
       expect(transaction.vendorField).toBe(data)
     })
   })

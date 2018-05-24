@@ -6,7 +6,7 @@ module.exports = {
        * @param  {(String|undefined)} data
        * @return {TransactionBuilder}
        */
-      setVendorField (data) {
+      vendorField (data) {
         this.vendorField = data
         // V2
         // this.vendorFieldHex = Buffer.from(data, type).toString('hex')

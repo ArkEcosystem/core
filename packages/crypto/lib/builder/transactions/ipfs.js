@@ -32,7 +32,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    * @param  {String} type TODO is it necessary?
    * @return {IPFSBuilder}
    */
-  setVendorField (type) {
+  vendorField (type) {
     this.vendorFieldHex = Buffer.from(this.ipfsHash, type).toString('hex')
     while (this.vendorFieldHex.length < 128) {
       this.vendorFieldHex = '00' + this.vendorFieldHex
