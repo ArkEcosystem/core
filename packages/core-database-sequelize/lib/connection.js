@@ -149,7 +149,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         ['vote', 'publicKey'],
         [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
       ],
-      groupBy: 'vote',
+      group: ['vote'],
       where: {
         vote: {
           [Sequelize.Op.ne]: null
@@ -161,8 +161,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (data.length < maxDelegates) {
       const data2 = await this.models.wallet.findAll({
         attributes: [
-          'publicKey'
+          ['vote', 'publicKey'],
         ],
+        group: ['vote'],
         where: {
           username: {
             [Sequelize.Op.ne]: null
