@@ -20,10 +20,8 @@ describe('Multi Payment Transaction', () => {
   describe('setVendorField', () => {
     it('should generate and set the vendorFieldHex', () => {
       const data = 'dummy'
-      const hex = Buffer.from(data, 0).toString('hex')
-
       transaction.setVendorField(data)
-      expect(transaction.vendorFieldHex).toBe(hex)
+      expect(transaction.vendorField).toBe(data)
     })
   })
 
