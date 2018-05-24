@@ -1,40 +1,40 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().transfer()
+  builder = ark.getBuilder().transfer()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Transfer Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('expiration')
+    expect(builder).toHaveProperty('data.amount')
+    expect(builder).toHaveProperty('data.recipientId')
+    expect(builder).toHaveProperty('data.senderPublicKey')
+    expect(builder).toHaveProperty('data.expiration')
   })
 
   describe('create', () => {
     it('establishes the recipient id', () => {
-      transaction.create('homer')
-      expect(transaction.recipientId).toBe('homer')
+      builder.create('homer')
+      expect(builder.data.recipientId).toBe('homer')
     })
 
     it('establishes the amount', () => {
-      transaction.create(null, 'a lot of ARK')
-      expect(transaction.amount).toBe('a lot of ARK')
+      builder.create(null, 'a lot of ARK')
+      expect(builder.data.amount).toBe('a lot of ARK')
     })
   })
 
   describe('vendorField', () => {
     it('should set the vendorField', () => {
-      transaction.vendorField('fake')
-      expect(transaction.vendorField).toBe('fake')
+      builder.vendorField('fake')
+      expect(builder.data.vendorField).toBe('fake')
     })
   })
 })
