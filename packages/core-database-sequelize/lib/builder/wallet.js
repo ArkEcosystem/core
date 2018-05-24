@@ -13,7 +13,6 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   constructor (database) {
-    this.database = database
     this.connection = database.connection
     this.models = database.models
     this.walletManager = database.walletManager
@@ -212,7 +211,7 @@ module.exports = class WalletBuilder {
       wallet.rate = i + 1
       wallet.forged = forgedBlock ? forgedBlock.totalForged : 0
       wallet.username = delegates[i].username
-      wallet.producedBlocks = forgedBlock ? forgedBlock.totalProduced : 0
+      // wallet.producedBlocks = forgedBlock ? forgedBlock.totalProduced : 0 // TODO: This is breaking & causing a rollback
 
       this.walletManager.reindex(wallet)
     }
