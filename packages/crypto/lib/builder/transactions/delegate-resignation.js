@@ -1,8 +1,8 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class DelegateResignation extends Transaction {
+module.exports = class DelegateResignationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */

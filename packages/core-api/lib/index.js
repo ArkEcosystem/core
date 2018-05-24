@@ -7,7 +7,7 @@
 exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
-  alias: 'public-api',
+  alias: 'api',
   async register (container, options) {
     if (options.enabled) {
       container.resolvePlugin('logger').info('Starting Public API...')
@@ -19,7 +19,7 @@ exports.plugin = {
     if (options.enabled) {
       container.resolvePlugin('logger').info('Stopping Public API...')
 
-      return container.resolvePlugin('public-api').stop()
+      return container.resolvePlugin('api').stop()
     }
   }
 }

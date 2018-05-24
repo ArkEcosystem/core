@@ -1,5 +1,5 @@
 const ark = require('../../../lib/client')
-const cryptoBuilder = require('../../../lib/builder/crypto')
+const crypto = require('../../../lib/crypto/crypto')
 const transactionTests = require('./__shared__/transaction')
 
 let transaction
@@ -27,14 +27,14 @@ describe('Delegate Registration Transaction', () => {
   describe('create', () => {
     it('establishes the username', () => {
       transaction.create('homer')
-      expect(transaction.username).toBe('homer')
+      expect(transaction.asset.delegate.username).toBe('homer')
     })
   })
 
   describe('sign', () => {
     xit('establishes the public key of the delegate (on the asset property)', () => {
-      cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
-      cryptoBuilder.sign = jest.fn()
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn()
       transaction.sign('bad pass')
       expect(transaction.senderPublicKey).toBe('bad pass public key')
     })
@@ -48,10 +48,10 @@ describe('Delegate Registration Transaction', () => {
     })
 
     it('generates and returns the bytes as hex', () => {
-      expect(transaction.getStruct().hex).toBe(cryptoBuilder.getBytes(transaction).toString('hex'))
+      expect(transaction.getStruct().hex).toBe(crypto.getBytes(transaction).toString('hex'))
     })
     it('returns the id', () => {
-      expect(transaction.getStruct().id).toBe(cryptoBuilder.getId(transaction))
+      expect(transaction.getStruct().id).toBe(crypto.getId(transaction))
     })
     it('returns the signature', () => {
       expect(transaction.getStruct().signature).toBe(transaction.signature)

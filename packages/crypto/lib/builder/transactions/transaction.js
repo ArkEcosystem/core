@@ -1,7 +1,6 @@
 const Model = require('../../models/transaction')
-const cryptoBuilder = require('../crypto')
+const { crypto, slots } = require('../../crypto')
 const configManager = require('../../managers/config')
-const slots = require('../../crypto/slots')
 
 module.exports = class Transaction {
   /**
@@ -18,7 +17,7 @@ module.exports = class Transaction {
 
   /**
    * Create new instance.
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   create () {
     return this
@@ -27,7 +26,7 @@ module.exports = class Transaction {
   /**
    * Set transaction version.
    * @param {Number} version
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setVersion (version) {
     this.version = version
@@ -37,7 +36,7 @@ module.exports = class Transaction {
   /**
    * Set transaction fee.
    * @param {Number} fee
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setFee (fee) {
     this.fee = fee
@@ -47,7 +46,7 @@ module.exports = class Transaction {
   /**
    * Set amount to transfer.
    * @param  {Number} amount
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setAmount (amount) {
     this.amount = amount
@@ -57,7 +56,7 @@ module.exports = class Transaction {
   /**
    * Set recipient id.
    * @param  {String} recipientId
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setRecipientId (recipientId) {
     this.recipientId = recipientId
@@ -67,7 +66,7 @@ module.exports = class Transaction {
   /**
    * Set sender public key.
    * @param  {String} publicKey
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   setSenderPublicKey (publicKey) {
     this.senderPublicKey = publicKey
@@ -79,7 +78,7 @@ module.exports = class Transaction {
    * @return {Boolean}
    */
   verify () {
-    return cryptoBuilder.verify(this)
+    return crypto.verify(this)
   }
 
   /**
@@ -93,23 +92,23 @@ module.exports = class Transaction {
   /**
    * Sign transaction using passphrase.
    * @param  {String} passphrase
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   sign (passphrase) {
-    const keys = cryptoBuilder.getKeys(passphrase)
+    const keys = crypto.getKeys(passphrase)
     this.senderPublicKey = keys.publicKey
-    this.signature = cryptoBuilder.sign(this.__getSigningObject(), keys)
+    this.signature = crypto.sign(this.__getSigningObject(), keys)
     return this
   }
 
   /**
    * Sign transaction with second passphrase.
    * @param  {String} secondPassphrase
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   secondSign (secondPassphrase) {
-    const keys = cryptoBuilder.getKeys(secondPassphrase)
-    this.signSignature = cryptoBuilder.secondSign(this.__getSigningObject(), keys)
+    const keys = crypto.getKeys(secondPassphrase)
+    this.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -119,8 +118,8 @@ module.exports = class Transaction {
    */
   getStruct () {
     return {
-      // hex: cryptoBuilder.getBytes(this).toString('hex'), // v2
-      id: cryptoBuilder.getId(this).toString('hex'),
+      // hex: crypto.getBytes(this).toString('hex'), // v2
+      id: crypto.getId(this).toString('hex'),
       signature: this.signature,
       signSignature: this.signSignature,
       timestamp: this.timestamp,

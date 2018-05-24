@@ -74,6 +74,10 @@ exports.show = {
   async handler (request, h) {
     const transaction = await database.transactions.findById(request.params.id)
 
+    if (!transaction) {
+      return Boom.notFound()
+    }
+
     return utils.respondWithResource(request, transaction, 'transaction')
   },
   options: {
@@ -91,13 +95,12 @@ exports.unconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
+    if (!container.resolve('transactionPool').options.enabled) {
+      return Boom.teapot()
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await blockchain.transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -116,12 +119,11 @@ exports.showUnconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
+    if (!container.resolve('transactionPool').options.enabled) {
+      return Boom.teapot()
     }
 
-    const transaction = await blockchain.transactionPool.getUnconfirmedTransaction(request.param.id)
+    const transaction = await transactionPool.getUnconfirmedTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

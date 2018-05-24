@@ -8,7 +8,9 @@ class Slots {
    * @return {Number}
    */
   getEpochTime (time) {
-    if (time === undefined) time = moment().valueOf()
+    if (time === undefined) {
+      time = moment().valueOf()
+    }
 
     const start = this.beginEpochTime().valueOf()
 
@@ -38,7 +40,9 @@ class Slots {
    * @return {Number}
    */
   getRealTime (epochTime) {
-    if (epochTime === undefined) epochTime = this.getTime()
+    if (epochTime === undefined) {
+      epochTime = this.getTime()
+    }
 
     const start = Math.floor(this.beginEpochTime().valueOf() / 1000) * 1000
 
@@ -51,7 +55,9 @@ class Slots {
    * @return {Number}
    */
   getSlotNumber (epochTime) {
-    if (epochTime === undefined) epochTime = this.getTime()
+    if (epochTime === undefined) {
+      epochTime = this.getTime()
+    }
 
     return Math.floor(epochTime / this.getConstant('blocktime'))
   }
@@ -97,7 +103,9 @@ class Slots {
    * @return {Boolean}
    */
   isForgingAllowed (epochTime) {
-    if (epochTime === undefined) epochTime = this.getTime()
+    if (epochTime === undefined) {
+      epochTime = this.getTime()
+    }
 
     return Math.floor(epochTime / this.getConstant('blocktime')) === Math.floor((epochTime + this.getConstant('blocktime') / 2) / this.getConstant('blocktime')) // eslint-disable-line max-len
   }

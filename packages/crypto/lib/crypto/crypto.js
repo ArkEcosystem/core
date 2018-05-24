@@ -1,16 +1,16 @@
-const createHash = require('create-hash')
+// const createHash = require('create-hash')
 const bs58check = require('bs58check')
 // const crypto = require('crypto')
 const arkjsv1 = require('arkjsv1')
 // const { Buffer } = require('buffer/')
 
 const configManager = require('../managers/config')
-const cryptoUtils = require('../crypto')
-const ECPair = require('../crypto/ecpair')
-const ECSignature = require('../crypto/ecsignature')
+const utils = require('./utils')
+const ECPair = require('./ecpair')
+const ECSignature = require('./ecsignature')
 const feeManager = require('../managers/fee')
 
-class CryptoBuilder {
+class Crypto {
   /**
    * Get transaction fee.
    * @param  {Transaction} transaction
@@ -165,7 +165,7 @@ class CryptoBuilder {
       networkVersion = configManager.get('pubKeyHash')
     }
 
-    const buffer = cryptoUtils.ripemd160(Buffer.from(publicKey, 'hex'))
+    const buffer = utils.ripemd160(Buffer.from(publicKey, 'hex'))
     const payload = Buffer.alloc(21)
 
     payload.writeUInt8(networkVersion, 0)
@@ -210,51 +210,6 @@ class CryptoBuilder {
       return false
     }
   }
-
-  /**
-   * Create a "ripemd160" buffer.
-   * @param  {Buffer} buffer
-   * @return {Buffer}
-   */
-  ripemd160 (buffer) {
-    return createHash('rmd160').update(buffer).digest()
-  }
-
-  /**
-   * Create a "sha1" buffer.
-   * @param  {Buffer} buffer
-   * @return {Buffer}
-   */
-  sha1 (buffer) {
-    return createHash('sha1').update(buffer).digest()
-  }
-
-  /**
-   * Create a "sha256" buffer.
-   * @param  {Buffer} buffer
-   * @return {Buffer}
-   */
-  sha256 (buffer) {
-    return createHash('sha256').update(buffer).digest()
-  }
-
-  /**
-   * Create a "hash160" buffer.
-   * @param  {Buffer} buffer
-   * @return {Buffer}
-   */
-  hash160 (buffer) {
-    return this.ripemd160(this.sha256(buffer))
-  }
-
-  /**
-   * Create a "hash256" buffer.
-   * @param  {Buffer} buffer
-   * @return {Buffer}
-   */
-  hash256 (buffer) {
-    return this.sha256(this.sha256(buffer))
-  }
 }
 
-module.exports = new CryptoBuilder()
+module.exports = new Crypto()

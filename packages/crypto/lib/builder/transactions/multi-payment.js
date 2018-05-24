@@ -1,8 +1,8 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class MultiPayment extends Transaction {
+module.exports = class MultiPaymentBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -19,7 +19,7 @@ module.exports = class MultiPayment extends Transaction {
    * Set vendor field from data.
    * @param  {(String|undefined)} data
    * @param  {Number}             type
-   * @return {MultiPayment}
+   * @return {MultiPaymentBuilder}
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
@@ -31,7 +31,7 @@ module.exports = class MultiPayment extends Transaction {
    * Add payment to the multipayment collection.
    * @param {String} address
    * @param {Number} amount
-   * @return {MultiPayment}
+   * @return {MultiPaymentBuilder}
    */
   addPayment (address, amount) {
     const paymentsCount = Object.keys(this.payments).length / 2

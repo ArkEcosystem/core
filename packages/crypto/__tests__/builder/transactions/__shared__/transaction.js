@@ -1,5 +1,5 @@
 const Transaction = require('../../../../lib/builder/transactions/transaction')
-const cryptoBuilder = require('../../../../lib/builder/crypto')
+const crypto = require('../../../../lib/crypto/crypto')
 
 module.exports = () => {
   let transaction
@@ -57,20 +57,20 @@ module.exports = () => {
   describe('sign', () => {
     it('signs this transaction with the keys of the passphrase', () => {
       let keys
-      cryptoBuilder.getKeys = jest.fn(pass => {
+      crypto.getKeys = jest.fn(pass => {
         keys = { publicKey: `${pass} public key` }
         return keys
       })
-      cryptoBuilder.sign = jest.fn()
+      crypto.sign = jest.fn()
       transaction.sign('bad pass')
 
-      expect(cryptoBuilder.getKeys).toHaveBeenCalledWith('bad pass')
-      expect(cryptoBuilder.sign).toHaveBeenCalledWith(transaction, keys)
+      expect(crypto.getKeys).toHaveBeenCalledWith('bad pass')
+      expect(crypto.sign).toHaveBeenCalledWith(transaction, keys)
     })
 
     it('establishes the public key of the sender', () => {
-      cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
-      cryptoBuilder.sign = jest.fn()
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn()
       transaction.sign('my real pass')
       expect(transaction.senderPublicKey).toBe('my real pass public key')
     })
@@ -79,15 +79,15 @@ module.exports = () => {
   describe('signSecond', () => {
     it('signs this transaction with the keys of the second passphrase', () => {
       let keys
-      cryptoBuilder.getKeys = jest.fn(pass => {
+      crypto.getKeys = jest.fn(pass => {
         keys = { publicKey: `${pass} public key` }
         return keys
       })
-      cryptoBuilder.secondSign = jest.fn()
+      crypto.secondSign = jest.fn()
       transaction.secondSign('my very real second pass')
 
-      expect(cryptoBuilder.getKeys).toHaveBeenCalledWith('my very real second pass')
-      expect(cryptoBuilder.secondSign).toHaveBeenCalledWith(transaction, keys)
+      expect(crypto.getKeys).toHaveBeenCalledWith('my very real second pass')
+      expect(crypto.secondSign).toHaveBeenCalledWith(transaction, keys)
     })
   })
 }
