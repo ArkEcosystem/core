@@ -24,7 +24,12 @@ module.exports = async (options) => {
       wallet.username = superheroes.random()
     }
     wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
-    const transaction = ark.delegate.createDelegate(wallet.passphrase, wallet.username, config.secondPassPhrase, parseInt(options.fee))
+    const transaction = ark.delegate.createDelegate(
+      wallet.passphrase,
+      wallet.username,
+      config.secondPassPhrase,
+      parseInt(options.delegateFee)
+    )
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (${wallet.username})`)

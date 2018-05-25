@@ -38,7 +38,7 @@ module.exports = async (options) => {
       wallet.passphrase,
       delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
       config.secondPassPhrase,
-      parseInt(options.fee)
+      parseInt(options.voteFee)
     )
     transactions.push(transaction)
 
