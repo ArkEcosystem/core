@@ -218,6 +218,12 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(transactionData)
     }
 
+    this.__emitEvents(transaction)
+
+    if (transactionData.type === TRANSACTION_TYPES.VOTE) {
+      this.__updateVoteBalance(transaction)
+    }
+
     return transaction
   }
 
@@ -236,6 +242,8 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }
+
+    emitter.emit('transaction.reverted', data)
 
     return data
   }
@@ -293,5 +301,55 @@ module.exports = class WalletManager {
    */
   __canBePurged (wallet) {
     return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+  }
+
+  /**
+   * Emit events for the specified transaction.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __emitEvents (transaction) {
+    emitter.emit('transaction.applied', transaction.data)
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      emitter.emit('delegate.registered', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      emitter.emit('delegate.resigned', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      transaction.asset.votes.forEach(vote => {
+        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+          delegate: vote,
+          transaction: transaction.data
+        })
+      })
+    }
+  }
+
+  /**
+   * Update the vote balance of the delegate.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __updateVoteBalance (transaction) {
+    const vote = transaction.data.asset.votes[0]
+
+    const voter = this.getWalletByPublicKey(transaction.data.senderPublicKey)
+    const delegate = this.getWalletByPublicKey(vote.slice(1))
+
+    if (vote.startsWith('+')) {
+      delegate.votebalance += voter.balance
+
+      logger.debug(`Delegate ${delegate.username} vote balance increased by ${voter.balance} to ${delegate.votebalance}`)
+    } else {
+      delegate.votebalance -= voter.balance
+
+      logger.debug(`Delegate ${delegate.username} vote balance decreased by ${voter.balance} to ${delegate.votebalance}`)
+    }
+
+    this.reindex(delegate)
   }
 }
