@@ -4,6 +4,7 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
+const { slots } = require('@arkecosystem/crypto')
 
 const utils = require('../utils')
 const schema = require('../schemas/delegates')
@@ -149,15 +150,55 @@ exports.forged = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
+    const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
 
-    return utils.respondWith(totals)
+    return utils.respondWith({
+      fees: +wallet.forgedFees,
+      rewards: +wallet.forgedRewards,
+      forged: +(wallet.forgedRewards + wallet.forgedFees)
+    })
   },
   config: {
     plugins: {
       'hapi-ajv': {
         querySchema: schema.getForgedByAccount
       }
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.nextForgers = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const lastBlock = blockchain.getLastBlock(true)
+    const limit = request.query.limit || 10
+
+    const delegatesCount = config.getConstants(lastBlock).activeDelegates
+    const currentSlot = slots.getSlotNumber(lastBlock.timestamp)
+
+    let activeDelegates = await database.getActiveDelegates(lastBlock.height)
+    activeDelegates = activeDelegates.map(delegate => delegate.publicKey)
+
+    const nextForgers = []
+    for (let i = 1; i <= delegatesCount && i <= limit; i++) {
+      const delegate = activeDelegates[(currentSlot + i) % delegatesCount]
+
+      if (delegate) {
+        nextForgers.push(delegate)
+      }
+    }
+
+    return {
+      currentBlock: lastBlock.height,
+      currentSlot: currentSlot,
+      delegates: nextForgers
     }
   }
 }
