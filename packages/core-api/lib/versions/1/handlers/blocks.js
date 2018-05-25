@@ -20,15 +20,17 @@ exports.index = {
   async handler (request, h) {
     const blocks = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
-    })
+    }, false)
 
     if (!blocks) {
       return utils.respondWith('No blocks found', true)
     }
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks.rows, 'block'),
-      count: blocks.count
+      blocks: utils.toCollection(request, blocks, 'block'),
+      // NOTE: this shows the amount of requested blocks, not total.
+      // Performing a count query has massive performance implications without something like PG estimates or query caching.
+      count: blocks.length
     })
   },
   config: {
