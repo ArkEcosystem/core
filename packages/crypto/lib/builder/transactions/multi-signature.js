@@ -19,11 +19,11 @@ class MultiSignatureBuilder extends TransactionBuilder {
   }
 
   /**
-   * Establish the multisignature and updates the fee.
+   * Establish the multisignature on the asset and updates the fee.
    * @param  {Object} multisignature { keysgroup, lifetime, min }
    * @return {MultiSignatureBuilder}
    */
-  multisignature (multisignature) {
+  multisignatureAsset (multisignature) {
     this.data.asset.multisignature = multisignature
     this.data.fee = (multisignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
 

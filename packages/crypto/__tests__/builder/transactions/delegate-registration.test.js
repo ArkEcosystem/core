@@ -24,9 +24,9 @@ describe('Delegate Registration Transaction', () => {
     expect(builder).not.toHaveProperty('data.username')
   })
 
-  describe('username', () => {
-    it('establishes the username', () => {
-      builder.username('homer')
+  describe('usernameAsset', () => {
+    it('establishes the username of the asset', () => {
+      builder.usernameAsset('homer')
       expect(builder.data.asset.delegate.username).toBe('homer')
     })
   })
