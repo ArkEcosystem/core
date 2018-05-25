@@ -216,7 +216,7 @@ module.exports = class WalletBuilder {
       if (forgedBlock) {
         wallet.forgedFees = forgedBlock.dataValues.totalFees
         wallet.forgedRewards = forgedBlock.dataValues.totalRewards
-        wallet.producedBlocks = forgedBlock ? forgedBlock.dataValues.totalProduced : 0
+        wallet.producedBlocks = forgedBlock.dataValues.totalProduced
       }
 
       this.walletManager.reindex(wallet)
