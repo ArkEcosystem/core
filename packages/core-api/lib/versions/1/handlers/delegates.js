@@ -153,9 +153,9 @@ exports.forged = {
     const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
 
     return utils.respondWith({
-      fees: +wallet.forgedFees,
-      rewards: +wallet.forgedRewards,
-      forged: +(wallet.forgedFees + wallet.forgedRewards)
+      fees: wallet.forgedFees,
+      rewards: wallet.forgedRewards,
+      forged: (wallet.forgedFees + wallet.forgedRewards)
     })
   },
   config: {
@@ -195,10 +195,10 @@ exports.nextForgers = {
       }
     }
 
-    return {
+    return utils.respondWith({
       currentBlock: lastBlock.height,
       currentSlot: currentSlot,
       delegates: nextForgers
-    }
+    })
   }
 }

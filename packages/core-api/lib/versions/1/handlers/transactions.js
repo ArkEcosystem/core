@@ -29,7 +29,7 @@ exports.index = {
     }
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions.rows, 'transaction'),
+      transactions: utils.toCollection(request, transactions, 'transaction'),
       // NOTE: this shows the amount of requested transactions, not total.
       // Performing a count query has massive performance implications without something like PG estimates or query caching.
       count: transactions.length
