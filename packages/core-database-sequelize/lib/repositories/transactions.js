@@ -4,6 +4,8 @@ const Op = require('sequelize').Op
 const fn = require('sequelize').fn
 const col = require('sequelize').col
 
+const moment = require('moment')
+
 const { Transaction } = require('@arkecosystem/crypto').models
 const { slots } = require('@arkecosystem/crypto')
 
@@ -244,7 +246,7 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   getFeeStatistics () {
-    const timeStampOld = slots.getTime(new Date().getDate() - 30)
+    const timeStampLimit = slots.getTime(moment().subtract(30, 'days'))
     return this.connection.models.transaction.findAll({
     attributes: [
       'type',
@@ -253,7 +255,7 @@ module.exports = class TransactionsRepository {
     ],
     where: {
       timestamp: {
-        [Op.gte]: timeStampOld
+        [Op.gte]: timeStampLimit
       }
     },
     group: 'type',
