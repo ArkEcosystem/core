@@ -6,7 +6,6 @@ class DynamicFeeManager {
    */
   constructor () {
     this.offsets = {}
-    this.__setDefaultOffsetValues()
   }
 
   /** Calculates delegate fee for processing and forging if transaction
@@ -27,7 +26,7 @@ class DynamicFeeManager {
    * @param  {Number} type
    * @return {Number}
    */
-  __getOffset (type) {
+  get (type) {
     return this.offsets[type]
   }
 
@@ -36,7 +35,7 @@ class DynamicFeeManager {
    * @param {Number} type
    * @param {Number} value
    */
-  __setOffset (type, value) {
+  set (type, value) {
     if (!this.__validType(type)) {
       throw new Error('Invalid transaction type.')
     }
@@ -51,18 +50,6 @@ class DynamicFeeManager {
    */
   __validType (type) {
     return Object.values(TRANSACTION_TYPES).indexOf(type) > -1
-  }
-
-  __setDefaultOffsetValues () {
-    this.__setOffset(TRANSACTION_TYPES.TRANSFER, 100)
-    this.__setOffset(TRANSACTION_TYPES.SECOND_SIGNATURE, 250)
-    this.__setOffset(TRANSACTION_TYPES.DELEGATE_REGISTRATION, 500)
-    this.__setOffset(TRANSACTION_TYPES.VOTE, 100)
-    this.__setOffset(TRANSACTION_TYPES.MULTI_SIGNATURE, 500)
-    this.__setOffset(TRANSACTION_TYPES.IPFS, 250)
-    this.__setOffset(TRANSACTION_TYPES.TIMELOCK_TRANSFER, 500)
-    this.__setOffset(TRANSACTION_TYPES.MULTI_PAYMENT, 500)
-    this.__setOffset(TRANSACTION_TYPES.DELEGATE_RESIGNATION, 500)
   }
 }
 
