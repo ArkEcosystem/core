@@ -23,14 +23,14 @@ module.exports = class TransactionGuard {
    * @param  {Boolean} isBroadcast flag
    * @return {void}
    */
-  async validate (transactions, broadcasted) {
+  async validate (transactions, isBroadCasted) {
     this.__reset()
 
     this.__transformTransactions(transactions)
 
     this.__determineInvalidTransactions()
 
-    this.__determineTransactionsForBroadCast(broadcasted)
+    this.__determineTransactionsForBroadCast(isBroadCasted)
 
     this.__determineFeeMatchingTransactions()
 
@@ -118,9 +118,9 @@ module.exports = class TransactionGuard {
    * @param  {Boolean} broadcasted - if true transactions was send from node2node, if false - is from client
    * @return {void}
    */
-  __determineTransactionsForBroadCast (broadcasted) {
+  __determineTransactionsForBroadCast (isBroadCasted) {
     this.transactions.forEach(transaction => {
-      if (!broadcasted) {
+      if (!isBroadCasted) {
         // transaction.hops = 0 //TODO: rething if we need to count hops, or just send trxses out once to all peers
         this.broadcast.push(transaction)
       }

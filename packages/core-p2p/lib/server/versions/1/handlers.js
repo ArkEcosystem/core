@@ -169,7 +169,7 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    await transactionPool.guard.validate(request.payload.transactions, request.payload.broadcasted)
+    await transactionPool.guard.validate(request.payload.transactions, request.payload.isBroadCasted)
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
       container
