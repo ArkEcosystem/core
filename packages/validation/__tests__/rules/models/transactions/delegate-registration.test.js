@@ -14,7 +14,7 @@ describe('Delegate Registration Transaction Rule', () => {
   })
 
   it('should be valid', () => {
-    transaction.create('delegate1')
+    transaction.usernameAsset('delegate1')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
@@ -24,40 +24,41 @@ describe('Delegate Registration Transaction Rule', () => {
   })
 
   it('should be invalid due to non-zero amount', () => {
-    transaction.create('delegate1')
-               .setAmount(10 * constants.ARKTOSHI)
+    transaction.usernameAsset('delegate1')
+               .amount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
-    transaction.create('delegate1')
-               .setFee(0)
+    transaction.usernameAsset('delegate1')
+               .fee(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to space in username', () => {
-    transaction.create('test 123')
+    transaction.usernameAsset('test 123')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to non-alphanumeric in username', () => {
-    transaction.create('£££')
+    transaction.usernameAsset('£££')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to capitals in username', () => {
-    transaction.create('I_AM_INVALID')
+    transaction.usernameAsset('I_AM_INVALID')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.transfer()
-    transaction.create(null, 10 * constants.ARKTOSHI)
+    transaction.recipientId(null)
+               .amount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })

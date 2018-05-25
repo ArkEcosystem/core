@@ -22,7 +22,7 @@ describe('Multi Signature Transaction', () => {
     expect(builder).toHaveProperty('data.asset')
   })
 
-  describe('multisignatureAsset', () => {
+  describe('multiSignatureAsset', () => {
     const multiSignatureFee = feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
     const multisignature = {
       keysgroup: ['key a', 'key b', 'key c'],
@@ -30,13 +30,13 @@ describe('Multi Signature Transaction', () => {
       min: 1
     }
 
-    it('establishes the multisignature on the asset', () => {
-      builder.multisignatureAsset(multisignature)
+    it('establishes the multi-signature on the asset', () => {
+      builder.multiSignatureAsset(multisignature)
       expect(builder.data.asset.multisignature).toBe(multisignature)
     })
 
     it('calculates and establish the fee', () => {
-      builder.multisignatureAsset(multisignature)
+      builder.multiSignatureAsset(multisignature)
       expect(builder.data.fee).toEqual(4 * multiSignatureFee)
     })
   })

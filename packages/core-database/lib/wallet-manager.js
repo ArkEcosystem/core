@@ -187,7 +187,7 @@ module.exports = class WalletManager {
    */
   async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
     const { data } = transaction
-    const { asset, recipientId, senderPublicKey } = data
+    const { type, asset, recipientId, senderPublicKey } = data
 
     const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
@@ -197,13 +197,13 @@ module.exports = class WalletManager {
       this.walletsByAddress[recipientId] = recipient
       emitter.emit('wallet:cold:created', recipient)
 
-    } else if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
-    } else if (data.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
+    } else if (type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
 
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: voted delegate does not exist`)
@@ -221,7 +221,7 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (recipient && data.type === TRANSACTION_TYPES.TRANSFER) {
+    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
 

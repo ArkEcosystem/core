@@ -26,19 +26,19 @@ describe('Vote Transaction Rule', () => {
   })
 
   it('should be valid with 1 vote', () => {
-    transaction.create([vote])
+    transaction.votesAsset([vote])
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be valid with 1 unvote', () => {
-    transaction.create([unvote])
+    transaction.votesAsset([unvote])
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be valid', () => {
-    transaction.create(votes)
+    transaction.votesAsset(votes)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
@@ -48,41 +48,41 @@ describe('Vote Transaction Rule', () => {
   })
 
   it('should be invalid due to non-zero amount', () => {
-    transaction.create(votes)
-               .setAmount(10 * constants.ARKTOSHI)
+    transaction.votesAsset(votes)
+               .amount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
-    transaction.create(votes)
-               .setFee(0)
+    transaction.votesAsset(votes)
+               .fee(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to no votes', () => {
-    transaction.create([])
+    transaction.votesAsset([])
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   // TODO: max votes constant
   xit('should be invalid due to too many votes', () => {
-    transaction.create(votes)
+    transaction.votesAsset(votes)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to invalid votes', () => {
-    transaction.create(invalidVotes)
+    transaction.votesAsset(invalidVotes)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
-    transaction.create('delegate_name')
+    transaction.usernameAsset('delegate_name')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
