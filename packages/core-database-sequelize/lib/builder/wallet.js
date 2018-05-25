@@ -215,7 +215,7 @@ module.exports = class WalletBuilder {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.rate = i + 1
-      wallet.forged = forgedBlock ? forgedBlock.totalForged : 0
+      wallet.forged = forgedBlock ? (forgedBlock.reward + forgedBlock.fee) : 0
 
       this.walletManager.reindex(wallet)
     }
