@@ -37,7 +37,7 @@ module.exports = async (options) => {
     const transaction = ark.vote.createVote(
       wallet.passphrase,
       delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
-      config.secondPassPhrase,
+      config.secondPassphrase,
       parseInt(options.voteFee)
     )
     transactions.push(transaction)

@@ -1,8 +1,8 @@
 'use strict'
 
 const ark = require('arkjs')
-const delay = require('delay')
 const config = require('../config')
+const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 
@@ -66,7 +66,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       transactionAmount,
       `TID: ${i}`,
       config.passphrase,
-      config.secondPassPhrase,
+      wallet.secondPassphrase || config.secondPassphrase,
       config.publicKeyHash,
       parseInt(options.transferFee)
     )

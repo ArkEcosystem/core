@@ -27,7 +27,7 @@ module.exports = async (options) => {
     const transaction = ark.delegate.createDelegate(
       wallet.passphrase,
       wallet.username,
-      config.secondPassPhrase,
+      config.secondPassphrase,
       parseInt(options.delegateFee)
     )
     transactions.push(transaction)
