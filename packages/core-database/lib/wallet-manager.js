@@ -227,7 +227,7 @@ module.exports = class WalletManager {
 
     this.__emitEvents(transaction)
 
-    if (transactionData.type === TRANSACTION_TYPES.VOTE) {
+    if (data.type === TRANSACTION_TYPES.VOTE) {
       this.__updateVoteBalance(transaction)
     }
 
