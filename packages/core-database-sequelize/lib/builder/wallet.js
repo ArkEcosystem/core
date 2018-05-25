@@ -211,6 +211,7 @@ module.exports = class WalletBuilder {
       wallet.rate = i + 1
       wallet.forged = forgedBlock ? forgedBlock.dataValues.totalForged : 0
       wallet.username = delegates[i].dataValues.username
+      wallet.votebalance = delegates[i].dataValues.votebalance
       wallet.producedBlocks = forgedBlock ? forgedBlock.dataValues.totalProduced : 0
 
       this.walletManager.reindex(wallet)
