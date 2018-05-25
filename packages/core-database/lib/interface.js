@@ -328,6 +328,8 @@ module.exports = class ConnectionInterface {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      this.__updateVoteBalance(transaction)
+
       transaction.asset.votes.forEach(vote => {
         emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
           delegate: vote,
@@ -399,5 +401,29 @@ module.exports = class ConnectionInterface {
   async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
+  }
+
+  /**
+   * Update the vote balance of the delegate.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __updateVoteBalance (transaction) {
+    const vote = transaction.data.asset.votes[0]
+
+    const voter = this.walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
+    const delegate = this.walletManager.getWalletByPublicKey(vote.slice(1))
+
+    if (vote.startsWith('+')) {
+      logger.debug(`Delegate ${delegate.username} vote balance increased by ${voter.balance}`)
+
+      delegate.votebalance += voter.balance
+    } else {
+      logger.debug(`Delegate ${delegate.username} vote balance decreased by ${voter.balance}`)
+
+      delegate.votebalance -= voter.balance
+    }
+
+    this.walletManager.reindex(delegate)
   }
 }

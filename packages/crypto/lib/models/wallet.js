@@ -45,6 +45,8 @@ module.exports = class Wallet {
     this.dirty = true
     this.producedBlocks = 0
     this.missedBlocks = 0
+    this.forgedFees = 0
+    this.forgedRewards = 0
   }
 
   /**
