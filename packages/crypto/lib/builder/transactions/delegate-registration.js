@@ -19,11 +19,11 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   }
 
   /**
-   * Set the delegate username
+   * Establish the delegate username on the asset.
    * @param  {String} username
    * @return {DelegateRegistrationBuilder}
    */
-  username (username) {
+  usernameAsset (username) {
     this.data.asset.delegate.username = username
     return this
   }

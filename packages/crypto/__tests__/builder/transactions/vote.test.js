@@ -21,10 +21,10 @@ describe('Vote Transaction', () => {
     expect(builder).toHaveProperty('data.asset.votes')
   })
 
-  describe('create', () => {
+  describe('votesAsset', () => {
     it('establishes the votes asset', () => {
       const votes = ['+dummy-1']
-      builder.create(votes)
+      builder.votesAsset(votes)
       expect(builder.data.asset.votes).toBe(votes)
     })
   })

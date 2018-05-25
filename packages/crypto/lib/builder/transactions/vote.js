@@ -19,12 +19,12 @@ class VoteBuilder extends TransactionBuilder {
   }
 
   /**
-   * Create vote transaction with delegate votes.
-   * @param  {Array} delegates
+   * Establish the votes on the asset.
+   * @param  {Array} votes
    * @return {VoteBuilder}
    */
-  create (delegates) {
-    this.data.asset.votes = delegates
+  votesAsset (votes) {
+    this.data.asset.votes = votes
     return this
   }
 
