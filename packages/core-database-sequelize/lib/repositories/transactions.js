@@ -244,18 +244,16 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   getFeeStatistics () {
-    const dateOffset = (24 * 60 * 60) * 30 // 5 days
-    const timestamp = slots.getTime() - dateOffset
+    const timeStampOld = slots.getTime(new Date().getDate() - 30)
     return this.connection.models.transaction.findAll({
     attributes: [
       'type',
       [fn('MAX', col('fee')), 'maxFee'],
-      [fn('MIN', col('fee')), 'minFee'],
-      [fn('AVG', col('fee')), 'avgFee']
+      [fn('MIN', col('fee')), 'minFee']
     ],
     where: {
       timestamp: {
-        [Op.gt]: timestamp
+        [Op.gte]: timeStampOld
       }
     },
     group: 'type',
