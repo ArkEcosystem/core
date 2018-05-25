@@ -190,15 +190,15 @@ module.exports = class WalletBuilder {
       order: [
         ['votebalance', 'DESC'],
         ['publicKey', 'ASC']
-      ],
-      limit: 51
+      ]
     })
 
     // Forged Blocks...
     const forgedBlocks = await this.models.block.findAll({
       attributes: [
         'generatorPublicKey',
-        [Sequelize.fn('SUM', Sequelize.col('totalAmount')), 'totalForged']
+        [Sequelize.fn('SUM', Sequelize.col('totalFee')), 'totalFees'],
+        [Sequelize.fn('SUM', Sequelize.col('reward')), 'totalRewards']
       ],
       where: {
         generatorPublicKey: {
@@ -215,7 +215,11 @@ module.exports = class WalletBuilder {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.rate = i + 1
-      wallet.forged = forgedBlock ? (forgedBlock.reward + forgedBlock.fee) : 0
+
+      if (forgedBlock) {
+        wallet.forgedFees += forgedBlock.dataValues.totalFees
+        wallet.forgedRewards += forgedBlock.dataValues.totalRewards
+      }
 
       this.walletManager.reindex(wallet)
     }

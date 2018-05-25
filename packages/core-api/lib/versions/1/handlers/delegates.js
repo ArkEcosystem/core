@@ -150,11 +150,13 @@ exports.forged = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    // NOTE: this has a massive impact on performance as we need
-    // to query all transactions for the public key and perform a SUM query.
-    const totals = await database.blocks.totalsByGenerator(request.query.generatorPublicKey)
+    const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
 
-    return utils.respondWith(totals)
+    return utils.respondWith({
+      fees: +wallet.forgedFees,
+      rewards: +wallet.forgedRewards,
+      forged: +(wallet.forgedRewards + wallet.forgedFees)
+    })
   },
   config: {
     plugins: {
