@@ -5,6 +5,8 @@ const fn = require('sequelize').fn
 const col = require('sequelize').col
 
 const { Transaction } = require('@arkecosystem/crypto').models
+const { slots } = require('@arkecosystem/crypto')
+
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const buildFilterQuery = require('./utils/filter-query')
@@ -242,6 +244,8 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   getFeeStatistics () {
+    const dateOffset = (24 * 60 * 60) * 30 // 5 days
+    const timestamp = slots.getTime() - dateOffset
     return this.connection.models.transaction.findAll({
     attributes: [
       'type',
@@ -249,9 +253,13 @@ module.exports = class TransactionsRepository {
       [fn('MIN', col('fee')), 'minFee'],
       [fn('AVG', col('fee')), 'avgFee']
     ],
+    where: {
+      timestamp: {
+        [Op.gt]: timestamp
+      }
+    },
     group: 'type',
-    order: [['timestamp', 'DESC']],
-    limit: 1000
+    order: [['timestamp', 'DESC']]
     })
   }
 
