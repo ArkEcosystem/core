@@ -25,7 +25,7 @@ module.exports = {
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
-    key: 'ark'
+    key: 'ark1'
   },
   '@arkecosystem/core-p2p': {
     port: 4101
