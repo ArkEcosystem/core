@@ -149,6 +149,7 @@ exports.delegates = {
       return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
     }
 
+    // TODO: refactor this to be reusable - delegate manager?
     const delegates = await database.getActiveDelegates(blockchain.getLastBlock(true).height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}

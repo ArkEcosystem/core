@@ -20,15 +20,15 @@ exports.index = {
   async handler (request, h) {
     const blocks = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
-    }, false)
+    })
 
     if (!blocks) {
       return utils.respondWith('No blocks found', true)
     }
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks, 'block'),
-      count: blocks.length
+      blocks: utils.toCollection(request, blocks.rows, 'block'),
+      count: blocks.count
     })
   },
   config: {
@@ -124,7 +124,7 @@ exports.fee = {
    */
   handler (request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.send
+      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.transfer
     })
   }
 }
@@ -139,8 +139,16 @@ exports.fees = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
+    const fees = config.getConstants(blockchain.getLastBlock(true).height).fees
+
     return utils.respondWith({
-      fees: config.getConstants(blockchain.getLastBlock(true).height).fees
+      fees: {
+        send: fees.transfer,
+        vote: fees.secondSignature,
+        secondsignature: fees.delegateRegistration,
+        delegate: fees.vote,
+        multisignature: fees.multiSignature
+      }
     })
   }
 }
@@ -212,7 +220,7 @@ exports.status = {
     return utils.respondWith({
       epoch: constants.epoch,
       height: lastBlock.height,
-      fee: constants.fees.send,
+      fee: constants.fees.transfer,
       milestone: ~~(lastBlock.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
