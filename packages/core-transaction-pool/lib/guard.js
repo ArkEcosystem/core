@@ -134,7 +134,7 @@ module.exports = class TransactionGuard {
   __determineFeeMatchingTransactions () {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
     this.transactions = reject(this.transactions, transaction => {
-      if (transaction.fee !== feeManager.get(transaction.type) && !feeConstants.dynamicFeeCalculation) {
+      if (transaction.fee !== feeManager.get(transaction.type) && !feeConstants.dynamic) {
         logger.warn(`Received transaction fee ${transaction.fee} is not according to default static specified fee ${feeManager.get(transaction.type)}`)
         this.invalid.push(transaction)
         return true
