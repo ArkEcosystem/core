@@ -13,11 +13,11 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   await utils.request.post('/peer/transactions', {transactions}, true)
 
   const delaySeconds = await utils.getTransactionDelay(transactions)
-  logger.info(`Waiting ${delaySeconds} seconds to apply transfer transactions`)
+  logger.info(`Waiting ${delaySeconds} seconds for node to process and forge transfer transactions`)
   await delay(delaySeconds * 1000)
 
   const walletBalance = await utils.getWalletBalance(primaryAddress)
-  logger.info('All transactions have been sent!')
+  logger.info('All transactions have been received and forged!')
 
   if (walletBalance !== expectedSenderBalance) {
     successfulTest = false
@@ -48,7 +48,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   let totalDeductions = 0
   const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
   wallets.forEach((wallet, i) => {
-    const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase)
+    const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase, config.secondPassPhrase, config.publicKeyHash, parseInt(options.fee))
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 

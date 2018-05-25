@@ -12,7 +12,7 @@ module.exports = async (options) => {
 
   const transactions = []
   wallets.forEach((wallet, i) => {
-    const transaction = ark.signature.createSignature(wallet.passphrase, wallet.passphrase)
+    const transaction = ark.signature.createSignature(wallet.passphrase, wallet.passphrase, parseInt(options.fee))
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)

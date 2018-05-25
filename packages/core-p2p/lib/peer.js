@@ -74,7 +74,7 @@ module.exports = class Peer {
     try {
       const response = await axios.post(`${this.url}/peer/transactions`, {
         transactions,
-        broadcast: true
+        isBroadCasted: true
       }, {
         headers: this.headers,
         timeout: 8000

@@ -140,6 +140,37 @@ describe('Connection', () => {
     })
   })
 
+  describe('transactionExists', () => {
+    it('should be a function', () => {
+      expect(connection.transactionExists).toBeFunction()
+    })
+
+    it('should return true if transaction is IN pool', async () => {
+      const trx1 = new Transaction(dummy1)
+      const trx2 = new Transaction(dummy1)
+      await connection.addTransactions([trx1, trx2])
+
+      await delay(500)
+
+      const res1 = await connection.transactionExists(trx1.id)
+      expect(res1).toBe(true)
+
+      const res2 = await connection.transactionExists(trx2.id)
+      expect(res2).toBe(true)
+    })
+
+   it('should return false if transaction is NOT pool', async () => {
+      const trx1 = new Transaction(dummy1)
+      const trx2 = new Transaction(dummy1)
+
+      const res1 = await connection.transactionExists(trx1.id)
+      expect(res1).toBe(false)
+
+      const res2 = await connection.transactionExists(trx2.id)
+      expect(res2).toBe(false)
+    })
+  })
+
   describe('hasExceededMaxTransactions', () => {
     it('should be a function', () => {
       expect(connection.hasExceededMaxTransactions).toBeFunction()
