@@ -16,14 +16,14 @@ describe('Second Signature Transaction Rule', () => {
   })
 
   it('should be valid', () => {
-    transaction.create('second passphrase')
+    transaction.signatureAsset('second passphrase')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be valid with correct data', () => {
-    transaction.create('second passphrase')
-               .setFee(1 * constants.ARKTOSHI)
+    transaction.signatureAsset('second passphrase')
+               .fee(1 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
@@ -33,22 +33,22 @@ describe('Second Signature Transaction Rule', () => {
   })
 
   it('should be invalid due to non-zero amount', () => {
-    transaction.create('second passphrase')
-               .setAmount(10 * constants.ARKTOSHI)
+    transaction.signatureAsset('second passphrase')
+               .amount(10 * constants.ARKTOSHI)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
-    transaction.create('second passphrase')
-               .setFee(0)
+    transaction.signatureAsset('second passphrase')
+               .fee(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to second signature', () => {
-    transaction.create('second passphrase')
-               .setFee(0)
+    transaction.signatureAsset('second passphrase')
+               .fee(0)
                .sign('passphrase')
                .secondSign('second passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
@@ -56,7 +56,7 @@ describe('Second Signature Transaction Rule', () => {
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
-    transaction.create('delegate_name')
+    transaction.usernameAsset('delegate_name')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })

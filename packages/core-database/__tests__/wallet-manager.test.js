@@ -74,14 +74,14 @@ describe('Wallet Manager', () => {
 
     const delegatePublicKey = '036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'
 
-    const tx1 = transactionBuilder
-      .vote()
-      .create([`+${delegatePublicKey}`])
-      .sign(Math.random().toString(36))
-    const tx2 = transactionBuilder
-      .vote()
-      .create([`-${delegatePublicKey}`])
-      .sign(Math.random().toString(36))
+    const txs = []
+    for (let i = 0; i < 3; i++) {
+      txs[i] = transactionBuilder
+        .vote()
+        .sign(Math.random().toString(36))
+        .votesAsset([`+${delegatePublicKey}`])
+        .build()
+    }
 
     beforeEach(() => {
       delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey }
@@ -91,9 +91,9 @@ describe('Wallet Manager', () => {
 
       const { data } = block
       data.transactions = []
-      data.transactions.push(block.transactions[0])
-      data.transactions.push(tx1)
-      data.transactions.push(tx2)
+      data.transactions.push(txs[0])
+      data.transactions.push(txs[1])
+      data.transactions.push(txs[2])
       block2 = new Block(data)
 
       walletManager.reindex(delegateMock)
@@ -205,17 +205,16 @@ describe('Wallet Manager', () => {
 
         // NOTE: the order is important: we sign a transaction with a random pass
         // to override the sender public key with a fake one
-        // TODO is it possible to use this method to attack the network?
 
-        const transactionData = transactionBuilder
+        transaction = transactionBuilder
           .transfer()
           .vendorField('dummy A transfer to dummy B')
           .sign(Math.random().toString(36))
-          .create(recipient.address, amount)
+          .recipientId(recipient.address)
+          .amount(amount)
+          .build()
 
-        sender.publicKey = transactionData.senderPublicKey
-
-        transaction = new Transaction(transactionData)
+        sender.publicKey = transaction.senderPublicKey
 
         walletManager.reindex(sender)
         walletManager.reindex(recipient)
