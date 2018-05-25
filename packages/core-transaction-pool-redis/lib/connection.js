@@ -98,7 +98,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
-    if (await this.transactionExists(transaction)) {
+    if (await this.transactionExists(transaction.id)) {
       return logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
     }
 
@@ -146,9 +146,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-    await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
-    await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
+    if (await this.transactionExists(transaction.id)) {
+      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+      await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
+    }
   }
 
   /**
@@ -161,12 +163,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
+    if (await this.transactionExists(id)) {
+      const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
 
-    await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
-    await this.pool.del(this.__getRedisExpirationKey(id))
-    await this.pool.del(this.__getRedisTransactionKey(id))
+      await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
+      await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
+      await this.pool.del(this.__getRedisExpirationKey(id))
+      await this.pool.del(this.__getRedisTransactionKey(id))
+    }
   }
 
   /**
@@ -316,11 +320,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
   * Checks if transaction exists in the pool
-  * @param {transaction}
+  * @param {transactionId}
   * @return {Boolean}
   */
-  async transactionExists (transaction) {
-    const exists = await this.pool.hexists(this.__getRedisTransactionKey(transaction.id), 'serialized')
+  async transactionExists (transactionId) {
+    const exists = await this.pool.hexists(this.__getRedisTransactionKey(transactionId), 'serialized')
     return (exists > 0)
   }
 
