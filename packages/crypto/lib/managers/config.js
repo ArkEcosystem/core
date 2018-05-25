@@ -21,7 +21,6 @@ class ConfigManager {
    */
   setConfig (config) {
     this.config = {}
-    console.log(config)
 
     for (const [key, value] of Object.entries(config)) {
       this.config[key] = value
@@ -30,8 +29,6 @@ class ConfigManager {
     arkjsv1.crypto.setNetworkVersion(this.config.pubKeyHash) // make sure ark.js v1 uses our config
 
     this.buildConstants()
-
-    console.log(this.getConstant('fees'))
     this.buildFees()
     this.buildDynamicOffsets()
   }
