@@ -29,7 +29,7 @@ module.exports = (model) => {
     senderPublicKey: data.senderPublicKey,
     vendorField: data.vendorField,
     signature: data.signature,
-    asset: data.asset,
+    asset: data.asset || {},
     confirmations: lastBlock ? lastBlock.data.height - model.block.height : 0
   }
 }
