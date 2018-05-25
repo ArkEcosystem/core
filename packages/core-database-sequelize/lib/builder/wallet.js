@@ -169,11 +169,17 @@ module.exports = class WalletBuilder {
       }
     })
 
+    for (let i = 0; i < transactions.length; i++) {
+      const wallet = this.walletManager.getWalletByPublicKey(transactions[i].senderPublicKey)
+      wallet.username = Transaction.deserialize(transactions[i].serialized.toString('hex')).asset.delegate.username
+
+      this.walletManager.reindex(wallet)
+    }
+
     // Rate...
     const delegates = await this.models.wallet.findAll({
       attributes: [
         'publicKey',
-        'username',
         'votebalance'
       ],
       where: {
@@ -210,7 +216,6 @@ module.exports = class WalletBuilder {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.rate = i + 1
-      wallet.username = delegates[i].dataValues.username
       wallet.votebalance = delegates[i].dataValues.votebalance
 
       if (forgedBlock) {
