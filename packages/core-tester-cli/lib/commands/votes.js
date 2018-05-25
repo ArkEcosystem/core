@@ -71,6 +71,6 @@ module.exports = async (options) => {
       logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }
