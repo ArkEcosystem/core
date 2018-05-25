@@ -1,7 +1,7 @@
-class TransactionBuilder {
+class TransactionBuilderDirector {
   /**
    * Create new delegate resignation transaction type.
-   * @return {DelegateResignation}
+   * @return {DelegateResignationBuilder}
    */
   delegateResignation () {
     return this.__getTransaction('delegate-resignation')
@@ -9,7 +9,7 @@ class TransactionBuilder {
 
   /**
    * Create new delegate transaction type.
-   * @return {Delegate}
+   * @return {DelegateRegistrationBuilder}
    */
   delegateRegistration () {
     return this.__getTransaction('delegate-registration')
@@ -17,7 +17,7 @@ class TransactionBuilder {
 
   /**
    * Create new IPFS transaction type.
-   * @return {IPFS}
+   * @return {IPFSBuilder}
    */
   ipfs () {
     return this.__getTransaction('ipfs')
@@ -25,7 +25,7 @@ class TransactionBuilder {
 
   /**
    * Create new multi-payment transaction type.
-   * @return {MultiPayment}
+   * @return {MultiPaymentBuilder}
    */
   multiPayment () {
     return this.__getTransaction('multi-payment')
@@ -33,7 +33,7 @@ class TransactionBuilder {
 
   /**
    * Create new multi-signature transaction type.
-   * @return {MultiSignature}
+   * @return {MultiSignatureBuilder}
    */
   multiSignature () {
     return this.__getTransaction('multi-signature')
@@ -41,7 +41,7 @@ class TransactionBuilder {
 
   /**
    * Create new second signature transaction type.
-   * @return {SecondSignature}
+   * @return {SecondSignatureBuilder}
    */
   secondSignature () {
     return this.__getTransaction('second-signature')
@@ -49,7 +49,7 @@ class TransactionBuilder {
 
   /**
    * Create new timelock transfer transaction type.
-   * @return {TimelockTransfer}
+   * @return {TimelockTransferBuilder}
    */
   timelockTransfer () {
     return this.__getTransaction('timelock-transfer')
@@ -57,7 +57,7 @@ class TransactionBuilder {
 
   /**
    * Create new transfer transaction type.
-   * @return {Transfer}
+   * @return {TransferBuilder}
    */
   transfer () {
     return this.__getTransaction('transfer')
@@ -65,7 +65,7 @@ class TransactionBuilder {
 
   /**
    * Create new vote transaction type.
-   * @return {Vote}
+   * @return {VoteBuilder}
    */
   vote () {
     return this.__getTransaction('vote')
@@ -74,11 +74,11 @@ class TransactionBuilder {
   /**
    * Create new instance of specified transaction type.
    * @param  {String} transactionType
-   * @return {Transaction}
+   * @return {TransactionBuilder}
    */
   __getTransaction (transactionType) {
     return new (require(`./transactions/${transactionType}`))() // eslint-disable-line new-cap
   }
 }
 
-module.exports = new TransactionBuilder()
+module.exports = new TransactionBuilderDirector()

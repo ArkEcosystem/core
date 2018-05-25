@@ -119,6 +119,8 @@ module.exports = class Transaction {
       bb.writeByte(0x00)
     }
 
+    // TODO use else if
+
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
       bb.writeUInt64(transaction.amount)
       bb.writeUInt32(transaction.expiration || 0)

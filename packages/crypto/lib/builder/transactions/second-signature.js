@@ -1,9 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 const { crypto } = require('../../crypto')
 
-module.exports = class SecondSignature extends Transaction {
+module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -21,7 +21,7 @@ module.exports = class SecondSignature extends Transaction {
   /**
    * Overrides the inherited `sign` method to include the generated second signature.
    * @param  {String}          passphrase
-   * @return {SecondSignature}
+   * @return {SecondSignatureBuilder}
    */
   create (secondPassphrase) {
     this.asset.signature.publicKey = crypto.getKeys(secondPassphrase).publicKey

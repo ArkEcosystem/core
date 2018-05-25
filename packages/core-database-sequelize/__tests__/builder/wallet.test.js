@@ -30,11 +30,11 @@ beforeEach(async (done) => {
   done()
 })
 
-const getWallet = (address) => {
+const getWallet = address => {
   return builder.walletManager.getWalletByAddress(address)
 }
 
-const getWalletByPublicKey = (publicKey) => {
+const getWalletByPublicKey = publicKey => {
   return builder.walletManager.getWalletByPublicKey(publicKey)
 }
 

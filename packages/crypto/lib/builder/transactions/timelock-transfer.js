@@ -1,8 +1,8 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class TimelockTransfer extends Transaction {
+module.exports = class TimelockTransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -24,7 +24,7 @@ module.exports = class TimelockTransfer extends Transaction {
    * @param  {Number} amount
    * @param  {Number} timelock
    * @param  {Number} timelockType
-   * @return {TimelockTransfer}
+   * @return {TimelockTransferBuilder}
    */
   create (recipientId, amount, timelock, timelockType) {
     this.recipientId = recipientId
@@ -38,7 +38,7 @@ module.exports = class TimelockTransfer extends Transaction {
    * Set vendor field from data.
    * @param {(String|undefined)} data
    * @param {Number}             type
-   * @return {TimelockTransfer}
+   * @return {TimelockTransferBuilder}
    */
   setVendorField (data, type) {
     this.vendorFieldHex = Buffer.from(data, type).toString('hex')
