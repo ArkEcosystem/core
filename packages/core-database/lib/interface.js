@@ -1,7 +1,7 @@
 'use strict'
 
 const async = require('async')
-const { crypto, slots, TRANSACTION_TYPES } = require('@arkecosystem/crypto')
+const { crypto, slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -310,47 +310,6 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Apply the given transaction.
-   * @param  {Transaction} transaction
-   * @return {Transaction}
-   */
-  async applyTransaction (transaction) {
-    await this.walletManager.applyTransaction(transaction)
-
-    emitter.emit('transaction.applied', transaction.data)
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit('delegate.registered', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit('delegate.resigned', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      this.__updateVoteBalance(transaction)
-
-      transaction.asset.votes.forEach(vote => {
-        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-          delegate: vote,
-          transaction: transaction.data
-        })
-      })
-    }
-  }
-
-  /**
-   * Remove the given transaction.
-   * @param  {Transaction} transaction
-   * @return {Boolean}
-   */
-  async revertTransaction (transaction) {
-    await this.walletManager.revertTransaction(transaction)
-
-    emitter.emit('transaction.reverted', transaction.data)
-  }
-
-  /**
    * Write blocks to file as a snapshot.
    * @return {void}
    */
@@ -401,29 +360,5 @@ module.exports = class ConnectionInterface {
   async _registerRepositories () {
     this['wallets'] = new (require('./repositories/wallets'))(this)
     this['delegates'] = new (require('./repositories/delegates'))(this)
-  }
-
-  /**
-   * Update the vote balance of the delegate.
-   * @param  {Object} transaction
-   * @return {void}
-   */
-  __updateVoteBalance (transaction) {
-    const vote = transaction.data.asset.votes[0]
-
-    const voter = this.walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
-    const delegate = this.walletManager.getWalletByPublicKey(vote.slice(1))
-
-    if (vote.startsWith('+')) {
-      logger.debug(`Delegate ${delegate.username} vote balance increased by ${voter.balance}`)
-
-      delegate.votebalance += voter.balance
-    } else {
-      logger.debug(`Delegate ${delegate.username} vote balance decreased by ${voter.balance}`)
-
-      delegate.votebalance -= voter.balance
-    }
-
-    this.walletManager.reindex(delegate)
   }
 }

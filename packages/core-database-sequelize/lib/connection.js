@@ -261,7 +261,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forgedFees += block.data.fee
+          wallet.forgedFees += block.data.totalFee
           wallet.forgedRewards += block.data.reward
         }
       })
