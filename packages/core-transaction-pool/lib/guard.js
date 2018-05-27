@@ -128,47 +128,46 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determine any transactions that do not match the accepted fee by delegate  or max fee set by sender
+   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
    * @return {void}
    */
   __determineFeeMatchingTransactions () {
     const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
-    this.transactions = reject(this.transactions, transaction => {
-      if (transaction.fee !== feeManager.get(transaction.type) && !feeConstants.dynamic) {
-        logger.warn(`Received transaction fee ${transaction.fee} is not according to default static specified fee ${feeManager.get(transaction.type)}`)
+    this.transactions = this.transactions.filter(transaction => {
+      if (!feeConstants.dynamic && transaction.fee !== feeManager.get(transaction.type)) {
+        logger.debug(`Received transaction fee '${transaction.fee}' for '${transaction.id}' does not match static fee of '${feeManager.get(transaction.type)}'`)
         this.invalid.push(transaction)
-        return true
+        return false
       }
 
       if (feeConstants.dynamic) {
         const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
 
         if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
-          logger.verbose(`Fee not accepted. Sender fee below threshold of delegate minimum accepted fee ${transaction.fee} < ${config.delegates.dynamicFees.minAcceptableFee}`)
+          logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is below delegate minimum fee of '${config.delegates.dynamicFees.minAcceptableFee}'`)
 
           this.invalid.push(transaction)
-          return true
+          return false
         }
 
         if (dynamicFee > transaction.fee) {
-          logger.verbose(`Fee not accepted. Delegate requested: ${dynamicFee} > sender fee: ${transaction.fee} ARKTOSHI fee for transaction ${transaction.id}`)
+          logger.debug(`Fee not accepted - calculated delegate fee of '${dynamicFee}' is above maximum transcation fee of '${transaction.fee}' for '${transaction.id}'`)
 
           this.invalid.push(transaction)
-          return true
+          return false
         }
 
         if (transaction.fee > feeManager.get(transaction.type)) {
-          logger.verbose(`Fee not accepted. Sender fee: ${transaction.fee} ARKTOSHI is HIGHER then default static specified fee ${feeManager.get(transaction.type)}`)
+          logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is above static fee of '${feeManager.get(transaction.type)}'`)
 
           this.invalid.push(transaction)
-          return true
+          return false
         }
 
-        logger.verbose(`Transaction accepted. Dynamic fees active. Calculated fee for transaction ${transaction.id}: ${dynamicFee} ARKTOSHI.`)
-        return false
+        logger.debug(`Transaction accepted with fee of '${transaction.fee}' for '${transaction.id}' - calculated fee for transaction is '${dynamicFee}'`)
       }
 
-      return false
+      return true
     })
   }
 

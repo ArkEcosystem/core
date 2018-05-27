@@ -1,6 +1,7 @@
 'use strict'
 
 const ark = require('arkjs')
+const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
@@ -12,7 +13,14 @@ module.exports = async (options) => {
 
   const transactions = []
   wallets.forEach((wallet, i) => {
-    const transaction = ark.signature.createSignature(wallet.passphrase, wallet.passphrase, parseInt(options.fee))
+    wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
+    const transaction = ark.signature.createSignature(
+      wallet.passphrase,
+      wallet.secondPassphrase,
+      parseInt(options.signatureFee)
+    )
+    wallet.publicKey = transaction.senderPublicKey
+    wallet.secondPublicKey = transaction.asset.signature.publicKey
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
@@ -30,14 +38,16 @@ module.exports = async (options) => {
     logger.info(`Waiting ${delaySeconds} seconds to apply signature transactions`)
     await delay(delaySeconds * 1000)
 
-    wallets.forEach(async walletObject => {
+    for (const walletObject of wallets) {
       const wallet = await utils.getWallet(walletObject.address)
 
-      if (wallet.secondPublicKey !== wallet.publicKey) {
+      if (wallet.secondPublicKey !== walletObject.secondPublicKey ||
+          wallet.publicKey !== walletObject.publicKey
+      ) {
         logger.error(`Invalid second signature for ${walletObject.address}.`)
       }
-    })
+    }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }
