@@ -161,7 +161,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (data.length < maxDelegates) {
       const data2 = await this.models.wallet.findAll({
         attributes: [
-          ['vote', 'publicKey'],
+          ['vote', 'publicKey']
         ],
         group: ['vote'],
         where: {
@@ -261,7 +261,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forged += block.totalAmount
+          wallet.forgedFees += block.data.totalFee
+          wallet.forgedRewards += block.data.reward
         }
       })
     } catch (error) {

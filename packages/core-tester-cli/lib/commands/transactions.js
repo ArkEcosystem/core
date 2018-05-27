@@ -1,8 +1,8 @@
 'use strict'
 
 const ark = require('arkjs')
-const delay = require('delay')
 const config = require('../config')
+const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 
@@ -10,14 +10,27 @@ const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphras
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance) => {
   let successfulTest = true
 
-  await utils.request.post('/peer/transactions', {transactions}, true)
+  const postResponse = await utils.request.post('/peer/transactions', {transactions}, true)
+  if (!postResponse.data.success) {
+    logger.error('Transaction request failed')
+
+    return false
+  }
+  for (const transaction of transactions) {
+    if (!postResponse.data.transactionIds.find(transactionId => (transaction.id === transactionId))) {
+      logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
+    }
+  }
+  if (!postResponse.data.transactionIds.length) {
+    return false
+  }
 
   const delaySeconds = await utils.getTransactionDelay(transactions)
-  logger.info(`Waiting ${delaySeconds} seconds to apply transfer transactions`)
+  logger.info(`Waiting ${delaySeconds} seconds for node to process and forge transfer transactions`)
   await delay(delaySeconds * 1000)
 
   const walletBalance = await utils.getWalletBalance(primaryAddress)
-  logger.info('All transactions have been sent!')
+  logger.info('All transactions have been received and forged!')
 
   if (walletBalance !== expectedSenderBalance) {
     successfulTest = false
@@ -48,7 +61,15 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   let totalDeductions = 0
   const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
   wallets.forEach((wallet, i) => {
-    const transaction = ark.transaction.createTransaction(wallet.address, transactionAmount, `TID: ${i}`, config.passphrase)
+    const transaction = ark.transaction.createTransaction(
+      wallet.address,
+      transactionAmount,
+      `TID: ${i}`,
+      config.passphrase,
+      wallet.secondPassphrase || config.secondPassphrase,
+      config.publicKeyHash,
+      parseInt(options.transferFee)
+    )
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
@@ -78,6 +99,6 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }

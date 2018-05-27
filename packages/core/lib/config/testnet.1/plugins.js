@@ -24,7 +24,9 @@ module.exports = {
     // database: 'ark_testnet'
   },
   '@arkecosystem/core-transaction-pool': {},
-  '@arkecosystem/core-transaction-pool-redis': { },
+  '@arkecosystem/core-transaction-pool-redis': {
+    key: 'ark1'
+  },
   '@arkecosystem/core-p2p': {
     port: 4101
   },

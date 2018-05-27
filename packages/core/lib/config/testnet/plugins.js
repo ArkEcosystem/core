@@ -14,7 +14,7 @@ module.exports = {
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},
   '@arkecosystem/core-p2p': {
-    port: 4000
+    port: 4101
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {

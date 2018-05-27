@@ -20,6 +20,7 @@ module.exports = {
   configManager: require('./managers/config'),
   feeManager: require('./managers/fee'),
   NetworkManager: require('./managers/network'),
+  dynamicFeeManager: require('./managers/dynamic-fee'),
 
   // Constants...
   constants: require('./constants'),

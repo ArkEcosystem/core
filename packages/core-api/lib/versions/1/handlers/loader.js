@@ -51,14 +51,15 @@ exports.autoconfigure = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  async handler (request, h) {
     return utils.respondWith({
       network: {
         nethash: config.network.nethash,
         token: config.network.client.token,
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
-        version: config.network.pubKeyHash
+        version: config.network.pubKeyHash,
+        feeStatistics: await blockchain.database.transactions.getFeeStatistics()
       }
     })
   }

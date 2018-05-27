@@ -1,7 +1,9 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto, feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
+const config = container.resolvePlugin('config')
+const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
@@ -16,16 +18,21 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Validate the specified transactions.
+   * Validate the specified transactions. Order of called functions is important
    * @param  {Array} transactions
+   * @param  {Boolean} isBroadcast flag
    * @return {void}
    */
-  async validate (transactions) {
+  async validate (transactions, isBroadCasted) {
     this.__reset()
 
     this.__transformTransactions(transactions)
 
     this.__determineInvalidTransactions()
+
+    this.__determineTransactionsForBroadCast(isBroadCasted)
+
+    this.__determineFeeMatchingTransactions()
 
     await this.__determineExcessTransactions()
   }
@@ -44,7 +51,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id),
+      broadcast: this.broadcast.map(transaction => transaction.id)
     }
   }
 
@@ -62,7 +70,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid
+      invalid: this.invalid,
+      broadcast: this.broadcast
     }
   }
 
@@ -101,7 +110,65 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   __transformTransactions (transactions) {
-    this.transactions = transactions.map(transaction => new Transaction(transaction))
+     this.transactions = transactions.map(transaction => new Transaction(transaction))
+  }
+
+  /**
+   * Determine transactions that need to be broadcasted
+   * @param  {Boolean} broadcasted - if true transactions was send from node2node, if false - is from client
+   * @return {void}
+   */
+  __determineTransactionsForBroadCast (isBroadCasted) {
+    this.transactions.forEach(transaction => {
+      if (!isBroadCasted) {
+        // transaction.hops = 0 //TODO: rething if we need to count hops, or just send trxses out once to all peers
+        this.broadcast.push(transaction)
+      }
+    })
+  }
+
+  /**
+   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
+   * @return {void}
+   */
+  __determineFeeMatchingTransactions () {
+    const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
+    this.transactions = this.transactions.filter(transaction => {
+      if (!feeConstants.dynamic && transaction.fee !== feeManager.get(transaction.type)) {
+        logger.debug(`Received transaction fee '${transaction.fee}' for '${transaction.id}' does not match static fee of '${feeManager.get(transaction.type)}'`)
+        this.invalid.push(transaction)
+        return false
+      }
+
+      if (feeConstants.dynamic) {
+        const dynamicFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
+
+        if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
+          logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is below delegate minimum fee of '${config.delegates.dynamicFees.minAcceptableFee}'`)
+
+          this.invalid.push(transaction)
+          return false
+        }
+
+        if (dynamicFee > transaction.fee) {
+          logger.debug(`Fee not accepted - calculated delegate fee of '${dynamicFee}' is above maximum transcation fee of '${transaction.fee}' for '${transaction.id}'`)
+
+          this.invalid.push(transaction)
+          return false
+        }
+
+        if (transaction.fee > feeManager.get(transaction.type)) {
+          logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is above static fee of '${feeManager.get(transaction.type)}'`)
+
+          this.invalid.push(transaction)
+          return false
+        }
+
+        logger.debug(`Transaction accepted with fee of '${transaction.fee}' for '${transaction.id}' - calculated fee for transaction is '${dynamicFee}'`)
+      }
+
+      return true
+    })
   }
 
   /**
@@ -155,5 +222,6 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
+    this.broadcast = []
   }
 }
