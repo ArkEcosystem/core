@@ -28,6 +28,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
+    // TODO rename to by...
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
     this.walletsByUsername = {}
@@ -184,38 +185,50 @@ module.exports = class WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  async applyTransaction (transaction) {
-    const transactionData = transaction.data
-    const recipientId = transactionData.recipientId
+  async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+    const { data } = transaction
+    const { asset, recipientId, senderPublicKey } = data
 
-    const sender = this.getWalletByPublicKey(transactionData.senderPublicKey)
+    const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
       emitter.emit('wallet:cold:created', recipient)
-    } else if (transactionData.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[transactionData.asset.delegate.username.toLowerCase()]) {
-      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(transactionData))
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: delegate name already taken`)
-    } else if (transactionData.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[transactionData.asset.votes[0].slice(1)].username) {
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(transactionData))
+    } else if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
-      throw new Error(`Can't apply transaction ${transactionData.id}: voted delegate does not exist`)
-    } else if (config.network.exceptions[transactionData.id]) {
-      logger.warn('Transaction forcibly applied because it has been added as an exception:', transactionData)
-    } else if (!sender.canApply(transactionData)) {
-      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(transactionData))
-      logger.debug('Audit', JSON.stringify(sender.auditApply(transactionData), null, 2))
+      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
-      throw new Error(`Can't apply transaction ${transactionData.id}`)
+    // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+    } else if (data.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
+
+      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: voted delegate does not exist`)
+
+    } else if (config.network.exceptions[data.id]) {
+
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
+
+    } else if (!sender.canApply(data)) {
+
+      logger.error(`Can't apply transaction for ${sender.address}`, JSON.stringify(data))
+      logger.debug('Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      throw new Error(`Can't apply transaction ${data.id}`)
     }
 
-    sender.applyTransactionToSender(transactionData)
+    sender.applyTransactionToSender(data)
 
-    if (recipient && transactionData.type === TRANSACTION_TYPES.TRANSFER) {
-      recipient.applyTransactionToRecipient(transactionData)
+    if (recipient && data.type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(data)
+    }
+
+    this.__emitEvents(transaction)
+
+    if (data.type === TRANSACTION_TYPES.VOTE) {
+      this.__updateVoteBalance(transaction)
     }
 
     return transaction
@@ -236,6 +249,8 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }
+
+    emitter.emit('transaction.reverted', data)
 
     return data
   }
@@ -293,5 +308,51 @@ module.exports = class WalletManager {
    */
   __canBePurged (wallet) {
     return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+  }
+
+  /**
+   * Emit events for the specified transaction.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __emitEvents (transaction) {
+    emitter.emit('transaction.applied', transaction.data)
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      emitter.emit('delegate.registered', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      emitter.emit('delegate.resigned', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      transaction.asset.votes.forEach(vote => {
+        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+          delegate: vote,
+          transaction: transaction.data
+        })
+      })
+    }
+  }
+
+  /**
+   * Update the vote balance of the delegate.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __updateVoteBalance (transaction) {
+    const vote = transaction.data.asset.votes[0]
+
+    const voter = this.getWalletByPublicKey(transaction.data.senderPublicKey)
+    const delegate = this.getWalletByPublicKey(vote.slice(1))
+
+    if (vote.startsWith('+')) {
+      delegate.votebalance += voter.balance
+    } else {
+      delegate.votebalance -= voter.balance
+    }
+
+    this.reindex(delegate)
   }
 }

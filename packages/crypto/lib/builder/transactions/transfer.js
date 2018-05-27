@@ -1,8 +1,8 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
+const TransactionBuilder = require('./transaction')
 
-module.exports = class Transfer extends Transaction {
+module.exports = class TransferBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -21,7 +21,7 @@ module.exports = class Transfer extends Transaction {
    * Overrides the inherited method to add the necessary parameters
    * @param  {String} recipientId
    * @param  {Number} amount
-   * @return {Transfer}
+   * @return {TransferBuilder}
    */
   create (recipientId, amount) {
     this.recipientId = recipientId
@@ -33,7 +33,7 @@ module.exports = class Transfer extends Transaction {
    * Set vendor field from data.
    * @param {(String|undefined)} data
    * @param {Number}             type
-   * @return {Transfer}
+   * @return {TransferBuilder}
    */
   setVendorField (data, type) {
     this.vendorField = data

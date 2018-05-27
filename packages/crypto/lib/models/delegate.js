@@ -1,12 +1,12 @@
 const bip38 = require('bip38')
 const wif = require('wif')
-const crypto = require('crypto')
+const { createHash } = require('crypto')
 const otplib = require('otplib')
 const forge = require('node-forge')
 
 const Block = require('./block')
 const ECPair = require('../crypto/ecpair')
-const cryptoBuilder = require('../builder/crypto')
+const crypto = require('../crypto/crypto')
 const sortTransactions = require('../utils/sort-transactions')
 
 /**
@@ -49,7 +49,7 @@ module.exports = class Delegate {
         this.address = null
       }
     } else {
-      this.keys = cryptoBuilder.getKeys(passphrase)
+      this.keys = crypto.getKeys(passphrase)
       this.publicKey = this.keys.publicKey
       this.address = this.keys.getAddress(network.pubKeyHash)
     }
@@ -64,7 +64,7 @@ module.exports = class Delegate {
    * @static
    */
   static encryptPassphrase (passphrase, network, password) {
-    const keys = cryptoBuilder.getKeys(passphrase, network)
+    const keys = crypto.getKeys(passphrase, network)
     const wifKey = keys.toWIF()
     const decoded = wif.decode(wifKey)
 
@@ -120,7 +120,7 @@ module.exports = class Delegate {
       const transactionData = {
         amount: 0,
         fee: 0,
-        sha256: crypto.createHash('sha256')
+        sha256: createHash('sha256')
       }
 
       const sortedTransactions = sortTransactions(transactions)

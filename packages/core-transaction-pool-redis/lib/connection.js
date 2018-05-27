@@ -98,11 +98,19 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
     }
 
+    if (await this.transactionExists(transaction.id)) {
+      return logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
+    }
+
     try {
-      await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
+      const res = await this.pool.hmset(this.__getRedisTransactionKey(transaction.id),
         'serialized', transaction.serialized.toString('hex'),
         'senderPublicKey', transaction.senderPublicKey
       )
+
+      if (res === 0) {
+        throw new Error('Transaction not added to the pool - await this.pool.hmset failed')
+      }
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
       await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
 
@@ -116,26 +124,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add many transaction to the pool.
-   * @param {Array}   transactions
-   * @param {Boolean} isBroadcast
+   * @param {Array}   transactions, already transformed by transaction guard - must have serialized field
    */
-  addTransactions (transactions, isBroadcast) {
+  addTransactions (transactions) {
     if (!this.__isReady()) {
       return
     }
 
-    const processedTransactions = transactions.map(transaction => {
-      transaction = new Transaction(transaction)
-      transaction.isBroadcast = isBroadcast
-
-      this.addTransaction(transaction)
-
-      return transaction
+    transactions.forEach(transaction => {
+        this.addTransaction(transaction)
     })
-
-    if (isBroadcast) {
-      super.broadcastTransactions(processedTransactions)
-    }
   }
 
   /**
@@ -148,9 +146,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-    await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
-    await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
+    if (await this.transactionExists(transaction.id)) {
+      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
+      await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
+    }
   }
 
   /**
@@ -163,12 +163,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
+    if (await this.transactionExists(id)) {
+      const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
 
-    await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
-    await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
-    await this.pool.del(this.__getRedisExpirationKey(id))
-    await this.pool.del(this.__getRedisTransactionKey(id))
+      await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
+      await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
+      await this.pool.del(this.__getRedisExpirationKey(id))
+      await this.pool.del(this.__getRedisTransactionKey(id))
+    }
   }
 
   /**
@@ -314,6 +316,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     const keys = await this.pool.keys(`${this.keyPrefix}:*`)
 
     keys.forEach(key => this.pool.del(key))
+  }
+
+  /**
+  * Checks if transaction exists in the pool
+  * @param {transactionId}
+  * @return {Boolean}
+  */
+  async transactionExists (transactionId) {
+    const exists = await this.pool.hexists(this.__getRedisTransactionKey(transactionId), 'serialized')
+    return (exists > 0)
   }
 
   /**

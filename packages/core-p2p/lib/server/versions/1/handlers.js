@@ -169,13 +169,18 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    await transactionPool.guard.validate(request.payload.transactions)
-
+    await transactionPool.guard.validate(request.payload.transactions, request.payload.isBroadCasted)
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
       container
         .resolvePlugin('blockchain')
-        .postTransactions(transactionPool.guard.accept, request.payload.broadcast)
+        .postTransactions(transactionPool.guard.accept)
+    }
+
+    if (transactionPool.guard.hasAny('broadcast')) {
+      container
+      .resolvePlugin('p2p')
+      .broadcastTransactions(transactionPool.guard.broadcast)
     }
 
     return {

@@ -16,7 +16,7 @@ module.exports = (transaction) => {
     asset: engine.joi.object({
       delegate: engine.joi.object({
         username: engine.joi.arkUsername().required(),
-        publicKey: engine.joi.arkPublicKey().required()
+        publicKey: engine.joi.arkPublicKey()
       })
     }).required(),
     confirmations: engine.joi.number().min(0)

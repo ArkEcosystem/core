@@ -2,7 +2,7 @@ const configManager = require('../managers/config')
 const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
-const cryptoBuilder = require('../builder/crypto')
+const crypto = require('../crypto/crypto')
 const transactionHandler = require('../handlers/transactions')
 
 /**
@@ -45,6 +45,8 @@ module.exports = class Wallet {
     this.dirty = true
     this.producedBlocks = 0
     this.missedBlocks = 0
+    this.forgedFees = 0
+    this.forgedRewards = 0
   }
 
   /**
@@ -111,7 +113,7 @@ module.exports = class Wallet {
    * @param {Block} block
    */
   applyBlock (block) {
-    if (block.generatorPublicKey === this.publicKey || cryptoBuilder.getAddress(block.generatorPublicKey) === this.address) {
+    if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance += block.reward + block.totalFee
       this.producedBlocks++
       this.lastBlock = block
@@ -125,7 +127,7 @@ module.exports = class Wallet {
    * @param {Block} block
    */
   revertBlock (block) {
-    if (block.generatorPublicKey === this.publicKey || cryptoBuilder.getAddress(block.generatorPublicKey) === this.address) {
+    if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
       this.balance -= block.reward + block.totalFee
       this.producedBlocks--
       // TODO: get it back from database?
@@ -143,7 +145,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verify (transaction, signature, publicKey) {
-    const hash = cryptoBuilder.getHash(transaction)
+    const hash = crypto.getHash(transaction)
     const signSignatureBuffer = Buffer.from(signature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
@@ -197,11 +199,11 @@ module.exports = class Wallet {
       audit.push({'Mutisignature': this.verifySignatures(transaction, this.multisignature)})
     } else {
       audit.push({'Remaining amount': this.balance - transaction.amount - transaction.fee})
-      audit.push({'Signature validation': cryptoBuilder.verify(transaction)})
+      audit.push({'Signature validation': crypto.verify(transaction)})
       // TODO: this can blow up if 2nd phrase and other transactions are in the wrong order
       if (this.secondPublicKey) {
         audit.push({
-          'Second Signature Verification': cryptoBuilder.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
+          'Second Signature Verification': crypto.verifySecondSignature(transaction, this.secondPublicKey, configManager.config) // eslint-disable-line max-len
         })
       }
     }

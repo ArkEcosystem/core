@@ -3,6 +3,7 @@
 const ark = require('arkjs')
 const delay = require('delay')
 const utils = require('../utils')
+const config = require('../config')
 const logger = utils.logger
 const superheroes = require('superheroes')
 const transactionCommand = require('./transactions')
@@ -23,7 +24,12 @@ module.exports = async (options) => {
       wallet.username = superheroes.random()
     }
     wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
-    const transaction = ark.delegate.createDelegate(wallet.passphrase, wallet.username)
+    const transaction = ark.delegate.createDelegate(
+      wallet.passphrase,
+      wallet.username,
+      config.secondPassphrase,
+      parseInt(options.delegateFee)
+    )
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (${wallet.username})`)
@@ -51,6 +57,6 @@ module.exports = async (options) => {
       logger.error(`Delegate count incorrect. '${delegates.length}' but should be '${expectedDelegates}'`)
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }

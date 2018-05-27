@@ -20,8 +20,8 @@ module.exports = (delegate) => {
       missed: delegate.missedBlocks
     },
     production: {
-      approval: +calculateApproval(delegate),
-      productivity: +calculateProductivity(delegate)
+      approval: calculateApproval(delegate),
+      productivity: calculateProductivity(delegate)
     }
   }
 

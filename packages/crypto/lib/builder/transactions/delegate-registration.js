@@ -1,9 +1,9 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
-const Transaction = require('./transaction')
-const cryptoBuilder = require('../crypto')
+const TransactionBuilder = require('./transaction')
+const { crypto } = require('../../crypto')
 
-module.exports = class DelegateRegistration extends Transaction {
+module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
@@ -21,7 +21,7 @@ module.exports = class DelegateRegistration extends Transaction {
   /**
    * Overrides the inherited method to add the necessary parameters.
    * @param  {String}   username
-   * @return {Delegate}
+   * @return {DelegateRegistrationBuilder}
    */
   create (username) {
     this.asset.delegate.username = username
@@ -31,10 +31,10 @@ module.exports = class DelegateRegistration extends Transaction {
   /**
    * Overrides the inherited `sign` method to include the public key of the new delegate.
    * @param  {String}   passphrase
-   * @return {Delegate}
+   * @return {DelegateRegistrationBuilder}
    */
   sign (passphrase) {
-    this.asset.delegate.publicKey = cryptoBuilder.getKeys(passphrase).publicKey
+    this.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
     super.sign(passphrase)
     return this
   }

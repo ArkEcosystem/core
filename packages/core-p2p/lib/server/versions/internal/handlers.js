@@ -17,7 +17,7 @@ exports.postVerifyTransaction = {
    */
   async handler (request, h) {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await container.resolvePlugin('blockchain').database.verifyTransaction(transaction)
+    const result = await container.resolvePlugin('database').verifyTransaction(transaction)
 
     return { success: result }
   }

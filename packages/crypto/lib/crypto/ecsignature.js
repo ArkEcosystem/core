@@ -1,7 +1,7 @@
 const bip66 = require('bip66')
 const typeforce = require('typeforce')
-const types = require('./types')
 const BigInteger = require('bigi')
+const types = require('./types')
 
 /**
  * @typedef {Object} SignatureParseResult

@@ -4,6 +4,7 @@ const ark = require('arkjs')
 const delay = require('delay')
 const sampleSize = require('lodash/sampleSize')
 const utils = require('../utils')
+const config = require('../config')
 const logger = utils.logger
 const transactionCommand = require('./transactions')
 
@@ -35,7 +36,9 @@ module.exports = async (options) => {
   wallets.forEach((wallet, i) => {
     const transaction = ark.vote.createVote(
       wallet.passphrase,
-      delegateVotes.map(detail => `+${detail.delegate.publicKey}`)
+      delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
+      config.secondPassphrase,
+      parseInt(options.voteFee)
     )
     transactions.push(transaction)
 
@@ -68,6 +71,6 @@ module.exports = async (options) => {
       logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }

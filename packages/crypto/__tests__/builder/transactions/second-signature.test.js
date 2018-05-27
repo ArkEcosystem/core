@@ -1,5 +1,5 @@
 const ark = require('../../../lib/client')
-const cryptoBuilder = require('../../../lib/builder/crypto')
+const crypto = require('../../../lib/crypto/crypto')
 const transactionTests = require('./__shared__/transaction')
 
 let transaction
@@ -22,8 +22,8 @@ describe('Second Signature Transaction', () => {
 
   describe('sign', () => {
     xit('establishes the signature on the asset', () => {
-      cryptoBuilder.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
-      cryptoBuilder.sign = jest.fn()
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn()
       transaction.sign('bad pass')
       expect(transaction.asset.signature).toBe('bad pass public key')
     })

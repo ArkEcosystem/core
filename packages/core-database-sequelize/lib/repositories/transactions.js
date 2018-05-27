@@ -1,8 +1,14 @@
 'use strict'
 
 const Op = require('sequelize').Op
+const fn = require('sequelize').fn
+const col = require('sequelize').col
+
+const moment = require('moment')
 
 const { Transaction } = require('@arkecosystem/crypto').models
+const { slots } = require('@arkecosystem/crypto')
+
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const buildFilterQuery = require('./utils/filter-query')
@@ -233,6 +239,28 @@ module.exports = class TransactionsRepository {
    */
   count () {
     return this.connection.models.transaction.count()
+  }
+
+  /**
+   * Calculates min, max and average fee statistics based on transactions table
+   * @return {Object}
+   */
+  getFeeStatistics () {
+    const timeStampLimit = slots.getTime(moment().subtract(30, 'days'))
+    return this.connection.models.transaction.findAll({
+    attributes: [
+      'type',
+      [fn('MAX', col('fee')), 'maxFee'],
+      [fn('MIN', col('fee')), 'minFee']
+    ],
+    where: {
+      timestamp: {
+        [Op.gte]: timeStampLimit
+      }
+    },
+    group: 'type',
+    order: [['timestamp', 'DESC']]
+    })
   }
 
   /**
