@@ -292,7 +292,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     logger.info(`${wallets.length} modified wallets committed to database`)
 
-    this.walletManager.purgeEmptyNonDelegates()
+    // this.walletManager.purgeEmptyNonDelegates()
 
     return Object.values(this.walletManager.walletsByAddress).forEach(wallet => (wallet.dirty = false))
   }
