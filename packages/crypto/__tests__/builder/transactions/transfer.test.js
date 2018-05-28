@@ -1,33 +1,32 @@
 const ark = require('../../../lib/client')
-const transactionTests = require('./__shared__/transaction')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const feeManager = require('../../../lib/managers/fee')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().transfer()
+  builder = ark.getBuilder().transfer()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Transfer Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('expiration')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.TRANSFER)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.TRANSFER))
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.expiration', 15)
   })
 
-  describe('create', () => {
-    it('establishes the recipient id', () => {
-      transaction.create('homer')
-      expect(transaction.recipientId).toBe('homer')
-    })
-
-    it('establishes the amount', () => {
-      transaction.create(null, 'a lot of ARK')
-      expect(transaction.amount).toBe('a lot of ARK')
+  describe('vendorField', () => {
+    it('should set the vendorField', () => {
+      builder.vendorField('fake')
+      expect(builder.data.vendorField).toBe('fake')
     })
   })
 })

@@ -1,30 +1,19 @@
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const vendorField = require('./mixins/vendor-field')
 
-module.exports = class MultiPaymentBuilder extends TransactionBuilder {
+class MultiPaymentBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.MULTI_PAYMENT
-    this.fee = feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)
-    this.payments = {}
-    this.vendorFieldHex = null
-  }
-
-  /**
-   * Set vendor field from data.
-   * @param  {(String|undefined)} data
-   * @param  {Number}             type
-   * @return {MultiPaymentBuilder}
-   */
-  setVendorField (data, type) {
-    this.vendorFieldHex = Buffer.from(data, type).toString('hex')
-
-    return this
+    this.data.type = TRANSACTION_TYPES.MULTI_PAYMENT
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT)
+    this.data.payments = {}
+    this.data.vendorFieldHex = null
   }
 
   /**
@@ -34,15 +23,15 @@ module.exports = class MultiPaymentBuilder extends TransactionBuilder {
    * @return {MultiPaymentBuilder}
    */
   addPayment (address, amount) {
-    const paymentsCount = Object.keys(this.payments).length / 2
+    const paymentsCount = Object.keys(this.data.payments).length / 2
 
     if (paymentsCount >= 2258) {
       throw new Error('A maximum of 2259 outputs is allowed')
     }
 
     const key = paymentsCount + 1
-    this.payments[`address${key}`] = address
-    this.payments[`amount${key}`] = amount
+    this.data.payments[`address${key}`] = address
+    this.data.payments[`amount${key}`] = amount
 
     return this
   }
@@ -53,9 +42,11 @@ module.exports = class MultiPaymentBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.senderPublicKey = this.senderPublicKey
-    struct.vendorFieldHex = this.vendorFieldHex
+    struct.senderPublicKey = this.data.senderPublicKey
+    struct.vendorFieldHex = this.data.vendorFieldHex
 
-    return Object.assign(struct, this.payments)
+    return Object.assign(struct, this.data.payments)
   }
 }
+
+module.exports = vendorField.mixin(MultiPaymentBuilder)

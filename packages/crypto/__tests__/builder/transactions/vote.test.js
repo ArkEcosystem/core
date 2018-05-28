@@ -1,40 +1,47 @@
 const ark = require('../../../lib/client')
 const crypto = require('../../../lib/crypto/crypto')
-const transactionTests = require('./__shared__/transaction')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const feeManager = require('../../../lib/managers/fee')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().vote()
+  builder = ark.getBuilder().vote()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Vote Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('asset')
-    expect(transaction.asset).toHaveProperty('votes')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.VOTE)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.VOTE))
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.asset')
+    expect(builder).toHaveProperty('data.asset.votes', [])
   })
 
-  describe('create', () => {
+  describe('votesAsset', () => {
     it('establishes the votes asset', () => {
-      const invalidVotes = ['invalid-1', 'invalid-2', 'invalid-3']
-      transaction.create(invalidVotes)
-      expect(transaction.asset.votes).toBe(invalidVotes)
+      const votes = ['+dummy-1']
+      builder.votesAsset(votes)
+      expect(builder.data.asset.votes).toBe(votes)
     })
   })
 
   describe('sign', () => {
-    xit('establishes the recipient id', () => {
+    it('establishes the recipient id', () => {
+      const pass = 'dummy pass'
+
       crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
       crypto.sign = jest.fn()
-      transaction.sign('bad pass')
-      expect(transaction.recipientId).toBe('bad pass public key')
+
+      builder.sign(pass)
+      expect(builder.data.recipientId).toBe('DKNJwdxrPQg6xXbrpaQLfgi6kC2ndaz8N5')
     })
   })
 })

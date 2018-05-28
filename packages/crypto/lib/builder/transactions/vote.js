@@ -1,41 +1,30 @@
 const feeManager = require('../../managers/fee')
-const { crypto } = require('../../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const sign = require('./mixins/sign')
 
-module.exports = class VoteBuilder extends TransactionBuilder {
+class VoteBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.VOTE
-    this.fee = feeManager.get(TRANSACTION_TYPES.VOTE)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { votes: {} }
+    this.data.type = TRANSACTION_TYPES.VOTE
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.VOTE)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { votes: [] }
   }
 
   /**
-   * Create vote transaction with delegate votes.
-   * @param  {Array} delegates
+   * Establish the votes on the asset.
+   * @param  {Array} votes
    * @return {VoteBuilder}
    */
-  create (delegates) {
-    this.asset.votes = delegates
-    return this
-  }
-
-  /**
-   * Overrides the inherited `sign` method to set the sender as the recipient too
-   * @param  {String} passphrase
-   * @return {VoteBuilder}
-   */
-  sign (passphrase) {
-    this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
-    super.sign(passphrase)
+  votesAsset (votes) {
+    this.data.asset.votes = votes
     return this
   }
 
@@ -45,9 +34,11 @@ module.exports = class VoteBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
     return struct
   }
 }
+
+module.exports = sign.mixin(VoteBuilder)

@@ -1,26 +1,26 @@
-const Model = require('../../models/transaction')
+const Transaction = require('../../models/transaction')
 const { crypto, slots } = require('../../crypto')
 const configManager = require('../../managers/config')
 
-module.exports = class Transaction {
+module.exports = class TransactionBuilder {
   /**
    * @constructor
    */
   constructor () {
-    this.model = Model
-
-    this.id = null
-    this.timestamp = slots.getTime()
-    this.version = 0x01
-    this.network = configManager.get('pubKeyHash')
+    this.data = {
+      id: null,
+      timestamp: slots.getTime(),
+      version: 0x01,
+      network: configManager.get('pubKeyHash')
+    }
   }
 
   /**
-   * Create new instance.
-   * @return {TransactionBuilder}
+   * Build a new Transaction instance.
+   * @return {Transaction}
    */
-  create () {
-    return this
+  build (data) {
+    return new Transaction({ ...(this.data), ...data })
   }
 
   /**
@@ -28,8 +28,8 @@ module.exports = class Transaction {
    * @param {Number} version
    * @return {TransactionBuilder}
    */
-  setVersion (version) {
-    this.version = version
+  version (version) {
+    this.data.version = version
     return this
   }
 
@@ -38,8 +38,8 @@ module.exports = class Transaction {
    * @param {Number} fee
    * @return {TransactionBuilder}
    */
-  setFee (fee) {
-    this.fee = fee
+  fee (fee) {
+    this.data.fee = fee
     return this
   }
 
@@ -48,8 +48,8 @@ module.exports = class Transaction {
    * @param  {Number} amount
    * @return {TransactionBuilder}
    */
-  setAmount (amount) {
-    this.amount = amount
+  amount (amount) {
+    this.data.amount = amount
     return this
   }
 
@@ -58,8 +58,8 @@ module.exports = class Transaction {
    * @param  {String} recipientId
    * @return {TransactionBuilder}
    */
-  setRecipientId (recipientId) {
-    this.recipientId = recipientId
+  recipientId (recipientId) {
+    this.data.recipientId = recipientId
     return this
   }
 
@@ -68,8 +68,8 @@ module.exports = class Transaction {
    * @param  {String} publicKey
    * @return {TransactionBuilder}
    */
-  setSenderPublicKey (publicKey) {
-    this.senderPublicKey = publicKey
+  senderPublicKey (publicKey) {
+    this.data.senderPublicKey = publicKey
     return this
   }
 
@@ -78,11 +78,12 @@ module.exports = class Transaction {
    * @return {Boolean}
    */
   verify () {
-    return crypto.verify(this)
+    return crypto.verify(this.data)
   }
 
   /**
    * Serialize the transaction.
+   * TODO @deprecated when a Transaction model is returned
    * @return {Buffer}
    */
   serialize () {
@@ -96,8 +97,8 @@ module.exports = class Transaction {
    */
   sign (passphrase) {
     const keys = crypto.getKeys(passphrase)
-    this.senderPublicKey = keys.publicKey
-    this.signature = crypto.sign(this.__getSigningObject(), keys)
+    this.data.senderPublicKey = keys.publicKey
+    this.data.signature = crypto.sign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -108,7 +109,8 @@ module.exports = class Transaction {
    */
   secondSign (secondPassphrase) {
     const keys = crypto.getKeys(secondPassphrase)
-    this.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    // TODO sign or second?
+    this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
     return this
   }
 
@@ -117,16 +119,20 @@ module.exports = class Transaction {
    * @return {Object}
    */
   getStruct () {
+    // TODO
+    // if (!this.data.senderPublicKey || !this.data.signature) {
+    //   throw new Error('The transaction is not signed yet')
+    // }
     return {
       // hex: crypto.getBytes(this).toString('hex'), // v2
-      id: crypto.getId(this).toString('hex'),
-      signature: this.signature,
-      signSignature: this.signSignature,
-      timestamp: this.timestamp,
+      id: crypto.getId(this.data).toString('hex'),
+      signature: this.data.signature,
+      signSignature: this.data.signSignature,
+      timestamp: this.data.timestamp,
 
-      type: this.type,
-      fee: this.fee,
-      senderPublicKey: this.senderPublicKey
+      type: this.data.type,
+      fee: this.data.fee,
+      senderPublicKey: this.data.senderPublicKey
     }
   }
 
@@ -135,14 +141,14 @@ module.exports = class Transaction {
    * @return {Object}
    */
   __getSigningObject () {
-    const transaction = this
+    const { data } = this
 
-    Object.keys(transaction).forEach(key => {
+    Object.keys(data).forEach(key => {
       if (['model', 'network', 'id'].includes(key)) {
-        delete transaction[key]
+        delete data[key]
       }
     })
 
-    return transaction
+    return data
   }
 }

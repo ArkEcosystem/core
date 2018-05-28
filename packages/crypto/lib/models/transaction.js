@@ -31,8 +31,8 @@ const { TRANSACTION_TYPES } = require('../constants')
  *   - network
  */
 module.exports = class Transaction {
-  constructor (transaction) {
-    this.serialized = Transaction.serialize(transaction)
+  constructor (data) {
+    this.serialized = Transaction.serialize(data)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
 
     if (this.data.version === 1) {
@@ -56,8 +56,8 @@ module.exports = class Transaction {
       this.verified = false
     }
 
-    // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
-    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature', 'asset', 'expiration', 'timelock', 'timelocktype'].forEach((key) => { // eslint-disable-line max-len
+    // if (this.data.amount !== data.amount) console.error('bang', data, this.data);
+    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature', 'signSignature', 'asset', 'expiration', 'timelock', 'timelocktype'].forEach((key) => { // eslint-disable-line max-len
       this[key] = this.data[key]
     }, this)
   }
