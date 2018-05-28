@@ -349,12 +349,8 @@ module.exports = class WalletManager {
 
     if (vote.startsWith('+')) {
       delegate.votebalance += voter.balance
-
-      logger.debug(`Delegate ${delegate.username} vote balance increased by ${voter.balance} to ${delegate.votebalance}`)
     } else {
       delegate.votebalance -= voter.balance
-
-      logger.debug(`Delegate ${delegate.username} vote balance decreased by ${voter.balance} to ${delegate.votebalance}`)
     }
 
     this.reindex(delegate)

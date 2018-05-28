@@ -37,8 +37,8 @@ module.exports = async (options) => {
     const transaction = ark.vote.createVote(
       wallet.passphrase,
       delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
-      config.secondPassPhrase,
-      parseInt(options.fee)
+      config.secondPassphrase,
+      parseInt(options.voteFee)
     )
     transactions.push(transaction)
 
@@ -71,6 +71,6 @@ module.exports = async (options) => {
       logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
 }

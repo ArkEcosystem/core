@@ -118,7 +118,8 @@ class Container {
       logger.info('Stopping ARK Core...')
 
       try {
-        await this.resolvePlugin('database').saveWallets(true)
+        logger.info('Saving wallets')
+        await this.resolvePlugin('database').saveWallets(false)
       } catch (error) {}
 
       // const lastBlock = this.resolvePlugin('blockchain').getLastBlock()
