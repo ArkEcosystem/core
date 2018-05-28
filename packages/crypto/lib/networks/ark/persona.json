@@ -25,6 +25,7 @@
     },
     "epoch": "2018-02-01T00:00:00.000Z",
     "fees": {
+      "dynamic" : false,
       "transfer": 10000000,
       "secondSignature": 500000000,
       "delegateRegistration": 2500000000,
