@@ -159,9 +159,11 @@ class ConfigManager {
    * Build dynamic offsets from config constants.
    */
   buildDynamicOffsets () {
-    Object
-      .keys(TRANSACTION_TYPES)
-      .forEach(type => dynamicFeeManager.set(TRANSACTION_TYPES[type], this.getConstant('dynamicOffsets')[_.camelCase(type)]))
+    if (this.getConstant('dynamicOffsets')) {
+      Object
+        .keys(TRANSACTION_TYPES)
+        .forEach(type => dynamicFeeManager.set(TRANSACTION_TYPES[type], this.getConstant('dynamicOffsets')[_.camelCase(type)]))
+    }
   }
 }
 
