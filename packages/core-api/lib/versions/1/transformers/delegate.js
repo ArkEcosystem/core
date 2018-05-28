@@ -17,7 +17,7 @@ module.exports = (delegate) => {
     missedblocks: delegate.missedBlocks,
     forged: delegate.forged,
     rate: delegate.rate,
-    approval: +calculateApproval(delegate),
-    productivity: +calculateProductivity(delegate)
+    approval: calculateApproval(delegate),
+    productivity: calculateProductivity(delegate)
   }
 }

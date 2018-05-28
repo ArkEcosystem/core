@@ -189,9 +189,7 @@ module.exports = class Transaction {
 
     if (transaction.secondSignature) {
       bb.append(transaction.secondSignature, 'hex')
-    }
-
-    if (transaction.signSignature) {
+    } else if (transaction.signSignature) {
       bb.append(transaction.signSignature, 'hex')
     }
 

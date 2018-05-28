@@ -161,7 +161,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (data.length < maxDelegates) {
       const data2 = await this.models.wallet.findAll({
         attributes: [
-          ['vote', 'publicKey'],
+          ['vote', 'publicKey']
         ],
         group: ['vote'],
         where: {
@@ -261,7 +261,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forged += block.totalAmount
+          wallet.forgedFees += block.data.totalFee
+          wallet.forgedRewards += block.data.reward
         }
       })
     } catch (error) {
@@ -275,25 +276,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Object}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
+    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => wallet.publicKey && (force || wallet.dirty))
     const chunk = 5000
 
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
     for (let i = 0, j = wallets.length; i < j; i += chunk) {
-      await this.connection.transaction(transaction =>
+      await this.connection.transaction(dbtransaction =>
         Promise.all(
           wallets
             .slice(i, i + chunk)
-            .map(acc => this.models.wallet.upsert(acc, { transaction }))
+            .map(wallet => this.models.wallet.upsert(wallet, { dbtransaction }))
         )
       )
     }
 
     logger.info(`${wallets.length} modified wallets committed to database`)
 
-    this.walletManager.purgeEmptyNonDelegates()
+    // this.walletManager.purgeEmptyNonDelegates()
 
-    return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
+    return Object.values(this.walletManager.walletsByAddress).forEach(wallet => (wallet.dirty = false))
   }
 
   /**

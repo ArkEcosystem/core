@@ -120,13 +120,12 @@ module.exports = class Blockchain {
   /**
    * Hand the given transactions to the transaction handler.
    * @param  {Array}   transactions
-   * @param  {Boolean} isBroadcast
    * @return {Array}
    */
-  postTransactions (transactions, isBroadcast) {
+  postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions`)
 
-    return this.transactionPool.addTransactions(transactions, isBroadcast)
+    return this.transactionPool.addTransactions(transactions)
   }
 
   /**

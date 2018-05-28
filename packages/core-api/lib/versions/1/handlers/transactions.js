@@ -24,10 +24,14 @@ exports.index = {
       ...request.query, ...utils.paginator(request)
     }, false)
 
-    if (!transactions) return utils.respondWith('No transactions found', true)
+    if (!transactions) {
+      return utils.respondWith('No transactions found', true)
+    }
 
     return utils.respondWith({
       transactions: utils.toCollection(request, transactions, 'transaction'),
+      // NOTE: this shows the amount of requested transactions, not total.
+      // Performing a count query has massive performance implications without something like PG estimates or query caching.
       count: transactions.length
     })
   },

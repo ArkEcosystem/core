@@ -21,10 +21,12 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { rows } = await database.wallets.findAll({...request.query, ...utils.paginator(request)})
+    const { rows } = await database.wallets.findAll({
+      ...request.query, ...utils.paginator(request)
+    })
 
     return utils.respondWith({
-      accounts: utils.toCollection(request, rows, 'wallet')
+      accounts: utils.toCollection(request, rows, 'account')
     })
   }
 }
@@ -45,7 +47,9 @@ exports.show = {
       return utils.respondWith('Not found', true)
     }
 
-    return utils.respondWith({ account: utils.toResource(request, account, 'wallet') })
+    return utils.respondWith({
+      account: utils.toResource(request, account, 'account')
+    })
   },
   config: {
     plugins: {
@@ -149,6 +153,7 @@ exports.delegates = {
       return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
     }
 
+    // TODO: refactor this to be reusable - delegate manager?
     const delegates = await database.getActiveDelegates(blockchain.getLastBlock(true).height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}

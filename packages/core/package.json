@@ -28,6 +28,7 @@
     "start:testnet:live": "./bin/ark start --config ./lib/config/testnet.live --network testnet",
     "relay": "./bin/ark relay",
     "relay:mainnet": "./bin/ark relay --config ./lib/config/mainnet --network mainnet",
+    "relay:persona": "./bin/ark relay --config ./lib/config/persona --network persona",
     "relay:devnet": "./bin/ark relay --config ./lib/config/devnet --network devnet",
     "relay:testnet": "ARK_ENV=test ./bin/ark relay --config ./lib/config/testnet --network testnet",
     "relay:testnet:live": "./bin/ark relay --config ./lib/config/testnet.live --network testnet",
