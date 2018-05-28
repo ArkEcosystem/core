@@ -1,4 +1,6 @@
 const ark = require('../../../lib/client')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const feeManager = require('../../../lib/managers/fee')
 const transactionBuilderTests = require('./__shared__/transaction')
 
 let builder
@@ -13,8 +15,10 @@ describe('Multi Payment Transaction', () => {
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.payments')
-    expect(builder).toHaveProperty('data.vendorFieldHex')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.MULTI_PAYMENT)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT))
+    expect(builder).toHaveProperty('data.payments', {})
+    expect(builder).toHaveProperty('data.vendorFieldHex', null)
   })
 
   describe('vendorField', () => {

@@ -16,10 +16,13 @@ describe('Multi Signature Transaction', () => {
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.amount')
-    expect(builder).toHaveProperty('data.recipientId')
-    expect(builder).toHaveProperty('data.senderPublicKey')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.MULTI_SIGNATURE)
+    expect(builder).toHaveProperty('data.fee', 0)
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
     expect(builder).toHaveProperty('data.asset')
+    expect(builder).toHaveProperty('data.asset.multisignature', {})
   })
 
   describe('multiSignatureAsset', () => {

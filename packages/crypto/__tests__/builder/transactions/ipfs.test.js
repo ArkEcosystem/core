@@ -1,4 +1,6 @@
 const ark = require('../../../lib/client')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const feeManager = require('../../../lib/managers/fee')
 const transactionBuilderTests = require('./__shared__/transaction')
 
 let builder
@@ -13,10 +15,12 @@ describe('IPFS Transaction', () => {
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(builder).toHaveProperty('data.amount')
-    expect(builder).toHaveProperty('data.vendorFieldHex')
-    expect(builder).toHaveProperty('data.senderPublicKey')
-    expect(builder).toHaveProperty('data.asset')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.IPFS)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.IPFS))
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.vendorFieldHex', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.asset', {})
   })
 
   it('should not have the IPFS hash yet', () => {

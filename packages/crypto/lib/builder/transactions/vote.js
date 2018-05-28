@@ -15,7 +15,7 @@ class VoteBuilder extends TransactionBuilder {
     this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
-    this.data.asset = { votes: {} }
+    this.data.asset = { votes: [] }
   }
 
   /**
