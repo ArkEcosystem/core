@@ -57,7 +57,7 @@ module.exports = class Transaction {
     }
 
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
-    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature', 'signSignature', 'asset', 'expiration', 'timelock', 'timelocktype'].forEach((key) => { // eslint-disable-line max-len
+    ['id', 'version', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'blockId', 'signature', 'secondSignature', 'asset', 'expiration', 'timelock', 'timelocktype'].forEach((key) => { // eslint-disable-line max-len
       this[key] = this.data[key]
     }, this)
   }
@@ -189,9 +189,7 @@ module.exports = class Transaction {
 
     if (transaction.secondSignature) {
       bb.append(transaction.secondSignature, 'hex')
-    }
-
-    if (transaction.signSignature) {
+    } else if (transaction.signSignature) {
       bb.append(transaction.signSignature, 'hex')
     }
 
