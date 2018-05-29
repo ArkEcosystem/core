@@ -9,8 +9,8 @@ module.exports = class QueryBuiler {
     this.queryType = QueryTypes.SELECT
 
     this.query = Array.isArray(columns)
-      ? `SELECT ${columns.join(',')}`
-      : `SELECT ${columns}`
+      ? `SELECT "${columns.join('","')}"`
+      : `SELECT "${columns}"`
 
     return this
   }
