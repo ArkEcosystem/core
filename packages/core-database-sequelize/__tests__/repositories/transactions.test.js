@@ -35,6 +35,11 @@ beforeEach(async (done) => {
   repository = connection.transactions
   builder = new (require('../../lib/builder/wallet'))(connection)
 
+  // To avoid timing out TODO better way
+  const redisCache = {}
+  repository.redis.get = jest.fn(key => redisCache[key])
+  repository.redis.set = jest.fn((key, value) => redisCache[key] = value)
+
   done()
 })
 
@@ -222,7 +227,7 @@ describe('Transaction Repository', () => {
           from: genesisTransaction.timestamp,
           to: genesisTransaction.timestamp
         }
-      }, 1)
+      }, 153)
     })
 
     it('should search transactions by the specified amount', async () => {

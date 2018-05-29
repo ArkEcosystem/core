@@ -146,7 +146,7 @@ module.exports = class BlocksRepository {
   count () {
     return this
       .query
-      .select('COUNT(DISTINCT id) as count', false)
+      .countDistinct('id', 'count')
       .from('blocks')
       .first()
   }
