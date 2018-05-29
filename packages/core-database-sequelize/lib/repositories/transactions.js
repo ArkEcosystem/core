@@ -1,6 +1,6 @@
 'use strict'
 
-const { Op, fn, col } = require('sequelize')
+const { Op } = require('sequelize')
 const moment = require('moment')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
@@ -245,20 +245,20 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   getFeeStatistics () {
-    return this.connection.models.transaction.findAll({
-      attributes: [
+    return this
+      .connection
+      .query
+      .select([
         'type',
-        [fn('MAX', col('fee')), 'maxFee'],
-        [fn('MIN', col('fee')), 'minFee']
-      ],
-      where: {
-        timestamp: {
-          [Op.gte]: slots.getTime(moment().subtract(30, 'days'))
-        }
-      },
-      group: 'type',
-      order: [['timestamp', 'DESC']]
-    })
+        'MAX("fee") AS "maxFee"',
+        'MIN("fee") AS "minFee"',
+        'MAX("timestamp") AS "timestamp"'
+      ], false)
+      .from('transactions')
+      .where('timestamp', slots.getTime(moment().subtract(30, 'days')), '>=')
+      .groupBy('type')
+      .sortBy('timestamp', 'DESC')
+      .all()
   }
 
   /**
