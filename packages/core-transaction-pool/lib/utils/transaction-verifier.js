@@ -2,11 +2,11 @@ const container = require('@arkecosystem/core-container')
 const { crypto } = require('@arkecosystem/crypto')
 
 /**
-   * Verify if the transactions is valid and if the sender has sufficient funds.
-   * @param  {Object} transaction
-   * @param {Boolean} checkCrypto if set to true also crypto verification will be performed, if false - only wallet verification
-   * @return {Boolean}
-   */
+ * Verify if the transactions is valid and if the sender has sufficient funds.
+ * @param  {Object} transaction
+ * @param {Boolean} checkCrypto if set to true also crypto verification will be performed, if false - only wallet verification
+ * @return {Boolean}
+ */
 module.exports = (transaction, checkCrypto = true) => {
   const wallet = container
   .resolvePlugin('blockchain')
