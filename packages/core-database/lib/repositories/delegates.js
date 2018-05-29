@@ -34,7 +34,10 @@ module.exports = class DelegatesRepository {
       ? params.orderBy.split(':')
       : ['rate', 'asc']
 
-    return wrapRows(orderBy(rows, [order[0]], [order[1]]))
+    return {
+      rows: orderBy(rows, [order[0]], [order[1]]),
+      count: rows.length
+    }
   }
 
   /**

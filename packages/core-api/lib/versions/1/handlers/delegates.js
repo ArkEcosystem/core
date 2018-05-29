@@ -19,11 +19,11 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const delegates = await database.delegates.findAll(request.query)
+    const { count, rows } = await database.delegates.findAll(request.query)
 
     return utils.respondWith({
-      delegates: utils.toCollection(request, delegates, 'delegate'),
-      totalCount: delegates.length
+      delegates: utils.toCollection(request, rows, 'delegate'),
+      totalCount: count
     })
   },
   config: {

@@ -312,7 +312,6 @@ module.exports = class TransactionsRepository {
 
       // 2. get missing heights from database
       if (missingFromCache.length) {
-        console.log('hitting db', missingFromCache)
         const blocks = await this.query
           .select(['id', 'height'])
           .from('blocks')
