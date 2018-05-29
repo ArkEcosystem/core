@@ -6,9 +6,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const ark = require('@arkecosystem/crypto')
-const { slots } = ark
 const { Transaction } = ark.models
-const { TRANSACTION_TYPES } = ark.constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -256,56 +254,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions that are ready to be forged.
+   * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
-   * @return {(Array|void)}
+   * @return {(Array|void)} array of transactions IDs in specified range
    */
-  async getTransactionsForForging (start, size) {
+  async getTransactionsIds (start, size) {
     if (!this.__isReady()) {
       return
     }
 
     try {
-      let transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-      transactionIds = await this.removeForgedAndGetPending(transactionIds)
-
-      let transactions = []
-      for (const id of transactionIds) {
-        const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
-
-        if (!serializedTransaction[0]) {
-          await this.removeTransactionById(id)
-          continue
-        }
-        const transaction = Transaction.fromBytes(serializedTransaction[0])
-
-        // TODO: refactor and improve
-        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
-          const actions = {
-            0: () => { // timestamp lock defined
-              if (transaction.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
-                transactions.push(serializedTransaction[0])
-              }
-            },
-            1: () => { // block height time lock
-              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock(true).height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
-                transactions.push(serializedTransaction[0])
-              }
-            }
-          }
-
-          actions[transaction.timelocktype]()
-        } else {
-          transactions.push(serializedTransaction[0])
-        }
-      }
-
-      return transactions
+      const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      return transactionIds
     } catch (error) {
-      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+      logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
     }
   }
 

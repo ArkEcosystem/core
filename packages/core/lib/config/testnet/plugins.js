@@ -49,7 +49,7 @@ module.exports = {
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
-    enabled: false,
+    enabled: true,
     host: process.env.ARK_API_HOST || 'localhost',
     port: process.env.ARK_API_PORT || 4003
   },

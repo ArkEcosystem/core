@@ -2,6 +2,12 @@
 
 const container = require('@arkecosystem/core-container')
 const TransactionGuard = require('./guard')
+const logger = container.resolvePlugin('logger')
+const verifyTransaction = require('./utils/transaction-verifier')
+
+const ark = require('@arkecosystem/crypto')
+const { slots } = ark
+const { TRANSACTION_TYPES } = ark.constants
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -84,13 +90,13 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions that are ready to be forged.
+   * Get all transactions IDs within the specified range.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
    */
-  async getTransactionsForForging (start, size) {
-    throw new Error('Method [getTransactionsForForging] not implemented!')
+  async getTransactionsIds (start, size) {
+    throw new Error('Method [getTransactionsIds] not implemented!')
   }
 
   /**
@@ -140,6 +146,55 @@ module.exports = class TransactionPoolInterface {
     }
 
     return response
+  }
+
+  /**
+   * Get all transactions that are ready to be forged.
+   * @param  {Number} start
+   * @param  {Number} size
+   * @return {(Array|void)}
+   */
+  async getTransactionsForForging (start, size) {
+    try {
+      let transactionIds = await this.getTransactionsIds(start, size)
+      transactionIds = await this.removeForgedAndGetPending(transactionIds)
+
+      let transactions = []
+      for (const id of transactionIds) {
+        const transaction = await this.getTransaction(id)
+
+        const verified = verifyTransaction(transaction, false)
+        if (!verified) {
+          await this.removeTransaction(transaction)
+          logger.debug('Possible double spending attack/unsufficient funds')
+          continue
+        }
+
+        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
+          const actions = {
+            0: () => { // timestamp lock defined
+              if (transaction.timelock <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
+                transactions.push(transaction.serialized.toString('hex'))
+              }
+            },
+            1: () => { // block height time lock
+              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock(true).height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
+                transactions.push(transaction.serialized.toString('hex'))
+              }
+            }
+          }
+          actions[transaction.timelocktype]()
+        } else {
+          transactions.push(transaction.serialized.toString('hex'))
+        }
+      }
+
+      return transactions
+    } catch (error) {
+      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+    }
   }
 
   /**

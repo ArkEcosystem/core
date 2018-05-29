@@ -4,7 +4,7 @@ const { crypto } = require('@arkecosystem/crypto')
 /**
    * Verify if the transactions is valid and if the sender has sufficient funds.
    * @param  {Object} transaction
-   * @param {Boolean} checkCrypto - if set to true also crypto verification will be perform, if false - onlu wallet verification
+   * @param {Boolean} checkCrypto if set to true also crypto verification will be performed, if false - only wallet verification
    * @return {Boolean}
    */
 module.exports = (transaction, checkCrypto = true) => {
