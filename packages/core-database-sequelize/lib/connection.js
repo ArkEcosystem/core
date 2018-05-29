@@ -18,6 +18,7 @@ const emitter = container.resolvePlugin('event-emitter')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const WalletBuilder = require('./builder/wallet')
+const QueryBuilder = require('./query-builder')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
@@ -42,6 +43,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       await this.connect()
+      await this.__registerQueryBuilder()
       await this.__runMigrations()
       await this.__registerModels()
       await this.__registerRepositories()
@@ -528,6 +530,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     return { [Sequelize.Op[type]]: params }
+  }
+
+  /**
+   * Register the query builder.
+   * @return {void}
+   */
+  __registerQueryBuilder () {
+    this.query = new QueryBuilder(this.connection)
   }
 
   /**

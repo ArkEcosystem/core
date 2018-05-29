@@ -4,7 +4,6 @@ const blocks = require('./handlers/blocks')
 const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')
 const peers = require('./handlers/peers')
-const statistics = require('./handlers/statistics')
 const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
@@ -55,19 +54,6 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search }
   ]
-
-  if (options.statistics.enabled) {
-    routes = [
-      ...routes,
-      ...[
-        { method: 'GET', path: '/statistics/blockchain', ...statistics.blockchain },
-        { method: 'GET', path: '/statistics/transactions', ...statistics.transactions },
-        { method: 'GET', path: '/statistics/blocks', ...statistics.blocks },
-        { method: 'GET', path: '/statistics/votes', ...statistics.votes },
-        { method: 'GET', path: '/statistics/unvotes', ...statistics.unvotes }
-      ]
-    ]
-  }
 
   server.route(routes)
 }

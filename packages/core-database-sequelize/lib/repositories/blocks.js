@@ -1,8 +1,6 @@
 'use strict'
 
-const Op = require('sequelize').Op
 const buildFilterQuery = require('./utils/filter-query')
-const Sequelize = require('sequelize')
 
 module.exports = class BlocksRepository {
   /**
@@ -11,17 +9,16 @@ module.exports = class BlocksRepository {
    */
   constructor (connection) {
     this.connection = connection
+    this.query = connection.query
   }
 
   /**
    * Get all blocks for the given parameters.
    * @param  {Object}  params
-   * @param  {Boolean} count
    * @return {Object}
    */
-  findAll (params = {}, count = true) {
+  async findAll (params = {}) {
     let whereStatement = {}
-    let orderBy = []
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
 
@@ -31,16 +28,28 @@ module.exports = class BlocksRepository {
       }
     }
 
-    params.orderBy
-      ? orderBy.push([params.orderBy.split(':')])
-      : orderBy.push([[ 'height', 'DESC' ]])
+    const orderBy = params.orderBy
+      ? params.orderBy.split(':')
+      : ['height', 'DESC']
 
-    return this.connection.models.block[count ? 'findAndCountAll' : 'findAll']({
-      where: whereStatement,
-      order: orderBy,
-      offset: params.offset,
-      limit: params.limit
-    })
+    const buildQuery = (query) => {
+      return query
+        .from('blocks')
+        .whereKeyValuePairs(whereStatement)
+    }
+
+    let rows = await buildQuery(this.query.select())
+      .sortBy(orderBy[0], orderBy[1])
+      .take(params.limit)
+      .skip(params.offset)
+      .all()
+
+    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+
+    return {
+      rows,
+      count: count.count
+    }
   }
 
   /**
@@ -59,7 +68,11 @@ module.exports = class BlocksRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.connection.models.block.findById(id)
+    return this.query
+      .select()
+      .from('blocks')
+      .where('id', id)
+      .first()
   }
 
   /**
@@ -68,59 +81,48 @@ module.exports = class BlocksRepository {
    * @return {Object}
    */
   findLastByPublicKey (generatorPublicKey) {
-    return this.connection.models.block.findOne({
-      limit: 1,
-      where: { generatorPublicKey },
-      order: [[ 'createdAt', 'DESC' ]],
-      attributes: ['id', 'timestamp']
-    })
+    return this.query
+      .select(['id', 'timestamp'])
+      .from('blocks')
+      .where('generatorPublicKey', generatorPublicKey)
+      .sortBy('createdAt', 'DESC')
+      .take(1)
+      .first()
   }
 
   /**
-   * Get all transactions for the given range.
-   * @param  {Number} from
-   * @param  {Number} to
-   * @return {Object}
-   */
-  findAllByDateTimeRange (from, to) {
-    let where = { timestamp: {} }
-
-    if (from) {
-      where.timestamp[Op.gte] = from
-    }
-
-    if (to) {
-      where.timestamp[Op.lte] = to
-    }
-
-    return this.connection.models.block.findAndCountAll({
-      attributes: ['totalFee', 'reward'], where
-    })
-  }
-
-  /**
-   * Search all transactions.
+   * Search all blocks.
    * @param  {Object} params
    * @return {Object}
    */
-  search (params) {
-    return this.connection.models.block.findAndCountAll({
-      where: buildFilterQuery(params, {
-        exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
-        between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
-      })
+  async search (params) {
+    const conditions = buildFilterQuery(params, {
+      exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
+      between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
     })
-  }
 
-  /**
-   * Get fee and reward totals for the given generator.
-   * @param  {String} generatorPublicKey
-   * @return {Object}
-   */
-  async totalsByGenerator (generatorPublicKey) {
-    const rows = await this.connection.connection.query(`SELECT SUM("totalFee") AS fees, SUM("reward") AS rewards, SUM("reward"+"totalFee") AS forged FROM "blocks" WHERE "generatorPublicKey" = '${generatorPublicKey}'`, { type: Sequelize.QueryTypes.SELECT })
+    const orderBy = params.orderBy
+      ? params.orderBy.split(':')
+      : ['height', 'DESC']
 
-    return rows[0]
+    const buildQuery = (query) => {
+      return query
+        .from('blocks')
+        .whereStruct(conditions)
+    }
+
+    let rows = await buildQuery(this.query.select())
+      .sortBy(orderBy[0], orderBy[1])
+      .take(params.limit)
+      .skip(params.offset)
+      .all()
+
+    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+
+    return {
+      rows,
+      count: count.count
+    }
   }
 
   /**
@@ -128,6 +130,11 @@ module.exports = class BlocksRepository {
    * @return {Number}
    */
   count () {
-    return this.connection.models.block.count()
+    return this
+      .connection
+      .query
+      .select('COUNT(DISTINCT id) as count')
+      .from('blocks')
+      .first()
   }
 }

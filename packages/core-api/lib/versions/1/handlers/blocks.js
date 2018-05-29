@@ -18,19 +18,17 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blocks = await database.blocks.findAll({
+    const { count, rows } = await database.blocks.findAll({
       ...request.query, ...utils.paginator(request)
-    }, false)
+    })
 
-    if (!blocks) {
+    if (!rows) {
       return utils.respondWith('No blocks found', true)
     }
 
     return utils.respondWith({
-      blocks: utils.toCollection(request, blocks, 'block'),
-      // NOTE: this shows the amount of requested blocks, not total.
-      // Performing a count query has massive performance implications without something like PG estimates or query caching.
-      count: blocks.length
+      blocks: utils.toCollection(request, rows, 'block'),
+      count
     })
   },
   config: {
@@ -146,9 +144,9 @@ exports.fees = {
     return utils.respondWith({
       fees: {
         send: fees.transfer,
-        vote: fees.secondSignature,
-        secondsignature: fees.delegateRegistration,
-        delegate: fees.vote,
+        vote: fees.vote,
+        secondsignature: fees.secondSignature,
+        delegate: fees.delegateRegistration,
         multisignature: fees.multiSignature
       }
     })

@@ -14,12 +14,12 @@ describe('API 1.0 - Transactions', () => {
   describe('GET /transactions', () => {
     it('should be ok using valid parameters', async () => {
       const response = await utils.request('GET', 'transactions', {
-        'blockId': '9635341524063110283',
-        'senderId': Address1,
-        'recipientId': Address2,
-        'limit': 10,
-        'offset': 0,
-        'orderBy': 'amount:asc'
+        blockId: '17184958558311101492',
+        senderId: Address1,
+        recipientId: Address2,
+        limit: 10,
+        offset: 0,
+        orderBy: 'amount:asc'
       })
       utils.expectSuccessful(response)
 

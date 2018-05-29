@@ -90,41 +90,6 @@ describe('Block Repository', () => {
     })
   })
 
-  describe('findAllByDateTimeRange', async () => {
-    const expectBlocksToBe = async (expected, from, to) => {
-      const fakeBlock = genesisBlock
-      fakeBlock.data.timestamp = 100
-      await connection.saveBlock(fakeBlock)
-
-      const blocks = await repository.findAllByDateTimeRange(from, to)
-      expect(blocks).toBeObject()
-
-      expect(blocks).toHaveProperty('count')
-      expect(blocks.count).toBeNumber()
-
-      expect(blocks).toHaveProperty('rows')
-      expect(blocks.rows).toBeObject()
-
-      expect(blocks.count).toBe(expected)
-    }
-
-    it('should be a function', () => {
-      expect(repository.findAllByDateTimeRange).toBeFunction()
-    })
-
-    it('should find blocks by from -> to range', async () => {
-      await expectBlocksToBe(1, 0, 100)
-    })
-
-    it('should not find blocks by "from" range', async () => {
-      await expectBlocksToBe(0, 101)
-    })
-
-    it('should not find blocks by "to" range', async () => {
-      await expectBlocksToBe(0, 0, 99)
-    })
-  })
-
   describe('search', async () => {
     const expectSearch = async (params) => {
       await connection.saveBlock(genesisBlock)
@@ -237,28 +202,6 @@ describe('Block Repository', () => {
           to: genesisBlock.data.payloadLength
         }
       })
-    })
-  })
-
-  describe('totalsByGenerator', () => {
-    it('should be a function', () => {
-      expect(repository.totalsByGenerator).toBeFunction()
-    })
-
-    it('should return the total fees and rewards', async () => {
-      await connection.saveBlock(genesisBlock)
-
-      const totals = await repository.totalsByGenerator(genesisBlock.data.generatorPublicKey)
-      expect(totals).toBeObject()
-
-      expect(totals).toHaveProperty('fees')
-      expect(totals.fees).toBeNumber()
-
-      expect(totals).toHaveProperty('forged')
-      expect(totals.forged).toBeNumber()
-
-      expect(totals).toHaveProperty('rewards')
-      expect(totals.rewards).toBeNumber()
     })
   })
 })
