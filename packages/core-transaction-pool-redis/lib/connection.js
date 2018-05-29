@@ -276,9 +276,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
         if (!serializedTransaction[0]) {
           await this.removeTransactionById(id)
-          break
+          continue
         }
         const transaction = Transaction.fromBytes(serializedTransaction[0])
+
+
+
         // TODO: refactor and improve
         if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {

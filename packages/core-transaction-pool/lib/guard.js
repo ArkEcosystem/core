@@ -1,9 +1,10 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
-const { crypto, feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
+const { feeManager, dynamicFeeManager } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
+const verifyTransaction = require('./utils/transaction-verifier')
 
 module.exports = class TransactionGuard {
   /**
@@ -177,7 +178,7 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
-      const verified = this.__verifyTransaction(transaction)
+      const verified = verifyTransaction(transaction)
 
       if (!verified) {
         this.invalid.push(transaction)
@@ -196,21 +197,6 @@ module.exports = class TransactionGuard {
 
     this.accept = transactions.accept
     this.excess = transactions.excess
-  }
-
-  /**
-   * Verify if the transactions is valid and if the sender has sufficient funds.
-   * @param  {Object} transaction
-   * @return {Boolean}
-   */
-  __verifyTransaction (transaction) {
-    const wallet = container
-      .resolvePlugin('blockchain')
-      .database
-      .walletManager
-      .getWalletByPublicKey(transaction.senderPublicKey)
-
-    return crypto.verify(transaction) && wallet.canApply(transaction)
   }
 
   /**
