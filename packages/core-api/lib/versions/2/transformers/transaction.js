@@ -29,7 +29,7 @@ module.exports = (model) => {
     signature: data.signature,
     vendorField: data.vendorField,
     asset: data.asset,
-    confirmations: lastBlock ? lastBlock.height - model.block.height : 0,
+    confirmations: model.block ? lastBlock.height - model.block.height : 0,
     timestamp: formatTimestamp(data.timestamp)
   }
 }

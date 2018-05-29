@@ -1,11 +1,8 @@
 'use strict'
 
-const Boom = require('boom')
-
 const container = require('@arkecosystem/core-container')
-const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
-const blockchain = container.resolvePlugin('blockchain')
+const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
@@ -20,19 +17,17 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.findAll({
+    const { count, rows } = await database.transactions.findAll({
       ...request.query, ...utils.paginator(request)
-    }, false)
+    })
 
-    if (!transactions) {
+    if (!rows) {
       return utils.respondWith('No transactions found', true)
     }
 
     return utils.respondWith({
-      transactions: utils.toCollection(request, transactions, 'transaction'),
-      // NOTE: this shows the amount of requested transactions, not total.
-      // Performing a count query has massive performance implications without something like PG estimates or query caching.
-      count: transactions.length
+      transactions: utils.toCollection(request, rows, 'transaction'),
+      count
     })
   },
   config: {
@@ -60,7 +55,9 @@ exports.show = {
       return utils.respondWith('No transactions found', true)
     }
 
-    return utils.respondWith({ transaction: utils.toResource(request, result, 'transaction') })
+    return utils.respondWith({
+      transaction: utils.toResource(request, result, 'transaction')
+    })
   },
   config: {
     plugins: {
@@ -81,13 +78,8 @@ exports.unconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
-    }
-
     const pagination = utils.paginate(request)
-    const transactions = await blockchain.transactionPool.getTransactions(pagination.offset, pagination.limit)
+    const transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -106,12 +98,7 @@ exports.showUnconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    // FIXME: this moved to @arkecosystem/core-transaction-pool-redis
-    if (!config.server.transactionPool.enabled) {
-      return Boom.teapot('Transaction Pool disabled...');
-    }
-
-    const transaction = await blockchain.transactionPool.getTransaction(request.param.id)
+    const transaction = await transactionPool.getTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }
