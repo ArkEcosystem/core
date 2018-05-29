@@ -171,34 +171,6 @@ describe('Transaction Repository', () => {
     })
   })
 
-  describe('findAllByDateAndType', async () => {
-    const expectTransactionsToBe = async (expected, type, from, to) => {
-      const fakeBlock = genesisBlock
-      fakeBlock.transactions[0].timestamp = 100
-      await connection.saveBlock(fakeBlock)
-
-      const transactions = await repository.findAllByDateAndType(type, from, to)
-      expect(transactions).toBeArray()
-      expect(transactions.length).toBe(expected)
-    }
-
-    it('should be a function', () => {
-      expect(repository.findAllByDateAndType).toBeFunction()
-    })
-
-    it('should find transactions by from -> to range', async () => {
-      await expectTransactionsToBe(51, 0, 0, 100)
-    })
-
-    it('should not find transactions by "from" range', async () => {
-      await expectTransactionsToBe(0, 0, 101)
-    })
-
-    it('should not find transactions by "to" range', async () => {
-      await expectTransactionsToBe(50, 0, 0, 99)
-    })
-  })
-
   describe('search', async () => {
     const expectSearch = async (params, expected) => {
       await connection.saveBlock(genesisBlock)
