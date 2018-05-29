@@ -3,6 +3,7 @@
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 const limitRows = require('./utils/limit-rows')
 const wrapRows = require('./utils/wrap-rows')
+const orderBy = require('lodash/orderBy')
 
 module.exports = class DelegatesRepository {
   /**
@@ -27,7 +28,13 @@ module.exports = class DelegatesRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    return wrapRows(limitRows(this.getLocalDelegates(), params))
+    const rows = limitRows(this.getLocalDelegates(), params)
+
+    const order = params.orderBy
+      ? params.orderBy.split(':')
+      : ['rate', 'asc']
+
+    return wrapRows(orderBy(rows, [order[0]], [order[1]]))
   }
 
   /**

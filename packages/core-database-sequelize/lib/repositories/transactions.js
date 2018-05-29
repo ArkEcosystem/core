@@ -1,10 +1,12 @@
 'use strict'
 
-const { Op, fn, col } = require('sequelize')
+const { Op } = require('sequelize')
 const moment = require('moment')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
+
+const Redis = require('ioredis')
 
 module.exports = class TransactionsRepository {
   /**
@@ -14,6 +16,8 @@ module.exports = class TransactionsRepository {
   constructor (connection) {
     this.connection = connection
     this.query = connection.query
+
+    this.redis = new Redis()
   }
 
   /**
@@ -48,11 +52,12 @@ module.exports = class TransactionsRepository {
       .skip(params.offset)
       .all()
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
-      count: count.count
+      count: transactions.length
+      // count: count.count
     }
   }
 
@@ -240,20 +245,20 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   getFeeStatistics () {
-    return this.connection.models.transaction.findAll({
-      attributes: [
+    return this
+      .connection
+      .query
+      .select([
         'type',
-        [fn('MAX', col('fee')), 'maxFee'],
-        [fn('MIN', col('fee')), 'minFee']
-      ],
-      where: {
-        timestamp: {
-          [Op.gte]: slots.getTime(moment().subtract(30, 'days'))
-        }
-      },
-      group: 'type',
-      order: [['timestamp', 'DESC']]
-    })
+        'MAX("fee") AS "maxFee"',
+        'MIN("fee") AS "minFee"',
+        'MAX("timestamp") AS "timestamp"'
+      ], false)
+      .from('transactions')
+      .where('timestamp', slots.getTime(moment().subtract(30, 'days')), '>=')
+      .groupBy('type')
+      .sortBy('timestamp', 'DESC')
+      .all()
   }
 
   /**
@@ -287,35 +292,88 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   async __mapBlocksToTransactions (data) {
+    // Array...
     if (Array.isArray(data)) {
-      for (let i = 0; i < data.length - 1; i++) {
-        try {
-          data[i].block = await this.__getBlockForTransaction(data[i])
-        } catch (error) {
-          console.log(error)
+      // 1. get heights from cache
+      const missingFromCache = []
+
+      for (let i = 0; i < data.length; i++) {
+        const cachedBlock = await this.__getBlockCache(data[i].blockId)
+
+        if (cachedBlock) {
+          data[i].block = cachedBlock
+        } else {
+          missingFromCache.push({
+            index: i,
+            blockId: data[i].blockId
+          })
+        }
+      }
+
+      // 2. get missing heights from database
+      if (missingFromCache.length) {
+        console.log('hitting db', missingFromCache)
+        const blocks = await this.query
+          .select(['id', 'height'])
+          .from('blocks')
+          .whereIn('id', missingFromCache.map(d => d.blockId).join('\',\''))
+          .groupBy('id')
+          .all()
+
+        for (let i = 0; i < missingFromCache.length; i++) {
+          const missing = missingFromCache[i]
+          const block = blocks.find(block => (block.id === missing.blockId))
+
+          data[missing.index].block = block
+
+          this.__setBlockCache(block)
         }
       }
 
       return data
     }
 
+    // Object...
     if (data) {
-      data.block = await this.__getBlockForTransaction(data)
+      const cachedBlock = await this.__getBlockCache(data.blockId)
+
+      if (cachedBlock) {
+        data.block = cachedBlock
+      } else {
+        const block = await this.query
+          .select(['id', 'height'])
+          .from('blocks')
+          .where('id', data.blockId)
+          .first()
+
+        this.__setBlockCache(block)
+      }
     }
 
     return data
   }
 
   /**
-   * [__getBlockForTransaction description]
-   * @param  {Object} transaction
-   * @return {Object}
+   * [__getBlockCache description]
+   * @param  {[type]} blockId [description]
+   * @return {[type]}         [description]
    */
-  __getBlockForTransaction (transaction) {
-    return this.query
-      .select('height')
-      .from('blocks')
-      .where('id', transaction.blockId)
-      .first()
+  async __getBlockCache (blockId) {
+    const cachedHeight = await this.redis.get(`heights:${blockId}`)
+
+    if (cachedHeight) {
+      return { height: cachedHeight }
+    }
+
+    return false
+  }
+
+  /**
+   * [__setBlockCache description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
+  __setBlockCache (block) {
+    this.redis.set(`heights:${block.id}`, block.height)
   }
 }
