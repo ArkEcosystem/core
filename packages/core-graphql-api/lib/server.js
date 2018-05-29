@@ -12,10 +12,6 @@ const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  if (!config.enabled) {
-    return logger.info('Oh snap! GraphQL API not enabled')
-  }
-
   const server = new Hapi.Server({ port: config.port })
 
   await server.register([require('vision'), require('inert'), require('lout')])

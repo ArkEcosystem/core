@@ -9,10 +9,6 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  if (!config.enabled) {
-    return logger.info('Public API is not enabled')
-  }
-
   const baseConfig = {
     port: config.port,
     routes: {

@@ -116,7 +116,6 @@ module.exports = class QueryBuiler {
   }
 
   all () {
-    console.log(this.query)
     return this.connection.query(this.query, {
       type: this.queryType
     })

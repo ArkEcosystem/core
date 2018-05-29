@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  enabled: true,
+  enabled: false,
   port: process.env.ARK_GRAPHQL_PORT || 4005,
   path: '/graphql',
   graphiql: true,

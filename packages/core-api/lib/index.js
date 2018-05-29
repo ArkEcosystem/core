@@ -9,11 +9,15 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'api',
   async register (container, options) {
-    if (options.enabled) {
-      container.resolvePlugin('logger').info('Starting Public API...')
+    if (!options.enabled) {
+      container.resolvePlugin('logger').info('Public API is disabled...')
 
-      return require('./server')(options)
+      return
     }
+
+    container.resolvePlugin('logger').info('Starting Public API...')
+
+    return require('./server')(options)
   },
   async deregister (container, options) {
     if (options.enabled) {
