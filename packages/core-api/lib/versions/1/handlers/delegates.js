@@ -19,7 +19,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const delegates = await database.delegates.getLocalDelegates()
+    const delegates = await database.delegates.findAll(request.query)
 
     return utils.respondWith({
       delegates: utils.toCollection(request, delegates, 'delegate'),
