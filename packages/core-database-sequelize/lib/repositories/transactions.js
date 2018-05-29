@@ -55,10 +55,10 @@ module.exports = class TransactionsRepository {
       return query
     }
 
-    const transactions = await buildQuery(this.query.select(['blockId', 'serialized']))
+    const transactions = await buildQuery(this.query.select('blockId', 'serialized'))
       .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || params.limit)
-      .offset(params.offset || params.offset)
+      .limit(params.limit || defaults.limit)
+      .offset(params.offset || defaults.offset)
       .all()
 
     // const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
@@ -124,6 +124,7 @@ module.exports = class TransactionsRepository {
 
   /**
    * Get all vote transactions for the given sender public key.
+   * TODO rename to findAllVotesBySender or not?
    * @param  {String} senderPublicKey
    * @param  {Object} params
    * @return {Object}

@@ -38,7 +38,7 @@ beforeEach(async (done) => {
   // To avoid timing out TODO better way
   const redisCache = {}
   repository.redis.get = jest.fn(key => redisCache[key])
-  repository.redis.set = jest.fn((key, value) => redisCache[key] = value)
+  repository.redis.set = jest.fn((key, value) => (redisCache[key] = value))
 
   done()
 })
@@ -57,7 +57,11 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAll()
-      expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(100) // NOTE is honoring the default limit
+    })
+
+    // TODO this and other methods
+    xit('should find all transactions with params', () => {
     })
   })
 
@@ -130,7 +134,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
-      expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(100) // NOTE is honoring the default limit
     })
   })
 
@@ -152,6 +156,7 @@ describe('Transaction Repository', () => {
       expect(repository.findById).toBeFunction()
     })
 
+    // TODO: this test requires Redis or is it failing?
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
@@ -166,6 +171,7 @@ describe('Transaction Repository', () => {
       expect(repository.findByTypeAndId).toBeFunction()
     })
 
+    // TODO: this test requires Redis or is it failing?
     it('should find all transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
