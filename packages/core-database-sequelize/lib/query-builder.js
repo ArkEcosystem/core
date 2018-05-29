@@ -1,6 +1,4 @@
-const {
-  QueryTypes
-} = require('sequelize')
+const { QueryTypes } = require('sequelize')
 
 module.exports = class QueryBuiler {
   constructor (connection) {
@@ -37,6 +35,12 @@ module.exports = class QueryBuiler {
 
   whereLike (column, value) {
     this.query += ` WHERE "${column}" LIKE '%${value}%'`
+
+    return this
+  }
+
+  whereIn (column, value) {
+    this.query += ` WHERE "${column}" IN ('${value}')`
 
     return this
   }
@@ -116,6 +120,7 @@ module.exports = class QueryBuiler {
   }
 
   all () {
+    console.log(this.query)
     return this.connection.query(this.query, {
       type: this.queryType
     })

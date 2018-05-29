@@ -44,11 +44,12 @@ module.exports = class BlocksRepository {
       .skip(params.offset)
       .all()
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
 
     return {
       rows,
-      count: count.count
+      count: rows.length
+      // count: count.count
     }
   }
 
