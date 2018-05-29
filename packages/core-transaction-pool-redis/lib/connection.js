@@ -280,8 +280,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         }
         const transaction = Transaction.fromBytes(serializedTransaction[0])
 
-
-
         // TODO: refactor and improve
         if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
