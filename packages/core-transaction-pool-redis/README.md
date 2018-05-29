@@ -15,9 +15,9 @@ yarn add @arkecosystem/core-transaction-pool-redis
 ```js
 module.exports = {
   enabled: true,
-  key: 'ark/pool',
+  key: 'ark',
   maxTransactionsPerSender: 100,
-  whitelist: [],
+  whitelist: ['127.0.0.1', '192.168.*'],
   redis: {
     host: process.env.ARK_REDIS_HOST || 'localhost',
     port: process.env.ARK_REDIS_PORT || 6379

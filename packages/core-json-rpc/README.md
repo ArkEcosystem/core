@@ -18,7 +18,7 @@ yarn add @arkecosystem/core-json-rpc
 module.exports = {
   port: 8080,
   allowRemote: true,
-  whitelist: []
+  whitelist: ['127.0.0.1', '192.168.*']
 }
 ```
 

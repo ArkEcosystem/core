@@ -12,6 +12,12 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'webhooks',
   async register (container, options) {
+    if (!options.enabled) {
+      container.resolvePlugin('logger').info('Webhooks are disabled...')
+
+      return
+    }
+
     container.resolvePlugin('logger').info('Starting Webhooks...')
 
     await database.setUp(options.database)

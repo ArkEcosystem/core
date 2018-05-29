@@ -17,10 +17,6 @@ class WebhookManager {
   async setUp (config) {
     this.config = config
 
-    if (!this.config.enabled) {
-      return
-    }
-
     await this.__registerQueue()
 
     map(this.config.events, 'name').forEach(event => {
