@@ -320,7 +320,7 @@ module.exports = class TransactionsRepository {
           .groupBy('id')
           .all()
 
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i < missingFromCache.length; i++) {
           const missing = missingFromCache[i]
           const block = blocks.find(block => (block.id === missing.blockId))
 
