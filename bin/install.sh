@@ -2,6 +2,7 @@
 
 # ark_commander=$(basename "$0")
 DIR=$(cd $(dirname "$0") && pwd)
+. "${DIR}/lib/colors.sh"
 . "${DIR}/lib/dependencies.sh"
 
 check_program_dependencies
