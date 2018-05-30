@@ -20,7 +20,10 @@ exports.getPeers = {
         .map(peer => peer.toBroadcastInfo())
         .sort(() => Math.random() - 0.5)
 
-      return {success: true, peers}
+      return {
+        success: true,
+        peers
+      }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
@@ -88,7 +91,7 @@ exports.getTransactionsFromIds = {
     const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
 
     try {
-      const transactions = await container.resolvePlugin('blockchain').database.getTransactionsFromIds(transactionIds)
+      const transactions = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
       return { success: true, transactions: transactions }
     } catch (error) {
@@ -122,18 +125,19 @@ exports.getStatus = {
    */
   handler: (request, h) => {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+
     if (!lastBlock) {
       return {
         success: false
       }
-    } else {
-      return {
-        success: true,
-        height: lastBlock.data.height,
-        forgingAllowed: slots.isForgingAllowed(),
-        currentSlot: slots.getSlotNumber(),
-        header: lastBlock.getHeader()
-      }
+    }
+
+    return {
+      success: true,
+      height: lastBlock.data.height,
+      forgingAllowed: slots.isForgingAllowed(),
+      currentSlot: slots.getSlotNumber(),
+      header: lastBlock.getHeader()
     }
   }
 }
@@ -201,7 +205,7 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      const blocks = await container.resolvePlugin('blockchain').database.getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
     } catch (error) {

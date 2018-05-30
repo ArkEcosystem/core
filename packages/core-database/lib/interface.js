@@ -209,6 +209,10 @@ module.exports = class ConnectionInterface {
         const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
         await this.saveRound(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
+
+        // TODO: find a better place to call this as this
+        // currently blocks execution but needs to be updated every round
+        // this.walletManager.updateDelegates()
       } else {
         logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
       }
