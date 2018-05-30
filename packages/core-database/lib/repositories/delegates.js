@@ -35,7 +35,7 @@ module.exports = class DelegatesRepository {
       : ['rate', 'asc']
 
     return {
-      rows: orderBy(limitRows(rows, params), [order[0]], [order[1]]),
+      rows: limitRows(orderBy(rows, [order[0]], [order[1]]), params),
       count: rows.length
     }
   }
