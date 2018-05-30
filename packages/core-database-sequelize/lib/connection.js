@@ -179,8 +179,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         },
         order: [[ 'publicKey', 'ASC' ]],
         limit: maxDelegates - data.length,
-        raw: true,
-        logging: true
+        raw: true
       })
 
       data = data.concat(data2)
