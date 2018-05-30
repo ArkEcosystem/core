@@ -1,22 +1,22 @@
 const container = require('@arkecosystem/core-container')
-const { crypto } = require('@arkecosystem/crypto')
 
-/**
+module.exports = {
+  /**
  * Verify if the transactions is valid and if the sender has sufficient funds.
- * @param  {Object} transaction
- * @param {Boolean} checkCrypto if set to true also crypto verification will be performed, if false - only wallet verification
+ * @param  {Object} transaction must be institiated with new Transaction
  * @return {Boolean}
  */
-module.exports = (transaction, checkCrypto = true) => {
-  const wallet = container
-  .resolvePlugin('blockchain')
-  .database
-  .walletManager
-  .getWalletByPublicKey(transaction.senderPublicKey)
+  canApply: (transaction) => {
+    const wallet = container
+    .resolvePlugin('blockchain')
+    .database
+    .walletManager
+    .getWalletByPublicKey(transaction.senderPublicKey)
 
-  if (checkCrypto) {
-    return crypto.verify(transaction) && wallet.canApply(transaction)
+    if (transaction.verified) { // transaction verified is set when initializing new Transaction
+      return wallet.canApply(transaction)
+    }
+
+    return false
   }
-
-  return wallet.canApply(transaction)
 }

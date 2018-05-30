@@ -9,6 +9,8 @@ const ark = require('@arkecosystem/crypto')
 const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
+const WalletManager = container.resolvePlugin('core-database').WalletManager
+
 module.exports = class TransactionPoolInterface {
   /**
    * Create a new transaction pool instance.
@@ -17,6 +19,7 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.guard = new TransactionGuard(this)
+    this.walletManager = WalletManager()
   }
 
   /**
