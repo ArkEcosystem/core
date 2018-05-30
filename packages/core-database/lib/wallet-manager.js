@@ -147,6 +147,8 @@ module.exports = class WalletManager {
       }
 
       delegate.applyBlock(block.data)
+
+      this.updateDelegates()
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
@@ -154,6 +156,8 @@ module.exports = class WalletManager {
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
         await this.revertTransaction(appliedTransactions[i])
       }
+
+      this.updateDelegates()
 
       // TODO should revert the delegate applyBlock ?
 
@@ -191,6 +195,8 @@ module.exports = class WalletManager {
       })
 
       delegate.revertBlock(block.data)
+
+      this.updateDelegates()
     } catch (error) {
       logger.error(error.stack)
 
@@ -198,6 +204,8 @@ module.exports = class WalletManager {
       // - Promise.each is applied sequentially
       // - Promise.all is applied in parallel
       await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
+
+      this.updateDelegates()
 
       throw error
     }
@@ -247,8 +255,6 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
-
-    this.updateDelegates()
 
     this.__emitEvents(transaction)
 
