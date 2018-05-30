@@ -28,14 +28,14 @@ module.exports = class DelegatesRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    const rows = limitRows(this.getLocalDelegates(), params)
+    const rows = this.getLocalDelegates()
 
     const order = params.orderBy
       ? params.orderBy.split(':')
-      : ['rate', 'asc']
+      : ['rank', 'asc']
 
     return {
-      rows: orderBy(rows, [order[0]], [order[1]]),
+      rows: orderBy(limitRows(rows, params), [order[0]], [order[1]]),
       count: rows.length
     }
   }

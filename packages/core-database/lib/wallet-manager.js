@@ -76,7 +76,7 @@ module.exports = class WalletManager {
       return delegate
     })
 
-    delegates = orderBy(this.getDelegates(), ['votebalance'], ['desc']).map((delegate, index) => {
+    delegates = orderBy(delegates, ['votebalance'], ['desc']).map((delegate, index) => {
       delegate.rank = index + 1
 
       return delegate
