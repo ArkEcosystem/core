@@ -14,7 +14,7 @@ module.exports = (delegate) => {
     address: delegate.address,
     publicKey: delegate.publicKey,
     votes: delegate.votebalance,
-    rank: delegate.rank,
+    rank: delegate.rate,
     blocks: {
       produced: delegate.producedBlocks,
       missed: delegate.missedBlocks
