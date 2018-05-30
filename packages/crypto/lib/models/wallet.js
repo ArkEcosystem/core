@@ -170,7 +170,9 @@ module.exports = class Wallet {
 
     let valid = 0
     for (const publicKey of keysgroup) {
-      if (this.__verifyTransactionSignatures(transaction, signatures, publicKey, true)) {
+      const signature = this.__verifyTransactionSignatures(transaction, signatures, publicKey)
+      if (signature) {
+        signatures.splice(signatures.indexOf(signature), 1)
         valid++
         if (valid === multisignature.min) {
           return true
@@ -274,15 +276,11 @@ module.exports = class Wallet {
    * @param  {String} publicKey
    * @return {Boolean}
    */
-  __verifyTransactionSignatures (transaction, signatures, publicKey, removeOnSuccess) {
+  __verifyTransactionSignatures (transaction, signatures, publicKey) {
     for (let i = 0; i < signatures.length; i++) {
       const signature = signatures[i]
       if (this.verify(transaction, signature, publicKey)) {
-        if (removeOnSuccess) {
-          signatures.splice(i, 1)
-        }
-
-        return true
+        return signature
       }
     }
 
