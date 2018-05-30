@@ -16,7 +16,6 @@ module.exports = {
     return unserializeTransactions(result)
   },
   generator (block) {
-    const generatorPublicKey = block.dataValues.generatorPublicKey
-    return database.wallets.findById(generatorPublicKey)
+    return database.wallets.findById(block.generatorPublicKey)
   }
 }
