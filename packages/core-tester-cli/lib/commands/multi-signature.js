@@ -44,8 +44,6 @@ module.exports = async (options) => {
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
-  // console.log(transactions)
-
   if (copyTransactions) {
     utils.copyToClipboard(transactions)
     process.exit() // eslint-disable-line no-unreachable
