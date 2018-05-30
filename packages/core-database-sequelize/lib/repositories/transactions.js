@@ -315,7 +315,7 @@ module.exports = class TransactionsRepository {
         const blocks = await this.query
           .select(['id', 'height'])
           .from('blocks')
-          .whereIn('id', missingFromCache.map(d => d.blockId).join('\',\''))
+          .whereIn('id', missingFromCache.map(d => d.blockId))
           .groupBy('id')
           .all()
 
