@@ -163,25 +163,19 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < maxDelegates) {
-      // TODO: replace with raw query
-      const data2 = await this.models.wallet.findAll({
-        attributes: [
-          ['vote', 'publicKey']
-        ],
-        group: ['vote'],
-        where: {
-          username: {
-            [Sequelize.Op.ne]: null
-          },
-          publicKey: {
-            [Sequelize.Op.notIn]: data.map(d => d.publicKey)
-          }
-        },
-        order: [[ 'publicKey', 'ASC' ]],
-        limit: maxDelegates - data.length,
-        raw: true,
-        logging: true
-      })
+      const chosen = data.map(delegate => delegate.publicKey).join('\',\'')
+
+      const data2 = await this.query
+        .select([
+          '"vote" AS "publicKey"',
+          'SUM("balance") AS "balance"'
+        ], false)
+        .from('wallets')
+        .whereRaw(`"username" IS NOT NULL AND "publicKey" NOT IN ('${chosen}')`)
+        .groupBy('vote')
+        .sortBy('vote', 'ASC')
+        .take(maxDelegates - data.length)
+        .all()
 
       data = data.concat(data2)
     }

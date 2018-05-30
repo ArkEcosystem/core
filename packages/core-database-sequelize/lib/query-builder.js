@@ -51,6 +51,12 @@ module.exports = class QueryBuiler {
     return this
   }
 
+  whereRaw (query) {
+    this.query += ` WHERE ${query}`
+
+    return this
+  }
+
   whereBetween (column, from, to) {
     this.query += ` WHERE "${column}" >= '${from}' AND "${column}" <= '${to}'`
 
