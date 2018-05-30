@@ -256,7 +256,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         if (index === -1) {
           wallet.missedBlocks++
 
-          emitter.emit('forging.missing', {
+          emitter.emit('forger.missing', {
             delegate: wallet,
             block: block.data
           })

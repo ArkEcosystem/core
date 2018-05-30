@@ -27,13 +27,13 @@ module.exports = {
     name: 'delegate.resigned',
     description: 'n/a'
   }, {
-    name: 'forging.failed',
+    name: 'forger.failed',
     description: 'n/a'
   }, {
-    name: 'forging.missing',
+    name: 'forger.missing',
     description: 'n/a'
   }, {
-    name: 'forging.started',
+    name: 'forger.started',
     description: 'n/a'
   }, {
     name: 'peer.added',
