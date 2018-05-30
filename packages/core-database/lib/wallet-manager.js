@@ -77,7 +77,7 @@ module.exports = class WalletManager {
     })
 
     delegates = orderBy(delegates, ['votebalance'], ['desc']).map((delegate, index) => {
-      delegate.rank = index + 1
+      delegate.rate = index + 1
 
       return delegate
     })

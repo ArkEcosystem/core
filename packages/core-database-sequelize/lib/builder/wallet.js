@@ -216,7 +216,6 @@ module.exports = class WalletBuilder {
       })[0]
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
-      wallet.rank = i + 1
       wallet.votebalance = delegates[i].dataValues.votebalance
 
       if (forgedBlock) {
