@@ -316,6 +316,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       await transaction.rollback()
+      throw error
     }
   }
 
@@ -351,6 +352,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error)
       await this.asyncTransaction.rollback()
+      throw error
     }
 
     this.asyncTransaction = null
@@ -372,6 +374,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       await transaction.rollback()
+      throw error
     }
   }
 
