@@ -1,10 +1,9 @@
 const Sequelize = require('sequelize')
+const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-
-const { Transaction } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 module.exports = class WalletBuilder {
   /**
@@ -62,7 +61,8 @@ module.exports = class WalletBuilder {
   async __buildReceivedTransactions () {
     const data = await this.models.transaction.findAll({
       attributes: [
-        'recipientId', [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
+        'recipientId',
+        [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
       ],
       where: {
         type: TRANSACTION_TYPES.TRANSFER
@@ -116,7 +116,8 @@ module.exports = class WalletBuilder {
   async __buildSentTransactions () {
     const data = await this.models.transaction.findAll({
       attributes: [
-        'senderPublicKey', [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
+        'senderPublicKey',
+        [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
         [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
       ],
       group: 'senderPublicKey'
@@ -215,7 +216,7 @@ module.exports = class WalletBuilder {
       })[0]
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
-      wallet.rate = i + 1
+      wallet.rank = i + 1
       wallet.votebalance = delegates[i].dataValues.votebalance
 
       if (forgedBlock) {
@@ -255,6 +256,8 @@ module.exports = class WalletBuilder {
         wallet.voted = true
       }
     })
+
+    this.walletManager.updateDelegates()
   }
 
   /**
