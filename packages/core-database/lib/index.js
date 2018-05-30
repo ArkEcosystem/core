@@ -27,4 +27,4 @@ exports.ConnectionInterface = require('./interface')
  * The Wallet Manager.
  * @type {WalletManager}
  */
-exports.walletManager = require('./wallet-manager')
+exports.WalletManager = require('./wallet-manager')

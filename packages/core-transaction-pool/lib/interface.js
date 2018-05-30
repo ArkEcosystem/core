@@ -3,13 +3,13 @@
 const container = require('@arkecosystem/core-container')
 const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
-const verifyTransaction = require('./utils/transaction-verifier')
+const verifier = require('./utils/transaction-verifier')
 
 const ark = require('@arkecosystem/crypto')
 const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
-const WalletManager = container.resolvePlugin('core-database').WalletManager
+const { WalletManager } = require('@arkecosystem/core-database')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -19,7 +19,7 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.guard = new TransactionGuard(this)
-    this.walletManager = WalletManager()
+    this.poolWalletManager = new WalletManager()
   }
 
   /**
@@ -166,7 +166,7 @@ module.exports = class TransactionPoolInterface {
       for (const id of transactionIds) {
         const transaction = await this.getTransaction(id)
 
-        const verified = verifyTransaction(transaction, false)
+        const verified = verifier.canApply(transaction, false)
         if (!verified) {
           await this.removeTransaction(transaction)
           logger.debug('Possible double spending attack/unsufficient funds')

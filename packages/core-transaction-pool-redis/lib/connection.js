@@ -122,7 +122,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Add many transaction to the pool.
-   * @param {Array}   transactions, already transformed by transaction guard - must have serialized field
+   * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
    */
   addTransactions (transactions) {
     if (!this.__isReady()) {
