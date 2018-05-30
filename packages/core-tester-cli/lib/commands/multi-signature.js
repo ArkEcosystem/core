@@ -72,6 +72,8 @@ module.exports = async (options) => {
  * @return {void}
  */
 async function __testSendWithSignatures (multiSignatureWallets, approvalWallets) {
+  logger.info('Sending transactions with signatures')
+
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
@@ -89,10 +91,11 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
       transaction.signatures.push(approverSignature)
     }
     transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
   try {
-    logger.info('Sending transactions with signatures')
     await utils.request.post('/peer/transactions', {transactions}, true)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
@@ -115,6 +118,8 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
  * @return {void}
  */
 async function __testSendWithMinSignatures (multiSignatureWallets, approvalWallets, min) {
+  logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
+
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
@@ -135,10 +140,11 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
       }
     }
     transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
   try {
-    logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
     await utils.request.post('/peer/transactions', {transactions}, true)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
@@ -161,8 +167,10 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
  * @return {void}
  */
 async function __testSendWithBelowMinSignatures (multiSignatureWallets, approvalWallets, min) {
-  const transactions = []
   const max = min - 1
+  logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
+
+  const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
       wallet.address,
@@ -182,10 +190,11 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
       }
     }
     transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
   try {
-    logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
     await utils.request.post('/peer/transactions', {transactions}, true)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
@@ -208,6 +217,8 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
  * @return {void}
  */
 async function __testSendWithoutSignatures (multiSignatureWallets) {
+  logger.info('Sending transactions without signatures')
+
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
@@ -217,10 +228,11 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
       wallet.passphrase
     )
     transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
   try {
-    logger.info('Sending transactions without signatures')
     await utils.request.post('/peer/transactions', {transactions}, true)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
@@ -243,6 +255,8 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
  * @return {void}
  */
 async function __testSendWithEmptySignatures (multiSignatureWallets) {
+  logger.info('Sending transactions with empty signatures')
+
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
