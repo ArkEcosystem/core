@@ -92,7 +92,7 @@ module.exports = class ForgerManager {
         return this.__monitor(round, transactionData, data)
       }
 
-      emitter.emit('forging.started', delegate.publicKey)
+      emitter.emit('forger.started', delegate.publicKey)
 
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
@@ -118,7 +118,7 @@ module.exports = class ForgerManager {
       // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
-      emitter.emit('forging.failed', error.message)
+      emitter.emit('forger.failed', error.message)
 
       return this.__monitor(round, transactionData, data)
     }
