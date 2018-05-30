@@ -52,6 +52,10 @@ module.exports = class QueryBuiler {
   }
 
   whereIn (column, value) {
+    if (Array.isArray(value)) {
+      value = value.join('\',\'')
+    }
+
     this.query += ` WHERE "${column}" IN ('${value}')`
 
     return this
@@ -108,13 +112,25 @@ module.exports = class QueryBuiler {
   }
 
   groupBy (column) {
-    this.query += ` GROUP BY ${column}`
+    this.query += ` GROUP BY "${column}"`
 
     return this
   }
 
   sortBy (column, direction) {
-    this.query += ` ORDER BY ${column} ${direction.toUpperCase()}`
+    this.query += ' ORDER BY '
+
+    if (column === Object(column)) {
+      const criteria = []
+
+      for (const [key, value] of Object.entries(column)) {
+        criteria.push(`"${key}" ${value.toUpperCase()}`)
+      }
+
+      this.query += criteria.join(',')
+    } else {
+      this.query += `"${column}" ${direction.toUpperCase()}`
+    }
 
     return this
   }
