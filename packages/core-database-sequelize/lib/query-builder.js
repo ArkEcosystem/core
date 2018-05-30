@@ -8,6 +8,12 @@ module.exports = class QueryBuiler {
   select (columns = '*', escape = true) {
     this.queryType = QueryTypes.SELECT
 
+    if (columns === '*') {
+      this.query = 'SELECT *'
+
+      return this
+    }
+
     if (Array.isArray(columns)) {
       this.query = escape
         ? `SELECT "${columns.join('","')}"`
@@ -45,6 +51,12 @@ module.exports = class QueryBuiler {
     return this
   }
 
+  whereBetween (column, from, to) {
+    this.query += ` WHERE "${column}" >= '${from}' AND "${column}" <= '${to}'`
+
+    return this
+  }
+
   whereLike (column, value) {
     this.query += ` WHERE "${column}" LIKE '%${value}%'`
 
@@ -57,6 +69,16 @@ module.exports = class QueryBuiler {
     }
 
     this.query += ` WHERE "${column}" IN ('${value}')`
+
+    return this
+  }
+
+  whereNotIn (column, value) {
+    if (Array.isArray(value)) {
+      value = value.join('\',\'')
+    }
+
+    this.query += ` WHERE "${column}" NOT IN ('${value}')`
 
     return this
   }
