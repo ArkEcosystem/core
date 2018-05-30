@@ -64,6 +64,7 @@ module.exports = async (options) => {
   await __testSendWithBelowMinSignatures(multiSignatureWallets, approvalWallets, min)
   await __testSendWithoutSignatures(multiSignatureWallets)
   await __testSendWithEmptySignatures(multiSignatureWallets)
+  await __testNewMultiSignatureRegistration(multiSignatureWallets, options)
 }
 
 /**
@@ -252,10 +253,62 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
     )
     transaction.signatures = []
     transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
   try {
-    logger.info('Sending transactions with empty signatures')
+    await utils.request.post('/peer/transactions', {transactions}, true)
+    const delaySeconds = await utils.getTransactionDelay(transactions)
+    logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
+    await delay(delaySeconds * 1000)
+
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = await utils.getTransaction(transactions[i].id)
+      if (tx) {
+        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+      }
+    }
+  } catch (error) {
+    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    process.exit(1)
+  }
+}
+
+/**
+ * Send transactions to re-register multi-signature wallets.
+ * @return {void}
+ */
+async function __testNewMultiSignatureRegistration (multiSignatureWallets, options) {
+  logger.info('Sending transactions to re-register multi-signature')
+
+  const transactions = []
+  const approvalWallets = utils.generateWallets(options.quantity)
+  const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
+  const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
+
+  multiSignatureWallets.forEach((wallet, i) => {
+    const transaction = ark.multisignature.createMultisignature(
+      wallet.passphrase,
+      null,
+      publicKeys,
+      options.lifetime,
+      min
+    )
+    transaction.signatures = []
+    for (let i = approvalWallets.length - 1; i >= 0; i--) {
+      const approverSignature = ark.multisignature.signTransaction(
+        transaction,
+        approvalWallets[i].passphrase
+      )
+      transaction.signatures.push(approverSignature)
+    }
+    transactions.push(transaction)
+
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+  })
+
+  try {
     await utils.request.post('/peer/transactions', {transactions}, true)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
