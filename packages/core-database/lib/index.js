@@ -22,3 +22,9 @@ exports.plugin = {
  * @type {ConnectionInterface}
  */
 exports.ConnectionInterface = require('./interface')
+
+/**
+ * The Wallet Manager.
+ * @type {WalletManager}
+ */
+exports.walletManager = require('./wallet-manager')
