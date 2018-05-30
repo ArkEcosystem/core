@@ -32,7 +32,7 @@ module.exports = class DelegatesRepository {
 
     const order = params.orderBy
       ? params.orderBy.split(':')
-      : ['rate', 'asc']
+      : ['rank', 'asc']
 
     return {
       rows: orderBy(rows, [order[0]], [order[1]]),
