@@ -38,17 +38,18 @@ module.exports = class BlocksRepository {
         .whereKeyValuePairs(whereStatement)
     }
 
-    let rows = await buildQuery(this.query.select())
+    let rows = await buildQuery(this.query.select('*', false))
       .sortBy(orderBy[0], orderBy[1])
       .take(params.limit)
       .skip(params.offset)
       .all()
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
 
     return {
       rows,
-      count: count.count
+      count: rows.length
+      // count: count.count
     }
   }
 
@@ -69,7 +70,7 @@ module.exports = class BlocksRepository {
    */
   findById (id) {
     return this.query
-      .select()
+      .select('*', false)
       .from('blocks')
       .where('id', id)
       .first()
@@ -111,7 +112,7 @@ module.exports = class BlocksRepository {
         .whereStruct(conditions)
     }
 
-    let rows = await buildQuery(this.query.select())
+    let rows = await buildQuery(this.query.select('*', false))
       .sortBy(orderBy[0], orderBy[1])
       .take(params.limit)
       .skip(params.offset)

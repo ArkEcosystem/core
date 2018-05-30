@@ -72,7 +72,7 @@ module.exports = {
   },
   '@arkecosystem/core-graphql': {},
   '@arkecosystem/core-graphql-api': {
-    enabled: true,
+    enabled: false,
     port: process.env.ARK_GRAPHQL_PORT || 4205,
     path: '/graphql',
     graphiql: true,

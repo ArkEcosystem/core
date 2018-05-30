@@ -2,16 +2,15 @@
 
 const Promise = require('bluebird')
 
+const { map, orderBy, sumBy } = require('lodash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
-const map = require('lodash/map')
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
 
 module.exports = class WalletManager {
@@ -60,6 +59,30 @@ module.exports = class WalletManager {
     if (wallet.username) {
       this.walletsByUsername[wallet.username] = wallet
     }
+  }
+
+  /**
+   * Update the vote balances and ranks of delegates.
+   * @return {void}
+   */
+  updateDelegates () {
+    let delegates = this.getDelegates().map(delegate => {
+      const voters = this
+        .getLocalWallets()
+        .filter(w => w.vote === delegate.publicKey)
+
+      delegate.votebalance = sumBy(voters, 'balance')
+
+      return delegate
+    })
+
+    delegates = orderBy(delegates, ['votebalance'], ['desc']).map((delegate, index) => {
+      delegate.rate = index + 1
+
+      return delegate
+    })
+
+    this.index(delegates)
   }
 
   /**
@@ -124,6 +147,8 @@ module.exports = class WalletManager {
       }
 
       delegate.applyBlock(block.data)
+
+      this.updateDelegates()
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
 
@@ -131,6 +156,8 @@ module.exports = class WalletManager {
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
         await this.revertTransaction(appliedTransactions[i])
       }
+
+      this.updateDelegates()
 
       // TODO should revert the delegate applyBlock ?
 
@@ -168,6 +195,8 @@ module.exports = class WalletManager {
       })
 
       delegate.revertBlock(block.data)
+
+      this.updateDelegates()
     } catch (error) {
       logger.error(error.stack)
 
@@ -175,6 +204,8 @@ module.exports = class WalletManager {
       // - Promise.each is applied sequentially
       // - Promise.all is applied in parallel
       await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
+
+      this.updateDelegates()
 
       throw error
     }
@@ -226,10 +257,6 @@ module.exports = class WalletManager {
     }
 
     this.__emitEvents(transaction)
-
-    if (data.type === TRANSACTION_TYPES.VOTE) {
-      this.__updateVoteBalance(transaction)
-    }
 
     return transaction
   }
@@ -294,6 +321,14 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Getter for "walletsByUsername" for clear intent.
+   * @return {Wallet}
+   */
+  getDelegates () {
+    return Object.values(this.walletsByUsername)
+  }
+
+  /**
    * Get all wallets by address.
    * @return {Array}
    */
@@ -327,32 +362,12 @@ module.exports = class WalletManager {
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      transaction.asset.votes.forEach(vote => {
-        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-          delegate: vote,
-          transaction: transaction.data
-        })
+      const vote = transaction.asset.votes[0]
+
+      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+        delegate: vote,
+        transaction: transaction.data
       })
     }
-  }
-
-  /**
-   * Update the vote balance of the delegate.
-   * @param  {Object} transaction
-   * @return {void}
-   */
-  __updateVoteBalance (transaction) {
-    const vote = transaction.data.asset.votes[0]
-
-    const voter = this.getWalletByPublicKey(transaction.data.senderPublicKey)
-    const delegate = this.getWalletByPublicKey(vote.slice(1))
-
-    if (vote.startsWith('+')) {
-      delegate.votebalance += voter.balance
-    } else {
-      delegate.votebalance -= voter.balance
-    }
-
-    this.reindex(delegate)
   }
 }

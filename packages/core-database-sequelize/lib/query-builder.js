@@ -1,18 +1,22 @@
-const {
-  QueryTypes
-} = require('sequelize')
+const { QueryTypes } = require('sequelize')
 
 module.exports = class QueryBuiler {
   constructor (connection) {
     this.connection = connection
   }
 
-  select (columns = '*') {
+  select (columns = '*', escape = true) {
     this.queryType = QueryTypes.SELECT
 
-    this.query = Array.isArray(columns)
-      ? `SELECT ${columns.join(',')}`
-      : `SELECT ${columns}`
+    if (Array.isArray(columns)) {
+      this.query = escape
+        ? `SELECT "${columns.join('","')}"`
+        : `SELECT ${columns.join(',')}`
+    } else {
+      this.query = escape
+        ? `SELECT "${columns}"`
+        : `SELECT ${columns}`
+    }
 
     return this
   }
@@ -29,6 +33,12 @@ module.exports = class QueryBuiler {
     return this
   }
 
+  as (alias) {
+    this.query += ` AS ${alias}`
+
+    return this
+  }
+
   where (column, value, operator = '=') {
     this.query += ` WHERE "${column}" ${operator} '${value}'`
 
@@ -37,6 +47,16 @@ module.exports = class QueryBuiler {
 
   whereLike (column, value) {
     this.query += ` WHERE "${column}" LIKE '%${value}%'`
+
+    return this
+  }
+
+  whereIn (column, value) {
+    if (Array.isArray(value)) {
+      value = value.join('\',\'')
+    }
+
+    this.query += ` WHERE "${column}" IN ('${value}')`
 
     return this
   }
@@ -92,13 +112,25 @@ module.exports = class QueryBuiler {
   }
 
   groupBy (column) {
-    this.query += ` GROUP BY ${column}`
+    this.query += ` GROUP BY "${column}"`
 
     return this
   }
 
   sortBy (column, direction) {
-    this.query += ` ORDER BY ${column} ${direction.toUpperCase()}`
+    this.query += ' ORDER BY '
+
+    if (column === Object(column)) {
+      const criteria = []
+
+      for (const [key, value] of Object.entries(column)) {
+        criteria.push(`"${key}" ${value.toUpperCase()}`)
+      }
+
+      this.query += criteria.join(',')
+    } else {
+      this.query += `"${column}" ${direction.toUpperCase()}`
+    }
 
     return this
   }
@@ -117,6 +149,12 @@ module.exports = class QueryBuiler {
 
   all () {
     return this.connection.query(this.query, {
+      type: this.queryType
+    })
+  }
+
+  raw (query) {
+    return this.connection.query(query, {
       type: this.queryType
     })
   }

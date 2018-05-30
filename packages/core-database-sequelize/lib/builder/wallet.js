@@ -1,10 +1,8 @@
-const Sequelize = require('sequelize')
+const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-
-const { Transaction } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 module.exports = class WalletBuilder {
   /**
@@ -16,6 +14,7 @@ module.exports = class WalletBuilder {
     this.connection = database.connection
     this.models = database.models
     this.walletManager = database.walletManager
+    this.query = database.query
   }
 
   /**
@@ -60,15 +59,15 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildReceivedTransactions () {
-    const data = await this.models.transaction.findAll({
-      attributes: [
-        'recipientId', [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount']
-      ],
-      where: {
-        type: TRANSACTION_TYPES.TRANSFER
-      },
-      group: 'recipientId'
-    })
+    const data = await this.query
+      .select([
+        '"recipientId"',
+        'SUM("amount") AS "amount"'
+      ], false)
+      .from('transactions')
+      .where('type', TRANSACTION_TYPES.TRANSFER)
+      .groupBy('recipientId')
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByAddress(row.recipientId)
@@ -84,9 +83,15 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildBlockRewards () {
-    const data = await this.connection.query('SELECT "generatorPublicKey", sum("reward"+"totalFee") AS reward, COUNT(*) AS produced FROM blocks GROUP BY "generatorPublicKey"', {
-      type: Sequelize.QueryTypes.SELECT
-    })
+    const data = await this.query
+      .select([
+        '"generatorPublicKey"',
+        'SUM("reward"+"totalFee") AS "reward"',
+        'COUNT(*) AS produced'
+      ], false)
+      .from('blocks')
+      .groupBy('generatorPublicKey')
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
@@ -99,9 +104,12 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildLastForgedBlocks () {
-    const data = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" from blocks ORDER BY "timestamp" DESC LIMIT ${this.activeDelegates}`, {
-      type: Sequelize.QueryTypes.SELECT
-    })
+    const data = await this.query
+      .select(['id', 'generatorPublicKey', 'timestamp'])
+      .from('blocks')
+      .sortBy('timestamp', 'DESC')
+      .take(this.activeDelegates)
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
@@ -114,13 +122,15 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildSentTransactions () {
-    const data = await this.models.transaction.findAll({
-      attributes: [
-        'senderPublicKey', [Sequelize.fn('SUM', Sequelize.col('amount')), 'amount'],
-        [Sequelize.fn('SUM', Sequelize.col('fee')), 'fee']
-      ],
-      group: 'senderPublicKey'
-    })
+    const data = await this.query
+      .select([
+        '"senderPublicKey"',
+        'SUM("amount") AS "amount"',
+        'SUM("fee") AS "fee"'
+      ], false)
+      .from('transactions')
+      .groupBy('senderPublicKey')
+      .all()
 
     data.forEach(row => {
       let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -137,15 +147,11 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildSecondSignatures () {
-    const data = await this.models.transaction.findAll({
-      attributes: [
-        'senderPublicKey',
-        'serialized'
-      ],
-      where: {
-        type: TRANSACTION_TYPES.SECOND_SIGNATURE
-      }
-    })
+    const data = await this.query
+      .select(['senderPublicKey', 'serialized'])
+      .from('transactions')
+      .where('type', TRANSACTION_TYPES.SECOND_SIGNATURE)
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -159,15 +165,11 @@ module.exports = class WalletBuilder {
    */
   async __buildDelegates () {
     // Register...
-    const transactions = await this.models.transaction.findAll({
-      attributes: [
-        'senderPublicKey',
-        'serialized'
-      ],
-      where: {
-        type: TRANSACTION_TYPES.DELEGATE_REGISTRATION
-      }
-    })
+    const transactions = await this.query
+      .select(['senderPublicKey', 'serialized'])
+      .from('transactions')
+      .where('type', TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+      .all()
 
     for (let i = 0; i < transactions.length; i++) {
       const wallet = this.walletManager.getWalletByPublicKey(transactions[i].senderPublicKey)
@@ -177,37 +179,28 @@ module.exports = class WalletBuilder {
     }
 
     // Rate...
-    const delegates = await this.models.wallet.findAll({
-      attributes: [
-        'publicKey',
-        'votebalance'
-      ],
-      where: {
-        publicKey: {
-          [Sequelize.Op.in]: transactions.map(transaction => transaction.senderPublicKey)
-        }
-      },
-      order: [
-        ['votebalance', 'DESC'],
-        ['publicKey', 'ASC']
-      ]
-    })
+    const delegates = await this.query
+      .select(['publicKey', 'votebalance'])
+      .from('wallets')
+      .whereIn('publicKey', transactions.map(transaction => transaction.senderPublicKey))
+      .sortBy({
+        votebalance: 'DESC',
+        publicKey: 'ASC'
+      })
+      .all()
 
     // Forged Blocks...
-    const forgedBlocks = await this.models.block.findAll({
-      attributes: [
-        'generatorPublicKey',
-        [Sequelize.fn('SUM', Sequelize.col('totalFee')), 'totalFees'],
-        [Sequelize.fn('SUM', Sequelize.col('reward')), 'totalRewards'],
-        [Sequelize.fn('COUNT', Sequelize.col('totalAmount')), 'totalProduced']
-      ],
-      where: {
-        generatorPublicKey: {
-          [Sequelize.Op.in]: transactions.map(transaction => transaction.senderPublicKey)
-        }
-      },
-      group: 'generatorPublicKey'
-    })
+    const forgedBlocks = await this.query
+      .select([
+        '"generatorPublicKey"',
+        'SUM("totalFee") AS "totalFees"',
+        'SUM("reward") AS "totalRewards"',
+        'COUNT("totalAmount") AS "totalProduced"'
+      ], false)
+      .from('blocks')
+      .whereIn('generatorPublicKey', transactions.map(transaction => transaction.senderPublicKey))
+      .groupBy('generatorPublicKey')
+      .all()
 
     for (let i = 0; i < delegates.length; i++) {
       const forgedBlock = forgedBlocks.filter(block => {
@@ -215,13 +208,12 @@ module.exports = class WalletBuilder {
       })[0]
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
-      wallet.rate = i + 1
-      wallet.votebalance = delegates[i].dataValues.votebalance
+      wallet.votebalance = delegates[i].votebalance
 
       if (forgedBlock) {
-        wallet.forgedFees = forgedBlock.dataValues.totalFees
-        wallet.forgedRewards = forgedBlock.dataValues.totalRewards
-        wallet.producedBlocks = forgedBlock.dataValues.totalProduced
+        wallet.forgedFees = forgedBlock.totalFees
+        wallet.forgedRewards = forgedBlock.totalRewards
+        wallet.producedBlocks = forgedBlock.totalProduced
       }
 
       this.walletManager.reindex(wallet)
@@ -233,18 +225,12 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildVotes () {
-    const data = await this.models.transaction.findAll({
-      attributes: [
-        'senderPublicKey',
-        'serialized'
-      ],
-      order: [
-        ['createdAt', 'DESC']
-      ],
-      where: {
-        type: TRANSACTION_TYPES.VOTE
-      }
-    })
+    const data = await this.query
+      .select(['senderPublicKey', 'serialized'])
+      .from('transactions')
+      .where('type', TRANSACTION_TYPES.VOTE)
+      .sortBy('createdAt', 'DESC')
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
@@ -255,6 +241,8 @@ module.exports = class WalletBuilder {
         wallet.voted = true
       }
     })
+
+    this.walletManager.updateDelegates()
   }
 
   /**
@@ -262,18 +250,12 @@ module.exports = class WalletBuilder {
    * @return {void}
    */
   async __buildMultisignatures () {
-    const data = await this.models.transaction.findAll({
-      attributes: [
-        'senderPublicKey',
-        'serialized'
-      ],
-      order: [
-        ['createdAt', 'DESC']
-      ],
-      where: {
-        type: TRANSACTION_TYPES.MULTI_SIGNATURE
-      }
-    })
+    const data = await this.query
+      .select(['senderPublicKey', 'serialized'])
+      .from('transactions')
+      .where('type', TRANSACTION_TYPES.MULTI_SIGNATURE)
+      .sortBy('createdAt', 'DESC')
+      .all()
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
