@@ -42,11 +42,13 @@ class SqlBuilder {
    * @return {String}
    */
   __buildSelect () {
-    const columns = this.criteria.select
+    const columns = this.criteria.select.columns
       .map(column => escape(column))
-      .join(',')
 
-    return `SELECT ${columns} `
+    const aggregates = this.criteria.select.aggregates
+      .map(column => column)
+
+    return `SELECT ${columns.concat(aggregates).join(',')} `
   }
 
   /**

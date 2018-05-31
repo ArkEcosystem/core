@@ -96,7 +96,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .select()
       .from('rounds')
       .where('round', round)
-      .sortBy({
+      .orderBy({
         balance: 'DESC',
         publicKey: 'ASC'
       })
@@ -152,10 +152,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     let data = await this.query
-      .select([
-        '"vote" AS "publicKey"',
-        'SUM("balance") AS "balance"'
-      ], false)
+      .select('"vote" AS "publicKey"')
+      .sum('balance', 'balance')
       .from('wallets')
       .whereNotNull('vote')
       .groupBy('vote')
@@ -166,14 +164,12 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey).join('\',\'')
 
       const data2 = await this.query
-        .select([
-          '"vote" AS "publicKey"',
-          'SUM("balance") AS "balance"'
-        ], false)
+        .select('"vote" AS "publicKey"')
+        .sum('balance', 'balance')
         .from('wallets')
         .whereRaw(`"username" IS NOT NULL AND "publicKey" NOT IN ('${chosen}')`)
         .groupBy('vote')
-        .sortBy('vote', 'ASC')
+        .orderBy('vote', 'ASC')
         .take(maxDelegates - data.length)
         .all()
 
@@ -413,7 +409,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const block = await this.query
       .select()
       .from('blocks')
-      .sortBy('height', 'DESC')
+      .orderBy('height', 'DESC')
       .take(1)
       .first()
 
@@ -486,11 +482,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .select()
       .from('blocks')
       .whereBetween('height', offset, offset + limit)
-      .sortBy('height', 'ASC')
+      .orderBy('height', 'ASC')
       .all()
 
     const transactions = await this.query
-      .select(['blockId', 'serialized'])
+      .select('blockId', 'serialized')
       .from('transactions')
       .whereIn('blockId', blocks.map(block => block.id))
       .groupBy('blockId')

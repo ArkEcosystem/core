@@ -35,13 +35,13 @@ module.exports = class BlocksRepository {
     const buildQuery = (query) => {
       return query
         .from('blocks')
-        .whereKeyValuePairs(whereStatement)
+        .whereKeyValuePairs(whereStatement) // TODO: replace with where
     }
 
     let rows = await buildQuery(this.query.select())
-      .sortBy(orderBy[0], orderBy[1])
-      .take(params.limit)
-      .skip(params.offset)
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
       .all()
 
     // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
@@ -83,11 +83,11 @@ module.exports = class BlocksRepository {
    */
   findLastByPublicKey (generatorPublicKey) {
     return this.query
-      .select(['id', 'timestamp'])
+      .select('id', 'timestamp')
       .from('blocks')
       .where('generatorPublicKey', generatorPublicKey)
-      .sortBy('createdAt', 'DESC')
-      .take(1)
+      .orderBy('createdAt', 'DESC')
+      .limit(1)
       .first()
   }
 
@@ -109,13 +109,13 @@ module.exports = class BlocksRepository {
     const buildQuery = (query) => {
       return query
         .from('blocks')
-        .whereStruct(conditions)
+        .whereStruct(conditions) // TODO: replace with where
     }
 
     let rows = await buildQuery(this.query.select())
-      .sortBy(orderBy[0], orderBy[1])
-      .take(params.limit)
-      .skip(params.offset)
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
       .all()
 
     let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()

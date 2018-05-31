@@ -19,7 +19,7 @@ module.exports = class QueryBuiler {
   select () {
     this.__reset()
 
-    this.criteria.select = concerns.select.apply(arguments)
+    this.criteria.select.columns = concerns.select.apply(arguments)
 
     return this
   }
@@ -245,7 +245,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   count (column, as) {
-    this.criteria.select.push(concerns.count.apply(column, as))
+    this.criteria.select.aggregates.push(concerns.count.apply(column, as))
 
     return this
   }
@@ -257,7 +257,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   min (column, as) {
-    this.criteria.select.push(concerns.min.apply(column, as))
+    this.criteria.select.aggregates.push(concerns.min.apply(column, as))
 
     return this
   }
@@ -269,7 +269,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   max (column, as) {
-    this.criteria.select.push(concerns.max.apply(column, as))
+    this.criteria.select.aggregates.push(concerns.max.apply(column, as))
 
     return this
   }
@@ -281,7 +281,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   sum (column, as) {
-    this.criteria.select.push(concerns.sum.apply(column, as))
+    this.criteria.select.aggregates.push(concerns.sum.apply(column, as))
 
     return this
   }
@@ -291,7 +291,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   avg () {
-    this.criteria.select.push(concerns.avg.apply())
+    this.criteria.select.aggregates.push(concerns.avg.apply())
 
     return this
   }
@@ -322,7 +322,10 @@ module.exports = class QueryBuiler {
    */
   __reset () {
     this.criteria = {
-      select: [],
+      select: {
+        columns: [],
+        aggregates: []
+      },
       where: {
         and: [],
         or: []
