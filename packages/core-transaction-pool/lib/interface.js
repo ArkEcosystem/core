@@ -3,7 +3,6 @@
 const container = require('@arkecosystem/core-container')
 const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
-const verifier = require('./utils/transaction-verifier')
 
 const ark = require('@arkecosystem/crypto')
 const { slots } = ark
@@ -166,12 +165,12 @@ module.exports = class TransactionPoolInterface {
       for (const id of transactionIds) {
         const transaction = await this.getTransaction(id)
 
-        const verified = verifier.canApply(transaction, false)
+        /* const verified = verifier.canApply(transaction, false)
         if (!verified) {
           await this.removeTransaction(transaction)
           logger.debug('Possible double spending attack/unsufficient funds')
           continue
-        }
+        }*/
 
         if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {

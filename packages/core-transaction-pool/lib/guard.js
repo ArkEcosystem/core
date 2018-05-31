@@ -1,4 +1,5 @@
 const reject = require('lodash/reject')
+
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
@@ -27,8 +28,6 @@ module.exports = class TransactionGuard {
 
     this.__determineInvalidTransactions()
 
-    this.__determineTransactionsForBroadCast(isBroadCasted)
-
     this.__determineFeeMatchingTransactions()
 
     await this.__determineExcessTransactions()
@@ -48,8 +47,7 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id),
-      broadcast: this.broadcast.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id)
     }
   }
 
@@ -67,8 +65,7 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid,
-      broadcast: this.broadcast
+      invalid: this.invalid
     }
   }
 
@@ -111,20 +108,6 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determine transactions that need to be broadcasted
-   * @param  {Boolean} broadcasted - if true transactions was send from node2node, if false - is from client
-   * @return {void}
-   */
-  __determineTransactionsForBroadCast (isBroadCasted) {
-    this.transactions.forEach(transaction => {
-      if (!isBroadCasted) {
-        // transaction.hops = 0 //TODO: rething if we need to count hops, or just send trxses out once to all peers
-        this.broadcast.push(transaction)
-      }
-    })
-  }
-
-  /**
    * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
    * Matched transactions stay in this.transaction, mis-matched transaction are pushed in this.invalid
    * @return {void}
@@ -141,17 +124,13 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
-      const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-
-      const verified = wallet.canApply(transaction)
-
-      if (!verified) {
+      try {
+        this.pool.walletManager.applyTransaction(transaction)
+        return false
+      } catch (error) {
         this.invalid.push(transaction)
-      } else {
-        this.pool.walletManager.appyTransaction(transaction)
+        return true
       }
-
-      return !verified
     })
   }
 
@@ -175,6 +154,5 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
-    this.broadcast = []
   }
 }

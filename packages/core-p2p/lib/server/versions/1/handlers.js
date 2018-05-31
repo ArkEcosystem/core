@@ -181,11 +181,12 @@ exports.postTransactions = {
         .postTransactions(transactionPool.guard.accept)
     }
 
-    if (transactionPool.guard.hasAny('broadcast')) {
+    // TODO: move to module
+    /*if (!request.payload.isBroadCasted) {
       container
       .resolvePlugin('p2p')
-      .broadcastTransactions(transactionPool.guard.broadcast)
-    }
+      .broadcastTransactions(request.payload.transactions)
+    }*/
 
     return {
       success: true,
