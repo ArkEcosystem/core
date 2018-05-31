@@ -5,11 +5,11 @@ const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 50, true)
+  await transferCommand(options, wallets, 50, true)
 
   logger.info(`Sending ${options.number} second signature transactions`)
 

@@ -6,11 +6,11 @@ const sampleSize = require('lodash/sampleSize')
 const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 2, true)
+  await transferCommand(options, wallets, 2, true)
 
   let delegateVotes = []
   if (!options.delegate) {

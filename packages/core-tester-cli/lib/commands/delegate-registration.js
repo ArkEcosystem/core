@@ -6,11 +6,11 @@ const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
 const superheroes = require('superheroes')
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 50, true)
+  await transferCommand(options, wallets, 50, true)
 
   const delegates = await utils.getDelegates()
 
