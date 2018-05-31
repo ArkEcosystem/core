@@ -4,47 +4,31 @@ const app = require('commander')
 
 app.version(require('../package.json').version)
 
-const transactionFee = 10000000
+const registerCommand = (name, description) => {
+  return app
+    .command(name)
+    .description(description)
+    .option('-n, --number <number>', 'number of transactions', 10)
+    .option('--transfer-fee <number>', 'transfer fee', 10000000)
+    .option('--skip-validation', 'skip transaction validations', false)
+    .option('-c, --copy', 'copy the transactions to the clipboard', false)
+}
 
-app
-  .command('transfer')
-  .description('send multiple transactions')
-  .option('-n, --number <number>', 'number of transactions', 10)
-  .option('--transfer-fee <number>', 'transfer fee', transactionFee)
-  .option('--skip-validation', 'skip transaction validations', false)
-  .option('-c, --copy', 'copy the transactions to the clipboard', false)
+registerCommand('transfer', 'send multiple transactions')
   .action(async (options) => require('../lib/commands/transfer')(options))
 
-app
-  .command('second-signature')
-  .description('create wallets with second signature')
-  .option('-n, --number <number>', 'number of wallets', 10)
-  .option('--transfer-fee <number>', 'transfer fee', transactionFee)
+registerCommand('second-signature', 'create wallets with second signature')
   .option('--signature-fee <number>', 'second signature fee', 500000000)
-  .option('--skip-validation', 'skip transaction validations', false)
-  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/second-signature')(options))
 
-app
-  .command('delegate')
-  .description('create multiple delegates')
-  .option('-n, --number <number>', 'number of delegates', 10)
-  .option('--transfer-fee <number>', 'transfer fee', transactionFee)
+registerCommand('delegate', 'create multiple delegates')
   .option('--delegate-fee <number>', 'delegate registration fee', 2500000000)
-  .option('--skip-validation', 'skip transaction validations', false)
-  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/delegate-registration')(options))
 
-app
-  .command('vote')
-  .description('create multiple votes for a delegate')
-  .option('-n, --number <number>', 'number of votes', 10)
-  .option('--transfer-fee <number>', 'transfer fee', transactionFee)
+registerCommand('vote', 'create multiple votes for a delegate')
   .option('--vote-fee <number>', 'vote fee', 100000000)
-  .option('--skip-validation', 'skip transaction validations', false)
   .option('-d, --delegate <delegate>', 'delegate public key')
   .option('-q, --quantity <number>', 'quantity of delegates to vote for if `-d` is omitted', 1)
-  .option('-c, --copy', 'copy the transactions to the clipboard', false)
   .action(async (options) => require('../lib/commands/vote')(options))
 
 app
