@@ -1,6 +1,4 @@
 const reject = require('lodash/reject')
-const container = require('@arkecosystem/core-container')
-
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
@@ -143,13 +141,7 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
-      // TODO: poolmanager change to that later on
-
-      const wallet = container
-      .resolvePlugin('blockchain')
-      .database
-      .walletManager
-      .getWalletByPublicKey(transaction.senderPublicKey)
+      const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
       const verified = wallet.canApply(transaction)
 

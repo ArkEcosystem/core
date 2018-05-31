@@ -9,7 +9,7 @@ const ark = require('@arkecosystem/crypto')
 const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
-const { WalletManager } = require('@arkecosystem/core-database')
+const PoolWalletManager = require('./pool-wallet-manager')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -18,8 +18,8 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
+    this.walletManager = new PoolWalletManager()
     this.guard = new TransactionGuard(this)
-    this.poolWalletManager = new WalletManager()
   }
 
   /**
