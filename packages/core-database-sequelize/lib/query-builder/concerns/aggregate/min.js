@@ -1,7 +1,7 @@
-module.exports = class MinConcern {
+const AggregateConcern = require('./base')
+
+module.exports = class SumConcern {
   static apply (column, as) {
-    return as
-      ? `MIN ("${column}") AS "${as}"`
-      : `MIN ("${column}") AS "${column}"`
+    return AggregateConcern.apply('min', column, as)
   }
 }

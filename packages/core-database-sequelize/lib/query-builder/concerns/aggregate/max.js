@@ -1,7 +1,7 @@
-module.exports = class MaxConcern {
+const AggregateConcern = require('./base')
+
+module.exports = class SumConcern {
   static apply (column, as) {
-    return as
-      ? `MAX ("${column}") AS "${as}"`
-      : `MAX ("${column}") AS "${column}"`
+    return AggregateConcern.apply('MAX', column, as)
   }
 }

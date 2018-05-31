@@ -83,8 +83,7 @@ module.exports = class SPV {
   async __buildBlockRewards () {
     const data = await this.query
       .select('generatorPublicKey')
-      .sum(['reward', 'totalFee'], 'reward') // TODO: implement multi-column sums
-      .count('*', 'produced')
+      .sum(['reward', 'totalFee'], 'reward')
       .from('blocks')
       .groupBy('generatorPublicKey')
       .all()

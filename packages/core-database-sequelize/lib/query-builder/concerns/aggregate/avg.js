@@ -1,7 +1,7 @@
-module.exports = class AverageConcern {
+const AggregateConcern = require('./base')
+
+module.exports = class SumConcern {
   static apply (column, as) {
-    return as
-      ? `AVG ("${column}") AS "${as}"`
-      : `AVG ("${column}") AS "${column}"`
+    return AggregateConcern.apply('AVG', column, as)
   }
 }
