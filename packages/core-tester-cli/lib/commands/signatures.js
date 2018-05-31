@@ -11,6 +11,8 @@ module.exports = async (options) => {
   const wallets = utils.generateWallets(options.number)
   await transactionCommand(options, wallets, 50, true)
 
+  logger.info(`Sending ${options.number} second signature transactions`)
+
   const transactions = []
   wallets.forEach((wallet, i) => {
     wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
@@ -33,6 +35,10 @@ module.exports = async (options) => {
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
+
+    if (options.skipValidation) {
+      return
+    }
 
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply signature transactions`)

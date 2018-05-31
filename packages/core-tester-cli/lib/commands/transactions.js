@@ -7,10 +7,15 @@ const utils = require('../utils')
 const logger = utils.logger
 
 const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
-const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance) => {
+const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options) => {
   let successfulTest = true
 
   const postResponse = await utils.request.post('/peer/transactions', {transactions}, true)
+
+  if (options.skipValidation) {
+    return true
+  }
+
   if (!postResponse.data.success) {
     logger.error('Transaction request failed')
 
@@ -55,7 +60,10 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   }
   const walletBalance = await utils.getWalletBalance(primaryAddress)
 
-  logger.info(`Sender starting balance: ${walletBalance}`)
+  logger.info(`Sending ${options.number} transfer transactions`)
+  if (!options.skipValidation) {
+    logger.info(`Sender starting balance: ${walletBalance}`)
+  }
 
   const transactions = []
   let totalDeductions = 0
@@ -82,17 +90,31 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   }
 
   const expectedSenderBalance = walletBalance - totalDeductions
-  logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
+  if (!options.skipValidation) {
+    logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
+  }
 
   try {
-    let successfulTest = await sendTransactionsWithResults(transactions, wallets, transactionAmount, expectedSenderBalance)
+    let successfulTest = await sendTransactionsWithResults(
+      transactions,
+      wallets,
+      transactionAmount,
+      expectedSenderBalance,
+      options
+    )
 
     if (!successfulTest) {
       logger.error('Test failed on first run')
     }
 
-    if (successfulTest && !skipTestingAgain) {
-      successfulTest = await sendTransactionsWithResults(transactions, wallets, transactionAmount, expectedSenderBalance)
+    if (successfulTest && !options.skipValidation && !skipTestingAgain) {
+      successfulTest = await sendTransactionsWithResults(
+        transactions,
+        wallets,
+        transactionAmount,
+        expectedSenderBalance,
+        options
+      )
 
       if (!successfulTest) {
         logger.error('Test failed on second run')

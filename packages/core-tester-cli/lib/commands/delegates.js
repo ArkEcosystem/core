@@ -14,7 +14,10 @@ module.exports = async (options) => {
 
   const delegates = await utils.getDelegates()
 
-  logger.info(`Starting delegate count: ${delegates.length}`)
+  logger.info(`Sending ${options.number} delegate registration transactions`)
+  if (!options.skipValidation) {
+    logger.info(`Starting delegate count: ${delegates.length}`)
+  }
 
   const transactions = []
   const usedDelegateNames = {}
@@ -41,10 +44,16 @@ module.exports = async (options) => {
   }
 
   const expectedDelegates = delegates.length + wallets.length
-  logger.info(`Expected end delegate count: ${expectedDelegates}`)
+  if (!options.skipValidation) {
+    logger.info(`Expected end delegate count: ${expectedDelegates}`)
+  }
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
+
+    if (options.skipValidation) {
+      return
+    }
 
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply delegate transactions`)
