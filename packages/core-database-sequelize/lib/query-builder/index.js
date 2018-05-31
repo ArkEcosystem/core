@@ -1,5 +1,4 @@
-const Sequelize = require('sequelize')
-const { QueryTypes, Op } = Sequelize
+const { QueryTypes } = require('sequelize')
 const concerns = require('./concerns')
 const SqlBuilder = require('./sql-builder')
 
@@ -10,24 +9,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   constructor (connection) {
-    // this.connection = connection
-
-    this.connection = new Sequelize({
-      ...{
-        dialect: 'postgres',
-        username: 'node',
-        password: 'password',
-        database: 'ark_testnet',
-        logging: console.log
-      },
-      ...{ operatorsAliases: Op }
-    })
-  }
-
-  async connect () {
-    await this.connection.authenticate()
-
-    return this
+    this.connection = connection
   }
 
   /**
@@ -319,12 +301,7 @@ module.exports = class QueryBuiler {
    * @return {[type]}
    */
   async all () {
-    const {
-      query, replacements
-    } = SqlBuilder.build(this.criteria, this.replacements)
-
-    return this.connection.query(query, {
-      replacements,
+    return this.connection.query(SqlBuilder.build(this.criteria), {
       type: QueryTypes.SELECT
     })
   }
@@ -351,7 +328,5 @@ module.exports = class QueryBuiler {
         or: []
       }
     }
-
-    this.replacements = []
   }
 }

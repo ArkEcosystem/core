@@ -1,47 +1,40 @@
-module.exports = class SqlBuilder {
+const escape = require('./utils/escape')
+
+class SqlBuilder {
   /**
    * [build description]
-   * @param  {[type]} criteria     [description]
-   * @param  {[type]} replacements [description]
-   * @return {[type]}              [description]
+   * @param  {[type]} criteria
+   * @return {[type]}
    */
-  static build (criteria, replacements) {
+  build (criteria) {
     this.criteria = criteria
-    this.replacements = replacements
 
-    let raw = {
-      query: '',
-      replacements: null
-    }
+    let query = ''
 
-    raw.query += this.__buildSelect()
-    raw.query += this.__buildFrom()
+    query += this.__buildSelect()
+    query += this.__buildFrom()
 
     if (this.criteria.where) {
-      raw.query += this.__buildWhere()
+      query += this.__buildWhere()
     }
 
     if (this.criteria.groupBy) {
-      raw.query += this.__buildGroupBy()
+      query += this.__buildGroupBy()
     }
 
     if (this.criteria.orderBy) {
-      raw.query += this.__buildOrderBy()
+      query += this.__buildOrderBy()
     }
 
     if (this.criteria.limit) {
-      raw.query += this.__buildLimit()
+      query += this.__buildLimit()
     }
 
     if (this.criteria.offset) {
-      raw.query += this.__buildOffset()
+      query += this.__buildOffset()
     }
 
-    raw.replacements = this.replacements
-
-    this.__reset()
-
-    return raw
+    return query
   }
 
   /**
@@ -49,11 +42,11 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildSelect () {
-    this.replacements = this.criteria.select
+    const columns = this.criteria.select
+      .map(column => escape(column))
+      .join(',')
 
-    const criteria = Array(this.criteria.select.length).fill('?').join(',')
-
-    return `SELECT ${criteria} `
+    return `SELECT ${columns} `
   }
 
   /**
@@ -61,9 +54,7 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildFrom () {
-    this.replacements.push(this.criteria.from)
-
-    return 'FROM ? '
+    return `FROM ${escape(this.criteria.from)} `
   }
 
   /**
@@ -72,18 +63,11 @@ module.exports = class SqlBuilder {
    */
   __buildWhere () {
     const map = (item) => {
-      this.replacements.push(item.column)
-
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
-        this.replacements.push(item.from)
-        this.replacements.push(item.to)
-
-        return `? ${item.operator} ? AND ?`
-      } else {
-        this.replacements.push(item.value)
-
-        return `? ${item.operator} ?`
+        return `${escape(item.column)} ${item.operator} ${escape(item.from)} AND ${escape(item.to)}`
       }
+
+      return `${escape(item.column)} ${item.operator} ${escape(item.value, true)}`
     }
 
     const andQuery = Object
@@ -118,9 +102,7 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildGroupBy () {
-    this.replacements.push(this.criteria.groupBy)
-
-    return 'GROUP BY ? '
+    return `GROUP BY "${this.criteria.groupBy}" `
   }
 
   /**
@@ -128,13 +110,9 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildOrderBy () {
-    const criteria = []
-
-    Object.values(this.criteria.orderBy).forEach(item => {
-      this.replacements.push(item.column)
-
-      criteria.push(`? ${item.direction.toUpperCase()}`)
-    })
+    const criteria = Object
+      .values(this.criteria.orderBy)
+      .map(item => `${escape(item.column)} ${item.direction.toUpperCase()}`)
 
     return `ORDER BY ${criteria.join(',')} `
   }
@@ -144,9 +122,7 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildLimit () {
-    this.replacements.push(this.criteria.limit)
-
-    return 'LIMIT ? '
+    return `LIMIT ${this.criteria.limit} `
   }
 
   /**
@@ -154,8 +130,8 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildOffset () {
-    this.replacements.push(this.criteria.offset)
-
-    return 'OFFSET ? '
+    return `OFFSET ${this.criteria.offset} `
   }
 }
+
+module.exports = new SqlBuilder()

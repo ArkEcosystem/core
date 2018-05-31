@@ -5,10 +5,15 @@ module.exports = class WhereConcern {
     const args = arguments[0]
 
     const transform = (condition) => {
+      if (condition.length === 2) {
+        condition[2] = condition[1]
+        condition[1] = '='
+      }
+
       return {
-        column: args[0],
-        operator: args[1],
-        value: args[2]
+        column: condition[0],
+        operator: condition[1],
+        value: condition[2]
       }
     }
 
