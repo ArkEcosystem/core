@@ -1,69 +1,49 @@
+const { camelCase, upperFirst } = require('lodash')
 const escape = require('./utils/escape')
 
 class SqlBuilder {
   /**
-   * [build description]
-   * @param  {[type]} criteria
-   * @return {[type]}
+   * Build the clauses.
+   * @param  {Object} criteria
+   * @return {String}
    */
   build (criteria) {
-    this.criteria = criteria
-
-    let query = ''
-
-    query += this.__buildSelect()
-    query += this.__buildFrom()
-
-    if (this.criteria.where) {
-      query += this.__buildWhere()
-    }
-
-    if (this.criteria.groupBy) {
-      query += this.__buildGroupBy()
-    }
-
-    if (this.criteria.orderBy) {
-      query += this.__buildOrderBy()
-    }
-
-    if (this.criteria.limit) {
-      query += this.__buildLimit()
-    }
-
-    if (this.criteria.offset) {
-      query += this.__buildOffset()
-    }
-
-    return query
+    return Object
+      .keys(criteria)
+      .map(key => this[`__build${upperFirst(camelCase(key))}`](criteria))
+      .join('')
   }
 
   /**
-   * [__buildSelect description]
+   * Build the "SELECT" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildSelect () {
-    const columns = this.criteria.select.columns
+  __buildSelect (criteria) {
+    const columns = criteria.select.columns
       .map(column => escape(column))
 
-    const aggregates = this.criteria.select.aggregates
+    const aggregates = criteria.select.aggregates
       .map(column => column)
 
     return `SELECT ${columns.concat(aggregates).join(',')} `
   }
 
   /**
-   * [__buildFrom description]
+   * Build the "FROM" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildFrom () {
-    return `FROM ${escape(this.criteria.from)} `
+  __buildFrom (criteria) {
+    return `FROM ${escape(criteria.from)} `
   }
 
   /**
-   * [__buildWhere description]
+   * Build the "WHERE" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildWhere () {
+  __buildWhere (criteria) {
     const map = (item) => {
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
         return `${escape(item.column)} ${item.operator} ${escape(item.from)} AND ${escape(item.to)}`
@@ -73,12 +53,12 @@ class SqlBuilder {
     }
 
     const andQuery = Object
-      .values(this.criteria.where.and)
+      .values(criteria.where.and)
       .map(item => map(item))
       .join(' AND ')
 
     const orQuery = Object
-      .values(this.criteria.where.or)
+      .values(criteria.where.or)
       .map(item => map(item))
       .join(' OR ')
 
@@ -100,39 +80,43 @@ class SqlBuilder {
   }
 
   /**
-   * [__buildGroupBy description]
+   * Build the "GROUP BY" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildGroupBy () {
-    return `GROUP BY "${this.criteria.groupBy}" `
+  __buildGroupBy (criteria) {
+    return `GROUP BY "${criteria.groupBy}" `
   }
 
   /**
-   * [__buildOrderBy description]
+   * Build the "ORDER BY" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildOrderBy () {
-    const criteria = Object
-      .values(this.criteria.orderBy)
+  __buildOrderBy (criteria) {
+    const values = Object
+      .values(criteria.orderBy)
       .map(item => `${escape(item.column)} ${item.direction.toUpperCase()}`)
 
-    return `ORDER BY ${criteria.join(',')} `
+    return `ORDER BY ${values.join(',')} `
   }
 
   /**
-   * [__buildLimit description]
+   * Build the "LIMIT" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildLimit () {
-    return `LIMIT ${this.criteria.limit} `
+  __buildLimit (criteria) {
+    return `LIMIT ${criteria.limit} `
   }
 
   /**
-   * [__buildOffset description]
+   * Build the "OFFSET" clause.
+   * @param  {Object} criteria
    * @return {String}
    */
-  __buildOffset () {
-    return `OFFSET ${this.criteria.offset} `
+  __buildOffset (criteria) {
+    return `OFFSET ${criteria.offset} `
   }
 }
 
