@@ -9,6 +9,7 @@ const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
 const PoolWalletManager = require('./pool-wallet-manager')
+const helpers = require('./utils/wallet-helpers')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -165,12 +166,11 @@ module.exports = class TransactionPoolInterface {
       for (const id of transactionIds) {
         const transaction = await this.getTransaction(id)
 
-        /* const verified = verifier.canApply(transaction, false)
-        if (!verified) {
+        if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
           logger.debug('Possible double spending attack/unsufficient funds')
           continue
-        } */
+        }
 
         if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
