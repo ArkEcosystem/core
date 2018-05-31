@@ -9,6 +9,8 @@ const logger = utils.logger
 const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
+  utils.applyConfigOptions(options)
+
   const wallets = utils.generateWallets(options.number)
   await transferCommand(options, wallets, 2, true)
 

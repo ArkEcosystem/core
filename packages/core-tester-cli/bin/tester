@@ -10,6 +10,8 @@ const registerCommand = (name, description) => {
     .description(description)
     .option('-n, --number <number>', 'number of transactions', 10)
     .option('--transfer-fee <number>', 'transfer fee', 10000000)
+    .option('--base-api <value>', 'base api url')
+    .option('--base-p2p <value>', 'base p2p url')
     .option('--skip-validation', 'skip transaction validations', false)
     .option('-c, --copy', 'copy the transactions to the clipboard', false)
 }

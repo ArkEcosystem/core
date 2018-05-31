@@ -55,6 +55,8 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 }
 
 module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) => {
+  utils.applyConfigOptions(options)
+
   if (wallets === undefined) {
     wallets = utils.generateWallets(options.number)
   }
