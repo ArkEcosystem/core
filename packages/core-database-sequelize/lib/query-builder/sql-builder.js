@@ -14,13 +14,8 @@ module.exports = class SqlBuilder {
       replacements: null
     }
 
-    if (this.criteria.select) {
-      raw.query += this.__buildSelect()
-    }
-
-    if (this.criteria.from) {
-      raw.query += this.__buildFrom()
-    }
+    raw.query += this.__buildSelect()
+    raw.query += this.__buildFrom()
 
     if (this.criteria.where) {
       raw.query += this.__buildWhere()
@@ -54,9 +49,9 @@ module.exports = class SqlBuilder {
    * @return {String}
    */
   __buildSelect () {
-    this.replacements = this.criteria.select.columns
+    this.replacements = this.criteria.select
 
-    const criteria = Array(this.criteria.select.columns.length).fill('?').join(',')
+    const criteria = Array(this.criteria.select.length).fill('?').join(',')
 
     return `SELECT ${criteria} `
   }
