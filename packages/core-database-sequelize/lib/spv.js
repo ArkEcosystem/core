@@ -4,7 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 
-module.exports = class WalletBuilder {
+module.exports = class SPV {
   /**
    * Create a new wallet builder instance.
    * @param  {SequelizeConnection} database

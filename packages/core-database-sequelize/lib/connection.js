@@ -17,7 +17,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
-const WalletBuilder = require('./builder/wallet')
+const SPV = require('./spv')
 const QueryBuilder = require('./query-builder')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
@@ -208,8 +208,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     try {
-      const walletBuilder = new WalletBuilder(this)
-      await walletBuilder.build(height)
+      const spv = new SPV(this)
+      await spv.build(height)
 
       await this.__registerListeners()
 
