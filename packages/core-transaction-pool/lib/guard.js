@@ -147,6 +147,8 @@ module.exports = class TransactionGuard {
 
       if (!verified) {
         this.invalid.push(transaction)
+      } else {
+        this.pool.walletManager.appyTransaction(transaction)
       }
 
       return !verified
