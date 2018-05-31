@@ -49,7 +49,7 @@ module.exports = async (config) => {
     return server
   } catch (error) {
     logger.error(error.stack)
-
+    // TODO no exit here?
     process.exit(1)
   }
 }

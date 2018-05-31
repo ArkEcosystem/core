@@ -131,7 +131,7 @@
     }
   ],
   "blackList": [],
-  "globalTimeout": 3000,
+  "globalTimeout": 5000,
   "sources": [
     "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"
   ]

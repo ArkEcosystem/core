@@ -6,15 +6,20 @@ const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
 const superheroes = require('superheroes')
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
+  utils.applyConfigOptions(options)
+
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 50, true)
+  await transferCommand(options, wallets, 50, true)
 
   const delegates = await utils.getDelegates()
 
-  logger.info(`Starting delegate count: ${delegates.length}`)
+  logger.info(`Sending ${options.number} delegate registration transactions`)
+  if (!options.skipValidation) {
+    logger.info(`Starting delegate count: ${delegates.length}`)
+  }
 
   const transactions = []
   const usedDelegateNames = {}
@@ -28,11 +33,11 @@ module.exports = async (options) => {
       wallet.passphrase,
       wallet.username,
       config.secondPassphrase,
-      parseInt(options.delegateFee)
+      utils.parseFee(options.delegateFee)
     )
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (${wallet.username})`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
   })
 
   if (options.copy) {
@@ -41,10 +46,16 @@ module.exports = async (options) => {
   }
 
   const expectedDelegates = delegates.length + wallets.length
-  logger.info(`Expected end delegate count: ${expectedDelegates}`)
+  if (!options.skipValidation) {
+    logger.info(`Expected end delegate count: ${expectedDelegates}`)
+  }
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
+
+    if (options.skipValidation) {
+      return
+    }
 
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply delegate transactions`)

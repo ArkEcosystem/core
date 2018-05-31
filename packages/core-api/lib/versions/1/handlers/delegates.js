@@ -51,6 +51,10 @@ exports.show = {
 
     const delegate = await database.delegates.findById(request.query.publicKey || request.query.username)
 
+    if (!delegate) {
+      return utils.respondWith('Delegate not found', true)
+    }
+
     return utils.respondWith({
       delegate: utils.toResource(request, delegate, 'delegate')
     })

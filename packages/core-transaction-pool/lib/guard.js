@@ -1,6 +1,5 @@
 const reject = require('lodash/reject')
 const { Transaction } = require('@arkecosystem/crypto').models
-const verifier = require('./utils/transaction-verifier')
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionGuard {
@@ -142,6 +141,8 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
+
+      // TODO: poolmanager
       const verified = verifier.canApply(transaction)
 
       if (!verified) {
