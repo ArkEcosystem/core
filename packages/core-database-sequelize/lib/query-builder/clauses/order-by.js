@@ -1,6 +1,6 @@
 const isObject = require('../utils/is-object')
 
-module.exports = class OrderByConcern {
+module.exports = class OrderByClause {
   static apply () {
     const args = arguments[0]
 

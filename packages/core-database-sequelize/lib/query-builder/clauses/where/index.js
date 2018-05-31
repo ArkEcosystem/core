@@ -1,6 +1,6 @@
 const isObject = require('../../utils/is-object')
 
-module.exports = class WhereConcern {
+module.exports = class WhereClause {
   static apply () {
     const args = arguments[0]
 

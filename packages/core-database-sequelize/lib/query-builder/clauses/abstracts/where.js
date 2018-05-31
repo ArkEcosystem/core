@@ -1,7 +1,7 @@
 const isObject = require('../../utils/is-object')
 const map = require('./utils/map')
 
-module.exports = class WhereConcern {
+module.exports = class WhereClause {
   static apply () {
     const args = arguments[0]
 

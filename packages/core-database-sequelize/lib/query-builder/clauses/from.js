@@ -1,4 +1,4 @@
-module.exports = class FromConcern {
+module.exports = class FromClause {
   static apply (table) {
     return table
   }

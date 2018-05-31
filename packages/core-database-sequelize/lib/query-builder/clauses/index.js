@@ -1,6 +1,7 @@
 module.exports = {
   avg: require('./aggregate/avg'),
   count: require('./aggregate/count'),
+  countDistinct: require('./aggregate/count-distinct'),
   from: require('./from'),
   groupBy: require('./group-by'),
   limit: require('./limit'),

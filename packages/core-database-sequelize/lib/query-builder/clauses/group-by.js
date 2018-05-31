@@ -1,4 +1,4 @@
-module.exports = class GroupByConcern {
+module.exports = class GroupByClause {
   static apply (column) {
     return column
   }

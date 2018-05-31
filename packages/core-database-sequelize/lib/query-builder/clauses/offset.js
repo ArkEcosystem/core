@@ -1,4 +1,4 @@
-module.exports = class LimitConcern {
+module.exports = class OffsetClause {
   static apply (value) {
     return value
   }

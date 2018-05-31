@@ -1,4 +1,4 @@
-module.exports = class CountConcern {
+module.exports = class CountDistinctClause {
   static apply (column, as) {
     return as
       ? `COUNT (DISTINCT "${column}") AS "${as}"`

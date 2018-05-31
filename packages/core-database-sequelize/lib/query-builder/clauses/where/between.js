@@ -1,13 +1,13 @@
 const isObject = require('../../utils/is-object')
 
-module.exports = class WhereNotBetweenConcern {
+module.exports = class WhereBetweenClause {
   static apply () {
     const args = arguments[0]
 
     const transform = (condition) => {
       return {
         column: condition[0],
-        operator: 'NOT BETWEEN',
+        operator: 'BETWEEN',
         from: condition[1],
         to: condition[2]
       }
