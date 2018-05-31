@@ -1,8 +1,8 @@
 'use strict'
 
 const config = {
-  baseUrlP2P: 'http://localhost:4102',
-  baseUrlApi: 'http://localhost:4103',
+  baseUrlP2P: 'http://localhost:4002',
+  baseUrlApi: 'http://localhost:4003',
   passphrase: 'prison tobacco acquire stone dignity palace note decade they current lesson robot',
   secondPassPhrase: '',
   publicKeyHash: 23,
