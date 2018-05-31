@@ -170,7 +170,7 @@ module.exports = class TransactionPoolInterface {
           await this.removeTransaction(transaction)
           logger.debug('Possible double spending attack/unsufficient funds')
           continue
-        }*/
+        } */
 
         if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
           const actions = {
