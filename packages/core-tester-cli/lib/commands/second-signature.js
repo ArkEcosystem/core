@@ -19,13 +19,13 @@ module.exports = async (options) => {
     const transaction = ark.signature.createSignature(
       wallet.passphrase,
       wallet.secondPassphrase,
-      parseInt(options.signatureFee)
+      utils.parseFee(options.signatureFee)
     )
     wallet.publicKey = transaction.senderPublicKey
     wallet.secondPublicKey = transaction.asset.signature.publicKey
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {

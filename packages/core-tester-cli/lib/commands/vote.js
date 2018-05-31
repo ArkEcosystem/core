@@ -41,11 +41,11 @@ module.exports = async (options) => {
       wallet.passphrase,
       delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
       config.secondPassphrase,
-      parseInt(options.voteFee)
+      utils.parseFee(options.voteFee)
     )
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {

@@ -31,11 +31,11 @@ module.exports = async (options) => {
       wallet.passphrase,
       wallet.username,
       config.secondPassphrase,
-      parseInt(options.delegateFee)
+      utils.parseFee(options.delegateFee)
     )
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (${wallet.username})`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
   })
 
   if (options.copy) {

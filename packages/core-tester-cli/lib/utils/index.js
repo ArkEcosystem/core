@@ -8,5 +8,6 @@ module.exports = {
     getWallet: require('./get-wallet'),
     getWalletBalance: require('./get-wallet-balance'),
     logger: require('./logger'),
+    parseFee: require('./parse-fee'),
     request: require('./request')
 }

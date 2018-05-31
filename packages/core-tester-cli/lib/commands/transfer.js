@@ -76,12 +76,12 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       config.passphrase,
       wallet.secondPassphrase || config.secondPassphrase,
       config.publicKeyHash,
-      parseInt(options.transferFee)
+      utils.parseFee(options.transferFee)
     )
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {
