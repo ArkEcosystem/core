@@ -5,11 +5,15 @@ const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
+  utils.applyConfigOptions(options)
+
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 50, true)
+  await transferCommand(options, wallets, 50, true)
+
+  logger.info(`Sending ${options.number} second signature transactions`)
 
   const transactions = []
   wallets.forEach((wallet, i) => {
@@ -17,13 +21,13 @@ module.exports = async (options) => {
     const transaction = ark.signature.createSignature(
       wallet.passphrase,
       wallet.secondPassphrase,
-      parseInt(options.signatureFee)
+      utils.parseFee(options.signatureFee)
     )
     wallet.publicKey = transaction.senderPublicKey
     wallet.secondPublicKey = transaction.asset.signature.publicKey
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {
@@ -33,6 +37,10 @@ module.exports = async (options) => {
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
+
+    if (options.skipValidation) {
+      return
+    }
 
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply signature transactions`)

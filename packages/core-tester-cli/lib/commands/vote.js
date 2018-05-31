@@ -6,11 +6,13 @@ const sampleSize = require('lodash/sampleSize')
 const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
+  utils.applyConfigOptions(options)
+
   const wallets = utils.generateWallets(options.number)
-  await transactionCommand(options, wallets, 2, true)
+  await transferCommand(options, wallets, 2, true)
 
   let delegateVotes = []
   if (!options.delegate) {
@@ -30,7 +32,10 @@ module.exports = async (options) => {
     voters += detail.voters.length
   })
 
-  logger.info(`Delegate starting voters: ${voters}`)
+  logger.info(`Sending ${options.number} vote transactions`)
+  if (!options.skipValidation) {
+    logger.info(`Delegate starting voters: ${voters}`)
+  }
 
   const transactions = []
   wallets.forEach((wallet, i) => {
@@ -38,11 +43,11 @@ module.exports = async (options) => {
       wallet.passphrase,
       delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
       config.secondPassphrase,
-      parseInt(options.voteFee)
+      utils.parseFee(options.voteFee)
     )
     transactions.push(transaction)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
+    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {
@@ -51,11 +56,16 @@ module.exports = async (options) => {
   }
 
   const expectedVoters = voters + wallets.length
-
-  logger.info(`Expected end voters: ${expectedVoters}`)
+  if (!options.skipValidation) {
+    logger.info(`Expected end voters: ${expectedVoters}`)
+  }
 
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
+
+    if (options.skipValidation) {
+      return
+    }
 
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply vote transactions`)
