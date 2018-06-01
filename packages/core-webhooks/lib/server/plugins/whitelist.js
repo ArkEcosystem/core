@@ -37,7 +37,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-webhooks-api-whitelist',
+  name: 'core-webhooks-whitelist',
   version: '0.0.1',
   register
 }

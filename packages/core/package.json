@@ -60,7 +60,6 @@
     "@arkecosystem/core-database-sequelize": "^0.0.1",
     "@arkecosystem/core-forger": "^0.0.1",
     "@arkecosystem/core-graphql": "^0.0.1",
-    "@arkecosystem/core-graphql-api": "^0.0.1",
     "@arkecosystem/core-json-rpc": "^0.0.1",
     "@arkecosystem/core-logger": "^0.0.1",
     "@arkecosystem/core-logger-winston": "^0.0.1",
@@ -68,7 +67,6 @@
     "@arkecosystem/core-transaction-pool": "^0.0.1",
     "@arkecosystem/core-transaction-pool-redis": "^0.0.1",
     "@arkecosystem/core-webhooks": "^0.0.1",
-    "@arkecosystem/core-webhooks-api": "^0.0.1",
     "commander": "^2.15.1"
   }
 }
