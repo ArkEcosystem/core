@@ -161,17 +161,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < maxDelegates) {
-      const chosen = data.map(delegate => delegate.publicKey).join('\',\'')
+      const chosen = data.map(delegate => delegate.publicKey)
 
-      const data2 = await this.query
-        .select('"vote" AS "publicKey"')
+      let query = this.query
+        .select('publicKey')
         .sum('balance', 'balance')
         .from('wallets')
-        .whereRaw(`"username" IS NOT NULL AND "publicKey" NOT IN ('${chosen}')`)
-        .groupBy('vote')
-        .orderBy('vote', 'ASC')
-        .limit(maxDelegates - data.length)
-        .all()
+        .whereNotNull('username')
+
+        if (chosen.length) {
+          query = query.whereNotIn('publicKey', chosen)
+        }
+
+        const data2 = await query.groupBy('publicKey')
+          .orderBy('publicKey', 'ASC')
+          .limit(maxDelegates - data.length)
+          .all()
 
       data = data.concat(data2)
     }
