@@ -11,17 +11,11 @@ module.exports = {
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},
-  '@arkecosystem/core-p2p': {
-    port: 4002
-  },
+  '@arkecosystem/core-p2p': {},
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
-    enabled: true,
-    port: 4003
+    enabled: true
   },
   '@arkecosystem/core-webhooks': {},
-  '@arkecosystem/core-webhooks-api': {},
-  '@arkecosystem/core-graphql': {},
-  '@arkecosystem/core-graphql-api': {},
   '@arkecosystem/core-forger': {}
 }

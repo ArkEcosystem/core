@@ -1,7 +1,6 @@
 'use strict'
 
-const container = require('@arkecosystem/core-container')
-const database = require('@arkecosystem/core-webhooks').database
+const database = require('../database')
 const utils = require('./utils')
 const schema = require('./schema')
 
@@ -104,21 +103,5 @@ exports.destroy = {
   },
   options: {
     validate: schema.destroy
-  }
-}
-
-/**
- * @type {Object}
- */
-exports.events = {
-  /**
-   * @param  {Hapi.Request} request
-   * @param  {Hapi.Toolkit} h
-   * @return {Hapi.Response}
-   */
-  async handler (request, h) {
-    return {
-      data: container.resolvePlugin('webhooks').getEvents()
-    }
   }
 }

@@ -9,14 +9,10 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  if (!config.enabled) {
-    return logger.info('Webhook API is not enabled')
-  }
-
   const baseConfig = {
+    host: config.host,
     port: config.port,
     routes: {
-      auth: 'webhooks',
       cors: true,
       validate: {
         async failAction (request, h, err) {
@@ -27,6 +23,7 @@ module.exports = async (config) => {
   }
 
   const server = new Hapi.Server(baseConfig)
+
   await server.register({
     plugin: require('./plugins/whitelist'),
     options: {

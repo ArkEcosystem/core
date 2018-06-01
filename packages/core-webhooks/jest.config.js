@@ -18,5 +18,6 @@ module.exports = {
     '!**/node_modules/**'
   ],
   watchman: false,
+  globalSetup: './__tests__/__support__/setup.js',
   setupTestFrameworkScriptFile: 'jest-extended'
 }

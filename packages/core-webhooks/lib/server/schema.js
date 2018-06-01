@@ -1,9 +1,7 @@
 'use strict'
 
-const webhookManager = require('@arkecosystem/core-container').resolvePlugin('webhooks')
 const Joi = require('joi')
 
-const events = webhookManager.getEvents().map(event => event.name)
 const conditions = [
   'between', 'contains', 'eq', 'falsy', 'gt', 'gte',
   'lt', 'lte', 'ne', 'not-between', 'regexp', 'truthy'
@@ -33,7 +31,7 @@ exports.show = {
  */
 exports.store = {
   payload: {
-    event: Joi.string().valid(events).required(),
+    event: Joi.string().required(),
     target: Joi.string().required().uri(),
     enabled: Joi.boolean().default(true),
     conditions: Joi.array().items(Joi.object({
@@ -49,7 +47,7 @@ exports.store = {
  */
 exports.update = {
   payload: {
-    event: Joi.string().valid(events),
+    event: Joi.string(),
     target: Joi.string().uri(),
     enabled: Joi.boolean(),
     conditions: Joi.array().items(Joi.object({
