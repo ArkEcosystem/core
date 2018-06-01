@@ -10,6 +10,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  */
 module.exports = async (config) => {
   const baseConfig = {
+    host: config.host,
     port: config.port,
     routes: {
       cors: true,

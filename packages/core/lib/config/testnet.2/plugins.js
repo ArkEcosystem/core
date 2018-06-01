@@ -45,6 +45,7 @@ module.exports = {
     }
   },
   '@arkecosystem/core-p2p': {
+    host: process.env.ARK_P2P_HOST || 'localhost',
     port: process.env.ARK_P2P_PORT || 4202
   },
   '@arkecosystem/core-blockchain': {},
