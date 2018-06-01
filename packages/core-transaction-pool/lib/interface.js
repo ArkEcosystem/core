@@ -223,6 +223,7 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Processes recently accepted block by the blockchain.
+   * It removes block transaction from the pool and adjusts pool wallet manager transactions for non existing transactions
    * @param  {Object} block
    * @return {void}
    */
@@ -230,7 +231,8 @@ module.exports = class TransactionPoolInterface {
     this.walletManager.applyBlock(block)
 
     for (const transaction of block.transactions) {
-      if (!this.transactionExists(transaction)) {
+      const exists = await this.transactionExists(transaction.id)
+      if (!exists) {
         // if any of wallets already pool we try to apply transaction
         if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
           try {
@@ -242,8 +244,13 @@ module.exports = class TransactionPoolInterface {
             this.walletManager.deleteWallet(transaction.senderPublicKey)
           }
         }
+      } else {
+        await this.removeTransaction(transaction)
       }
-      await this.removeTransaction(transaction)
+
+      if (this.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance === 0) {
+        this.walletManager.deleteWallet(transaction.senderPublicKey)
+      }
     }
   }
 }
