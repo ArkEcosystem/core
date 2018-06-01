@@ -183,9 +183,6 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
-      // TODO Use Promise.all or explain why not
-      // - Promise.each is applied sequentially
-      // - Promise.all is applied in parallel
       await Promise.each(block.transactions, async (transaction) => {
         await this.revertTransaction(transaction)
 
@@ -196,9 +193,6 @@ module.exports = class WalletManager {
     } catch (error) {
       logger.error(error.stack)
 
-      // TODO Use Promise.all or explain why not
-      // - Promise.each is applied sequentially
-      // - Promise.all is applied in parallel
       await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
 
       throw error
