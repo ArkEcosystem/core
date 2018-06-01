@@ -55,7 +55,6 @@
     "@arkecosystem/core-api": "^0.0.1",
     "@arkecosystem/core-blockchain": "^0.0.1",
     "@arkecosystem/core-config": "^0.0.1",
-    "@arkecosystem/core-config-json": "^0.0.1",
     "@arkecosystem/core-database": "^0.0.1",
     "@arkecosystem/core-database-sequelize": "^0.0.1",
     "@arkecosystem/core-forger": "^0.0.1",
