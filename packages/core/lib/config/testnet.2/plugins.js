@@ -52,7 +52,8 @@ module.exports = {
   '@arkecosystem/core-api': {
     enabled: false,
     host: process.env.ARK_API_HOST || 'localhost',
-    port: process.env.ARK_API_PORT || 4203
+    port: process.env.ARK_API_PORT || 4203,
+    whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
     enabled: false,
