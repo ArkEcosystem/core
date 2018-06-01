@@ -1,5 +1,6 @@
 const reject = require('lodash/reject')
 const container = require('@arkecosystem/core-container')
+const Promise = require('bluebird')
 
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
@@ -25,7 +26,7 @@ module.exports = class TransactionGuard {
   async validate (transactions, isBroadCasted) {
     this.__reset()
 
-    this.__transformTransactions(transactions)
+    await this.__transformAndFilterTransations(transactions)
 
     this.__determineInvalidTransactions()
 
@@ -100,12 +101,20 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Transform the specified transactions to models.
+   * Transforms and filters incomming transactions.
+   * It skips duplicates and not valid crypto transactions
    * @param  {Array} transactions
    * @return {void}
    */
-  __transformTransactions (transactions) {
-     this.transactions = transactions.map(transaction => new Transaction(transaction))
+  async __transformAndFilterTransations (transactions) {
+    this.transactions = []
+    await Promise.each(transactions, async (transaction) => {
+      const exists = await this.pool.transactionExists(transaction.id)
+      if (!exists) {
+        const trx = new Transaction(transaction)
+        if (trx.verified) this.transactions.push(new Transaction(transaction))
+      }
+    })
   }
 
   /**
@@ -120,7 +129,7 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determine any invalid transactions, usually caused by invalid crypto or insufficient funds.
+   * Determine any invalid transactions, usually caused by insufficient funds.
    * @return {void}
    */
   __determineInvalidTransactions () {
