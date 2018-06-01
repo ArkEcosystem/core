@@ -125,7 +125,11 @@ module.exports = class TransactionGuard {
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
       try {
+        console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
         this.pool.walletManager.applyTransaction(transaction)
+        console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+        console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+
         return false
       } catch (error) {
         this.invalid.push(transaction)
