@@ -1,4 +1,5 @@
 const reject = require('lodash/reject')
+const container = require('@arkecosystem/core-container')
 
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
@@ -129,6 +130,12 @@ module.exports = class TransactionGuard {
         this.pool.walletManager.applyTransaction(transaction)
         console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
         console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+
+        console.log(container
+          .resolvePlugin('blockchain')
+          .database
+          .walletManager
+          .getWalletByPublicKey(transaction.senderPublicKey).balance)
 
         return false
       } catch (error) {

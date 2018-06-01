@@ -75,9 +75,8 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {void}
    */
   async applyBlock (block) {
-    const generatorPublicKey = block.data.generatorPublicKey
-    if (this.walletManager.walletsByPublicKey[generatorPublicKey]) {
-      const delegate = this.getWalletByPublicKey(generatorPublicKey)
+    if (this.exists(block.data.generatorPublicKey)) {
+      const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
       delegate.applyBlock(block.data)
     }
   }

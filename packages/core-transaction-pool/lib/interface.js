@@ -229,22 +229,21 @@ module.exports = class TransactionPoolInterface {
   async acceptChainedBlock (block) {
     this.walletManager.applyBlock(block)
 
-    block.transactions.forEach(transaction => {
-      // there are other transactions from this sender - wallet exists in pool wallet manager
-      // the forged transaction is not in pool - so needs to be applied
-      // we must apply the transaction also to this sender/recepient in pool wallet manager
-      if (this.walletManager.exists(transaction.senderPublicKey) && !this.pool.transactionExists(transaction)) {
-        try {
-          this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
-        } catch (error) {
-          // remove sender from the pool, i.e. not enough funds
-          logger.error(`Purging ${transaction.senderPublicKey} from pool. Not enough funds, possible double spending.`)
-          this.purgeSender(transaction.senderPublicKey)
-          this.walletManager.deleteWallet(transaction.senderPublicKey)
+    for (const transaction of block.transactions) {
+      if (!this.pool.transactionExists(transaction)) {
+        // if any of wallets already pool we apply transaction
+        if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
+          try {
+            this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
+          } catch (error) {
+            // remove sender from the pool, i.e. not enough funds
+            logger.error(`Purging ${transaction.senderPublicKey} from pool. Not enough funds, possible double spending.`)
+            this.purgeSender(transaction.senderPublicKey)
+            this.walletManager.deleteWallet(transaction.senderPublicKey)
+          }
         }
       }
-    })
-
-    await this.removeTransactions(block.transactions)
+      await this.removeTransaction(transaction)
+    }
   }
 }

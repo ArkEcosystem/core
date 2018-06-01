@@ -1,7 +1,7 @@
 const container = require('@arkecosystem/core-container')
 
 module.exports = {
-  /* Gets the blockchain state wallet and checks if transaction can be applied - before returning it to forger.
+  /* Gets the blockchain wallet and checks if transaction can be applied - before returning it to forger.
    * @param transaction
    */
   canApplyToBlockchain: (transaction) => {
