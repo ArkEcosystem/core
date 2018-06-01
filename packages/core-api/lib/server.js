@@ -34,6 +34,13 @@ module.exports = async (config) => {
   await server.register([require('vision'), require('inert'), require('lout')])
 
   await server.register({
+    plugin: require('./plugins/whitelist'),
+    options: {
+      whitelist: config.whitelist
+    }
+  })
+
+  await server.register({
     plugin: require('hapi-api-version'),
     options: {
       validVersions: config.versions.valid,
