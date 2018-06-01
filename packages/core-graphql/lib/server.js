@@ -1,9 +1,7 @@
 'use strict';
 
 const Hapi = require('hapi')
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
-const schema = container.resolvePlugin('graphql')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
 
 /**
@@ -12,7 +10,10 @@ const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  const server = new Hapi.Server({ port: config.port })
+  const server = new Hapi.Server({
+    host: config.host,
+    port: config.port
+  })
 
   await server.register([require('vision'), require('inert'), require('lout')])
 
@@ -20,9 +21,7 @@ module.exports = async (config) => {
     plugin: graphqlHapi,
     options: {
       path: config.path,
-      graphqlOptions: {
-        schema
-      },
+      graphqlOptions: require('./schema'),
       route: {
         cors: true
       }
