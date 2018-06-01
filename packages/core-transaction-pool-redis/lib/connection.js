@@ -47,6 +47,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
         emitter.emit('transaction.expired', transaction.data)
 
+        this.walletManager.revertTransaction(transaction)
         await this.removeTransaction(transaction)
       }
     })
@@ -266,7 +267,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     try {
       const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-      console.log(transactionIds)
+
       return transactionIds
     } catch (error) {
       logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
