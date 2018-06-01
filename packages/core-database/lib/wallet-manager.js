@@ -215,8 +215,9 @@ module.exports = class WalletManager {
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
       this.__emitEvent('wallet:cold:created', recipient)
+    }
 
-    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
