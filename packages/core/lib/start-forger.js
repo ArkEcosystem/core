@@ -12,7 +12,6 @@ module.exports = async (options) => {
     include: [
       '@arkecosystem/core-event-emitter',
       '@arkecosystem/core-config',
-      '@arkecosystem/core-config-json',
       '@arkecosystem/core-logger',
       '@arkecosystem/core-logger-winston',
       '@arkecosystem/core-forger'
