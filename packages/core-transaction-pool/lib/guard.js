@@ -1,7 +1,8 @@
 const reject = require('lodash/reject')
-const container = require('@arkecosystem/core-container')
 const Promise = require('bluebird')
 
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
@@ -134,23 +135,26 @@ module.exports = class TransactionGuard {
    */
   __determineInvalidTransactions () {
     this.transactions = reject(this.transactions, transaction => {
-      try {
-        console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-        this.pool.walletManager.applyTransaction(transaction)
-        console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-        console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+      const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
-        console.log(container
-          .resolvePlugin('blockchain')
-          .database
-          .walletManager
-          .getWalletByPublicKey(transaction.senderPublicKey).balance)
-
-        return false
-      } catch (error) {
+      if (!wallet.canApply(transaction)) {
+        logger.debug(`Guard: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
         this.invalid.push(transaction)
         return true
       }
+
+      console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      this.pool.walletManager.applyTransaction(transaction)
+      console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+
+      console.log(container
+        .resolvePlugin('blockchain')
+        .database
+        .walletManager
+        .getWalletByPublicKey(transaction.senderPublicKey).balance)
+
+      return false
     })
   }
 
