@@ -6,9 +6,9 @@ const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 
 module.exports = class PoolWalletManager extends WalletManager {
-    /**
+  /**
    * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
-   * Method overriden from WalletManager.
+   * Method overrides base class method from WalletManager.
    * @param  {String} address
    * @return {(Wallet|null)}
    */
@@ -20,22 +20,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     }
 
     return this.walletsByAddress[address]
-  }
-
-  /**
-   * Get a wallet by the given public key. Method overriden from WalletManager
-   * @param  {String} publicKey
-   * @return {Wallet}
-   */
-  getWalletByPublicKey (publicKey) {
-    if (!this.walletsByPublicKey[publicKey]) {
-      const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
-
-      this.walletsByPublicKey[publicKey] = this.getWalletByAddress(address)
-      this.walletsByPublicKey[publicKey].publicKey = publicKey
-    }
-
-    return this.walletsByPublicKey[publicKey]
   }
 
   /**
