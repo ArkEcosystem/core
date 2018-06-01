@@ -110,7 +110,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         throw new Error('Transaction not added to the pool - await this.pool.hmset failed')
       }
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
-      await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.rpush(this.__getRedisSenderPublicKey(transaction.senderPublicKey), transaction.id)
 
       if (transaction.expiration > 0) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
@@ -146,7 +146,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     if (await this.transactionExists(transaction.id)) {
       await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-      await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.lrem(this.__getRedisSenderPublicKey(transaction.senderPublicKey), 1, transaction.id)
       await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
     }
   }
@@ -164,7 +164,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (await this.transactionExists(id)) {
       const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
 
-      await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
+      await this.pool.lrem(this.__getRedisSenderPublicKey(senderPublicKey), 1, id)
       await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
       await this.pool.del(this.__getRedisExpirationKey(id))
       await this.pool.del(this.__getRedisTransactionKey(id))
@@ -205,7 +205,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return false
     }
 
-    const count = await this.pool.get(this.__getRedisThrottleKey(transaction.senderPublicKey))
+    const count = await this.pool.llen(this.__getRedisSenderPublicKey(transaction.senderPublicKey))
     return count ? count >= this.options.maxTransactionsPerSender : false
   }
 
@@ -266,6 +266,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     try {
       const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      console.log(transactionIds)
       return transactionIds
     } catch (error) {
       logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
@@ -323,7 +324,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} publicKey
    * @return {String}
    */
-  __getRedisThrottleKey (publicKey) {
+  __getRedisSenderPublicKey (publicKey) {
     return `${this.keyPrefix}:throttle:${publicKey}`
   }
 

@@ -23,7 +23,7 @@ exports.dummy2 = new Transaction({
   network: 30,
   type: 0,
   timestamp: 35632190,
-  senderPublicKey: '0310c283aac7b35b4ae6fab201d36e8322c3408331149982e16013a5bcb917081c',
+  senderPublicKey: '03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357',
   fee: 10000000,
   amount: 10000000,
   expiration: 0,

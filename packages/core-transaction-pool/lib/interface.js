@@ -168,7 +168,7 @@ module.exports = class TransactionPoolInterface {
 
         if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
-          logger.debug('Possible double spending attack/unsufficient funds')
+          logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
           continue
         }
 
