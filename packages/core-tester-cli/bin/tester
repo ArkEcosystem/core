@@ -9,6 +9,7 @@ const registerCommand = (name, description) => {
     .command(name)
     .description(description)
     .option('-n, --number <number>', 'number of transactions', 10)
+    .option('-a, --amount <number>', 'transaction amount', 200000000)
     .option('--transfer-fee <number>', 'transfer fee', 10000000)
     .option('--base-api <value>', 'base api url')
     .option('--base-p2p <value>', 'base p2p url')
