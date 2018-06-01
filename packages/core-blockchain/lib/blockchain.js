@@ -293,7 +293,7 @@ module.exports = class Blockchain {
         this.p2p.broadcastBlock(block)
       }
 
-      if (this.transactionPool) this.transactionPool.removeTransactions(block.transactions)
+      if (this.transactionPool) this.transactionPool.acceptChainedBlock(block)
     } catch (error) {
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)

@@ -211,4 +211,19 @@ module.exports = class TransactionPoolInterface {
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
+
+  async acceptChainedBlock (block) {
+    this.walletManager.applyBlock(block)
+
+    block.transactions.forEach(transaction => {
+      // there are other transactions from this sender - wallet exists in pool wallet manager
+      // the forged transaction is not in pool - so needs to be applied
+      // we must apply the transaction also to this sender/recepient in pool wallet manager
+      if (this.walletManager.exists(transaction.senderPublicKey) && !this.pool.transactionExists(transaction)) {
+        this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
+      }
+    })
+
+    await this.removeTransactions(block.transactions)
+  }
 }
