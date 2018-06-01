@@ -1,14 +1,16 @@
-const isObject = require('../../utils/is-object')
-const map = require('./utils/map')
+const isString = require('../../utils/is-string')
 
-module.exports = class WhereNotNullClause {
-  static apply () {
-    const args = arguments[0]
+module.exports = function () {
+  const transform = condition => ({
+    column: condition,
+    operator: 'IS NOT NULL'
+  })
 
-    const transform = (condition) => map(args[0], 'IS NOT NULL', args[1])
+  const args = arguments[0]
 
-    return isObject(args[0])
-      ? args[0].map(arg => transform(arg))
-      : transform(args)
+  if (isString(args[0])) {
+    return [transform(args[0])]
   }
+
+  return args[0].map(argument => transform(argument))
 }

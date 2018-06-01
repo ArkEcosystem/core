@@ -41,9 +41,7 @@ module.exports = class TransactionsRepository {
       : ['timestamp', 'DESC']
 
     const buildQuery = (query) => {
-      return query
-        .from('transactions')
-        .whereKeyValuePairs(whereStatement) // TODO: replace with where
+      return query.from('transactions').where(whereStatement)
     }
 
     let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
@@ -152,7 +150,7 @@ module.exports = class TransactionsRepository {
     const transaction = await this.query
       .select('blockId', 'serialized')
       .from('transactions')
-      .whereKeyValuePairs(conditions) // TODO: replace with where
+      .where(conditions)
       .first()
 
     return this.__mapBlocksToTransactions(transaction)
@@ -194,9 +192,7 @@ module.exports = class TransactionsRepository {
     })
 
     const buildQuery = (query) => {
-      return query
-        .from('transactions')
-        .whereStruct(conditions) // TODO: replace with where
+      return query.from('transactions').where(conditions)
     }
 
     let transactions = await buildQuery(this.query.select('blockId', 'serialized'))

@@ -1,18 +1,18 @@
-const isObject = require('../utils/is-object')
+const isString = require('../utils/is-string')
 
-module.exports = class OrderByClause {
-  static apply () {
-    const args = arguments[0]
+module.exports = function () {
+  const transform = condition => ({
+    column: condition[0],
+    direction: condition[1]
+  })
 
-    const transform = (condition) => {
-      return {
-        column: condition[0],
-        direction: condition[1]
-      }
-    }
+  const args = arguments[0]
 
-    return isObject(args[0])
-      ? [args[0].map(arg => transform(arg))]
-      : [transform(args)]
+  if (isString(args[0])) {
+    return [transform(args)]
   }
+
+  return Object
+    .entries(args[0])
+    .map(argument => transform(argument))
 }

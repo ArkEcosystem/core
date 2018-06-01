@@ -1,5 +1,3 @@
-module.exports = class LimitClause {
-  static apply (value) {
-    return value
-  }
+module.exports = function (limit) {
+  return limit
 }

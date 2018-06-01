@@ -1,12 +1,13 @@
 const { QueryTypes } = require('sequelize')
 const clauses = require('./clauses')
 const SqlBuilder = require('./sql-builder')
+const { get, set } = require('lodash')
 
 module.exports = class QueryBuiler {
   /**
    * [constructor description]
    * @param  {[type]} connection
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   constructor (connection) {
     this.connection = connection
@@ -14,301 +15,283 @@ module.exports = class QueryBuiler {
 
   /**
    * [select description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   select () {
     this.__reset()
 
-    this.criteria.select.columns = clauses.select.apply(arguments)
+    this.clauses.select.columns = clauses.select(arguments)
 
     return this
   }
 
   /**
    * [from description]
-   * @param  {[type]} table
-   * @return {[type]}
+   * @param  {String} table
+   * @return {QueryBuilder}
    */
   from (table) {
-    this.criteria.from = clauses.from.apply(table)
+    this.clauses.from = clauses.from(table)
 
     return this
   }
 
   /**
    * [where description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   where () {
-    this.criteria.where.and.push(clauses.where.apply(arguments))
-
-    return this
-  }
-
-  /**
-   * [whereNot description]
-   * @return {[type]}
-   */
-  whereNot () {
-    this.criteria.where.and.push(clauses.whereNot.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.where(arguments))
 
     return this
   }
 
   /**
    * [whereIn description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereIn () {
-    this.criteria.where.and.push(clauses.whereIn.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereIn(arguments))
 
     return this
   }
 
   /**
    * [whereNotIn description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereNotIn () {
-    this.criteria.where.and.push(clauses.whereNotIn.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereNotIn(arguments))
 
     return this
   }
 
   /**
    * [whereNull description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereNull () {
-    this.criteria.where.and.push(clauses.whereNull.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereNull(arguments))
 
     return this
   }
 
   /**
    * [whereNotNull description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereNotNull () {
-    this.criteria.where.and.push(clauses.whereNotNull.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereNotNull(arguments))
 
     return this
   }
 
   /**
    * [whereBetween description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereBetween () {
-    this.criteria.where.and.push(clauses.whereBetween.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereBetween(arguments))
 
     return this
   }
 
   /**
    * [whereNotBetween description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   whereNotBetween () {
-    this.criteria.where.and.push(clauses.whereNotBetween.apply(arguments))
+    this.__pushClause('clauses.where.and', clauses.whereNotBetween(arguments))
 
     return this
   }
 
   /**
    * [orWhere description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhere () {
-    this.criteria.where.or.push(clauses.where.apply(arguments))
-
-    return this
-  }
-
-  /**
-   * [orWhereNot description]
-   * @return {[type]}
-   */
-  orWhereNot () {
-    this.criteria.where.or.push(clauses.whereNot.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.where(arguments))
 
     return this
   }
 
   /**
    * [orWhereIn description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereIn () {
-    this.criteria.where.or.push(clauses.whereIn.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereIn(arguments))
 
     return this
   }
 
   /**
    * [orWhereNotIn description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereNotIn () {
-    this.criteria.where.or.push(clauses.whereNotIn.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereNotIn(arguments))
 
     return this
   }
 
   /**
    * [orWhereNull description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereNull () {
-    this.criteria.where.or.push(clauses.whereNull.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereNull(arguments))
 
     return this
   }
 
   /**
    * [orWhereNotNull description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereNotNull () {
-    this.criteria.where.or.push(clauses.whereNotNull.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereNotNull(arguments))
 
     return this
   }
 
   /**
    * [orWhereBetween description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereBetween () {
-    this.criteria.where.or.push(clauses.whereBetween.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereBetween(arguments))
 
     return this
   }
 
   /**
    * [orWhereNotBetween description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orWhereNotBetween () {
-    this.criteria.where.or.push(clauses.whereNotBetween.apply(arguments))
+    this.__pushClause('clauses.where.or', clauses.whereNotBetween(arguments))
 
     return this
   }
 
   /**
    * [groupBy description]
-   * @param  {[type]} column
-   * @return {[type]}
+   * @param  {String} column
+   * @return {QueryBuilder}
    */
   groupBy (column) {
-    this.criteria.groupBy = clauses.groupBy.apply(column)
+    this.clauses.groupBy = clauses.groupBy(column)
 
     return this
   }
 
   /**
    * [orderBy description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   orderBy () {
-    this.criteria.orderBy = clauses.orderBy.apply(arguments)
+    this.clauses.orderBy = clauses.orderBy(arguments)
 
     return this
   }
 
   /**
    * [limit description]
-   * @param  {[type]} value
-   * @return {[type]}
+   * @param  {Number} value
+   * @return {QueryBuilder}
    */
   limit (value) {
-    this.criteria.limit = clauses.limit.apply(value)
+    this.clauses.limit = clauses.limit(value)
 
     return this
   }
 
   /**
    * [offset description]
-   * @param  {[type]} value
-   * @return {[type]}
+   * @param  {Number} value
+   * @return {QueryBuilder}
    */
   offset (value) {
-    this.criteria.offset = clauses.offset.apply(value)
+    this.clauses.offset = clauses.offset(value)
 
     return this
   }
 
   /**
    * [count description]
-   * @param  {[type]} column
-   * @param  {[type]} as
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
-  count (column, as) {
-    this.criteria.select.aggregates.push(clauses.count.apply(column, as))
+  count (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.count(column, alias))
+
+    return this
+  }
+
+  /**
+   * [countDistinct description]
+   * @return {QueryBuilder}
+   */
+  countDistinct (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.countDistinct(column, alias))
 
     return this
   }
 
   /**
    * [min description]
-   * @param  {[type]} column
-   * @param  {[type]} as
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
-  min (column, as) {
-    this.criteria.select.aggregates.push(clauses.min.apply(column, as))
+  min (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.min(column, alias))
 
     return this
   }
 
   /**
    * [max description]
-   * @param  {[type]} column
-   * @param  {[type]} as
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
-  max (column, as) {
-    this.criteria.select.aggregates.push(clauses.max.apply(column, as))
+  max (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.max(column, alias))
 
     return this
   }
 
   /**
    * [sum description]
-   * @param  {[type]} column
-   * @param  {[type]} as
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
-  sum (column, as) {
-    this.criteria.select.aggregates.push(clauses.sum.apply(column, as))
+  sum (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.sum(column, alias))
 
     return this
   }
 
   /**
    * [avg description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
-  avg () {
-    this.criteria.select.aggregates.push(clauses.avg.apply())
+  avg (column, alias) {
+    this.__pushClause('clauses.select.aggregates', clauses.avg(column, alias))
 
     return this
   }
 
   /**
    * [all description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   async all () {
-    return this.connection.query(SqlBuilder.build(this.criteria), {
+    return this.connection.query(SqlBuilder.build(this.clauses), {
       type: QueryTypes.SELECT
     })
   }
 
   /**
    * [first description]
-   * @return {[type]}
+   * @return {QueryBuilder}
    */
   async first () {
     const data = await this.all()
@@ -321,7 +304,7 @@ module.exports = class QueryBuiler {
    * @return {void}
    */
   __reset () {
-    this.criteria = {
+    this.clauses = {
       select: {
         columns: [],
         aggregates: []
@@ -331,5 +314,9 @@ module.exports = class QueryBuiler {
         or: []
       }
     }
+  }
+
+  __pushClause (collection, clause) {
+    set(this, collection, get(this, collection).concat(clause))
   }
 }

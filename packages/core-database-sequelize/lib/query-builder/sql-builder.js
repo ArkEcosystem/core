@@ -4,26 +4,27 @@ const escape = require('./utils/escape')
 class SqlBuilder {
   /**
    * Build the clauses.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  build (criteria) {
+  build (clauses) {
     return Object
-      .keys(criteria)
-      .map(key => this[`__build${upperFirst(camelCase(key))}`](criteria))
+      .keys(clauses)
+      .map(key => this[`__build${upperFirst(camelCase(key))}`](clauses))
       .join('')
+      .trim()
   }
 
   /**
    * Build the "SELECT" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildSelect (criteria) {
-    const columns = criteria.select.columns
+  __buildSelect (clauses) {
+    const columns = clauses.select.columns
       .map(column => escape(column))
 
-    const aggregates = criteria.select.aggregates
+    const aggregates = clauses.select.aggregates
       .map(column => column)
 
     return `SELECT ${columns.concat(aggregates).join(',')} `
@@ -31,19 +32,19 @@ class SqlBuilder {
 
   /**
    * Build the "FROM" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildFrom (criteria) {
-    return `FROM ${escape(criteria.from)} `
+  __buildFrom (clauses) {
+    return `FROM ${escape(clauses.from)} `
   }
 
   /**
    * Build the "WHERE" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildWhere (criteria) {
+  __buildWhere (clauses) {
     const map = (item) => {
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
         return `${escape(item.column)} ${item.operator} ${escape(item.from)} AND ${escape(item.to)}`
@@ -53,12 +54,12 @@ class SqlBuilder {
     }
 
     const andQuery = Object
-      .values(criteria.where.and)
+      .values(clauses.where.and)
       .map(item => map(item))
       .join(' AND ')
 
     const orQuery = Object
-      .values(criteria.where.or)
+      .values(clauses.where.or)
       .map(item => map(item))
       .join(' OR ')
 
@@ -81,21 +82,21 @@ class SqlBuilder {
 
   /**
    * Build the "GROUP BY" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildGroupBy (criteria) {
-    return `GROUP BY "${criteria.groupBy}" `
+  __buildGroupBy (clauses) {
+    return `GROUP BY "${clauses.groupBy}" `
   }
 
   /**
    * Build the "ORDER BY" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildOrderBy (criteria) {
+  __buildOrderBy (clauses) {
     const values = Object
-      .values(criteria.orderBy)
+      .values(clauses.orderBy)
       .map(item => `${escape(item.column)} ${item.direction.toUpperCase()}`)
 
     return `ORDER BY ${values.join(',')} `
@@ -103,20 +104,20 @@ class SqlBuilder {
 
   /**
    * Build the "LIMIT" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildLimit (criteria) {
-    return `LIMIT ${criteria.limit} `
+  __buildLimit (clauses) {
+    return `LIMIT ${clauses.limit} `
   }
 
   /**
    * Build the "OFFSET" clause.
-   * @param  {Object} criteria
+   * @param  {Object} clauses
    * @return {String}
    */
-  __buildOffset (criteria) {
-    return `OFFSET ${criteria.offset} `
+  __buildOffset (clauses) {
+    return `OFFSET ${clauses.offset} `
   }
 }
 

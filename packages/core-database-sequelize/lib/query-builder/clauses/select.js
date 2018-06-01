@@ -1,5 +1,3 @@
-module.exports = class SelectClause {
-  static apply () {
-    return Object.values(arguments[0])
-  }
+module.exports = function () {
+  return Object.values(arguments[0])
 }

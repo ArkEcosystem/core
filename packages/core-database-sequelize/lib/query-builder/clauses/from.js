@@ -1,5 +1,3 @@
-module.exports = class FromClause {
-  static apply (table) {
-    return table
-  }
+module.exports = function (table) {
+  return table
 }

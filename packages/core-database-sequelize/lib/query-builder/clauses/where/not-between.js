@@ -1,20 +1,20 @@
-const isObject = require('../../utils/is-object')
+const isString = require('../../utils/is-string')
 
-module.exports = class WhereNotBetweenClause {
-  static apply () {
-    const args = arguments[0]
+module.exports = function () {
+  const transform = condition => ({
+    column: condition[0],
+    operator: 'NOT BETWEEN',
+    from: condition[1],
+    to: condition[2]
+  })
 
-    const transform = (condition) => {
-      return {
-        column: condition[0],
-        operator: 'NOT BETWEEN',
-        from: condition[1],
-        to: condition[2]
-      }
-    }
+  const args = arguments[0]
 
-    return isObject(args[0])
-      ? args[0].map(arg => transform(arg))
-      : transform(args)
+  if (isString(args[0])) {
+    return [transform(args)]
   }
+
+  return Object
+    .values(args)
+    .map(argument => transform(argument))
 }

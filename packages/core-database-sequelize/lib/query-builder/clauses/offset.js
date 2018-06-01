@@ -1,5 +1,3 @@
-module.exports = class OffsetClause {
-  static apply (value) {
-    return value
-  }
+module.exports = function (value) {
+  return value
 }

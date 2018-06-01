@@ -1,14 +1,16 @@
-const isObject = require('../../utils/is-object')
+const isString = require('../../utils/is-string')
 const map = require('./utils/map')
 
-module.exports = class WhereLikeClause {
-  static apply () {
-    const args = arguments[0]
+module.exports = function () {
+  const transform = condition => map(condition[0], 'LIKE', `%${condition[1]}%`)
 
-    const transform = (condition) => map(args[0], 'LIKE', `%${args[1]}%`)
+  const args = arguments[0]
 
-    return isObject(args[0])
-      ? args[0].map(arg => transform(arg))
-      : transform(args)
+  if (isString(args[0])) {
+    return [transform(args)]
   }
+
+  return Object
+    .entries(args[0])
+    .map(argument => transform(argument))
 }

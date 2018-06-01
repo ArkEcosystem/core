@@ -1,24 +1,23 @@
-const isObject = require('../../utils/is-object')
+const isString = require('../../utils/is-string')
+const map = require('./utils/map')
 
-module.exports = class WhereClause {
-  static apply () {
-    const args = arguments[0]
-
-    const transform = (condition) => {
-      if (condition.length === 2) {
-        condition[2] = condition[1]
-        condition[1] = '='
-      }
-
-      return {
-        column: condition[0],
-        operator: condition[1],
-        value: condition[2]
-      }
+module.exports = function () {
+  const transform = condition => {
+    if (condition.length === 2) {
+      condition[2] = condition[1]
+      condition[1] = '='
     }
 
-    return isObject(args[0])
-      ? args[0].map(arg => transform(arg))
-      : transform(args)
+    return map(condition[0], condition[1], condition[2])
   }
+
+  const args = arguments[0]
+
+  if (isString(args[0])) {
+    return [transform(args)]
+  }
+
+  return Object
+    .entries(args[0])
+    .map(argument => transform(argument))
 }

@@ -33,9 +33,7 @@ module.exports = class BlocksRepository {
       : ['height', 'DESC']
 
     const buildQuery = (query) => {
-      return query
-        .from('blocks')
-        .whereKeyValuePairs(whereStatement) // TODO: replace with where
+      return query.from('blocks').where(whereStatement)
     }
 
     let rows = await buildQuery(this.query.select())
@@ -107,9 +105,7 @@ module.exports = class BlocksRepository {
       : ['height', 'DESC']
 
     const buildQuery = (query) => {
-      return query
-        .from('blocks')
-        .whereStruct(conditions) // TODO: replace with where
+      return query.from('blocks').where(conditions)
     }
 
     let rows = await buildQuery(this.query.select())
