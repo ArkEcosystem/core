@@ -13,9 +13,9 @@ module.exports = (params, filters) => {
     for (const elem of filters['exact']) {
       if (params[elem]) {
         where.push({
-          key: elem,
-          value: params[elem],
-          operator: '='
+          column: elem,
+          operator: '=',
+          value: params[elem]
         })
       }
     }
@@ -29,9 +29,9 @@ module.exports = (params, filters) => {
 
       if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to')) {
         where.push({
-          key: elem,
-          value: params[elem],
-          operator: '='
+          column: elem,
+          operator: '=',
+          value: params[elem]
         })
       }
 
@@ -40,17 +40,17 @@ module.exports = (params, filters) => {
 
         if (params[elem].hasOwnProperty('from')) {
           where.push({
-            key: elem,
-            value: params[elem].from,
-            operator: '>='
+            column: elem,
+            operator: '>=',
+            value: params[elem].from
           })
         }
 
         if (params[elem].hasOwnProperty('to')) {
           where.push({
-            key: elem,
-            value: params[elem].to,
-            operator: '<='
+            column: elem,
+            operator: '<=',
+            value: params[elem].to
           })
         }
       }
@@ -61,9 +61,9 @@ module.exports = (params, filters) => {
     for (const elem of filters['wildcard']) {
       if (params[elem]) {
         where.push({
-          key: elem,
-          value: `%${params[elem]}%`,
-          operator: 'LIKE'
+          column: elem,
+          operator: 'LIKE',
+          value: `%${params[elem]}%`
         })
       }
     }

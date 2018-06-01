@@ -38,7 +38,7 @@ const getWalletByPublicKey = publicKey => {
   return builder.walletManager.getWalletByPublicKey(publicKey)
 }
 
-describe('Wallet Builder', () => {
+describe('SPV', () => {
   it('should be an object', () => {
     expect(builder).toBeObject()
   })

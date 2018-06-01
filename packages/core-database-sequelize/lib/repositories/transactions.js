@@ -26,13 +26,13 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   async findAll (params = {}) {
-    const whereStatement = this.__formatConditions(params)
+    const conditions = this.__formatConditions(params)
 
     if (params['senderId']) {
       const wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
 
       if (wallet) {
-        whereStatement['senderPublicKey'] = wallet.publicKey
+        conditions['senderPublicKey'] = wallet.publicKey
       }
     }
 
@@ -41,23 +41,27 @@ module.exports = class TransactionsRepository {
       : ['timestamp', 'DESC']
 
     const buildQuery = (query) => {
+      query = query.from('transactions')
+
+      for (let [key, value] of Object.entries(conditions)) {
+        query = query.where(key, value)
+      }
+
       return query
-        .from('transactions')
-        .whereKeyValuePairs(whereStatement)
     }
 
-    let transactions = await buildQuery(this.query.select(['blockId', 'serialized']))
-      .sortBy(orderBy[0], orderBy[1])
-      .take(params.limit)
-      .skip(params.offset)
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
       .all()
 
-    // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    // let { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
       count: transactions.length
-      // count: count.count
+      // count: count
     }
   }
 
@@ -79,10 +83,10 @@ module.exports = class TransactionsRepository {
         .orWhere('recipientId', wallet.address)
     }
 
-    let transactions = await buildQuery(this.query.select(['blockId', 'serialized']))
-      .sortBy(orderBy[0], orderBy[1])
-      .take(params.limit)
-      .skip(params.offset)
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
       .all()
 
     let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
@@ -150,9 +154,9 @@ module.exports = class TransactionsRepository {
    */
   async findOne (conditions) {
     const transaction = await this.query
-      .select(['blockId', 'serialized'])
+      .select('blockId', 'serialized')
       .from('transactions')
-      .whereKeyValuePairs(conditions)
+      .where(conditions)
       .first()
 
     return this.__mapBlocksToTransactions(transaction)
@@ -194,18 +198,22 @@ module.exports = class TransactionsRepository {
     })
 
     const buildQuery = (query) => {
+      query = query.from('transactions')
+
+      conditions.forEach(condition => {
+        query = query.where(condition.column, condition.operator, condition.value)
+      })
+
       return query
-        .from('transactions')
-        .whereStruct(conditions)
     }
 
-    let transactions = await buildQuery(this.query.select(['blockId', 'serialized']))
-      .sortBy(orderBy[0], orderBy[1])
-      .take(params.limit)
-      .skip(params.offset)
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
       .all()
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    let count = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
@@ -219,7 +227,7 @@ module.exports = class TransactionsRepository {
    */
   async findWithVendorField () {
     let transactions = await this.query
-      .select(['blockId', 'serialized'])
+      .select('blockId', 'serialized')
       .from('transactions')
       .whereNotNull('vendorFieldHex')
       .all()
@@ -248,16 +256,14 @@ module.exports = class TransactionsRepository {
     return this
       .connection
       .query
-      .select([
-        'type',
-        'MAX("fee") AS "maxFee"',
-        'MIN("fee") AS "minFee"',
-        'MAX("timestamp") AS "timestamp"'
-      ], false)
+      .select('type')
+      .min('fee', 'minFee')
+      .max('fee', 'maxFee')
+      .max('timestamp', 'timestamp')
       .from('transactions')
-      .where('timestamp', slots.getTime(moment().subtract(30, 'days')), '>=')
+      .where('timestamp', '>=', slots.getTime(moment().subtract(30, 'days')))
       .groupBy('type')
-      .sortBy('timestamp', 'DESC')
+      .orderBy('timestamp', 'DESC')
       .all()
   }
 
@@ -313,7 +319,7 @@ module.exports = class TransactionsRepository {
       // 2. get missing heights from database
       if (missingFromCache.length) {
         const blocks = await this.query
-          .select(['id', 'height'])
+          .select('id', 'height')
           .from('blocks')
           .whereIn('id', missingFromCache.map(d => d.blockId))
           .groupBy('id')
@@ -340,7 +346,7 @@ module.exports = class TransactionsRepository {
         data.block = cachedBlock
       } else {
         const block = await this.query
-          .select(['id', 'height'])
+          .select('id', 'height')
           .from('blocks')
           .where('id', data.blockId)
           .first()

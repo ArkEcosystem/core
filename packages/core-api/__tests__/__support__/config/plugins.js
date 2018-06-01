@@ -12,16 +12,15 @@ module.exports = {
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},
   '@arkecosystem/core-p2p': {
-    port: 4000
+    port: 4002
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
+    enabled: true,
     port: 4003
   },
   '@arkecosystem/core-webhooks': {},
-  '@arkecosystem/core-webhooks-api': {
-    port: 4103
-  },
+  '@arkecosystem/core-webhooks-api': {},
   '@arkecosystem/core-graphql': {},
   '@arkecosystem/core-graphql-api': {},
   '@arkecosystem/core-forger': {}
