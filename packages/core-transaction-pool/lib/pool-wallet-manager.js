@@ -1,11 +1,19 @@
 'use strict'
-const { crypto } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
-const config = container.resolvePlugin('config')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 
 module.exports = class PoolWalletManager extends WalletManager {
+  /**
+   * Create a new pool wallet manager instance.
+   * @constructor
+   */
+  constructor () {
+    super()
+
+    this.emitEvents = false
+  }
+
   /**
    * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
    * Method overrides base class method from WalletManager.

@@ -20,6 +20,8 @@ module.exports = class WalletManager {
    */
   constructor () {
     this.reset()
+
+    this.emitEvents = true
   }
 
   /**
@@ -218,7 +220,7 @@ module.exports = class WalletManager {
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
-      emitter.emit('wallet:cold:created', recipient)
+      this.__emitEvent('wallet:cold:created', recipient)
 
     } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
@@ -248,7 +250,7 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
-    this.__emitEvents(transaction)
+    this.__emitTransactionEvents(transaction)
 
     return transaction
   }
@@ -269,7 +271,7 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-    emitter.emit('transaction.reverted', data)
+   this.__emitEvent('transaction.reverted', data)
 
     return data
   }
@@ -338,25 +340,37 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Emit events to the emmiter
+   * @param  {String} event
+   * @param {Object} date
+   * @return {void}
+   */
+  __emitEvent (event, data) {
+    if (this.emitEvents) {
+      emitter.emit(event, data)
+    }
+  }
+
+  /**
    * Emit events for the specified transaction.
    * @param  {Object} transaction
    * @return {void}
    */
-  __emitEvents (transaction) {
-    emitter.emit('transaction.applied', transaction.data)
+  __emitTransactionEvents (transaction) {
+   this.__emitEvent('transaction.applied', transaction.data)
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit('delegate.registered', transaction.data)
+     this.__emitEvent('delegate.registered', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit('delegate.resigned', transaction.data)
+     this.__emitEvent('delegate.resigned', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0]
 
-      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+     this.__emitEvent(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
         delegate: vote,
         transaction: transaction.data
       })
