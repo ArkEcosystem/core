@@ -118,6 +118,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
+
+      this.walletManager.revertTransaction(transaction)
     }
   }
 
