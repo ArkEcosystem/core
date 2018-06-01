@@ -127,7 +127,11 @@ class Crypto {
    */
   verifySecondSignature (transaction, publicKey, network) {
     if (!transaction.version || transaction.version === 1) {
-      return arkjsv1.crypto.verifySecondSignature(transaction, publicKey, network)
+      try {
+        return arkjsv1.crypto.verifySecondSignature(transaction, publicKey, network)
+      } catch (error) {
+        return false
+      }
     }
 
     const hash = this.getHash(transaction, false, true)

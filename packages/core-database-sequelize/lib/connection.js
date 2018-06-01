@@ -17,7 +17,8 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
-const WalletBuilder = require('./builder/wallet')
+const SPV = require('./spv')
+const QueryBuilder = require('./query-builder')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
@@ -42,6 +43,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       await this.connect()
+      await this.__registerQueryBuilder()
       await this.__runMigrations()
       await this.__registerModels()
       await this.__registerRepositories()
@@ -90,10 +92,15 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       return this.activedelegates
     }
 
-    let data = await this.models.round.findAll({
-      where: { round },
-      order: [[ 'balance', 'DESC' ], [ 'publicKey', 'ASC' ]]
-    }).map(del => del.dataValues)
+    let data = await this.query
+      .select('*')
+      .from('rounds')
+      .where('round', round)
+      .orderBy({
+        balance: 'DESC',
+        publicKey: 'ASC'
+      })
+      .all()
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
@@ -144,37 +151,32 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       throw new Error('Trying to build delegates outside of round change')
     }
 
-    let data = await this.models.wallet.findAll({
-      attributes: [
-        ['vote', 'publicKey'],
-        [Sequelize.fn('SUM', Sequelize.col('balance')), 'balance']
-      ],
-      group: ['vote'],
-      where: {
-        vote: {
-          [Sequelize.Op.ne]: null
-        }
-      }
-    })
+    let data = await this.query
+      .select('"vote" AS "publicKey"')
+      .sum('balance', 'balance')
+      .from('wallets')
+      .whereNotNull('vote')
+      .groupBy('vote')
+      .all()
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < maxDelegates) {
-      const data2 = await this.models.wallet.findAll({
-        attributes: [
-          ['vote', 'publicKey'],
-        ],
-        group: ['vote'],
-        where: {
-          username: {
-            [Sequelize.Op.ne]: null
-          },
-          publicKey: {
-            [Sequelize.Op.notIn]: data.map(d => d.publicKey)
-          }
-        },
-        order: [[ 'publicKey', 'ASC' ]],
-        limit: maxDelegates - data.length
-      })
+      const chosen = data.map(delegate => delegate.publicKey)
+
+      let query = this.query
+        .select('publicKey')
+        .sum('balance', 'balance')
+        .from('wallets')
+        .whereNotNull('username')
+
+        if (chosen.length) {
+          query = query.whereNotIn('publicKey', chosen)
+        }
+
+        const data2 = await query.groupBy('publicKey')
+          .orderBy('publicKey', 'ASC')
+          .limit(maxDelegates - data.length)
+          .all()
 
       data = data.concat(data2)
     }
@@ -184,7 +186,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     data = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, maxDelegates)
-      .map(a => ({...{round: round}, ...a.dataValues}))
+      .map(delegate => ({...{round}, ...delegate}))
 
     logger.debug(`Loaded ${data.length} active delegates`)
 
@@ -207,8 +209,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     try {
-      const walletBuilder = new WalletBuilder(this)
-      await walletBuilder.build(height)
+      const spv = new SPV(this)
+      await spv.build(height)
 
       await this.__registerListeners()
 
@@ -223,8 +225,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {void}
    */
   async loadWallets () {
-    const wallets = await this.models.wallet.findAll()
-    wallets.forEach(wallet => this.walletManager.reindex(wallet.dataValues))
+    const wallets = await this.query.select('*').from('wallets').all()
+    wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
     return this.walletManager.walletsByAddress || []
   }
@@ -254,14 +256,15 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         if (index === -1) {
           wallet.missedBlocks++
 
-          emitter.emit('forging.missing', {
+          emitter.emit('forger.missing', {
             delegate: wallet,
             block: block.data
           })
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forged += block.totalAmount
+          wallet.forgedFees += block.data.totalFee
+          wallet.forgedRewards += block.data.reward
         }
       })
     } catch (error) {
@@ -275,25 +278,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Object}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(acc => acc.publicKey && (force || acc.dirty))
+    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => wallet.publicKey && (force || wallet.dirty))
     const chunk = 5000
 
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
     for (let i = 0, j = wallets.length; i < j; i += chunk) {
-      await this.connection.transaction(transaction =>
+      await this.connection.transaction(dbtransaction =>
         Promise.all(
           wallets
             .slice(i, i + chunk)
-            .map(acc => this.models.wallet.upsert(acc, { transaction }))
+            .map(wallet => this.models.wallet.upsert(wallet, { dbtransaction }))
         )
       )
     }
 
     logger.info(`${wallets.length} modified wallets committed to database`)
 
-    this.walletManager.purgeEmptyNonDelegates()
+    // this.walletManager.purgeEmptyNonDelegates()
 
-    return Object.values(this.walletManager.walletsByAddress).forEach(acc => (acc.dirty = false))
+    return Object.values(this.walletManager.walletsByAddress).forEach(wallet => (wallet.dirty = false))
   }
 
   /**
@@ -313,6 +316,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       await transaction.rollback()
+      throw error
     }
   }
 
@@ -348,6 +352,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error)
       await this.asyncTransaction.rollback()
+      throw error
     }
 
     this.asyncTransaction = null
@@ -369,6 +374,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       await transaction.rollback()
+      throw error
     }
   }
 
@@ -379,19 +385,50 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async getBlock (id) {
     // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-    const block = await this.models.block.findOne({
-      include: [{
-        model: this.models.transaction,
-        attributes: ['serialized']
-      }],
-      attributes: {
-        exclude: ['createdAt', 'updatedAt']
-      },
-      where: { id }
-    })
+    const block = await this.query
+      .select('*')
+      .from('blocks')
+      .where('id', id)
+      .first()
 
-    const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+    if (!block) {
+      return null
+    }
+
+    const transactions = await this.query
+      .select('serialized')
+      .from('transactions')
+      .where('blockId', block.id)
+      .all()
+
+    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+
+    return new Block(block)
+  }
+
+  /**
+   * Get the last block.
+   * @return {Block}
+   */
+  async getLastBlock () {
+    const block = await this.query
+      .select('*')
+      .from('blocks')
+      .orderBy('height', 'DESC')
+      .limit(1)
+      .first()
+
+    if (!block) {
+      return null
+    }
+
+    const transactions = await this.query
+      .select('serialized')
+      .from('transactions')
+      .where('blockId', block.id)
+      .all()
+
+    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -440,56 +477,33 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Get the last block.
-   * @return {Block}
-   */
-  async getLastBlock () {
-    let block = await this.models.block.findOne({order: [['height', 'DESC']]})
-
-    if (!block) {
-      return null
-    }
-
-    block = block.dataValues
-
-    const data = await this.models.transaction.findAll({where: {blockId: block.id}})
-    block.transactions = data.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
-
-    return new Block(block)
-  }
-
-  /**
    * Get blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
    * @return {Array}
    */
   async getBlocks (offset, limit) {
-    const last = offset + limit
-    const blocks = await this.models.block.findAll({
-      include: [{
-        model: this.models.transaction,
-        attributes: ['serialized']
-      }],
-      attributes: {
-        exclude: ['createdAt', 'updatedAt']
-      },
-      where: {
-        height: {
-          [Sequelize.Op.between]: [offset, last]
-        }
-      },
-      order: [['height', 'ASC']]
-    })
+    let blocks = await this.query
+      .select('*')
+      .from('blocks')
+      .whereBetween('height', offset, offset + limit)
+      .orderBy('height', 'ASC')
+      .all()
 
-    const nblocks = blocks.map(block => {
-      block.dataValues.transactions = block.dataValues.transactions
+    const transactions = await this.query
+      .select('blockId', 'serialized')
+      .from('transactions')
+      .whereIn('blockId', blocks.map(block => block.id))
+      .groupBy('blockId')
+      .all()
+
+    for (let i = 0; i < blocks.length; i++) {
+      blocks[i].transactions = transactions
+        .filter(transaction => (transaction.blockId === blocks[i].ids))
         .map(transaction => transaction.serialized.toString('hex'))
+    }
 
-      return block.dataValues
-    })
-
-    return nblocks
+    return blocks
   }
 
   /**
@@ -499,18 +513,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getBlockHeaders (offset, limit) {
-    const last = offset + limit
-
-    const blocks = await this.models.block.findAll({
-      attributes: {
-        exclude: ['createdAt', 'updatedAt']
-      },
-      where: {
-        height: {
-          [Sequelize.Op.between]: [offset, last]
-        }
-      }
-    })
+    let blocks = await this.query
+      .select('*')
+      .from('blocks')
+      .whereBetween('height', offset, offset + limit)
+      .all()
 
     return blocks.map(block => Block.serialize(block))
   }
@@ -527,6 +534,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     return { [Sequelize.Op[type]]: params }
+  }
+
+  /**
+   * Register the query builder.
+   * @return {void}
+   */
+  __registerQueryBuilder () {
+    this.query = new QueryBuilder(this.connection)
   }
 
   /**
@@ -598,12 +613,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   __registerListeners () {
     emitter.on('wallet:cold:created', async coldWallet => {
       try {
-        const wallet = await this.models.wallet.findOne({
-          where: { address: coldWallet.address }
-        })
+        const wallet = await this.query
+          .select('*')
+          .from('wallets')
+          .where('address', coldWallet.address)
+          .first()
 
         if (wallet) {
-          Object.keys(wallet.dataValues).forEach(key => {
+          Object.keys(wallet).forEach(key => {
             if (['balance'].indexOf(key) !== -1) {
               return
             }

@@ -2,6 +2,8 @@ const arkjsv1 = require('arkjsv1')
 const _ = require('lodash')
 const deepmerge = require('deepmerge')
 const feeManager = require('./fee')
+const dynamicFeeManager = require('./dynamic-fee')
+
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../constants')
 const defaultConfig = require('../networks/ark/devnet.json')
 
@@ -22,12 +24,13 @@ class ConfigManager {
 
     for (const [key, value] of Object.entries(config)) {
       this.config[key] = value
-    }
+     }
 
     arkjsv1.crypto.setNetworkVersion(this.config.pubKeyHash) // make sure ark.js v1 uses our config
 
     this.buildConstants()
     this.buildFees()
+    this.buildDynamicOffsets()
   }
 
   /**
@@ -150,6 +153,17 @@ class ConfigManager {
     Object
       .keys(TRANSACTION_TYPES)
       .forEach(type => feeManager.set(TRANSACTION_TYPES[type], this.getConstant('fees')[_.camelCase(type)]))
+  }
+
+  /**
+   * Build dynamic offsets from config constants.
+   */
+  buildDynamicOffsets () {
+    if (this.getConstant('dynamicOffsets')) {
+      Object
+        .keys(TRANSACTION_TYPES)
+        .forEach(type => dynamicFeeManager.set(TRANSACTION_TYPES[type], this.getConstant('dynamicOffsets')[_.camelCase(type)]))
+    }
   }
 }
 

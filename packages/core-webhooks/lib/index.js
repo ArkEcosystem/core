@@ -12,13 +12,32 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'webhooks',
   async register (container, options) {
-    container.resolvePlugin('logger').info('Starting Webhooks...')
+    const logger = container.resolvePlugin('logger')
+
+    if (!options.enabled) {
+      logger.info('Webhooks are disabled...')
+
+      return
+    }
+
+    logger.info('Starting Webhooks...')
 
     await database.setUp(options.database)
 
     await webhookManager.setUp(options)
 
-    return webhookManager
+    if (options.server.enabled) {
+      return require('./server')(options.server)
+    } else {
+      logger.info('Webhooks API is disabled...')
+    }
+  },
+  async deregister (container, options) {
+    if (options.server.enabled) {
+      container.resolvePlugin('logger').info('Stopping Webhook API...')
+
+      return container.resolvePlugin('webhooks').stop()
+    }
   }
 }
 

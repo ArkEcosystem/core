@@ -1,11 +1,12 @@
 'use strict'
 
-const Op = require('sequelize').Op
-
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Op } = require('sequelize')
+const moment = require('moment')
+const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-
 const buildFilterQuery = require('./utils/filter-query')
+
+const Redis = require('ioredis')
 
 module.exports = class TransactionsRepository {
   /**
@@ -14,110 +15,151 @@ module.exports = class TransactionsRepository {
    */
   constructor (connection) {
     this.connection = connection
+    this.query = connection.query
+
+    this.redis = new Redis()
   }
 
   /**
    * Get all transactions.
    * @param  {Object}  params
-   * @param  {Boolean} count
    * @return {Object}
    */
-  findAll (params = {}, count = true) {
-    const whereStatement = this.__formatConditions(params)
-    const orderBy = []
+  async findAll (params = {}) {
+    const conditions = this.__formatConditions(params)
 
     if (params['senderId']) {
       const wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
 
       if (wallet) {
-        whereStatement['senderPublicKey'] = wallet.publicKey
+        conditions['senderPublicKey'] = wallet.publicKey
       }
     }
 
-    params.orderBy
-      ? orderBy.push([params.orderBy.split(':')])
-      : orderBy.push([['timestamp', 'DESC']])
+    const orderBy = params.orderBy
+      ? params.orderBy.split(':')
+      : ['timestamp', 'DESC']
 
-    return this.connection.models.transaction[count ? 'findAndCountAll' : 'findAll']({
-      attributes: ['blockId', 'serialized'],
-      where: whereStatement,
-      order: orderBy,
-      offset: params.offset,
-      limit: params.limit,
-      include: {
-        model: this.connection.models.block,
-        attributes: ['height']
+    const buildQuery = (query) => {
+      query = query.from('transactions')
+
+      for (let [key, value] of Object.entries(conditions)) {
+        query = query.where(key, value)
       }
-    })
+
+      return query
+    }
+
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
+      .all()
+
+    // let { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+
+    return {
+      rows: await this.__mapBlocksToTransactions(transactions),
+      count: transactions.length
+      // count: count
+    }
   }
 
   /**
    * Get all transactions for the given Wallet object.
    * @param  {Wallet} wallet
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  findAllByWallet (wallet, paginator) {
-    return this.findAll({
-      ...{
-        [Op.or]: [{
-          senderPublicKey: wallet.publicKey
-        }, {
-          recipientId: wallet.address
-        }]
-      },
-      ...paginator
-    })
+  async findAllByWallet (wallet, params) {
+    const orderBy = params.orderBy
+      ? params.orderBy.split(':')
+      : ['timestamp', 'DESC']
+
+    const buildQuery = (query) => {
+      return query
+        .from('transactions')
+        .where('senderPublicKey', wallet.publicKey)
+        .orWhere('recipientId', wallet.address)
+    }
+
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
+      .all()
+
+    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+
+    return {
+      rows: await this.__mapBlocksToTransactions(transactions),
+      count: count.count
+    }
   }
 
   /**
    * Get all transactions for the given sender public key.
    * @param  {String} senderPublicKey
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  findAllBySender (senderPublicKey, paginator) {
-    return this.findAll({...{senderPublicKey}, ...paginator})
+  findAllBySender (senderPublicKey, params) {
+    return this.findAll({...{senderPublicKey}, ...params})
   }
 
   /**
    * Get all transactions for the given recipient address.
    * @param  {String} recipientId
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  findAllByRecipient (recipientId, paginator) {
-    return this.findAll({...{recipientId}, ...paginator})
+  findAllByRecipient (recipientId, params) {
+    return this.findAll({...{recipientId}, ...params})
   }
 
   /**
    * Get all vote transactions for the given sender public key.
    * @param  {String} senderPublicKey
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  allVotesBySender (senderPublicKey, paginator) {
-    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...paginator})
+  allVotesBySender (senderPublicKey, params) {
+    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
   }
 
   /**
    * Get all transactions for the given block.
    * @param  {Number} blockId
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  findAllByBlock (blockId, paginator) {
-    return this.findAll({...{blockId}, ...paginator})
+  findAllByBlock (blockId, params) {
+    return this.findAll({...{blockId}, ...params})
   }
 
   /**
    * Get all transactions for the given type.
    * @param  {Number} type
-   * @param  {Object} paginator
+   * @param  {Object} params
    * @return {Object}
    */
-  findAllByType (type, paginator) {
-    return this.findAll({...{type}, ...paginator})
+  findAllByType (type, params) {
+    return this.findAll({...{type}, ...params})
+  }
+
+  /**
+   * Get a transaction.
+   * @param  {Object} conditions
+   * @return {Object}
+   */
+  async findOne (conditions) {
+    const transaction = await this.query
+      .select('blockId', 'serialized')
+      .from('transactions')
+      .where(conditions)
+      .first()
+
+    return this.__mapBlocksToTransactions(transaction)
   }
 
   /**
@@ -126,12 +168,7 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.connection.models.transaction.findById(id, {
-      include: {
-        model: this.connection.models.block,
-        attributes: ['height']
-      }
-    })
+    return this.findOne({ id })
   }
 
   /**
@@ -141,43 +178,7 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   findByTypeAndId (type, id) {
-    return this.connection.models.transaction.findOne({
-      where: {id, type},
-      include: {
-        model: this.connection.models.block,
-        attributes: ['height']
-      }
-    })
-  }
-
-  /**
-   * Get all transactions for the given type and range.
-   * @param  {Number} type
-   * @param  {Number} from
-   * @param  {Number} to
-   * @return {Array}
-   */
-  async findAllByDateAndType (type, from, to) {
-    let where = { type, timestamp: {} }
-
-    if (from) {
-      where.timestamp[Op.gte] = from
-    }
-
-    if (to) {
-      where.timestamp[Op.lte] = to
-    }
-
-    const results = await this.connection.models.transaction.findAll({
-      attributes: ['serialized'],
-      where,
-      include: {
-        model: this.connection.models.block,
-        attributes: ['height']
-      }
-    })
-
-    return results.map(row => Transaction.deserialize(row.serialized.toString('hex')))
+    return this.findOne({ id, type })
   }
 
   /**
@@ -185,46 +186,53 @@ module.exports = class TransactionsRepository {
    * @param  {Object} payload
    * @return {Object}
    */
-  search (payload) {
-    let orderBy = []
+  async search (params) {
+    const orderBy = params.orderBy
+      ? params.orderBy.split(':')
+      : ['timestamp', 'DESC']
 
-    payload.orderBy
-      ? orderBy.push([payload.orderBy.split(':')])
-      : orderBy.push([['timestamp', 'DESC']])
-
-    return this.connection.models.transaction.findAndCountAll({
-      attributes: ['blockId', 'serialized'],
-      where: buildFilterQuery(
-        payload,
-        {
-          exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
-          between: ['timestamp', 'amount', 'fee'],
-          wildcard: ['vendorFieldHex']
-        }
-      ),
-      order: orderBy,
-      offset: payload.offset,
-      limit: payload.limit,
-      include: {
-        model: this.connection.models.block,
-        attributes: ['height']
-      }
+    const conditions = buildFilterQuery(params, {
+      exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+      between: ['timestamp', 'amount', 'fee'],
+      wildcard: ['vendorFieldHex']
     })
+
+    const buildQuery = (query) => {
+      query = query.from('transactions')
+
+      conditions.forEach(condition => {
+        query = query.where(condition.column, condition.operator, condition.value)
+      })
+
+      return query
+    }
+
+    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
+      .orderBy(orderBy[0], orderBy[1])
+      .limit(params.limit)
+      .offset(params.offset)
+      .all()
+
+    let count = await buildQuery(this.query.countDistinct('id', 'count')).first()
+
+    return {
+      rows: await this.__mapBlocksToTransactions(transactions),
+      count: count.count
+    }
   }
 
   /**
    * Get all transactions that have a vendor field.
    * @return {Object}
    */
-  findWithVendorField () {
-    return this.connection.models.transaction.findAll({
-      attributes: ['serialized'],
-      where: {
-        vendorFieldHex: {
-          [Op.ne]: null
-        }
-      }
-    })
+  async findWithVendorField () {
+    let transactions = await this.query
+      .select('blockId', 'serialized')
+      .from('transactions')
+      .whereNotNull('vendorFieldHex')
+      .all()
+
+    return this.__mapBlocksToTransactions(transactions)
   }
 
   /**
@@ -232,7 +240,31 @@ module.exports = class TransactionsRepository {
    * @return {Number}
    */
   count () {
-    return this.connection.models.transaction.count()
+    return this
+      .connection
+      .query
+      .select('COUNT(DISTINCT id) as count')
+      .from('transactions')
+      .first()
+  }
+
+  /**
+   * Calculates min, max and average fee statistics based on transactions table
+   * @return {Object}
+   */
+  getFeeStatistics () {
+    return this
+      .connection
+      .query
+      .select('type')
+      .min('fee', 'minFee')
+      .max('fee', 'maxFee')
+      .max('timestamp', 'timestamp')
+      .from('transactions')
+      .where('timestamp', '>=', slots.getTime(moment().subtract(30, 'days')))
+      .groupBy('type')
+      .orderBy('timestamp', 'DESC')
+      .all()
   }
 
   /**
@@ -258,5 +290,95 @@ module.exports = class TransactionsRepository {
     })
 
     return statement
+  }
+
+  /**
+   * [__mapBlocksToTransactions description]
+   * @param  {Object} data
+   * @return {Object}
+   */
+  async __mapBlocksToTransactions (data) {
+    // Array...
+    if (Array.isArray(data)) {
+      // 1. get heights from cache
+      const missingFromCache = []
+
+      for (let i = 0; i < data.length; i++) {
+        const cachedBlock = await this.__getBlockCache(data[i].blockId)
+
+        if (cachedBlock) {
+          data[i].block = cachedBlock
+        } else {
+          missingFromCache.push({
+            index: i,
+            blockId: data[i].blockId
+          })
+        }
+      }
+
+      // 2. get missing heights from database
+      if (missingFromCache.length) {
+        const blocks = await this.query
+          .select('id', 'height')
+          .from('blocks')
+          .whereIn('id', missingFromCache.map(d => d.blockId))
+          .groupBy('id')
+          .all()
+
+        for (let i = 0; i < missingFromCache.length; i++) {
+          const missing = missingFromCache[i]
+          const block = blocks.find(block => (block.id === missing.blockId))
+
+          data[missing.index].block = block
+
+          this.__setBlockCache(block)
+        }
+      }
+
+      return data
+    }
+
+    // Object...
+    if (data) {
+      const cachedBlock = await this.__getBlockCache(data.blockId)
+
+      if (cachedBlock) {
+        data.block = cachedBlock
+      } else {
+        const block = await this.query
+          .select('id', 'height')
+          .from('blocks')
+          .where('id', data.blockId)
+          .first()
+
+        this.__setBlockCache(block)
+      }
+    }
+
+    return data
+  }
+
+  /**
+   * [__getBlockCache description]
+   * @param  {[type]} blockId [description]
+   * @return {[type]}         [description]
+   */
+  async __getBlockCache (blockId) {
+    const cachedHeight = await this.redis.get(`heights:${blockId}`)
+
+    if (cachedHeight) {
+      return { height: cachedHeight }
+    }
+
+    return false
+  }
+
+  /**
+   * [__setBlockCache description]
+   * @param  {[type]} block [description]
+   * @return {[type]}       [description]
+   */
+  __setBlockCache (block) {
+    this.redis.set(`heights:${block.id}`, block.height)
   }
 }

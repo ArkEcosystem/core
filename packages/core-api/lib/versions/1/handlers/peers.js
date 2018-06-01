@@ -76,7 +76,7 @@ exports.show = {
       return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)
     }
 
-    return utils.respondWith({ peer: utils.toResource(request, peer, 'peer') })
+    return utils.respondWith({ peer: utils.toResource(request, peer.toBroadcastInfo(), 'peer') })
   },
   config: {
     plugins: {

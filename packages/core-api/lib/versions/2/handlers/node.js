@@ -60,7 +60,7 @@ exports.configuration = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler (request, h) {
+  async handler (request, h) {
     return {
       data: {
         nethash: config.network.nethash,
@@ -68,7 +68,8 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
-        constants: config.getConstants(blockchain.getLastBlock(true).height)
+        constants: config.getConstants(blockchain.getLastBlock(true).height),
+        feeStatistics: await blockchain.database.transactions.getFeeStatistics()
       }
     }
   }

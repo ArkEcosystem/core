@@ -17,15 +17,17 @@ describe('Transfer Transaction Rule', () => {
   })
 
   it('should be valid', () => {
-    transaction.create(address, amount)
+    transaction.recipientId(address)
+               .amount(amount)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
   it('should be valid with correct data', () => {
-    transaction.create(address, amount)
-               .setFee(fee)
-               .setVendorField('Ahoy')
+    transaction.recipientId(address)
+               .amount(amount)
+               .fee(fee)
+               .vendorField('Ahoy')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
@@ -35,13 +37,15 @@ describe('Transfer Transaction Rule', () => {
   })
 
   it('should be invalid due to no address', () => {
-    transaction.create(null, amount)
+    transaction.recipientId(null)
+               .amount(amount)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to invalid address', () => {
-    transaction.create(address, amount)
+    transaction.recipientId(address)
+               .amount(amount)
                .sign('passphrase')
     const struct = transaction.getStruct()
     struct.recipientId = 'woop'
@@ -49,21 +53,23 @@ describe('Transfer Transaction Rule', () => {
   })
 
   it('should be invalid due to zero amount', () => {
-    transaction.create(address, 0)
+    transaction.recipientId(address)
+                .amount(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to zero fee', () => {
-    transaction.create(address, 0)
-               .setFee(0)
+    transaction.recipientId(address)
+               .amount(0)
+               .fee(0)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
-    transaction.create('delegate_name')
+    transaction.usernameAsset('delegate_name')
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })

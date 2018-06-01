@@ -14,14 +14,14 @@ module.exports = (delegate) => {
     address: delegate.address,
     publicKey: delegate.publicKey,
     votes: delegate.votebalance,
-    rank: delegate.rank,
+    rank: delegate.rate,
     blocks: {
       produced: delegate.producedBlocks,
       missed: delegate.missedBlocks
     },
     production: {
-      approval: +calculateApproval(delegate),
-      productivity: +calculateProductivity(delegate)
+      approval: calculateApproval(delegate),
+      productivity: calculateProductivity(delegate)
     }
   }
 

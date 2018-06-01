@@ -28,6 +28,7 @@
     "start:testnet:live": "./bin/ark start --config ./lib/config/testnet.live --network testnet",
     "relay": "./bin/ark relay",
     "relay:mainnet": "./bin/ark relay --config ./lib/config/mainnet --network mainnet",
+    "relay:persona": "./bin/ark relay --config ./lib/config/persona --network persona",
     "relay:devnet": "./bin/ark relay --config ./lib/config/devnet --network devnet",
     "relay:testnet": "ARK_ENV=test ./bin/ark relay --config ./lib/config/testnet --network testnet",
     "relay:testnet:live": "./bin/ark relay --config ./lib/config/testnet.live --network testnet",
@@ -54,12 +55,10 @@
     "@arkecosystem/core-api": "^0.0.1",
     "@arkecosystem/core-blockchain": "^0.0.1",
     "@arkecosystem/core-config": "^0.0.1",
-    "@arkecosystem/core-config-json": "^0.0.1",
     "@arkecosystem/core-database": "^0.0.1",
     "@arkecosystem/core-database-sequelize": "^0.0.1",
     "@arkecosystem/core-forger": "^0.0.1",
     "@arkecosystem/core-graphql": "^0.0.1",
-    "@arkecosystem/core-graphql-api": "^0.0.1",
     "@arkecosystem/core-json-rpc": "^0.0.1",
     "@arkecosystem/core-logger": "^0.0.1",
     "@arkecosystem/core-logger-winston": "^0.0.1",
@@ -67,7 +66,6 @@
     "@arkecosystem/core-transaction-pool": "^0.0.1",
     "@arkecosystem/core-transaction-pool-redis": "^0.0.1",
     "@arkecosystem/core-webhooks": "^0.0.1",
-    "@arkecosystem/core-webhooks-api": "^0.0.1",
     "commander": "^2.15.1"
   }
 }

@@ -1,85 +1,101 @@
 const ark = require('../../../lib/client')
 const crypto = require('../../../lib/crypto/crypto')
-const transactionTests = require('./__shared__/transaction')
+const { TRANSACTION_TYPES } = require('../../../lib/constants')
+const feeManager = require('../../../lib/managers/fee')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().delegateRegistration()
+  builder = ark.getBuilder().delegateRegistration()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Delegate Registration Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('asset')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION))
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.asset', { delegate: {} })
   })
 
   it('should not have the username yet', () => {
-    expect(transaction).not.toHaveProperty('username')
+    expect(builder).not.toHaveProperty('data.username')
   })
 
-  describe('create', () => {
-    it('establishes the username', () => {
-      transaction.create('homer')
-      expect(transaction.asset.delegate.username).toBe('homer')
+  describe('usernameAsset', () => {
+    it('establishes the username of the asset', () => {
+      builder.usernameAsset('homer')
+      expect(builder.data.asset.delegate.username).toBe('homer')
     })
   })
 
   describe('sign', () => {
-    xit('establishes the public key of the delegate (on the asset property)', () => {
+    it('establishes the public key of the delegate (on the asset property)', () => {
       crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
-      crypto.sign = jest.fn()
-      transaction.sign('bad pass')
-      expect(transaction.senderPublicKey).toBe('bad pass public key')
+      crypto.sign = jest.fn(() => 'signature')
+      builder.sign('bad pass')
+      expect(builder.data.asset.delegate.publicKey).toBe('bad pass public key')
     })
   })
 
-  // FIXME asset.delegate.username
+  // FIXME problems with ark-js V1
   xdescribe('getStruct', () => {
-    beforeEach(() => {
-      transaction.senderPublicKey = '01'
-      transaction.asset = { delegate: {} }
+    it('should fail if the transaction is not signed', () => {
+      try {
+        expect(() => builder.getStruct()).toThrow(/transaction.*sign/)
+        expect('fail').toBe('this should fail when no error is thrown')
+      } catch (_error) {
+        builder = ark.getBuilder().delegateRegistration()
+        expect(() => builder.sign('example pass').getStruct()).not.toThrow()
+      }
     })
 
-    it('generates and returns the bytes as hex', () => {
-      expect(transaction.getStruct().hex).toBe(crypto.getBytes(transaction).toString('hex'))
-    })
-    it('returns the id', () => {
-      expect(transaction.getStruct().id).toBe(crypto.getId(transaction))
-    })
-    it('returns the signature', () => {
-      expect(transaction.getStruct().signature).toBe(transaction.signature)
-    })
-    it('returns the second signature', () => {
-      expect(transaction.getStruct().secondSignature).toBe(transaction.secondSignature)
-    })
-    it('returns the timestamp', () => {
-      expect(transaction.getStruct().timestamp).toBe(transaction.timestamp)
-    })
-    it('returns the transaction type', () => {
-      expect(transaction.getStruct().type).toBe(transaction.type)
-    })
-    it('returns the fee', () => {
-      expect(transaction.getStruct().fee).toBe(transaction.fee)
-    })
-    it('returns the sender public key', () => {
-      expect(transaction.getStruct().senderPublicKey).toBe(transaction.senderPublicKey)
-    })
+    describe('when is signed', () => {
+      beforeEach(() => {
+        builder.sign('any pass')
+      })
 
-    it('returns the amount', () => {
-      expect(transaction.getStruct().amount).toBe(transaction.amount)
-    })
-    it('returns the recipient id', () => {
-      expect(transaction.getStruct().recipientId).toBe(transaction.recipientId)
-    })
-    it('returns the asset', () => {
-      expect(transaction.getStruct().asset).toBe(transaction.asset)
+      // NOTE: V2
+      xit('generates and returns the bytes as hex', () => {
+        expect(builder.getStruct().hex).toBe(crypto.getBytes(builder).toString('hex'))
+      })
+      it('returns the id', () => {
+        expect(builder.getStruct().id).toBe(crypto.getId(builder))
+      })
+      it('returns the signature', () => {
+        expect(builder.getStruct().signature).toBe(builder.signature)
+      })
+      it('returns the second signature', () => {
+        expect(builder.getStruct().secondSignature).toBe(builder.secondSignature)
+      })
+      it('returns the timestamp', () => {
+        expect(builder.getStruct().timestamp).toBe(builder.timestamp)
+      })
+      it('returns the transaction type', () => {
+        expect(builder.getStruct().type).toBe(builder.type)
+      })
+      it('returns the fee', () => {
+        expect(builder.getStruct().fee).toBe(builder.fee)
+      })
+      it('returns the sender public key', () => {
+        expect(builder.getStruct().senderPublicKey).toBe(builder.senderPublicKey)
+      })
+
+      it('returns the amount', () => {
+        expect(builder.getStruct().amount).toBe(builder.amount)
+      })
+      it('returns the recipient id', () => {
+        expect(builder.getStruct().recipientId).toBe(builder.recipientId)
+      })
+      it('returns the asset', () => {
+        expect(builder.getStruct().asset).toBe(builder.asset)
+      })
     })
   })
 })

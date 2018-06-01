@@ -1,46 +1,58 @@
 const ark = require('../../../lib/client')
+const crypto = require('../../../lib/crypto/crypto')
 const feeManager = require('../../../lib/managers/fee')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
-const transactionTests = require('./__shared__/transaction')
+const transactionBuilderTests = require('./__shared__/transaction')
 
-let transaction
+let builder
 
 beforeEach(() => {
-  transaction = ark.getBuilder().multiSignature()
+  builder = ark.getBuilder().multiSignature()
 
-  global.transaction = transaction
+  global.builder = builder
 })
 
 describe('Multi Signature Transaction', () => {
-  transactionTests()
+  transactionBuilderTests()
 
   it('should have its specific properties', () => {
-    expect(transaction).toHaveProperty('amount')
-    expect(transaction).toHaveProperty('recipientId')
-    expect(transaction).toHaveProperty('senderPublicKey')
-    expect(transaction).toHaveProperty('asset')
+    expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.MULTI_SIGNATURE)
+    expect(builder).toHaveProperty('data.fee', 0)
+    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.recipientId', null)
+    expect(builder).toHaveProperty('data.senderPublicKey', null)
+    expect(builder).toHaveProperty('data.asset')
+    expect(builder).toHaveProperty('data.asset.multisignature', {})
   })
 
-  describe('create', () => {
-    const keysgroup = []
-    const lifetime = 'TODO'
-    const min = 'TODO'
+  describe('multiSignatureAsset', () => {
+    const multiSignatureFee = feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+    const multisignature = {
+      keysgroup: ['key a', 'key b', 'key c'],
+      lifetime: 1,
+      min: 1
+    }
 
-    it('establishes the multi-signature asset', () => {
-      transaction.create(keysgroup, lifetime, min)
-      expect(transaction.asset.multisignature).toEqual({ keysgroup, lifetime, min })
+    it('establishes the multi-signature on the asset', () => {
+      builder.multiSignatureAsset(multisignature)
+      expect(builder.data.asset.multisignature).toBe(multisignature)
     })
 
-    it('calculates and establishes the fee based on the number of key groups', () => {
-      const multiSignatureFee = feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+    it('calculates and establish the fee', () => {
+      builder.multiSignatureAsset(multisignature)
+      expect(builder.data.fee).toEqual(4 * multiSignatureFee)
+    })
+  })
 
-      transaction.create(keysgroup, lifetime, min)
-      expect(transaction.fee).toEqual(multiSignatureFee)
+  describe('sign', () => {
+    it('establishes the recipient id', () => {
+      const pass = 'dummy pass'
 
-      keysgroup.push('key 1')
-      keysgroup.push('key 2')
-      transaction.create(keysgroup, lifetime, min)
-      expect(transaction.fee).toEqual(3 * multiSignatureFee)
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn()
+
+      builder.sign(pass)
+      expect(builder.data.recipientId).toBe('DKNJwdxrPQg6xXbrpaQLfgi6kC2ndaz8N5')
     })
   })
 })

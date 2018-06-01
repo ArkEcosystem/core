@@ -10,21 +10,21 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
-    this.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { delegate: {} }
+    this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { delegate: {} }
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters.
-   * @param  {String}   username
+   * Establish the delegate username on the asset.
+   * @param  {String} username
    * @return {DelegateRegistrationBuilder}
    */
-  create (username) {
-    this.asset.delegate.username = username
+  usernameAsset (username) {
+    this.data.asset.delegate.username = username
     return this
   }
 
@@ -32,9 +32,10 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    * Overrides the inherited `sign` method to include the public key of the new delegate.
    * @param  {String}   passphrase
    * @return {DelegateRegistrationBuilder}
+   * TODO rename to `assetDelegate` and merge with username ?
    */
   sign (passphrase) {
-    this.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
+    this.data.asset.delegate.publicKey = crypto.getKeys(passphrase).publicKey
     super.sign(passphrase)
     return this
   }
@@ -45,9 +46,9 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
     return struct
   }
 }

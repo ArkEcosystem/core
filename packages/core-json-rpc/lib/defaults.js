@@ -2,7 +2,7 @@
 
 module.exports = {
   enabled: false,
-  port: 8080,
+  port: process.env.ARK_JSONRPC_PORT || 8080,
   allowRemote: true,
-  whitelist: []
+  whitelist: ['127.0.0.1', '192.168.*']
 }

@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-config",
   "version": "0.0.1",
-  "description": "Configuration Manager for ARK Core",
+  "description": "Configuration Loader for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -12,15 +12,18 @@
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --runInBand --forceExit",
-    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --forceExit",
+    "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
     "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-logger-winston": "^0.0.1",
+    "@arkecosystem/crypto": "^0.0.1",
+    "axios": "^0.18.0",
     "deepmerge": "^2.1.0",
+    "directory-tree": "^2.1.0",
     "expand-home-dir": "^0.0.3",
+    "fs-extra": "^6.0.1",
     "ow": "^0.3.0"
   }
 }

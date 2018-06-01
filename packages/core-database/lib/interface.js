@@ -1,7 +1,7 @@
 'use strict'
 
 const async = require('async')
-const { crypto, slots, TRANSACTION_TYPES } = require('@arkecosystem/crypto')
+const { crypto, slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -209,6 +209,10 @@ module.exports = class ConnectionInterface {
         const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
         await this.saveRound(delegates) // save next round delegate list
         await this.getActiveDelegates(nextHeight) // generate the new active delegates list
+
+        // TODO: find a better place to call this as this
+        // currently blocks execution but needs to be updated every round
+        // this.walletManager.updateDelegates()
       } else {
         logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
       }
@@ -307,45 +311,6 @@ module.exports = class ConnectionInterface {
     const dbTransaction = await this.getTransaction(transaction.data.id)
 
     return sender.canApply(transaction.data) && !dbTransaction
-  }
-
-  /**
-   * Apply the given transaction.
-   * @param  {Transaction} transaction
-   * @return {Transaction}
-   */
-  async applyTransaction (transaction) {
-    await this.walletManager.applyTransaction(transaction)
-
-    emitter.emit('transaction.applied', transaction.data)
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit('delegate.registered', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit('delegate.resigned', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      transaction.asset.votes.forEach(vote => {
-        emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-          delegate: vote,
-          transaction: transaction.data
-        })
-      })
-    }
-  }
-
-  /**
-   * Remove the given transaction.
-   * @param  {Transaction} transaction
-   * @return {Boolean}
-   */
-  async revertTransaction (transaction) {
-    await this.walletManager.revertTransaction(transaction)
-
-    emitter.emit('transaction.reverted', transaction.data)
   }
 
   /**

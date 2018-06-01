@@ -9,11 +9,8 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 module.exports = async (config) => {
-  if (!config.enabled) {
-    return logger.info('Public API is not enabled')
-  }
-
   const baseConfig = {
+    host: config.host,
     port: config.port,
     routes: {
       cors: true,
@@ -35,6 +32,13 @@ module.exports = async (config) => {
   const server = new Hapi.Server(baseConfig)
 
   await server.register([require('vision'), require('inert'), require('lout')])
+
+  await server.register({
+    plugin: require('./plugins/whitelist'),
+    options: {
+      whitelist: config.whitelist
+    }
+  })
 
   await server.register({
     plugin: require('hapi-api-version'),

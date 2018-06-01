@@ -1,7 +1,5 @@
 'use strict'
 
-const Op = require('sequelize').Op
-
 /**
  * Create a "where" object for a sequelize query.
  * @param  {Object} params
@@ -9,12 +7,16 @@ const Op = require('sequelize').Op
  * @return {Object}
  */
 module.exports = (params, filters) => {
-  let where = {}
+  let where = []
 
   if (filters.hasOwnProperty('exact')) {
     for (const elem of filters['exact']) {
       if (params[elem]) {
-        where[elem] = params[elem]
+        where.push({
+          column: elem,
+          operator: '=',
+          value: params[elem]
+        })
       }
     }
   }
@@ -26,18 +28,30 @@ module.exports = (params, filters) => {
       }
 
       if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to')) {
-        where[elem] = params[elem]
+        where.push({
+          column: elem,
+          operator: '=',
+          value: params[elem]
+        })
       }
 
       if (params[elem].hasOwnProperty('from') || params[elem].hasOwnProperty('to')) {
         where[elem] = {}
 
         if (params[elem].hasOwnProperty('from')) {
-          where[elem][Op.gte] = params[elem].from
+          where.push({
+            column: elem,
+            operator: '>=',
+            value: params[elem].from
+          })
         }
 
         if (params[elem].hasOwnProperty('to')) {
-          where[elem][Op.lte] = params[elem].to
+          where.push({
+            column: elem,
+            operator: '<=',
+            value: params[elem].to
+          })
         }
       }
     }
@@ -46,7 +60,11 @@ module.exports = (params, filters) => {
   if (filters.hasOwnProperty('wildcard')) {
     for (const elem of filters['wildcard']) {
       if (params[elem]) {
-        where[elem] = { [Op.like]: `%${params[elem]}%` }
+        where.push({
+          column: elem,
+          operator: 'LIKE',
+          value: `%${params[elem]}%`
+        })
       }
     }
   }

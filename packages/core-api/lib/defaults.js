@@ -1,7 +1,8 @@
 'use strict'
 
 module.exports = {
-  enabled: true,
+  enabled: false,
+  host: process.env.ARK_API_HOST || 'localhost',
   port: process.env.ARK_API_PORT || 4003,
   versions: {
     default: 1,
@@ -44,8 +45,5 @@ module.exports = {
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search'
     ]
-  },
-  statistics: {
-    enabled: false
   }
 }

@@ -42,7 +42,7 @@ describe('API 2.0 - Blocks', () => {
     })
   })
 
-  describe.only('POST /blocks/search', () => {
+  describe('POST /blocks/search', () => {
     it('should POST a search for blocks with the exact specified blockId', async () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id

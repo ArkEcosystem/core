@@ -30,8 +30,6 @@ module.exports = class Monitor {
     this.config.peers.list
       .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
-
-    this.__registerListeners()
   }
 
   /**
@@ -282,7 +280,7 @@ module.exports = class Monitor {
    * Placeholder method to broadcast transactions to peers.
    * @param {Transaction[]} transactions
    */
-  broadcastTransactions (transactions) {
+  async broadcastTransactions (transactions) {
     const peers = Object.values(this.peers)
     logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
@@ -290,14 +288,5 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
-  }
-
-  /**
-   * Register event listeners for manager.
-   * @TODO: rethink placement
-   * @return {void}
-   */
-  __registerListeners () {
-    emitter.on('broadcastTransactions', async transactions => this.broadcastTransactions(transactions))
   }
 }

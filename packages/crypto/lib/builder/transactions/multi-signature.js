@@ -1,47 +1,32 @@
 const feeManager = require('../../managers/fee')
-const { crypto } = require('../../crypto')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
+const sign = require('./mixins/sign')
 
-module.exports = class MultiSignatureBuilder extends TransactionBuilder {
+class MultiSignatureBuilder extends TransactionBuilder {
   /**
    * @constructor
    */
   constructor () {
     super()
 
-    this.type = TRANSACTION_TYPES.MULTI_SIGNATURE
-    this.fee = 0
-    this.amount = 0
-    this.recipientId = null
-    this.senderPublicKey = null
-    this.asset = { multisignature: {} }
+    this.data.type = TRANSACTION_TYPES.MULTI_SIGNATURE
+    this.data.fee = 0
+    this.data.amount = 0
+    this.data.recipientId = null
+    this.data.senderPublicKey = null
+    this.data.asset = { multisignature: {} }
   }
 
   /**
-   * Overrides the inherited method to add the necessary parameters.
-   * @param  {Array} keysgroup
-   * @param  {Number} lifetime
-   * @param  {Number} min
+   * Establish the multi-signature on the asset and updates the fee.
+   * @param  {Object} multiSignature { keysgroup, lifetime, min }
    * @return {MultiSignatureBuilder}
    */
-  create (keysgroup, lifetime, min) {
-    this.asset.multisignature.keysgroup = keysgroup
-    this.asset.multisignature.lifetime = lifetime
-    this.asset.multisignature.min = min
-    this.fee = (keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+  multiSignatureAsset (multiSignature) {
+    this.data.asset.multisignature = multiSignature
+    this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
 
-    return this
-  }
-
-  /**
-   * Overrides the inherited `sign` method to set the sender as the recipient too
-   * @param  {String} passphrase
-   * @return {MultiSignatureBuilder}
-   */
-  sign (passphrase) {
-    this.recipientId = crypto.getAddress(crypto.getKeys(passphrase).publicKey)
-    super.sign(passphrase)
     return this
   }
 
@@ -51,10 +36,12 @@ module.exports = class MultiSignatureBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.amount
-    struct.recipientId = this.recipientId
-    struct.asset = this.asset
+    struct.amount = this.data.amount
+    struct.recipientId = this.data.recipientId
+    struct.asset = this.data.asset
 
     return struct
   }
 }
+
+module.exports = sign.mixin(MultiSignatureBuilder)

@@ -11,7 +11,8 @@ module.exports = {
     const transaction = ark
       .transactionBuilder
       .transfer()
-      .create(params.recipientId, parseInt(params.amount))
+      .recipientId(params.recipientId)
+      .amount(params.amount)
       .sign('dummy')
       .getStruct()
 

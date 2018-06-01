@@ -79,7 +79,12 @@ exports.transactions = {
       return Boom.notFound()
     }
 
-    const transactions = await database.transactions.findAllByWallet(wallet, utils.paginate(request))
+    const transactions = await database.transactions.findAllByWallet(
+      wallet, {
+        ...request.params,
+        ...utils.paginate(request)
+      }
+    )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -104,7 +109,12 @@ exports.transactionsSent = {
       return Boom.notFound()
     }
 
-    const transactions = await database.transactions.findAllBySender(wallet.publicKey, utils.paginate(request))
+    const transactions = await database.transactions.findAllBySender(
+      wallet.publicKey, {
+        ...request.params,
+        ...utils.paginate(request)
+      }
+    )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -129,7 +139,12 @@ exports.transactionsReceived = {
       return Boom.notFound()
     }
 
-    const transactions = await database.transactions.findAllByRecipient(wallet.address, utils.paginate(request))
+    const transactions = await database.transactions.findAllByRecipient(
+      wallet.address, {
+        ...request.params,
+        ...utils.paginate(request)
+      }
+    )
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -154,7 +169,12 @@ exports.votes = {
       return Boom.notFound()
     }
 
-    const transactions = await database.transactions.allVotesBySender(wallet.publicKey, utils.paginate(request))
+    const transactions = await database.transactions.allVotesBySender(
+      wallet.publicKey, {
+        ...request.params,
+        ...utils.paginate(request)
+      }
+    )
 
     return utils.toPagination(request, transactions, 'transaction')
   },

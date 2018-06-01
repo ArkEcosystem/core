@@ -31,8 +31,8 @@ const { TRANSACTION_TYPES } = require('../constants')
  *   - network
  */
 module.exports = class Transaction {
-  constructor (transaction) {
-    this.serialized = Transaction.serialize(transaction)
+  constructor (data) {
+    this.serialized = Transaction.serialize(data)
     this.data = Transaction.deserialize(this.serialized.toString('hex'))
 
     if (this.data.version === 1) {
@@ -71,6 +71,7 @@ module.exports = class Transaction {
       'signature',
       'signatures',
       'secondSignature',
+      'signSignature',
       'asset',
       'expiration',
       'timelock',
@@ -207,9 +208,7 @@ module.exports = class Transaction {
 
     if (transaction.secondSignature) {
       bb.append(transaction.secondSignature, 'hex')
-    }
-
-    if (transaction.signSignature) {
+    } else if (transaction.signSignature) {
       bb.append(transaction.signSignature, 'hex')
     }
 

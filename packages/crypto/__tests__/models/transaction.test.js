@@ -16,31 +16,36 @@ const createRandomTx = type => {
     case 0: // transfer
       transaction = builder
         .transfer()
-        .create('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX', 1000 * Math.pow(10, 10))
-        .setVendorField(Math.random().toString(36))
+        .recipientId('AMw3TiLrmVmwmFVwRzn96kkUsUpFTqsAEX')
+        .amount(1000 * Math.pow(10, 10))
+        .vendorField(Math.random().toString(36))
         .sign(Math.random().toString(36))
         .secondSign(Math.random().toString(36))
+        .build()
       break
 
     case 1: // second signature
       transaction = builder
         .secondSignature()
-        .create(Math.random().toString(36))
+        .signatureAsset(Math.random().toString(36))
         .secondSign(Math.random().toString(36))
+        .build()
       break
 
     case 2: // delegate registration
       transaction = builder
         .delegateRegistration()
-        .create(Math.random().toString(36))
+        .usernameAsset('dummy-delegate')
         .sign(Math.random().toString(36))
+        .build()
       break
 
     case 3: // vote registration
       transaction = builder
         .vote()
-        .create(['+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760'])
+        .votesAsset(['+036928c98ee53a1f52ed01dd87db10ffe1980eb47cd7c0a7d688321f47b5d7d760'])
         .sign(Math.random().toString(36))
+        .build()
       break
 
     case 4: // multisignature registration
@@ -48,9 +53,10 @@ const createRandomTx = type => {
 
       transaction = builder
         .multiSignature()
-        .create(ECkeys.map(k => k.Q), 48, 2)
+        .multiSignatureAsset(ECkeys.map(k => k.Q), 48, 2)
         .sign(Math.random().toString(36))
         .secondSign('')
+        .build()
 
       const hash = crypto.getHash(transaction, true, true)
       transaction.signatures = ECkeys.slice(1).map(k => k.sign(hash).toDER().toString('hex'))

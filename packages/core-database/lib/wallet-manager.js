@@ -2,16 +2,15 @@
 
 const Promise = require('bluebird')
 
+const { map, orderBy, sumBy } = require('lodash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
-const map = require('lodash/map')
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
 
 module.exports = class WalletManager {
@@ -60,6 +59,30 @@ module.exports = class WalletManager {
     if (wallet.username) {
       this.walletsByUsername[wallet.username] = wallet
     }
+  }
+
+  /**
+   * Update the vote balances and ranks of delegates.
+   * @return {void}
+   */
+  updateDelegates () {
+    let delegates = this.getDelegates().map(delegate => {
+      const voters = this
+        .getLocalWallets()
+        .filter(w => w.vote === delegate.publicKey)
+
+      delegate.votebalance = sumBy(voters, 'balance')
+
+      return delegate
+    })
+
+    delegates = orderBy(delegates, ['votebalance'], ['desc']).map((delegate, index) => {
+      delegate.rate = index + 1
+
+      return delegate
+    })
+
+    this.index(delegates)
   }
 
   /**
@@ -187,7 +210,7 @@ module.exports = class WalletManager {
    */
   async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
     const { data } = transaction
-    const { asset, recipientId, senderPublicKey } = data
+    const { type, asset, recipientId, senderPublicKey } = data
 
     const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
@@ -197,13 +220,13 @@ module.exports = class WalletManager {
       this.walletsByAddress[recipientId] = recipient
       emitter.emit('wallet:cold:created', recipient)
 
-    } else if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
       logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
-    } else if (data.type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
+    } else if (type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)].username) {
 
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: voted delegate does not exist`)
@@ -221,9 +244,11 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(data)
 
-    if (recipient && data.type === TRANSACTION_TYPES.TRANSFER) {
+    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
+
+    this.__emitEvents(transaction)
 
     return transaction
   }
@@ -243,6 +268,8 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }
+
+    emitter.emit('transaction.reverted', data)
 
     return data
   }
@@ -286,6 +313,14 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Getter for "walletsByUsername" for clear intent.
+   * @return {Wallet}
+   */
+  getDelegates () {
+    return Object.values(this.walletsByUsername)
+  }
+
+  /**
    * Get all wallets by address.
    * @return {Array}
    */
@@ -300,5 +335,31 @@ module.exports = class WalletManager {
    */
   __canBePurged (wallet) {
     return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+  }
+
+  /**
+   * Emit events for the specified transaction.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __emitEvents (transaction) {
+    emitter.emit('transaction.applied', transaction.data)
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      emitter.emit('delegate.registered', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      emitter.emit('delegate.resigned', transaction.data)
+    }
+
+    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+      const vote = transaction.asset.votes[0]
+
+      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+        delegate: vote,
+        transaction: transaction.data
+      })
+    }
   }
 }
