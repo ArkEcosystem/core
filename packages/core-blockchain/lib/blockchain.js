@@ -189,7 +189,10 @@ module.exports = class Blockchain {
 
       await this.database.revertBlock(lastBlock)
       await this.database.deleteBlock(lastBlock)
-      if (this.transactionPool) await this.transactionPool.addTransactions(lastBlock.transactions)
+
+      if (this.transactionPool) {
+        await this.transactionPool.addTransactions(lastBlock.transactions)
+      }
 
       const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
       stateMachine.state.lastBlock = newLastBlock
@@ -293,7 +296,9 @@ module.exports = class Blockchain {
         this.p2p.broadcastBlock(block)
       }
 
-      if (this.transactionPool) this.transactionPool.removeTransactions(block.transactions)
+      if (this.transactionPool) {
+        this.transactionPool.removeTransactions(block.transactions)
+      }
     } catch (error) {
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)

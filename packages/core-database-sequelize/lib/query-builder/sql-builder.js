@@ -69,6 +69,10 @@ class SqlBuilder {
         return `${escape(item.column)} ${item.operator} (${item.value})`
       }
 
+      if (['IS NULL', 'IS NOT NULL'].includes(item.operator)) {
+        return `${escape(item.column)} ${item.operator}`
+      }
+
       return `${escape(item.column)} ${item.operator} ${escape(item.value, true)}`
     }
 
