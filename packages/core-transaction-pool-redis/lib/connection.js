@@ -202,7 +202,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (this.options.whitelist.includes(transaction.senderPublicKey)) {
-      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      // logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
       return false
     }
 
