@@ -3,22 +3,44 @@
 const axios = require('axios')
 const dirTree = require('directory-tree')
 const fs = require('fs-extra')
+const ow = require('ow')
 const path = require('path')
-const { ConfigInterface } = require('@arkecosystem/core-config')
+const { configManager } = require('@arkecosystem/crypto')
 
-module.exports = class Config extends ConfigInterface {
+class ConfigLoader {
   /**
    * Make the config instance.
-   * @return {Config}
+   * @param  {Object} options
+   * @return {ConfigLoader}
    */
-  async make () {
+  async setUp (options) {
+    this.options = options
+    this.network = JSON.parse(process.env.ARK_NETWORK)
+
     await this.__createFromDirectory()
 
-    super._validateConfig()
+    this._validateConfig()
 
-    super.buildConstants()
+    this.buildConstants()
 
     return this
+  }
+
+  /**
+   * Get constants for the specified height.
+   * @param  {Number} height
+   * @return {void}
+   */
+  getConstants (height) {
+    return configManager.getConstants(height)
+  }
+
+  /**
+   * Build constants from the config.
+   * @return {void}
+   */
+  buildConstants () {
+    configManager.buildConstants()
   }
 
   /**
@@ -122,4 +144,22 @@ module.exports = class Config extends ConfigInterface {
       }
     }
   }
+
+  /**
+   * Validate crucial parts of the configuration.
+   * @return {void}
+   */
+  _validateConfig () {
+    try {
+      ow(this.network.pubKeyHash, ow.number)
+      ow(this.network.nethash, ow.string.length(64))
+      ow(this.network.wif, ow.number)
+    } catch (error) {
+      console.error('Invalid configuration. Shutting down...')
+      throw Error(error.message)
+      process.exit(1) // eslint-disable-line no-unreachable
+    }
+  }
 }
+
+module.exports = new ConfigLoader()

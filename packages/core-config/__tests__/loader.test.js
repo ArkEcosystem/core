@@ -1,7 +1,7 @@
 'use strict'
 
 const path = require('path')
-const JsonDriver = require('../lib/driver')
+const configLoader = require('../lib/loader')
 
 const stubConfigPath = path.resolve(__dirname, './__stubs__')
 
@@ -20,19 +20,17 @@ afterEach(() => {
   delete process.env.ARK_PATH_CONFIG
 })
 
-describe('JSON Driver', () => {
+describe('Config Loader', () => {
   it('should fail without a config', async () => {
     try {
-      const driver = new JsonDriver()
-      await driver.make()
+      await configLoader.setUp()
     } catch (error) {
       expect(error.message).toEqual('undefined (object) is required')
     }
   })
 
   it('should succeed with a config from a string', async () => {
-    const driver = new JsonDriver()
-    const result = await driver.make()
+    const result = await configLoader.setUp()
 
     expect(result.delegates).toEqual(stubConfig.delegates)
     expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)
@@ -40,8 +38,7 @@ describe('JSON Driver', () => {
   })
 
   it('should succeed with a config from an object', async () => {
-    const driver = new JsonDriver()
-    const result = await driver.make()
+    const result = await configLoader.setUp()
 
     expect(result.delegates).toEqual(stubConfig.delegates)
     expect(result.genesisBlock).toEqual(stubConfig.genesisBlock)
