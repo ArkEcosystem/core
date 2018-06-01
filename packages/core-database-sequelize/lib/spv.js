@@ -103,7 +103,7 @@ module.exports = class SPV {
       .select('id', 'generatorPublicKey', 'timestamp')
       .from('blocks')
       .orderBy('timestamp', 'DESC')
-      .take(this.activeDelegates)
+      .limit(this.activeDelegates)
       .all()
 
     data.forEach(row => {

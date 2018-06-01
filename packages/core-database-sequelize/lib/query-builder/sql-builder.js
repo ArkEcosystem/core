@@ -8,9 +8,20 @@ class SqlBuilder {
    * @return {String}
    */
   build (clauses) {
-    return Object
-      .keys(clauses)
-      .map(key => this[`__build${upperFirst(camelCase(key))}`](clauses))
+    const clauseOrder = [
+      'select', 'from', 'where',
+      'groupBy', 'orderBy', 'limit', 'offset'
+    ]
+
+    return clauseOrder
+      .map(clause => {
+        if (!clauses[clause]) {
+          return false
+        }
+
+        return this[`__build${upperFirst(camelCase(clause))}`](clauses)
+      })
+      .filter(item => !!item)
       .join('')
       .trim()
   }
@@ -48,6 +59,14 @@ class SqlBuilder {
     const map = (item) => {
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
         return `${escape(item.column)} ${item.operator} ${escape(item.from)} AND ${escape(item.to)}`
+      }
+
+      if (['IN', 'NOT IN'].includes(item.operator)) {
+        if (Array.isArray(item.value)) {
+          item.value = item.value.map(value => escape(value)).join(',')
+        }
+
+        return `${escape(item.column)} ${item.operator} (${item.value})`
       }
 
       return `${escape(item.column)} ${item.operator} ${escape(item.value, true)}`

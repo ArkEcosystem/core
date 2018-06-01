@@ -36,7 +36,7 @@ module.exports = class BlocksRepository {
       return query.from('blocks').where(whereStatement)
     }
 
-    let rows = await buildQuery(this.query.select())
+    let rows = await buildQuery(this.query.select('*'))
       .orderBy(orderBy[0], orderBy[1])
       .limit(params.limit)
       .offset(params.offset)
@@ -68,7 +68,7 @@ module.exports = class BlocksRepository {
    */
   findById (id) {
     return this.query
-      .select()
+      .select('*')
       .from('blocks')
       .where('id', id)
       .first()
@@ -108,7 +108,7 @@ module.exports = class BlocksRepository {
       return query.from('blocks').where(conditions)
     }
 
-    let rows = await buildQuery(this.query.select())
+    let rows = await buildQuery(this.query.select('*'))
       .orderBy(orderBy[0], orderBy[1])
       .limit(params.limit)
       .offset(params.offset)
