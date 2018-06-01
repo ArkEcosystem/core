@@ -230,8 +230,8 @@ module.exports = class TransactionPoolInterface {
     this.walletManager.applyBlock(block)
 
     for (const transaction of block.transactions) {
-      if (!this.pool.transactionExists(transaction)) {
-        // if any of wallets already pool we apply transaction
+      if (!this.transactionExists(transaction)) {
+        // if any of wallets already pool we try to apply transaction
         if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
           try {
             this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
