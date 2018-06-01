@@ -194,7 +194,7 @@ describe('API 2.0 - Wallets', () => {
       expect(wallet.balance).toBe(balance)
     })
 
-    it('should POST a search for wallets with the exact specified votebalance', async () => {
+    it.skip('should POST a search for wallets with the exact specified votebalance', async () => {
       const response = await utils.request('POST', 'wallets/search', {
         address: address,
         votebalance: {
@@ -212,7 +212,7 @@ describe('API 2.0 - Wallets', () => {
       expect(wallet.address).toBe(address)
     })
 
-    it('should POST a search for wallets with the specified votebalance range', async () => {
+    it.skip('should POST a search for wallets with the specified votebalance range', async () => {
       const response = await utils.request('POST', 'wallets/search', {
         address: address,
         votebalance: {

@@ -18,13 +18,13 @@ module.exports = class BlocksRepository {
    * @return {Object}
    */
   async findAll (params = {}) {
-    let whereStatement = {}
+    let conditions = {}
 
     const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
 
     for (const elem of filter) {
       if (params[elem]) {
-        whereStatement[elem] = params[elem]
+        conditions[elem] = params[elem]
       }
     }
 
@@ -33,7 +33,13 @@ module.exports = class BlocksRepository {
       : ['height', 'DESC']
 
     const buildQuery = (query) => {
-      return query.from('blocks').where(whereStatement)
+      query = query.from('blocks')
+
+      for (let [key, value] of Object.entries(conditions)) {
+        query = query.where(key, value)
+      }
+
+      return query
     }
 
     let rows = await buildQuery(this.query.select('*'))
@@ -42,12 +48,12 @@ module.exports = class BlocksRepository {
       .offset(params.offset)
       .all()
 
-    // let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    // let { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows,
       count: rows.length
-      // count: count.count
+      // count: count
     }
   }
 
@@ -105,7 +111,13 @@ module.exports = class BlocksRepository {
       : ['height', 'DESC']
 
     const buildQuery = (query) => {
-      return query.from('blocks').where(conditions)
+      query = query.from('blocks')
+
+      conditions.forEach(condition => {
+        query = query.where(condition.column, condition.operator, condition.value)
+      })
+
+      return query
     }
 
     let rows = await buildQuery(this.query.select('*'))
@@ -114,11 +126,11 @@ module.exports = class BlocksRepository {
       .offset(params.offset)
       .all()
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    let { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows,
-      count: count.count
+      count: count
     }
   }
 
