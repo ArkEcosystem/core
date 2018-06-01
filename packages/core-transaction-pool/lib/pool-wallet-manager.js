@@ -39,10 +39,11 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean} true if exists
    */
   exists (key) {
-    if (this.walletsByAddress[key]) {
+    if (this.walletsByPublicKey[key]) {
       return true
     }
-    if (this.walletsByPublicKey[key]) {
+
+    if (this.walletsByAddress[key]) {
       return true
     }
     return false
@@ -54,12 +55,14 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {void}
    */
   deleteWallet (publicKey) {
-    const wallet = this.getWalletByPublicKey(publicKey)
-    delete this.walletsByPublicKey[publicKey]
-    delete this.walletsByAddress[wallet.address]
+    if (this.exists(publicKey)) {
+      const wallet = this.getWalletByPublicKey(publicKey)
+      delete this.walletsByPublicKey[publicKey]
+      delete this.walletsByAddress[wallet.address]
 
-    if (wallet.username) {
-      delete this.walletByUsername
+      if (wallet.username) {
+        delete this.walletByUsername
+      }
     }
   }
 

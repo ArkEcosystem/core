@@ -103,6 +103,15 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
+   * Remove all transactions from transaction pool belonging to specific sender
+   * @param  {String} senderPublicKey
+   * @return {void}
+   */
+  async purgeSender (senderPublicKey) {
+    throw new Error('Method [purgeSender] not implemented!')
+  }
+
+  /**
    * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
    * @param {Array}   transactions
    * @param {Boolean} isBroadcast
@@ -212,6 +221,11 @@ module.exports = class TransactionPoolInterface {
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }
 
+  /**
+   * Processes recently accepted block by the blockchain.
+   * @param  {Object} block
+   * @return {void}
+   */
   async acceptChainedBlock (block) {
     this.walletManager.applyBlock(block)
 
@@ -220,7 +234,14 @@ module.exports = class TransactionPoolInterface {
       // the forged transaction is not in pool - so needs to be applied
       // we must apply the transaction also to this sender/recepient in pool wallet manager
       if (this.walletManager.exists(transaction.senderPublicKey) && !this.pool.transactionExists(transaction)) {
-        this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
+        try {
+          this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
+        } catch (error) {
+          // remove sender from the pool, i.e. not enough funds
+          logger.error(`Purging ${transaction.senderPublicKey} from pool. Not enough funds, possible double spending.`)
+          this.purgeSender(transaction.senderPublicKey)
+          this.walletManager.deleteWallet(transaction.senderPublicKey)
+        }
       }
     })
 

@@ -140,6 +140,28 @@ describe('Connection', () => {
     })
   })
 
+  describe('purgeSender', () => {
+    it('should be a function', () => {
+      expect(connection.purgeSender).toBeFunction()
+    })
+
+    it('should remove the senders transactions from the pool', async () => {
+      await connection.addTransaction(mockData.dummy1)
+      await connection.addTransaction(mockData.dummy2)
+      await connection.addTransaction(mockData.dummy3)
+      await connection.addTransaction(mockData.dummy4)
+      await connection.addTransaction(mockData.dummy5)
+      await connection.addTransaction(mockData.dummy6)
+      await connection.addTransaction(mockData.dummy10)
+
+      await expect(connection.getPoolSize()).resolves.toBe(7)
+
+      await connection.purgeSender(mockData.dummy1.senderPublicKey)
+
+      await expect(connection.getPoolSize()).resolves.toBe(1)
+    })
+  })
+
   describe('transactionExists', () => {
     it('should be a function', () => {
       expect(connection.transactionExists).toBeFunction()

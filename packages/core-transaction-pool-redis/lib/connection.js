@@ -283,6 +283,19 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     keys.forEach(key => this.pool.del(key))
   }
 
+ /**
+   * Remove all transactions from transaction pool belonging to specific sender
+   * @param  {String} senderPublicKey
+   * @return {void}
+   */
+  async purgeSender (senderPublicKey) {
+    const senderTransactionIds = await this.pool.lrange(this.__getRedisSenderPublicKey(senderPublicKey), 0, -1)
+
+    for (let id of senderTransactionIds) {
+      await this.removeTransactionById(id)
+    }
+  }
+
   /**
   * Checks if transaction exists in the pool
   * @param {transactionId}
@@ -321,11 +334,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     /**
    * Get the Redis key for searching/counting transactions related to and public key
-   * @param  {String} publicKey
+   * @param  {String} senderPublicKey
    * @return {String}
    */
-  __getRedisSenderPublicKey (publicKey) {
-    return `${this.keyPrefix}:throttle:${publicKey}`
+  __getRedisSenderPublicKey (senderPublicKey) {
+    return `${this.keyPrefix}:senderPublicKey:${senderPublicKey}`
   }
 
   /**
