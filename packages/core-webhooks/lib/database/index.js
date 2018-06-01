@@ -18,7 +18,7 @@ class Database {
       throw new Error('Already initialised')
     }
 
-    if (config.dialect === 'sqlite') {
+    if (config.dialect === 'sqlite' && config.storage !== ':memory:') {
       await fs.ensureFile(config.storage)
     }
 

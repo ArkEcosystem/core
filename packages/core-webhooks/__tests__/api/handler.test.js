@@ -65,12 +65,4 @@ describe('API 2.0 - Webhooks', () => {
       utils.expectStatus(response, 204)
     })
   })
-
-  describe('GET /webhooks/events', () => {
-    it('should GET all the webhook events', async () => {
-      const response = await utils.request('GET', 'webhooks/events')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
-    })
-  })
 })

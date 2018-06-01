@@ -29,10 +29,6 @@ const register = async (server, options) => {
     method: 'DELETE',
     path: '/webhooks/{id}',
     ...handler.destroy
-  }, {
-    method: 'GET',
-    path: '/webhooks/events',
-    ...handler.events
   }])
 }
 

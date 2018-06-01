@@ -24,12 +24,11 @@ module.exports = {
   '@arkecosystem/core-api': {
     port: 4103
   },
-  '@arkecosystem/core-webhooks': {},
-  '@arkecosystem/core-webhooks-api': {
-    port: 4104
+  '@arkecosystem/core-webhooks': {
+    server: {
+      port: 4104
+    }
   },
-  '@arkecosystem/core-graphql': {},
-  '@arkecosystem/core-graphql-api': {},
   '@arkecosystem/core-forger': {},
   '@arkecosystem/core-json-rpc': {
     enabled: false

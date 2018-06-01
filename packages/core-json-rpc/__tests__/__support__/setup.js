@@ -15,9 +15,7 @@ beforeAll(async (done) => {
     exclude: [
       '@arkecosystem/core-api',
       '@arkecosystem/core-webhooks',
-      '@arkecosystem/core-webhooks-api',
       '@arkecosystem/core-graphql',
-      '@arkecosystem/core-graphql-api',
       '@arkecosystem/core-forger'
     ],
     options: {
