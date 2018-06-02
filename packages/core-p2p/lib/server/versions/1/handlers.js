@@ -181,7 +181,6 @@ exports.postTransactions = {
         .postTransactions(transactionPool.guard.accept)
     }
 
-    // TODO: move to module
     if (!request.payload.isBroadCasted) {
       container
       .resolvePlugin('p2p')
