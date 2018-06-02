@@ -182,11 +182,11 @@ exports.postTransactions = {
     }
 
     // TODO: move to module
-    /* if (!request.payload.isBroadCasted) {
+    if (!request.payload.isBroadCasted) {
       container
       .resolvePlugin('p2p')
       .broadcastTransactions(request.payload.transactions)
-    } */
+    }
 
     return {
       success: true,

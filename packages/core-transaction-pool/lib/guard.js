@@ -142,18 +142,20 @@ module.exports = class TransactionGuard {
         logger.debug(`Guard: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
         this.invalid.push(transaction)
       } else {
-          console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-          this.pool.walletManager.applyTransaction(transaction)
-          console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-          console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+        // TODO: remove console.log
+        console.log('----------------------')
+        console.log('Pool before', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+        this.pool.walletManager.applyTransaction(transaction)
+        console.log('Pool sender:', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+        console.log('Pool recepient:', this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
 
-          console.log(container
-            .resolvePlugin('blockchain')
-            .database
-            .walletManager
-            .getWalletByPublicKey(transaction.senderPublicKey).balance)
+        console.log('Blockchain balance', container
+          .resolvePlugin('blockchain')
+          .database
+          .walletManager
+          .getWalletByPublicKey(transaction.senderPublicKey).balance)
 
-          this.accept.push(transaction)
+        this.accept.push(transaction)
       }
     })
   }
