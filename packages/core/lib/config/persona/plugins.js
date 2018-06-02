@@ -1,7 +1,6 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-config-json': {},
   '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {},
   '@arkecosystem/core-database': {},
@@ -24,12 +23,11 @@ module.exports = {
   '@arkecosystem/core-api': {
     port: 4103
   },
-  '@arkecosystem/core-webhooks': {},
-  '@arkecosystem/core-webhooks-api': {
-    port: 4104
+  '@arkecosystem/core-webhooks': {
+    server: {
+      port: 4104
+    }
   },
-  '@arkecosystem/core-graphql': {},
-  '@arkecosystem/core-graphql-api': {},
   '@arkecosystem/core-forger': {},
   '@arkecosystem/core-json-rpc': {
     enabled: false

@@ -10,6 +10,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  */
 module.exports = async (config) => {
   const baseConfig = {
+    host: config.host,
     port: config.port,
     routes: {
       cors: true,
@@ -31,6 +32,13 @@ module.exports = async (config) => {
   const server = new Hapi.Server(baseConfig)
 
   await server.register([require('vision'), require('inert'), require('lout')])
+
+  await server.register({
+    plugin: require('./plugins/whitelist'),
+    options: {
+      whitelist: config.whitelist
+    }
+  })
 
   await server.register({
     plugin: require('hapi-api-version'),

@@ -9,7 +9,10 @@ const Hapi = require('hapi')
  * @return {Hapi.Server}
  */
 module.exports = async (p2p, config) => {
-  const server = new Hapi.Server({ port: config.port })
+  const server = new Hapi.Server({
+    host: config.host,
+    port: config.port
+  })
   server.app.p2p = p2p
 
   await server.register({

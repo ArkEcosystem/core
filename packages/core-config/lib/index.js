@@ -1,6 +1,7 @@
 'use strict'
 
-const configManager = require('./manager')
+const { client } = require('@arkecosystem/crypto')
+const loader = require('./loader')
 
 /**
  * The struct used by the plugin container.
@@ -8,14 +9,12 @@ const configManager = require('./manager')
  */
 exports.plugin = {
   pkg: require('../package.json'),
-  alias: 'configManager',
+  alias: 'config',
   async register (container, options) {
-    return configManager
+    const config = await loader.setUp(options)
+
+    client.setConfig(config.network)
+
+    return config
   }
 }
-
-/**
- * The interface used by concrete implementations.
- * @type {ConfigInterface}
- */
-exports.ConfigInterface = require('./interface')

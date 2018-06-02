@@ -17,7 +17,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
-const WalletBuilder = require('./builder/wallet')
+const SPV = require('./spv')
 const QueryBuilder = require('./query-builder')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
@@ -93,10 +93,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     let data = await this.query
-      .select()
+      .select('*')
       .from('rounds')
       .where('round', round)
-      .sortBy({
+      .orderBy({
         balance: 'DESC',
         publicKey: 'ASC'
       })
@@ -152,10 +152,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     let data = await this.query
-      .select([
-        '"vote" AS "publicKey"',
-        'SUM("balance") AS "balance"'
-      ], false)
+      .select('"vote" AS "publicKey"')
+      .sum('balance', 'balance')
       .from('wallets')
       .whereNotNull('vote')
       .groupBy('vote')
@@ -163,19 +161,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < maxDelegates) {
-      const chosen = data.map(delegate => delegate.publicKey).join('\',\'')
+      const chosen = data.map(delegate => delegate.publicKey)
 
-      const data2 = await this.query
-        .select([
-          '"vote" AS "publicKey"',
-          'SUM("balance") AS "balance"'
-        ], false)
+      let query = this.query
+        .select('publicKey')
+        .sum('balance', 'balance')
         .from('wallets')
-        .whereRaw(`"username" IS NOT NULL AND "publicKey" NOT IN ('${chosen}')`)
-        .groupBy('vote')
-        .sortBy('vote', 'ASC')
-        .take(maxDelegates - data.length)
-        .all()
+        .whereNotNull('username')
+
+        if (chosen.length) {
+          query = query.whereNotIn('publicKey', chosen)
+        }
+
+        const data2 = await query.groupBy('publicKey')
+          .orderBy('publicKey', 'ASC')
+          .limit(maxDelegates - data.length)
+          .all()
 
       data = data.concat(data2)
     }
@@ -208,8 +209,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     try {
-      const walletBuilder = new WalletBuilder(this)
-      await walletBuilder.build(height)
+      const spv = new SPV(this)
+      await spv.build(height)
 
       await this.__registerListeners()
 
@@ -224,7 +225,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {void}
    */
   async loadWallets () {
-    const wallets = await this.query.select().from('wallets').all()
+    const wallets = await this.query.select('*').from('wallets').all()
     wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
     return this.walletManager.walletsByAddress || []
@@ -385,7 +386,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   async getBlock (id) {
     // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
     const block = await this.query
-      .select()
+      .select('*')
       .from('blocks')
       .where('id', id)
       .first()
@@ -411,10 +412,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async getLastBlock () {
     const block = await this.query
-      .select()
+      .select('*')
       .from('blocks')
-      .sortBy('height', 'DESC')
-      .take(1)
+      .orderBy('height', 'DESC')
+      .limit(1)
       .first()
 
     if (!block) {
@@ -483,14 +484,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async getBlocks (offset, limit) {
     let blocks = await this.query
-      .select()
+      .select('*')
       .from('blocks')
       .whereBetween('height', offset, offset + limit)
-      .sortBy('height', 'ASC')
+      .orderBy('height', 'ASC')
       .all()
 
     const transactions = await this.query
-      .select(['blockId', 'serialized'])
+      .select('blockId', 'serialized')
       .from('transactions')
       .whereIn('blockId', blocks.map(block => block.id))
       .groupBy('blockId')
@@ -513,7 +514,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async getBlockHeaders (offset, limit) {
     let blocks = await this.query
-      .select()
+      .select('*')
       .from('blocks')
       .whereBetween('height', offset, offset + limit)
       .all()
@@ -613,7 +614,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     emitter.on('wallet:cold:created', async coldWallet => {
       try {
         const wallet = await this.query
-          .select()
+          .select('*')
           .from('wallets')
           .where('address', coldWallet.address)
           .first()

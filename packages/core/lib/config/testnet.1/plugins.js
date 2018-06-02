@@ -1,7 +1,6 @@
 module.exports = {
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-config-json': {},
   '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {
     transports: {
@@ -45,13 +44,15 @@ module.exports = {
     }
   },
   '@arkecosystem/core-p2p': {
+    host: process.env.ARK_P2P_HOST || 'localhost',
     port: process.env.ARK_P2P_PORT || 4102
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
     enabled: true,
     host: process.env.ARK_API_HOST || 'localhost',
-    port: process.env.ARK_API_PORT || 4103
+    port: process.env.ARK_API_PORT || 4103,
+    whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
     enabled: false,
@@ -63,20 +64,20 @@ module.exports = {
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
+    },
+    server: {
+      enabled: false,
+      host: process.env.ARK_WEBHOOKS_HOST || 'localhost',
+      port: process.env.ARK_WEBHOOKS_PORT || 4004,
+      whitelist: ['127.0.0.1', '192.168.*']
     }
   },
-  '@arkecosystem/core-webhooks-api': {
+  '@arkecosystem/core-graphql': {
     enabled: false,
-    port: process.env.ARK_WEBHOOKS_PORT || 4104,
-    whitelist: ['127.0.0.1', '192.168.*']
-  },
-  '@arkecosystem/core-graphql': {},
-  '@arkecosystem/core-graphql-api': {
-    enabled: false,
+    host: process.env.ARK_GRAPHQL_HOST || 'localhost',
     port: process.env.ARK_GRAPHQL_PORT || 4105,
     path: '/graphql',
-    graphiql: true,
-    pretty: true
+    graphiql: true
   },
   '@arkecosystem/core-forger': {
     host: 'http://127.0.0.1'
