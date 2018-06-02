@@ -139,28 +139,6 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Get a sender public key by transaction id.
-   * @param  {Transactions[]} transactions
-   * @return {Object}
-   */
-  async determineExcessTransactions (transactions) {
-    const response = {
-      accept: [],
-      excess: []
-    }
-
-    for (let i = 0; i < transactions.length; i++) {
-      const transaction = transactions[i]
-
-      await this.hasExceededMaxTransactions(transaction)
-        ? response.excess.push(transaction)
-        : response.accept.push(transaction)
-    }
-
-    return response
-  }
-
-  /**
    * Get all transactions that are ready to be forged.
    * @param  {Number} start
    * @param  {Number} size

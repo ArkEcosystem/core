@@ -1,4 +1,3 @@
-const reject = require('lodash/reject')
 const Promise = require('bluebird')
 
 const container = require('@arkecosystem/core-container')
@@ -29,11 +28,9 @@ module.exports = class TransactionGuard {
 
     await this.__transformAndFilterTransations(transactions)
 
-    this.__determineInvalidTransactions()
-
     this.__determineFeeMatchingTransactions()
 
-    await this.__determineExcessTransactions()
+    await this.__determineValidTransactions()
   }
 
   /**
@@ -130,46 +127,38 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Determine any invalid transactions, usually caused by insufficient funds.
-   * @return {void}
+   * Determines valid transactions by checking rules, according to:
+   * - if sender is over transaction pool limit
+   * - if sender has enough funds
    */
-  __determineInvalidTransactions () {
-    this.transactions = reject(this.transactions, transaction => {
+  async __determineValidTransactions () {
+    await Promise.each(this.transactions, async (transaction) => {
       const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
+      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
 
-      if (!wallet.canApply(transaction)) {
+      if (hasExceeded) {
+        this.excess.push(transaction)
+      } else if (!wallet.canApply(transaction)) {
         logger.debug(`Guard: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
         this.invalid.push(transaction)
-        return true
+      } else {
+          console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+          this.pool.walletManager.applyTransaction(transaction)
+          console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+          console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
+
+          console.log(container
+            .resolvePlugin('blockchain')
+            .database
+            .walletManager
+            .getWalletByPublicKey(transaction.senderPublicKey).balance)
+
+          this.accept.push(transaction)
       }
-
-      console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-      this.pool.walletManager.applyTransaction(transaction)
-      console.log(this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-      console.log(this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
-
-      console.log(container
-        .resolvePlugin('blockchain')
-        .database
-        .walletManager
-        .getWalletByPublicKey(transaction.senderPublicKey).balance)
-
-      return false
     })
   }
 
-  /**
-   * Determine transactions that exceed the rate-limit.
-   * @return {void}
-   */
-  async __determineExcessTransactions () {
-    const transactions = await this.pool.determineExcessTransactions(this.transactions)
-
-    this.accept = transactions.accept
-    this.excess = transactions.excess
-  }
-
-  /**
+   /**
    * Reset all indices.
    * @return {void}
    */
