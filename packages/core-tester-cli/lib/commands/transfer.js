@@ -17,7 +17,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   }
 
   if (!postResponse.data.success) {
-    logger.error('Transaction request failed')
+    logger.error(`Transaction request failed. Error: ${postResponse.data.error}`)
 
     return false
   }
