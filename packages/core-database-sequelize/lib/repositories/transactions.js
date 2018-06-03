@@ -5,22 +5,17 @@ const moment = require('moment')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
+const Repository = require('./repository')
 
 const Redis = require('ioredis')
 
-const defaults = {
-  limit: 100,
-  offset: 0
-}
-
-module.exports = class TransactionsRepository {
+module.exports = class TransactionsRepository extends Repository {
   /**
    * Create a new transaction repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
-    this.connection = connection
-    this.query = connection.query
+    super(connection)
 
     this.redis = new Redis()
   }
@@ -55,11 +50,12 @@ module.exports = class TransactionsRepository {
       return query
     }
 
-    const transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || defaults.limit)
-      .offset(params.offset || defaults.offset)
-      .all()
+    const query = buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
     // const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
@@ -88,11 +84,12 @@ module.exports = class TransactionsRepository {
         .orWhere('recipientId', wallet.address)
     }
 
-    const transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || defaults.limit)
-      .offset(params.offset || defaults.offset)
-      .all()
+    const query = buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
     const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
@@ -213,11 +210,12 @@ module.exports = class TransactionsRepository {
       return query
     }
 
-    const transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || defaults.limit)
-      .offset(params.offset || defaults.offset)
-      .all()
+    const query = await buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
     const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
@@ -246,11 +244,7 @@ module.exports = class TransactionsRepository {
    * @return {Number}
    */
   count () {
-    return this
-      .query
-      .countDistinct('id', 'count')
-      .from('transactions')
-      .first()
+    return super.__count('transactions')
   }
 
   /**

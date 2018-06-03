@@ -1,22 +1,9 @@
 'use strict'
 
 const buildFilterQuery = require('./utils/filter-query')
+const Repository = require('./repository')
 
-const defaults = {
-  limit: 100,
-  offset: 0
-}
-
-module.exports = class BlocksRepository {
-  /**
-   * Create a new block repository instance.
-   * @param  {ConnectionInterface} connection
-   */
-  constructor (connection) {
-    this.connection = connection
-    this.query = connection.query
-  }
-
+module.exports = class BlocksRepository extends Repository {
   /**
    * Get all blocks for the given parameters.
    * @param  {Object}  params
@@ -47,11 +34,12 @@ module.exports = class BlocksRepository {
       return query
     }
 
-    const rows = await buildQuery(this.query.select('*'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || defaults.limit)
-      .offset(params.offset || defaults.offset)
-      .all()
+    const query = buildQuery(this.query.select('*'))
+    const rows = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
     // const count = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
@@ -125,11 +113,12 @@ module.exports = class BlocksRepository {
       return query
     }
 
-    const rows = await buildQuery(this.query.select('*'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit || defaults.limit)
-      .offset(params.offset || defaults.offset)
-      .all()
+    const query = buildQuery(this.query.select('*'))
+    const rows = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
     const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
@@ -144,10 +133,6 @@ module.exports = class BlocksRepository {
    * @return {Number}
    */
   count () {
-    return this
-      .query
-      .countDistinct('id', 'count')
-      .from('blocks')
-      .first()
+    return super.__count('blocks')
   }
 }

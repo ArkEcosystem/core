@@ -7,10 +7,10 @@ const genesisTransaction = genesisBlock.transactions[0]
 
 let connection
 let repository
-let builder
+let spv
 
 const getWallet = address => {
-  return builder.walletManager.getWalletByAddress(address)
+  return spv.walletManager.getWalletByAddress(address)
 }
 
 beforeAll(async (done) => {
@@ -33,7 +33,7 @@ beforeEach(async (done) => {
 
   connection = await createConnection()
   repository = connection.transactions
-  builder = new (require('../../lib/builder/wallet'))(connection)
+  spv = new (require('../../lib/spv'))(connection)
 
   // To avoid timing out TODO better way
   const redisCache = {}
