@@ -63,7 +63,7 @@ class SqlBuilder {
 
       if (['IN', 'NOT IN'].includes(item.operator)) {
         if (Array.isArray(item.value)) {
-          item.value = item.value.map(value => escape(value)).join(',')
+          item.value = item.value.map(value => escape(value, true)).join(',')
         }
 
         return `${escape(item.column)} ${item.operator} (${item.value})`
