@@ -1,7 +1,7 @@
 'use strict'
 
 const createSignature = require('../../../lib/generators/transactions/signature')
-const { TRANSACTION_TYPES } = require('../../../../client/lib/constants')
+const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
 describe('Signature transaction', () => {
   it('should be a function', () => {

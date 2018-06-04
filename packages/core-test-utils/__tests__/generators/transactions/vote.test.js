@@ -1,7 +1,7 @@
 'use strict'
 
 const createVote = require('../../../lib/generators/transactions/vote')
-const { TRANSACTION_TYPES } = require('../../../../client/lib/constants')
+const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
 describe('Vote transaction', () => {
   it('should be a function', () => {
