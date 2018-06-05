@@ -6,7 +6,6 @@ const logger = container.resolvePlugin('logger')
 
 const ark = require('@arkecosystem/crypto')
 const { slots } = ark
-const { Transaction } = ark.models
 const { TRANSACTION_TYPES } = ark.constants
 
 const PoolWalletManager = require('./pool-wallet-manager')
