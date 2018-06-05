@@ -47,7 +47,7 @@ describe('Filter Rows', () => {
   })
 
   describe('between', () => {
-    it('match objects that include a value beween two parameter', () => {
+    it('match objects that include a value beween two parameters (included)', () => {
       expect(filterRows(rows, { a: { from: 3 } }, { between: ['a'] })).toEqual([
         { a: 3, b: 3, c: ['dummy-3', 'dummy-1', 'dummy-4'] },
         { a: 3, b: 4, c: ['DUMMY-1'] }
@@ -60,6 +60,11 @@ describe('Filter Rows', () => {
         { a: 1, b: 2, c: [] },
         { a: 2, b: 2, c: ['dummy-1'], d: ['dummy-0'] },
         { a: 2, b: 4, c: ['dummy-2'], d: 'dummy-0' }
+      ])
+      expect(filterRows(rows, { b: { from: 3, to: 4 } }, { between: ['b'] })).toEqual([
+        { a: 3, b: 3, c: ['dummy-3', 'dummy-1', 'dummy-4'] },
+        { a: 2, b: 4, c: ['dummy-2'], d: 'dummy-0' },
+        { a: 3, b: 4, c: ['DUMMY-1'] }
       ])
     })
   })
