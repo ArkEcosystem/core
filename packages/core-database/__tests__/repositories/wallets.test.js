@@ -28,23 +28,23 @@ beforeEach(async (done) => {
   done()
 })
 
-const genesisSenderses = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
+const genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
 
 function generateWallets () {
-  return genesisSenderses.map(senderPublicKey => ({
+  return genesisSenders.map(senderPublicKey => ({
     address: crypto.getAddress(senderPublicKey)
   }))
 }
 
 function generateVotes () {
-  return genesisSenderses.map(senderPublicKey => ({
+  return genesisSenders.map(senderPublicKey => ({
     address: crypto.getAddress(senderPublicKey),
     vote: genesisBlock.transactions[0].senderPublicKey
   }))
 }
 
 function generateFullWallets () {
-  return genesisSenderses.map(senderPublicKey => {
+  return genesisSenders.map(senderPublicKey => {
     const address = crypto.getAddress(senderPublicKey)
 
     return {
