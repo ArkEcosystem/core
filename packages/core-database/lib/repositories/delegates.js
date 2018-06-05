@@ -2,7 +2,6 @@
 
 const { calculateApproval, calculateProductivity } = require('./utils/delegate-calculator')
 const limitRows = require('./utils/limit-rows')
-const wrapRows = require('./utils/wrap-rows')
 const orderBy = require('lodash/orderBy')
 
 module.exports = class DelegatesRepository {
@@ -34,7 +33,10 @@ module.exports = class DelegatesRepository {
       ? params.orderBy.split(':')
       : ['rate', 'asc']
 
-    return wrapRows(limitRows(orderBy(rows, order), params))
+    return {
+      rows: limitRows(orderBy(rows, order), params),
+      count: rows.length
+    }
   }
 
   /**
@@ -48,6 +50,7 @@ module.exports = class DelegatesRepository {
 
   /**
    * Search all delegates.
+   * TODO Currently it searches by username only
    * @param  {Object} params
    * @return {Object}
    */
@@ -71,7 +74,10 @@ module.exports = class DelegatesRepository {
       })
     }
 
-    return wrapRows(limitRows(delegates, params))
+    return {
+      rows: limitRows(delegates, params),
+      count: delegates.length
+    }
   }
 
   /**

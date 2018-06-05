@@ -55,24 +55,25 @@ describe('Delegate Repository', () => {
   })
 
   describe('getLocalDelegates', () => {
+    const delegates = [
+      { username: 'delegate-0' },
+      { username: 'delegate-1' },
+      { username: 'delegate-2' }
+    ]
+    const wallets = [
+      delegates[0],
+      {},
+      delegates[1],
+      { username: '' },
+      delegates[2],
+      {}
+    ]
+
     it('should be a function', () => {
       expect(repository.getLocalDelegates).toBeFunction()
     })
 
     it('should return the local wallets of the connection that are delegates', () => {
-      const delegates = [
-        { username: 'delegate-0' },
-        { username: 'delegate-1' },
-        { username: 'delegate-2' }
-      ]
-      const wallets = [
-        delegates[0],
-        {},
-        delegates[1],
-        { username: '' },
-        delegates[2],
-        {}
-      ]
       repository.connection.walletManager.getLocalWallets = jest.fn(() => wallets)
 
       expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates))
@@ -99,7 +100,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 10, limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -108,7 +109,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -117,7 +118,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 0, limit: 12 })
-      expect(count).toBe(12)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(12)
     })
 
@@ -126,7 +127,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 10 })
-      expect(count).toBe(42)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(42)
     })
   })
@@ -150,7 +151,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.paginate({ offset: 10, limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -159,7 +160,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.paginate({ limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -168,7 +169,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.paginate({ offset: 0, limit: 12 })
-      expect(count).toBe(12)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(12)
     })
 
@@ -177,7 +178,7 @@ describe('Delegate Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.paginate({ offset: 10 })
-      expect(count).toBe(42)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(42)
     })
   })
@@ -187,7 +188,7 @@ describe('Delegate Repository', () => {
       expect(repository.search).toBeFunction()
     })
 
-    it('should be ok', () => {
+    it('should search by username', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
@@ -195,6 +196,15 @@ describe('Delegate Repository', () => {
 
       expect(count).toBe(1)
       expect(rows).toHaveLength(1)
+    })
+
+    describe('when no results', () => {
+      it('should be ok', () => {
+        const { count, rows } = repository.search({ q: 'unknown-dummy-username' })
+
+        expect(count).toBe(0)
+        expect(rows).toHaveLength(0)
+      })
     })
   })
 
