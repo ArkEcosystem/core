@@ -192,7 +192,7 @@ describe('Delegate Repository', () => {
       const wallets = generateWallets()
       walletManager.index(wallets)
 
-      const { count, rows } = repository.search({ q: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
+      const { count, rows } = repository.search({ username: 'username-APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn' })
 
       expect(count).toBe(1)
       expect(rows).toHaveLength(1)
@@ -200,7 +200,7 @@ describe('Delegate Repository', () => {
 
     describe('when no results', () => {
       it('should be ok', () => {
-        const { count, rows } = repository.search({ q: 'unknown-dummy-username' })
+        const { count, rows } = repository.search({ username: 'unknown-dummy-username' })
 
         expect(count).toBe(0)
         expect(rows).toHaveLength(0)
