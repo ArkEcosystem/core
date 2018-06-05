@@ -1,7 +1,7 @@
 'use strict'
 
 const createDelegate = require('../../../lib/generators/transactions/delegate')
-const { TRANSACTION_TYPES } = require('../../../../client/lib/constants')
+const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
 describe('Delegate transaction', () => {
   it('should be a function', () => {
