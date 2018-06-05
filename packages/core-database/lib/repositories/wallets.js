@@ -3,7 +3,6 @@
 const _ = require('lodash')
 const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
-const wrapRows = require('./utils/wrap-rows')
 
 module.exports = class WalletsRepository {
   /**
@@ -28,7 +27,11 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    return wrapRows(limitRows(this.getLocalWallets(), params))
+    const wallets = this.getLocalWallets()
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
@@ -39,7 +42,10 @@ module.exports = class WalletsRepository {
    */
   findAllByVote (publicKey, params = {}) {
     const wallets = this.getLocalWallets().filter(wallet => wallet.vote === publicKey)
-    return wrapRows(limitRows(wallets, params))
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
@@ -66,7 +72,10 @@ module.exports = class WalletsRepository {
    */
   top (params = {}) {
     const wallets = _.sortBy(this.getLocalWallets(), 'balance').reverse()
-    return wrapRows(limitRows(wallets, params))
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
@@ -75,13 +84,14 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   search (params) {
-    let wallets = this.getLocalWallets()
-
-    wallets = filterRows(wallets, params, {
+    const wallets = filterRows(this.getLocalWallets(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
       between: ['balance', 'votebalance']
     })
 
-    return wrapRows(wallets)
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 }
