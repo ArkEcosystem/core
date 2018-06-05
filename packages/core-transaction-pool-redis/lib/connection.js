@@ -227,7 +227,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return Transaction.fromBytes(serialized)
     }
 
-    return 'Error: Non existing transaction'
+    return undefined
   }
 
   /**

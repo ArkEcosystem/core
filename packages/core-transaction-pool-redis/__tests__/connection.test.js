@@ -248,6 +248,12 @@ describe('Connection', () => {
       await expect(poolTransaction).toBeObject()
       await expect(poolTransaction.id).toBe(mockData.dummy1.id)
     })
+
+    it('should return undefined for nonexisting transaction', async () => {
+      const poolTransaction = await connection.getTransaction('non existing id')
+      console.log(poolTransaction)
+      await expect(poolTransaction).toBeFalsy()
+    })
   })
 
   describe('getTransactions', () => {

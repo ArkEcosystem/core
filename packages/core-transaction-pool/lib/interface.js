@@ -6,6 +6,7 @@ const logger = container.resolvePlugin('logger')
 
 const ark = require('@arkecosystem/crypto')
 const { slots } = ark
+const { Transaction } = ark.models
 const { TRANSACTION_TYPES } = ark.constants
 
 const PoolWalletManager = require('./pool-wallet-manager')
@@ -153,9 +154,14 @@ module.exports = class TransactionPoolInterface {
       for (const id of transactionIds) {
         const transaction = await this.getTransaction(id)
 
+        if (!transaction) {
+          continue
+        }
+
         if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
           logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
+          this.purgeSender(transaction.senderPublicKey)
           continue
         }
 
