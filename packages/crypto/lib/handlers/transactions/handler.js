@@ -17,7 +17,7 @@ module.exports = class Handler {
     let applicable = true
 
     if (wallet.multisignature) {
-      applicable = wallet.verifySignatures(transaction, { keysgroup: wallet.multisignature })
+      applicable = wallet.verifySignatures(transaction, wallet.multisignature)
     } else {
       const enoughBalance = (wallet.balance - transaction.amount - transaction.fee) >= 0
       applicable = (transaction.senderPublicKey === wallet.publicKey) && enoughBalance

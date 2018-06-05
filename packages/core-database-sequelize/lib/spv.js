@@ -250,7 +250,10 @@ module.exports = class SPV {
 
     data.forEach(row => {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
-      wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
+
+      if (!wallet.multisignature) {
+        wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
+      }
     })
   }
 }

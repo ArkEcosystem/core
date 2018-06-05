@@ -1,7 +1,7 @@
 'use strict'
 
 const createTransfer = require('../../../lib/generators/transactions/transfer')
-const { TRANSACTION_TYPES } = require('../../../../client/lib/constants')
+const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
 describe('Transfer transaction', () => {
   it('should be a function', () => {

@@ -5,17 +5,17 @@ const moment = require('moment')
 const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
+const Repository = require('./repository')
 
 const Redis = require('ioredis')
 
-module.exports = class TransactionsRepository {
+module.exports = class TransactionsRepository extends Repository {
   /**
    * Create a new transaction repository instance.
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
-    this.connection = connection
-    this.query = connection.query
+    super(connection)
 
     this.redis = new Redis()
   }
@@ -40,7 +40,7 @@ module.exports = class TransactionsRepository {
       ? params.orderBy.split(':')
       : ['timestamp', 'DESC']
 
-    const buildQuery = (query) => {
+    const buildQuery = query => {
       query = query.from('transactions')
 
       for (let [key, value] of Object.entries(conditions)) {
@@ -50,18 +50,19 @@ module.exports = class TransactionsRepository {
       return query
     }
 
-    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit)
-      .offset(params.offset)
-      .all()
+    const query = buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
-    // let { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    // const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
       count: transactions.length
-      // count: count
+      // count
     }
   }
 
@@ -71,29 +72,30 @@ module.exports = class TransactionsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  async findAllByWallet (wallet, params) {
+  async findAllByWallet (wallet, params = {}) {
     const orderBy = params.orderBy
       ? params.orderBy.split(':')
       : ['timestamp', 'DESC']
 
-    const buildQuery = (query) => {
+    const buildQuery = query => {
       return query
         .from('transactions')
         .where('senderPublicKey', wallet.publicKey)
         .orWhere('recipientId', wallet.address)
     }
 
-    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit)
-      .offset(params.offset)
-      .all()
+    const query = buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
-    let count = await buildQuery(this.query.select('COUNT(DISTINCT id) as count')).first()
+    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
-      count: count.count
+      count
     }
   }
 
@@ -103,7 +105,7 @@ module.exports = class TransactionsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllBySender (senderPublicKey, params) {
+  findAllBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey}, ...params})
   }
 
@@ -113,17 +115,18 @@ module.exports = class TransactionsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByRecipient (recipientId, params) {
+  findAllByRecipient (recipientId, params = {}) {
     return this.findAll({...{recipientId}, ...params})
   }
 
   /**
    * Get all vote transactions for the given sender public key.
+   * TODO rename to findAllVotesBySender or not?
    * @param  {String} senderPublicKey
    * @param  {Object} params
    * @return {Object}
    */
-  allVotesBySender (senderPublicKey, params) {
+  allVotesBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
   }
 
@@ -133,7 +136,7 @@ module.exports = class TransactionsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByBlock (blockId, params) {
+  findAllByBlock (blockId, params = {}) {
     return this.findAll({...{blockId}, ...params})
   }
 
@@ -143,7 +146,7 @@ module.exports = class TransactionsRepository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByType (type, params) {
+  findAllByType (type, params = {}) {
     return this.findAll({...{type}, ...params})
   }
 
@@ -197,7 +200,7 @@ module.exports = class TransactionsRepository {
       wildcard: ['vendorFieldHex']
     })
 
-    const buildQuery = (query) => {
+    const buildQuery = query => {
       query = query.from('transactions')
 
       conditions.forEach(condition => {
@@ -207,17 +210,18 @@ module.exports = class TransactionsRepository {
       return query
     }
 
-    let transactions = await buildQuery(this.query.select('blockId', 'serialized'))
-      .orderBy(orderBy[0], orderBy[1])
-      .limit(params.limit)
-      .offset(params.offset)
-      .all()
+    const query = await buildQuery(this.query.select('blockId', 'serialized'))
+    const transactions = await this.__runQuery(query, {
+      limit: params.limit,
+      offset: params.offset,
+      orderBy
+    })
 
-    let count = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
-      count: count.count
+      count
     }
   }
 
@@ -226,7 +230,7 @@ module.exports = class TransactionsRepository {
    * @return {Object}
    */
   async findWithVendorField () {
-    let transactions = await this.query
+    const transactions = await this.query
       .select('blockId', 'serialized')
       .from('transactions')
       .whereNotNull('vendorFieldHex')
@@ -240,12 +244,7 @@ module.exports = class TransactionsRepository {
    * @return {Number}
    */
   count () {
-    return this
-      .connection
-      .query
-      .select('COUNT(DISTINCT id) as count')
-      .from('transactions')
-      .first()
+    return super.__count('transactions')
   }
 
   /**

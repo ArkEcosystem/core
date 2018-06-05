@@ -38,7 +38,7 @@ module.exports = class Blockchain {
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
 
-    logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
+    if (nextState.actions.length > 0) logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
 
     stateMachine.state.blockchain = nextState
 

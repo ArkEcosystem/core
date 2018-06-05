@@ -7,7 +7,8 @@
     "commit": "git-cz",
     "lint": "lerna run lint",
     "depcheck": "lerna run depcheck",
-    "prepare": "lerna run prepare"
+    "prepare": "lerna run prepare",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "axios": "^0.18.0",
