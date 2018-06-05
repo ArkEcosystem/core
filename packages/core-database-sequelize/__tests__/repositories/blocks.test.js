@@ -111,7 +111,7 @@ describe('Block Repository', () => {
       expect(repository.search).toBeFunction()
     })
 
-    it('should search blocks by the specified id', async () => {
+    it('should search blocks by the specified ID', async () => {
       await expectSearch({
         id: genesisBlock.data.id
       })
