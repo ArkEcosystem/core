@@ -51,7 +51,8 @@ module.exports = class DelegatesRepository {
   /**
    * Search all delegates.
    * TODO Currently it searches by username only
-   * @param  {Object} params
+   * @param  {Object} [params]
+   * @param  {String} [params.username] - Search by username
    * @return {Object}
    */
   search (params) {
