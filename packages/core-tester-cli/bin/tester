@@ -34,6 +34,16 @@ registerCommand('vote', 'create multiple votes for a delegate')
   .action(async (options) => require('../lib/commands/vote')(options))
 
 app
+  .command('multi-signatures')
+  .description('create multiple multisig wallets')
+  .option('-n, --number <number>', 'number of multisig wallets', 10)
+  .option('-m, --min <number>', 'minimum number of signatures per transaction')
+  .option('-l, --lifetime <number>', 'lifetime of transaction', 72)
+  .option('-q, --quantity <number>', 'number of signatures per wallet', 2)
+  .option('-c, --copy', 'copy the transactions to the clipboard', false)
+  .action(async (options) => require('../lib/commands/multi-signature')(options))
+
+app
   .command('*')
   .action(env => {
     app.help()

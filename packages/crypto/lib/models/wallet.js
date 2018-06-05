@@ -145,7 +145,7 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verify (transaction, signature, publicKey) {
-    const hash = crypto.getHash(transaction)
+    const hash = crypto.getHash(transaction, true, true)
     const signSignatureBuffer = Buffer.from(signature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
@@ -161,28 +161,28 @@ module.exports = class Wallet {
    * @return {Boolean}
    */
   verifySignatures (transaction, multisignature) {
-    if (!transaction.signatures || !transaction.signatures.length > multisignature.min - 1) {
+    if (!transaction.signatures || transaction.signatures.length < multisignature.min) {
       return false
     }
 
-    const truncatePlus = (publicKey) => publicKey.startsWith('+') ? publicKey.slice(1) : publicKey
+    const keysgroup = multisignature.keysgroup.map(publicKey => {
+      return publicKey.startsWith('+') ? publicKey.slice(1) : publicKey
+    })
+    let signatures = Object.values(transaction.signatures)
 
-    let index = 0
-    let publicKey = truncatePlus(multisignature.keysgroup[index])
-
-    for (let i in transaction.signatures) {
-      if (!this.verify(transaction, transaction.signatures[i], publicKey)) {
-        if (index++ > transaction.signatures.length - 1) {
-          return false
-        }
-
-        if (index < multisignature.keysgroup.length) {
-          publicKey = truncatePlus(multisignature.keysgroup[index])
+    let valid = 0
+    for (const publicKey of keysgroup) {
+      const signature = this.__verifyTransactionSignatures(transaction, signatures, publicKey)
+      if (signature) {
+        signatures.splice(signatures.indexOf(signature), 1)
+        valid++
+        if (valid === multisignature.min) {
+          return true
         }
       }
     }
 
-    return true
+    return false
   }
 
   /**
@@ -269,5 +269,23 @@ module.exports = class Wallet {
    */
   toString () {
     return `${this.address}=${this.balance / ARKTOSHI}`
+  }
+
+  /**
+   * Goes through signatures to check if public key matches. Can also remove valid signatures.
+   * @param  {Transaction} transaction
+   * @param  {String[]} signatures
+   * @param  {String} publicKey
+   * @return {Boolean}
+   */
+  __verifyTransactionSignatures (transaction, signatures, publicKey) {
+    for (let i = 0; i < signatures.length; i++) {
+      const signature = signatures[i]
+      if (this.verify(transaction, signature, publicKey)) {
+        return signature
+      }
+    }
+
+    return false
   }
 }
