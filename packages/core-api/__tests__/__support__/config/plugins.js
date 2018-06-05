@@ -13,7 +13,10 @@ module.exports = {
   '@arkecosystem/core-p2p': {},
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
-    enabled: true
+    enabled: true,
+    whitelist: [
+      '127.0.0.1'
+    ]
   },
   '@arkecosystem/core-webhooks': {},
   '@arkecosystem/core-forger': {}
