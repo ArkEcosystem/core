@@ -36,7 +36,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     this.connection = new Sequelize({
       ...this.config,
-      ...{ operatorsAliases: Op }
+      ...{
+        operatorsAliases: Op,
+        logging: process.env.ARK_ENV !== 'test'
+      }
     })
 
     this.asyncTransaction = null
