@@ -25,7 +25,7 @@ module.exports = {
   },
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
-    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
+    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}2.sqlite`,
     logging: false
     // dialect: process.env.ARK_DB_DIALECT || 'postgres',
     // username: process.env.ARK_DB_USERNAME || 'node',
@@ -35,7 +35,7 @@ module.exports = {
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: true,
-    key: 'ark',
+    key: 'ark-testnet',
     maxTransactionsPerSender: 100,
     whitelist: ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357'],
     redis: {
@@ -45,7 +45,7 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || 'localhost',
-    port: process.env.ARK_P2P_PORT || 4002
+    port: process.env.ARK_P2P_PORT || 4000
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {

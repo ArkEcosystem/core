@@ -44,7 +44,7 @@ exports.show = {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
-      return utils.respondWith('Not found', true)
+      return utils.respondWith('Account not found', true)
     }
 
     return utils.respondWith({
@@ -73,12 +73,12 @@ exports.balance = {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
-      return utils.respondWith('Not found', true)
+      return utils.respondWith({balance: '0', unconfirmedBalance: '0'})
     }
 
     return utils.respondWith({
-      balance: account ? account.balance : '0',
-      unconfirmedBalance: account ? account.balance : '0'
+      balance: account ? `${account.balance}` : '0',
+      unconfirmedBalance: account ? `${account.balance}` : '0'
     })
   },
   config: {
@@ -103,7 +103,7 @@ exports.publicKey = {
     const account = await database.wallets.findById(request.query.address)
 
     if (!account) {
-      return utils.respondWith('Not found', true)
+      return utils.respondWith('Account not found', true)
     }
 
     return utils.respondWith({ publicKey: account.publicKey })
