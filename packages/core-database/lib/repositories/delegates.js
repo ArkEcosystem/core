@@ -34,10 +34,7 @@ module.exports = class DelegatesRepository {
       ? params.orderBy.split(':')
       : ['rate', 'asc']
 
-    return {
-      rows: limitRows(orderBy(rows, [order[0]], [order[1]]), params),
-      count: rows.length
-    }
+    return wrapRows(limitRows(orderBy(rows, order), params))
   }
 
   /**
