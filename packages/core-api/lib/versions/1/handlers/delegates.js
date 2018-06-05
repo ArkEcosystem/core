@@ -94,7 +94,10 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { rows } = await database.delegates.search({...request.query, ...utils.paginator(request)})
+    const query = {
+      username: request.query.q
+    }
+    const { rows } = await database.delegates.search({...query, ...utils.paginator(request)})
 
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate')
