@@ -4,6 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
+const helpers = require('./utils/validation-helpers')
 
 module.exports = class TransactionGuard {
   /**
@@ -130,22 +131,34 @@ module.exports = class TransactionGuard {
    * Determines valid transactions by checking rules, according to:
    * - if sender is over transaction pool limit
    * - if sender has enough funds
+   * - if recipient is on the same network
    */
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
       const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
-      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
+      if (!helpers.isRecipientOnActiveNetwork(transaction)) {
+        this.invalid.push(transaction)
+        return
+      }
 
+      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
       if (hasExceeded) {
         this.excess.push(transaction)
-      } else if (!wallet.canApply(transaction)) {
+        return
+      }
+
+      if (!wallet.canApply(transaction)) {
         logger.debug(`Guard: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
         this.invalid.push(transaction)
-      } else {
-        // TODO: remove console.log
+        return
+      }
+      try {
+          // TODO: remove console.log
         console.log('----------------------')
         console.log('Pool before', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
+
         this.pool.walletManager.applyTransaction(transaction)
+
         console.log('Pool sender:', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
         console.log('Pool recepient:', this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
 
@@ -156,6 +169,8 @@ module.exports = class TransactionGuard {
           .getWalletByPublicKey(transaction.senderPublicKey).balance)
 
         this.accept.push(transaction)
+      } catch (error) {
+        this.invalid.push(transaction)
       }
     })
   }

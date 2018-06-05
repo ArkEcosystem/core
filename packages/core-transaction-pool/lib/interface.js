@@ -9,7 +9,7 @@ const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
 const PoolWalletManager = require('./pool-wallet-manager')
-const helpers = require('./utils/wallet-helpers')
+const helpers = require('./utils/validation-helpers')
 
 module.exports = class TransactionPoolInterface {
   /**
