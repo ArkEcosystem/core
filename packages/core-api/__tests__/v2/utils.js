@@ -95,6 +95,21 @@ class Helpers {
     expect(block).toHaveProperty('transactions')
   }
 
+  expectDelegate (delegate) {
+    expect(delegate).toBeObject()
+    expect(delegate.username).toBeString()
+    expect(delegate.address).toBeString()
+    expect(delegate.publicKey).toBeString()
+    expect(delegate.votes).toBeNumber()
+    expect(delegate.rank).toBeNumber()
+    expect(delegate.blocks).toBeObject()
+    expect(delegate.blocks.missed).toBeNumber()
+    expect(delegate.blocks.produced).toBeNumber()
+    expect(delegate.production).toBeObject()
+    expect(delegate.production.approval).toBeString()
+    expect(delegate.production.productivity).toBeString()
+  }
+
   expectWallet (wallet) {
     expect(wallet).toBeObject()
     expect(wallet).toHaveProperty('address')

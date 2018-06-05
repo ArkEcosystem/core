@@ -50,6 +50,29 @@ exports.show = {
 /**
  * @type {Object}
  */
+exports.search = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const delegates = await database.delegates.search({
+      ...request.payload,
+      ...request.query,
+      ...utils.paginate(request)
+    })
+
+    return utils.toPagination(request, delegates, 'delegate')
+  },
+  options: {
+    validate: schema.search
+  }
+}
+
+/**
+ * @type {Object}
+ */
 exports.blocks = {
   /**
    * @param  {Hapi.Request} request

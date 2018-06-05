@@ -48,9 +48,24 @@ describe('API 2.0 - Delegates', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
+      utils.expectDelegate(response.data.data)
       expect(response.data.data).toHaveProperty('username', delegateUsername)
       expect(response.data.data).toHaveProperty('address', delegateAddress)
       expect(response.data.data).toHaveProperty('publicKey', delegatePublicKey)
+    })
+  })
+
+  describe('POST /delegates/search', () => {
+    it('should POST a search for delegates with a username that matches the given string', async () => {
+      const response = await utils.request('POST', 'delegates/search', { username: delegateUsername })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
+
+      expect(response.data.data).toHaveLength(1)
+
+      const delegate = response.data.data[0]
+      utils.expectDelegate(response.data.data[0])
+      expect(delegate).toHaveProperty('username', delegateUsername)
     })
   })
 
