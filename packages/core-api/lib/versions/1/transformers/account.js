@@ -18,8 +18,7 @@ module.exports = (model) => {
     unconfirmedBalance: model.balance,
     multisignatures: [],
     u_multisignatures: [],
-    unconfirmedSignature: hasSecondSignature ? 0 : 1,
-    secondSignature: hasSecondSignature ? 1 : 0,
-    votebalance: model.votebalance
+    unconfirmedSignature: hasSecondSignature ? 1 : 0,
+    secondSignature: hasSecondSignature ? 1 : 0
   }
 }

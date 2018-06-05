@@ -34,6 +34,8 @@ const respondWith = (data, error = false) => {
  * @return {Object}
  */
 const toResource = (request, data, transformerClass) => {
+  if (data.balance) data.balance = `${data.balance}`
+  if (data.unconfirmedBalance) data.unconfirmedBalance = `${data.unconfirmedBalance}`
   return transformResource(request, data, transformerClass)
 }
 
