@@ -96,7 +96,7 @@ describe('API 2.0 - Wallets', () => {
 
   describe('POST /wallets/search', () => {
     it('should POST a search for wallets with the exact specified address', async () => {
-      const response = await utils.request('POST', 'wallets/search', { address: address })
+      const response = await utils.request('POST', 'wallets/search', { address })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -108,7 +108,7 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should POST a search for wallets with the exact specified publicKey', async () => {
-      const response = await utils.request('POST', 'wallets/search', { address: address, publicKey })
+      const response = await utils.request('POST', 'wallets/search', { address, publicKey })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -145,7 +145,7 @@ describe('API 2.0 - Wallets', () => {
     // })
 
     it('should POST a search for wallets with the exact specified username', async () => {
-      const response = await utils.request('POST', 'wallets/search', { address: address, username })
+      const response = await utils.request('POST', 'wallets/search', { address, username })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -196,7 +196,7 @@ describe('API 2.0 - Wallets', () => {
 
     it.skip('should POST a search for wallets with the exact specified votebalance', async () => {
       const response = await utils.request('POST', 'wallets/search', {
-        address: address,
+        address,
         votebalance: {
           from: 0,
           to: 0
@@ -214,7 +214,7 @@ describe('API 2.0 - Wallets', () => {
 
     it.skip('should POST a search for wallets with the specified votebalance range', async () => {
       const response = await utils.request('POST', 'wallets/search', {
-        address: address,
+        address,
         votebalance: {
           from: 0,
           to: 0
@@ -231,7 +231,7 @@ describe('API 2.0 - Wallets', () => {
     })
 
     it('should POST a search for wallets with the wrong specified username', async () => {
-      const response = await utils.request('POST', 'wallets/search', { address: address, username: 'dummy' })
+      const response = await utils.request('POST', 'wallets/search', { address, username: 'dummy' })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
