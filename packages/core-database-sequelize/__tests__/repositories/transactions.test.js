@@ -75,6 +75,10 @@ describe('Transaction Repository', () => {
         expect(transactions.rows).toBeEmpty()
         expect(transactions.count).toBe(0)
       })
+
+      // TODO this and other methods
+      xit('should not perform a query to get the results', () => {
+      })
     })
 
     // TODO this and other methods
