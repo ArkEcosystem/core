@@ -1,5 +1,8 @@
 'use strict'
 
+const toBeMinimalTransactionFields = require('../__support__/matchers/minimal-transaction-fields')
+expect.extend({ toBeMinimalTransactionFields })
+
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
 const genesisBlock = require('../__fixtures__/genesisBlock')
@@ -156,11 +159,11 @@ describe('Transaction Repository', () => {
       expect(repository.findById).toBeFunction()
     })
 
-    it('should find the transaction', async () => {
+    it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findById(genesisTransaction.id)
-      expect(transaction).toBeObject()
+      expect(transaction).toBeMinimalTransactionFields()
       expect(transaction.id).toBe(genesisTransaction.id)
     })
   })
@@ -170,11 +173,11 @@ describe('Transaction Repository', () => {
       expect(repository.findByTypeAndId).toBeFunction()
     })
 
-    it('should find the transaction', async () => {
+    it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findByTypeAndId(3, '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
-      expect(transaction).toBeObject()
+      expect(transaction).toBeMinimalTransactionFields()
       expect(transaction.id).toBe('96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
       expect(transaction.type).toBe(3)
     })
