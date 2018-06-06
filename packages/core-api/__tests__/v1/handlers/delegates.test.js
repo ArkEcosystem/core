@@ -57,6 +57,10 @@ describe('API 1.0 - Delegates', () => {
       utils.expectDelegate(response.data.delegates[0])
       expect(response.data.delegates[0].username).toBe('genesis_9')
     })
+
+    // TODO when the DelegatesRepository#search method admits more parameters
+    xit('should not search using other parameters (V2)', () => {
+    })
   })
 
   describe('GET /delegates/voters', () => {

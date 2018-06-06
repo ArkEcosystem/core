@@ -15,10 +15,7 @@ describe('API 2.0 - Delegates', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      const delegate = response.data.data[0]
-      expect(delegate.username).toBeString()
-      expect(delegate.address).toBeString()
-      expect(delegate.publicKey).toBeString()
+      utils.expectDelegate(response.data.data[0])
     })
   })
 
@@ -28,6 +25,7 @@ describe('API 2.0 - Delegates', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
+      utils.expectDelegate(response.data.data)
       expect(response.data.data).toHaveProperty('username', delegateUsername)
       expect(response.data.data).toHaveProperty('address', delegateAddress)
       expect(response.data.data).toHaveProperty('publicKey', delegatePublicKey)
@@ -38,6 +36,7 @@ describe('API 2.0 - Delegates', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
+      utils.expectDelegate(response.data.data)
       expect(response.data.data).toHaveProperty('username', delegateUsername)
       expect(response.data.data).toHaveProperty('address', delegateAddress)
       expect(response.data.data).toHaveProperty('publicKey', delegatePublicKey)
@@ -48,9 +47,24 @@ describe('API 2.0 - Delegates', () => {
       utils.expectSuccessful(response)
       utils.expectResource(response)
 
+      utils.expectDelegate(response.data.data)
       expect(response.data.data).toHaveProperty('username', delegateUsername)
       expect(response.data.data).toHaveProperty('address', delegateAddress)
       expect(response.data.data).toHaveProperty('publicKey', delegatePublicKey)
+    })
+  })
+
+  describe('POST /delegates/search', () => {
+    it('should POST a search for delegates with a username that matches the given string', async () => {
+      const response = await utils.request('POST', 'delegates/search', { username: delegateUsername })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
+
+      expect(response.data.data).toHaveLength(1)
+
+      const delegate = response.data.data[0]
+      utils.expectDelegate(response.data.data[0])
+      expect(delegate).toHaveProperty('username', delegateUsername)
     })
   })
 
@@ -64,16 +78,12 @@ describe('API 2.0 - Delegates', () => {
   })
 
   describe('GET /delegates/:id/voters', () => {
-    it('should GET all voters for a delegate by the given identifier', async () => {
+    it('should GET all voters (wallets) for a delegate by the given identifier', async () => {
       const response = await utils.request('GET', `delegates/${delegatePublicKey}/voters`)
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      const voter = response.data.data[0]
-      expect(voter.address).toBeString()
-      expect(voter.publicKey).toBeString()
-      expect(voter.balance).toBeNumber()
-      expect(voter.isDelegate).toBeBoolean()
+      utils.expectWallet(response.data.data[0])
     })
   })
 })
