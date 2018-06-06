@@ -1,7 +1,6 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 
-const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 const logger = container.resolvePlugin('logger')
 
@@ -14,23 +13,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     super()
 
     this.emitEvents = false
-  }
-
-  /**
-   * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
-   * Method overrides base class method from WalletManager.
-   * @param  {String} address
-   * @return {(Wallet|null)}
-   */
-  getWalletByAddress (address) {
-    if (!this.walletsByAddress[address]) {
-      const blockchainWallet = container.resolvePlugin('blockchain').database.walletManager.getWalletByAddress(address)
-      const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
-
-      this.reindex(wallet)
-    }
-
-    return this.walletsByAddress[address]
   }
 
   /**
@@ -111,18 +93,12 @@ module.exports = class PoolWalletManager extends WalletManager {
     try {
         // TODO: remove console.log
       console.log('----------------------')
-      console.log('Pool before', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      console.log('Pool 1>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
 
       super.applyTransaction(transaction)
 
-      console.log('Pool sender:', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
-      console.log('Pool recepient:', this.getWalletByAddress(transaction.recipientId).balance)
-
-      console.log('Blockchain balance', container
-        .resolvePlugin('blockchain')
-        .database
-        .walletManager
-        .getWalletByPublicKey(transaction.senderPublicKey).balance)
+      console.log('Pool 2>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      console.log('Pool recepient>', this.getWalletByAddress(transaction.recipientId).balance)
 
       return true
     } catch (error) {
