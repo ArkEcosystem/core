@@ -16,7 +16,7 @@ module.exports = (transaction) => {
     asset: engine.joi.object({
       signature: engine.joi.object({
         publicKey: engine.joi.arkPublicKey().required()
-      })
+      }).required()
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {
