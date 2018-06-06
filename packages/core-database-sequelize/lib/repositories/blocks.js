@@ -35,20 +35,20 @@ module.exports = class BlocksRepository extends Repository {
       return query
     }
 
-    const query = buildQuery(this.query.select('*'))
-    const rows = await this.__runQuery(query, {
-      limit: params.limit,
-      offset: params.offset,
-      orderBy
-    })
+    let rows = []
+    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
 
-    // const count = await buildQuery(this.query.countDistinct('id', 'count')).first()
-
-    return {
-      rows,
-      count: rows.length
-      // count: count
+    if (count) {
+      // TODO get createdAt and updatedAt too?
+      const selectQuery = buildQuery(this.query.select('*'))
+      rows = await this.__runQuery(selectQuery, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
     }
+
+    return { rows, count }
   }
 
   /**
@@ -57,7 +57,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Object} paginator
    * @return {Object}
    */
-  findAllByGenerator (generatorPublicKey, paginator) {
+  async findAllByGenerator (generatorPublicKey, paginator) {
     return this.findAll({...{generatorPublicKey}, ...paginator})
   }
 
@@ -66,7 +66,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  findById (id) {
+  async findById (id) {
     return this.query
       .select('*')
       .from('blocks')
@@ -80,7 +80,7 @@ module.exports = class BlocksRepository extends Repository {
    * @param  {String} generatorPublicKey
    * @return {Object}
    */
-  findLastByPublicKey (generatorPublicKey) {
+  async findLastByPublicKey (generatorPublicKey) {
     return this.query
       .select('id', 'timestamp')
       .from('blocks')
@@ -115,26 +115,26 @@ module.exports = class BlocksRepository extends Repository {
       return query
     }
 
-    const query = buildQuery(this.query.select('*'))
-    const rows = await this.__runQuery(query, {
-      limit: params.limit,
-      offset: params.offset,
-      orderBy
-    })
+    let rows = []
+    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
 
-    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
-
-    return {
-      rows,
-      count
+    if (count) {
+      const selectQuery = buildQuery(this.query.select('*'))
+      rows = await this.__runQuery(selectQuery, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
     }
+
+    return { rows, count }
   }
 
   /**
    * Count all blocks.
    * @return {Number}
    */
-  count () {
+  async count () {
     return super.__count('blocks')
   }
 }

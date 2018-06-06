@@ -7,6 +7,8 @@ const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
 const genesisBlock = require('../__fixtures__/genesisBlock')
 
+// TODO theses tests should use more than 1 block to be sure that they're correct
+
 let connection
 let repository
 

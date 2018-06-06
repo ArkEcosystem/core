@@ -108,7 +108,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllBySender (senderPublicKey, params = {}) {
+  async findAllBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey}, ...params})
   }
 
@@ -118,7 +118,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByRecipient (recipientId, params = {}) {
+  async findAllByRecipient (recipientId, params = {}) {
     return this.findAll({...{recipientId}, ...params})
   }
 
@@ -129,7 +129,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  allVotesBySender (senderPublicKey, params = {}) {
+  async allVotesBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
   }
 
@@ -139,7 +139,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByBlock (blockId, params = {}) {
+  async findAllByBlock (blockId, params = {}) {
     return this.findAll({...{blockId}, ...params})
   }
 
@@ -149,7 +149,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByType (type, params = {}) {
+  async findAllByType (type, params = {}) {
     return this.findAll({...{type}, ...params})
   }
 
@@ -248,7 +248,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Count all transactions.
    * @return {Number}
    */
-  count () {
+  async count () {
     return super.__count('transactions')
   }
 
@@ -256,7 +256,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Calculates min, max and average fee statistics based on transactions table
    * @return {Object}
    */
-  getFeeStatistics () {
+  async getFeeStatistics () {
     return this
       .connection
       .query
