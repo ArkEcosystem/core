@@ -16,6 +16,7 @@ module.exports = class TransactionsRepository extends Repository {
   constructor (connection) {
     super(connection)
 
+    // Used to store the height of the block
     this.cache = new Cache()
   }
 
@@ -292,7 +293,7 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * [__mapBlocksToTransactions description]
-   * @param  {Object} data
+   * @param  {Array|Object} data
    * @return {Object}
    */
   async __mapBlocksToTransactions (data) {
@@ -343,13 +344,13 @@ module.exports = class TransactionsRepository extends Repository {
       if (cachedBlock) {
         data.block = cachedBlock
       } else {
-        const block = await this.query
+        data.block = await this.query
           .select('id', 'height')
           .from('blocks')
           .where('id', data.blockId)
           .first()
 
-        this.__setBlockCache(block)
+        this.__setBlockCache(data.block)
       }
     }
 
@@ -357,26 +358,22 @@ module.exports = class TransactionsRepository extends Repository {
   }
 
   /**
-   * [__getBlockCache description]
-   * @param  {[type]} blockId [description]
-   * @return {[type]}         [description]
+   * Tries to retrieve the height of the block from the cache
+   * @param  {String} blockId
+   * @return {Object|null}
    */
   async __getBlockCache (blockId) {
-    const cachedHeight = await this.cache.get(`heights:${blockId}`)
-
-    if (cachedHeight) {
-      return { height: cachedHeight }
-    }
-
-    return false
+    const height = await this.cache.get(`heights:${blockId}`)
+    return height ? ({ height }) : null
   }
 
   /**
-   * [__setBlockCache description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Stores the height of the block on the cache
+   * @param  {Object} block
+   * @param  {String} block.id
+   * @param  {Number} block.height
    */
-  __setBlockCache (block) {
-    this.cache.set(`heights:${block.id}`, block.height)
+  __setBlockCache ({ id, height }) {
+    this.cache.set(`heights:${id}`, { height })
   }
 }

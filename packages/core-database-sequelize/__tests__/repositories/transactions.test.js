@@ -156,8 +156,7 @@ describe('Transaction Repository', () => {
       expect(repository.findById).toBeFunction()
     })
 
-    // TODO: this test requires Redis or is it failing?
-    it('should find all transactions', async () => {
+    it('should find the transaction', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findById(genesisTransaction.id)
@@ -171,8 +170,7 @@ describe('Transaction Repository', () => {
       expect(repository.findByTypeAndId).toBeFunction()
     })
 
-    // TODO: this test requires Redis or is it failing?
-    it('should find all transactions', async () => {
+    it('should find the transaction', async () => {
       await connection.saveBlock(genesisBlock)
 
       const transaction = await repository.findByTypeAndId(3, '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
