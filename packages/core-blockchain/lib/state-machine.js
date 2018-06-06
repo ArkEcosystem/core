@@ -90,7 +90,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.rollbackCurrentRound()
         await blockchain.database.buildWallets(state.lastBlock.data.height)
         await blockchain.database.saveWallets(true)
-        // blockchain.transactionPool.initialiseWallets(blockchain.database.walletManager.getLocalWallets())
+        await blockchain.transactionPool.rebuildWallets()
         // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
