@@ -4,6 +4,8 @@ const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
+const config = container.resolvePlugin('config')
+const { crypto } = require('@arkecosystem/crypto')
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**
@@ -68,6 +70,12 @@ module.exports = class PoolWalletManager extends WalletManager {
     })
   }
 
+  deleteWallet (publicKey) {
+      delete this.walletsByPublicKey[publicKey]
+
+      delete this.walletsByAddress[crypto.getAddress(publicKey, config.network.pubKeyHash)]
+  }
+
   /**
    * Apply the given block to a delegate in the pool wallet manager.
    * We apply only the block reward and fees, as transaction are already be applied
@@ -76,7 +84,7 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Block} block
    * @return {void}
    */
-  async applyBlock (block) {
+  applyBlock (block) {
     if (this.exists(block.data.generatorPublicKey)) {
       const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
       delegate.applyBlock(block.data)
@@ -91,28 +99,18 @@ module.exports = class PoolWalletManager extends WalletManager {
     const wallet = this.getWalletByPublicKey(transaction.senderPublicKey)
 
     if (!wallet.canApply(transaction)) {
-      logger.debug(`PoolWalletManager: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
+      logger.debug(`PoolWalletManager: Can't canApply transaction ${transaction.id} with ${transaction.amount}, wallet ${wallet.balance} balance`)
+
       return false
     }
+
     try {
-        // TODO: remove and clean this console.log
-      console.log('----------------------')
-      console.log('Pool 1>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      await super.applyTransaction(transaction)
 
-      const result = super.applyTransaction(transaction)
-
-      console.log('Pool 2>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
-      console.log('Pool recepient>', this.getWalletByAddress(transaction.recipientId).balance)
-
-      console.log(
-        database
-        .walletManager
-        .getWalletByPublicKey(transaction.senderPublicKey).balance
-      )
-
-      return result
+      return true
     } catch (error) {
-      logger.error(`PoolWalletManager: Can't apply transaction ${error}`)
+      logger.error(`PoolWalletManager: Can't apply transaction ${transaction.id} - ${error}`)
+
       return false
     }
   }

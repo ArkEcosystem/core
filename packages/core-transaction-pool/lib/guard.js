@@ -143,7 +143,7 @@ module.exports = class TransactionGuard {
         return
       }
 
-      if (!this.pool.walletManager.applyTransaction(transaction)) {
+      if (!await this.pool.walletManager.applyTransaction(transaction)) {
         this.invalid.push(transaction)
         return
       }

@@ -109,8 +109,8 @@ module.exports = class TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {void}
    */
-  async purgeSender (senderPublicKey) {
-    throw new Error('Method [purgeSender] not implemented!')
+  async removeTransactionsFromSender (senderPublicKey) {
+    throw new Error('Method [removeSenderTransactions] not implemented!')
   }
 
   /**
@@ -162,7 +162,7 @@ module.exports = class TransactionPoolInterface {
         if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
           logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
-          await this.purgeSender(transaction.senderPublicKey)
+          await this.removeByPublicKey(transaction.senderPublicKey)
           continue
         }
 
@@ -218,15 +218,10 @@ module.exports = class TransactionPoolInterface {
     for (const transaction of block.transactions) {
       const exists = await this.transactionExists(transaction.id)
       if (!exists) {
-        // if any of wallets already pool we try to apply transaction
+        // if wallet in pool we try to apply transaction
         if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
-          try {
-            this.walletManager.applyTransaction(transaction) // apply as it was already applied on BC wallet manager
-          } catch (error) {
-            // remove sender from the pool, i.e. not enough funds
-            logger.error(`Purging ${transaction.senderPublicKey} from pool. Not enough funds, possible double spending.`)
-            this.purgeSender(transaction.senderPublicKey)
-            this.walletManager.deleteWallet(transaction.senderPublicKey)
+          if (!await this.walletManager.applyTransaction(transaction)) {
+            await this.purgeByPublicKey(transaction.senderPublicKey)
           }
         }
       } else {
@@ -255,11 +250,16 @@ module.exports = class TransactionPoolInterface {
       if (!transaction) {
         return
       }
-
-      if (!(await this.walletManager.applyTransaction(transaction))) {
-        await this.purgeSender(transaction.senderPublicKey)
+      if (!await this.walletManager.applyTransaction(transaction, true)) {
+        await this.purgeByPublicKey(transaction.senderPublicKey)
       }
     })
-    logger.info('Transaction Pool manager build wallets complete')
+    logger.info('Transaction Pool Manager build wallets complete')
+  }
+
+  async purgeByPublicKey (senderPublicKey) {
+    logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`)
+    await this.removeTransactionsFromSender(senderPublicKey)
+    this.walletManager.deleteWallet(senderPublicKey)
   }
 }
