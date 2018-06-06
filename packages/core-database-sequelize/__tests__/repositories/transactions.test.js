@@ -63,7 +63,7 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAll()
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
-      expect(transactions.count).toBe(100) // NOTE: is honoring the default limit
+      expect(transactions.count).toBe(153)
     })
 
     // TODO this and other methods
@@ -148,7 +148,7 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
-      expect(transactions.count).toBe(100) // NOTE: is honoring the default limit
+      expect(transactions.count).toBe(153)
     })
   })
 

@@ -8,8 +8,6 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 const Cache = require('../cache')
 
-const transactionTableColumns = ['id', 'version', 'blockId', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'serialized']
-
 module.exports = class TransactionsRepository extends Repository {
   /**
    * Create a new transaction repository instance.
@@ -59,12 +57,11 @@ module.exports = class TransactionsRepository extends Repository {
       orderBy
     })
 
-    // const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
 
     return {
       rows: await this.__mapBlocksToTransactions(transactions),
-      count: transactions.length
-      // count
+      count
     }
   }
 
@@ -172,7 +169,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  findById (id) {
+  async findById (id) {
     return this.findOne({ id })
   }
 
@@ -182,7 +179,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  findByTypeAndId (type, id) {
+  async findByTypeAndId (type, id) {
     return this.findOne({ id, type })
   }
 
