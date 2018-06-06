@@ -5,8 +5,8 @@ require('../../__support__/setup')
 const utils = require('../utils')
 const genesisBlock = require('../../__support__/config/genesisBlock.json')
 
-const Address1 = 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
-const Address2 = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
+const address1 = 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
+const address2 = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
 
 const transactionList = genesisBlock.transactions
 
@@ -15,8 +15,8 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid parameters', async () => {
       const response = await utils.request('GET', 'transactions', {
         blockId: '17184958558311101492',
-        senderId: Address1,
-        recipientId: Address2,
+        senderId: address1,
+        recipientId: address2,
         limit: 10,
         offset: 0,
         orderBy: 'amount:asc'
@@ -117,7 +117,7 @@ describe('API 1.0 - Transactions', () => {
       const response = await utils.request('GET', 'transactions', {
         blockId: 'invalid',
         senderId: 'invalid',
-        recipientId: Address1,
+        recipientId: address1,
         limit: 'invalid',
         offset: 'invalid',
         orderBy: 'invalid'
@@ -130,9 +130,10 @@ describe('API 1.0 - Transactions', () => {
 
   describe('GET /transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
     it('should be ok using valid id', async () => {
-      let transactionInCheck = transactionList[0]
+      const transactionInCheck = transactionList[0]
+      const params = `id=${transactionInCheck.id}`
+      const response = await utils.request('GET', `transactions/get?${params}`)
 
-      const response = await utils.request('GET', `transactions/get?id=${transactionInCheck.id}`)
       utils.expectSuccessful(response)
 
       expect(response.data.transaction).toBeObject()
@@ -145,16 +146,16 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should fail using invalid id', async () => {
-      let params = 'id=invalid';
+      const params = 'id=invalid'
+      const response = await utils.request('GET', `transactions/get?${params}`)
 
-      const response = await utils.request('GET', 'transactions/get?' + params)
       utils.expectError(response)
 
       expect(response.data.error).toBeString()
     })
   })
 
-  describe.skip('GET /transactions/unconfirmed/get?id=', () => {
+  xdescribe('GET /transactions/unconfirmed/get?id=', () => {
     it('should be ok using valid id', async () => {
       let params = 'id=' + transactionList[transactionList.length - 1].id
 
@@ -170,7 +171,7 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /transactions/unconfirmed', () => {
+  xdescribe('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const response = await utils.request('GET', 'transactions/unconfirmed')
       utils.expectSuccessful(response)
