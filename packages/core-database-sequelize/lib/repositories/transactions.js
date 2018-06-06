@@ -6,8 +6,7 @@ const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
-
-const Redis = require('ioredis')
+const Cache = require('../cache')
 
 module.exports = class TransactionsRepository extends Repository {
   /**
@@ -17,7 +16,7 @@ module.exports = class TransactionsRepository extends Repository {
   constructor (connection) {
     super(connection)
 
-    this.redis = new Redis()
+    this.cache = new Cache()
   }
 
   /**
@@ -363,7 +362,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {[type]}         [description]
    */
   async __getBlockCache (blockId) {
-    const cachedHeight = await this.redis.get(`heights:${blockId}`)
+    const cachedHeight = await this.cache.get(`heights:${blockId}`)
 
     if (cachedHeight) {
       return { height: cachedHeight }
@@ -378,6 +377,6 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {[type]}       [description]
    */
   __setBlockCache (block) {
-    this.redis.set(`heights:${block.id}`, block.height)
+    this.cache.set(`heights:${block.id}`, block.height)
   }
 }
