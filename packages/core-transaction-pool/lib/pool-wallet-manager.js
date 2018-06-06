@@ -1,11 +1,9 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
-
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
-
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**
@@ -71,20 +69,6 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Init of pool manager wallets from blockchain wallets
-   * Method is called on start (SPV) and after rebuild is finished
-   * @param  {Array} wallets
-   * @return {void}
-   */
-  initWallets (wallets) {
-    this.purgeAll()
-    this.walletsByPublicKey = wallets.map(wallet => {
-      this.reindex(wallet)
-      return wallet
-    })
-  }
-
-  /**
    * Apply the given block to a delegate in the pool wallet manager.
    * We apply only the block reward and fees, as transaction are already be applied
    * when entering the pool. Applying only if delegate wallet is in pool wallet manager
@@ -111,11 +95,11 @@ module.exports = class PoolWalletManager extends WalletManager {
       return false
     }
     try {
-        // TODO: remove console.log
+        // TODO: remove and clean this console.log
       console.log('----------------------')
       console.log('Pool 1>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
 
-      super.applyTransaction(transaction)
+      const result = super.applyTransaction(transaction)
 
       console.log('Pool 2>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
       console.log('Pool recepient>', this.getWalletByAddress(transaction.recipientId).balance)
@@ -126,9 +110,9 @@ module.exports = class PoolWalletManager extends WalletManager {
         .getWalletByPublicKey(transaction.senderPublicKey).balance
       )
 
-      return true
+      return result
     } catch (error) {
-      logger.error(`Can't apply transaction ${error}`)
+      logger.error(`PoolWalletManager: Can't apply transaction ${error}`)
       return false
     }
   }

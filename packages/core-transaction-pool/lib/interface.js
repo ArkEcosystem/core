@@ -162,7 +162,7 @@ module.exports = class TransactionPoolInterface {
         if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
           logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
-          this.purgeSender(transaction.senderPublicKey)
+          await this.purgeSender(transaction.senderPublicKey)
           continue
         }
 
@@ -245,9 +245,8 @@ module.exports = class TransactionPoolInterface {
    * It waits for the node to sync, and then check the transactions in pool and validates them and apply to the pool manager
    * @return {void}
    */
-  async buildWallets (localWallets) {
+  async buildWallets () {
     this.walletManager.purgeAll()
-    this.walletManager.initWallets(localWallets)
     const poolTransactions = await this.getTransactionsIds(0, 0)
 
     await Promise.each(poolTransactions, async (transactionId) => {
@@ -257,7 +256,7 @@ module.exports = class TransactionPoolInterface {
         return
       }
 
-      if (!this.walletManager.applyTransaction(transaction)) {
+      if (!(await this.walletManager.applyTransaction(transaction))) {
         await this.purgeSender(transaction.senderPublicKey)
       }
     })

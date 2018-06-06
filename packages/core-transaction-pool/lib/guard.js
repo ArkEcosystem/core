@@ -19,10 +19,9 @@ module.exports = class TransactionGuard {
   /**
    * Validate the specified transactions. Order of called functions is important
    * @param  {Array} transactions
-   * @param  {Boolean} isBroadcast flag
    * @return {void}
    */
-  async validate (transactions, isBroadCasted) {
+  async validate (transactions) {
     this.__reset()
 
     await this.__transformAndFilterTransations(transactions)
