@@ -267,6 +267,7 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * Format any raw conditions.
+   * TODO if condition is invalid, raise an Error
    * @param  {Object} params
    * @return {Object}
    */

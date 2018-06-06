@@ -66,6 +66,17 @@ describe('Transaction Repository', () => {
       expect(transactions.count).toBe(153)
     })
 
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAll({ type: 99 })
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
+    })
+
     // TODO this and other methods
     xit('should find all transactions with params', () => {
     })
@@ -94,6 +105,17 @@ describe('Transaction Repository', () => {
       expect(senderTransactions.rows[0]).toBeMinimalTransactionFields()
       expect(senderTransactions.count).toBe(51)
     })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAll({ type: 99 })
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
+    })
   })
 
   describe('findAllBySender', () => {
@@ -107,6 +129,17 @@ describe('Transaction Repository', () => {
       const transactions = await repository.findAllBySender('03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe')
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(2)
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAll({ type: 99 })
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
     })
   })
 
@@ -122,6 +155,17 @@ describe('Transaction Repository', () => {
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(1)
     })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAllByRecipient('none')
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
+    })
   })
 
   describe('allVotesBySender', () => {
@@ -135,6 +179,17 @@ describe('Transaction Repository', () => {
       const transactions = await repository.allVotesBySender('03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(1)
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.allVotesBySender('none')
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
     })
   })
 
@@ -150,6 +205,17 @@ describe('Transaction Repository', () => {
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(153)
     })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAllByBlock('none')
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
+    })
   })
 
   describe('findAllByType', () => {
@@ -163,6 +229,17 @@ describe('Transaction Repository', () => {
       const transactions = await repository.findAllByType(2)
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(51)
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAllByType(88)
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+        expect(transactions.count).toBe(0)
+      })
     })
   })
 
@@ -302,6 +379,21 @@ describe('Transaction Repository', () => {
 
     it('should search transactions by the specified vendorFieldHex', async () => {
       await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153)
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.search({ recipientId: 'dummy' })
+        expect(transactions).toBeObject()
+
+        expect(transactions).toHaveProperty('count')
+        expect(transactions.count).toBe(0)
+
+        expect(transactions).toHaveProperty('rows')
+        expect(transactions.rows).toBeEmpty()
+      })
     })
   })
 })
