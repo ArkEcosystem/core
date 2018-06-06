@@ -8,7 +8,8 @@
     "lint": "lerna run lint",
     "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",
-    "test": "lerna run test"
+    "test": "ARK_ENV=test jest --forceExit",
+    "test:coverage": "ARK_ENV=test jest --coverage --forceExit"
   },
   "devDependencies": {
     "axios": "^0.18.0",

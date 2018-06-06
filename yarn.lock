@@ -4115,16 +4115,7 @@ handlebars@4.x.x, handlebars@^4.0.2, handlebars@^4.0.3:
     joi "^10.6.0"
     media-type "^0.3.0"
 
-hapi-pagination@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/hapi-pagination/-/hapi-pagination-2.0.0.tgz#ca20417ca24f984466fd1ee84a9cb0cc0d7f6d70"
-  dependencies:
-    boom "^7.1.1"
-    hapi "^17.1.1"
-    hoek "^5.0.2"
-    joi "^13.0.2"
-
-"hapi-pagination@https://github.com/faustbrian/hapi-pagination":
+hapi-pagination@^2.0.0, "hapi-pagination@https://github.com/faustbrian/hapi-pagination":
   version "2.0.0"
   resolved "https://github.com/faustbrian/hapi-pagination#c3a666ee2404be11bab879f316239ad352329ca1"
   dependencies:

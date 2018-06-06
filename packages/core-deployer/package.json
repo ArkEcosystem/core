@@ -14,9 +14,11 @@
   },
   "scripts": {
     "start": "./bin/deployer",
-    "test": "ARK_ENV=test jest --runInBand --forceExit",
+    "test": "ARK_ENV=test jest --forceExit",
+    "test:coverage": "ARK_ENV=test jest --coverage --forceExit",
     "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
-    "test:watch": "ARK_ENV=test jest --runInBand --forceExit --watch",
+    "test:watch": "ARK_ENV=test jest --runInBand --watch",
+    "test:watch:all": "ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
     "depcheck": "depcheck ./ --ignores=commander"
   },
