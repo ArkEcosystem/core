@@ -1,5 +1,7 @@
 'use strict'
 
+const Promise = require('bluebird')
+
 const container = require('@arkecosystem/core-container')
 const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
@@ -243,8 +245,9 @@ module.exports = class TransactionPoolInterface {
    * It waits for the node to sync, and then check the transactions in pool and validates them and apply to the pool manager
    * @return {void}
    */
-  async buildWallets () {
+  async buildWallets (localWallets) {
     this.walletManager.purgeAll()
+    this.walletManager.initWallets(localWallets)
     const poolTransactions = await this.getTransactionsIds(0, 0)
 
     await Promise.each(poolTransactions, async (transactionId) => {

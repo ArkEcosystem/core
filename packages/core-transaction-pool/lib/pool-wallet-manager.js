@@ -51,25 +51,34 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Removes wallet from PoolWalletManager
-   * @param  {String} publicKey
+   * Empty the pool manager wallets
    * @return {void}
    */
-  deleteWallet (publicKey) {
-    if (this.exists(publicKey)) {
-      const wallet = this.getWalletByPublicKey(publicKey)
-      delete this.walletsByPublicKey[publicKey]
-      delete this.walletsByAddress[wallet.address]
-
-      if (wallet.username) {
-        delete this.walletByUsername
-      }
-    }
-  }
-
   purgeAll () {
     Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      this.deleteWallet(publicKey)
+      delete this.walletsByPublicKey[publicKey]
+    })
+
+    Object.keys(this.walletsByAddress).forEach(address => {
+      delete this.walletsByAddress[address]
+    })
+
+    Object.keys(this.walletsByUsername).forEach(username => {
+      delete this.walletsByUsername[username]
+    })
+  }
+
+  /**
+   * Init of pool manager wallets from blockchain wallets
+   * Method is called on start (SPV) and after rebuild is finished
+   * @param  {Array} wallets
+   * @return {void}
+   */
+  initWallets (wallets) {
+    this.purgeAll()
+    this.walletsByPublicKey = wallets.map(wallet => {
+      this.reindex(wallet)
+      return wallet
     })
   }
 

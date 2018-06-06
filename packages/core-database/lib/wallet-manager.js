@@ -325,6 +325,14 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Get all wallets by publicKey.
+   * @return {Array}
+   */
+  getLocalWalletsByPublicKey () { // for init of transaction pool manager
+    return Object.values(this.walletsByPublicKey)
+  }
+
+  /**
    * Determine if the wallet can be removed from memory.
    * @param  {Object} wallet
    * @return {Boolean}
