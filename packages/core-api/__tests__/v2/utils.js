@@ -95,7 +95,7 @@ class Helpers {
     expect(block).toHaveProperty('transactions')
   }
 
-  expectDelegate (delegate) {
+  expectDelegate (delegate, expected) {
     expect(delegate).toBeObject()
     expect(delegate.username).toBeString()
     expect(delegate.address).toBeString()
@@ -108,6 +108,10 @@ class Helpers {
     expect(delegate.production).toBeObject()
     expect(delegate.production.approval).toBeString()
     expect(delegate.production.productivity).toBeString()
+
+    Object.keys(expected || {}).forEach(attr => {
+      expect(delegate[attr]).toBe(expected[attr])
+    })
   }
 
   expectWallet (wallet) {
