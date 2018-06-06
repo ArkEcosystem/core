@@ -6,6 +6,7 @@ const Repository = require('./repository')
 module.exports = class BlocksRepository extends Repository {
   /**
    * Get all blocks for the given parameters.
+   * TODO throw an Error if the params aren't the available filters
    * @param  {Object}  params
    * @return {Object}
    */
@@ -75,6 +76,7 @@ module.exports = class BlocksRepository extends Repository {
 
   /**
    * Get the last block for the given generator.
+   * TODO is this right?
    * @param  {String} generatorPublicKey
    * @return {Object}
    */
