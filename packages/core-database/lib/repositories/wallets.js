@@ -3,7 +3,6 @@
 const _ = require('lodash')
 const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
-const wrapRows = require('./utils/wrap-rows')
 
 module.exports = class WalletsRepository {
   /**
@@ -28,7 +27,11 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    return wrapRows(limitRows(this.getLocalWallets(), params))
+    const wallets = this.getLocalWallets()
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
@@ -39,7 +42,10 @@ module.exports = class WalletsRepository {
    */
   findAllByVote (publicKey, params = {}) {
     const wallets = this.getLocalWallets().filter(wallet => wallet.vote === publicKey)
-    return wrapRows(limitRows(wallets, params))
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
@@ -66,22 +72,40 @@ module.exports = class WalletsRepository {
    */
   top (params = {}) {
     const wallets = _.sortBy(this.getLocalWallets(), 'balance').reverse()
-    return wrapRows(limitRows(wallets, params))
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 
   /**
    * Search all wallets.
-   * @param  {Object} params
+   * @param  {Object} [params]
+   * @param  {Number} [params.limit] - Limit the number of results
+   * @param  {Number} [params.offset] - Skip some results
+   * @param  {Array} [params.orderBy] - Order of the results
+   * @param  {String} [params.address] - Search by address
+   * @param  {String} [params.publicKey] - Search by publicKey
+   * @param  {String} [params.secondPublicKey] - Search by secondPublicKey
+   * @param  {String} [params.username] - Search by username
+   * @param  {String} [params.vote] - Search by vote
+   * @param  {Object} [params.balance] - Search by balance
+   * @param  {Number} [params.balance.from] - Search by balance (minimum)
+   * @param  {Number} [params.balance.to] - Search by balance (maximum)
+   * @param  {Object} [params.votebalance] - Search by votebalance
+   * @param  {Number} [params.votebalance.from] - Search by votebalance (minimum)
+   * @param  {Number} [params.votebalance.to] - Search by votebalance (maximum)
    * @return {Object}
    */
   search (params) {
-    let wallets = this.getLocalWallets()
-
-    wallets = filterRows(wallets, params, {
+    const wallets = filterRows(this.getLocalWallets(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
       between: ['balance', 'votebalance']
     })
 
-    return wrapRows(wallets)
+    return {
+      rows: limitRows(wallets, params),
+      count: wallets.length
+    }
   }
 }

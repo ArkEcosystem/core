@@ -25,6 +25,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/{id}', ...delegates.show },
     { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
     { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
+    { method: 'POST', path: '/delegates/search', ...delegates.search },
 
     { method: 'GET', path: '/node/status', ...node.status },
     { method: 'GET', path: '/node/syncing', ...node.syncing },
