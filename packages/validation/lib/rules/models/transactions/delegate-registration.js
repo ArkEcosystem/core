@@ -7,9 +7,10 @@ module.exports = (transaction) => {
     blockid: engine.joi.number(),
     type: engine.joi.number().valid(TRANSACTION_TYPES.DELEGATE_REGISTRATION),
     timestamp: engine.joi.number().min(0).required(),
-    amount: engine.joi.number().valid(0),
+    amount: engine.joi.number().valid(0).required(),
     fee: engine.joi.number().min(1).required(),
     senderId: engine.joi.arkAddress(),
+    recipientId: engine.joi.empty(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
     secondSignature: engine.joi.string().alphanum(),
@@ -17,7 +18,7 @@ module.exports = (transaction) => {
       delegate: engine.joi.object({
         username: engine.joi.arkUsername().required(),
         publicKey: engine.joi.arkPublicKey()
-      })
+      }).required()
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {
