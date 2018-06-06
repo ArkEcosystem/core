@@ -44,11 +44,21 @@ class Helpers {
     this.assertVersion(response, '1')
   }
 
-  expectDelegate (response) {
-    expect(response).toHaveProperty('username')
-    expect(response).toHaveProperty('address')
-    expect(response).toHaveProperty('publicKey')
-    expect(response).toHaveProperty('votes')
+  expectDelegate (delegate, expected) {
+    expect(delegate).toBeObject()
+    expect(delegate.username).toBeString()
+    expect(delegate.address).toBeString()
+    expect(delegate.publicKey).toBeString()
+    expect(delegate.votes).toBeNumber()
+    expect(delegate.rate).toBeNumber()
+    expect(delegate.missedblocks).toBeNumber()
+    expect(delegate.producedblocks).toBeNumber()
+    expect(delegate.approval).toBeString()
+    expect(delegate.productivity).toBeString()
+
+    Object.keys(expected || {}).forEach(attr => {
+      expect(delegate[attr]).toBe(expected[attr])
+    })
   }
 
   expectWallet (response) {
