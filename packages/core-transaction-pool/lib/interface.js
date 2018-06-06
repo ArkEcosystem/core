@@ -110,7 +110,7 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactionsFromSender (senderPublicKey) {
-    throw new Error('Method [removeSenderTransactions] not implemented!')
+    throw new Error('Method [removeTransactionsFromSender] not implemented!')
   }
 
   /**

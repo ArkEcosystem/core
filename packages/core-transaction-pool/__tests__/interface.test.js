@@ -95,10 +95,6 @@ describe('Transaction Pool Interface', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
-
-    it('should throw an exception', async () => {
-      await expect(poolInterface.getTransactionsForForging()).rejects.toThrowError('Method [getTransactionsForForging] not implemented!')
-    })
   })
 
   describe('hasExceededMaxTransactions', () => {
@@ -111,11 +107,38 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('determineExcessTransactions', () => {
+  describe('transactionExists', () => {
     it('should be a function', () => {
-      expect(poolInterface.determineExcessTransactions).toBeFunction()
+      expect(poolInterface.transactionExists).toBeFunction()
     })
 
+    it('should throw an exception', async () => {
+      await expect(poolInterface.transactionExists()).rejects.toThrowError('Method [transactionExists] not implemented!')
+    })
+  })
+
+  describe('removeTransactionsFromSender', () => {
+    it('should be a function', () => {
+      expect(poolInterface.removeTransactionsFromSender).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.removeTransactionsFromSender()).rejects.toThrowError('Method [removeTransactionsFromSender] not implemented!')
+    })
+  })
+
+  describe('getTransactionsIds', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactionsIds).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getTransactionsIds()).rejects.toThrowError('Method [getTransactionsIds] not implemented!')
+    })
+  })
+
+  // TODO: rewrite and adjust to changes
+  describe('determineExcessTransactions', () => {
     it('should have 2 accept / 0 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => false)
 
