@@ -18,11 +18,11 @@ module.exports = (transaction) => {
     asset: engine.joi.object({
       multisignature: engine.joi.object({
         min: engine.joi.number().min(1).max(Math.min(transaction.asset.multisignature.keysgroup.length, 16)).required(),
-        keysgroup: engine.joi.array().items(
-          engine.joi.string().length(67).regex(/^(\+|-)/).required()
-        ).min(2).required(),
+        keysgroup: engine.joi.array().unique().min(2).items(
+          engine.joi.string().not(`+${transaction.senderPublicKey}`).length(67).regex(/^\+/).required()
+        ).required(),
         lifetime: engine.joi.number().min(1).max(72).required()
-      })
+      }).required()
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {
