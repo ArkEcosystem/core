@@ -258,5 +258,6 @@ module.exports = class TransactionPoolInterface {
         await this.purgeSender(transaction.senderPublicKey)
       }
     })
+    logger.info('Transaction Pool manager build wallets complete')
   }
 }
