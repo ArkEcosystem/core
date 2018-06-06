@@ -3,6 +3,8 @@
 const toBeMinimalTransactionFields = require('../__support__/matchers/minimal-transaction-fields')
 expect.extend({ toBeMinimalTransactionFields })
 
+const { Transaction } = require('@arkecosystem/crypto').models
+
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
 const genesisBlock = require('../__fixtures__/genesisBlock')
@@ -60,7 +62,8 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAll()
-      expect(transactions.count).toBe(100) // NOTE is honoring the default limit
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+      expect(transactions.count).toBe(100) // NOTE: is honoring the default limit
     })
 
     // TODO this and other methods
@@ -78,13 +81,17 @@ describe('Transaction Repository', () => {
 
       const receiver = await getWallet('AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri')
       expect(receiver).toBeObject()
+
       const receiverTransactions = await repository.findAllByWallet(receiver)
+      expect(receiverTransactions.rows[0]).toBeMinimalTransactionFields()
       expect(receiverTransactions.count).toBe(1)
 
       const sender = await getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn')
       expect(sender).toBeObject()
       sender.publicKey = '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788'
+
       const senderTransactions = await repository.findAllByWallet(sender)
+      expect(senderTransactions.rows[0]).toBeMinimalTransactionFields()
       expect(senderTransactions.count).toBe(51)
     })
   })
@@ -98,6 +105,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllBySender('03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe')
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(2)
     })
   })
@@ -111,6 +119,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByRecipient('AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t')
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(1)
     })
   })
@@ -124,6 +133,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.allVotesBySender('03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(1)
     })
   })
@@ -137,7 +147,8 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
-      expect(transactions.count).toBe(100) // NOTE is honoring the default limit
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+      expect(transactions.count).toBe(100) // NOTE: is honoring the default limit
     })
   })
 
@@ -150,7 +161,34 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByType(2)
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(51)
+    })
+  })
+
+  describe('findOne', () => {
+    it('should be a function', () => {
+      expect(repository.findOne).toBeFunction()
+    })
+
+    it('should find the transaction fields', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const recipientId = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
+      const senderPublicKey = '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788'
+
+      const fields = await repository.findOne({ recipientId, senderPublicKey })
+      expect(fields).toBeMinimalTransactionFields()
+
+      const transaction = Transaction.deserialize(fields.serialized.toString('hex'))
+      expect(transaction.id).toBe('db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd')
+      expect(transaction.recipientId).toBe(recipientId)
+      expect(transaction.senderPublicKey).toBe(senderPublicKey)
+    })
+
+    describe('when the block is cached', () => {
+      xit('uses it without executing additional queries', () => {
+      })
     })
   })
 
@@ -162,8 +200,10 @@ describe('Transaction Repository', () => {
     it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const transaction = await repository.findById(genesisTransaction.id)
-      expect(transaction).toBeMinimalTransactionFields()
+      const fields = await repository.findById(genesisTransaction.id)
+      expect(fields).toBeMinimalTransactionFields()
+
+      const transaction = Transaction.deserialize(fields.serialized.toString('hex'))
       expect(transaction.id).toBe(genesisTransaction.id)
     })
   })
@@ -176,10 +216,15 @@ describe('Transaction Repository', () => {
     it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const transaction = await repository.findByTypeAndId(3, '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
-      expect(transaction).toBeMinimalTransactionFields()
-      expect(transaction.id).toBe('96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778')
-      expect(transaction.type).toBe(3)
+      const id = '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778'
+      const type = 3
+
+      const fields = await repository.findByTypeAndId(type, id)
+      expect(fields).toBeMinimalTransactionFields()
+
+      const transaction = Transaction.deserialize(fields.serialized.toString('hex'))
+      expect(transaction.id).toBe(id)
+      expect(transaction.type).toBe(type)
     })
   })
 
@@ -194,8 +239,8 @@ describe('Transaction Repository', () => {
       expect(transactions.count).toBeNumber()
 
       expect(transactions).toHaveProperty('rows')
-      expect(transactions.rows).toBeObject()
       expect(transactions.rows).not.toBeEmpty()
+      expect(transactions.rows[0]).toBeMinimalTransactionFields()
 
       expect(transactions.count).toBe(expected)
     }

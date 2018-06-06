@@ -8,6 +8,8 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 const Cache = require('../cache')
 
+const transactionTableColumns = ['id', 'version', 'blockId', 'timestamp', 'senderPublicKey', 'recipientId', 'type', 'vendorFieldHex', 'amount', 'fee', 'serialized']
+
 module.exports = class TransactionsRepository extends Repository {
   /**
    * Create a new transaction repository instance.
