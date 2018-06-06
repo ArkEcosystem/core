@@ -74,7 +74,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
-      wallet.address,
+      options.recipient || wallet.address,
       transactionAmount,
       `TID: ${i}`,
       config.passphrase,
@@ -85,7 +85,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+    logger.info(`${i} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {

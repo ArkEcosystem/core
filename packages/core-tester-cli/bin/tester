@@ -14,6 +14,7 @@ const registerCommand = (name, description) => {
     .option('--base-api <value>', 'base api url')
     .option('--base-p2p <value>', 'base p2p url')
     .option('--skip-validation', 'skip transaction validations', false)
+    .option('--recipient <value>', 'recipient address')
     .option('-c, --copy', 'copy the transactions to the clipboard', false)
 }
 
