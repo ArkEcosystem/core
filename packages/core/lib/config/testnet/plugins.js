@@ -25,7 +25,7 @@ module.exports = {
   },
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
-    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}2.sqlite`,
+    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
     logging: false
     // dialect: process.env.ARK_DB_DIALECT || 'postgres',
     // username: process.env.ARK_DB_USERNAME || 'node',

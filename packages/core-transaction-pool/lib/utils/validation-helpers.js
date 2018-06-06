@@ -3,6 +3,7 @@ const container = require('@arkecosystem/core-container')
 const bs58check = require('bs58check')
 const { configManager } = require('@arkecosystem/crypto')
 const logger = container.resolvePlugin('logger')
+const database = container.resolvePlugin('database')
 
 module.exports = {
   /** Gets the blockchain wallet and checks if transaction can be applied - before returning it to forger.
@@ -10,11 +11,7 @@ module.exports = {
    * @return {Boolean}
    */
   canApplyToBlockchain: (transaction) => {
-    const wallet = container
-    .resolvePlugin('blockchain')
-    .database
-    .walletManager
-    .getWalletByPublicKey(transaction.senderPublicKey)
+    const wallet = database.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
 
     return wallet.canApply(transaction)
   },

@@ -1,8 +1,11 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 
+const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
 const logger = container.resolvePlugin('logger')
+const database = container.resolvePlugin('database')
+
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**
@@ -13,6 +16,23 @@ module.exports = class PoolWalletManager extends WalletManager {
     super()
 
     this.emitEvents = false
+  }
+
+  /**
+   * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
+   * Method overrides base class method from WalletManager.
+   * @param  {String} address
+   * @return {(Wallet|null)}
+   */
+  getWalletByAddress (address) {
+    if (!this.walletsByAddress[address]) {
+      const blockchainWallet = database.walletManager.getWalletByAddress(address)
+      const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
+
+      this.reindex(wallet)
+    }
+
+    return this.walletsByAddress[address]
   }
 
   /**
@@ -99,6 +119,12 @@ module.exports = class PoolWalletManager extends WalletManager {
 
       console.log('Pool 2>', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
       console.log('Pool recepient>', this.getWalletByAddress(transaction.recipientId).balance)
+
+      console.log(
+        database
+        .walletManager
+        .getWalletByPublicKey(transaction.senderPublicKey).balance
+      )
 
       return true
     } catch (error) {
