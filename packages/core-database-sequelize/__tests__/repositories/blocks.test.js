@@ -204,4 +204,13 @@ describe('Block Repository', () => {
       })
     })
   })
+
+  describe('count', () => {
+    it('should return the total number of blocks', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const { count } = await repository.count()
+      expect(count).toBe(1)
+    })
+  })
 })

@@ -40,6 +40,7 @@ module.exports = class Repository {
   async __count (table) {
     return this
       .query
+      .select('count')
       .countDistinct('id', 'count')
       .from(table)
       .first()

@@ -400,4 +400,13 @@ describe('Transaction Repository', () => {
       })
     })
   })
+
+  describe('count', () => {
+    it('should return the total number of transactions', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const { count } = await repository.count()
+      expect(count).toBe(153)
+    })
+  })
 })
