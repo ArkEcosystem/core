@@ -46,5 +46,8 @@ module.exports = {
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search'
     ]
-  }
+  },
+  whitelist: [
+    '127.0.0.1'
+  ]
 }

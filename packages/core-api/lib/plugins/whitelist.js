@@ -17,9 +17,11 @@ const register = async (server, options) => {
     async method (request, h) {
       const address = requestIp.getClientIp(request)
 
-      for (let i = 0; i < options.whitelist.length; i++) {
-        if (mm.isMatch(address, options.whitelist[i])) {
-          return h.continue
+      if (Array.isArray(options.whitelist)) {
+        for (let i = 0; i < options.whitelist.length; i++) {
+          if (mm.isMatch(address, options.whitelist[i])) {
+            return h.continue
+          }
         }
       }
 
