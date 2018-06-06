@@ -236,4 +236,27 @@ module.exports = class TransactionPoolInterface {
       }
     }
   }
+
+  /**
+   * Rebuild pool manager.
+   * Removes all the wallets from pool manager and applies transaction from pool - if any
+   * It waits for the node to sync, and then check the transactions in pool and validates them and apply to the pool manager
+   * @return {void}
+   */
+  async rebuildWalletManager () {
+    this.walletManager.purgeAll()
+    const poolTransactions = await this.getTransactionsIds(0, 0)
+
+    await Promise.each(poolTransactions, async (transactionId) => {
+      const transaction = await this.getTransaction(transactionId)
+
+      if (!transaction) {
+        return
+      }
+
+      if (!this.walletManager.applyTransaction(transaction)) {
+        await this.purgeSender(transaction.senderPublicKey)
+      }
+    })
+  }
 }

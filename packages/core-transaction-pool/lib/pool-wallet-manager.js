@@ -3,6 +3,7 @@ const container = require('@arkecosystem/core-container')
 
 const { Wallet } = require('@arkecosystem/crypto').models
 const { WalletManager } = require('@arkecosystem/core-database')
+const logger = container.resolvePlugin('logger')
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**
@@ -66,6 +67,12 @@ module.exports = class PoolWalletManager extends WalletManager {
     }
   }
 
+  purgeAll () {
+    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
+      this.deleteWallet(publicKey)
+    })
+  }
+
   /**
    * Apply the given block to a delegate in the pool wallet manager.
    * We apply only the block reward and fees, as transaction are already be applied
@@ -78,6 +85,40 @@ module.exports = class PoolWalletManager extends WalletManager {
     if (this.exists(block.data.generatorPublicKey)) {
       const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
       delegate.applyBlock(block.data)
+    }
+  }
+
+  /** Checks if we can apply transaction, and applies it to the pool wallet manager
+   * @param {Transaction} transaction
+   * @return {Boolean}
+   */
+  async applyTransaction (transaction) {
+    const wallet = this.getWalletByPublicKey(transaction.senderPublicKey)
+
+    if (!wallet.canApply(transaction)) {
+      logger.debug(`PoolWalletManager: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
+      return false
+    }
+    try {
+        // TODO: remove console.log
+      console.log('----------------------')
+      console.log('Pool before', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
+
+      super.applyTransaction(transaction)
+
+      console.log('Pool sender:', this.getWalletByPublicKey(transaction.senderPublicKey).balance)
+      console.log('Pool recepient:', this.getWalletByAddress(transaction.recipientId).balance)
+
+      console.log('Blockchain balance', container
+        .resolvePlugin('blockchain')
+        .database
+        .walletManager
+        .getWalletByPublicKey(transaction.senderPublicKey).balance)
+
+      return true
+    } catch (error) {
+      logger.error(`Can't apply transaction ${error}`)
+      return false
     }
   }
 }

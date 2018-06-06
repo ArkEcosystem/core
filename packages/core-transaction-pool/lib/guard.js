@@ -1,7 +1,5 @@
 const Promise = require('bluebird')
 
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
@@ -135,7 +133,6 @@ module.exports = class TransactionGuard {
    */
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
-      const wallet = this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey)
       if (!helpers.isRecipientOnActiveNetwork(transaction)) {
         this.invalid.push(transaction)
         return
@@ -147,31 +144,12 @@ module.exports = class TransactionGuard {
         return
       }
 
-      if (!wallet.canApply(transaction)) {
-        logger.debug(`Guard: Can't apply transaction ${transaction.id} with ${transaction.amount} to wallet with ${wallet.balance} balance`)
+      if (!this.pool.walletManager.applyTransaction(transaction)) {
         this.invalid.push(transaction)
         return
       }
-      try {
-          // TODO: remove console.log
-        console.log('----------------------')
-        console.log('Pool before', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
 
-        this.pool.walletManager.applyTransaction(transaction)
-
-        console.log('Pool sender:', this.pool.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance)
-        console.log('Pool recepient:', this.pool.walletManager.getWalletByAddress(transaction.recipientId).balance)
-
-        console.log('Blockchain balance', container
-          .resolvePlugin('blockchain')
-          .database
-          .walletManager
-          .getWalletByPublicKey(transaction.senderPublicKey).balance)
-
-        this.accept.push(transaction)
-      } catch (error) {
-        this.invalid.push(transaction)
-      }
+      this.accept.push(transaction)
     })
   }
 
