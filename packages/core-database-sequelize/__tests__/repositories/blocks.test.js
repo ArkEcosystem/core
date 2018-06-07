@@ -12,28 +12,21 @@ const genesisBlock = require('../__fixtures__/genesisBlock')
 let connection
 let repository
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  connection = await createConnection()
-  repository = connection.blocks
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
-  connection.disconnect()
-
+beforeEach(async () => {
   connection = await createConnection()
   repository = connection.blocks
+})
 
-  done()
+afterEach(async () => {
+  connection.disconnect()
 })
 
 describe('Block Repository', () => {

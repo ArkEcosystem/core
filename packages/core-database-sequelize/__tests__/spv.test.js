@@ -7,27 +7,21 @@ const genesisBlock = require('./__fixtures__/genesisBlock')
 let connection
 let spv
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  connection = await createConnection()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
-  connection.disconnect()
-
+beforeEach(async () => {
   connection = await createConnection()
   spv = new (require('../lib/spv'))(connection)
+})
 
-  done()
+afterEach(async () => {
+  connection.disconnect()
 })
 
 const getWallet = address => {
