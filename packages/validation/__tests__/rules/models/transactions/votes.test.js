@@ -73,6 +73,15 @@ describe('Vote Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
+  it('should be invalid due to wrong vote type', () => {
+    try {
+      transaction.votesAsset(vote)
+                 .sign('passphrase')
+      expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    } catch (error) {
+    }
+  })
+
   it('should be invalid due to wrong transaction type', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name')

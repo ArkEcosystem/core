@@ -49,6 +49,27 @@ describe('Delegate Registration Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
+  it('should be invalid due to username too long', () => {
+    transaction.usernameAsset('1234567890123456789012345')
+               .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to undefined username', () => {
+    try {
+      transaction.usernameAsset(undefined)
+                 .sign('passphrase')
+      expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    } catch (error) {
+    }
+  })
+
+  it('should be invalid due to no username', () => {
+    transaction.usernameAsset('')
+               .sign('passphrase')
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
   it('should be invalid due to capitals in username', () => {
     transaction.usernameAsset('I_AM_INVALID')
                .sign('passphrase')
