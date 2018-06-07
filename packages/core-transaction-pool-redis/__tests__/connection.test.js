@@ -140,6 +140,28 @@ describe('Connection', () => {
     })
   })
 
+  describe('removeTransactionsForSender', () => {
+    it('should be a function', () => {
+      expect(connection.removeTransactionsForSender).toBeFunction()
+    })
+
+    it('should remove the senders transactions from the pool', async () => {
+      await connection.addTransaction(mockData.dummy1)
+      await connection.addTransaction(mockData.dummy2)
+      await connection.addTransaction(mockData.dummy3)
+      await connection.addTransaction(mockData.dummy4)
+      await connection.addTransaction(mockData.dummy5)
+      await connection.addTransaction(mockData.dummy6)
+      await connection.addTransaction(mockData.dummy10)
+
+      await expect(connection.getPoolSize()).resolves.toBe(7)
+
+      await connection.removeTransactionsForSender(mockData.dummy1.senderPublicKey)
+
+      await expect(connection.getPoolSize()).resolves.toBe(1)
+    })
+  })
+
   describe('transactionExists', () => {
     it('should be a function', () => {
       expect(connection.transactionExists).toBeFunction()
@@ -225,6 +247,12 @@ describe('Connection', () => {
       const poolTransaction = await connection.getTransaction(mockData.dummy1.id)
       await expect(poolTransaction).toBeObject()
       await expect(poolTransaction.id).toBe(mockData.dummy1.id)
+    })
+
+    it('should return undefined for nonexisting transaction', async () => {
+      const poolTransaction = await connection.getTransaction('non existing id')
+      console.log(poolTransaction)
+      await expect(poolTransaction).toBeFalsy()
     })
   })
 

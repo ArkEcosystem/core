@@ -2,6 +2,7 @@
 
 const app = require('./__support__/setup')
 const { dummy1, dummy2 } = require('./__fixtures__/transactions')
+const moment = require('moment')
 
 let poolInterface
 
@@ -95,10 +96,6 @@ describe('Transaction Pool Interface', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
-
-    it('should throw an exception', async () => {
-      await expect(poolInterface.getTransactionsForForging()).rejects.toThrowError('Method [getTransactionsForForging] not implemented!')
-    })
   })
 
   describe('hasExceededMaxTransactions', () => {
@@ -111,11 +108,68 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('determineExcessTransactions', () => {
+  describe('transactionExists', () => {
     it('should be a function', () => {
-      expect(poolInterface.determineExcessTransactions).toBeFunction()
+      expect(poolInterface.transactionExists).toBeFunction()
     })
 
+    it('should throw an exception', async () => {
+      await expect(poolInterface.transactionExists()).rejects.toThrowError('Method [transactionExists] not implemented!')
+    })
+  })
+
+  describe('removeTransactionsForSender', () => {
+    it('should be a function', () => {
+      expect(poolInterface.removeTransactionsForSender).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.removeTransactionsForSender()).rejects.toThrowError('Method [removeTransactionsForSender] not implemented!')
+    })
+  })
+
+  describe('isSenderBlocked', () => {
+    it('should be a function', () => {
+      expect(poolInterface.isSenderBlocked).toBeFunction()
+    })
+
+    it('should return true', async () => {
+      poolInterface.blockSender('keykeykey')
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+    })
+
+    it('should return false', async () => {
+      expect(poolInterface.isSenderBlocked('keykeykey2')).toBeFalsy()
+    })
+  })
+
+  describe('blockSender', () => {
+    it('should be a function', () => {
+      expect(poolInterface.blockSender).toBeFunction()
+    })
+
+    it('should block sender for specified time', async () => {
+      const time = moment()
+      const blockedTime = poolInterface.blockSender('keykeykey')
+      const duration = moment.duration(blockedTime.diff(time))
+
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+      expect(parseInt(duration.asHours())).toEqual(1)
+    })
+  })
+
+  describe('getTransactionsIds', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactionsIds).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getTransactionsIds()).rejects.toThrowError('Method [getTransactionsIds] not implemented!')
+    })
+  })
+
+  // TODO: rewrite and adjust to changes
+  describe('determineExcessTransactions', () => {
     it('should have 2 accept / 0 excess transactions', async () => {
       poolInterface.hasExceededMaxTransactions = jest.fn(pass => false)
 

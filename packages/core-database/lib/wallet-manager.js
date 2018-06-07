@@ -20,6 +20,8 @@ module.exports = class WalletManager {
    */
   constructor () {
     this.reset()
+
+    this.emitEvents = true
   }
 
   /**
@@ -181,9 +183,6 @@ module.exports = class WalletManager {
     const revertedTransactions = []
 
     try {
-      // TODO Use Promise.all or explain why not
-      // - Promise.each is applied sequentially
-      // - Promise.all is applied in parallel
       await Promise.each(block.transactions, async (transaction) => {
         await this.revertTransaction(transaction)
 
@@ -194,9 +193,6 @@ module.exports = class WalletManager {
     } catch (error) {
       logger.error(error.stack)
 
-      // TODO Use Promise.all or explain why not
-      // - Promise.each is applied sequentially
-      // - Promise.all is applied in parallel
       await Promise.each(revertedTransactions, async (transaction) => this.applyTransaction(transaction))
 
       throw error
@@ -218,11 +214,11 @@ module.exports = class WalletManager {
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
-      emitter.emit('wallet:cold:created', recipient)
+      this.__emitEvent('wallet:cold:created', recipient)
 
     } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
-      logger.error(`Delegate transction sent by ${sender.address}`, JSON.stringify(data))
+      logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
@@ -248,7 +244,7 @@ module.exports = class WalletManager {
       recipient.applyTransactionToRecipient(data)
     }
 
-    this.__emitEvents(transaction)
+    this.__emitTransactionEvents(transaction)
 
     return transaction
   }
@@ -269,7 +265,7 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-    emitter.emit('transaction.reverted', data)
+   this.__emitEvent('transaction.reverted', data)
 
     return data
   }
@@ -329,6 +325,14 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Get all wallets by publicKey.
+   * @return {Array}
+   */
+  getLocalWalletsByPublicKey () { // for init of transaction pool manager
+    return Object.values(this.walletsByPublicKey)
+  }
+
+  /**
    * Determine if the wallet can be removed from memory.
    * @param  {Object} wallet
    * @return {Boolean}
@@ -338,25 +342,37 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Emit events to the emmiter
+   * @param  {String} event
+   * @param {Object} date
+   * @return {void}
+   */
+  __emitEvent (event, data) {
+    if (this.emitEvents) {
+      emitter.emit(event, data)
+    }
+  }
+
+  /**
    * Emit events for the specified transaction.
    * @param  {Object} transaction
    * @return {void}
    */
-  __emitEvents (transaction) {
-    emitter.emit('transaction.applied', transaction.data)
+  __emitTransactionEvents (transaction) {
+   this.__emitEvent('transaction.applied', transaction.data)
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      emitter.emit('delegate.registered', transaction.data)
+     this.__emitEvent('delegate.registered', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      emitter.emit('delegate.resigned', transaction.data)
+     this.__emitEvent('delegate.resigned', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0]
 
-      emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+     this.__emitEvent(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
         delegate: vote,
         transaction: transaction.data
       })

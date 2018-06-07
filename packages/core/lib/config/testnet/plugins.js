@@ -25,7 +25,7 @@ module.exports = {
   },
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
-    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}2.sqlite`,
+    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
     logging: false
     // host: process.env.ARK_DB_HOST || 'localhost',
     // dialect: process.env.ARK_DB_DIALECT || 'postgres',
@@ -38,7 +38,7 @@ module.exports = {
     enabled: true,
     key: 'ark-testnet',
     maxTransactionsPerSender: 100,
-    whitelist: ['127.0.0.1', '192.168.*'],
+    whitelist: ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357'],
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379

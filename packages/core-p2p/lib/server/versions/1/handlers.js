@@ -5,6 +5,7 @@ const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
  * @type {Object}
@@ -198,7 +199,7 @@ exports.postTransactions = {
         transactionIds: []
       }
     }
-    await transactionPool.guard.validate(request.payload.transactions, request.payload.isBroadCasted)
+    await transactionPool.guard.validate(request.payload.transactions)
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
       container
@@ -206,10 +207,10 @@ exports.postTransactions = {
         .postTransactions(transactionPool.guard.accept)
     }
 
-    if (transactionPool.guard.hasAny('broadcast')) {
+    if (!request.payload.isBroadCasted) {
       container
       .resolvePlugin('p2p')
-      .broadcastTransactions(transactionPool.guard.broadcast)
+      .broadcastTransactions(request.payload.transactions.map(transaction => new Transaction(transaction)))
     }
 
     return {

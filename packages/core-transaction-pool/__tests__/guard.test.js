@@ -138,74 +138,21 @@ describe('Transaction Guard', () => {
     })
   })
 
-  describe('__transformTransactions', () => {
+  describe('__transformAndFilterTransations', () => {
     it('should be a function', () => {
-      expect(guard.__transformTransactions).toBeFunction()
+      expect(guard.__transformAndFilterTransations).toBeFunction()
     })
   })
 
-  describe('__determineInvalidTransactions', () => {
+  describe('__determineValidTransactions', () => {
     it('should be a function', () => {
-      expect(guard.__determineInvalidTransactions).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.__verifyTransaction = jest.fn(() => false)
-
-      guard.transactions = [{ id: 1 }]
-
-      expect(guard.invalid).toBeEmpty()
-
-      guard.__determineInvalidTransactions()
-
-      expect(guard.invalid).not.toBeEmpty()
-    })
-
-    it('should not be ok', () => {
-      guard.__verifyTransaction = jest.fn(() => true)
-
-      guard.transactions = [{ id: 1 }]
-
-      expect(guard.invalid).toBeEmpty()
-
-      guard.__determineInvalidTransactions()
-
-      expect(guard.invalid).toBeEmpty()
+      expect(guard.__determineValidTransactions).toBeFunction()
     })
   })
 
-  describe('__determineExcessTransactions', () => {
+  describe('__determineFeeMatchingTransactions', () => {
     it('should be a function', () => {
-      expect(guard.__determineExcessTransactions).toBeFunction()
-    })
-
-    it('should be ok', async () => {
-      guard.pool.determineExcessTransactions = jest.fn(() => ({
-        accept: [1],
-        excess: [2]
-      }))
-
-      expect(guard.accept).toBeEmpty()
-      expect(guard.excess).toBeEmpty()
-
-      await guard.__determineExcessTransactions()
-
-      expect(guard.accept).not.toBeEmpty()
-      expect(guard.excess).not.toBeEmpty()
-    })
-  })
-
-  describe('__verifyTransaction', () => {
-    it('should be a function', () => {
-      expect(guard.__verifyTransaction).toBeFunction()
-    })
-
-    it('should be ok', () => {
-      guard.__verifyTransaction = jest.fn(() => true)
-
-      const verified = guard.__verifyTransaction({ id: 1 })
-
-      expect(verified).toBeTruthy()
+      expect(guard.__determineFeeMatchingTransactions).toBeFunction()
     })
   })
 
