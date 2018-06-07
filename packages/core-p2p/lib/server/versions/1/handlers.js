@@ -1,6 +1,7 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
@@ -60,6 +61,11 @@ exports.getCommonBlock = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    if (!request.query.ids) {
+      return {
+        success: false
+      }
+    }
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
@@ -124,11 +130,16 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+    const blockchain = container.resolvePlugin('blockchain')
+    let lastBlock = null
+    if (blockchain) {
+      lastBlock = blockchain.getLastBlock()
+    }
 
     if (!lastBlock) {
       return {
-        success: false
+        success: false,
+        message: 'Node is not ready'
       }
     }
 
@@ -152,14 +163,22 @@ exports.postBlock = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    // console.log(request.payload)
-    if (!request.payload.block) {
+    try {
+      if (!request.payload || !request.payload.block) {
+        return { success: false }
+      }
+
+      if (!new Block(request.payload.block).verified) {
+        return { success: false }
+      }
+
+      container.resolvePlugin('blockchain').queueBlock(request.payload.block)
+
+      return { success: true }
+    } catch (error) {
+      // console.log(request.payload.block)
       return { success: false }
     }
-
-    container.resolvePlugin('blockchain').queueBlock(request.payload.block)
-
-    return { success: true }
   }
 }
 
@@ -173,6 +192,12 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    if (!request.payload || !request.payload.transactions) {
+      return {
+        success: false,
+        transactionIds: []
+      }
+    }
     await transactionPool.guard.validate(request.payload.transactions, request.payload.isBroadCasted)
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
