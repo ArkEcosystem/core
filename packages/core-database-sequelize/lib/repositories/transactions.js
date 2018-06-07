@@ -257,6 +257,7 @@ module.exports = class TransactionsRepository extends Repository {
       .select('type')
       .min('fee', 'minFee')
       .max('fee', 'maxFee')
+      .avg('fee', 'avgFee')
       .max('timestamp', 'timestamp')
       .from('transactions')
       .where('timestamp', '>=', slots.getTime(moment().subtract(30, 'days')))
