@@ -29,7 +29,7 @@ class Container {
       return
     }
 
-    // TODO: Move this out eventually - not really the responsiblity of the container
+    // TODO: Move this out eventually - not really the responsibility of the container
     this.plugins = new PluginRegistrar(this, options)
     await this.plugins.setUp()
   }

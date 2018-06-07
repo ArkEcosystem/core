@@ -27,7 +27,7 @@ module.exports = class PluginRegistrars {
     for (let [name, options] of Object.entries(this.plugins)) {
       await this.register(name, options)
 
-      if (this.options.exit && this.options.exit.includes(name)) {
+      if (this.options.exit && this.options.exit === name) {
         break
       }
     }
