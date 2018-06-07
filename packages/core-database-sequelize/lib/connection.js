@@ -38,7 +38,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       ...this.config,
       ...{
         operatorsAliases: Op,
-        logging: process.env.ARK_ENV === 'test'
+        logging: process.env.NODE_ENV === 'test'
       }
     })
 
