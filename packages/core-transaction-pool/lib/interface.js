@@ -150,11 +150,11 @@ module.exports = class TransactionPoolInterface {
    */
   isSenderBlocked (senderPublicKey) {
     if (!this.blockedByPublicKey[senderPublicKey]) {
-      console.log(this.blockedByPublicKey[senderPublicKey])
       return false
     }
 
     if (this.blockedByPublicKey[senderPublicKey] < moment()) {
+      delete this.blockedByPublicKey[senderPublicKey]
       return false
     }
 
@@ -196,6 +196,7 @@ module.exports = class TransactionPoolInterface {
           await this.removeTransaction(transaction)
           logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
           await this.removeByPublicKey(transaction.senderPublicKey)
+          this.blockSender(transaction.senderPublicKey)
           continue
         }
 
@@ -255,6 +256,7 @@ module.exports = class TransactionPoolInterface {
         if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
           if (!await this.walletManager.applyTransaction(transaction)) {
             await this.purgeByPublicKey(transaction.senderPublicKey)
+            this.blockSender(transaction.senderPublicKey)
           }
         }
       } else {
