@@ -23,4 +23,6 @@ exports.setUp = async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
 }
 
-exports.tearDown = async () => container.tearDown()
+exports.tearDown = async () => {
+  await container.tearDown()
+}
