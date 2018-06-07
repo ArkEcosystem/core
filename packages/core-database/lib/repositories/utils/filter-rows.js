@@ -5,7 +5,7 @@
  * @param  {Array} rows
  * @param  {Object} params
  * @param  {Object} filters
- * @return {Object}
+ * @return {Array}
  */
 module.exports = (rows, params, filters) => {
   return rows.filter(item => {
@@ -28,8 +28,8 @@ module.exports = (rows, params, filters) => {
         }
 
         if (params[elem].hasOwnProperty('from') || params[elem].hasOwnProperty('to')) {
-          let isLessThan = true
           let isMoreThan = true
+          let isLessThan = true
 
           if (params[elem].hasOwnProperty('from')) {
             isMoreThan = item[elem] >= params[elem].from
@@ -39,7 +39,7 @@ module.exports = (rows, params, filters) => {
             isLessThan = item[elem] <= params[elem].to
           }
 
-          return isLessThan && isMoreThan
+          return isMoreThan && isLessThan
         }
       }
     }

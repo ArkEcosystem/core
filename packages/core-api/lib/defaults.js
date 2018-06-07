@@ -33,6 +33,7 @@ module.exports = {
       '/api/v2/delegates',
       '/api/v2/delegates/{id}/blocks',
       '/api/v2/delegates/{id}/voters',
+      '/api/v2/delegates/search',
       '/api/v2/peers',
       '/api/v2/transactions',
       '/api/v2/transactions/search',
@@ -45,5 +46,8 @@ module.exports = {
       '/api/v2/wallets/{id}/votes',
       '/api/v2/wallets/search'
     ]
-  }
+  },
+  whitelist: [
+    '127.0.0.1'
+  ]
 }

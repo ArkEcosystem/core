@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const app = require('../__support__/setup')
 const genesisBlock = require('../__fixtures__/genesisBlock')
 
@@ -27,22 +28,24 @@ beforeEach(async (done) => {
   done()
 })
 
+const genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
+
 function generateWallets () {
-  return genesisBlock.transactions.map((transaction, i) => ({
-    address: crypto.getAddress(transaction.senderPublicKey)
+  return genesisSenders.map(senderPublicKey => ({
+    address: crypto.getAddress(senderPublicKey)
   }))
 }
 
 function generateVotes () {
-  return genesisBlock.transactions.map(transaction => ({
-    address: crypto.getAddress(transaction.senderPublicKey),
+  return genesisSenders.map(senderPublicKey => ({
+    address: crypto.getAddress(senderPublicKey),
     vote: genesisBlock.transactions[0].senderPublicKey
   }))
 }
 
 function generateFullWallets () {
-  return genesisBlock.transactions.map(transaction => {
-    const address = crypto.getAddress(transaction.senderPublicKey)
+  return genesisSenders.map(senderPublicKey => {
+    const address = crypto.getAddress(senderPublicKey)
 
     return {
       address,
@@ -92,7 +95,7 @@ describe('Wallet Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 10, limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -101,7 +104,7 @@ describe('Wallet Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ limit: 10 })
-      expect(count).toBe(10)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(10)
     })
 
@@ -110,7 +113,7 @@ describe('Wallet Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 0, limit: 12 })
-      expect(count).toBe(12)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(12)
     })
 
@@ -119,59 +122,56 @@ describe('Wallet Repository', () => {
       walletManager.index(wallets)
 
       const { count, rows } = repository.findAll({ offset: 10 })
-      expect(count).toBe(42)
+      expect(count).toBe(52)
       expect(rows).toHaveLength(42)
     })
   })
 
   describe('findAllByVote', () => {
+    const vote = 'dummy-sender-public-key'
+
+    beforeEach(() => {
+      const wallets = generateVotes()
+      wallets.forEach((wallet, i) => {
+        if (i < 17) {
+          wallet.vote = vote
+        }
+      })
+      walletManager.index(wallets)
+    })
+
     it('should be a function', () => {
       expect(repository.findAllByVote).toBeFunction()
     })
 
     it('should be ok without params', () => {
-      const wallets = generateVotes()
-      walletManager.index(wallets)
-
-      const { count, rows } = repository.findAllByVote(wallets[0].vote)
-      expect(count).toBe(52)
-      expect(rows).toHaveLength(52)
+      const { count, rows } = repository.findAllByVote(vote)
+      expect(count).toBe(17)
+      expect(rows).toHaveLength(17)
     })
 
     it('should be ok with params', () => {
-      const wallets = generateVotes()
-      walletManager.index(wallets)
-
-      const { count, rows } = repository.findAllByVote(wallets[0].vote, { offset: 10, limit: 10 })
-      expect(count).toBe(10)
-      expect(rows).toHaveLength(10)
+      const { count, rows } = repository.findAllByVote(vote, { offset: 10, limit: 10 })
+      expect(count).toBe(17)
+      expect(rows).toHaveLength(7)
     })
 
     it('should be ok with params (no offset)', () => {
-      const wallets = generateVotes()
-      walletManager.index(wallets)
-
-      const { count, rows } = repository.findAllByVote(wallets[0].vote, { limit: 10 })
-      expect(count).toBe(10)
+      const { count, rows } = repository.findAllByVote(vote, { limit: 10 })
+      expect(count).toBe(17)
       expect(rows).toHaveLength(10)
     })
 
     it('should be ok with params (offset = 0)', () => {
-      const wallets = generateVotes()
-      walletManager.index(wallets)
-
-      const { count, rows } = repository.findAllByVote(wallets[0].vote, { offset: 0, limit: 1 })
-      expect(count).toBe(1)
+      const { count, rows } = repository.findAllByVote(vote, { offset: 0, limit: 1 })
+      expect(count).toBe(17)
       expect(rows).toHaveLength(1)
     })
 
     it('should be ok with params (no limit)', () => {
-      const wallets = generateVotes()
-      walletManager.index(wallets)
-
-      const { count, rows } = repository.findAllByVote(wallets[10].vote, { offset: 30 })
-      expect(count).toBe(22)
-      expect(rows).toHaveLength(22)
+      const { count, rows } = repository.findAllByVote(vote, { offset: 30 })
+      expect(count).toBe(17)
+      expect(rows).toHaveLength(0)
     })
   })
 
@@ -232,7 +232,7 @@ describe('Wallet Repository', () => {
       const { count, rows } = repository.top()
 
       expect(count).toBe(3)
-      expect(count).toBe(rows.length)
+      expect(rows.length).toBe(3)
       expect(rows[0].balance).toBe(3000)
       expect(rows[1].balance).toBe(2000)
       expect(rows[2].balance).toBe(1000)
@@ -241,8 +241,8 @@ describe('Wallet Repository', () => {
     it('should be ok with params', () => {
       const { count, rows } = repository.top({ offset: 1, limit: 2 })
 
-      expect(count).toBe(2)
-      expect(count).toBe(rows.length)
+      expect(count).toBe(3)
+      expect(rows.length).toBe(2)
       expect(rows[0].balance).toBe(2000)
       expect(rows[1].balance).toBe(1000)
     })
@@ -250,8 +250,8 @@ describe('Wallet Repository', () => {
     it('should be ok with params (offset = 0)', () => {
       const { count, rows } = repository.top({ offset: 0, limit: 2 })
 
-      expect(count).toBe(2)
-      expect(count).toBe(rows.length)
+      expect(count).toBe(3)
+      expect(rows.length).toBe(2)
       expect(rows[0].balance).toBe(3000)
       expect(rows[1].balance).toBe(2000)
     })
@@ -259,8 +259,8 @@ describe('Wallet Repository', () => {
     it('should be ok with params (no offset)', () => {
       const { count, rows } = repository.top({ limit: 2 })
 
-      expect(count).toBe(2)
-      expect(count).toBe(rows.length)
+      expect(count).toBe(3)
+      expect(rows.length).toBe(2)
       expect(rows[0].balance).toBe(3000)
       expect(rows[1].balance).toBe(2000)
     })
@@ -268,8 +268,8 @@ describe('Wallet Repository', () => {
     it('should be ok with params (no limit)', () => {
       const { count, rows } = repository.top({ offset: 1 })
 
-      expect(count).toBe(2)
-      expect(count).toBe(rows.length)
+      expect(count).toBe(3)
+      expect(rows.length).toBe(2)
       expect(rows[0].balance).toBe(2000)
       expect(rows[1].balance).toBe(1000)
     })
@@ -278,7 +278,7 @@ describe('Wallet Repository', () => {
       const { count, rows } = repository.top({}, true)
 
       expect(count).toBe(3)
-      expect(count).toBe(rows.length)
+      expect(rows.length).toBe(3)
       expect(rows[0].balance).toBe(3000)
       expect(rows[1].balance).toBe(2000)
       expect(rows[2].balance).toBe(1000)
@@ -286,18 +286,19 @@ describe('Wallet Repository', () => {
   })
 
   describe('search', async () => {
-    const expectSearch = (params, expected = 1) => {
+    const expectSearch = (params, rows = 1, count = 1) => {
       const wallets = repository.search(params)
       expect(wallets).toBeObject()
 
       expect(wallets).toHaveProperty('count')
       expect(wallets.count).toBeNumber()
+      expect(wallets.count).toBe(count)
 
       expect(wallets).toHaveProperty('rows')
       expect(wallets.rows).toBeArray()
       expect(wallets.rows).not.toBeEmpty()
 
-      expect(wallets.count).toBe(expected)
+      expect(wallets.count).toBe(rows)
     }
 
     it('should be a function', () => {
@@ -339,28 +340,42 @@ describe('Wallet Repository', () => {
       expectSearch({ username: wallets[0].username })
     })
 
-    it('should search wallets by the specified balance', () => {
+    it('should search wallets by the specified closed inverval (included) of balance', () => {
       const wallets = generateFullWallets()
+      wallets.forEach((wallet, i) => {
+        if (i < 13) {
+          wallet.balance = 53
+        } else if (i < 36) {
+          wallet.balance = 99
+        }
+      })
       walletManager.index(wallets)
 
       expectSearch({
         balance: {
-          from: generateFullWallets()[0].balance,
-          to: generateFullWallets()[0].balance
+          from: 53,
+          to: 99
         }
-      }, 52)
+      }, 36, 36)
     })
 
-    it('should search wallets by the specified votebalance', () => {
+    it('should search wallets by the specified closed interval (included) of votebalance', () => {
       const wallets = generateFullWallets()
+      wallets.forEach((wallet, i) => {
+        if (i < 17) {
+          wallet.votebalance = 12
+        } else if (i < 29) {
+          wallet.votebalance = 17
+        }
+      })
       walletManager.index(wallets)
 
       expectSearch({
         votebalance: {
-          from: generateFullWallets()[0].votebalance,
-          to: generateFullWallets()[0].votebalance
+          from: 11,
+          to: 18
         }
-      }, 52)
+      }, 29, 29)
     })
   })
 })

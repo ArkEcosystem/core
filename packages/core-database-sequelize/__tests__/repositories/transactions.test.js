@@ -35,10 +35,10 @@ beforeEach(async (done) => {
   repository = connection.transactions
   spv = new (require('../../lib/spv'))(connection)
 
-  // To avoid timing out TODO better way
-  const redisCache = {}
-  repository.redis.get = jest.fn(key => redisCache[key])
-  repository.redis.set = jest.fn((key, value) => (redisCache[key] = value))
+  // To avoid timing out
+  const cache = {}
+  repository.cache.get = jest.fn(key => cache[key])
+  repository.cache.set = jest.fn((key, value) => (cache[key] = value))
 
   done()
 })
