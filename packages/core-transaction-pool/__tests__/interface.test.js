@@ -2,6 +2,7 @@
 
 const app = require('./__support__/setup')
 const { dummy1, dummy2 } = require('./__fixtures__/transactions')
+const moment = require('moment')
 
 let poolInterface
 
@@ -124,6 +125,36 @@ describe('Transaction Pool Interface', () => {
 
     it('should throw an exception', async () => {
       await expect(poolInterface.removeTransactionsForSender()).rejects.toThrowError('Method [removeTransactionsForSender] not implemented!')
+    })
+  })
+
+  describe('isSenderBlocked', () => {
+    it('should be a function', () => {
+      expect(poolInterface.isSenderBlocked).toBeFunction()
+    })
+
+    it('should return true', async () => {
+      poolInterface.blockSender('keykeykey')
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+    })
+
+    it('should return false', async () => {
+      expect(poolInterface.isSenderBlocked('keykeykey2')).toBeFalsy()
+    })
+  })
+
+  describe('blockSender', () => {
+    it('should be a function', () => {
+      expect(poolInterface.blockSender).toBeFunction()
+    })
+
+    it('should block sender for specified time', async () => {
+      const time = moment()
+      const blockedTime = poolInterface.blockSender('keykeykey')
+      const duration = moment.duration(blockedTime.diff(time))
+
+      expect(poolInterface.isSenderBlocked('keykeykey')).toBeTruthy()
+      expect(parseInt(duration.asHours())).toEqual(1)
     })
   })
 

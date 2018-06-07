@@ -12,6 +12,7 @@ const { TRANSACTION_TYPES } = ark.constants
 
 const PoolWalletManager = require('./pool-wallet-manager')
 const helpers = require('./utils/validation-helpers')
+const moment = require('moment')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -22,6 +23,8 @@ module.exports = class TransactionPoolInterface {
     this.options = options
     this.walletManager = new PoolWalletManager()
     this.guard = new TransactionGuard(this)
+
+    this.blockedByPublicKey = {}
   }
 
   /**
@@ -133,11 +136,41 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Check whether ransaction is already in pool
-   * @param  {transaction} transaction
+   * @param  {Transaction} transaction
    * @return {Boolean}
    */
   async transactionExists (transaction) {
     throw new Error('Method [transactionExists] not implemented!')
+  }
+
+  /**
+   * Check if transaction sender is blocked
+   * @param  {String} senderPublicKey
+   * @return {Boolean}
+   */
+  isSenderBlocked (senderPublicKey) {
+    if (!this.blockedByPublicKey[senderPublicKey]) {
+      console.log(this.blockedByPublicKey[senderPublicKey])
+      return false
+    }
+
+    if (this.blockedByPublicKey[senderPublicKey] < moment()) {
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * Blocks sender for a specified time
+   * @param  {String} senderPublicKey
+   * @return {Time} blockReleaseTime
+   */
+   blockSender (senderPublicKey) {
+    const blockReleaseTime = moment().add(1, 'hours')
+    this.blockedByPublicKey[senderPublicKey] = blockReleaseTime
+    logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]}`)
+    return blockReleaseTime
   }
 
   /**
@@ -208,7 +241,7 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Processes recently accepted block by the blockchain.
-   * It removes block transaction from the pool and adjusts pool wallet manager transactions for non existing transactions
+   * It removes block transaction from the pool and adjusts pool wallets for non existing transactions
    * @param  {Object} block
    * @return {void}
    */
