@@ -62,6 +62,8 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAll()
+
+      expect(transactions.rows).toBeArray()
       expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(153)
     })
@@ -71,9 +73,10 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.findAll({ type: 99 })
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
       })
 
       // TODO this and other methods
@@ -98,16 +101,26 @@ describe('Transaction Repository', () => {
       expect(receiver).toBeObject()
 
       const receiverTransactions = await repository.findAllByWallet(receiver)
-      expect(receiverTransactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(receiverTransactions.count).toBe(1)
+      expect(receiverTransactions.rows).toBeArray()
+      expect(receiverTransactions.rows).not.toBeEmpty()
+      receiverTransactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
 
       const sender = await getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn')
       expect(sender).toBeObject()
       sender.publicKey = '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788'
 
       const senderTransactions = await repository.findAllByWallet(sender)
-      expect(senderTransactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(senderTransactions.count).toBe(51)
+      expect(receiverTransactions.rows).toBeArray()
+      expect(receiverTransactions.rows).not.toBeEmpty()
+      senderTransactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -115,9 +128,13 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.findAll({ type: 99 })
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
+        transactions.rows.forEach(transaction => {
+          expect(transaction).toBeMinimalTransactionFields()
+        })
       })
     })
   })
@@ -131,8 +148,13 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllBySender('03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe')
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(transactions.count).toBe(2)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -140,9 +162,13 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.findAll({ type: 99 })
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
+        transactions.rows.forEach(transaction => {
+          expect(transaction).toBeMinimalTransactionFields()
+        })
       })
     })
   })
@@ -156,8 +182,13 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByRecipient('AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t')
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(transactions.count).toBe(1)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -165,9 +196,13 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.findAllByRecipient('none')
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
+        transactions.rows.forEach(transaction => {
+          expect(transaction).toBeMinimalTransactionFields()
+        })
       })
     })
   })
@@ -181,8 +216,13 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.allVotesBySender('03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357')
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(transactions.count).toBe(1)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -190,9 +230,13 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.allVotesBySender('none')
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
+        transactions.rows.forEach(transaction => {
+          expect(transaction).toBeMinimalTransactionFields()
+        })
       })
     })
   })
@@ -206,8 +250,13 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(transactions.count).toBe(153)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -215,9 +264,10 @@ describe('Transaction Repository', () => {
         await connection.saveBlock(genesisBlock)
 
         const transactions = await repository.findAllByBlock('none')
+
+        expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        expect(transactions.count).toBe(0)
       })
     })
   })
@@ -231,8 +281,13 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const transactions = await repository.findAllByType(2)
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+
       expect(transactions.count).toBe(51)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
     })
 
     describe('when no results', () => {
@@ -316,12 +371,13 @@ describe('Transaction Repository', () => {
       const transactions = await repository.search(params)
       expect(transactions).toBeObject()
 
-      expect(transactions).toHaveProperty('count')
       expect(transactions.count).toBeNumber()
 
-      expect(transactions).toHaveProperty('rows')
+      expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
 
       expect(transactions.count).toBe(expected)
     }
@@ -392,10 +448,9 @@ describe('Transaction Repository', () => {
         const transactions = await repository.search({ recipientId: 'dummy' })
         expect(transactions).toBeObject()
 
-        expect(transactions).toHaveProperty('count')
-        expect(transactions.count).toBe(0)
+        expect(transactions).toHaveProperty('count', 0)
 
-        expect(transactions).toHaveProperty('rows')
+        expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
       })
     })
