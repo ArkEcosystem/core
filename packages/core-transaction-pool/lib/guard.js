@@ -99,6 +99,7 @@ module.exports = class TransactionGuard {
   /**
    * Transforms and filters incomming transactions.
    * It skips duplicates and not valid crypto transactions
+   * It skips blocked senders
    * @param  {Array} transactions
    * @return {void}
    */
@@ -106,7 +107,8 @@ module.exports = class TransactionGuard {
     this.transactions = []
     await Promise.each(transactions, async (transaction) => {
       const exists = await this.pool.transactionExists(transaction.id)
-      if (!exists) {
+
+      if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         const trx = new Transaction(transaction)
         if (trx.verified) this.transactions.push(new Transaction(transaction))
       }
