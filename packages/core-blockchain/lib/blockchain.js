@@ -297,7 +297,7 @@ module.exports = class Blockchain {
       }
 
       if (this.transactionPool) {
-        this.transactionPool.removeTransactions(block.transactions)
+        this.transactionPool.acceptChainedBlock(block)
       }
     } catch (error) {
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)

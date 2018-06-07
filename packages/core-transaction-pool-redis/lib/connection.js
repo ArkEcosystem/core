@@ -6,9 +6,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const ark = require('@arkecosystem/crypto')
-const { slots } = ark
 const { Transaction } = ark.models
-const { TRANSACTION_TYPES } = ark.constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -49,6 +47,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
         emitter.emit('transaction.expired', transaction.data)
 
+        this.walletManager.revertTransaction(transaction)
         await this.removeTransaction(transaction)
       }
     })
@@ -112,19 +111,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         throw new Error('Transaction not added to the pool - await this.pool.hmset failed')
       }
       await this.pool.rpush(this.__getRedisOrderKey(), transaction.id)
-      await this.pool.incr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.rpush(this.__getRedisSenderPublicKey(transaction.senderPublicKey), transaction.id)
 
       if (transaction.expiration > 0) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
+
+      this.walletManager.revertTransaction(transaction)
     }
   }
 
   /**
    * Add many transaction to the pool.
-   * @param {Array}   transactions, already transformed by transaction guard - must have serialized field
+   * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
    */
   addTransactions (transactions) {
     if (!this.__isReady()) {
@@ -148,7 +149,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     if (await this.transactionExists(transaction.id)) {
       await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-      await this.pool.decr(this.__getRedisThrottleKey(transaction.senderPublicKey))
+      await this.pool.lrem(this.__getRedisSenderPublicKey(transaction.senderPublicKey), 1, transaction.id)
       await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
     }
   }
@@ -166,7 +167,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (await this.transactionExists(id)) {
       const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
 
-      await this.pool.decr(this.__getRedisThrottleKey(senderPublicKey))
+      await this.pool.lrem(this.__getRedisSenderPublicKey(senderPublicKey), 1, id)
       await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
       await this.pool.del(this.__getRedisExpirationKey(id))
       await this.pool.del(this.__getRedisTransactionKey(id))
@@ -203,11 +204,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (this.options.whitelist.includes(transaction.senderPublicKey)) {
-      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      // logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
       return false
     }
 
-    const count = await this.pool.get(this.__getRedisThrottleKey(transaction.senderPublicKey))
+    const count = await this.pool.llen(this.__getRedisSenderPublicKey(transaction.senderPublicKey))
     return count ? count >= this.options.maxTransactionsPerSender : false
   }
 
@@ -226,7 +227,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return Transaction.fromBytes(serialized)
     }
 
-    return 'Error: Non existing transaction'
+    return undefined
   }
 
   /**
@@ -256,55 +257,22 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions that are ready to be forged.
+   * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
-   * @return {(Array|void)}
+   * @return {(Array|void)} array of transactions IDs in specified range
    */
-  async getTransactionsForForging (start, size) {
+  async getTransactionsIds (start, size) {
     if (!this.__isReady()) {
       return
     }
 
     try {
-      let transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
-      transactionIds = await this.removeForgedAndGetPending(transactionIds)
+      const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
 
-      let transactions = []
-      for (const id of transactionIds) {
-        const serializedTransaction = await this.pool.hmget(this.__getRedisTransactionKey(id), 'serialized')
-
-        if (!serializedTransaction[0]) {
-          await this.removeTransactionById(id)
-          break
-        }
-        const transaction = Transaction.fromBytes(serializedTransaction[0])
-        // TODO: refactor and improve
-        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
-          const actions = {
-            0: () => { // timestamp lock defined
-              if (transaction.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
-                transactions.push(serializedTransaction[0])
-              }
-            },
-            1: () => { // block height time lock
-              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock(true).height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
-                transactions.push(serializedTransaction[0])
-              }
-            }
-          }
-
-          actions[transaction.timelocktype]()
-        } else {
-          transactions.push(serializedTransaction[0])
-        }
-      }
-
-      return transactions
+      return transactionIds
     } catch (error) {
-      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+      logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
     }
   }
 
@@ -316,6 +284,19 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     const keys = await this.pool.keys(`${this.keyPrefix}:*`)
 
     keys.forEach(key => this.pool.del(key))
+  }
+
+ /**
+   * Remove all transactions from transaction pool belonging to specific sender
+   * @param  {String} senderPublicKey
+   * @return {void}
+   */
+  async removeTransactionsForSender (senderPublicKey) {
+    const senderTransactionIds = await this.pool.lrange(this.__getRedisSenderPublicKey(senderPublicKey), 0, -1)
+
+    for (let id of senderTransactionIds) {
+      await this.removeTransactionById(id)
+    }
   }
 
   /**
@@ -356,11 +337,11 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
     /**
    * Get the Redis key for searching/counting transactions related to and public key
-   * @param  {String} publicKey
+   * @param  {String} senderPublicKey
    * @return {String}
    */
-  __getRedisThrottleKey (publicKey) {
-    return `${this.keyPrefix}:throttle:${publicKey}`
+  __getRedisSenderPublicKey (senderPublicKey) {
+    return `${this.keyPrefix}:senderPublicKey:${senderPublicKey}`
   }
 
   /**
