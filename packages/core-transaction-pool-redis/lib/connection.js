@@ -291,7 +291,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {void}
    */
-  async removeTransactionsFromSender (senderPublicKey) {
+  async removeTransactionsForSender (senderPublicKey) {
     const senderTransactionIds = await this.pool.lrange(this.__getRedisSenderPublicKey(senderPublicKey), 0, -1)
 
     for (let id of senderTransactionIds) {

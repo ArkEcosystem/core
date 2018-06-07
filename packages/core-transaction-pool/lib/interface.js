@@ -109,8 +109,8 @@ module.exports = class TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {void}
    */
-  async removeTransactionsFromSender (senderPublicKey) {
-    throw new Error('Method [removeTransactionsFromSender] not implemented!')
+  async removeTransactionsForSender (senderPublicKey) {
+    throw new Error('Method [removeTransactionsForSender] not implemented!')
   }
 
   /**
@@ -259,7 +259,7 @@ module.exports = class TransactionPoolInterface {
 
   async purgeByPublicKey (senderPublicKey) {
     logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`)
-    await this.removeTransactionsFromSender(senderPublicKey)
+    await this.removeTransactionsForSender(senderPublicKey)
     this.walletManager.deleteWallet(senderPublicKey)
   }
 }
