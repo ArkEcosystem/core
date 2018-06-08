@@ -51,7 +51,7 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
-    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
+    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
       const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
@@ -86,7 +86,7 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
-    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
+    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
       const query = buildQuery(this.query.select('blockId', 'serialized'))
@@ -214,7 +214,7 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
-    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
+    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
       const query = await buildQuery(this.query.select('blockId', 'serialized'))
