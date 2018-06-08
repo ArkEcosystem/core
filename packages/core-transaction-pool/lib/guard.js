@@ -4,6 +4,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
 const database = container.resolvePlugin('database')
+const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
@@ -48,7 +49,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id),
+      broadcast: this.invalid.map(transaction => transaction.id)
     }
   }
 
@@ -66,7 +68,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid
+      invalid: this.invalid,
+      broadcast: this.broadcast
     }
   }
 
@@ -130,7 +133,6 @@ module.exports = class TransactionGuard {
       if (forgedIds.indexOf(transaction.id) === -1) {
         return true
       }
-
       this.invalid.push(this.transactions)
       return false
     })
@@ -145,6 +147,8 @@ module.exports = class TransactionGuard {
     const dynamicFeeResults = dynamicFeeMatch(this.transactions)
     this.transactions = dynamicFeeResults.feesMatching
     this.invalid.concat(dynamicFeeResults.invalidFees)
+
+    this.broadcast.concat(dynamicFeeResults.invalidFees)
   }
 
   /**
@@ -172,6 +176,7 @@ module.exports = class TransactionGuard {
       }
 
       this.accept.push(transaction)
+      this.broadcast.push(transaction)
     })
   }
 
@@ -184,5 +189,6 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
+    this.broadcast = []
   }
 }
