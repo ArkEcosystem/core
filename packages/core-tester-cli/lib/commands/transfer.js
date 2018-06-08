@@ -17,7 +17,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   }
 
   if (!postResponse.data.success) {
-    logger.error('Transaction request failed')
+    logger.error(`Transaction request failed. Error: ${postResponse.data.error}`)
 
     return false
   }
@@ -69,10 +69,12 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   const transactions = []
   let totalDeductions = 0
-  const transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
+  let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
+  if (options.amount) transactionAmount = options.amount
+
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
-      wallet.address,
+      options.recipient || wallet.address,
       transactionAmount,
       `TID: ${i}`,
       config.passphrase,
@@ -83,7 +85,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+    logger.info(`${i} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
   })
 
   if (options.copy) {

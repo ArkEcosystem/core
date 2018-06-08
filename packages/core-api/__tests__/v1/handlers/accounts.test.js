@@ -32,8 +32,8 @@ describe('API 1.0 - Wallets', () => {
       const response = await utils.request('GET', 'accounts/getBalance', { address })
       utils.expectSuccessful(response)
 
-      expect(response.data.balance).toBeNumber()
-      expect(response.data.unconfirmedBalance).toBeNumber()
+      expect(response.data.balance).toBeString()
+      expect(response.data.unconfirmedBalance).toBeString()
     })
   })
 

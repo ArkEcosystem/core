@@ -53,7 +53,7 @@ blockchainMachine.actionMap = blockchain => {
       let event = 'NOTSYNCED'
       logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
 
-      if (blockchain.rebuildQueue.length() > 100000) {
+      if (blockchain.rebuildQueue.length() > 10000) {
         event = 'PAUSED'
       }
 
@@ -90,7 +90,8 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.rollbackCurrentRound()
         await blockchain.database.buildWallets(state.lastBlock.data.height)
         await blockchain.database.saveWallets(true)
-        // blockchain.transactionPool.initialiseWallets(blockchain.database.walletManager.getLocalWallets())
+        await blockchain.transactionPool.buildWallets()
+
         // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
@@ -175,6 +176,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.buildWallets(block.data.height)
         await blockchain.database.saveWallets(true)
         await blockchain.database.applyRound(block.data.height)
+        await blockchain.transactionPool.buildWallets()
 
         return blockchain.dispatch('STARTED')
       } catch (error) {

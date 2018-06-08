@@ -4,6 +4,8 @@ const path = require('path')
 const container = require('@arkecosystem/core-container')
 
 exports.setUp = async () => {
+  jest.setTimeout(10000)
+
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/testnet'),

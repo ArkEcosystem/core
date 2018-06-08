@@ -6,8 +6,7 @@ const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
-
-const Redis = require('ioredis')
+const Cache = require('../cache')
 
 module.exports = class TransactionsRepository extends Repository {
   /**
@@ -17,7 +16,8 @@ module.exports = class TransactionsRepository extends Repository {
   constructor (connection) {
     super(connection)
 
-    this.redis = new Redis()
+    // Used to store the height of the block
+    this.cache = new Cache()
   }
 
   /**
@@ -50,20 +50,21 @@ module.exports = class TransactionsRepository extends Repository {
       return query
     }
 
-    const query = buildQuery(this.query.select('blockId', 'serialized'))
-    const transactions = await this.__runQuery(query, {
-      limit: params.limit,
-      offset: params.offset,
-      orderBy
-    })
+    let rows = []
+    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
 
-    // const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    if (count) {
+      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const transactions = await this.__runQuery(selectQuery, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
 
-    return {
-      rows: await this.__mapBlocksToTransactions(transactions),
-      count: transactions.length
-      // count
+      rows = await this.__mapBlocksToTransactions(transactions)
     }
+
+    return { rows, count }
   }
 
   /**
@@ -84,19 +85,21 @@ module.exports = class TransactionsRepository extends Repository {
         .orWhere('recipientId', wallet.address)
     }
 
-    const query = buildQuery(this.query.select('blockId', 'serialized'))
-    const transactions = await this.__runQuery(query, {
-      limit: params.limit,
-      offset: params.offset,
-      orderBy
-    })
+    let rows = []
+    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
 
-    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    if (count) {
+      const query = buildQuery(this.query.select('blockId', 'serialized'))
+      const transactions = await this.__runQuery(query, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
 
-    return {
-      rows: await this.__mapBlocksToTransactions(transactions),
-      count
+      rows = await this.__mapBlocksToTransactions(transactions)
     }
+
+    return { rows, count }
   }
 
   /**
@@ -105,7 +108,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllBySender (senderPublicKey, params = {}) {
+  async findAllBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey}, ...params})
   }
 
@@ -115,7 +118,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByRecipient (recipientId, params = {}) {
+  async findAllByRecipient (recipientId, params = {}) {
     return this.findAll({...{recipientId}, ...params})
   }
 
@@ -126,7 +129,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  allVotesBySender (senderPublicKey, params = {}) {
+  async allVotesBySender (senderPublicKey, params = {}) {
     return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
   }
 
@@ -136,7 +139,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByBlock (blockId, params = {}) {
+  async findAllByBlock (blockId, params = {}) {
     return this.findAll({...{blockId}, ...params})
   }
 
@@ -146,7 +149,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Object} params
    * @return {Object}
    */
-  findAllByType (type, params = {}) {
+  async findAllByType (type, params = {}) {
     return this.findAll({...{type}, ...params})
   }
 
@@ -170,7 +173,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  findById (id) {
+  async findById (id) {
     return this.findOne({ id })
   }
 
@@ -180,7 +183,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} id
    * @return {Object}
    */
-  findByTypeAndId (type, id) {
+  async findByTypeAndId (type, id) {
     return this.findOne({ id, type })
   }
 
@@ -210,19 +213,21 @@ module.exports = class TransactionsRepository extends Repository {
       return query
     }
 
-    const query = await buildQuery(this.query.select('blockId', 'serialized'))
-    const transactions = await this.__runQuery(query, {
-      limit: params.limit,
-      offset: params.offset,
-      orderBy
-    })
+    let rows = []
+    const { count } = await buildQuery(this.query.select('count').countDistinct('id', 'count')).first()
 
-    const { count } = await buildQuery(this.query.countDistinct('id', 'count')).first()
+    if (count) {
+      const query = await buildQuery(this.query.select('blockId', 'serialized'))
+      const transactions = await this.__runQuery(query, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
 
-    return {
-      rows: await this.__mapBlocksToTransactions(transactions),
-      count
+      rows = await this.__mapBlocksToTransactions(transactions)
     }
+
+    return { rows, count }
   }
 
   /**
@@ -243,7 +248,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Count all transactions.
    * @return {Number}
    */
-  count () {
+  async count () {
     return super.__count('transactions')
   }
 
@@ -251,7 +256,7 @@ module.exports = class TransactionsRepository extends Repository {
    * Calculates min, max and average fee statistics based on transactions table
    * @return {Object}
    */
-  getFeeStatistics () {
+  async getFeeStatistics () {
     return this
       .connection
       .query
@@ -268,6 +273,7 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * Format any raw conditions.
+   * TODO if condition is invalid, raise an Error
    * @param  {Object} params
    * @return {Object}
    */
@@ -293,7 +299,7 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * [__mapBlocksToTransactions description]
-   * @param  {Object} data
+   * @param  {Array|Object} data
    * @return {Object}
    */
   async __mapBlocksToTransactions (data) {
@@ -344,13 +350,13 @@ module.exports = class TransactionsRepository extends Repository {
       if (cachedBlock) {
         data.block = cachedBlock
       } else {
-        const block = await this.query
+        data.block = await this.query
           .select('id', 'height')
           .from('blocks')
           .where('id', data.blockId)
           .first()
 
-        this.__setBlockCache(block)
+        this.__setBlockCache(data.block)
       }
     }
 
@@ -358,26 +364,22 @@ module.exports = class TransactionsRepository extends Repository {
   }
 
   /**
-   * [__getBlockCache description]
-   * @param  {[type]} blockId [description]
-   * @return {[type]}         [description]
+   * Tries to retrieve the height of the block from the cache
+   * @param  {String} blockId
+   * @return {Object|null}
    */
   async __getBlockCache (blockId) {
-    const cachedHeight = await this.redis.get(`heights:${blockId}`)
-
-    if (cachedHeight) {
-      return { height: cachedHeight }
-    }
-
-    return false
+    const height = await this.cache.get(`heights:${blockId}`)
+    return height ? ({ height }) : null
   }
 
   /**
-   * [__setBlockCache description]
-   * @param  {[type]} block [description]
-   * @return {[type]}       [description]
+   * Stores the height of the block on the cache
+   * @param  {Object} block
+   * @param  {String} block.id
+   * @param  {Number} block.height
    */
-  __setBlockCache (block) {
-    this.redis.set(`heights:${block.id}`, block.height)
+  __setBlockCache ({ id, height }) {
+    this.cache.set(`heights:${id}`, { height })
   }
 }
