@@ -130,6 +130,7 @@ module.exports = class TransactionGuard {
 
     this.transactions = this.transactions.filter(transaction => {
       if (forgedIds.indexOf(transaction.id) === -1) {
+        this.broadcast.push(transaction)
         return true
       }
       this.invalid.push(this.transactions)
@@ -146,8 +147,6 @@ module.exports = class TransactionGuard {
     const dynamicFeeResults = dynamicFeeMatch(this.transactions)
     this.transactions = dynamicFeeResults.feesMatching
     this.invalid.concat(dynamicFeeResults.invalidFees)
-
-    this.broadcast.concat(dynamicFeeResults.invalidFees)
   }
 
   /**
@@ -175,7 +174,6 @@ module.exports = class TransactionGuard {
       }
 
       this.accept.push(transaction)
-      this.broadcast.push(transaction)
     })
   }
 
