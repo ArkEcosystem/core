@@ -99,6 +99,7 @@ module.exports = class TransactionBuilder {
     const keys = crypto.getKeys(passphrase)
     this.data.senderPublicKey = keys.publicKey
     this.data.signature = crypto.sign(this.__getSigningObject(), keys)
+
     return this
   }
 
@@ -111,6 +112,22 @@ module.exports = class TransactionBuilder {
     const keys = crypto.getKeys(secondPassphrase)
     // TODO sign or second?
     this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+
+    return this
+  }
+
+  /**
+   * Sign transaction for multi-signature wallets.
+   * @param {String} passphrase
+   * @return {TransactionBuilder}
+   */
+  multiSignatureSign (passphrase) {
+    const keys = crypto.getKeys(passphrase)
+    if (!this.data.signatures) {
+      this.data.signatures = []
+    }
+    this.data.signatures.push(crypto.sign(this.__getSigningObject(), keys))
+
     return this
   }
 
@@ -123,7 +140,7 @@ module.exports = class TransactionBuilder {
     // if (!this.data.senderPublicKey || !this.data.signature) {
     //   throw new Error('The transaction is not signed yet')
     // }
-    return {
+    const struct = {
       // hex: crypto.getBytes(this).toString('hex'), // v2
       id: crypto.getId(this.data).toString('hex'),
       signature: this.data.signature,
@@ -134,6 +151,12 @@ module.exports = class TransactionBuilder {
       fee: this.data.fee,
       senderPublicKey: this.data.senderPublicKey
     }
+
+    if (Array.isArray(this.data.signatures)) {
+      struct.signatures = this.data.signatures
+    }
+
+    return struct
   }
 
   /**
