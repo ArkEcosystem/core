@@ -1,8 +1,9 @@
 const Promise = require('bluebird')
-
+const container = require('@arkecosystem/core-container')
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
+const database = container.resolvePlugin('database')
 
 module.exports = class TransactionGuard {
   /**
@@ -112,6 +113,24 @@ module.exports = class TransactionGuard {
         const trx = new Transaction(transaction)
         if (trx.verified) this.transactions.push(new Transaction(transaction))
       }
+    })
+  }
+
+  /**
+   * Skipping already forged transactions
+   * @return {void}
+   */
+  async __removeForgedTransactions () {
+    const transactionIds = this.transactions.map(transaction => transaction.id)
+    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
+
+    this.transactions = this.transactions.filter(transaction => {
+      if (forgedIds.indexOf(transaction.id) === -1) {
+        return true
+      }
+
+      this.invalid.push(this.transactions)
+      return false
     })
   }
 
