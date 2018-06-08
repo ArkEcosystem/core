@@ -37,12 +37,6 @@ describe('Vote Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
-  it('should be valid', () => {
-    transaction.votesAsset(votes)
-               .sign('passphrase')
-    expect(rule(transaction.getStruct()).errors).toBeNull()
-  })
-
   it('should be invalid due to no transaction as object', () => {
     expect(rule('test').errors).not.toBeNull()
   })
@@ -67,8 +61,7 @@ describe('Vote Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
-  // TODO: max votes constant
-  xit('should be invalid due to too many votes', () => {
+  it('should be invalid due to more than 1 vote', () => {
     transaction.votesAsset(votes)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
@@ -78,6 +71,15 @@ describe('Vote Transaction Rule', () => {
     transaction.votesAsset(invalidVotes)
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to wrong vote type', () => {
+    try {
+      transaction.votesAsset(vote)
+                 .sign('passphrase')
+      expect(rule(transaction.getStruct()).errors).not.toBeNull()
+    } catch (error) {
+    }
   })
 
   it('should be invalid due to wrong transaction type', () => {

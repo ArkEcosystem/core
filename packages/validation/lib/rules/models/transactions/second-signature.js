@@ -12,11 +12,12 @@ module.exports = (transaction) => {
     senderId: engine.joi.arkAddress(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
+    signatures: engine.joi.array(),
     secondSignature: engine.joi.empty(),
     asset: engine.joi.object({
       signature: engine.joi.object({
         publicKey: engine.joi.arkPublicKey().required()
-      })
+      }).required()
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {
