@@ -27,6 +27,8 @@ module.exports = class TransactionGuard {
 
     await this.__transformAndFilterTransations(transactions)
 
+    await this.__removeForgedTransactions()
+
     this.__determineFeeMatchingTransactions()
 
     await this.__determineValidTransactions()
