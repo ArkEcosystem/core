@@ -278,20 +278,26 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   __formatConditions (params) {
-    let statement = {}
+    const filter = args => {
+      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+    }
 
-    const conditions = [Op.or, Op.and]
-    const filter = (args) => args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+    const statement = filter(Object.keys(params)).reduce((all, column) => {
+      all[column] = params[column]
+      return all
+    }, {})
 
-    filter(Object.keys(params)).map(col => (statement[col] = params[col]))
-
-    conditions.map(elem => {
+    // NOTE: This could be used to produce complex queries, but currently isn't used
+    ;[Op.or, Op.and].map(elem => {
       if (!params[elem]) {
         return
       }
 
       const fields = Object.assign({}, ...params[elem])
-      statement[elem] = filter(Object.keys(fields)).reduce((prev, val) => prev.concat({ [val]: fields[val] }), [])
+
+      statement[elem] = filter(Object.keys(fields)).reduce((all, value) => {
+        return all.concat({ [value]: fields[value] })
+      }, [])
     })
 
     return statement
