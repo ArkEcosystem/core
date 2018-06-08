@@ -117,7 +117,7 @@ module.exports = class PluginRegistrars {
       try {
         item = require(plugin)
       } catch (error) {
-
+        console.log(error)
       }
 
       if (!item.plugin) {
