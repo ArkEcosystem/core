@@ -74,7 +74,7 @@ describe('Transaction Repository', () => {
     it('should find all transactions that holds the condition', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const transactions = await repository.findAllLegacy({
+      const transactions = await repository.findAll({
         type: 3
       })
 
@@ -89,9 +89,9 @@ describe('Transaction Repository', () => {
     it('should find all transactions that holds all the conditions (AND)', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const transactions = await repository.findAllLegacy({
+      const transactions = await repository.findAll({
         recipientId: genesisTransaction.recipientId,
-        type: 0
+        type: 3
       })
 
       expect(transactions.count).toBe(1)
@@ -163,7 +163,7 @@ describe('Transaction Repository', () => {
         type: 3
       })
 
-      expect(transactions.count).toBe(51)
+      expect(transactions.count).toBe(52)
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {

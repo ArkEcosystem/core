@@ -28,17 +28,14 @@ module.exports = class TransactionsRepository extends Repository {
   async findAll (params = {}) {
     const conditions = this.__formatConditions(params)
 
-    if (params['senderId']) {
-      const wallet = this.connection.walletManager.getWalletByAddress([params['senderId']])
-
-      if (wallet) {
-        conditions['senderPublicKey'] = wallet.publicKey
+    if (params.senderId) {
+      const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+      if (senderPublicKey) {
+        conditions.senderPublicKey = senderPublicKey
       }
     }
 
-    const orderBy = params.orderBy
-      ? params.orderBy.split(':')
-      : ['timestamp', 'DESC']
+    const orderBy = this.__orderBy(params)
 
     const buildQuery = query => {
       query = query.from('transactions')
@@ -68,15 +65,74 @@ module.exports = class TransactionsRepository extends Repository {
   }
 
   /**
+   * Get all transactions (LEGACY, for V1 only).
+   * @param  {Object}  params
+   * @return {Object}
+   */
+  async findAllLegacy (params = {}) {
+    const conditions = this.__formatConditionsV1(params)
+
+    if (params.senderId) {
+      const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+      if (senderPublicKey) {
+        conditions.senderPublicKey = senderPublicKey
+      }
+    }
+
+    const orderBy = this.__orderBy(params)
+
+    const buildQuery = query => {
+      query = query.from('transactions')
+
+      const parts = Object.entries(conditions)
+      if (parts.length) {
+        const first = parts.shift()
+        query = query.where(first[0], first[1])
+
+        for (let [key, value] of parts) {
+          query = query.orWhere(key, value)
+        }
+      }
+
+      return query
+    }
+
+    let rows = []
+    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
+
+    if (count) {
+      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const transactions = await this.__runQuery(selectQuery, {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy
+      })
+
+      rows = await this.__mapBlocksToTransactions(transactions)
+    }
+
+    return { rows, count }
+  }
+
+  __publicKeyfromSenderId (senderId) {
+    const wallet = this.connection.walletManager.getWalletByAddress(senderId)
+    return wallet.publicKey
+  }
+
+  __orderBy (params) {
+    return params.orderBy
+      ? params.orderBy.split(':')
+      : ['timestamp', 'DESC']
+  }
+
+  /**
    * Get all transactions for the given Wallet object.
    * @param  {Wallet} wallet
    * @param  {Object} params
    * @return {Object}
    */
   async findAllByWallet (wallet, params = {}) {
-    const orderBy = params.orderBy
-      ? params.orderBy.split(':')
-      : ['timestamp', 'DESC']
+    const orderBy = this.__orderBy(params)
 
     const buildQuery = query => {
       return query
@@ -193,9 +249,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async search (params) {
-    const orderBy = params.orderBy
-      ? params.orderBy.split(':')
-      : ['timestamp', 'DESC']
+    const orderBy = this.__orderBy(params)
 
     const conditions = buildFilterQuery(params, {
       exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
@@ -301,6 +355,23 @@ module.exports = class TransactionsRepository extends Repository {
     })
 
     return statement
+  }
+
+  /**
+   * Format any raw conditions.
+   * TODO if condition is invalid, raise an Error
+   * @param  {Object} params
+   * @return {Object}
+   */
+  __formatConditionsV1 (params) {
+    const filter = args => {
+      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+    }
+
+    return filter(Object.keys(params)).reduce((all, column) => {
+      all[column] = params[column]
+      return all
+    }, {})
   }
 
   /**
