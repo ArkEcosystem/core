@@ -1,8 +1,13 @@
 'use strict'
 
+const toBeBlockTableRow = require('../__support__/matchers/block-table-row')
+expect.extend({ toBeBlockTableRow })
+
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
 const genesisBlock = require('../__fixtures__/genesisBlock')
+
+// TODO theses tests should use more than 1 block to be sure that they're correct
 
 let connection
 let repository
@@ -46,6 +51,24 @@ describe('Block Repository', () => {
 
       const blocks = await repository.findAll()
       expect(blocks.count).toBe(1)
+      expect(blocks.rows).toBeArray()
+      expect(blocks.rows).not.toBeEmpty()
+      expect(blocks.rows[0]).toBeBlockTableRow()
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const blocks = await repository.findAll({ generatorPublicKey: 'none' })
+        expect(blocks.count).toBe(0)
+        expect(blocks.rows).toBeArray()
+        expect(blocks.rows).toBeEmpty()
+      })
+
+      // TODO this and other methods
+      xit('should not perform a query to get the results', () => {
+      })
     })
   })
 
@@ -57,8 +80,28 @@ describe('Block Repository', () => {
     it('should find all blocks by the public key of the forger', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const blocks = await repository.findAllByGenerator(genesisBlock.data.generatorPublicKey)
+      const generatorPublicKey = genesisBlock.data.generatorPublicKey
+
+      const blocks = await repository.findAllByGenerator(generatorPublicKey)
       expect(blocks.count).toBe(1)
+      expect(blocks.rows).toBeArray()
+      expect(blocks.rows).not.toBeEmpty()
+      expect(blocks.rows[0]).toBeBlockTableRow()
+      expect(blocks.rows[0].generatorPublicKey).toBe(generatorPublicKey)
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const blocks = await repository.findAllByGenerator('none')
+        expect(blocks.count).toBe(0)
+        expect(blocks.rows).toBeArray()
+        expect(blocks.rows).toBeEmpty()
+      })
+
+      xit('should not perform a query to get the results', () => {
+      })
     })
   })
 
@@ -71,7 +114,7 @@ describe('Block Repository', () => {
       await connection.saveBlock(genesisBlock)
 
       const block = await repository.findById(genesisBlock.data.id)
-      expect(block).toBeObject()
+      expect(block).toBeBlockTableRow()
       expect(block.id).toBe(genesisBlock.data.id)
     })
   })
@@ -84,7 +127,9 @@ describe('Block Repository', () => {
     it('should find the last forged block by public key', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const block = await repository.findLastByPublicKey(genesisBlock.data.generatorPublicKey)
+      const generatorPublicKey = genesisBlock.data.generatorPublicKey
+
+      const block = await repository.findLastByPublicKey(generatorPublicKey)
       expect(block).toBeObject()
       expect(block.id).toBe(genesisBlock.data.id)
     })
@@ -99,12 +144,12 @@ describe('Block Repository', () => {
 
       expect(blocks).toHaveProperty('count')
       expect(blocks.count).toBeNumber()
+      expect(blocks.count).toBe(1)
 
       expect(blocks).toHaveProperty('rows')
       expect(blocks.rows).toBeObject()
       expect(blocks.rows).not.toBeEmpty()
-
-      expect(blocks.count).toBe(1)
+      expect(blocks.rows[0]).toBeBlockTableRow()
     }
 
     it('should be a function', () => {
@@ -202,6 +247,29 @@ describe('Block Repository', () => {
           to: genesisBlock.data.payloadLength
         }
       })
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const blocks = await repository.search({ amount: 9, totalFee: 1 })
+        expect(blocks.count).toBe(0)
+        expect(blocks.rows).toBeArray()
+        expect(blocks.rows).toBeEmpty()
+      })
+
+      xit('should not perform a query to get the results', () => {
+      })
+    })
+  })
+
+  describe('count', () => {
+    it('should return the total number of blocks', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const { count } = await repository.count()
+      expect(count).toBe(1)
     })
   })
 })

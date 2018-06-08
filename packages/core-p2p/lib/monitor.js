@@ -132,7 +132,10 @@ module.exports = class Monitor {
 
       emitter.emit('peer.added', newPeer)
     } catch (error) {
-      logger.debug(`Could not accept new peer '${newPeer}' - ${error}`)
+      logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
+      // we don't throw since we answer unreacheable peer
+      // TODO: in next version, only accept to answer to sound peers that have properly registered
+      // hence we will throw an error
     }
   }
 

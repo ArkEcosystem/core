@@ -17,7 +17,7 @@ module.exports = (transaction) => {
     asset: engine.joi.object({
       votes: engine.joi.array().items(
         engine.joi.string().length(67).regex(/^(\+|-)[a-zA-Z0-9]+$/)
-      ).min(1).required() // TODO: Max - maxvotes constant
+      ).min(1).max(1).required() // TODO: Max - maxvotes constant
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {
