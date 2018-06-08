@@ -63,9 +63,46 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAll()
 
-      expect(transactions.rows).toBeArray()
-      expect(transactions.rows[0]).toBeMinimalTransactionFields()
       expect(transactions.count).toBe(153)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find all transactions that holds the condition', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const transactions = await repository.findAllLegacy({
+        type: 3
+      })
+
+      expect(transactions.count).toBe(51)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find all transactions that holds all the conditions (AND)', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const transactions = await repository.findAllLegacy({
+        recipientId: genesisTransaction.recipientId,
+        type: 0
+      })
+
+      expect(transactions.count).toBe(1)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    xit('should find all transactions by some fields only', () => {
     })
 
     describe('when no results', () => {
@@ -83,9 +120,73 @@ describe('Transaction Repository', () => {
       xit('should not perform a query to get the results', () => {
       })
     })
+  })
 
-    // TODO this and other methods
-    xit('should find all transactions with params', () => {
+  describe('findAllLegacy', () => {
+    it('should be a function', () => {
+      expect(repository.findAllLegacy).toBeFunction()
+    })
+
+    it('should find all transactions', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const transactions = await repository.findAllLegacy()
+
+      expect(transactions.count).toBe(153)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find all transactions that holds the condition', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const transactions = await repository.findAllLegacy({
+        type: 3
+      })
+
+      expect(transactions.count).toBe(51)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find all transactions that holds any of the conditions (OR)', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const transactions = await repository.findAllLegacy({
+        recipientId: genesisTransaction.recipientId,
+        type: 3
+      })
+
+      expect(transactions.count).toBe(51)
+      expect(transactions.rows).toBeArray()
+      expect(transactions.rows).not.toBeEmpty()
+      transactions.rows.forEach(transaction => {
+        expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    xit('should find all transactions by any field', () => {
+    })
+
+    describe('when no results', () => {
+      it('should not return them', async () => {
+        await connection.saveBlock(genesisBlock)
+
+        const transactions = await repository.findAllLegacy({ type: 99 })
+
+        expect(transactions.count).toBe(0)
+        expect(transactions.rows).toBeArray()
+        expect(transactions.rows).toBeEmpty()
+      })
+
+      xit('should not perform a query to get the results', () => {
+      })
     })
   })
 
