@@ -2,6 +2,10 @@ const { TRANSACTION_TYPES } = require('../../../constants')
 const engine = require('../../../engine')
 
 module.exports = (transaction) => {
+  let maxMinValue = 16
+  if (transaction.asset && transaction.asset.multisignature && Array.isArray(transaction.asset.multisignature.keysgroup)) {
+    maxMinValue = transaction.asset.multisignature.keysgroup.length
+  }
   const { error, value } = engine.validate(transaction, engine.joi.object({
     id: engine.joi.string().alphanum().required(),
     blockid: engine.joi.number(),
@@ -17,7 +21,7 @@ module.exports = (transaction) => {
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       multisignature: engine.joi.object({
-        min: engine.joi.number().min(1).max(Math.min(transaction.asset.multisignature.keysgroup.length, 16)).required(),
+        min: engine.joi.number().min(1).max(Math.min(maxMinValue, 16)).required(),
         keysgroup: engine.joi.array().unique().min(2).items(
           engine.joi.string().not(`+${transaction.senderPublicKey}`).length(67).regex(/^\+/).required()
         ).required(),
