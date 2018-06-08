@@ -5,7 +5,6 @@ const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
  * @type {Object}

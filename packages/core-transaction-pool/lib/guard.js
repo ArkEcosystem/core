@@ -4,7 +4,6 @@ const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
 const database = container.resolvePlugin('database')
-const logger = container.resolvePlugin('logger')
 
 module.exports = class TransactionGuard {
   /**
