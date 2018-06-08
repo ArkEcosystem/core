@@ -37,9 +37,10 @@ module.exports = class Repository {
    * Count all the records of a table.
    * @return {Number}
    */
-  __count (table) {
+  async __count (table) {
     return this
       .query
+      .select('count')
       .countDistinct('id', 'count')
       .from(table)
       .first()
