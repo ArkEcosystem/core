@@ -78,6 +78,38 @@ describe('Multi Signature Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
+  it('should be invalid due to min too low', () => {
+    multiSignatureAsset.min = 0
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, passphrases)
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to min too high', () => {
+    multiSignatureAsset.min = multiSignatureAsset.keysgroup.length + 1
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, passphrases)
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to lifetime too low', () => {
+    multiSignatureAsset.lifetime = 0
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, passphrases)
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to lifetime too high', () => {
+    multiSignatureAsset.lifetime = 100
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, passphrases)
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
   it('should be invalid due to no public keys', () => {
     multiSignatureAsset.keysgroup = []
     transaction.multiSignatureAsset(multiSignatureAsset)
@@ -104,6 +136,7 @@ describe('Multi Signature Transaction Rule', () => {
     multiSignatureAsset.keysgroup = [publicKey, publicKey]
     transaction.multiSignatureAsset(multiSignatureAsset)
                .sign('passphrase')
+    signTransaction(transaction, passphrases)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
@@ -113,10 +146,25 @@ describe('Multi Signature Transaction Rule', () => {
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
+  it('should be invalid due to not enough signatures', () => {
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, passphrases.slice(1))
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
+  it('should be invalid due to too many signatures', () => {
+    transaction.multiSignatureAsset(multiSignatureAsset)
+               .sign('passphrase')
+    signTransaction(transaction, ['wrong passphrase', ...passphrases])
+    expect(rule(transaction.getStruct()).errors).not.toBeNull()
+  })
+
   it('should be invalid due to no "+" for publicKeys', () => {
     multiSignatureAsset.keysgroup = keysGroup.map(publicKey => publicKey.slice(1))
     transaction.multiSignatureAsset(multiSignatureAsset)
                .sign('passphrase')
+    signTransaction(transaction, passphrases)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
@@ -124,14 +172,16 @@ describe('Multi Signature Transaction Rule', () => {
     multiSignatureAsset.keysgroup = keysGroup.map(publicKey => `-${publicKey.slice(1)}`)
     transaction.multiSignatureAsset(multiSignatureAsset)
                .sign('passphrase')
+    signTransaction(transaction, passphrases)
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
-  it('should be invalid due to wrong keysGroup type', () => {
+  it('should be invalid due to wrong keysgroup type', () => {
     try {
       multiSignatureAsset.keysgroup = publicKey
       transaction.multiSignatureAsset(publicKey)
                  .sign('passphrase')
+      signTransaction(transaction, passphrases)
       expect(rule(transaction.getStruct()).errors).not.toBeNull()
     } catch (error) {
     }
