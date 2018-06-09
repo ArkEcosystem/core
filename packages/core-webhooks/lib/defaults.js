@@ -13,7 +13,7 @@ module.exports = {
   },
   server: {
     enabled: false,
-    host: process.env.ARK_WEBHOOKS_HOST || 'localhost',
+    host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
     port: process.env.ARK_WEBHOOKS_PORT || 4004,
     whitelist: ['127.0.0.1', '192.168.*'],
     pagination: {

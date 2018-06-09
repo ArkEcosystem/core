@@ -45,13 +45,13 @@ module.exports = {
     }
   },
   '@arkecosystem/core-p2p': {
-    host: process.env.ARK_P2P_HOST || 'localhost',
+    host: process.env.ARK_P2P_HOST || '0.0.0.0',
     port: process.env.ARK_P2P_PORT || 4102
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
     enabled: false,
-    host: process.env.ARK_API_HOST || 'localhost',
+    host: process.env.ARK_API_HOST || '0.0.0.0',
     port: process.env.ARK_API_PORT || 4103,
     whitelist: ['*']
   },
@@ -68,14 +68,14 @@ module.exports = {
     },
     server: {
       enabled: false,
-      host: process.env.ARK_WEBHOOKS_HOST || 'localhost',
+      host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
       whitelist: ['127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
     enabled: false,
-    host: process.env.ARK_GRAPHQL_HOST || 'localhost',
+    host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
     port: process.env.ARK_GRAPHQL_PORT || 4105,
     path: '/graphql',
     graphiql: true
