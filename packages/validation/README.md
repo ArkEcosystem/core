@@ -1,4 +1,4 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
+![ARK Core](banner.png)
 
 # ARK Core - Validation
 

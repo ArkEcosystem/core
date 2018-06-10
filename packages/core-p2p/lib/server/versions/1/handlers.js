@@ -5,7 +5,6 @@ const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
 
 /**
  * @type {Object}
@@ -207,10 +206,10 @@ exports.postTransactions = {
         .postTransactions(transactionPool.guard.accept)
     }
 
-    if (!request.payload.isBroadCasted) {
+    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
       container
       .resolvePlugin('p2p')
-      .broadcastTransactions(request.payload.transactions.map(transaction => new Transaction(transaction)))
+      .broadcastTransactions(transactionPool.guard.broadcast)
     }
 
     return {

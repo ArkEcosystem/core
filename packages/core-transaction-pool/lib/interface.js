@@ -229,13 +229,15 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Removes any transactions in the pool that have already been forged.
-   * Returns IDs of pending transactions that have yet to be forged.
    * @param  {Array} transactionIds
-   * @return {Array}
+   * @return {Array} IDs of pending transactions that have yet to be forged.
    */
   async removeForgedAndGetPending (transactionIds) {
     const forgedIds = await container.resolvePlugin('blockchain').database.getForgedTransactionsIds(transactionIds)
-    forgedIds.forEach(element => this.removeTransactionById(element))
+
+    await Promise.each(forgedIds, async (transactionId) => {
+        await this.removeTransactionById(transactionId)
+    })
 
     return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
   }

@@ -10,14 +10,15 @@ module.exports = (transaction) => {
     amount: engine.joi.number().valid(0),
     fee: engine.joi.number().min(1).required(),
     senderId: engine.joi.arkAddress(),
-    recipientId: engine.joi.arkAddress(),
+    recipientId: engine.joi.arkAddress().required(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
+    signatures: engine.joi.array(),
     secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object({
       votes: engine.joi.array().items(
         engine.joi.string().length(67).regex(/^(\+|-)[a-zA-Z0-9]+$/)
-      ).min(1).max(1).required() // TODO: Max - maxvotes constant
+      ).length(1).required()
     }).required(),
     confirmations: engine.joi.number().min(0)
   }), {

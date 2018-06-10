@@ -55,4 +55,17 @@ describe('Multi Signature Transaction', () => {
       expect(builder.data.recipientId).toBe('DKNJwdxrPQg6xXbrpaQLfgi6kC2ndaz8N5')
     })
   })
+
+  describe('multiSignatureSign', () => {
+    it('adds the signature to the transaction', () => {
+      const pass = 'dummy pass'
+      const signature = `${pass} signature`
+
+      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      crypto.sign = jest.fn(() => (signature))
+
+      builder.multiSignatureSign(pass)
+      expect(builder.data.signatures).toIncludeAllMembers([signature])
+    })
+  })
 })

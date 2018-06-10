@@ -2,7 +2,7 @@
 
 module.exports = {
   enabled: false,
-  host: process.env.ARK_API_HOST || 'localhost',
+  host: process.env.ARK_API_HOST || '0.0.0.0',
   port: process.env.ARK_API_PORT || 4003,
   versions: {
     default: 1,

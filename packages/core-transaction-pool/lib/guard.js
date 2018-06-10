@@ -1,8 +1,9 @@
 const Promise = require('bluebird')
-
+const container = require('@arkecosystem/core-container')
 const { Transaction } = require('@arkecosystem/crypto').models
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
+const database = container.resolvePlugin('database')
 
 module.exports = class TransactionGuard {
   /**
@@ -26,6 +27,8 @@ module.exports = class TransactionGuard {
 
     await this.__transformAndFilterTransations(transactions)
 
+    await this.__removeForgedTransactions()
+
     this.__determineFeeMatchingTransactions()
 
     await this.__determineValidTransactions()
@@ -45,7 +48,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions.map(transaction => transaction.id),
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
-      invalid: this.invalid.map(transaction => transaction.id)
+      invalid: this.invalid.map(transaction => transaction.id),
+      broadcast: this.invalid.map(transaction => transaction.id)
     }
   }
 
@@ -63,7 +67,8 @@ module.exports = class TransactionGuard {
       transactions: this.transactions,
       accept: this.accept,
       excess: this.excess,
-      invalid: this.invalid
+      invalid: this.invalid,
+      broadcast: this.broadcast
     }
   }
 
@@ -116,6 +121,24 @@ module.exports = class TransactionGuard {
   }
 
   /**
+   * Skipping already forged transactions
+   * @return {void}
+   */
+  async __removeForgedTransactions () {
+    const transactionIds = this.transactions.map(transaction => transaction.id)
+    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
+
+    this.transactions = this.transactions.filter(transaction => {
+      if (forgedIds.indexOf(transaction.id) === -1) {
+        this.broadcast.push(transaction)
+        return true
+      }
+      this.invalid.push(this.transactions)
+      return false
+    })
+  }
+
+  /**
    * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
    * Matched transactions stay in this.transaction, mis-matched transaction are pushed in this.invalid
    * @return {void}
@@ -163,5 +186,6 @@ module.exports = class TransactionGuard {
     this.accept = []
     this.excess = []
     this.invalid = []
+    this.broadcast = []
   }
 }

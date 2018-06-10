@@ -12,6 +12,8 @@ module.exports = (transaction) => {
     senderId: engine.joi.arkAddress(),
     senderPublicKey: engine.joi.arkPublicKey().required(),
     signature: engine.joi.string().alphanum().required(),
+    signatures: engine.joi.array(),
+    secondSignature: engine.joi.string().alphanum(),
     asset: engine.joi.object().required(),
     confirmations: engine.joi.number().min(0)
   }), {
