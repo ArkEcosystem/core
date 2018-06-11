@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
+const utils = require('../utils')
 
 /**
  * @type {Object}
@@ -61,6 +62,8 @@ exports.configuration = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    const feeStatisticsData = await blockchain.database.transactions.getFeeStatistics()
+
     return {
       data: {
         nethash: config.network.nethash,
@@ -68,8 +71,9 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
+        ports: utils.toResource(request, config, 'ports'),
         constants: config.getConstants(blockchain.getLastBlock(true).height),
-        feeStatistics: await blockchain.database.transactions.getFeeStatistics()
+        feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
       }
     }
   }

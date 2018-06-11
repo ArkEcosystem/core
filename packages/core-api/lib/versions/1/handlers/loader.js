@@ -60,6 +60,7 @@ exports.autoconfigure = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
+        ports: utils.toResource(request, config, 'ports'),
         feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
       }
     })
