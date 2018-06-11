@@ -13,7 +13,7 @@ exports.plugin = {
   async register (container, options) {
     const forgerManager = await new ForgerManager(options)
 
-    const forgers = await forgerManager.loadDelegates(options.bip38, options.address, options.password)
+    const forgers = await forgerManager.loadDelegates(options.bip38, options.password)
 
     container.resolvePlugin('logger').info(`ForgerManager started with ${forgers.length} forgers`)
 

@@ -26,11 +26,10 @@ module.exports = class ForgerManager {
   /**
    * Load all delegates that forge.
    * @param  {String} bip38
-   * @param  {String} address
    * @param  {String} password
    * @return {Array}
    */
-  async loadDelegates (bip38, address, password) {
+  async loadDelegates (bip38, password) {
     if (!bip38 && !this.secrets) {
       throw new Error('No delegate found')
     }
@@ -38,13 +37,9 @@ module.exports = class ForgerManager {
     this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password))
 
     if (bip38) {
-      const bip38Delegate = new Delegate(bip38, this.network, password)
+      logger.info('BIP38 Delegate loaded')
 
-      if ((bip38Delegate.address && !address) || bip38Delegate.address === address) {
-        logger.info('BIP38 Delegate loaded')
-
-        this.delegates.push(bip38Delegate)
-      }
+      this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
     return this.delegates
