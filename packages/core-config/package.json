@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@arkecosystem/core-config",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Configuration Loader for ARK Core",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
@@ -20,7 +20,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.0.1",
+    "@arkecosystem/crypto": "^0.1.0",
     "axios": "^0.18.0",
     "deepmerge": "^2.1.0",
     "directory-tree": "^2.1.0",

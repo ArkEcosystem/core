@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-event-emitter",
   "description": "Event Manager for ARK Core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "contributors": ["Brian Faust <brian@ark.io>"],
   "license": "MIT",
   "main": "lib/index.js",
