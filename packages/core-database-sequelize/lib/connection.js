@@ -494,12 +494,18 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .orderBy('height', 'ASC')
       .all()
 
-    const transactions = await this.query
-      .select('blockId', 'serialized')
-      .from('transactions')
-      .whereIn('blockId', blocks.map(block => block.id))
-      .groupBy('blockId')
-      .all()
+    let transactions = []
+
+    const ids = blocks.map(block => block.id)
+
+    if (ids) {
+      transactions = await this.query
+        .select('blockId', 'serialized')
+        .from('transactions')
+        .whereIn('blockId', ids)
+        .groupBy('blockId')
+        .all()
+    }
 
     for (let i = 0; i < blocks.length; i++) {
       blocks[i].transactions = transactions
