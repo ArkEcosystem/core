@@ -170,7 +170,7 @@ exports.postBlock = {
 
       const block = request.payload.block
       if (block.numberOfTransactions === 0 || block.transactions.length === block.numberOfTransactions) {
-        if (new Block(block).verification.verified) throw new Error('invalid block received')
+        if (!new Block(block).verification.verified) throw new Error('invalid block received')
       } else if (block.transactionIds.length === block.numberOfTransactions) {
         let missingIds = []
         const transactions = []
