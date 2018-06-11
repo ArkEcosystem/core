@@ -4,12 +4,12 @@
 
 ## Introduction
 
-This repository contains all plugins that make up the ARK Core - Versions 2.
+This repository contains all plugins that make up the ARK Core.
 
 ## Documentation
 
-https://arkdocs.readme.io/v1.0/docs/development
-https://arkdocs.readme.io/v1.0/docs/docker
+- https://arkdocs.readme.io/v1.0/docs/development
+- https://arkdocs.readme.io/v1.0/docs/docker
 
 ## Security
 
