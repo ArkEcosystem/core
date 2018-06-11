@@ -169,31 +169,29 @@ exports.postBlock = {
       }
 
       const block = request.payload.block
-      const b = new Block(block)
-      if (!b.verification.verified) {
-        console.log(b.verification)
-        if (block.numberOfTransactions > 0 && block.transactions.length === 0 && block.transactionIds.length === block.numberOfTransactions) {
-          let missingIds = []
-          const transactions = []
-          if (transactionPool) {
-            block.transactionIds.forEach(id => {
-              const tx = transactionPool.getTransaction(id)
-              if (!tx) {
-                missingIds.push(id)
-                transactions.push(id)
-              } else {
-                transactions.push(tx)
-              }
-            })
-          } else {
-            missingIds = block.transactionIds.slice(0)
-          }
-          if (missingIds.length > 0) {
-            const missingTx = await request.server.app.p2p.getPeer(requestIp.getClientIp(request)).getTransactionsFromIds(missingIds)
-            logger.debug('found missing transactions: ' + JSON.parse(missingTx))
-          }
-        } else return { success: false }
-      }
+      if (block.numberOfTransactions === 0 || block.transactions.length === block.numberOfTransactions) {
+        if (new Block(block).verification.verified) throw new Error('invalid block received')
+      } else if (block.transactionIds.length === block.numberOfTransactions) {
+        let missingIds = []
+        const transactions = []
+        if (transactionPool) {
+          block.transactionIds.forEach(id => {
+            const tx = transactionPool.getTransaction(id)
+            if (!tx) {
+              missingIds.push(id)
+              transactions.push(id)
+            } else {
+              transactions.push(tx)
+            }
+          })
+        } else {
+          missingIds = block.transactionIds.slice(0)
+        }
+        if (missingIds.length > 0) {
+          const missingTx = await request.server.app.p2p.getPeer(requestIp.getClientIp(request)).getTransactionsFromIds(missingIds)
+          logger.debug('found missing transactions: ' + JSON.parse(missingTx))
+        }
+      } else return { success: false }
 
       container.resolvePlugin('blockchain').queueBlock(block)
 
