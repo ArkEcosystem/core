@@ -510,7 +510,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     for (let i = 0; i < blocks.length; i++) {
       blocks[i].transactions = transactions
         .filter(transaction => (transaction.blockId === blocks[i].id))
-        .map(transaction => transaction.serialized.toString('hex'))
+        .map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
     }
 
     return blocks
