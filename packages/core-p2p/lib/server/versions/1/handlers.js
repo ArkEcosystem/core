@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
+const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
 
@@ -230,6 +231,7 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
+      logger.info(`${requestIp.getClientIp(request)} downloading 400 blocks from height ${request.query.lastBlockHeight}`)
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
       return { success: true, blocks: blocks }
