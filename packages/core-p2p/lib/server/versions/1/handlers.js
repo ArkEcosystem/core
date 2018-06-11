@@ -199,7 +199,7 @@ exports.postBlock = {
 
       return { success: true }
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return { success: false }
     }
   }
