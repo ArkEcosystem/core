@@ -71,6 +71,7 @@ exports.configuration = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
+        ports: utils.toResource(request, config, 'ports'),
         constants: config.getConstants(blockchain.getLastBlock(true).height),
         feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
       }

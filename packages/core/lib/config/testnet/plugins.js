@@ -56,7 +56,7 @@ module.exports = {
     whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
-    enabled: false,
+    enabled: true,
     database: {
       dialect: 'sqlite',
       storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}/webhooks.sqlite`,
@@ -74,7 +74,7 @@ module.exports = {
     }
   },
   '@arkecosystem/core-graphql': {
-    enabled: false,
+    enabled: true,
     host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
     port: process.env.ARK_GRAPHQL_PORT || 4005,
     path: '/graphql',
@@ -84,7 +84,7 @@ module.exports = {
     host: 'http://127.0.0.1'
   },
   '@arkecosystem/core-json-rpc': {
-    enabled: false,
+    enabled: true,
     port: process.env.ARK_JSONRPC_PORT || 8080,
     allowRemote: true,
     whitelist: ['127.0.0.1', '192.168.*']
