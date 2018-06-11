@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-transaction-pool",
   "description": "Transaction Pool Manager for ARK Core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>",
@@ -21,8 +21,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.0.1",
-    "@arkecosystem/core-container": "^0.0.1",
+    "@arkecosystem/crypto": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.0",
     "async": "^2.6.1"
   }
 }

@@ -2,7 +2,7 @@
   "private": true,
   "name": "@arkecosystem/core-database-sequelize",
   "description": "Sequelize ORM for ARK Core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -22,9 +22,9 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.0.1",
-    "@arkecosystem/core-container": "^0.0.1",
-    "@arkecosystem/core-database": "^0.0.1",
+    "@arkecosystem/crypto": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.0",
+    "@arkecosystem/core-database": "^0.1.0",
     "expand-home-dir": "^0.0.3",
     "fs-extra": "^6.0.1",
     "mysql2": "^1.5.3",
