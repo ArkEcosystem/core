@@ -2,6 +2,8 @@ module.exports = {
   toBeArkAddress: require('./fields/address'),
   toBeArkPublicKey: require('./fields/public-key'),
 
+  toBeApiTransaction: require('./api/transaction'),
+
   toBeDelegate: require('./models/delegate'),
   toBeTransaction: require('./models/transaction'),
   toBeWallet: require('./models/wallet'),
