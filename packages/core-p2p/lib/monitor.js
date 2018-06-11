@@ -119,7 +119,7 @@ module.exports = class Monitor {
     }
 
     if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') {
-      throw new Error('Localhost peer not accepted')
+      return
     }
 
     const newPeer = new Peer(peer.ip, peer.port, this.config)
