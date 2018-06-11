@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { count, rows } = await database.transactions.findAll({
+    const { count, rows } = await database.transactions.findAllLegacy({
       ...request.query, ...utils.paginator(request)
     })
 

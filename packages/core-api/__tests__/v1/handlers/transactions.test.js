@@ -32,12 +32,16 @@ describe('API 1.0 - Transactions', () => {
 
       response.data.transactions.forEach(transaction => {
         expect(transaction).toBeApiTransaction()
-        expect(transaction.blockid).toBe(data.blockId)
-        expect(transaction.senderId).toBe(data.senderId)
-        expect(transaction.recipientId).toBe(data.recipientId)
       })
     })
-      })
+
+    it('should reply with transactions that have any of the values (OR)', async () => {
+      const data = {
+        senderId: address1,
+        recipientId: address2
+      }
+
+      const response = await utils.request('GET', 'transactions', data)
       utils.expectSuccessful(response)
 
       expect(response.data.transactions).toBeArray()
@@ -45,11 +49,16 @@ describe('API 1.0 - Transactions', () => {
 
       response.data.transactions.forEach(transaction => {
         expect(transaction).toBeApiTransaction()
+        if (transaction.senderId === data.senderId) {
+          expect(transaction.senderId).toBe(data.senderId)
+        } else {
+          expect(transaction.recipientId).toBe(data.recipientId)
+        }
       })
     })
 
     it('should be ok filtering by type', async () => {
-      const type = 1
+      const type = 3
 
       const response = await utils.request('GET', 'transactions', { type })
       utils.expectSuccessful(response)
