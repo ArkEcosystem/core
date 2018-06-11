@@ -41,7 +41,7 @@ exports.getHeight = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock(true)
 
     return {
@@ -95,9 +95,8 @@ exports.getTransactionsFromIds = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-
     try {
+      const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
       const transactions = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
       return { success: true, transactions: transactions }
@@ -116,7 +115,7 @@ exports.getTransactions = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     return { success: true, transactions: [] }
   }
 }
@@ -130,7 +129,7 @@ exports.getStatus = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+  handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
     let lastBlock = null
     if (blockchain) {
@@ -163,21 +162,44 @@ exports.postBlock = {
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
-  handler: (request, h) => {
+ async handler (request, h) {
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
       }
 
-      if (!new Block(request.payload.block).verified) {
-        return { success: false }
+      const block = request.payload.block
+      const b = new Block(block)
+      if (!b.verification.verified) {
+        console.log(b.verification)
+        if (block.numberOfTransactions > 0 && block.transactions.length === 0 && block.transactionIds.length === block.numberOfTransactions) {
+          let missingIds = []
+          const transactions = []
+          if (transactionPool) {
+            block.transactionIds.forEach(id => {
+              const tx = transactionPool.getTransaction(id)
+              if (!tx) {
+                missingIds.push(id)
+                transactions.push(id)
+              } else {
+                transactions.push(tx)
+              }
+            })
+          } else {
+            missingIds = block.transactionIds.slice(0)
+          }
+          if (missingIds.length > 0) {
+            const missingTx = await request.server.app.p2p.getPeer(requestIp.getClientIp(request)).getTransactionsFromIds(missingIds)
+            logger.debug('found missing transactions: ' + JSON.parse(missingTx))
+          }
+        } else return { success: false }
       }
 
-      container.resolvePlugin('blockchain').queueBlock(request.payload.block)
+      container.resolvePlugin('blockchain').queueBlock(block)
 
       return { success: true }
     } catch (error) {
-      // console.log(request.payload.block)
+      // console.log(error)
       return { success: false }
     }
   }

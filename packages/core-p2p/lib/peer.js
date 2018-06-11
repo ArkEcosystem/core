@@ -88,6 +88,10 @@ module.exports = class Peer {
     }
   }
 
+  async getTransactionsFromIds (ids) {
+    return this.__get('/peer/transactionsFromIds?' + ids.join(','))
+  }
+
   /**
    * Download blocks from peer.
    * @param  {Number}               fromBlockHeight

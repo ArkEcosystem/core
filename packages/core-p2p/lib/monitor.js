@@ -148,6 +148,15 @@ module.exports = class Monitor {
   }
 
   /**
+   * Get the peer available peers.
+   * @param  {String} ip
+   * @return {Peer}
+   */
+  getPeer (ip) {
+    return this.peers[ip]
+  }
+
+  /**
    * Get a random, available peer.
    * @param  {(Number|undefined)} acceptableDelay
    * @return {Peer}
