@@ -52,6 +52,7 @@ exports.autoconfigure = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    const feeStatisticsData = await blockchain.database.transactions.getFeeStatistics()
     return utils.respondWith({
       network: {
         nethash: config.network.nethash,
@@ -59,7 +60,7 @@ exports.autoconfigure = {
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
-        feeStatistics: await blockchain.database.transactions.getFeeStatistics()
+        feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
       }
     })
   }
