@@ -18,24 +18,15 @@ const getWallet = address => {
   return spv.walletManager.getWalletByAddress(address)
 }
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  connection = await createConnection()
-  repository = connection.transactions
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
-  connection.disconnect()
-
+beforeEach(async () => {
   connection = await createConnection()
   repository = connection.transactions
   spv = new (require('../../lib/spv'))(connection)
@@ -44,8 +35,10 @@ beforeEach(async (done) => {
   const cache = {}
   repository.cache.get = jest.fn(key => cache[key])
   repository.cache.set = jest.fn((key, value) => (cache[key] = value))
+})
 
-  done()
+afterEach(async () => {
+  connection.disconnect()
 })
 
 describe('Transaction Repository', () => {

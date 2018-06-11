@@ -8,26 +8,20 @@ const genesisBlock = require('./__fixtures__/genesisBlock')
 
 let connection
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  connection = await createConnection()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
-  connection.disconnect()
-
+beforeEach(async () => {
   connection = await createConnection()
+})
 
-  done()
+afterEach(async () => {
+  connection.disconnect()
 })
 
 describe('Sequelize Connection', () => {
