@@ -89,7 +89,10 @@ module.exports = class Peer {
   }
 
   async getTransactionsFromIds (ids) {
-    return this.__get('/peer/transactionsFromIds?' + ids.join(','))
+    const url = '/peer/transactionsFromIds?ids=' + ids.join(',')
+    const result = this.__get(url)
+    if (result.success) return result.transactions
+    else return []
   }
 
   /**

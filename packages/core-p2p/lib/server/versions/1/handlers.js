@@ -6,6 +6,7 @@ const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
+const Promise = require('bluebird')
 
 /**
  * @type {Object}
@@ -163,37 +164,36 @@ exports.postBlock = {
    * @return {Hapi.Response}
    */
  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) return { success: false }
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
       }
 
       const block = request.payload.block
-      if (block.numberOfTransactions === 0 || block.transactions.length === block.numberOfTransactions) {
+      if (block.numberOfTransactions === 0 || (block.transactions && block.transactions.length === block.numberOfTransactions)) {
         if (!new Block(block).verification.verified) throw new Error('invalid block received')
       } else if (block.transactionIds.length === block.numberOfTransactions) {
         let missingIds = []
-        const transactions = []
+        let transactions = []
         if (transactionPool) {
-          block.transactionIds.forEach(id => {
-            const tx = transactionPool.getTransaction(id)
-            if (!tx) {
-              missingIds.push(id)
-              transactions.push(id)
-            } else {
-              transactions.push(tx)
-            }
-          })
+          transactions = await Promise.each(block.transactionIds, async id => await transactionPool.getTransaction(id) || id)
+          missingIds = transactions.filter(tx => !tx.id)
         } else {
           missingIds = block.transactionIds.slice(0)
         }
         if (missingIds.length > 0) {
-          const missingTx = await request.server.app.p2p.getPeer(requestIp.getClientIp(request)).getTransactionsFromIds(missingIds)
-          logger.debug('found missing transactions: ' + JSON.parse(missingTx))
+          let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
+          if (!peer) {
+            peer = await request.server.app.p2p.getRandomPeer()
+          }
+          const missingTxs = await peer.getTransactionsFromIds(missingIds)
+          logger.debug('found missing transactions: ' + JSON.stringify(missingTxs))
         }
       } else return { success: false }
 
-      container.resolvePlugin('blockchain').queueBlock(block)
+      blockchain.queueBlock(block)
 
       return { success: true }
     } catch (error) {

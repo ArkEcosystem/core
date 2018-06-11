@@ -1,4 +1,5 @@
 const async = require('async')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const { Block } = require('@arkecosystem/crypto').models
 const QueueInterface = require('./interface')
 
@@ -15,7 +16,8 @@ module.exports = class ProcessQueue extends QueueInterface {
       try {
         return blockchain.processBlock(new Block(block), cb)
       } catch (error) {
-        console.log('Failed to process block in ProcessQueue')
+        logger.info('Failed to process block in ProcessQueue')
+        return cb()
       }
     }, 1)
 

@@ -91,6 +91,10 @@ module.exports = class PeerManager {
     return this.monitor.getPeer(ip)
   }
 
+  getRandomPeer () {
+    return this.monitor.getRandomPeer()
+  }
+
   /**
    * Get network height.
    * @return {Number}
