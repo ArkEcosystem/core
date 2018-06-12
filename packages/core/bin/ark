@@ -83,7 +83,7 @@ app
     const { configManager, crypto } = require('@arkecosystem/crypto')
     configManager.setFromPreset(options.token, options.network)
 
-    const keys = crypto.crypto.getKeys(options.secret)
+    const keys = crypto.getKeys(options.secret)
     const decoded = wif.decode(keys.toWIF())
 
     const delegates = require(delegatesConfig)
