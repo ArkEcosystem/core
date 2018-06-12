@@ -172,6 +172,8 @@ exports.postBlock = {
       }
 
       const block = request.payload.block
+      const lastBlock = blockchain.getLastBlock()
+      if (lastBlock.data.height >= block.height) return { success: true }
       if (block.numberOfTransactions === 0 || (block.transactions && block.transactions.length === block.numberOfTransactions)) {
         if (!new Block(block).verification.verified) throw new Error('invalid block received')
       } else if (block.transactionIds.length === block.numberOfTransactions) {
