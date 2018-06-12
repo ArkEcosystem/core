@@ -37,6 +37,11 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
+  '@arkecosystem/core-p2p': {
+    host: process.env.ARK_P2P_HOST || '0.0.0.0',
+    port: process.env.ARK_P2P_PORT || 4001
+  },
+  '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: true,
@@ -48,11 +53,6 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-p2p': {
-    host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4001
-  },
-  '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
     enabled: false,
     host: process.env.ARK_API_HOST || '0.0.0.0',
