@@ -3,5 +3,4 @@ module.exports = {
   devnet: require('./devnet.json'),
   mainnet: require('./mainnet.json'),
   testnet: require('./testnet.json'),
-  persona: require('./persona.json')
 }
