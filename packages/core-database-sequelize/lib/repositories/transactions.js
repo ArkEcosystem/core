@@ -17,7 +17,7 @@ module.exports = class TransactionsRepository extends Repository {
     super(connection)
 
     // Used to store the height of the block
-    this.cache = new Cache()
+    this.cache = connection.cache
   }
 
   /**
