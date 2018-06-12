@@ -498,7 +498,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     const ids = blocks.map(block => block.id)
 
-    if (ids) {
+    if (ids.length) {
       transactions = await this.query
         .select('blockId', 'serialized')
         .from('transactions')
