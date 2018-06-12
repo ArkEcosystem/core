@@ -500,17 +500,16 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     if (ids.length) {
       transactions = await this.query
-        .select('blockId', 'serialized')
+        .select('serialized')
         .from('transactions')
         .whereIn('blockId', ids)
-        .groupBy('blockId')
         .all()
     }
 
     for (let i = 0; i < blocks.length; i++) {
       blocks[i].transactions = transactions
-        .filter(transaction => (transaction.blockId === blocks[i].id))
         .map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+        .filter(transaction => (transaction.blockId === blocks[i].id))
     }
 
     return blocks
