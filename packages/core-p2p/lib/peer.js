@@ -89,7 +89,15 @@ module.exports = class Peer {
   }
 
   async getTransactionsFromIds (ids) {
+    // useless since there is a bug on v1
     const url = '/peer/transactionsFromIds?ids=' + ids.join(',')
+    const result = this.__get(url)
+    if (result.success) return result.transactions
+    else return []
+  }
+
+  async getTransactionsFromBlock (blockId) {
+    const url = '/api/transactions?blockId=' + blockId
     const result = this.__get(url)
     if (result.success) return result.transactions
     else return []

@@ -188,8 +188,9 @@ exports.postBlock = {
           if (!peer) {
             peer = await request.server.app.p2p.getRandomPeer()
           }
-          const missingTxs = await peer.getTransactionsFromIds(missingIds)
-          logger.debug('found missing transactions: ' + JSON.stringify(missingTxs))
+          // const missingTxs = await peer.getTransactionsFromIds(missingIds)
+          block.transactions = await peer.getTransactionsFromBlock(block.id)
+          logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
         }
       } else return { success: false }
 
