@@ -110,14 +110,14 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.walletsByPublicKey[asset.delegate.username.toLowerCase()]) {
 
-      logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
+      logger.error(`PoolWalletManager: Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
     } else if (type === TRANSACTION_TYPES.VOTE && !database.walletManager.walletsByPublicKey[asset.votes[0].slice(1)]) {
 
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
+      logger.error(`PoolWalletManager: Vote transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
 
     } else if (config.network.exceptions[data.id]) {
 
