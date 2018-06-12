@@ -1,6 +1,7 @@
 const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const { Transaction } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
 const database = container.resolvePlugin('database')
@@ -157,18 +158,21 @@ module.exports = class TransactionGuard {
    */
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
-      if (!helpers.isRecipientOnActiveNetwork(transaction)) {
-        this.invalid.push(transaction)
-        return
+      if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
+        if (!helpers.isRecipientOnActiveNetwork(transaction)) {
+          this.invalid.push(transaction)
+          return
+        }
       }
-
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
       if (hasExceeded) {
         this.excess.push(transaction)
         return
       }
 
-      if (!await this.pool.walletManager.applyTransaction(transaction)) {
+      try {
+        await this.pool.walletManager.applyTransaction(transaction)
+      } catch (error) {
         this.invalid.push(transaction)
         return
       }

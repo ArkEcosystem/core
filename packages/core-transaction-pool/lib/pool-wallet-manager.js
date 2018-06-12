@@ -6,6 +6,7 @@ const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
 const config = container.resolvePlugin('config')
 const { crypto } = require('@arkecosystem/crypto')
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**
@@ -91,27 +92,51 @@ module.exports = class PoolWalletManager extends WalletManager {
     }
   }
 
-  /** Checks if we can apply transaction, and applies it to the pool wallet manager
-   * @param {Transaction} transaction
-   * @return {Boolean}
+  /**
+   * Apply the given transaction to a wallet. A combination of pool wallet and blockchain wallet manager is used.
+   * @param  {Transaction} transaction
+   * @return {Transaction}
    */
-  async applyTransaction (transaction) {
-    const wallet = this.getWalletByPublicKey(transaction.senderPublicKey)
+  async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+    const { data } = transaction
+    const { type, asset, recipientId, senderPublicKey } = data
 
-    if (!wallet.canApply(transaction)) {
-      logger.debug(`PoolWalletManager: Can't canApply transaction ${transaction.id} with ${transaction.amount}, wallet ${wallet.balance} balance`)
+    const sender = this.getWalletByPublicKey(senderPublicKey)
+    let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
-      return false
+    if (!recipient && recipientId) { // cold wallet
+      recipient = new Wallet(recipientId)
+      this.walletsByAddress[recipientId] = recipient
+
+    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.walletsByPublicKey[asset.delegate.username.toLowerCase()]) {
+
+      logger.error(`PoolWalletManager: Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken`)
+
+    // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+    } else if (type === TRANSACTION_TYPES.VOTE && !database.walletManager.walletsByPublicKey[asset.votes[0].slice(1)]) {
+
+      logger.error(`PoolWalletManager: Vote transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
+
+    } else if (config.network.exceptions[data.id]) {
+
+      logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
+
+    } else if (!sender.canApply(data)) {
+
+      logger.error(`PoolWalletManager: Can't apply transaction for ${sender.address}`, JSON.stringify(data))
+      logger.debug('PoolWalletManager: Audit', JSON.stringify(sender.auditApply(data), null, 2))
+      throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}`)
     }
 
-    try {
-      await super.applyTransaction(transaction)
+    sender.applyTransactionToSender(data)
 
-      return true
-    } catch (error) {
-      logger.error(`PoolWalletManager: Can't apply transaction ${transaction.id} - ${error}`)
-
-      return false
+    if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
+      recipient.applyTransactionToRecipient(data)
     }
+
+    return transaction
   }
+
 }
