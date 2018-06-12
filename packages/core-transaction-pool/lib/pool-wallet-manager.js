@@ -101,10 +101,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 
-    console.log('asset: ', asset)
-    if (asset) {
-      console.log(database.walletManager.walletsByPublicKey[asset.votes[0].slice(1)])
-    }
     const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
