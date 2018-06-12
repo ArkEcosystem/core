@@ -37,15 +37,10 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-p2p': {
-    host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4102
-  },
-  '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: true,
-    key: 'ark-testnet1',
+    key: 'ark1',
     maxTransactionsPerSender: 100,
     whitelist: ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357'],
     redis: {
@@ -53,6 +48,11 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
+  '@arkecosystem/core-p2p': {
+    host: process.env.ARK_P2P_HOST || '0.0.0.0',
+    port: process.env.ARK_P2P_PORT || 4102
+  },
+  '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
     enabled: true,
     host: process.env.ARK_API_HOST || '0.0.0.0',
