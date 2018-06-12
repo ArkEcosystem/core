@@ -185,16 +185,20 @@ exports.postBlock = {
         }
         if (missingIds.length > 0) {
           let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
-          if (!peer) {
+          // only for test because it can be used for DDOS attack
+          if (!peer && process.env.NODE_ENV === 'test_p2p') {
             peer = await request.server.app.p2p.getRandomPeer()
           }
-          const missingTxs = await peer.getTransactionsFromIds(missingIds)
-          logger.debug('found missing transactions: ' + JSON.stringify(missingTxs))
+          if (!peer) return { success: false }
+
+          // issue on v1, using /api/ instead of /peer/
+          // const missingTxs = await peer.getTransactionsFromIds(missingIds)
+          block.transactions = await peer.getTransactionsFromBlock(block.id)
+          logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
         }
       } else return { success: false }
 
       blockchain.queueBlock(block)
-
       return { success: true }
     } catch (error) {
       console.log(error)

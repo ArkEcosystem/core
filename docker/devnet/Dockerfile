@@ -11,7 +11,7 @@ RUN apt-get update && \
     iptables \
     python \
     vim && \
-    rm -rf /var/lib/apt/lists/* 
-     
-EXPOSE 4002 4003 
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 4002 4003
 
