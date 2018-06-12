@@ -73,6 +73,7 @@ module.exports = class ForgerManager {
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
+        // technically it is possible to compute doing shennanigan with arkjs.slots lib
         await delay(100) // basically looping until we lock at beginning of next slot
 
         return this.__monitor(round, transactionData, data)
