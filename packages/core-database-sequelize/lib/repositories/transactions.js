@@ -6,7 +6,6 @@ const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
-const Cache = require('../cache')
 
 module.exports = class TransactionsRepository extends Repository {
   /**
@@ -411,10 +410,10 @@ module.exports = class TransactionsRepository extends Repository {
         for (let i = 0; i < missingFromCache.length; i++) {
           const missing = missingFromCache[i]
           const block = blocks.find(block => (block.id === missing.blockId))
-
-          data[missing.index].block = block
-
-          this.__setBlockCache(block)
+          if (block) {
+            data[missing.index].block = block
+            this.__setBlockCache(block)
+          }
         }
       }
 
