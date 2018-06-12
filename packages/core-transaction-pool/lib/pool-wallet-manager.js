@@ -93,7 +93,7 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   /**
-   * Apply the given transaction to a delegate.
+   * Apply the given transaction to a wallet. A combination of pool wallet and blockchain wallet manager is used.
    * @param  {Transaction} transaction
    * @return {Transaction}
    */

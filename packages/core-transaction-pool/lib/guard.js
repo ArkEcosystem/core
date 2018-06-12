@@ -163,8 +163,7 @@ module.exports = class TransactionGuard {
           this.invalid.push(transaction)
           return
         }
-     }
-      console.log(transaction)
+      }
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
       if (hasExceeded) {
         this.excess.push(transaction)
@@ -175,11 +174,9 @@ module.exports = class TransactionGuard {
         await this.pool.walletManager.applyTransaction(transaction)
       } catch (error) {
         this.invalid.push(transaction)
-        console.log(error)
-
         return
       }
-      console.log('ACCEPTED')
+
       this.accept.push(transaction)
     })
   }
