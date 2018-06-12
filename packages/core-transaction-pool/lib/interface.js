@@ -5,6 +5,7 @@ const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
+const database = container.resolvePlugin('database')
 
 const ark = require('@arkecosystem/crypto')
 const { slots } = ark
@@ -233,7 +234,7 @@ module.exports = class TransactionPoolInterface {
    * @return {Array} IDs of pending transactions that have yet to be forged.
    */
   async removeForgedAndGetPending (transactionIds) {
-    const forgedIds = await container.resolvePlugin('blockchain').database.getForgedTransactionsIds(transactionIds)
+    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
 
     await Promise.each(forgedIds, async (transactionId) => {
         await this.removeTransactionById(transactionId)
@@ -281,7 +282,9 @@ module.exports = class TransactionPoolInterface {
     this.walletManager.purgeAll()
     const poolTransactions = await this.getTransactionsIds(0, 0)
 
-    await Promise.each(poolTransactions, async (transactionId) => {
+    const unconfirmedTransactions = await this.removeForgedAndGetPending(poolTransactions)
+
+    await Promise.each(unconfirmedTransactions, async (transactionId) => {
       const transaction = await this.getTransaction(transactionId)
 
       if (!transaction) {
