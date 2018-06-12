@@ -52,7 +52,7 @@ exports.getRound = {
     try {
       const blockchain = container.resolvePlugin('blockchain')
 
-      const lastBlock = await blockchain.getLastBlock()
+      const lastBlock = blockchain.getLastBlock()
 
       const height = lastBlock.data.height + 1
       const maxActive = config.getConstants(height).activeDelegates
