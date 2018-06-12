@@ -211,10 +211,6 @@ module.exports = class WalletManager {
     const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
 
-    console.log(asset.votes[0])
-    console.log(asset.votes[0].slice(1))
-    console.log(this.walletsByPublicKey[asset.votes[0].slice(1)])
-
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
       this.walletsByAddress[recipientId] = recipient
