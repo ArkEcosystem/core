@@ -257,7 +257,10 @@ module.exports = class TransactionPoolInterface {
       if (!exists) {
         // if wallet in pool we try to apply transaction
         if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
-          if (!await this.walletManager.applyTransaction(transaction)) {
+          try {
+            await this.walletManager.applyTransaction(transaction)
+          } catch (error) {
+            logger.error(`acceptChainedBlock from pool: ${error}`)
             await this.purgeByPublicKey(transaction.senderPublicKey)
             this.blockSender(transaction.senderPublicKey)
           }
@@ -270,6 +273,7 @@ module.exports = class TransactionPoolInterface {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
+    logger.info('Transaction Pool Manager acceptChainedBlock complete.')
   }
 
   /**
@@ -290,7 +294,11 @@ module.exports = class TransactionPoolInterface {
       if (!transaction) {
         return
       }
-      if (!await this.walletManager.applyTransaction(transaction, true)) {
+
+      try {
+        await this.walletManager.applyTransaction(transaction)
+      } catch (error) {
+        logger.error(`BuildWallets from pool: ${error}`)
         await this.purgeByPublicKey(transaction.senderPublicKey)
       }
     })
