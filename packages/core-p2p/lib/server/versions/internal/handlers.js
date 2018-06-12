@@ -49,11 +49,11 @@ exports.getRound = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    const lastBlock = await blockchain.getLastBlock()
-
     try {
+      const blockchain = container.resolvePlugin('blockchain')
+
+      const lastBlock = await blockchain.getLastBlock()
+
       const height = lastBlock.data.height + 1
       const maxActive = config.getConstants(height).activeDelegates
       const blockTime = config.getConstants(height).blocktime
