@@ -19,7 +19,7 @@ services:
     environment:
      POSTGRES_PASSWORD: password
      POSTGRES_DB: ark_devnet
-     POSTGRES_USER: node
+     POSTGRES_USER: ark
 
   ark-core:
     build: .

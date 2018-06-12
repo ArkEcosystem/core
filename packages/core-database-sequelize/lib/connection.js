@@ -19,6 +19,7 @@ const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const SPV = require('./spv')
 const QueryBuilder = require('./query-builder')
+const Cache = require('./cache')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
@@ -34,8 +35,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await fs.ensureFile(this.config.storage)
     }
 
+    const config = this.config
+    delete config.redis
+
     this.connection = new Sequelize({
-      ...this.config,
+      ...config,
       ...{
         operatorsAliases: Op,
         logging: process.env.NODE_ENV === 'test'
@@ -47,6 +51,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     try {
       await this.connect()
       await this.__registerQueryBuilder()
+      await this.__registerCache()
       await this.__runMigrations()
       await this.__registerModels()
       await this.__registerRepositories()
@@ -498,19 +503,18 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     const ids = blocks.map(block => block.id)
 
-    if (ids) {
+    if (ids.length) {
       transactions = await this.query
-        .select('blockId', 'serialized')
+        .select('serialized')
         .from('transactions')
         .whereIn('blockId', ids)
-        .groupBy('blockId')
         .all()
     }
 
     for (let i = 0; i < blocks.length; i++) {
       blocks[i].transactions = transactions
-        .filter(transaction => (transaction.blockId === blocks[i].id))
         .map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+        .filter(transaction => (transaction.blockId === blocks[i].id))
     }
 
     return blocks
@@ -642,5 +646,13 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         logger.error(err)
       }
     })
+  }
+
+  /**
+   * Register the cache.
+   * @return {void}
+   */
+  __registerCache () {
+    this.cache = new Cache(this.config.redis)
   }
 }

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 const app = require('commander')
+const bip38 = require('bip38')
+const fs = require('fs')
+const wif = require('wif')
 
 app.version(require('../package.json').version)
 
@@ -45,6 +48,51 @@ app
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
   .action(async (options) => require('../lib/snapshot')(options))
+
+app
+  .command('forger-plain')
+  .description('set the delegate secret')
+  .option('-c, --config <config>', 'core config')
+  .option('-n, --network <network>', 'network')
+  .option('-s, --secret <secret>', 'forger secret')
+  .action(async (options) => {
+    const delegatesConfig = `${options.config}/delegates.json`
+    if (!options.config || !fs.existsSync(delegatesConfig)) {
+      console.error('Missing or invalid delegates config path')
+      process.exit(1)
+    }
+    const delegates = require(delegatesConfig)
+    delegates.secrets = [options.secret]
+
+    fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2))
+  })
+
+app
+  .command('forger-bip38')
+  .description('encrypt the delegate passphrase using bip38')
+  .option('-c, --config <config>', 'core config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-s, --secret <secret>', 'forger secret')
+  .option('-p, --password <password>', 'bip38 password')
+  .action(async (options) => {
+    const delegatesConfig = `${options.config}/delegates.json`
+    if (!options.config || !fs.existsSync(delegatesConfig)) {
+      console.error('Missing or invalid delegates config path')
+      process.exit(1)
+    }
+    const { configManager, crypto } = require('@arkecosystem/crypto')
+    configManager.setFromPreset(options.token, options.network)
+
+    const keys = crypto.getKeys(options.secret)
+    const decoded = wif.decode(keys.toWIF())
+
+    const delegates = require(delegatesConfig)
+    delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password)
+    delegates.secrets = [] // remove the plain text secrets in favour of bip38
+
+    fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2))
+  })
 
 app
   .command('*')

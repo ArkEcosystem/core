@@ -26,12 +26,16 @@ module.exports = {
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
     storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
-    logging: false
     // host: process.env.ARK_DB_HOST || 'localhost',
     // dialect: process.env.ARK_DB_DIALECT || 'postgres',
-    // username: process.env.ARK_DB_USERNAME || 'node',
+    // username: process.env.ARK_DB_USERNAME || 'ark',
     // password: process.env.ARK_DB_PASSWORD || 'password',
-    // database: process.env.ARK_DB_DATABASE || 'ark_devnet'
+    // database: process.env.ARK_DB_DATABASE || 'ark_devnet',
+    logging: false,
+    redis: {
+      host: process.env.ARK_REDIS_HOST || 'localhost',
+      port: process.env.ARK_REDIS_PORT || 6379
+    }
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
@@ -50,7 +54,7 @@ module.exports = {
   },
   '@arkecosystem/core-blockchain': {},
   '@arkecosystem/core-api': {
-    enabled: false,
+    enabled: true,
     host: process.env.ARK_API_HOST || '0.0.0.0',
     port: process.env.ARK_API_PORT || 4003,
     whitelist: ['*']
