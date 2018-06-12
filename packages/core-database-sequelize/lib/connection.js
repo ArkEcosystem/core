@@ -19,6 +19,7 @@ const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const SPV = require('./spv')
 const QueryBuilder = require('./query-builder')
+const Cache = require('./cache')
 
 module.exports = class SequelizeConnection extends ConnectionInterface {
   /**
