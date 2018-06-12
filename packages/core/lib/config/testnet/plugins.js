@@ -31,7 +31,11 @@ module.exports = {
     // username: process.env.ARK_DB_USERNAME || 'ark',
     // password: process.env.ARK_DB_PASSWORD || 'password',
     // database: process.env.ARK_DB_DATABASE || 'ark_testnet',
-    logging: false
+    logging: false,
+    redis: {
+      host: process.env.ARK_REDIS_HOST || 'localhost',
+      port: process.env.ARK_REDIS_PORT || 6379
+    }
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {

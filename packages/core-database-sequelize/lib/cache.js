@@ -5,8 +5,8 @@ const Redis = require('ioredis')
  * More things to add: flushing, expiration, etc.
  */
 module.exports = class Cache {
-  constructor () {
-    this.redis = new Redis()
+  constructor (options) {
+    this.redis = new Redis(options)
   }
 
   async get (key) {
