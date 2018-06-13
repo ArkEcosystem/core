@@ -111,10 +111,10 @@ module.exports = class Block {
       data.transactions = []
     }
     if (data.numberOfTransactions > 0 && data.transactions.length === data.numberOfTransactions) {
-      delete data.transactionsIds
+      delete data.transactionIds
     }
 
-    this.headerOnly = data.numberOfTransactions > 0 && data.transactionsIds && data.transactionIds === data.numberOfTransactions
+    this.headerOnly = data.numberOfTransactions > 0 && data.transactionIds && data.transactionIds.length === data.numberOfTransactions
     if (this.headerOnly) {
       this.serialized = Block.serialize(data).toString('hex')
     } else {
@@ -162,8 +162,8 @@ module.exports = class Block {
     this.verification = this.verify()
 
     if (!this.verification.verified && this.data.height !== 1) {
-      console.log(JSON.stringify(this.toRawJson(), null, 2))
       console.log(JSON.stringify(data, null, 2))
+      console.log(JSON.stringify(this, null, 2))
       console.log(this.verification)
     }
   }
@@ -418,6 +418,7 @@ module.exports = class Block {
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
 
     let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2
+    if (hexString.length === transactionOffset * 2) return block
     block.transactions = []
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
