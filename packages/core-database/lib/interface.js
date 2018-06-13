@@ -203,16 +203,22 @@ module.exports = class ConnectionInterface {
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
         logger.info(`Starting Round ${round}`)
 
-        await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
-        await this.saveWallets(false) // save only modified wallets during the last round
+        try {
+          await this.updateDelegateStats(await this.getLastBlock(), this.activedelegates)
+          await this.saveWallets(false) // save only modified wallets during the last round
 
-        const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
-        await this.saveRound(delegates) // save next round delegate list
-        await this.getActiveDelegates(nextHeight) // generate the new active delegates list
+          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          await this.saveRound(delegates) // save next round delegate list
+          await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 
-        // TODO: find a better place to call this as this
-        // currently blocks execution but needs to be updated every round
-        // this.walletManager.updateDelegates()
+          // TODO: find a betxter place to call this as this
+          // currently blocks execution but needs to be updated every round
+          // this.walletManager.updateDelegates()
+        } catch (error) {
+          // trying to leave database state has it was
+          this.deleteRound(round)
+          throw error
+        }
       } else {
         logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
       }
