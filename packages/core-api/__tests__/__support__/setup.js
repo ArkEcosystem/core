@@ -9,7 +9,7 @@ const round = generateRound(activeDelegates, 1)
 
 jest.setTimeout(60000)
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
   await container.setUp({
@@ -24,12 +24,8 @@ beforeAll(async (done) => {
   await connection.buildWallets(1)
   await connection.saveWallets(true)
   await connection.saveRound(round)
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await container.tearDown()
-
-  done()
 })

@@ -5,7 +5,7 @@ const container = require('@arkecosystem/core-container')
 
 jest.setTimeout(60000)
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/mainnet'),
@@ -24,12 +24,8 @@ beforeAll(async (done) => {
       }
     }
   })
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await container.tearDown()
-
-  done()
 })
