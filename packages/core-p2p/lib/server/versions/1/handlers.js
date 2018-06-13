@@ -221,7 +221,7 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.payload || !request.payload.transactions) {
+    if (!request.payload || !request.payload.transactions || !transactionPool) {
       return {
         success: false,
         transactionIds: []
@@ -230,15 +230,14 @@ exports.postTransactions = {
     await transactionPool.guard.validate(request.payload.transactions)
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
-      container
-        .resolvePlugin('blockchain')
-        .postTransactions(transactionPool.guard.accept)
+      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      transactionPool.addTransactions(transactionPool.guard.accept)
     }
 
     if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
       container
-      .resolvePlugin('p2p')
-      .broadcastTransactions(transactionPool.guard.broadcast)
+        .resolvePlugin('p2p')
+        .broadcastTransactions(transactionPool.guard.broadcast)
     }
 
     return {
@@ -262,7 +261,7 @@ exports.getBlocks = {
       logger.info(`${requestIp.getClientIp(request)} downloading 400 blocks from height ${request.query.lastBlockHeight}`)
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
 
-      return { success: true, blocks: blocks }
+      return { success: true, blocks: blocks || [] }
     } catch (error) {
       logger.error(error.stack)
       return h.response({ success: false, error: error }).code(500)
