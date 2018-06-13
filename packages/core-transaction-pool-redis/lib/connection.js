@@ -148,8 +148,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (await this.transactionExists(transaction.id)) {
-      await this.pool.lrem(this.__getRedisOrderKey(), 1, transaction.id)
-      await this.pool.lrem(this.__getRedisSenderPublicKey(transaction.senderPublicKey), 1, transaction.id)
+      await this.pool.lrem(this.__getRedisOrderKey(), 0, transaction.id)
+      await this.pool.lrem(this.__getRedisSenderPublicKey(transaction.senderPublicKey), 0, transaction.id)
       await this.pool.del([this.__getRedisExpirationKey(transaction.id), this.__getRedisTransactionKey(transaction.id)])
     }
   }
@@ -167,8 +167,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (await this.transactionExists(id)) {
       const senderPublicKey = await this.pool.hget(this.__getRedisTransactionKey(id), 'senderPublicKey')
 
-      await this.pool.lrem(this.__getRedisSenderPublicKey(senderPublicKey), 1, id)
-      await this.pool.lrem(this.__getRedisOrderKey(), 1, id)
+      await this.pool.lrem(this.__getRedisSenderPublicKey(senderPublicKey), 0, id)
+      await this.pool.lrem(this.__getRedisOrderKey(), 0, id)
       await this.pool.del(this.__getRedisExpirationKey(id))
       await this.pool.del(this.__getRedisTransactionKey(id))
     }
@@ -204,11 +204,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (this.options.whitelist.includes(transaction.senderPublicKey)) {
-      // logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
       return false
     }
 
     const count = await this.pool.llen(this.__getRedisSenderPublicKey(transaction.senderPublicKey))
+    console.log(count)
+    console.log('-----------count')
     return count ? count >= this.options.maxTransactionsPerSender : false
   }
 
