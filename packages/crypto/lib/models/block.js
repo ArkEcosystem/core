@@ -7,6 +7,7 @@ const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 
+// TODO: to move to config file for mainnet
 const blockchainV1FixOutlookTable = {
   '5139199631254983076': '1000099631254983076',
   '4683900276587456793': '1000000276587456793',
@@ -45,6 +46,7 @@ const blockchainV1FixOutlookTable = {
   '7091362542116598855': '1000062542116598855',
   '8225244493039935740': '1000044493039935740'
 }
+
 const toBytesHex = (buffer) => {
   let temp = buffer.toString('hex')
   return '0'.repeat(16 - temp.length) + temp
@@ -108,7 +110,16 @@ module.exports = class Block {
     if (!data.transactions) {
       data.transactions = []
     }
-    this.serialized = Block.serializeFull(data).toString('hex')
+    if (data.numberOfTransactions > 0 && data.transactions.length === data.numberOfTransactions) {
+      delete data.transactionsIds
+    }
+
+    this.headerOnly = data.numberOfTransactions > 0 && data.transactionsIds && data.transactionIds === data.numberOfTransactions
+    if (this.headerOnly) {
+      this.serialized = Block.serialize(data).toString('hex')
+    } else {
+      this.serialized = Block.serializeFull(data).toString('hex')
+    }
     this.data = Block.deserialize(this.serialized)
 
     this.data.idHex = Block.getIdHex(this.data)
@@ -144,6 +155,9 @@ module.exports = class Block {
     })
 
     delete this.data.transactions
+    if (data.transactionIds && data.transactionIds.length > 0) {
+      this.transactionIds = data.transactionIds
+    }
 
     this.verification = this.verify()
 
@@ -254,10 +268,6 @@ module.exports = class Block {
     }
 
     try {
-      if (!this.transactions.reduce((wallet, transaction) => wallet && transaction.verified, true)) {
-        result.errors.push('One or more transactions are not verified')
-      }
-
       const constants = configManager.getConstants(block.height)
 
       // let previousBlock = null
@@ -298,36 +308,73 @@ module.exports = class Block {
         result.errors.push('Payload length is too high')
       }
 
-      if (this.transactions.length !== block.numberOfTransactions) {
-        result.errors.push('Invalid number of transactions')
-      }
-
-      if (this.transactions.length > constants.block.maxTransactions) {
-        if (block.height > 1) result.errors.push('Transactions length is too high')
-      }
-
-      // Checking if transactions of the block adds up to block values.
-      let totalAmount = 0
-      let totalFee = 0
       let size = 0
       let payloadHash = crypto.createHash('sha256')
-      let appliedTransactions = {}
-      // console.log(block.transactions)
-      this.transactions.forEach(transaction => {
-        const bytes = Buffer.from(transaction.data.id, 'hex')
 
-        if (appliedTransactions[transaction.data.id]) {
-          result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+      if (this.headerOnly) {
+        if (this.transactionIds.length !== block.numberOfTransactions) {
+          result.errors.push('Invalid number of transactions')
         }
 
-        appliedTransactions[transaction.data.id] = transaction.data
+        if (this.transactionIds.length > constants.block.maxTransactions) {
+          if (block.height > 1) result.errors.push('Transactions length is too high')
+        }
 
-        totalAmount += transaction.data.amount
-        totalFee += transaction.data.fee
-        size += bytes.length
+        // Checking if transactions of the block adds up to block values.
+        let appliedTransactions = {}
+        this.transactionIds.forEach(id => {
+          const bytes = Buffer.from(id, 'hex')
 
-        payloadHash.update(bytes)
-      })
+          if (appliedTransactions[id]) {
+            result.errors.push('Encountered duplicate transaction: ' + id)
+          }
+
+          appliedTransactions[id] = id
+          size += bytes.length
+
+          payloadHash.update(bytes)
+        })
+      } else {
+        if (!this.transactions.reduce((wallet, transaction) => wallet && transaction.verified, true)) {
+          result.errors.push('One or more transactions are not verified')
+        }
+
+        if (this.transactions.length !== block.numberOfTransactions) {
+          result.errors.push('Invalid number of transactions')
+        }
+
+        if (this.transactions.length > constants.block.maxTransactions) {
+          if (block.height > 1) result.errors.push('Transactions length is too high')
+        }
+
+        // Checking if transactions of the block adds up to block values.
+        let appliedTransactions = {}
+        let totalAmount = 0
+        let totalFee = 0
+        this.transactions.forEach(transaction => {
+          const bytes = Buffer.from(transaction.data.id, 'hex')
+
+          if (appliedTransactions[transaction.data.id]) {
+            result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+          }
+
+          appliedTransactions[transaction.data.id] = transaction.data
+
+          totalAmount += transaction.data.amount
+          totalFee += transaction.data.fee
+          size += bytes.length
+
+          payloadHash.update(bytes)
+        })
+
+        if (totalAmount !== block.totalAmount) {
+          result.errors.push('Invalid total amount')
+        }
+
+        if (totalFee !== block.totalFee) {
+          result.errors.push('Invalid total fee')
+        }
+      }
 
       if (size > constants.block.maxPayload) {
         result.errors.push('Payload is too large')
@@ -335,14 +382,6 @@ module.exports = class Block {
 
       if (!this.genesis && payloadHash.digest().toString('hex') !== block.payloadHash) {
         result.errors.push('Invalid payload hash')
-      }
-
-      if (totalAmount !== block.totalAmount) {
-        result.errors.push('Invalid total amount')
-      }
-
-      if (totalFee !== block.totalFee) {
-        result.errors.push('Invalid total fee')
       }
     } catch (error) {
       result.errors.push(error)
@@ -403,7 +442,6 @@ module.exports = class Block {
    */
   static serializeFull (block) {
     const buf = new ByteBuffer(1024, true)
-    applyV1Fix(block)
     buf.append(Block.serialize(block, true))
 
     const serializedTransactions = block.transactions.map(transaction => Transaction.serialize(transaction))
@@ -423,6 +461,7 @@ module.exports = class Block {
    * @static
    */
   static serialize (block, includeSignature = true) {
+    applyV1Fix(block)
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)

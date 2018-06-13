@@ -172,11 +172,13 @@ exports.postBlock = {
       }
 
       const block = request.payload.block
-      const lastBlock = blockchain.getLastBlock()
-      if (lastBlock.data.height >= block.height) return { success: true }
-      if (block.numberOfTransactions === 0 || (block.transactions && block.transactions.length === block.numberOfTransactions)) {
-        if (!new Block(block).verification.verified) throw new Error('invalid block received')
-      } else if (block.transactionIds.length === block.numberOfTransactions) {
+      const lastDownloadedBlock = blockchain.getDownloadedLastBlock()
+
+      // Are we ready to get it?
+      if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
+      const b = new Block(block)
+      if (!b.verification.verified) throw new Error('invalid block received')
+      if (b.headerOnly) {
         let missingIds = []
         let transactions = []
         if (transactionPool) {

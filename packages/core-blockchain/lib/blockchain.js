@@ -109,7 +109,8 @@ module.exports = class Blockchain {
       blockchain: stateMachine.initialState,
       started: false,
       lastBlock: null,
-      lastDownloadedBlock: null
+      lastDownloadedBlock: null,
+      noBlockCounter: 0
     }
 
     // this.queue.resume()
@@ -380,6 +381,16 @@ module.exports = class Blockchain {
    */
   getLastBlock (onlyData = false) {
     const block = stateMachine.state.lastBlock
+
+    return onlyData ? block.data : block
+  }
+
+  /**
+   * Get the last downloaded block of the blockchain.
+   * @return {Object}
+   */
+  getLastDownloadedBlock (onlyData = false) {
+    const block = stateMachine.state.lastDownloadedBlock
 
     return onlyData ? block.data : block
   }
