@@ -172,7 +172,7 @@ exports.postBlock = {
       }
 
       const block = request.payload.block
-      const lastDownloadedBlock = blockchain.getDownloadedLastBlock()
+      const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
       if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
