@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
+const requestIp = require('request-ip')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
@@ -33,7 +34,9 @@ exports.postInternalBlock = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    container.resolvePlugin('blockchain').queueBlock(request.payload)
+    const block = request.payload
+    block.ip = requestIp.getClientIp(request)
+    container.resolvePlugin('blockchain').queueBlock(block)
 
     return { success: true }
   }
