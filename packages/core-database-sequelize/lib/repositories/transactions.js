@@ -47,6 +47,8 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
+
+    // NOTE: The real count is avoided because it degrades the performance of the node
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
@@ -97,6 +99,7 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
+    // NOTE: V1 does use the real count of results
     const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {

@@ -56,7 +56,9 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAll()
 
-      expect(transactions.count).toBe(153)
+      // NOTE: The real count is avoided because it degrades the performance of the node
+      // expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(100)
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
@@ -345,7 +347,9 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAllByBlock(genesisBlock.data.id)
 
-      expect(transactions.count).toBe(153)
+      // NOTE: The real count is avoided because it degrades the performance of the node
+      // expect(transactions.count).toBe(153)
+      expect(transactions.count).toBe(100)
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
