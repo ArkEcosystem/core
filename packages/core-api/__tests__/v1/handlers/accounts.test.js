@@ -16,14 +16,12 @@ describe('API 1.0 - Wallets', () => {
     })
   })
 
-  // FIXME vote vs votes
-  xdescribe('GET api/accounts/?address', () => {
+  describe('GET api/accounts/?address', () => {
     it('should return account information', async () => {
       const response = await utils.request('GET', 'accounts', { address })
       utils.expectSuccessful(response)
 
-      const expected = ['address', 'publicKey', 'secondPublicKey', 'vote', 'username', 'balance', 'votebalance']
-      expect(Object.keys(response.data.account)).toEqual(expect.arrayContaining(expected))
+      utils.expectWallet(response.data.account)
     })
   })
 
@@ -55,8 +53,7 @@ describe('API 1.0 - Wallets', () => {
     })
   })
 
-  // FIXME votes
-  xdescribe('GET /accounts/delegates?address', () => {
+  describe('GET /accounts/delegates?address', () => {
     it('should return delegate info the address has voted for', async () => {
       const response = await utils.request('GET', 'accounts/delegates', { address })
       utils.expectSuccessful(response)
