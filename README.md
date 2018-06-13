@@ -8,8 +8,12 @@ This repository contains all plugins that make up the ARK Core.
 
 ## Documentation
 
-- https://arkdocs.readme.io/v1.0/docs/development
-- https://arkdocs.readme.io/v1.0/docs/docker
+- Development : https://docs.ark.io/v1.0/docs/development
+- Docker : https://docs.ark.io/v1.0/docs/docker
+
+## API Documentation
+
+- API v1 & v2 : https://docs.ark.io/v1.0/reference
 
 ## Security
 
