@@ -224,6 +224,7 @@ blockchainMachine.actionMap = blockchain => {
           blockchain.processQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
+          state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted', blocks[0])
           blockchain.dispatch('FORK')
         }
