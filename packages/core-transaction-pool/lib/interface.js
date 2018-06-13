@@ -273,7 +273,6 @@ module.exports = class TransactionPoolInterface {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
-    logger.info('Transaction Pool Manager acceptChainedBlock complete.')
   }
 
   /**
