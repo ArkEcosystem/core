@@ -134,7 +134,7 @@ module.exports = class Blockchain {
    * @return {void}
    */
   queueBlock (block) {
-    logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions`)
+    logger.info(`Received new block at height ${block.height} with ${block.numberOfTransactions} transactions from ${block.ip}`)
 
     if (stateMachine.state.started) {
       this.processQueue.push(block)

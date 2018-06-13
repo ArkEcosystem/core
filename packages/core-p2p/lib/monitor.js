@@ -189,9 +189,10 @@ module.exports = class Monitor {
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
-  getRandomDownloadBlocksPeer () {
+  getRandomDownloadBlocksPeer (minheight) {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
+    keys = keys.filter(key => this.peers[key].state.height > minheight)
     keys = keys.filter(key => this.peers[key].downloadSize !== 100)
 
     const random = keys[keys.length * Math.random() << 0]
@@ -259,7 +260,7 @@ module.exports = class Monitor {
    * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
-    const randomPeer = this.getRandomDownloadBlocksPeer()
+    const randomPeer = this.getRandomDownloadBlocksPeer(fromBlockHeight)
 
     try {
       await randomPeer.ping()
