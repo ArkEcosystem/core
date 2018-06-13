@@ -199,7 +199,8 @@ describe('Connection', () => {
     })
 
     it('should be truthy if exceeded', async () => {
-      connection.options.maxTransactionsPerSender = 7
+      connection.options.maxTransactionsPerSender = 5
+      connection.options.whitelist = []
       await connection.addTransaction(mockData.dummy3)
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
@@ -208,15 +209,22 @@ describe('Connection', () => {
       await connection.addTransaction(mockData.dummy8)
       await connection.addTransaction(mockData.dummy9)
 
-      await expect(connection.hasExceededMaxTransactions(mockData.dummy3)).resolves.toBeTruthy()
+      await expect(connection.getPoolSize()).resolves.toBe(7)
+      const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3)
+      await expect(exceeded).toBeTruthy()
     })
 
     it('should be falsy if not exceeded', async () => {
+      connection.options.maxTransactionsPerSender = 7
+      connection.options.whitelist = []
+
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
       await connection.addTransaction(mockData.dummy6)
 
-      await expect(connection.hasExceededMaxTransactions(mockData.dummy4)).resolves.toBeFalsy()
+      await expect(connection.getPoolSize()).resolves.toBe(3)
+      const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3)
+      await expect(exceeded).toBeFalsy()
     })
 
     it('should be allowed to exceed if whitelisted', async () => {
@@ -232,7 +240,8 @@ describe('Connection', () => {
       await connection.addTransaction(mockData.dummy9)
 
       await expect(connection.getPoolSize()).resolves.toBe(7)
-      await expect(connection.hasExceededMaxTransactions(mockData.dummy1)).resolves.toBeFalsy()
+      const exceeded = await connection.hasExceededMaxTransactions(mockData.dummy3)
+      await expect(exceeded).toBeFalsy()
     })
   })
 
@@ -251,7 +260,6 @@ describe('Connection', () => {
 
     it('should return undefined for nonexisting transaction', async () => {
       const poolTransaction = await connection.getTransaction('non existing id')
-      console.log(poolTransaction)
       await expect(poolTransaction).toBeFalsy()
     })
   })
