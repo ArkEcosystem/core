@@ -9,7 +9,15 @@ const config = container.resolvePlugin('config')
  * @return {Object} transactions - array of transactions matching the fee confitions of a delegate, and array of transactions not matching
  */
  module.exports = (transactions) => {
-    const feeConstants = config.getConstants(container.resolvePlugin('blockchain').getLastBlock(true).height).fees
+    const blockchain = container.resolvePlugin('blockchain')
+    // reject if not ready
+    if (!blockchain) {
+      return {
+        'feesMatching': [],
+        'invalidFees': [...transactions]
+      }
+    }
+    const feeConstants = config.getConstants(blockchain.getLastBlock(true).height).fees
     let invalidFees = []
     const acceptedTransactions = transactions.filter(transaction => {
       if (!feeConstants.dynamic && transaction.fee !== feeManager.get(transaction.type)) {
