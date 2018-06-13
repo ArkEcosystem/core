@@ -8,6 +8,8 @@ const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
 // const Promise = require('bluebird')
 
+let lastReceivedBlock = { height: 1 }
+
 /**
  * @type {Object}
  */
@@ -172,6 +174,10 @@ exports.postBlock = {
       }
 
       const block = request.payload.block
+
+      // did we just got it?
+      if (lastReceivedBlock.height === block.height) return { success: true }
+
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
@@ -204,6 +210,7 @@ exports.postBlock = {
         }
       // } else return { success: false }
       block.ip = requestIp.getClientIp(request)
+      lastReceivedBlock = block
       blockchain.queueBlock(block)
       return { success: true }
     } catch (error) {
