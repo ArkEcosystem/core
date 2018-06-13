@@ -320,10 +320,11 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     try {
       transaction = await this.connection.transaction()
       await this.models.block.create(block.data, {transaction})
-      await this.models.transaction.bulkCreate(block.transactions || [], {transaction})
+      if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction})
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
+      if (error.sql) logger.info(error.sql)
       await transaction.rollback()
       throw error
     }
