@@ -192,7 +192,7 @@ module.exports = class Monitor {
   getRandomDownloadBlocksPeer (minheight) {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
-    keys = keys.filter(key => this.peers[key].state.height > minheight)
+    // keys = keys.filter(key => this.peers[key].state.height > minheight)
     keys = keys.filter(key => this.peers[key].downloadSize !== 100)
 
     const random = keys[keys.length * Math.random() << 0]
@@ -203,6 +203,7 @@ module.exports = class Monitor {
 
       return this.getRandomPeer()
     }
+    logger.debug(`downloading blocks from ${randomPeer.ip}`)
 
     return randomPeer
   }
