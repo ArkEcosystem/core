@@ -19,7 +19,8 @@ const state = {
   lastBlock: null,
   started: false,
   rebuild: true,
-  fastRebuild: true
+  fastRebuild: true,
+  noBlockCounter: 0
 }
 
 /**
@@ -57,7 +58,14 @@ blockchainMachine.actionMap = blockchain => {
         event = 'PAUSED'
       }
 
+      // tried to download but no luck after 5 tries (looks like network missing blocks)
+      if (state.noBlockCounter > 5) {
+        state.noBlockCounter = 0
+        event = 'SYNCED'
+      }
+
       if (blockchain.isSynced(state.lastDownloadedBlock.data)) {
+        state.noBlockCounter = 0
         event = 'SYNCED'
       }
 
@@ -216,6 +224,7 @@ blockchainMachine.actionMap = blockchain => {
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
+        state.noBlockCounter++
         blockchain.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
@@ -239,7 +248,8 @@ blockchainMachine.actionMap = blockchain => {
     async startForkRecovery () {
       logger.info('Starting fork recovery 🍴')
       // state.forked = true
-      const random = ~~(4 / Math.random())
+      let random = ~~(4 / Math.random())
+      if (random > 102) random = 102
       await blockchain.removeBlocks(random)
       logger.info(`Removed ${random} blocks`)
       blockchain.dispatch('SUCCESS')
