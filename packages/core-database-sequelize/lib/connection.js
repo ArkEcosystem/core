@@ -518,9 +518,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     // console.log(transactions.map(tx => tx.blockId))
 
-    for (let i = 0; i < blocks.length; i++) {
-      blocks[i].transactions = transactions
-        .filter(transaction => (transaction.blockId === blocks[i].id))
+    for (let block of blocks) {
+      if (block.numberOfTransactions > 0) {
+        block.transactions = transactions.filter(transaction => transaction.blockId === block.id)
+      }
     }
 
     return blocks
