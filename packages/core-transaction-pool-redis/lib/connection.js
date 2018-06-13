@@ -209,8 +209,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     const count = await this.pool.llen(this.__getRedisSenderPublicKey(transaction.senderPublicKey))
-    console.log(count)
-    console.log('-----------count')
     return count ? count >= this.options.maxTransactionsPerSender : false
   }
 
