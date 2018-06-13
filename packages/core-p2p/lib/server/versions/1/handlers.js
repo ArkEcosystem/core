@@ -6,7 +6,7 @@ const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
-const Promise = require('bluebird')
+// const Promise = require('bluebird')
 
 /**
  * @type {Object}
@@ -179,15 +179,15 @@ exports.postBlock = {
       const b = new Block(block)
       if (!b.verification.verified) throw new Error('invalid block received')
       if (b.headerOnly) {
-        let missingIds = []
+        // let missingIds = []
         let transactions = []
-        if (transactionPool) {
-          transactions = await Promise.each(block.transactionIds, async id => await transactionPool.getTransaction(id) || id)
-          missingIds = transactions.filter(tx => !tx.id)
-        } else {
-          missingIds = block.transactionIds.slice(0)
-        }
-        if (missingIds.length > 0) {
+        // if (transactionPool) {
+        //   transactions = block.transactionIds.map(async id => await transactionPool.getTransaction(id) || id)
+        //   missingIds = transactions.filter(tx => !tx.id)
+        // } else {
+        //   missingIds = block.transactionIds.slice(0)
+        // }
+        // if (missingIds.length > 0) {
           let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
           // only for test because it can be used for DDOS attack
           if (!peer && process.env.NODE_ENV === 'test_p2p') {
@@ -202,7 +202,7 @@ exports.postBlock = {
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
         }
-      } else return { success: false }
+      // } else return { success: false }
       block.ip = requestIp.getClientIp(request)
       blockchain.queueBlock(block)
       return { success: true }
