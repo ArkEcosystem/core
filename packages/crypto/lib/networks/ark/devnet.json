@@ -51,5 +51,8 @@
     "height": 75600,
     "reward": 200000000
   }],
-  "exceptions": {}
+  "exceptions": {
+    "49eb0b459075bd1d4c6231204308f66f233c04fe250263cdf7625623f99db4d4": true,
+    "6d2e9f554a0c793eb5364ef049453044e6a1333e4242905b8c7264646b544215": true
+  }
 }
