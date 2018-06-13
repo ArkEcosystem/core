@@ -195,7 +195,9 @@ exports.postBlock = {
 
           // issue on v1, using /api/ instead of /peer/
           // const missingTxs = await peer.getTransactionsFromIds(missingIds)
-          block.transactions = await peer.getTransactionsFromBlock(block.id)
+          transactions = await peer.getTransactionsFromBlock(block.id)
+          // reorder them correctly
+          block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
         }
       } else return { success: false }
