@@ -4,6 +4,8 @@ const path = require('path')
 const container = require('@arkecosystem/core-container')
 
 exports.setUp = async () => {
+  process.env.ARK_SKIP_BLOCKCHAIN = true
+
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
@@ -17,8 +19,6 @@ exports.setUp = async () => {
       '@arkecosystem/core-transaction-pool-redis'
     ]
   })
-
-  process.env.ARK_SKIP_BLOCKCHAIN = true
 }
 
 exports.tearDown = async () => container.tearDown()
