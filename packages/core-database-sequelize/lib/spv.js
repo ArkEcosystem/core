@@ -228,7 +228,6 @@ module.exports = class SPV {
 
       if (!wallet.voted) {
         wallet.apply(Transaction.deserialize(row.serialized.toString('hex')))
-
         wallet.voted = true
       }
     })

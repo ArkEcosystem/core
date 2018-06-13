@@ -15,7 +15,6 @@ module.exports = async (message, done) => {
       headers: message.headers,
       timeout: 60000
     })
-
     return done(response.data.blocks)
   }
 
