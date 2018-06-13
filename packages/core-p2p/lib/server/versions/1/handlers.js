@@ -201,7 +201,7 @@ exports.postBlock = {
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
         }
       } else return { success: false }
-
+      block.ip = requestIp.getClientIp(request)
       blockchain.queueBlock(block)
       return { success: true }
     } catch (error) {
