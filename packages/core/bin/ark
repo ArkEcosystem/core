@@ -63,7 +63,8 @@ app
     }
     const delegates = require(delegatesConfig)
     delegates.secrets = [options.secret]
-
+    delete delegates.bip38
+  
     fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2))
   })
 

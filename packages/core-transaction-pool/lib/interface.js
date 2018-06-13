@@ -14,6 +14,7 @@ const { TRANSACTION_TYPES } = ark.constants
 const PoolWalletManager = require('./pool-wallet-manager')
 const helpers = require('./utils/validation-helpers')
 const moment = require('moment')
+const _ = require('lodash')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -184,6 +185,7 @@ module.exports = class TransactionPoolInterface {
     try {
       let transactionIds = await this.getTransactionsIds(start, size)
       transactionIds = await this.removeForgedAndGetPending(transactionIds)
+      transactionIds = _.uniq(transactionIds)
 
       let transactions = []
       for (const id of transactionIds) {
