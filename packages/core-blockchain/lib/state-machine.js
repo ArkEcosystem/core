@@ -154,8 +154,8 @@ blockchainMachine.actionMap = blockchain => {
         state.lastBlock = block
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
-        // no fast rebuild if in 10 last round
-        state.fastRebuild = (slots.getTime() - block.data.timestamp > 10 * (constants.activeDelegates + 1) * constants.blocktime) && !!blockchain.config.server.fastRebuild
+        // no fast rebuild if in last 24 hours
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!blockchain.config.server.fastRebuild
 
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
@@ -236,7 +236,8 @@ blockchainMachine.actionMap = blockchain => {
           blockchain.dispatch('DOWNLOADED')
         } else {
           state.lastDownloadedBlock = state.lastBlock
-          logger.warn('Downloaded block not accepted', blocks[0])
+          logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
+          logger.warn('Last block: ' + JSON.stringify(block.data))
           blockchain.dispatch('FORK')
         }
       }
