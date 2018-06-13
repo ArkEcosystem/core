@@ -207,6 +207,7 @@ exports.postBlock = {
           // reorder them correctly
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
+          if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
       block.ip = requestIp.getClientIp(request)
@@ -267,8 +268,8 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      logger.info(`${requestIp.getClientIp(request)} downloading 400 blocks from height ${request.query.lastBlockHeight}`)
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      logger.info(`${requestIp.getClientIp(request)} downloading ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
       return { success: true, blocks: blocks || [] }
     } catch (error) {
