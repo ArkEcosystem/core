@@ -38,18 +38,18 @@ module.exports = class BlocksRepository extends Repository {
     }
 
     let rows = []
-    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
+    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
-    if (count) {
+    // if (count) {
       const selectQuery = buildQuery(this.query.select(...blocksTableColumns))
       rows = await this.__runQuery(selectQuery, {
         limit: params.limit,
         offset: params.offset,
         orderBy
       })
-    }
+    // }
 
-    return { rows, count }
+    return { rows, count: rows.length }
   }
 
   /**

@@ -47,9 +47,9 @@ module.exports = class TransactionsRepository extends Repository {
     }
 
     let rows = []
-    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
+    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
-    if (count) {
+    // if (count) {
       const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
       const transactions = await this.__runQuery(selectQuery, {
         limit: params.limit,
@@ -58,9 +58,9 @@ module.exports = class TransactionsRepository extends Repository {
       })
 
       rows = await this.__mapBlocksToTransactions(transactions)
-    }
+    // }
 
-    return { rows, count }
+    return { rows, count: rows.length }
   }
 
   /**
