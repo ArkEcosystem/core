@@ -6,7 +6,8 @@ module.exports = {
       on: {
         SYNCED: 'downloadFinished',
         NOTSYNCED: 'downloadBlocks',
-        PAUSED: 'downloadPaused'
+        PAUSED: 'downloadPaused',
+        NETWORKHALTED: 'end'
       }
     },
     idle: {

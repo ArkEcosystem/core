@@ -60,8 +60,9 @@ blockchainMachine.actionMap = blockchain => {
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
       if (state.noBlockCounter > 5) {
+        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks')
         state.noBlockCounter = 0
-        event = 'SYNCED'
+        event = 'NETWORKHALTED'
       }
 
       if (blockchain.isSynced(state.lastDownloadedBlock.data)) {
