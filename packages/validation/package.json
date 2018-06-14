@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/validation",
   "description": "Validation for ARK Core",
   "version": "0.1.0",

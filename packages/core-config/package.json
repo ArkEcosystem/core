@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-config",
   "version": "0.1.0",
   "description": "Configuration Loader for ARK Core",

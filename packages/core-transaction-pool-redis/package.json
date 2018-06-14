@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-transaction-pool-redis",
   "description": "Transaction Pool - Redis Implementation for ARK Core",
   "version": "0.1.0",

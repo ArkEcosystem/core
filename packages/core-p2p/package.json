@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-p2p",
   "description": "P2P API for ARK Core",
   "version": "0.1.0",

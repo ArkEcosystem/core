@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-forger",
   "description": "Forger for ARK Core",
   "version": "0.1.0",

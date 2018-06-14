@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-deployer",
   "description": "Deployer for ARK Core",
   "version": "0.1.0",

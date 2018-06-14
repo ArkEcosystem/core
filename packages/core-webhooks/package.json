@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-webhooks",
   "description": "Webhooks for ARK Core",
   "version": "0.1.0",

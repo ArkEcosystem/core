@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-json-rpc",
   "description": "A JSON-RPC 2.0 Specification compliant server to interact with the ARK blockchain.",
   "version": "0.1.0",

@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-logger-winston",
   "description": "Winston Logger for ARK Core",
   "version": "0.1.0",

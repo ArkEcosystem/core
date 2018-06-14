@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-tester-cli",
   "description": "Tester CLI for ARK Core",
   "version": "0.1.0",

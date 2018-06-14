@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/client",
   "description": "A JavaScript library to interact with the ARK Blockchain",
   "version": "0.1.0",

@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-event-emitter",
   "description": "Event Manager for ARK Core",
   "version": "0.1.0",

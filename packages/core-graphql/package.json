@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-graphql",
   "description": "GraphQL Integration for ARK Core",
   "version": "0.1.0",

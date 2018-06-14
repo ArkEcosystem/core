@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-database",
   "description": "Database Interface for ARK Core",
   "version": "0.1.0",

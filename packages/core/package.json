@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core",
   "description": "Core of the ARK Blockchain",
   "version": "0.1.0",
