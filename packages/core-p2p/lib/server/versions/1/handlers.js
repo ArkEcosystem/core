@@ -326,7 +326,7 @@ exports.getBlocks = {
   async handler (request, h) {
     try {
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
-      logger.info(`${requestIp.getClientIp(request)} downloading ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
+      logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
       return { success: true, blocks: blocks || [] }
     } catch (error) {
