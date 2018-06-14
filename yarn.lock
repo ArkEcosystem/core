@@ -6237,7 +6237,7 @@ moment-timezone@^0.5.0, moment-timezone@^0.5.14:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@^2.11.2, moment@^2.20.0, moment@^2.22.1, moment@^2.6.0:
+"moment@>= 2.9.0", moment@^2.11.2, moment@^2.20.0, moment@^2.22.1, moment@^2.22.2, moment@^2.6.0:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
