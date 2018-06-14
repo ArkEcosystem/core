@@ -21,9 +21,21 @@ describe('API - Client', () => {
     expect(client.resource('transactions')).toBeInstanceOf(ApiResource)
   })
 
-  it('should set the API version', () => {
-    client.setVersion(2)
+  it('should use 1 as the default API version', () => {
+    expect(client.version).toBe(1)
+  })
 
-    expect(client.version).toBe(2)
+  describe('Version', () => {
+    it('should set the API version', () => {
+      client.setVersion(2)
+
+      expect(client.version).toBe(2)
+    })
+
+    it('should set the API version of the HTTP client too', () => {
+      client.setVersion(2)
+
+      expect(client.http.version).toBe(2)
+    })
   })
 })
