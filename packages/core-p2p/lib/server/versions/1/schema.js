@@ -5,7 +5,6 @@
  */
 module.exports = {
   getStatus: {
-    id: 'GET:/peer/status',
     type: 'object',
     properties: {
       success: {
@@ -29,7 +28,6 @@ module.exports = {
     required: ['success', 'height', 'header', 'currentSlot', 'forgingAllowed']
   },
   getHeight: {
-    id: 'GET:/peer/height',
     type: 'object',
     properties: {
       success: {
@@ -46,11 +44,9 @@ module.exports = {
     required: ['success', 'height', 'header']
   },
   postTransactions: {
-    id: 'POST:/peer/transactions',
     type: 'object'
   },
   getTransactions: {
-    id: 'GET:/peer/transactions',
     type: 'object',
     properties: {
       success: {
@@ -64,11 +60,9 @@ module.exports = {
     required: ['transactions']
   },
   getTransactionsFromIds: {
-    id: 'POST:/peer/transactionsFromIds',
     type: 'object'
   },
   getBlocks: {
-    id: 'GET:/peer/blocks',
     type: 'object',
     properties: {
       success: {
@@ -81,7 +75,6 @@ module.exports = {
     required: ['blocks']
   },
   postBlock: {
-    id: 'POST:/peer/blocks',
     type: 'object',
     properties: {
       success: {
@@ -94,15 +87,12 @@ module.exports = {
     required: ['success', 'blockId']
   },
   getBlock: {
-    id: 'GET:/peer/block',
     type: 'object'
   },
   getCommonBlock: {
-    id: 'GET:/peer/blocks/common',
     type: 'object'
   },
   getPeers: {
-    id: 'GET:/peer/list',
     type: 'object',
     properties: {
       success: {
