@@ -2,8 +2,6 @@
 
 const PLUGIN_NAME = 'hapi-ajv'
 
-const fs = require('fs')
-const path = require('path')
 const Boom = require('boom')
 const AJV = require('ajv')
 
@@ -50,7 +48,7 @@ const register = async (server, options) => {
         errors = validate(config.payloadSchema, request.payload)
 
         if (errors) {
-          return createErrorResponse(request, h, errors)
+          return createErrorResponse(request, h, JSON.stringify(errors))
         }
       }
 
@@ -58,7 +56,7 @@ const register = async (server, options) => {
         errors = validate(config.querySchema, request.query)
 
         if (errors) {
-          return createErrorResponse(request, h, errors)
+          return createErrorResponse(request, h, JSON.stringify(errors))
         }
       }
 

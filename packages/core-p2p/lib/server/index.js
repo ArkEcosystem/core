@@ -15,9 +15,9 @@ module.exports = async (p2p, config) => {
   })
   server.app.p2p = p2p
 
-  await server.register({
-    plugin: require('./plugins/validation')
-  })
+  // await server.register({
+  //   plugin: require('./plugins/validation')
+  // })
 
   await server.register({
     plugin: require('./plugins/accept-request')
