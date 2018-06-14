@@ -1,12 +1,10 @@
 'use strict'
 
-const ajv = new (require('ajv'))()
-
 /**
  * @type {Object}
  */
 module.exports = {
-  'GET:/peer/status': ajv.compile({
+  getStatus: {
     id: 'GET:/peer/status',
     type: 'object',
     properties: {
@@ -29,8 +27,8 @@ module.exports = {
       }
     },
     required: ['success', 'height', 'header', 'currentSlot', 'forgingAllowed']
-  }),
-  'GET:/peer/height': ajv.compile({
+  },
+  getHeight: {
     id: 'GET:/peer/height',
     type: 'object',
     properties: {
@@ -46,12 +44,12 @@ module.exports = {
       }
     },
     required: ['success', 'height', 'header']
-  }),
-  'POST:/peer/transactions': ajv.compile({
+  },
+  postTransactions: {
     id: 'POST:/peer/transactions',
     type: 'object'
-  }),
-  'GET:/peer/transactions': ajv.compile({
+  },
+  getTransactions: {
     id: 'GET:/peer/transactions',
     type: 'object',
     properties: {
@@ -64,12 +62,12 @@ module.exports = {
       }
     },
     required: ['transactions']
-  }),
-  'GET:/peer/transactionsFromIds': ajv.compile({
+  },
+  getTransactionsFromIds: {
     id: 'POST:/peer/transactionsFromIds',
     type: 'object'
-  }),
-  'GET:/peer/blocks': ajv.compile({
+  },
+  getBlocks: {
     id: 'GET:/peer/blocks',
     type: 'object',
     properties: {
@@ -81,8 +79,8 @@ module.exports = {
       }
     },
     required: ['blocks']
-  }),
-  'POST:/peer/blocks': ajv.compile({
+  },
+  postBlock: {
     id: 'POST:/peer/blocks',
     type: 'object',
     properties: {
@@ -94,16 +92,16 @@ module.exports = {
       }
     },
     required: ['success', 'blockId']
-  }),
-  'GET:/peer/block': ajv.compile({
+  },
+  getBlock: {
     id: 'GET:/peer/block',
     type: 'object'
-  }),
-  'GET:/peer/blocks/common': ajv.compile({
+  },
+  getCommonBlock: {
     id: 'GET:/peer/blocks/common',
     type: 'object'
-  }),
-  'GET:/peer/list': ajv.compile({
+  },
+  getPeers: {
     id: 'GET:/peer/list',
     type: 'object',
     properties: {

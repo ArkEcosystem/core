@@ -6,6 +6,7 @@ const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
+const schema = require('./schema')
 // const Promise = require('bluebird')
 
 let lastReceivedBlock = { height: 1 }
@@ -32,6 +33,13 @@ exports.getPeers = {
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getPeers
+      }
+    }
   }
 }
 
@@ -51,6 +59,13 @@ exports.getHeight = {
       success: true,
       height: lastBlock.height,
       id: lastBlock.id
+    }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getHeight
+      }
     }
   }
 }
@@ -85,6 +100,13 @@ exports.getCommonBlock = {
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getCommonBlock
+      }
+    }
   }
 }
 
@@ -106,6 +128,13 @@ exports.getTransactionsFromIds = {
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getTransactionsFromIds
+      }
+    }
   }
 }
 
@@ -120,6 +149,13 @@ exports.getTransactions = {
    */
   handler (request, h) {
     return { success: true, transactions: [] }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getTransactions
+      }
+    }
   }
 }
 
@@ -152,6 +188,13 @@ exports.getStatus = {
       forgingAllowed: slots.isForgingAllowed(),
       currentSlot: slots.getSlotNumber(),
       header: lastBlock.getHeader()
+    }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getStatus
+      }
     }
   }
 }
@@ -218,6 +261,13 @@ exports.postBlock = {
       console.log(error)
       return { success: false }
     }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        payloadSchema: schema.postBlock
+      }
+    }
   }
 }
 
@@ -254,6 +304,13 @@ exports.postTransactions = {
       success: true,
       transactionIds: transactionPool.guard.getIds('accept')
     }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        payloadSchema: schema.postTransactions
+      }
+    }
   }
 }
 
@@ -275,6 +332,13 @@ exports.getBlocks = {
     } catch (error) {
       logger.error(error.stack)
       return h.response({ success: false, error: error }).code(500)
+    }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getBlocks
+      }
     }
   }
 }

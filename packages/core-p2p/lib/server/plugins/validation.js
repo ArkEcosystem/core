@@ -33,28 +33,12 @@ function createErrorResponse (request, h, errors) {
 }
 
 /**
- * Register all custom validation formats
- * @return {void}
- */
-function registerCustomFormats () {
-  let directory = path.resolve(__dirname, 'formats')
-
-  fs.readdirSync(directory).forEach(file => {
-    if (file.indexOf('.js') !== -1) {
-      require(directory + '/' + file)(ajv)
-    }
-  })
-}
-
-/**
  * The register method uses by hapi.js.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
  */
 const register = async (server, options) => {
-  registerCustomFormats()
-
   server.ext({
     type: 'onPreHandler',
     method: (request, h) => {

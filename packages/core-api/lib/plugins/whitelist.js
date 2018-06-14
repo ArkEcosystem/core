@@ -40,6 +40,6 @@ const register = async (server, options) => {
  */
 exports.plugin = {
   name: 'core-api-whitelist',
-  version: '0.0.1',
+  version: '0.1.0',
   register
 }

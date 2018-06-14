@@ -38,6 +38,6 @@ const register = async (server, options) => {
  */
 exports.plugin = {
   name: 'ARK Webhooks API',
-  version: '0.0.1',
+  version: '0.1.0',
   register
 }
