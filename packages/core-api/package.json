@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-api",
   "description": "Public API for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
     "Brian Faust <brian@ark.io>"
@@ -19,8 +19,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.0",
-    "@arkecosystem/crypto": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.1.1",
     "ajv": "^6.5.0",
     "bignumber.js": "^7.1.0",
     "boom": "^7.2.0",

@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/crypto",
   "description": "Crypto utilities for the ARK blockchain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx.thoorens@ark.io>",
     "Brian Faust <brian@ark.io>",
@@ -25,7 +25,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/validation": "^0.1.0",
+    "@arkecosystem/validation": "^0.1.1",
     "arkjsv1": "arkecosystem/ark-js#master",
     "bigi": "^1.4.2",
     "bip38": "^2.0.2",

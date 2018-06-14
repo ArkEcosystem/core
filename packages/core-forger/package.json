@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-forger",
   "description": "Forger for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -20,8 +20,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.0",
-    "@arkecosystem/core-container": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.1.1",
     "axios": "^0.18.0",
     "delay": "^2.0.0",
     "lodash": "^4.17.10"

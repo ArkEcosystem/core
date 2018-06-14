@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-test-utils",
   "description": "Test Utilities for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -17,7 +17,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.0",
+    "@arkecosystem/crypto": "^0.1.1",
     "bip39": "^2.5.0",
     "chalk": "^2.4.1",
     "lodash": "^4.17.10",

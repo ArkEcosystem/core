@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-deployer",
   "description": "Deployer for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>",
     "Alex Barnsley <alex@ark.io>"
@@ -22,7 +22,7 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
-    "@arkecosystem/core-config": "^0.1.0",
+    "@arkecosystem/core-config": "^0.1.1",
     "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
     "bigi": "^1.4.2",
     "bytebuffer": "^5.0.1",
@@ -33,9 +33,6 @@
     "joi": "^13.3.0",
     "lodash": "^4.17.10",
     "pino": "^4.16.1"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "publishConfig": {
     "access": "public"

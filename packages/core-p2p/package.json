@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-p2p",
   "description": "P2P API for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -21,8 +21,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.0",
-    "@arkecosystem/core-container": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.1.1",
     "ajv": "^6.5.0",
     "axios": "^0.18.0",
     "hapi": "^17.5.0",

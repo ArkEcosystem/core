@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-webhooks",
   "description": "Webhooks for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"
   ],
@@ -18,7 +18,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.1",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "boom": "^7.2.0",

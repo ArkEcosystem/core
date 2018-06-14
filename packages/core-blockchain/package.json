@@ -1,7 +1,7 @@
 {
   "name": "@arkecosystem/core-blockchain",
   "description": "Blockchain Manager for ARK Core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -20,8 +20,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.0",
-    "@arkecosystem/core-container": "^0.1.0",
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.1.1",
     "async": "^2.6.1",
     "delay": "^2.0.0",
     "interval-to-human": "^0.1.1",
