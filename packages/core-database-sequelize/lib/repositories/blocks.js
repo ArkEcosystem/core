@@ -38,6 +38,8 @@ module.exports = class BlocksRepository extends Repository {
     }
 
     let rows = []
+
+    // NOTE: The real count is avoided because it degrades the performance of the node
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
