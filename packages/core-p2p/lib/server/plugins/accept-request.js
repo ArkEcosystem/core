@@ -46,6 +46,6 @@ const register = async (server, options) => {
  */
 exports.plugin = {
   name: 'core-p2p-accept-request',
-  version: '0.0.1',
+  version: '0.1.0',
   register
 }

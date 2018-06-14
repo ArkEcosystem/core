@@ -37,7 +37,7 @@ beforeEach(async (done) => {
 
   await container.register('blockchain', asValue({
     name: 'blockchain',
-    version: '0.0.1',
+    version: '0.1.0',
     plugin: blockchain,
     options: {}
   }))
