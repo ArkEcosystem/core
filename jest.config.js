@@ -19,9 +19,12 @@ module.exports = {
     '**/packages/core/**/__tests__/**/*.test.js',
     '**/packages/validation/**/__tests__/**/*.test.js'
 
-    /* These packages have very long  timeouts or don't end properly */
+    /* These packages `runInBand`` */
 
     // '**/packages/core-api/**/__tests__/**/*.test.js',
+
+    /* These packages have very long  timeouts or don't end properly */
+
     // '**/packages/core-blockchain/**/__tests__/**/*.test.js',
     // '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     // '**/packages/core-database/**/__tests__/**/*.test.js',
