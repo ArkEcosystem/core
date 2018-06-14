@@ -26,5 +26,8 @@
     "delay": "^2.0.0",
     "interval-to-human": "^0.1.1",
     "xstate": "^3.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

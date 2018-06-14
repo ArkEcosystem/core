@@ -32,5 +32,8 @@
     "levelup": "^2.0.2",
     "lodash": "^4.17.10",
     "micromatch": "^3.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

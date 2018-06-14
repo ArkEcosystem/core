@@ -27,5 +27,8 @@
     "expand-home-dir": "^0.0.3",
     "fs-extra": "^6.0.1",
     "lodash": "^4.17.10"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

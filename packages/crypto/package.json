@@ -46,5 +46,8 @@
     "secp256k1": "^3.5.0",
     "typeforce": "^1.12.0",
     "wif": "^2.0.6"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

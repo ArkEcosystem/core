@@ -24,5 +24,8 @@
     "@arkecosystem/core-container": "^0.1.0",
     "@arkecosystem/core-transaction-pool": "^0.1.0",
     "ioredis": "^3.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -65,5 +65,8 @@
     "@arkecosystem/core-transaction-pool-redis": "^0.1.0",
     "@arkecosystem/core-webhooks": "^0.1.0",
     "commander": "^2.15.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

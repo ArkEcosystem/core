@@ -34,5 +34,8 @@
     "request-ip": "^2.0.2",
     "sequelize": "^4.37.8",
     "umzug": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -30,5 +30,8 @@
     "request-ip": "^2.0.2",
     "sntp": "^3.0.1",
     "threads": "^0.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

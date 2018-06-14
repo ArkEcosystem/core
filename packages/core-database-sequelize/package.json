@@ -34,5 +34,8 @@
     "tedious": "^2.6.1",
     "tiny-glob": "^0.2.1",
     "umzug": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

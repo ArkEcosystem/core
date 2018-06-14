@@ -23,5 +23,8 @@
     "@arkecosystem/crypto": "^0.1.0",
     "@arkecosystem/core-container": "^0.1.0",
     "async": "^2.6.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -24,5 +24,8 @@
     "hoek": "^5.0.3",
     "lodash": "^4.17.10",
     "semver": "^5.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

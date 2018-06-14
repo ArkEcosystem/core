@@ -25,5 +25,8 @@
     "axios": "^0.18.0",
     "delay": "^2.0.0",
     "lodash": "^4.17.10"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
