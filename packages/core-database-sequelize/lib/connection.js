@@ -509,6 +509,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         .select('blockId', 'serialized')
         .from('transactions')
         .whereIn('blockId', ids)
+        .orderBy('createdAt', 'ASC')
         .all()
       transactions = transactions.map(tx => {
         const data = Transaction.deserialize(tx.serialized.toString('hex'))
