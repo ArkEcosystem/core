@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 const transactionPool = container.resolvePlugin('transactionPool')
+const logger = container.resolvePlugin('logger')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
@@ -63,6 +64,49 @@ exports.show = {
     plugins: {
       'hapi-ajv': {
         querySchema: schema.getTransaction
+      }
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.store = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    if (!request.payload || !request.payload.transactions || !transactionPool) {
+      return {
+        success: false,
+        transactionIds: []
+      }
+    }
+    await transactionPool.guard.validate(request.payload.transactions)
+    // TODO: Review throttling of v1
+    if (transactionPool.guard.hasAny('accept')) {
+      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      transactionPool.addTransactions(transactionPool.guard.accept)
+    }
+
+    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
+      container
+        .resolvePlugin('p2p')
+        .broadcastTransactions(transactionPool.guard.broadcast)
+    }
+
+    return {
+      success: true,
+      transactionIds: transactionPool.guard.getIds('accept')
+    }
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        payloadSchema: schema.postTransactions
       }
     }
   }

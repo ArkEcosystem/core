@@ -6,8 +6,8 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
-const blockchain = container.resolvePlugin('blockchain')
 const transactionPool = container.resolvePlugin('transactionPool')
+const logger = container.resolvePlugin('logger')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -40,8 +40,23 @@ exports.store = {
   async handler (request, h) {
     await transactionPool.guard.validate(request.payload.transactions)
 
+    if (!request.payload || !request.payload.transactions || !transactionPool) {
+      return {
+        success: false,
+        transactionIds: []
+      }
+    }
+    await transactionPool.guard.validate(request.payload.transactions)
+
     if (transactionPool.guard.hasAny('accept')) {
-      blockchain.postTransactions(transactionPool.guard.accept)
+      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      transactionPool.addTransactions(transactionPool.guard.accept)
+    }
+
+    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
+      container
+        .resolvePlugin('p2p')
+        .broadcastTransactions(transactionPool.guard.broadcast)
     }
 
     return {

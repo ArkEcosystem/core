@@ -63,6 +63,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/signatures/fee', ...signatures.fee },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
+    { method: 'POST', path: '/transactions', ...transactions.store },
     { method: 'GET', path: '/transactions/get', ...transactions.show },
     { method: 'GET', path: '/transactions/get/', ...transactions.show }, // v1 inconsistency
     { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
