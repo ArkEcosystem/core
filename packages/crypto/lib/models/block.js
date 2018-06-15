@@ -163,7 +163,7 @@ module.exports = class Block {
 
     if (!this.verification.verified && this.data.height !== 1) {
       console.log(JSON.stringify(data, null, 2))
-      console.log(JSON.stringify(this, null, 2))
+      console.log(this.serialized)
       console.log(this.verification)
     }
   }
