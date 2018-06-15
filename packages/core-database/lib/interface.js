@@ -189,7 +189,25 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Detect if height is the beginning of a new round.
+   * @param  {Number} height
+   * @return {boolean} true if new round, false if not
+   */
+  isNewRound (height) {
+    const maxDelegates = config.getConstants(height).activeDelegates
+    return height % maxDelegates === 1
+  }
+
+  getRound (height) {
+    const maxDelegates = config.getConstants(height).activeDelegates
+    if (height < maxDelegates + 1) return 1
+    else return Math.floor((height - 1) / maxDelegates) + 1
+  }
+
+  /**
    * Apply the round.
+   * Note that the round is applied and the end of the round (so checking height + 1)
+   * so the next block to apply starting the new round will be ready to be validated 
    * @param  {Number} height
    * @return {void}
    */

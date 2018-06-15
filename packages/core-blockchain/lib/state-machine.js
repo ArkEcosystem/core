@@ -188,6 +188,12 @@ blockchainMachine.actionMap = blockchain => {
         // SPV rebuild
         await blockchain.database.buildWallets(block.data.height)
         await blockchain.database.saveWallets(true)
+
+        // Edge case: if the node is shutdown between round, the round has already been applied
+        if (blockchain.database.isNewRound(block.data.height)) {
+          const round = blockchain.database.getRound(block.data.height)
+          await blockchain.database.deleteRound(round)
+        }
         await blockchain.database.applyRound(block.data.height)
         await blockchain.transactionPool.buildWallets()
 
