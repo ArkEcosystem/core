@@ -1,4 +1,8 @@
 module.exports = {
+  mode: 'production',
+
+  context: __dirname,
+
   module: {
     rules: [{
       test: /\.js$/,

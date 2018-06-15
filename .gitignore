@@ -51,3 +51,4 @@ bundle.min.js
 
 # Build
 dist
+packages/**/dist/
