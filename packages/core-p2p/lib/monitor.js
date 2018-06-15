@@ -137,7 +137,7 @@ module.exports = class Monitor {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
       this.suspendedPeers[peer.ip] = {
         peer: newPeer,
-        until: moment().add(1, 'minutes')
+        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
       }
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
