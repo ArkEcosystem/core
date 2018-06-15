@@ -5,10 +5,14 @@ module.exports = class HttpClient {
   /**
    * @constructor
    * @param  {String} host
-   * @param  {Number} apiVersion
+   * @param  {Number = 1} [apiVersion]
    */
-  constructor (host, apiVersion) {
+  constructor (host, apiVersion = 1) {
     this.host = host.endsWith('/') ? host.slice(0, -1) : host
+    if (host.length === 0) {
+      throw new Error('An empty host is not permitted')
+    }
+
     this.version = apiVersion
   }
 
