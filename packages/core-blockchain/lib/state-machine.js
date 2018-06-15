@@ -60,7 +60,7 @@ blockchainMachine.actionMap = blockchain => {
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
       if (state.noBlockCounter > 5) {
-        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks')
+        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :cry:')
         state.noBlockCounter = 0
         event = 'NETWORKHALTED'
       }
@@ -82,7 +82,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     downloadFinished () {
-      logger.info('Blockchain download finished :rocket:')
+      logger.info('Block download finished :rocket:')
 
       if (blockchain.rebuildQueue.length() === 0) {
         blockchain.dispatch('PROCESSFINISHED')
@@ -116,7 +116,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
     syncingComplete () {
-      logger.info('Blockchain download complete :unicorn_face:')
+      logger.info('Blockchain 100% in sync :dancing_turkey:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
@@ -126,7 +126,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     exitApp () {
-      logger.error('Failed to startup blockchain, exiting...')
+      logger.error('Failed to startup blockchain, exiting... :redalert:')
       process.exit(1)
     },
 
@@ -135,11 +135,11 @@ blockchainMachine.actionMap = blockchain => {
         let block = await blockchain.database.getLastBlock()
 
         if (!block) {
-          logger.warn('No block found in database')
+          logger.warn('No block found in database :hushed:')
           block = new Block(blockchain.config.genesisBlock)
 
           if (block.data.payloadHash !== blockchain.config.network.nethash) {
-            logger.error('FATAL: The genesis block payload hash is different from configured nethash')
+            logger.error('FATAL: The genesis block payload hash is different from configured nethash :redalert:')
             return blockchain.dispatch('FAILURE')
           }
 
