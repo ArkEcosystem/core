@@ -190,8 +190,10 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
 
         // Edge case: if the node is shutdown between round, the round has already been applied
-        if (blockchain.database.isNewRound(block.data.height)) {
-          const round = blockchain.database.getRound(block.data.height)
+        if (blockchain.database.isNewRound(block.data.height + 1)) {
+          logger.info('new round detected')
+          const round = blockchain.database.getRound(block.data.height + 1)
+          logger.info(`new round ${round} detected, cleaning data calculated before the restart`)
           await blockchain.database.deleteRound(round)
         }
         await blockchain.database.applyRound(block.data.height)
