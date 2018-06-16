@@ -73,8 +73,7 @@ module.exports = class Container {
   /**
    * Resolve a plugin.
    * @param  {string} key
-   * @return {Object}
-   * @throws {Error}
+   * @return {?Object}
    */
   resolvePlugin (key) {
     try {
