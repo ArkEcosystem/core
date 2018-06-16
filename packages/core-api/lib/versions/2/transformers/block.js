@@ -19,7 +19,7 @@ module.exports = (model) => {
     forged: {
       reward: model.reward,
       fee: model.totalFee,
-      total: model.reward + model.totalFee
+      total: Number(model.reward) + Number(model.totalFee)
     },
     payload: {
       hash: model.payloadHash,
