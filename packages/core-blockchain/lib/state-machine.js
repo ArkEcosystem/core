@@ -134,7 +134,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async init () {
       try {
-        let block = blockchain.database.getLastBlock()
+        let block = await blockchain.database.getLastBlock()
 
         if (!block) {
           logger.warn('No block found in database :hushed:')
