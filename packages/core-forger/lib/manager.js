@@ -20,7 +20,7 @@ module.exports = class ForgerManager {
   constructor (options) {
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
-    this.client = new Client(options.host)
+    this.client = new Client(options.hosts)
   }
 
   /**
