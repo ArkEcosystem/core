@@ -6,7 +6,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
-const blockchain = container.resolvePlugin('blockchain')
+const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
@@ -48,7 +48,7 @@ exports.store = {
 
     if (transactionPool.guard.hasAny('accept')) {
       logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
-      
+
       transactionPool.addTransactions(transactionPool.guard.accept)
     }
 

@@ -19,7 +19,7 @@ module.exports = {
       constructor: 'Console',
       options: {
         colorize: true,
-        level: 'debug',
+        level: process.env.ARK_LOG_LEVEL || 'debug',
         timestamp: () => Date.now(),
         formatter: (info) => require('./formatter')(info)
       }
@@ -30,7 +30,7 @@ module.exports = {
       options: {
         filename: `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
-        level: 'debug',
+        level: process.env.ARK_LOG_LEVEL || 'debug',
         zippedArchive: true
       }
     }

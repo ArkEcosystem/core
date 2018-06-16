@@ -29,8 +29,8 @@ module.exports = class Monitor {
     }
 
     this.config.peers.list
-      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
-      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port))
+      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
   }
 
   /**
@@ -57,14 +57,14 @@ module.exports = class Monitor {
 
       if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
         this.config.peers.list
-          .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+          .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
         return this.updateNetworkStatus()
       }
     } catch (error) {
       logger.error(error.stack)
 
-      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
       return this.updateNetworkStatus()
     }
@@ -123,7 +123,7 @@ module.exports = class Monitor {
       return
     }
 
-    const newPeer = new Peer(peer.ip, peer.port, this.config)
+    const newPeer = new Peer(peer.ip, peer.port)
 
     try {
       await newPeer.ping(1500)
@@ -219,7 +219,7 @@ module.exports = class Monitor {
 
       list.forEach(peer => {
         if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
 

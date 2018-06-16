@@ -1,6 +1,7 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
@@ -160,7 +161,7 @@ blockchainMachine.actionMap = blockchain => {
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last 24 hours
-        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!blockchain.config.server.fastRebuild
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!container.resolveOptions('blockchain').fastRebuild
 
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
