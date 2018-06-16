@@ -233,7 +233,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async downloadBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
-
+      logger.info(`Downloading blocks from block ${block.data.height}`)
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
