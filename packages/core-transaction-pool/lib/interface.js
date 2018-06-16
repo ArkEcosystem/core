@@ -212,7 +212,7 @@ module.exports = class TransactionPoolInterface {
               }
             },
             1: () => { // block height time lock
-              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock(true).height) {
+              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock().data.height) {
                 logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
                 transactions.push(transaction.serialized.toString('hex'))
               }

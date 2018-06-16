@@ -17,7 +17,7 @@ const config = container.resolvePlugin('config')
         'invalidFees': [...transactions]
       }
     }
-    const feeConstants = config.getConstants(blockchain.getLastBlock(true).height).fees
+    const feeConstants = config.getConstants(blockchain.getLastBlock().data.height).fees
     let invalidFees = []
     const acceptedTransactions = transactions.filter(transaction => {
       if (!feeConstants.dynamic && transaction.fee !== feeManager.get(transaction.type)) {
