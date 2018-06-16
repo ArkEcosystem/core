@@ -369,7 +369,7 @@ module.exports = class Blockchain {
   isSynced (block) {
     block = block || this.getLastBlock()
 
-    return slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.height).blocktime
+    return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
   /**

@@ -254,7 +254,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     logger.debug('Updating delegate statistics...')
 
     try {
-      const maxDelegates = config.getConstants(block.data.height).activeDelegates
+      const maxDelegates = config.getConstants(block.height).activeDelegates
       const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" FROM blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
 
       delegates.forEach(delegate => {
@@ -266,13 +266,13 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
           emitter.emit('forger.missing', {
             delegate: wallet,
-            block: block.data
+            block: block
           })
         } else {
           wallet.producedBlocks++
           wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forgedFees += block.data.totalFee
-          wallet.forgedRewards += block.data.reward
+          wallet.forgedFees += block.totalFee
+          wallet.forgedRewards += block.reward
         }
       })
     } catch (error) {
