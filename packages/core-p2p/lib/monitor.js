@@ -255,7 +255,10 @@ module.exports = class Monitor {
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
+    const heights = {}
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
+    syncedPeers.forEach(p => (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
+    console.log(heights)
     const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
 
@@ -278,7 +281,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(error.stack)
+      logger.error(error.message)
 
       return this.downloadBlocks(fromBlockHeight)
     }
@@ -296,9 +299,9 @@ module.exports = class Monitor {
       return
     }
     let blockPing = blockchain.getBlockPing()
-
     let peers = Object.values(this.peers)
-    if (blockPing.block.id === block.data.id) {
+
+    if (blockPing && blockPing.block.id === block.data.id) {
       // wait a bit before broadcasting if a bit early
       const diff = blockPing.last - blockPing.first
       const maxhop = 4
