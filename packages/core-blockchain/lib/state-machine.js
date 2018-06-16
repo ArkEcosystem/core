@@ -226,7 +226,7 @@ blockchainMachine.actionMap = blockchain => {
         } else {
           state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted', blocks[0])
-          blockchain.dispatch('FORK')
+          blockchain.dispatch('DOWNLOADED')
         }
       }
     },
