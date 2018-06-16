@@ -272,7 +272,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(`Unable to download blocks from ${randomPeer.ip}`)
 
       return this.downloadBlocks(fromBlockHeight)
     }
