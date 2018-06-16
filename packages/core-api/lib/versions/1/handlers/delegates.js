@@ -162,7 +162,7 @@ exports.forged = {
     return utils.respondWith({
       fees: wallet.forgedFees,
       rewards: wallet.forgedRewards,
-      forged: (wallet.forgedFees + wallet.forgedRewards)
+      forged: (Number(wallet.forgedFees) + Number(wallet.forgedRewards))
     })
   },
   config: {
