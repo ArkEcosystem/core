@@ -62,7 +62,7 @@ blockchainMachine.actionMap = blockchain => {
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
       if (state.noBlockCounter > 5) {
-        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :cry:')
+        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:')
         state.noBlockCounter = 0
         event = 'NETWORKHALTED'
       }
@@ -118,7 +118,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
     syncingComplete () {
-      logger.info('Blockchain 100% in sync :dancing_turkey:')
+      logger.info('Blockchain 100% in sync :airplane:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
