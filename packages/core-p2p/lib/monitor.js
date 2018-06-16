@@ -9,6 +9,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const moment = require('moment')
 const delay = require('delay')
 
 module.exports = class Monitor {
@@ -21,6 +22,7 @@ module.exports = class Monitor {
     this.manager = manager
     this.config = config
     this.peers = {}
+    this.suspendedPeers = {}
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json')
@@ -111,7 +113,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip] || process.env.ARK_ENV === 'test') {
+    if (this.peers[peer.ip] || this.__isSuspended(peer) || process.env.ARK_ENV === 'test') {
       return
     }
 
@@ -134,6 +136,10 @@ module.exports = class Monitor {
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
+      this.suspendedPeers[peer.ip] = {
+        peer: newPeer,
+        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
+      }
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -325,5 +331,22 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Determine if peer is suspended or not.
+   * @param  {Peer} peer
+   * @return {Boolean}
+   */
+  __isSuspended (peer) {
+    const suspededPeer = this.suspendedPeers[peer.ip]
+
+    if (suspededPeer && moment().isBefore(suspededPeer.until)) {
+      return true
+    } else if (suspededPeer) {
+      delete this.suspendedPeers[peer.ip]
+    }
+
+    return false
   }
 }

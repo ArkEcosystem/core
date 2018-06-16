@@ -1,8 +1,11 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const moment = require('moment')
+const ARK_ENV = process.env.ARK_ENV
 
 let monitor
+let peer
 
 beforeAll(async (done) => {
   await app.setUp()
@@ -19,6 +22,11 @@ afterAll(async (done) => {
 beforeEach(() => {
   const manager = new (require('../lib/manager'))(require('../lib/defaults'))
   monitor = new (require('../lib/monitor'))(manager)
+  peer = {
+    ip: '45.76.142.128',
+    port: 4002,
+    nethash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23'
+  }
 })
 
 describe('Monitor', () => {
@@ -55,12 +63,6 @@ describe('Monitor', () => {
 
     it('should be ok', async () => {
       process.env.ARK_ENV = false
-
-      const peer = {
-        ip: '45.76.142.128',
-        port: 4002,
-        nethash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23'
-      }
 
       await monitor.acceptNewPeer(peer)
 
@@ -178,6 +180,39 @@ describe('Monitor', () => {
       expect(monitor.broadcastTransactions).toBeFunction()
 
       expect(monitor.toBroadcastV1)
+    })
+  })
+
+  describe('__isSuspended', () => {
+    it('should be a function', () => {
+      expect(monitor.__isSuspended).toBeFunction()
+    })
+
+    it('should have timeout of 60 minutes', () => {
+      expect(monitor.manager.config.suspendMinutes).toBe(60)
+    })
+
+    it('should return true', async () => {
+      process.env.ARK_ENV = false
+      peer.ip = '1.2.3.4'
+      await monitor.acceptNewPeer(peer)
+      process.env.ARK_ENV = ARK_ENV
+
+      expect(monitor.__isSuspended(peer)).toBe(true)
+    })
+
+    it('should return false because passed', async () => {
+      process.env.ARK_ENV = false
+      peer.ip = '1.2.3.4'
+      await monitor.acceptNewPeer(peer)
+      monitor.suspendedPeers['1.2.3.4'].until = moment().subtract(1, 'minutes')
+      process.env.ARK_ENV = ARK_ENV
+
+      expect(monitor.__isSuspended(peer)).toBe(false)
+    })
+
+    it('should return false because not suspended', () => {
+      expect(monitor.__isSuspended(peer)).toBe(false)
     })
   })
 })
