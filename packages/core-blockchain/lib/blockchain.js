@@ -1,7 +1,6 @@
 'use strict'
 
 const { slots } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')
@@ -158,8 +157,7 @@ module.exports = class Blockchain {
       const lastBlock = stateMachine.state.lastBlock
       await this.database.deleteBlock(lastBlock)
 
-      let newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
-      newLastBlock = new Block(newLastBlock)
+      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
 
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
@@ -202,8 +200,7 @@ module.exports = class Blockchain {
         await this.transactionPool.addTransactions(lastBlock.transactions)
       }
 
-      let newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
-      newLastBlock = new Block(newLastBlock)
+      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
 
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
