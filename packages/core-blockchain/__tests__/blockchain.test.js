@@ -260,7 +260,7 @@ describe('Blockchain', () => {
     it('should be ok using onlyData', () => {
       blockchain.stateMachine.state.lastBlock = genesisBlock
 
-      expect(blockchain.getLastBlock(true)).toEqual(genesisBlock.data)
+      expect(blockchain.getLastBlock()).toEqual(genesisBlock.data)
     })
   })
 

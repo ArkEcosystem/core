@@ -51,12 +51,12 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock(true)
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
-      height: lastBlock.height,
-      id: lastBlock.id
+      height: lastBlock.data.height,
+      id: lastBlock.data.id
     }
   },
   config: {
@@ -93,7 +93,7 @@ exports.getCommonBlock = {
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getLastBlock(true).height
+        lastBlockHeight: blockchain.getLastBlock().data.height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
@@ -168,7 +168,9 @@ exports.getStatus = {
    */
   handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
+
     let lastBlock = null
+
     if (blockchain) {
       lastBlock = blockchain.getLastBlock()
     }

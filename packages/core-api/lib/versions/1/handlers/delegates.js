@@ -142,7 +142,7 @@ exports.fee = {
    */
   handler (request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegateRegistration
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.delegateRegistration
     })
   }
 }
@@ -184,13 +184,13 @@ exports.nextForgers = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const lastBlock = blockchain.getLastBlock(true)
+    const lastBlock = blockchain.getLastBlock()
     const limit = request.query.limit || 10
 
     const delegatesCount = config.getConstants(lastBlock).activeDelegates
-    const currentSlot = slots.getSlotNumber(lastBlock.timestamp)
+    const currentSlot = slots.getSlotNumber(lastBlock.data.timestamp)
 
-    let activeDelegates = await database.getActiveDelegates(lastBlock.height)
+    let activeDelegates = await database.getActiveDelegates(lastBlock.data.height)
     activeDelegates = activeDelegates.map(delegate => delegate.publicKey)
 
     const nextForgers = []
@@ -203,7 +203,7 @@ exports.nextForgers = {
     }
 
     return utils.respondWith({
-      currentBlock: lastBlock.height,
+      currentBlock: lastBlock.data.height,
       currentSlot: currentSlot,
       delegates: nextForgers
     })

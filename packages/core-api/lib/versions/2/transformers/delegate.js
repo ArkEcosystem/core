@@ -29,8 +29,8 @@ module.exports = (delegate) => {
 
   if (lastBlock) {
     data.blocks.last = {
-      id: lastBlock.id,
-      timestamp: formatTimestamp(lastBlock.timestamp)
+      id: lastBlock.data.id,
+      timestamp: formatTimestamp(lastBlock.data.timestamp)
     }
   }
 

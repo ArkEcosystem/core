@@ -106,7 +106,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
         await blockchain.transactionPool.buildWallets()
 
-        // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
+        // await blockchain.database.applyRound(blockchain.getLastBlock().data.height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -133,7 +133,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async init () {
       try {
-        let block = await blockchain.database.getLastBlock()
+        let block = blockchain.database.getLastBlock()
 
         if (!block) {
           logger.warn('No block found in database :hushed:')

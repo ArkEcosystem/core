@@ -128,7 +128,7 @@ exports.fee = {
    */
   handler (request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.delegateRegistration
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.delegateRegistration
     })
   }
 }
@@ -154,7 +154,7 @@ exports.delegates = {
     }
 
     // TODO: refactor this to be reusable - delegate manager?
-    const delegates = await database.getActiveDelegates(blockchain.getLastBlock(true).height)
+    const delegates = await database.getActiveDelegates(blockchain.getLastBlock().data.height)
     const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
     const delegate = delegates[delegateRank] || {}
 

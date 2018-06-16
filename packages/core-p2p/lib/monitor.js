@@ -272,7 +272,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(error.stack)
 
       return this.downloadBlocks(fromBlockHeight)
     }

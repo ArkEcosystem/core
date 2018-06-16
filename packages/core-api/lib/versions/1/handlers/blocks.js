@@ -78,7 +78,7 @@ exports.epoch = {
    */
   handler (request, h) {
     return utils.respondWith({
-      epoch: config.getConstants(blockchain.getLastBlock(true).height).epoch
+      epoch: config.getConstants(blockchain.getLastBlock().data.height).epoch
     })
   }
 }
@@ -93,9 +93,9 @@ exports.height = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const block = blockchain.getLastBlock(true)
+    const block = blockchain.getLastBlock()
 
-    return utils.respondWith({ height: block.height, id: block.id })
+    return utils.respondWith({ height: block.data.height, id: block.data.id })
   }
 }
 
@@ -124,7 +124,7 @@ exports.fee = {
    */
   handler (request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.transfer
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.transfer
     })
   }
 }
@@ -139,7 +139,7 @@ exports.fees = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const fees = config.getConstants(blockchain.getLastBlock(true).height).fees
+    const fees = config.getConstants(blockchain.getLastBlock().data.height).fees
 
     return utils.respondWith({
       fees: {
@@ -164,7 +164,7 @@ exports.milestone = {
    */
   handler (request, h) {
     return utils.respondWith({
-      milestone: ~~(blockchain.getLastBlock(true).height / 3000000)
+      milestone: ~~(blockchain.getLastBlock().data.height / 3000000)
     })
   }
 }
@@ -180,7 +180,7 @@ exports.reward = {
    */
   handler (request, h) {
     return utils.respondWith({
-      reward: config.getConstants(blockchain.getLastBlock(true).height).reward
+      reward: config.getConstants(blockchain.getLastBlock().data.height).reward
     })
   }
 }
@@ -195,11 +195,11 @@ exports.supply = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = blockchain.getLastBlock(true)
-    const constants = config.getConstants(lastBlock.height)
+    const lastBlock = blockchain.getLastBlock()
+    const constants = config.getConstants(lastBlock.data.height)
 
     return utils.respondWith({
-      supply: config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
+      supply: config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
     })
   }
 }
@@ -214,17 +214,17 @@ exports.status = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = blockchain.getLastBlock(true)
-    const constants = config.getConstants(lastBlock.height)
+    const lastBlock = blockchain.getLastBlock()
+    const constants = config.getConstants(lastBlock.data.height)
 
     return utils.respondWith({
       epoch: constants.epoch,
-      height: lastBlock.height,
+      height: lastBlock.data.height,
       fee: constants.fees.transfer,
-      milestone: ~~(lastBlock.height / 3000000),
+      milestone: ~~(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
+      supply: config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
     })
   }
 }
