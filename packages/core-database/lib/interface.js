@@ -207,7 +207,7 @@ module.exports = class ConnectionInterface {
   /**
    * Apply the round.
    * Note that the round is applied and the end of the round (so checking height + 1)
-   * so the next block to apply starting the new round will be ready to be validated 
+   * so the next block to apply starting the new round will be ready to be validated
    * @param  {Number} height
    * @return {void}
    */

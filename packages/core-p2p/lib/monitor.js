@@ -283,11 +283,19 @@ module.exports = class Monitor {
    * @return {Promise}
    */
   async broadcastBlock (block) {
-    const peers = Object.values(this.peers)
+    const blockchain = container.resolvePlugin('blockchain')
+    const blockPing = blockchain.getBlockPing()
+    let peers = Object.values(this.peers)
+    if (blockPing.block.id === block.id) {
+       // TODO: to be put in config?
+      const maxhop = 4
+      const proba = (maxhop - blockPing.count) / maxhop
+      peers = peers.filter(p => Math.random() < proba)
+    }
 
     logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
 
-    await Promise.all(peers.map((peer) => peer.postBlock(block.toBroadcastV1())))
+    await Promise.all(peers.map(peer => peer.postBlock()))
   }
 
   /**

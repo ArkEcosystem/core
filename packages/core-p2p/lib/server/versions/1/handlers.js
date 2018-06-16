@@ -9,8 +9,6 @@ const { slots } = require('@arkecosystem/crypto')
 const schema = require('./schema')
 // const Promise = require('bluebird')
 
-let lastReceivedBlock = { height: 1 }
-
 /**
  * @type {Object}
  */
@@ -218,9 +216,8 @@ exports.postBlock = {
 
       const block = request.payload.block
 
-      // did we just got it?
-      if (lastReceivedBlock.height === block.height) return { success: true }
-
+      if (blockchain.pingBlock(block)) return {success: true}
+      // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
@@ -242,11 +239,13 @@ exports.postBlock = {
           if (!peer && process.env.NODE_ENV === 'test_p2p') {
             peer = await request.server.app.p2p.getRandomPeer()
           }
+
           if (!peer) return { success: false }
 
+          transactions = await peer.getTransactionsFromIds(block.transactionIds)
           // issue on v1, using /api/ instead of /peer/
-          // const missingTxs = await peer.getTransactionsFromIds(missingIds)
-          transactions = await peer.getTransactionsFromBlock(block.id)
+          if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+
           // reorder them correctly
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
@@ -254,8 +253,8 @@ exports.postBlock = {
         }
       // } else return { success: false }
       block.ip = requestIp.getClientIp(request)
-      lastReceivedBlock = block
-      blockchain.queueBlock(block)
+      blockchain.pushPingBlock(b.data)
+      blockchain.queueBlock(b.data)
       return { success: true }
     } catch (error) {
       console.log(error)
