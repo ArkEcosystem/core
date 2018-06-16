@@ -308,9 +308,13 @@ module.exports = class Blockchain {
 
       this.dispatch('FORK')
     }
-
-    if (this.transactionPool) {
-      this.transactionPool.acceptChainedBlock(block)
+    try {
+      if (this.transactionPool) {
+        this.transactionPool.acceptChainedBlock(block)
+      }
+    } catch (error) {
+      logger.info('issue applying block to transaction pool')
+      logger.debug(error.stack)
     }
   }
 
