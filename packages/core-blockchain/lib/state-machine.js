@@ -251,7 +251,7 @@ blockchainMachine.actionMap = blockchain => {
           state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(block.data))
-          blockchain.dispatch('FORK')
+          blockchain.dispatch('NOBLOCK')
         }
       }
     },

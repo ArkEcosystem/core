@@ -297,7 +297,6 @@ module.exports = class Blockchain {
       await this.database.applyBlock(block)
       await this.database.saveBlock(block)
       state.lastBlock = block
-      state.lastDownloadedBlock = state.lastBlock
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) {
         this.p2p.broadcastBlock(block)
@@ -305,8 +304,8 @@ module.exports = class Blockchain {
     } catch (error) {
       logger.error(`Refused new block: ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)
-
-      this.dispatch('FORK')
+      state.lastDownloadedBlock = state.lastBlock
+      return this.dispatch('FORK')
     }
     try {
       if (this.transactionPool) {
