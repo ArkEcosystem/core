@@ -9,6 +9,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const delay = require('delay')
 
 module.exports = class Monitor {
   /**
@@ -283,11 +284,33 @@ module.exports = class Monitor {
    * @return {Promise}
    */
   async broadcastBlock (block) {
-    const peers = Object.values(this.peers)
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      logger.info(`skipping broadcast of block ${block.data.height} as blockchain is not ready `)
+      return
+    }
+    let blockPing = blockchain.getBlockPing()
+
+    let peers = Object.values(this.peers)
+    if (blockPing.block.id === block.data.id) {
+      // wait a bit before broadcasting if a bit early
+      const diff = blockPing.last - blockPing.first
+      const maxhop = 4
+      let proba = (maxhop - blockPing.count) / maxhop
+      if (diff < 500 && proba > 0) {
+        await delay(500 - diff)
+        blockPing = blockchain.getBlockPing()
+        // got aleady a new block, no broadcast
+        if (blockPing.block.id !== block.data.id) return
+        else proba = (maxhop - blockPing.count) / maxhop
+      }
+      // TODO: to be put in config?
+      peers = peers.filter(p => Math.random() < proba)
+    }
 
     logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
 
-    await Promise.all(peers.map((peer) => peer.postBlock(block.toBroadcastV1())))
+    await Promise.all(peers.map(peer => peer.postBlock(block.toBroadcastV1())))
   }
 
   /**

@@ -110,6 +110,7 @@ module.exports = class Blockchain {
       started: false,
       lastBlock: null,
       lastDownloadedBlock: null,
+      blockPing: null,
       noBlockCounter: 0
     }
 
@@ -393,6 +394,31 @@ module.exports = class Blockchain {
     const block = stateMachine.state.lastDownloadedBlock
 
     return onlyData ? block.data : block
+  }
+
+  getBlockPing () {
+    return stateMachine.state.blockPing
+  }
+
+  pingBlock (incomingBlock) {
+    if (!stateMachine.state.blockPing) return false
+    if (stateMachine.state.blockPing.block.height === incomingBlock.height && stateMachine.state.blockPing.block.id === incomingBlock.id) {
+      stateMachine.state.blockPing.count++
+      stateMachine.state.blockPing.last = new Date().getTime()
+      return true
+    }
+    return false
+  }
+
+  pushPingBlock (block) {
+    // logging for stats about network health
+    if (stateMachine.state.blockPing) logger.info(`block ${stateMachine.state.blockPing.block.height} pinged blockchain ${stateMachine.state.blockPing.count} times`)
+    stateMachine.state.blockPing = {
+      count: 1,
+      first: new Date().getTime(),
+      last: new Date().getTime(),
+      block
+    }
   }
 
   /**
