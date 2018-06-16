@@ -14,7 +14,7 @@ yarn add @arkecosystem/core-forger
 
 ```js
 module.exports = {
-  host: 'http://127.0.0.1'
+  hosts: ['http://127.0.0.1:4002']
 }
 ```
 

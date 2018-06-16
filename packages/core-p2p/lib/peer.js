@@ -12,17 +12,17 @@ module.exports = class Peer {
    * @constructor
    * @param  {String} ip
    * @param  {Number} port
-   * @param  {Object} config
    */
-  constructor (ip, port, config) {
+  constructor (ip, port) {
     this.ip = ip
     this.port = port
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
     this.state = {}
+
     this.headers = {
-      version: config.server.version,
-      port: config.server.port,
+      version: container.resolveOptions('blockchain').version,
+      port: container.resolveOptions('p2p').port,
       nethash: config.network.nethash
     }
   }

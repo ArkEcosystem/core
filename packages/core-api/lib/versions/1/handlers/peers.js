@@ -1,7 +1,6 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const config = container.resolvePlugin('config')
 const p2p = container.resolvePlugin('p2p')
 
 const utils = require('../utils')
@@ -97,6 +96,8 @@ exports.version = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    return utils.respondWith({ version: config.server.version })
+    return utils.respondWith({
+      version: container.resolveOptions('blockchain').version
+    })
   }
 }
