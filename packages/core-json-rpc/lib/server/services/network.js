@@ -33,19 +33,51 @@ class Network {
 
     peer = await this.__selectResponsivePeer(peer || this.server)
 
+    let uri
     if (!url.startsWith('http')) {
-      url = `http://${peer}${url}`
+      uri = `http://${peer}${url}`
     }
 
     try {
-      logger.info(`Sending request on "${this.network.name}" to "${url}"`)
+      logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
 
-      return axios.get(url, {
+      return axios.get(uri, {
         params,
         headers: {
           nethash,
           version: '2.0.0',
           port: 1
+        }
+      })
+      .catch(err => {
+        if (err.message === 'Request failed with status code 404') {
+          // We are trying on the wrong API version
+          let peerParts = peer.split(':')
+          let port = peerParts[peerParts.length - 1]
+          switch (port) {
+            case '4003':
+              if (this.network.name === 'devnet') {
+                peerParts[peerParts.length - 1] = '4002' // Set devnet port
+              } else if (this.network.name === 'mainnet') {
+                peerParts[peerParts.length - 1] = '4001' // Set mainnet port
+              }
+              break;
+            case '4001':
+            case '4002':
+            default:
+              peerParts[peerParts.length - 1] = '4003' // Set the public API port
+          }
+          peer = peerParts.join(':')
+          uri = `http://${peer}${url}`
+          logger.info(`Sending request on "${this.network.name}" to "${uri}"`)
+          return axios.get(uri, {
+            params,
+            headers: {
+              nethash,
+              version: '2.0.0',
+              port: 1
+            }
+          })
         }
       })
     } catch (error) {
