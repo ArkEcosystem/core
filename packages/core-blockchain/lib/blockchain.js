@@ -365,7 +365,7 @@ module.exports = class Blockchain {
   isSynced (block) {
     block = block || this.getLastBlock()
 
-    return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
+    return slots.getTime() - block.data.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
 
   /**
@@ -375,9 +375,9 @@ module.exports = class Blockchain {
    */
   isRebuildSynced (block) {
     block = block || this.getLastBlock()
-    logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
+    logger.info('Remaining block timestamp', slots.getTime() - block.data.timestamp)
 
-    return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
+    return slots.getTime() - block.data.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
   /**

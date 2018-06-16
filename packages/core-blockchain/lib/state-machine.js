@@ -67,7 +67,7 @@ blockchainMachine.actionMap = blockchain => {
         event = 'NETWORKHALTED'
       }
 
-      if (blockchain.isSynced(state.lastDownloadedBlock.data)) {
+      if (blockchain.isSynced(state.lastDownloadedBlock)) {
         state.noBlockCounter = 0
         event = 'SYNCED'
       }
