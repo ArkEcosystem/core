@@ -305,7 +305,7 @@ module.exports = class Monitor {
 
     logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
 
-    await Promise.all(peers.map(peer => peer.postBlock()))
+    await Promise.all(peers.map(peer => peer.postBlock(block.toBroadcastV1())))
   }
 
   /**
