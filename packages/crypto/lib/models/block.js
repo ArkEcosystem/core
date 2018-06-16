@@ -192,7 +192,7 @@ module.exports = class Block {
    * @return {String}
    */
   toString () {
-    return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
+    return `${this.data.id}, height: ${this.data.height}, ${this.data.numberOfTransactions} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
   }
 
   /*
