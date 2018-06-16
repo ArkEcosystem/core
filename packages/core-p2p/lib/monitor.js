@@ -286,7 +286,7 @@ module.exports = class Monitor {
     const blockchain = container.resolvePlugin('blockchain')
     const blockPing = blockchain.getBlockPing()
     let peers = Object.values(this.peers)
-    if (blockPing.block.id === block.id) {
+    if (blockPing.block.id === block.data.id) {
        // TODO: to be put in config?
       const maxhop = 4
       const proba = (maxhop - blockPing.count) / maxhop
