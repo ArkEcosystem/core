@@ -100,6 +100,8 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
+      logger.info(`Block ${block.data.id} was forged by delegate ${delegate.publicKey} :trident:`)
+
       emitter.emit('block.forged', block.data)
 
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
