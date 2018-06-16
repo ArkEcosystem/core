@@ -257,7 +257,7 @@ module.exports = class Monitor {
     const slot = slots.getSlotNumber()
     const heights = {}
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
-    syncedPeers.forEach(p => (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
+    syncedPeers.forEach(p => p.state && (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
     console.log(heights)
     const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length

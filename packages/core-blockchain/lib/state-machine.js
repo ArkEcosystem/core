@@ -262,6 +262,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async startForkRecovery () {
       logger.info('Starting fork recovery 🍴')
+      await blockchain.database.saveBlockCommit()
       // state.forked = true
       let random = ~~(4 / Math.random())
       if (random > 102) random = 102
