@@ -253,8 +253,8 @@ exports.postBlock = {
           if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
-      b.data.ip = requestIp.getClientIp(request)
-      blockchain.queueBlock(b.data)
+      block.ip = requestIp.getClientIp(request)
+      blockchain.queueBlock(block)
       return { success: true }
     } catch (error) {
       console.log(error)

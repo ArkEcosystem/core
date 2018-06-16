@@ -290,7 +290,7 @@ module.exports = class Monitor {
       return
     }
     let blockPing = blockchain.getBlockPing()
-    
+
     let peers = Object.values(this.peers)
     if (blockPing.block.id === block.data.id) {
       // wait a bit before broadcasting if a bit early
