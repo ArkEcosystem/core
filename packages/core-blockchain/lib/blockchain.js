@@ -302,7 +302,7 @@ module.exports = class Blockchain {
       state.lastBlock = block
 
       // broadcast only recent blocks
-      if (slots.getTime() - block.data.timestamp < 10) {
+      if (slots.getTime() - block.timestamp < 10) {
         this.p2p.broadcastBlock(block)
       }
 
@@ -379,9 +379,9 @@ module.exports = class Blockchain {
    */
   isRebuildSynced (block) {
     block = block || this.getLastBlock()
-    logger.info('Remaining block timestamp', slots.getTime() - block.data.timestamp)
+    logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
 
-    return slots.getTime() - block.data.timestamp < 100 * this.config.getConstants(block.height).blocktime
+    return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
   }
 
   /**
