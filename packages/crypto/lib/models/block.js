@@ -418,8 +418,8 @@ module.exports = class Block {
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
 
     let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2
-    if (hexString.length === transactionOffset * 2) return block
     block.transactions = []
+    if (hexString.length === transactionOffset * 2) return block
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
       block.transactions.push(buf.readUint32(transactionOffset))
