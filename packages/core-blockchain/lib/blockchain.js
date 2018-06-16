@@ -402,7 +402,7 @@ module.exports = class Blockchain {
 
   pingBlock (incomingBlock) {
     if (!stateMachine.state.blockPing) return false
-    if (stateMachine.state.blockPing.block.height === incomingBlock.height && stateMachine.state.blockPing.block.height.block.id === incomingBlock.id) {
+    if (stateMachine.state.blockPing.block.height === incomingBlock.height && stateMachine.state.blockPing.block.id === incomingBlock.id) {
       stateMachine.state.blockPing.count++
       stateMachine.state.blockPing.last = new Date().getTime()
       return true
