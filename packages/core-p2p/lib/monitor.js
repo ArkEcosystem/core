@@ -285,7 +285,12 @@ module.exports = class Monitor {
    */
   async broadcastBlock (block) {
     const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      logger.info(`skipping broadcast of block ${block.data.height} as blockchain is not ready `)
+      return
+    }
     let blockPing = blockchain.getBlockPing()
+    
     let peers = Object.values(this.peers)
     if (blockPing.block.id === block.data.id) {
       // wait a bit before broadcasting if a bit early
