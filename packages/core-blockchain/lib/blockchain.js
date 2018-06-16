@@ -405,6 +405,7 @@ module.exports = class Blockchain {
     if (stateMachine.state.blockPing.block.height === incomingBlock.height && stateMachine.state.blockPing.block.id === incomingBlock.id) {
       stateMachine.state.blockPing.count++
       stateMachine.state.blockPing.last = new Date().getTime()
+      logger.info(`block ${incomingBlock.height} pinged blockchain ${stateMachine.state.blockPing.count} times`)
       return true
     }
     return false

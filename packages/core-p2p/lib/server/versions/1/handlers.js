@@ -224,6 +224,7 @@ exports.postBlock = {
       if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
       const b = new Block(block)
       if (!b.verification.verified) throw new Error('invalid block received')
+      blockchain.pushPingBlock(b.data)
       if (b.headerOnly) {
         // let missingIds = []
         let transactions = []
@@ -252,8 +253,7 @@ exports.postBlock = {
           if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
-      block.ip = requestIp.getClientIp(request)
-      blockchain.pushPingBlock(b.data)
+      b.data.ip = requestIp.getClientIp(request)
       blockchain.queueBlock(b.data)
       return { success: true }
     } catch (error) {
