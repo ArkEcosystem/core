@@ -17,7 +17,7 @@ exports.fee = {
    */
   handler (request, h) {
     return utils.respondWith({
-      fee: config.getConstants(blockchain.getLastBlock(true).height).fees.secondSignature
+      fee: config.getConstants(blockchain.getLastBlock().data.height).fees.secondSignature
     })
   }
 }

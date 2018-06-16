@@ -23,7 +23,10 @@ module.exports = async (options) => {
     logger.warn('JSON-RPC server allows remote connections, this is a potential security risk!')
   }
 
-  const server = new Hapi.Server({ port: options.port })
+  const server = new Hapi.Server({
+    host: options.host,
+    port: options.port
+  })
   server.app.schemas = {}
 
   await server.register({ plugin: require('./plugins/whitelist'), options })

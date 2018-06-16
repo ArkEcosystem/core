@@ -1,18 +1,18 @@
 'use strict'
 
 module.exports = {
-  enabled: false,
+  enabled: process.env.ARK_WEBHOOKS_ENABLED || false,
   database: {
     dialect: 'sqlite',
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
-    logging: false
+    logging: process.env.ARK_DB_LOGGING || false
   },
   redis: {
     host: process.env.ARK_REDIS_HOST || 'localhost',
     port: process.env.ARK_REDIS_PORT || 6379
   },
   server: {
-    enabled: false,
+    enabled: process.env.ARK_WEBHOOKS_API_ENABLED || false,
     host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
     port: process.env.ARK_WEBHOOKS_PORT || 4004,
     whitelist: ['127.0.0.1', '192.168.*'],

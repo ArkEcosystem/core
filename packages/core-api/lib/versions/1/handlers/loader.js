@@ -17,8 +17,8 @@ exports.status = {
   handler (request, h) {
     return utils.respondWith({
       loaded: blockchain.isSynced(),
-      now: blockchain.state.lastBlock ? blockchain.getLastBlock(true).height : 0,
-      blocksCount: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock(true).height
+      now: blockchain.state.lastBlock ? blockchain.getLastBlock().data.height : 0,
+      blocksCount: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock().data.height
     })
   }
 }
@@ -35,9 +35,9 @@ exports.syncing = {
   handler (request, h) {
     return utils.respondWith({
       syncing: !blockchain.isSynced(),
-      blocks: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock(true).height,
-      height: blockchain.getLastBlock(true).height,
-      id: blockchain.getLastBlock(true).id
+      blocks: blockchain.p2p.getNetworkHeight() - blockchain.getLastBlock().data.height,
+      height: blockchain.getLastBlock().data.height,
+      id: blockchain.getLastBlock().data.id
     })
   }
 }

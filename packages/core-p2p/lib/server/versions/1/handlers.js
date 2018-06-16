@@ -9,8 +9,6 @@ const { slots } = require('@arkecosystem/crypto')
 const schema = require('./schema')
 // const Promise = require('bluebird')
 
-let lastReceivedBlock = { height: 1 }
-
 /**
  * @type {Object}
  */
@@ -53,12 +51,12 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock(true)
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
-      height: lastBlock.height,
-      id: lastBlock.id
+      height: lastBlock.data.height,
+      id: lastBlock.data.id
     }
   },
   config: {
@@ -95,7 +93,7 @@ exports.getCommonBlock = {
       return {
         success: true,
         common: commonBlock.length ? commonBlock[0] : null,
-        lastBlockHeight: blockchain.getLastBlock(true).height
+        lastBlockHeight: blockchain.getLastBlock().data.height
       }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
@@ -170,7 +168,9 @@ exports.getStatus = {
    */
   handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
+
     let lastBlock = null
+
     if (blockchain) {
       lastBlock = blockchain.getLastBlock()
     }
@@ -218,15 +218,15 @@ exports.postBlock = {
 
       const block = request.payload.block
 
-      // did we just got it?
-      if (lastReceivedBlock.height === block.height) return { success: true }
-
+      if (blockchain.pingBlock(block)) return {success: true}
+      // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
       if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
       const b = new Block(block)
       if (!b.verification.verified) throw new Error('invalid block received')
+      blockchain.pushPingBlock(b.data)
       if (b.headerOnly) {
         // let missingIds = []
         let transactions = []
@@ -242,11 +242,13 @@ exports.postBlock = {
           if (!peer && process.env.NODE_ENV === 'test_p2p') {
             peer = await request.server.app.p2p.getRandomPeer()
           }
+
           if (!peer) return { success: false }
 
+          transactions = await peer.getTransactionsFromIds(block.transactionIds)
           // issue on v1, using /api/ instead of /peer/
-          // const missingTxs = await peer.getTransactionsFromIds(missingIds)
-          transactions = await peer.getTransactionsFromBlock(block.id)
+          if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+
           // reorder them correctly
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
@@ -254,7 +256,6 @@ exports.postBlock = {
         }
       // } else return { success: false }
       block.ip = requestIp.getClientIp(request)
-      lastReceivedBlock = block
       blockchain.queueBlock(block)
       return { success: true }
     } catch (error) {
@@ -326,7 +327,7 @@ exports.getBlocks = {
   async handler (request, h) {
     try {
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
-      logger.info(`${requestIp.getClientIp(request)} downloading ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
+      logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
       return { success: true, blocks: blocks || [] }
     } catch (error) {

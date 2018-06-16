@@ -1,6 +1,7 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
@@ -17,6 +18,7 @@ const state = {
   blockchain: blockchainMachine.initialState,
   lastDownloadedBlock: null,
   lastBlock: null,
+  blockPing: null,
   started: false,
   rebuild: true,
   fastRebuild: true,
@@ -60,7 +62,7 @@ blockchainMachine.actionMap = blockchain => {
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
       if (state.noBlockCounter > 5) {
-        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks')
+        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :cry:')
         state.noBlockCounter = 0
         event = 'NETWORKHALTED'
       }
@@ -82,7 +84,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     downloadFinished () {
-      logger.info('Blockchain download finished :rocket:')
+      logger.info('Block download finished :rocket:')
 
       if (blockchain.rebuildQueue.length() === 0) {
         blockchain.dispatch('PROCESSFINISHED')
@@ -105,7 +107,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
         await blockchain.transactionPool.buildWallets()
 
-        // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
+        // await blockchain.database.applyRound(blockchain.getLastBlock().data.height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -116,7 +118,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
     syncingComplete () {
-      logger.info('Blockchain download complete :unicorn_face:')
+      logger.info('Blockchain 100% in sync :dancing_turkey:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
@@ -126,7 +128,7 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     exitApp () {
-      logger.error('Failed to startup blockchain, exiting...')
+      logger.error('Failed to startup blockchain, exiting... :redalert:')
       process.exit(1)
     },
 
@@ -135,11 +137,11 @@ blockchainMachine.actionMap = blockchain => {
         let block = await blockchain.database.getLastBlock()
 
         if (!block) {
-          logger.warn('No block found in database')
+          logger.warn('No block found in database :hushed:')
           block = new Block(blockchain.config.genesisBlock)
 
           if (block.data.payloadHash !== blockchain.config.network.nethash) {
-            logger.error('FATAL: The genesis block payload hash is different from configured nethash')
+            logger.error('FATAL: The genesis block payload hash is different from configured nethash :redalert:')
             return blockchain.dispatch('FAILURE')
           }
 
@@ -159,7 +161,7 @@ blockchainMachine.actionMap = blockchain => {
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last 24 hours
-        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!blockchain.config.server.fastRebuild
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!container.resolveOptions('blockchain').fastRebuild
 
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
@@ -188,6 +190,13 @@ blockchainMachine.actionMap = blockchain => {
         // SPV rebuild
         await blockchain.database.buildWallets(block.data.height)
         await blockchain.database.saveWallets(true)
+
+        // Edge case: if the node is shutdown between round, the round has already been applied
+        if (blockchain.database.isNewRound(block.data.height + 1)) {
+          const round = blockchain.database.getRound(block.data.height + 1)
+          logger.info(`new round ${round} detected, cleaning data calculated before the restart`)
+          await blockchain.database.deleteRound(round)
+        }
         await blockchain.database.applyRound(block.data.height)
         await blockchain.transactionPool.buildWallets()
 

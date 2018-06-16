@@ -38,7 +38,9 @@ module.exports = class Blockchain {
   dispatch (event) {
     const nextState = stateMachine.transition(stateMachine.state.blockchain, event)
 
-    if (nextState.actions.length > 0) logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
+    if (nextState.actions.length > 0) {
+      logger.debug(`event '${event}': ${JSON.stringify(stateMachine.state.blockchain.value)} -> ${JSON.stringify(nextState.value)} -> actions: ${JSON.stringify(nextState.actions)}`)
+    }
 
     stateMachine.state.blockchain = nextState
 
@@ -110,6 +112,7 @@ module.exports = class Blockchain {
       started: false,
       lastBlock: null,
       lastDownloadedBlock: null,
+      blockPing: null,
       noBlockCounter: 0
     }
 
@@ -153,12 +156,14 @@ module.exports = class Blockchain {
     const deleteLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
       await this.database.deleteBlock(lastBlock)
+
       const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
+
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    const height = this.getLastBlock(true).height
+    const height = this.getLastBlock().data.height
     const maxDelegates = this.config.getConstants(height).activeDelegates
     const previousRound = Math.floor((height - 1) / maxDelegates)
 
@@ -169,9 +174,9 @@ module.exports = class Blockchain {
     const newHeight = previousRound * maxDelegates
     logger.info(`Removing ${height - newHeight} blocks to reset current round`)
     let count = 0
-    const max = this.getLastBlock(true).height - newHeight
-    while (this.getLastBlock(true).height >= newHeight) {
-      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock(true).id + ', height: ' + this.getLastBlock(true).height)
+    const max = this.getLastBlock().data.height - newHeight
+    while (this.getLastBlock().data.height >= newHeight) {
+      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock().data.id + ', height: ' + this.getLastBlock().data.height)
       await deleteLastBlock()
     }
     logger.stopTracker(`${max} blocks removed`, count, max)
@@ -196,6 +201,7 @@ module.exports = class Blockchain {
       }
 
       const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
+
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
@@ -205,17 +211,17 @@ module.exports = class Blockchain {
         return
       }
 
-      logger.info(`Undoing block ${this.getLastBlock(true).height}`)
+      logger.info(`Undoing block ${this.getLastBlock().data.height}`)
 
       await revertLastBlock()
       await __removeBlocks(nblocks - 1)
     }
 
-    if (nblocks >= this.getLastBlock(true).height) {
-      nblocks = this.getLastBlock(true).height - 1
+    if (nblocks >= this.getLastBlock().data.height) {
+      nblocks = this.getLastBlock().data.height - 1
     }
 
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock(true).height - nblocks}`)
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock().data.height - nblocks}`)
 
     this.queue.pause()
     this.queue.clear(stateMachine)
@@ -240,11 +246,11 @@ module.exports = class Blockchain {
         if (block.data.height % 10000 === 0) await this.database.saveBlockCommit()
         state.lastBlock = block
         callback()
-      } else if (block.data.height > this.getLastBlock(true).height + 1) {
-        logger.info(`Block ${block.data.height} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock(true).height}`)
+      } else if (block.data.height > this.getLastBlock().data.height + 1) {
+        logger.info(`Block ${block.data.height} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock().data.height}`)
         state.lastDownloadedBlock = state.lastBlock
         callback()
-      } else if (block.data.height < this.getLastBlock(true).height || (block.data.height === this.getLastBlock(true).height && block.data.id === this.getLastBlock(true).id)) {
+      } else if (block.data.height < this.getLastBlock().data.height || (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id)) {
         logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
         callback()
       } else {
@@ -291,7 +297,6 @@ module.exports = class Blockchain {
       await this.database.applyBlock(block)
       await this.database.saveBlock(block)
       state.lastBlock = block
-
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) {
         this.p2p.broadcastBlock(block)
@@ -317,11 +322,11 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async manageUnchainedBlock (block, state) {
-    if (block.data.height > this.getLastBlock(true).height + 1) {
-      logger.info(`Blockchain not ready to accept new block at height ${block.data.height}. Last block: ${this.getLastBlock(true).height}`)
-    } else if (block.data.height < this.getLastBlock(true).height) {
+    if (block.data.height > this.getLastBlock().data.height + 1) {
+      logger.info(`Blockchain not ready to accept new block at height ${block.data.height}. Last block: ${this.getLastBlock().data.height}`)
+    } else if (block.data.height < this.getLastBlock().data.height) {
       logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
-    } else if (block.data.height === this.getLastBlock(true).height && block.data.id === this.getLastBlock(true).id) {
+    } else if (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id) {
       logger.debug(`Block ${block.data.height} just received`)
     } else {
       const isValid = await this.database.validateForkedBlock(block)
@@ -358,7 +363,7 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isSynced (block) {
-    block = block || this.getLastBlock(true)
+    block = block || this.getLastBlock()
 
     return slots.getTime() - block.timestamp < 3 * this.config.getConstants(block.height).blocktime
   }
@@ -369,7 +374,7 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isRebuildSynced (block) {
-    block = block || this.getLastBlock(true)
+    block = block || this.getLastBlock()
     logger.info('Remaining block timestamp', slots.getTime() - block.timestamp)
 
     return slots.getTime() - block.timestamp < 100 * this.config.getConstants(block.height).blocktime
@@ -379,20 +384,41 @@ module.exports = class Blockchain {
    * Get the last block of the blockchain.
    * @return {Object}
    */
-  getLastBlock (onlyData = false) {
-    const block = stateMachine.state.lastBlock
-
-    return onlyData ? block.data : block
+  getLastBlock () {
+    return stateMachine.state.lastBlock
   }
 
   /**
    * Get the last downloaded block of the blockchain.
    * @return {Object}
    */
-  getLastDownloadedBlock (onlyData = false) {
-    const block = stateMachine.state.lastDownloadedBlock
+  getLastDownloadedBlock () {
+    return stateMachine.state.lastDownloadedBlock
+  }
 
-    return onlyData ? block.data : block
+  getBlockPing () {
+    return stateMachine.state.blockPing
+  }
+
+  pingBlock (incomingBlock) {
+    if (!stateMachine.state.blockPing) return false
+    if (stateMachine.state.blockPing.block.height === incomingBlock.height && stateMachine.state.blockPing.block.id === incomingBlock.id) {
+      stateMachine.state.blockPing.count++
+      stateMachine.state.blockPing.last = new Date().getTime()
+      return true
+    }
+    return false
+  }
+
+  pushPingBlock (block) {
+    // logging for stats about network health
+    if (stateMachine.state.blockPing) logger.info(`block ${stateMachine.state.blockPing.block.height} pinged blockchain ${stateMachine.state.blockPing.count} times`)
+    stateMachine.state.blockPing = {
+      count: 1,
+      first: new Date().getTime(),
+      last: new Date().getTime(),
+      block
+    }
   }
 
   /**

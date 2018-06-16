@@ -1,6 +1,7 @@
 'use strict'
 
-const config = require('@arkecosystem/core-container').resolvePlugin('config')
+const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
 
 /**
  * The register method used by hapi.js.
@@ -11,8 +12,8 @@ const config = require('@arkecosystem/core-container').resolvePlugin('config')
 const register = async (server, options) => {
   const headers = {
     nethash: config.network.nethash,
-    version: config.server.version,
-    port: config.server.port,
+    version: container.resolveOptions('blockchain').version,
+    port: container.resolveOptions('p2p').port,
     os: require('os').platform()
   }
 

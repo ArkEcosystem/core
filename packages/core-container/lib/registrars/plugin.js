@@ -15,8 +15,27 @@ module.exports = class PluginRegistrars {
   constructor (container, options = {}) {
     this.container = container
     this.plugins = this.__loadPlugins()
+    this.resolvedPlugins = []
     this.options = options
     this.deregister = []
+  }
+
+  /**
+   * Set up all available plugins.
+   * @return {void}
+   */
+  resolveOptions (name) {
+    if (!this.resolvedPlugins.length) {
+      this.resolvedPlugins = Object
+        .keys(this.plugins)
+        .map(plugin => require(plugin).plugin)
+    }
+
+    const plugin = Object.values(this.resolvedPlugins).find(plugin => {
+      return plugin.alias === name || plugin.pkg.name === name
+    })
+
+    return this.__applyToDefaults(plugin.pkg.name, plugin.defaults, {})
   }
 
   /**
@@ -85,6 +104,25 @@ module.exports = class PluginRegistrars {
       throw new Error(`The plugin "${name}" provided an invalid version "${version}". Please check https://semver.org/ and make sure you follow the spec.`)
     }
 
+    options = this.__applyToDefaults(name, defaults, options)
+
+    plugin = await item.plugin.register(this.container, options || {})
+    this.container.register(alias || name, asValue({ name, version, plugin, options }))
+
+    if (item.plugin.hasOwnProperty('deregister')) {
+      this.deregister.push({ plugin: item.plugin, options })
+    }
+  }
+
+  /**
+   * Apply the given options to the defaults of the given plugin.
+   *
+   * @param  {String} name
+   * @param  {Object} defaults
+   * @param  {Object} options
+   * @return {Object}
+   */
+  __applyToDefaults (name, defaults, options) {
     if (defaults) {
       options = Hoek.applyToDefaults(defaults, options)
     }
@@ -93,12 +131,7 @@ module.exports = class PluginRegistrars {
       options = Hoek.applyToDefaults(options, this.options.options[name])
     }
 
-    plugin = await item.plugin.register(this.container, options || {})
-    this.container.register(alias || name, asValue({ name, version, plugin, options }))
-
-    if (item.plugin.hasOwnProperty('deregister')) {
-      this.deregister.push({ plugin: item.plugin, options })
-    }
+    return options
   }
 
   /**

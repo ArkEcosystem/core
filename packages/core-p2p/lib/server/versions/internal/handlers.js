@@ -98,7 +98,7 @@ exports.getTransactionsForForging = {
   async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
-    const height = blockchain.getLastBlock(true).height
+    const height = blockchain.getLastBlock().data.height
     const blockSize = config.getConstants(height).block.maxTransactions
 
     try {

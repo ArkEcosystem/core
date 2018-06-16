@@ -98,7 +98,7 @@ describe('SPV', () => {
 
       await spv.__buildLastForgedBlocks()
 
-      expect(getWalletByPublicKey(publicKey).lastBlock.id).toBe('17184958558311101492')
+      expect(getWalletByPublicKey(publicKey).lastBlock.data.id).toBe('17184958558311101492')
     })
   })
 
