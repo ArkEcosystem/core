@@ -297,9 +297,6 @@ module.exports = class Blockchain {
       await this.database.applyBlock(block)
       await this.database.saveBlock(block)
       state.lastBlock = block
-
-      console.log(block)
-
       // broadcast only recent blocks
       if (slots.getTime() - block.data.timestamp < 10) {
         this.p2p.broadcastBlock(block)
