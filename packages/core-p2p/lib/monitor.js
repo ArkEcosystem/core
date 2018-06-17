@@ -64,7 +64,7 @@ module.exports = class Monitor {
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      logger.error('Network Status: ${error.stack}')
+      logger.error('Network Status: ${error}')
 
       this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
