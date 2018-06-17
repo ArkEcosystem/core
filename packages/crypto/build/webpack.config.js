@@ -59,7 +59,7 @@ const moduleConfig = {
   entry: resolve(pkg.main),
   output: {
     ...format(pkg.module),
-    libraryTarget: 'commonjs'
+    libraryTarget: 'commonjs2'
   },
   optimization: {
     minimize: false

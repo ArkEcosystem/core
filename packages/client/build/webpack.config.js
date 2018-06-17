@@ -1,27 +1,64 @@
 const path = require('path')
 const merge = require('webpack-merge')
+const pkg = require('../package.json')
+const base = require('./webpack.base')
+const nodeExternals = require('webpack-node-externals')
 
-module.exports = merge(require('./webpack.base'), {
-  mode: 'production',
+const resolve = (dir) => path.resolve(__dirname, '..', dir)
 
-  context: __dirname,
-
-  entry: {
-    'index.min': '../lib/index.js'
-  },
-
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-    library: {
-      root: 'ArkClient',
-      amd: 'ark-javascript-client',
-      commonjs: 'ark-javascript-client'
-    },
-    libraryExport: 'default',
-    libraryTarget: 'umd',
-    globalObject: 'this'
-  },
-
-  externals: ['axios']
+const format = (dist) => ({
+  path: resolve(path.dirname(dist)),
+  filename: path.basename(dist)
 })
+
+// bundle without crypto package
+const browserConfig = {
+  entry: resolve(pkg.main),
+  target: 'web',
+  babel: {
+    modules: 'umd',
+    useBuiltIns: 'usage',
+    targets: {
+      browsers: 'defaults'
+    }
+  },
+  externals: {
+    '@arkecosystem/crypto': 'ArkCrypto'
+  },
+  output: {
+    ...format(pkg.browser),
+    library: 'ArkClient',
+    libraryTarget: 'umd',
+    umdNamedDefine: true,
+    globalObject: 'this'
+  }
+}
+
+// bundle with crypto package
+const bundleConfig = {...browserConfig}
+bundleConfig.externals = {}
+bundleConfig.output = {...browserConfig.output, filename: browserConfig.output.filename.replace('index', 'bundle')}
+
+const moduleConfig = {
+  target: 'node',
+  babel: {
+    modules: 'commonjs',
+    targets: {
+      node: 'current'
+    }
+  },
+  externals: [nodeExternals({
+    modulesFromFile: true,
+    modulesDir: resolve('node_modules')
+  })],
+  entry: resolve(pkg.main),
+  output: {
+    ...format(pkg.module),
+    libraryTarget: 'commonjs2'
+  },
+  optimization: {
+    minimize: false
+  }
+}
+
+module.exports = [bundleConfig, browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry));
