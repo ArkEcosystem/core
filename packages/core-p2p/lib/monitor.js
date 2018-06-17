@@ -64,7 +64,7 @@ module.exports = class Monitor {
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      logger.error('Network Status: ${error.message}')
+      logger.error(`Network Status: ${error.message}`)
 
       this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
@@ -281,7 +281,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error('Block download: ${error.message}')
+      logger.error(`Block download: ${error.message}`)
 
       return this.downloadBlocks(fromBlockHeight)
     }
