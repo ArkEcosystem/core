@@ -281,7 +281,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(Block download: ${error.message}')
+      logger.error('Block download: ${error.message}')
 
       return this.downloadBlocks(fromBlockHeight)
     }
