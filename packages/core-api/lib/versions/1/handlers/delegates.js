@@ -160,9 +160,9 @@ exports.forged = {
     const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
 
     return utils.respondWith({
-      fees: wallet.forgedFees,
-      rewards: wallet.forgedRewards,
-      forged: (Number(wallet.forgedFees) + Number(wallet.forgedRewards))
+      fees: Number(wallet.forgedFees),
+      rewards: Number(wallet.forgedRewards),
+      forged: Number(wallet.forgedFees) + Number(wallet.forgedRewards)
     })
   },
   config: {

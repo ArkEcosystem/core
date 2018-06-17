@@ -17,8 +17,8 @@ module.exports = (model) => {
     height: model.height,
     previous: model.previousBlock,
     forged: {
-      reward: model.reward,
-      fee: model.totalFee,
+      reward: Number(model.reward),
+      fee: Number(model.totalFee),
       total: Number(model.reward) + Number(model.totalFee)
     },
     payload: {
