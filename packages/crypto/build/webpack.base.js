@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = (babelOptions = {}) => ({
   mode: 'production',
 
   context: __dirname,
@@ -8,7 +8,12 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/,
       use: {
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            ['@babel/preset-env', babelOptions]
+          ]
+        }
       }
     }]
   },
@@ -16,4 +21,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.json']
   }
-}
+})

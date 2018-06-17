@@ -1,6 +1,7 @@
 const path = require('path')
 const merge = require('webpack-merge')
 const pkg = require('../package.json')
+const base = require('./webpack.base')
 const nodeExternals = require('webpack-node-externals')
 
 const resolve = (dir) => path.resolve(__dirname, '..', dir)
@@ -10,31 +11,59 @@ const format = (dist) => ({
   filename: path.basename(dist)
 })
 
-const config = [
-  {
-    entry: resolve(pkg.main),
-    target: 'web',
-    node: {
-      net: 'empty'
-    },
-    output: {
-      ...format(pkg.browser),
-      library: 'ArkCrypto',
-      libraryExport: 'default',
-      libraryTarget: 'umd'
+const browserConfig = {
+  entry: resolve(pkg.main),
+  target: 'web',
+  babel: {
+    modules: 'umd',
+    useBuiltIns: 'usage',
+    targets: {
+      browsers: 'defaults'
     }
   },
-  {
-    target: 'node',
-    externals: [nodeExternals({
-      modulesFromFile: true,
-      modulesDir: resolve('node_modules')
-    })],
-    entry: resolve(pkg.main),
-    output: {
-      ...format(pkg.module)
+  resolve: {
+    alias: {
+      deepmerge$: 'deepmerge/dist/umd.js'
     }
+  },
+  node: {
+    net: 'empty'
+  },
+  output: {
+    ...format(pkg.browser),
+    library: 'ArkCrypto',
+    libraryTarget: 'umd',
+    umdNamedDefine: true,
+    globalObject: 'this'
   }
-].map(entry => merge(require('./webpack.base'), entry));
+}
 
-module.exports = config
+const moduleConfig = {
+  target: 'node',
+  babel: {
+    modules: 'commonjs',
+    useBuiltIns: 'usage',
+    targets: {
+      node: 'current'
+    }
+  },
+  resolve: {
+    alias: {
+      deepmerge$: 'deepmerge/dist/cjs.js'
+    }
+  },
+  externals: [nodeExternals({
+    modulesFromFile: true,
+    modulesDir: resolve('node_modules')
+  })],
+  entry: resolve(pkg.main),
+  output: {
+    ...format(pkg.module),
+    libraryTarget: 'commonjs'
+  },
+  optimization: {
+    minimize: false
+  }
+}
+
+module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry));
