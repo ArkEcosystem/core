@@ -7,7 +7,7 @@ const { transformResource, transformCollection } = require('../../utils/transfor
  * @param  {Hapi.Request} request
  * @return {Object}
  */
-const paginator = request => {
+const paginate = request => {
   return {
     offset: request.query.offset || 0,
     limit: request.query.limit || 100
@@ -52,7 +52,7 @@ const toCollection = transformCollection
  * @type {Object}
  */
 module.exports = {
-  paginator,
+  paginate,
   respondWith,
   toResource,
   toCollection

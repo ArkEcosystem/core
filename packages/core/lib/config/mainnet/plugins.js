@@ -7,14 +7,14 @@ module.exports = {
       console: {
         options: {
           colorize: true,
-          level: 'debug'
+          level: process.env.ARK_LOG_LEVEL || 'debug'
         }
       },
       dailyRotate: {
         options: {
           filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
           datePattern: 'YYYY-MM-DD',
-          level: 'debug',
+          level: process.env.ARK_LOG_LEVEL || 'debug',
           zippedArchive: true
         }
       }
@@ -31,7 +31,7 @@ module.exports = {
     username: process.env.ARK_DB_USERNAME || 'ark',
     password: process.env.ARK_DB_PASSWORD || 'password',
     database: process.env.ARK_DB_DATABASE || 'ark_mainnet',
-    logging: false,
+    logging: process.env.ARK_DB_LOGGING || false,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
@@ -39,10 +39,10 @@ module.exports = {
   },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
-    enabled: true,
+    enabled: process.env.ARK_TRANSACTION_POOL_ENABLED || true,
     key: 'ark',
-    maxTransactionsPerSender: 100,
-    whitelist: ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357'],
+    maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
+    whitelist: [],
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
@@ -52,7 +52,9 @@ module.exports = {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
     port: process.env.ARK_P2P_PORT || 4001
   },
-  '@arkecosystem/core-blockchain': {},
+  '@arkecosystem/core-blockchain': {
+    fastRebuild: true
+  },
   '@arkecosystem/core-api': {
     enabled: false,
     host: process.env.ARK_API_HOST || '0.0.0.0',
@@ -60,37 +62,37 @@ module.exports = {
     whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
-    enabled: false,
+    enabled: process.env.ARK_WEBHOOKS_ENABLED || false,
     database: {
       dialect: 'sqlite',
       storage: `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}/webhooks.sqlite`,
-      logging: false
+      logging: process.env.ARK_DB_LOGGING || false
     },
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
     },
     server: {
-      enabled: false,
+      enabled: process.env.ARK_WEBHOOKS_API_ENABLED || false,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
       whitelist: ['127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
-    enabled: false,
+    enabled: process.env.ARK_GRAPHQL_ENABLED || false,
     host: process.env.ARK_GRAPHQL_HOST || '0.0.0.0',
     port: process.env.ARK_GRAPHQL_PORT || 4005,
     path: '/graphql',
     graphiql: true
   },
   '@arkecosystem/core-forger': {
-    host: 'http://127.0.0.1'
+    hosts: ['http://127.0.0.1:4001']
   },
   '@arkecosystem/core-json-rpc': {
-    enabled: false,
-    host: process.env.ARK_JSONRPC_HOST || '0.0.0.0',
-    port: process.env.ARK_JSONRPC_PORT || 8080,
+    enabled: process.env.ARK_JSON_RPC_ENABLED || false,
+    host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
+    port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
     whitelist: ['127.0.0.1', '192.168.*']
   }

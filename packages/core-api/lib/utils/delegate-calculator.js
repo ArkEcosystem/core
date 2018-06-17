@@ -10,9 +10,9 @@ const config = container.resolvePlugin('config')
  * @return {Number}
  */
 exports.calculateApproval = (delegate) => {
-  const lastBlock = blockchain.getLastBlock(true)
-  const constants = config.getConstants(lastBlock.height)
-  const totalSupply = config.genesisBlock.totalAmount + (lastBlock.height - constants.height) * constants.reward
+  const lastBlock = blockchain.getLastBlock()
+  const constants = config.getConstants(lastBlock.data.height)
+  const totalSupply = config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
 
   return ((delegate.balance / totalSupply) * 100).toFixed(2)
 }

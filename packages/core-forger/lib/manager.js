@@ -20,7 +20,7 @@ module.exports = class ForgerManager {
   constructor (options) {
     this.secrets = config.delegates ? config.delegates.secrets : null
     this.network = config.network
-    this.client = new Client(options.host)
+    this.client = new Client(options.hosts)
   }
 
   /**
@@ -100,6 +100,8 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
+      logger.info(`Block ${block.data.id} was forged by delegate ${delegate.publicKey} :trident:`)
+
       emitter.emit('block.forged', block.data)
 
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
@@ -111,7 +113,7 @@ module.exports = class ForgerManager {
     } catch (error) {
       logger.debug(`Not able to forge: ${error.message}`)
       // console.log(round)
-      // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height : '')
+      // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.data.height : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
       emitter.emit('forger.failed', error.message)

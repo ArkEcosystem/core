@@ -42,7 +42,8 @@
     "webpack-node-externals": "^1.7.2"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "plugins/*"
   ],
   "husky": {
     "hooks": {

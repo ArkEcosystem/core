@@ -1,6 +1,7 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
@@ -17,6 +18,7 @@ const state = {
   blockchain: blockchainMachine.initialState,
   lastDownloadedBlock: null,
   lastBlock: null,
+  blockPing: null,
   started: false,
   rebuild: true,
   fastRebuild: true,
@@ -60,12 +62,12 @@ blockchainMachine.actionMap = blockchain => {
 
       // tried to download but no luck after 5 tries (looks like network missing blocks)
       if (state.noBlockCounter > 5) {
-        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :cry:')
+        logger.info('Tried to sync 5 times to different nodes, looks like the network is missing blocks :umbrella:')
         state.noBlockCounter = 0
         event = 'NETWORKHALTED'
       }
 
-      if (blockchain.isSynced(state.lastDownloadedBlock.data)) {
+      if (blockchain.isSynced(state.lastDownloadedBlock)) {
         state.noBlockCounter = 0
         event = 'SYNCED'
       }
@@ -105,7 +107,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.saveWallets(true)
         await blockchain.transactionPool.buildWallets()
 
-        // await blockchain.database.applyRound(blockchain.getLastBlock(true).height)
+        // await blockchain.database.applyRound(blockchain.getLastBlock().data.height)
         return blockchain.dispatch('PROCESSFINISHED')
       } catch (error) {
         logger.error(error.stack)
@@ -116,7 +118,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
     syncingComplete () {
-      logger.info('Blockchain 100% in sync :dancing_turkey:')
+      logger.info('Blockchain 100% in sync :airplane:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
@@ -159,7 +161,7 @@ blockchainMachine.actionMap = blockchain => {
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last 24 hours
-        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!blockchain.config.server.fastRebuild
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!container.resolveOptions('blockchain').fastRebuild
 
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
@@ -224,14 +226,14 @@ blockchainMachine.actionMap = blockchain => {
         } else {
           state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted', blocks[0])
-          blockchain.dispatch('FORK')
+          blockchain.dispatch('DOWNLOADED')
         }
       }
     },
 
     async downloadBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
-
+      logger.info(`Downloading blocks from block ${block.data.height}`)
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
@@ -249,7 +251,7 @@ blockchainMachine.actionMap = blockchain => {
           state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(block.data))
-          blockchain.dispatch('FORK')
+          blockchain.dispatch('NOBLOCK')
         }
       }
     },
@@ -260,6 +262,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async startForkRecovery () {
       logger.info('Starting fork recovery 🍴')
+      await blockchain.database.saveBlockCommit()
       // state.forked = true
       let random = ~~(4 / Math.random())
       if (random > 102) random = 102

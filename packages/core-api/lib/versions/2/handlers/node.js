@@ -15,14 +15,14 @@ exports.status = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const lastBlock = blockchain.getLastBlock(true)
+    const lastBlock = blockchain.getLastBlock()
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
     return {
       data: {
         synced: blockchain.isSynced(),
-        now: lastBlock ? lastBlock.height : 0,
-        blocksCount: networkHeight - lastBlock.height || 0
+        now: lastBlock ? lastBlock.data.height : 0,
+        blocksCount: networkHeight - lastBlock.data.height || 0
       }
     }
   }
@@ -38,15 +38,15 @@ exports.syncing = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const lastBlock = blockchain.getLastBlock(true)
+    const lastBlock = blockchain.getLastBlock()
     const networkHeight = await blockchain.p2p.getNetworkHeight()
 
     return {
       data: {
         syncing: !blockchain.isSynced(),
-        blocks: networkHeight - lastBlock.height || 0,
-        height: lastBlock.height,
-        id: lastBlock.id
+        blocks: networkHeight - lastBlock.data.height || 0,
+        height: lastBlock.data.height,
+        id: lastBlock.data.id
       }
     }
   }
@@ -72,7 +72,7 @@ exports.configuration = {
         explorer: config.network.client.explorer,
         version: config.network.pubKeyHash,
         ports: utils.toResource(request, config, 'ports'),
-        constants: config.getConstants(blockchain.getLastBlock(true).height),
+        constants: config.getConstants(blockchain.getLastBlock().data.height),
         feeStatistics: utils.toCollection(request, feeStatisticsData, 'fee-statistics')
       }
     }

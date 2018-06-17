@@ -52,3 +52,6 @@ bundle.min.js
 # Build
 dist
 packages/**/dist/
+
+# Lockfile
+yarn.lock

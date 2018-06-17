@@ -9,6 +9,8 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const moment = require('moment')
+const delay = require('delay')
 
 module.exports = class Monitor {
   /**
@@ -20,6 +22,7 @@ module.exports = class Monitor {
     this.manager = manager
     this.config = config
     this.peers = {}
+    this.suspendedPeers = {}
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json')
@@ -28,8 +31,8 @@ module.exports = class Monitor {
     }
 
     this.config.peers.list
-      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== this.config.server.port))
-      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, config)), this)
+      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port))
+      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
   }
 
   /**
@@ -56,14 +59,14 @@ module.exports = class Monitor {
 
       if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
         this.config.peers.list
-          .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+          .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
         return this.updateNetworkStatus()
       }
     } catch (error) {
-      logger.error(error.stack)
+      logger.error(`Network Status: ${error.message}`)
 
-      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)), this)
+      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
       return this.updateNetworkStatus()
     }
@@ -110,7 +113,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip] || process.env.ARK_ENV === 'test') {
+    if (this.peers[peer.ip] || this.__isSuspended(peer) || process.env.ARK_ENV === 'test') {
       return
     }
 
@@ -122,7 +125,7 @@ module.exports = class Monitor {
       return
     }
 
-    const newPeer = new Peer(peer.ip, peer.port, this.config)
+    const newPeer = new Peer(peer.ip, peer.port)
 
     try {
       await newPeer.ping(1500)
@@ -133,6 +136,10 @@ module.exports = class Monitor {
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
+      this.suspendedPeers[peer.ip] = {
+        peer: newPeer,
+        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
+      }
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -218,7 +225,7 @@ module.exports = class Monitor {
 
       list.forEach(peer => {
         if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port, this.config)
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
 
@@ -248,7 +255,10 @@ module.exports = class Monitor {
   getPBFTForgingStatus () {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
+    const heights = {}
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
+    syncedPeers.forEach(p => p.state && (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
+    console.log(heights)
     const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
     const ratio = okForging / syncedPeers.length
 
@@ -271,7 +281,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(JSON.stringify(error))
+      logger.error(`Block download: ${error.message}`)
 
       return this.downloadBlocks(fromBlockHeight)
     }
@@ -283,11 +293,33 @@ module.exports = class Monitor {
    * @return {Promise}
    */
   async broadcastBlock (block) {
-    const peers = Object.values(this.peers)
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      logger.info(`skipping broadcast of block ${block.data.height} as blockchain is not ready `)
+      return
+    }
+    let blockPing = blockchain.getBlockPing()
+    let peers = Object.values(this.peers)
+
+    if (blockPing && blockPing.block.id === block.data.id) {
+      // wait a bit before broadcasting if a bit early
+      const diff = blockPing.last - blockPing.first
+      const maxhop = 4
+      let proba = (maxhop - blockPing.count) / maxhop
+      if (diff < 500 && proba > 0) {
+        await delay(500 - diff)
+        blockPing = blockchain.getBlockPing()
+        // got aleady a new block, no broadcast
+        if (blockPing.block.id !== block.data.id) return
+        else proba = (maxhop - blockPing.count) / maxhop
+      }
+      // TODO: to be put in config?
+      peers = peers.filter(p => Math.random() < proba)
+    }
 
     logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
 
-    await Promise.all(peers.map((peer) => peer.postBlock(block.toBroadcastV1())))
+    await Promise.all(peers.map(peer => peer.postBlock(block.toBroadcastV1())))
   }
 
   /**
@@ -302,5 +334,22 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Determine if peer is suspended or not.
+   * @param  {Peer} peer
+   * @return {Boolean}
+   */
+  __isSuspended (peer) {
+    const suspededPeer = this.suspendedPeers[peer.ip]
+
+    if (suspededPeer && moment().isBefore(suspededPeer.until)) {
+      return true
+    } else if (suspededPeer) {
+      delete this.suspendedPeers[peer.ip]
+    }
+
+    return false
   }
 }

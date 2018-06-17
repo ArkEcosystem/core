@@ -162,8 +162,8 @@ module.exports = class Block {
     this.verification = this.verify()
 
     if (!this.verification.verified && this.data.height !== 1) {
-      console.log(JSON.stringify(data, null, 2))
-      console.log(JSON.stringify(this, null, 2))
+      // console.log(JSON.stringify(data, null, 2))
+      console.log(this.serialized)
       console.log(this.verification)
     }
   }
@@ -192,7 +192,7 @@ module.exports = class Block {
    * @return {String}
    */
   toString () {
-    return `${this.data.id}, height: ${this.data.height}, ${this.data.transactions.length} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
+    return `${this.data.id}, height: ${this.data.height}, ${this.data.numberOfTransactions} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
   }
 
   /*
@@ -418,8 +418,8 @@ module.exports = class Block {
     block.blockSignature = hexString.substring(104 + 64 + 33 * 2, 104 + 64 + 33 * 2 + length * 2)
 
     let transactionOffset = (104 + 64 + 33 * 2 + length * 2) / 2
-    if (hexString.length === transactionOffset * 2) return block
     block.transactions = []
+    if (hexString.length === transactionOffset * 2) return block
 
     for (let i = 0; i < block.numberOfTransactions; i++) {
       block.transactions.push(buf.readUint32(transactionOffset))

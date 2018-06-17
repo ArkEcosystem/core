@@ -1,10 +1,10 @@
 'use strict'
 
 module.exports = {
-  enabled: true,
+  enabled: process.env.ARK_TRANSACTION_POOL_ENABLED || true,
   key: 'ark',
-  maxTransactionsPerSender: 100,
-  whitelist: ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357'],
+  maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
+  whitelist: [],
   redis: {
     host: process.env.ARK_REDIS_HOST || 'localhost',
     port: process.env.ARK_REDIS_PORT || 6379

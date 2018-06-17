@@ -85,6 +85,16 @@ module.exports = class Container {
   }
 
   /**
+   * Resolve the options of a plugin. Available before a plugin mounts.
+   * @param  {string} key
+   * @return {Object}
+   * @throws {Error}
+   */
+  resolveOptions (key) {
+    return this.plugins.resolveOptions(key)
+  }
+
+  /**
    * Determine if the given registration exists.
    * @param  {String}  key
    * @return {Boolean}
