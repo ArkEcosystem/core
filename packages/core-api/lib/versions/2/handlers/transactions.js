@@ -114,7 +114,7 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await transactionPool.getUnconfirmedTransactions(pagination.offset, pagination.limit)
+    const transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
 
     return utils.toPagination({
       count: transactions.length,
@@ -137,7 +137,7 @@ exports.showUnconfirmed = {
       return Boom.teapot()
     }
 
-    const transaction = await transactionPool.getUnconfirmedTransaction(request.param.id)
+    const transaction = await transactionPool.getTransaction(request.param.id)
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }
