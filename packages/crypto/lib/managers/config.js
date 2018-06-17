@@ -34,15 +34,6 @@ class ConfigManager {
   }
 
   /**
-   * Get config from file.
-   * @param {String} path
-   */
-  // TODO: an warning is generated in the build, should we remove this method?
-  setFromFile (path) {
-    this.setConfig(require(path))
-  }
-
-  /**
    * Get config from preset configurations.
    * @param {String} coin
    * @param {String} network
