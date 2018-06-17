@@ -22,7 +22,7 @@ exports.index = {
    */
   async handler (request, h) {
     const { rows } = await database.wallets.findAll({
-      ...request.query, ...utils.paginator(request)
+      ...request.query, ...utils.paginate(request)
     })
 
     return utils.respondWith({
@@ -194,7 +194,7 @@ exports.top = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    let accounts = database.wallets.top(utils.paginator(request))
+    let accounts = database.wallets.top(utils.paginate(request))
 
     accounts = accounts.rows.map(account => ({
       address: account.address,
