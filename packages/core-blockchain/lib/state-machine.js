@@ -155,8 +155,12 @@ blockchainMachine.actionMap = blockchain => {
         const constants = blockchain.config.getConstants(block.data.height)
         state.lastBlock = block
         state.lastDownloadedBlock = block
-        
+
         if (state.networkStart) {
+          await blockchain.database.buildWallets(block.data.height)
+          await blockchain.database.saveWallets(true)
+          await blockchain.database.applyRound(block.data.height)
+          await blockchain.transactionPool.buildWallets()
           return blockchain.dispatch('STARTED')
         }
 
