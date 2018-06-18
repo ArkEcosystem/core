@@ -23,7 +23,7 @@ commander
   .option('--dbPort <value>', 'Database port', 5432)
   .option('--dbUsername <value>', 'Database username', 'node')
   .option('--dbPassword <value>', 'Database password', 'password')
-  .option('--dbDatabase <value>', 'Database name', `ark_${commander.name}`)
+  .option('--dbDatabase <value>', 'Database name', `ark_${commander.name.toLowerCase()}`)
   .option('--explorerUrl <value>', 'URL to link to explorer', 'http://localhost:4200')
   .option('--activeDelegates <value>', 'How many forgers for the network [51]', 51)
   .option('--feeSend <value>', 'Fee for sending Transaction', 10000000)
