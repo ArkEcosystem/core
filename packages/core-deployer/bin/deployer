@@ -70,18 +70,28 @@ let networkConfig = {
   messagePrefix: `${options.token} message:\n`,
   pubKeyHash: options.prefixHash,
   wif: options.wifPrefix,
-  'constants[0].blocktime': options.blocktime,
-  'constants[0].block.maxTransactions': options.transactionsPerBlock,
-  'constants[0].epoch': options.epoch,
-  'constants[0].activeDelegates': options.activeDelegates,
-  'constants[0].fees.send': options.feeSend,
-  'constants[0].fees.vote': options.feeVote,
-  'constants[0].fees.secondsignature': options.feeSecondSignature,
-  'constants[0].fees.delegate': options.feeDelegate,
-  'constants[0].fees.multisignature': options.feeMultisignature,
-  'client.token': options.token,
-  'client.symbol': options.symbol,
-  'client.explorer': options.explorerUrl,
+  constants: [
+    {
+      blocktime: options.blocktime,
+      block: {
+        maxTransactions: options.transactionsPerBlock
+      },
+      epoch: options.epoch,
+      activeDelegates: options.activeDelegates,
+      fees: {
+        send: options.feeSend,
+        vote: options.feeVote,
+        secondsignature: options.feeSecondsignature,
+        delegate: options.feeDelegate,
+        multisignature: options.feeMultisignature
+      }
+    }
+  ],
+  client: {
+    token: options.token,
+    symbol: options.symbol,
+    explorer: options.explorerUrl,
+  },
   exceptions: {}
 }
 
