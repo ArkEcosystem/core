@@ -10,9 +10,14 @@
   ],
   "license": "MIT",
   "main": "lib/index.js",
-  "browser": "dist/index.min.js",
+  "browser": "dist/index.umd.js",
+  "module": "dist/index.cjs.js",
+  "files": [
+    "dist",
+    "lib"
+  ],
   "scripts": {
-    "_prepublish": "yarn run lint && yarn run test && yarn run build",
+    "prepublish": "yarn run lint && yarn run test && yarn run build",
     "build": "rm -rf dist && NODE_ENV=production webpack --config build/webpack.config.js",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --forceExit",
@@ -20,7 +25,7 @@
     "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
     "test:watch": "ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "ARK_ENV=test jest --runInBand --watchAll",
-    "lint": "eslint ./ --fix",
+    "lint": "eslint -c ../../.eslintrc --ignore-pattern dist ./ --fix",
     "depcheck": "depcheck ./"
   },
   "dependencies": {

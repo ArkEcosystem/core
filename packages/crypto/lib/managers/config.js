@@ -34,14 +34,6 @@ class ConfigManager {
   }
 
   /**
-   * Get config from file.
-   * @param {String} path
-   */
-  setFromFile (path) {
-    this.setConfig(require(path))
-  }
-
-  /**
    * Get config from preset configurations.
    * @param {String} coin
    * @param {String} network
