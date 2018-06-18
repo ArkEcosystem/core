@@ -64,7 +64,12 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath)
 fs.copySync(path.resolve(__dirname, `../../core/lib/config/${options.network}`), options.configPath)
-fs.copySync(path.resolve(__dirname, `../../crypto/lib/networks/ark/${options.network}.json`), path.resolve(options.configPath, 'network.json'))
+const networkPath = path.resolve(__dirname, `../../crypto/lib/networks/ark/${options.network}.json`)
+if (!fs.existsSync(networkPath)) {
+  logger.error(`Network '${options.network}' does not exist`)
+  process.exit(1)
+}
+fs.copySync(networkPath, path.resolve(options.configPath, 'network.json'))
 
 let networkConfig = {
   name: options.name.toLowerCase(),
