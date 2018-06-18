@@ -166,7 +166,7 @@ exports.delegates = {
         address: account.address,
         publicKey: account.publicKey,
         vote: delegate.balance + '',
-        producedblocks: account.producedBlocks,
+        producedblocks: Number(account.producedBlocks),
         missedblocks: account.missedBlocks,
         forged: account.forged,
         rate: delegateRank + 1,
@@ -198,7 +198,7 @@ exports.top = {
 
     accounts = accounts.rows.map(account => ({
       address: account.address,
-      balance: account.balance,
+      balance: account.balance + '',
       publicKey: account.publicKey
     }))
 
