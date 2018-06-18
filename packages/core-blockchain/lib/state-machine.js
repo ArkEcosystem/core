@@ -160,8 +160,8 @@ blockchainMachine.actionMap = blockchain => {
         state.lastBlock = block
         state.lastDownloadedBlock = block
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
-        // no fast rebuild if in last 24 hours
-        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24) && !!container.resolveOptions('blockchain').fastRebuild
+        // no fast rebuild if in last week
+        state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24 * 7) && !!container.resolveOptions('blockchain').fastRebuild
 
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('JEST TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.')
