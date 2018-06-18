@@ -35,7 +35,7 @@ module.exports = class PluginRegistrars {
       return plugin.alias === name || plugin.pkg.name === name
     })
 
-    return this.__applyToDefaults(plugin.pkg.name, plugin.defaults, {})
+    return this.__applyToDefaults(plugin.pkg.name, plugin.defaults, this.plugins[plugin.pkg.name])
   }
 
   /**
