@@ -167,6 +167,9 @@ plugins['@arkecosystem/core-database-sequelize'] = {
   database: options.dbDatabase,
   dialect: 'postgres'
 }
+plugins['@arkecosystem/core-blockchain'] = {
+  fastRebuild: false
+}
 
 updateConfig('plugins.json', plugins, options.configPath, true)
 fs.removeSync(path.resolve(options.configPath, 'plugins.js'))
