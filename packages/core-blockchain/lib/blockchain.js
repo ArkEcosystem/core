@@ -251,6 +251,7 @@ module.exports = class Blockchain {
         state.lastDownloadedBlock = state.lastBlock
         callback()
       } else if (block.data.height < this.getLastBlock().data.height || (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id)) {
+        state.lastDownloadedBlock = state.lastBlock
         logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
         callback()
       } else {

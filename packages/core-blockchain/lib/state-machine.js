@@ -86,11 +86,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadFinished () {
       logger.info('Block download finished :rocket:')
 
-      if (blockchain.rebuildQueue.length() === 0) {
-        blockchain.dispatch('PROCESSFINISHED')
-      }
-
-      if (state.networkStart) {
+     if (state.networkStart) {
         // next time we will use normal behaviour
         state.networkStart = false
         blockchain.dispatch('SYNCFINISHED')
@@ -244,8 +240,8 @@ blockchainMachine.actionMap = blockchain => {
         blockchain.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-        state.noBlockCounter = 0
         if (blocks.length && blocks[0].previousBlock === block.data.id) {
+          state.noBlockCounter = 0
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
           blockchain.processQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
