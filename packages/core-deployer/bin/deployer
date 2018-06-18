@@ -170,6 +170,9 @@ plugins['@arkecosystem/core-database-sequelize'] = {
 plugins['@arkecosystem/core-blockchain'] = {
   fastRebuild: false
 }
+plugins['@arkecosystem/core-forger'] = {
+  hosts: [`http://127.0.0.1:${options.p2pPort}`]
+}
 
 updateConfig('plugins.json', plugins, options.configPath, true)
 fs.removeSync(path.resolve(options.configPath, 'plugins.js'))
