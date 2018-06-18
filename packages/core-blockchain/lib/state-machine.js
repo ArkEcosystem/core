@@ -225,8 +225,10 @@ blockchainMachine.actionMap = blockchain => {
           blockchain.dispatch('DOWNLOADED')
         } else {
           state.lastDownloadedBlock = state.lastBlock
-          logger.warn('Downloaded block not accepted', blocks[0])
-          blockchain.dispatch('DOWNLOADED')
+          logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
+          logger.warn('Last block: ' + JSON.stringify(block.data))
+          // disregard the whole block list
+          blockchain.dispatch('NOBLOCK')
         }
       }
     },
@@ -251,6 +253,7 @@ blockchainMachine.actionMap = blockchain => {
           state.lastDownloadedBlock = state.lastBlock
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(block.data))
+          // disregard the whole block list
           blockchain.dispatch('NOBLOCK')
         }
       }
