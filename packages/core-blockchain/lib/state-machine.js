@@ -155,6 +155,11 @@ blockchainMachine.actionMap = blockchain => {
         const constants = blockchain.config.getConstants(block.data.height)
         state.lastBlock = block
         state.lastDownloadedBlock = block
+        
+        if (state.networkStart) {
+          return blockchain.dispatch('STARTED')
+        }
+
         state.rebuild = (slots.getTime() - block.data.timestamp > (constants.activeDelegates + 1) * constants.blocktime)
         // no fast rebuild if in last week
         state.fastRebuild = (slots.getTime() - block.data.timestamp > 3600 * 24 * 7) && !!container.resolveOptions('blockchain').fastRebuild
