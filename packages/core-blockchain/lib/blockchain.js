@@ -379,7 +379,9 @@ module.exports = class Blockchain {
     block = block || this.getLastBlock()
     logger.info('Remaining block timestamp', slots.getTime() - block.data.timestamp)
 
-    return slots.getTime() - block.data.timestamp < 100 * this.config.getConstants(block.height).blocktime
+    // stop fast rebuild 7 days before the last network block
+    return slots.getTime() - block.data.timestamp < 3600 * 24 * 7
+    // return slots.getTime() - block.data.timestamp < 100 * this.config.getConstants(block.data.height).blocktime
   }
 
   /**
