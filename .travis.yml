@@ -4,7 +4,13 @@ node_js:
   - node
   - 9
 
+before_install:
+  - npm install yarn lerna
+  - yarn bootstrap
+
 script:
-  - yarn test
+  - yarn lint
+  # - yarn depcheck
+  - yarn test:coverage
 
 cache: yarn
