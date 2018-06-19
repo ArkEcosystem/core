@@ -15,6 +15,10 @@ This repository contains all plugins that make up the ARK Core.
 
 - API v1 & v2 : https://docs.ark.io/v1.0/reference
 
+## GitHub Development Bounty
+
+- Get involved with ARK development and earn ARK coins : https://bounty.ark.io
+
 ## Core Packages
 
 | Package | Version | Description
