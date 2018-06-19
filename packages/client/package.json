@@ -31,7 +31,8 @@
   "dependencies": {
     "@arkecosystem/crypto": "^0.1.1",
     "axios": "^0.18.0",
-    "lodash.orderby": "^4.6.0"
+    "lodash.orderby": "^4.6.0",
+    "lodash.shuffle": "^4.2.0"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.15.0",

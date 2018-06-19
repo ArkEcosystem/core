@@ -14,13 +14,13 @@ describe('API - Utils - sortPeers', () => {
 
     { height: 180, delay: 8 },
     { height: 130, delay: 9 },
-    { height: 150, delay: 13 },
+    { height: 150, delay: 13 }
   ]
 
   describe('when the `delay` is the same', () => {
     it('sorts the peers by `height`', () => {
       const sample = [peers[2], peers[1], peers[3], peers[0]]
-      const expected = peers.slice(0,4)
+      const expected = peers.slice(0, 4)
       expect(sortPeers(sample)).toEqual(expected)
     })
   })
@@ -28,7 +28,7 @@ describe('API - Utils - sortPeers', () => {
   describe('when the `height` is the same', () => {
     it('sorts the peers by `delay`', () => {
       const sample = [peers[7], peers[5], peers[6], peers[4]]
-      const expected = peers.slice(4,8)
+      const expected = peers.slice(4, 8)
       expect(sortPeers(sample)).toEqual(expected)
     })
   })
