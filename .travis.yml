@@ -4,6 +4,9 @@ node_js:
   - node
   - 9
 
+env:
+  ARK_CI_TEST: true
+
 before_install:
   - npm install yarn lerna
   - yarn bootstrap
