@@ -9,11 +9,25 @@ env:
 
 before_install:
   - npm install yarn lerna
+
+install:
   - yarn bootstrap
 
-script:
-  - yarn lint
-  # - yarn depcheck
+stages:
+  - lint
+  - test
+
+scripts:
   - yarn test:coverage
+
+jobs:
+  include:
+    - stage: lint
+      script: yarn lint
+    # - yarn depcheck
+    # To lint the version 9 too
+    - stage: lint
+      node_js: 9
+      script: yarn lint
 
 cache: yarn
