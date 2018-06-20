@@ -9,6 +9,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const { first, orderBy } = require('lodash')
 const moment = require('moment')
 const delay = require('delay')
 
