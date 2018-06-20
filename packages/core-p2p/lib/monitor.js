@@ -86,9 +86,21 @@ module.exports = class Monitor {
 
     logger.info(`Checking ${max} peers`)
 
+    const blockIds = await this.__getRecentBlockIds()
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.peers[ip].ping(pingDelay)
+
+        if (blockIds.length && !(await this.peers[ip].hasCommonBlocks(blockIds))) {
+          logger.error(`Could not get common block for ${ip}`)
+
+          this.__suspendPeer(this.peers[ip])
+          delete this.peers[ip]
+          wrongPeers++
+
+          return null
+        }
+
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
         wrongPeers++
@@ -249,19 +261,12 @@ module.exports = class Monitor {
         logger.error('Could not determine highest peer')
         return this.discoverPeers()
       }
-      const blockIds = await this.__getRecentBlockIds()
       const list = await highestPeer.getPeers()
       for (const peer of list) {
         if (peer.status !== 'OK' || this.peers[peer.ip] || isLocalhost(peer.ip)) {
           continue
         }
-        const peerObject = new Peer(peer.ip, peer.port)
-        if (blockIds.length && !(await peerObject.hasCommonBlocks(blockIds))) {
-          logger.error(`Could not get common block for ${peer.ip}`)
-
-          continue
-        }
-        this.peers[peer.ip] = peerObject
+        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
       }
 
       return this.peers
