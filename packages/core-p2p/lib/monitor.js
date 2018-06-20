@@ -137,10 +137,7 @@ module.exports = class Monitor {
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
-      this.suspendedPeers[peer.ip] = {
-        peer: newPeer,
-        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
-      }
+      this.__suspendPeer(newPeer)
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -364,6 +361,17 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Suspend peer.
+   * @param {Peer} peer
+   */
+  __suspendPeer (peer) {
+    this.suspendedPeers[peer.ip] = {
+      peer,
+      until: moment().add(this.manager.config.suspendMinutes, 'minutes')
+    }
   }
 
   /**
