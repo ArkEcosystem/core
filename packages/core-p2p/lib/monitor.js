@@ -239,13 +239,33 @@ module.exports = class Monitor {
    */
   async discoverPeers () {
     try {
-      const list = await this.getRandomPeer().getPeers()
+      const highestPeer = await this.getHighestPeer()
+      if (!highestPeer) {
+        logger.error('Could not determine highest peer')
+        return this.discoverPeers()
+      }
+      const list = await highestPeer.getPeers()
 
-      list.forEach(peer => {
-        if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+      const blocks = await container.resolvePlugin('database').query
+        .select('id')
+        .from('blocks')
+        .orderBy({ timestamp: 'DESC' })
+        .limit(10)
+        .all()
+      const blockIds = blocks.map(block => block.id)
+
+      for (const peer of list) {
+        if (peer.status !== 'OK' || this.peers[peer.ip] || isLocalhost(peer.ip)) {
+          continue
         }
-      })
+        const peerObject = new Peer(peer.ip, peer.port)
+        if (blockIds.length && !(await peerObject.hasCommonBlocks(blockIds))) {
+          logger.error(`Could not get common block for ${peer.ip}`)
+
+          continue
+        }
+        this.peers[peer.ip] = peerObject
+      }
 
       return this.peers
     } catch (error) {
