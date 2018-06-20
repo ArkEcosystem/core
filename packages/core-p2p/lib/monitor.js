@@ -244,16 +244,8 @@ module.exports = class Monitor {
         logger.error('Could not determine highest peer')
         return this.discoverPeers()
       }
+      const blockIds = await this.__getRecentBlockIds()
       const list = await highestPeer.getPeers()
-
-      const blocks = await container.resolvePlugin('database').query
-        .select('id')
-        .from('blocks')
-        .orderBy({ timestamp: 'DESC' })
-        .limit(10)
-        .all()
-      const blockIds = blocks.map(block => block.id)
-
       for (const peer of list) {
         if (peer.status !== 'OK' || this.peers[peer.ip] || isLocalhost(peer.ip)) {
           continue
@@ -389,5 +381,20 @@ module.exports = class Monitor {
     }
 
     return false
+  }
+
+  /**
+   * Get last 10 block IDs from database.
+   * @return {[]String}
+   */
+  async __getRecentBlockIds () {
+    const blocks = await container.resolvePlugin('database').query
+      .select('id')
+      .from('blocks')
+      .orderBy({ timestamp: 'DESC' })
+      .limit(10)
+      .all()
+
+    return blocks.map(block => block.id)
   }
 }
