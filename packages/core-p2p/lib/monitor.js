@@ -24,6 +24,7 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
+    this.clearPeersTimer = null
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json')
@@ -43,6 +44,9 @@ module.exports = class Monitor {
   async start (networkStart = false) {
     if (!networkStart) {
       await this.updateNetworkStatus()
+      this.clearPeersTimer = setInterval(() => {
+        this.cleanPeers()
+      }, 60000)
     }
   }
 
