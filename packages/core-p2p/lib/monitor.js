@@ -193,6 +193,23 @@ module.exports = class Monitor {
   }
 
   /**
+   * Get the highest peer.
+   * @return {Peer}
+   */
+  async getHighestPeer () {
+    const peers = []
+    for (const key of Object.keys(this.peers)) {
+      const peer = this.peers[key]
+      try {
+        await peer.ping(1000)
+        peers.push(peer)
+      } catch (error) {}
+    }
+
+    return first(orderBy(peers, ['height'], ['desc']))
+  }
+
+  /**
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
