@@ -80,7 +80,7 @@ module.exports = class Monitor {
   async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
     let count = 0
-    let wrongpeers = 0
+    let wrongPeers = 0
     const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
@@ -91,7 +91,7 @@ module.exports = class Monitor {
         await this.peers[ip].ping(pingDelay)
         logger.printTracker('Peers Discovery', ++count, max, null, null)
       } catch (error) {
-        wrongpeers++
+        wrongPeers++
 
         logger.debug(`Removed peer ${ip} from peer list. Peer didn't respond to ping (peer/status) call with delay of ${pingDelay}`)
         emitter.emit('peer.removed', this.peers[ip])
@@ -103,7 +103,7 @@ module.exports = class Monitor {
     }))
 
     logger.stopTracker('Peers Discovery', max, max)
-    logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
+    logger.info(`Found ${max - wrongPeers}/${max} responsive peers on the network`)
     logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
     logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
   }
