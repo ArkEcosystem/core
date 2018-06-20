@@ -167,6 +167,23 @@ module.exports = class Peer {
   }
 
   /**
+   * Check if peer has common blocks.
+   * @param  {[]String} ids
+   * @return {Boolean}
+   */
+  async hasCommonBlocks (ids) {
+    try {
+      const body = await this.__get(`/peer/blocks/common?ids=${ids.join(',')}`)
+
+      return body && body.success && body.common
+    } catch (error) {
+      logger.error(`Could not determine common blocks with ${this.ip}: ${error}`)
+    }
+
+    return false
+  }
+
+  /**
    * Perform GET request.
    * @param  {String} endpoint
    * @param  {Number} [timeout=10000]
