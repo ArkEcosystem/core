@@ -115,7 +115,6 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       output.errors.push(`Last block height: ${lastBlock.data.height}, number of stored blocks: ${numberOfBlocks.count}`)
     }
 
-    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
     const blockStats = await this.query
       .select()
       .sum('numberOfTransactions', 'numberOfTransactions')
@@ -131,6 +130,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('transactions')
       .first()
 
+    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {
       output.verified = false
       output.errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
