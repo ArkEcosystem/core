@@ -46,7 +46,7 @@ module.exports = class Monitor {
       await this.updateNetworkStatus()
       this.clearPeersTimer = setInterval(() => {
         this.cleanPeers()
-      }, 60000)
+      }, 600000)
     }
   }
 
