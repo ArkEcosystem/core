@@ -9,6 +9,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const { first, orderBy } = require('lodash')
 const moment = require('moment')
 const delay = require('delay')
 
@@ -130,16 +131,21 @@ module.exports = class Monitor {
     try {
       await newPeer.ping(1500)
 
+      const blockIds = await this.__getRecentBlockIds()
+      if (blockIds.length && !(await newPeer.hasCommonBlocks(blockIds))) {
+        logger.error(`Could not accept new peer '${peer.ip}' due to no common block`)
+        this.__suspendPeer(newPeer)
+
+        return
+      }
+
       this.peers[peer.ip] = newPeer
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
-      this.suspendedPeers[peer.ip] = {
-        peer: newPeer,
-        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
-      }
+      this.__suspendPeer(newPeer)
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -193,6 +199,23 @@ module.exports = class Monitor {
   }
 
   /**
+   * Get the highest peer.
+   * @return {Peer}
+   */
+  async getHighestPeer () {
+    const peers = []
+    for (const key of Object.keys(this.peers)) {
+      const peer = this.peers[key]
+      try {
+        await peer.ping(1000)
+        peers.push(peer)
+      } catch (error) {}
+    }
+
+    return first(orderBy(peers, ['height'], ['desc']))
+  }
+
+  /**
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
@@ -222,13 +245,25 @@ module.exports = class Monitor {
    */
   async discoverPeers () {
     try {
-      const list = await this.getRandomPeer().getPeers()
-
-      list.forEach(peer => {
-        if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+      const highestPeer = await this.getHighestPeer()
+      if (!highestPeer) {
+        logger.error('Could not determine highest peer')
+        return this.discoverPeers()
+      }
+      const blockIds = await this.__getRecentBlockIds()
+      const list = await highestPeer.getPeers()
+      for (const peer of list) {
+        if (peer.status !== 'OK' || this.peers[peer.ip] || isLocalhost(peer.ip)) {
+          continue
         }
-      })
+        const peerObject = new Peer(peer.ip, peer.port)
+        if (blockIds.length && !(await peerObject.hasCommonBlocks(blockIds))) {
+          logger.error(`Could not get common block for ${peer.ip}`)
+
+          continue
+        }
+        this.peers[peer.ip] = peerObject
+      }
 
       return this.peers
     } catch (error) {
@@ -338,6 +373,17 @@ module.exports = class Monitor {
   }
 
   /**
+   * Suspend peer.
+   * @param {Peer} peer
+   */
+  __suspendPeer (peer) {
+    this.suspendedPeers[peer.ip] = {
+      peer,
+      until: moment().add(this.manager.config.suspendMinutes, 'minutes')
+    }
+  }
+
+  /**
    * Determine if peer is suspended or not.
    * @param  {Peer} peer
    * @return {Boolean}
@@ -352,5 +398,20 @@ module.exports = class Monitor {
     }
 
     return false
+  }
+
+  /**
+   * Get last 10 block IDs from database.
+   * @return {[]String}
+   */
+  async __getRecentBlockIds () {
+    const blocks = await container.resolvePlugin('database').query
+      .select('id')
+      .from('blocks')
+      .orderBy({ timestamp: 'DESC' })
+      .limit(10)
+      .all()
+
+    return blocks.map(block => block.id)
   }
 }
