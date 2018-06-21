@@ -42,7 +42,7 @@ module.exports = async blockCount => {
     const networkHeight = tracker.networkHeight.toLocaleString()
     const timeLeft = prettyMs(tracker.timeLeft, { secDecimalDigits: 0 })
 
-    logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`)
+    logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`, true)
   }
 
   if (tracker.percent === 100) {

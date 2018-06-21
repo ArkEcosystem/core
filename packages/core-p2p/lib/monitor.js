@@ -88,7 +88,7 @@ module.exports = class Monitor {
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.peers[ip].ping(pingDelay)
-        logger.printTracker('Peers Discovery', ++count, max, null, null)
+        logger.printTracker('Peers Discovery', ++count, max)
       } catch (error) {
         wrongpeers++
 

@@ -58,11 +58,12 @@ module.exports = class LoggerInterface {
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
-   * @param  {String} posttitle
+   * @param  {String} postTitle
+   * @param  {Boolean} newLine
    * @param  {Number} figures
    * @return {void}
    */
-  printTracker (title, current, max, posttitle, figures = 0) {
+  printTracker (title, current, max, postTitle, newLine = false, figures = 0) {
     throw new Error('Method [printTracker] not implemented!')
   }
 
