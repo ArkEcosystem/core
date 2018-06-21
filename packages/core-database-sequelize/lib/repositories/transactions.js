@@ -116,17 +116,6 @@ module.exports = class TransactionsRepository extends Repository {
     return { rows, count: rows.length }
   }
 
-  __publicKeyfromSenderId (senderId) {
-    const wallet = this.connection.walletManager.getWalletByAddress(senderId)
-    return wallet.publicKey
-  }
-
-  __orderBy (params) {
-    return params.orderBy
-      ? params.orderBy.split(':')
-      : ['timestamp', 'DESC']
-  }
-
   /**
    * Get all transactions for the given Wallet object.
    * @param  {Wallet} wallet
@@ -243,6 +232,21 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async findByTypeAndId (type, id) {
     return this.findOne({ id, type })
+  }
+
+  /**
+   * Get transactions for the given ids.
+   * @param  {Array} ids
+   * @return {Object}
+   */
+  async findByIds (ids) {
+    return this
+      .connection
+      .query
+      .select('blockId', 'serialized')
+      .from('transactions')
+      .whereIn('id', ids)
+      .all()
   }
 
   /**
@@ -461,5 +465,15 @@ module.exports = class TransactionsRepository extends Repository {
    */
   __setBlockCache ({ id, height }) {
     this.cache.set(`heights:${id}`, { height })
+  }
+
+  __publicKeyfromSenderId (senderId) {
+    return this.connection.walletManager.getWalletByAddress(senderId).publicKey
+  }
+
+  __orderBy (params) {
+    return params.orderBy
+      ? params.orderBy.split(':')
+      : ['timestamp', 'DESC']
   }
 }
