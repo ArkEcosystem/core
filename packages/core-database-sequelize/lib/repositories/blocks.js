@@ -94,19 +94,6 @@ module.exports = class BlocksRepository extends Repository {
   }
 
   /**
-   * Get the last height from the database.
-   * @return {Object}
-   */
-  async getLastHeight () {
-    return this.query
-      .select('height')
-      .from('blocks')
-      .orderBy('height', 'DESC')
-      .limit(1)
-      .first()
-  }
-
-  /**
    * Search all blocks.
    * @param  {Object} params
    * @return {Object}
