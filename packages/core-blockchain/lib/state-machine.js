@@ -215,8 +215,8 @@ blockchainMachine.actionMap = blockchain => {
     async rebuildBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
-      await tickSyncTracker(block)
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
+      await tickSyncTracker(blocks.length)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')

@@ -5,31 +5,44 @@ const database = container.resolvePlugin('database')
 
 let tracker = null
 
-module.exports = async block => {
+module.exports = async blockCount => {
   if (!tracker) {
-    const { height } = await database.blocks.getLastHeight()
+    const { count } = await database.blocks.count()
 
     tracker = {
       start: new Date().getTime(),
       networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
-      downloadedBlocks: height,
-      blockPerMs: 0,
+      blocksInitial: count,
+      blocksDownloaded: count,
+      blocksSession: 0,
+      blocksPerMillisecond: 0,
       percent: 0,
       timeLeft: 0
     }
   }
 
-  tracker.downloadedBlocks = block.data.height
-  tracker.percent = (tracker.downloadedBlocks * 100) / tracker.networkHeight
-  tracker.blockPerMs = ((new Date().getTime()) - tracker.start) / tracker.downloadedBlocks
-  tracker.timeLeft = Math.abs((tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerMs)
+  // The total amount of downloaded blocks equals the current height
+  tracker.blocksDownloaded += blockCount
+
+  // The total amount of downloaded blocks downloaded since start of the current session
+  tracker.blocksSession = tracker.blocksDownloaded - tracker.blocksInitial
+
+  // The percentage of total blocks that is left to be downloaded
+  tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
+
+  // The number of blocks the node can download per millisecond
+  const diffSinceStart = new Date().getTime() - tracker.start
+  tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart
+
+  // The time left to download the missing blocks in milliseconds
+  tracker.timeLeft = Math.trunc((tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond)
 
   if (tracker.percent < 100 && isFinite(tracker.timeLeft)) {
-    const downloadedBlocks = tracker.downloadedBlocks.toLocaleString()
+    const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
     const timeLeft = prettyMs(tracker.timeLeft, { secDecimalDigits: 0 })
 
-    logger.printTracker('Fast Sync', tracker.percent, 100, `(${downloadedBlocks} of ${networkHeight} blocks - Est. ${timeLeft})`)
+    logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`)
   }
 
   if (tracker.percent === 100) {
