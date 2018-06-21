@@ -110,7 +110,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('blocks')
       .first()
 
-    if (lastBlock.data.height !== numberOfBlocks.count) {
+    if (lastBlock.data.height !== +numberOfBlocks.count) {
       output.verified = false
       output.errors.push(`Last block height: ${lastBlock.data.height}, number of stored blocks: ${numberOfBlocks.count}`)
     }
