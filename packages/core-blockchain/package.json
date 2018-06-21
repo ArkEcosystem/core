@@ -25,6 +25,7 @@
     "async": "^2.6.1",
     "delay": "^2.0.0",
     "interval-to-human": "^0.1.1",
+    "pretty-ms": "^3.2.0",
     "xstate": "^3.2.1"
   },
   "publishConfig": {

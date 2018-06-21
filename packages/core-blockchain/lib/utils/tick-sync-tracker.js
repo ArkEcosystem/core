@@ -1,3 +1,4 @@
+const prettyMs = require('pretty-ms')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
@@ -12,23 +13,26 @@ module.exports = async block => {
       start: new Date().getTime(),
       networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
       downloadedBlocks: height,
-      blockPerSecond: 0,
+      blockPerMs: 0,
       percent: 0,
-      secondsLeft: 0
+      timeLeft: 0
     }
   }
 
   tracker.downloadedBlocks = block.data.height
   tracker.percent = (tracker.downloadedBlocks * 100) / tracker.networkHeight
-  tracker.blockPerSecond = ((new Date().getTime()) - tracker.start) / 1000 / tracker.downloadedBlocks
-  tracker.secondsLeft = (tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerSecond
+  tracker.blockPerMs = ((new Date().getTime()) - tracker.start) / tracker.downloadedBlocks
+  tracker.timeLeft = Math.abs((tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerMs)
 
-  if (tracker.percent < 100) {
+  if (tracker.percent < 100 && isFinite(tracker.timeLeft)) {
     const downloadedBlocks = tracker.downloadedBlocks.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
+    const timeLeft = prettyMs(tracker.timeLeft, { secDecimalDigits: 0 })
 
-    logger.printTracker('Fast Sync', tracker.percent, 100, `(${downloadedBlocks} of ${networkHeight} blocks)`)
-  } else {
+    logger.printTracker('Fast Sync', tracker.percent, 100, `(${downloadedBlocks} of ${networkHeight} blocks - Est. ${timeLeft})`)
+  }
+
+  if (tracker.percent === 100) {
     tracker = null
     logger.stopTracker('Fast Sync', 100, 100)
   }
