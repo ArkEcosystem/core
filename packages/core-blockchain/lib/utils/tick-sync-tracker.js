@@ -18,7 +18,7 @@ module.exports = async block => {
     }
   }
 
-  tracker.downloadedBlocks += 400
+  tracker.downloadedBlocks = block.data.height
   tracker.percent = (tracker.downloadedBlocks * 100) / tracker.networkHeight
   tracker.blockPerSecond = ((new Date().getTime()) - tracker.start) / 1000 / tracker.downloadedBlocks
   tracker.secondsLeft = (tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerSecond
