@@ -1,28 +1,35 @@
-const human = require('interval-to-human')
-const { slots } = require('@arkecosystem/crypto')
-
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
 
-let synctracker = null
+let tracker = null
 
-module.exports = (block) => {
-  const constants = config.getConstants(block.data.height)
+module.exports = async block => {
+  if (!tracker) {
+    const { height } = await database.blocks.getLastHeight()
 
-  if (!synctracker) {
-    synctracker = {
-      starttimestamp: block.data.timestamp,
-      startdate: new Date().getTime()
+    tracker = {
+      start: new Date().getTime(),
+      networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
+      downloadedBlocks: height,
+      blockPerSecond: 0,
+      percent: 0,
+      secondsLeft: 0
     }
   }
 
-  const remainingtime = (slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
+  tracker.downloadedBlocks += 400
+  tracker.percent = (tracker.downloadedBlocks * 100) / tracker.networkHeight
+  tracker.blockPerSecond = ((new Date().getTime()) - tracker.start) / 1000 / tracker.downloadedBlocks
+  tracker.secondsLeft = (tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerSecond
 
-  if (block.data.timestamp - slots.getTime() < 8) {
-    logger.printTracker('Fast Synchronisation', block.data.timestamp, slots.getTime(), human(remainingtime), 3)
+  if (tracker.percent < 100) {
+    const downloadedBlocks = tracker.downloadedBlocks.toLocaleString()
+    const networkHeight = tracker.networkHeight.toLocaleString()
+
+    logger.printTracker('Fast Sync', tracker.percent, 100, `(${downloadedBlocks} of ${networkHeight} blocks)`)
   } else {
-    synctracker = null
-    logger.stopTracker('Fast Synchronisation', slots.getTime(), slots.getTime())
+    tracker = null
+    logger.stopTracker('Fast Sync', 100, 100)
   }
 }

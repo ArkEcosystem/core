@@ -215,7 +215,7 @@ blockchainMachine.actionMap = blockchain => {
     async rebuildBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
-      tickSyncTracker(block)
+      await tickSyncTracker(block)
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
 
       if (!blocks || blocks.length === 0) {
