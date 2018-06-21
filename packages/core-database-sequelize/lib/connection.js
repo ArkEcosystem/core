@@ -88,6 +88,70 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
+   * Verify the blockchain stored on db is not corrupted making simple tests:
+   * - last block height is equals to the number of stored blocks
+   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+   * - sum of all tx fees is equals to the sum of block.totalFee
+   * - sum of all tx amount is equals to the sum of block.totalAmount
+   * @param  {Block} block
+   * @return {void}
+   */
+  async verifyBlockchain () {
+    const output = {
+      verified: true,
+      errors: []
+    }
+
+    // last block height is equals to the number of stored blocks
+    const lastBlock = await this.getLastBlock()
+    const numberOfBlocks = await this.query
+      .select()
+      .countDistinct('height', 'count')
+      .from('blocks')
+      .first()
+
+    if (lastBlock.data.height !== numberOfBlocks.count) {
+      output.verified = false
+      output.errors.push(`Last block height: ${lastBlock.data.height}, number of stored blocks: ${numberOfBlocks.count}`)
+    }
+
+    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+    const blockStats = await this.query
+      .select()
+      .sum('numberOfTransactions', 'numberOfTransactions')
+      .sum('totalFee', 'totalFee')
+      .sum('totalAmount', 'totalAmount')
+      .from('blocks')
+      .first()
+    const transactionStats = await this.query
+      .select()
+      .countDistinct('id', 'count')
+      .sum('fee', 'totalFee')
+      .sum('amount', 'totalAmount')
+      .from('transactions')
+      .first()
+
+    if (blockStats.numberOfTransactions !== transactionStats.count) {
+      output.verified = false
+      output.errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
+    }
+
+    // sum of all tx fees is equals to the sum of block.totalFee
+    if (blockStats.totalFee !== transactionStats.totalFee) {
+      output.verified = false
+      output.errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
+    }
+
+    // sum of all tx amount is equals to the sum of block.totalAmount
+    if (blockStats.totalAmount !== transactionStats.totalAmount) {
+      output.verified = false
+      output.errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
+    }
+
+    return output
+  }
+
+  /**
    * Get the top 51 delegates.
    * @param  {Number} height
    * @return {Array}

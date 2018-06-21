@@ -45,6 +45,19 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Verify the blockchain stored on db is not corrupted making simple tests:
+   * - last block height is equals to the number of stored blocks
+   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+   * - sum of all tx fees is equals to the sum of block.totalFee
+   * - sum of all tx amount is equals to the sum of block.totalAmount
+   * @param  {Block} block
+   * @return {void}
+   */
+  async verifyBlockchain () {
+    throw new Error('Method [verifyBlockchain] not implemented!')
+  }
+
+  /**
    * Get the top 51 delegates.
    * @param  {Number} height
    * @return {void}
@@ -97,7 +110,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Commit the given block (async version).
+   * Save the given block (async version).
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
@@ -108,12 +121,33 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Commit the block database transaction.
+   * Commit the block save database transaction.
    * NOTE: to be used in combination with saveBlockAsync
    * @return {void}
    * @throws Error
    */
   async saveBlockCommit () {
+    throw new Error('Method [saveBlockCommit] not implemented!')
+  }
+
+  /**
+   * Delete the given block (async version).
+   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * @param  {Block} block
+   * @return {void}
+   * @throws Error
+   */
+  async deleteBlockAsync (block) {
+    throw new Error('Method [saveBlockAsync] not implemented!')
+  }
+
+  /**
+   * Commit the block delete database transaction.
+   * NOTE: to be used in combination with saveBlockAsync
+   * @return {void}
+   * @throws Error
+   */
+  async deleteBlockCommit () {
     throw new Error('Method [saveBlockCommit] not implemented!')
   }
 
