@@ -6,8 +6,8 @@ const database = container.resolvePlugin('database')
 let tracker = null
 
 module.exports = async block => {
+  const { height } = await database.blocks.getLastHeight()
   if (!tracker) {
-    const { height } = await database.blocks.getLastHeight()
 
     tracker = {
       start: new Date().getTime(),
@@ -19,10 +19,9 @@ module.exports = async block => {
     }
   }
 
-  tracker.downloadedBlocks += block.data.height
-  tracker.percent = (tracker.downloadedBlocks * 100) / tracker.networkHeight
-  tracker.blockPerMs = ((new Date().getTime()) - tracker.start) / tracker.downloadedBlocks
-  tracker.timeLeft = Math.abs((tracker.networkHeight - tracker.downloadedBlocks) / tracker.blockPerMs)
+  tracker.percent = (height * 100) / tracker.networkHeight
+  tracker.blockPerMs = (new Date().getTime()) - tracker.start) / (height - tracker.downloadedBlocks)
+  tracker.timeLeft = Math.abs((tracker.networkHeight - height) / tracker.blockPerMs)
 
   if (tracker.percent < 100 && isFinite(tracker.timeLeft)) {
     const downloadedBlocks = tracker.downloadedBlocks.toLocaleString()
