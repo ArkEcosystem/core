@@ -128,6 +128,13 @@ exports.voters = {
     return utils.respondWith({
       accounts: utils.toCollection(request, accounts.rows, 'voter')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getVoters
+      }
+    }
   }
 }
 
