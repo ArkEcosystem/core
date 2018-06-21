@@ -390,6 +390,7 @@ module.exports = class Monitor {
       peer,
       until: moment().add(this.manager.config.suspendMinutes, 'minutes')
     }
+    delete this.peers[peer.ip]
   }
 
   /**
