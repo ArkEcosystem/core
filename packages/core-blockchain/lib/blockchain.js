@@ -6,6 +6,7 @@ const logger = container.resolvePlugin('logger')
 const stateMachine = require('./state-machine')
 const Queue = require('./queue')
 const delay = require('delay')
+const { Block } = require('@arkecosystem/crypto').models
 
 module.exports = class Blockchain {
   /**
@@ -153,15 +154,6 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async rollbackCurrentRound () {
-    const deleteLastBlock = async () => {
-      const lastBlock = stateMachine.state.lastBlock
-      await this.database.deleteBlock(lastBlock)
-
-      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
-
-      stateMachine.state.lastBlock = newLastBlock
-      stateMachine.state.lastDownloadedBlock = newLastBlock
-    }
 
     const height = this.getLastBlock().data.height
     const maxDelegates = this.config.getConstants(height).activeDelegates
@@ -172,6 +164,17 @@ module.exports = class Blockchain {
     }
 
     const newHeight = previousRound * maxDelegates
+    const blocksToRemove = await this.database.getBlocks(newHeight, height - newHeight - 1)
+    const deleteLastBlock = async () => {
+      const lastBlock = stateMachine.state.lastBlock
+      await this.database.deleteBlockAsync(lastBlock)
+
+      const newLastBlock = new Block(blocksToRemove.pop())
+
+      stateMachine.state.lastBlock = newLastBlock
+      stateMachine.state.lastDownloadedBlock = newLastBlock
+    }
+
     logger.info(`Removing ${height - newHeight} blocks to reset current round`)
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
@@ -179,6 +182,7 @@ module.exports = class Blockchain {
       logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock().data.id + ', height: ' + this.getLastBlock().data.height)
       await deleteLastBlock()
     }
+    await this.database.deleteBlockCommit()
     logger.stopTracker(`${max} blocks removed`, count, max)
 
     await this.database.deleteRound(previousRound + 1)
@@ -190,17 +194,19 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async removeBlocks (nblocks) {
+    const blocksToRemove = await this.database.getBlocks(stateMachine.state.lastBlock.data.height - nblocks, nblocks - 1)
+
     const revertLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
 
       await this.database.revertBlock(lastBlock)
-      await this.database.deleteBlock(lastBlock)
+      await this.database.deleteBlockAsync(lastBlock)
 
       if (this.transactionPool) {
         await this.transactionPool.addTransactions(lastBlock.transactions)
       }
 
-      const newLastBlock = await this.database.getBlock(lastBlock.data.previousBlock)
+      const newLastBlock = new Block(blocksToRemove.pop())
 
       stateMachine.state.lastBlock = newLastBlock
       stateMachine.state.lastDownloadedBlock = newLastBlock
@@ -226,6 +232,7 @@ module.exports = class Blockchain {
     this.queue.pause()
     this.queue.clear(stateMachine)
     await __removeBlocks(nblocks)
+    await this.database.deleteBlockCommit()
     this.queue.resume()
   }
 
