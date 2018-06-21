@@ -47,19 +47,28 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe.skip('GET /transactions/unconfirmed', () => {
+  describe('GET /transactions/unconfirmed', () => {
     it('should GET all the unconfirmed transactions', async () => {
+      await utils.createTransaction()
+
       const response = await utils.request('GET', 'transactions/unconfirmed')
       utils.expectSuccessful(response)
       utils.expectCollection(response)
+
+      expect(response.data.data).toBeArray()
+      expect(response.data.data).not.toBeEmpty()
     })
   })
 
-  describe.skip('GET /transactions/unconfirmed/:id', () => {
+  describe('GET /transactions/unconfirmed/:id', () => {
     it('should GET an unconfirmed transaction by the given identifier', async () => {
-      const response = await utils.request('GET', 'transactions/unconfirmed/:id')
+      const transaction = await utils.createTransaction()
+
+      const response = await utils.request('GET', `transactions/unconfirmed/${transaction.id}`)
       utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      utils.expectResource(response)
+
+      expect(response.data.data).toHaveProperty('id', transaction.id)
     })
   })
 

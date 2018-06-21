@@ -84,7 +84,7 @@ exports.unconfirmed = {
     transactions = transactions.map(transaction => ({ serialized: transaction }))
 
     return utils.respondWith({
-      transaction: utils.toCollection(request, transactions, 'transaction')
+      transactions: utils.toCollection(request, transactions, 'transaction')
     })
   }
 }

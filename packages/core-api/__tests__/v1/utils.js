@@ -1,6 +1,7 @@
 'use strict'
 
 const axios = require('axios')
+const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
 
 class Helpers {
   request (method, path, params = {}) {
@@ -66,6 +67,24 @@ class Helpers {
     expect(response).toHaveProperty('address')
     expect(response).toHaveProperty('publicKey')
     expect(response).toHaveProperty('balance')
+  }
+
+  async createTransaction () {
+    client.setConfig(NetworkManager.findByName('testnet'))
+
+    let transaction = transactionBuilder
+      .transfer()
+      .amount(1 * Math.pow(10, 8))
+      .recipientId('AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1')
+      .vendorField('test')
+      .sign('prison tobacco acquire stone dignity palace note decade they current lesson robot')
+      .getStruct()
+
+    await axios.post('http://127.0.0.1:4003/api/v2/transactions', {
+      transactions: [transaction]
+    })
+
+    return transaction
   }
 }
 
