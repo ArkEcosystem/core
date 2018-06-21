@@ -19,7 +19,8 @@ describe('Utils - Generate Wallets', () => {
 
     expect(wallet).toContainAllKeys([
       'address',
-      'passphrase'
+      'passphrase',
+      'keys'
     ])
   })
 
