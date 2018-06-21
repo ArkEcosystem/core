@@ -1,28 +1,52 @@
-const human = require('interval-to-human')
-const { slots } = require('@arkecosystem/crypto')
-
+const prettyMs = require('pretty-ms')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
 
-let synctracker = null
+let tracker = null
 
-module.exports = (block) => {
-  const constants = config.getConstants(block.data.height)
+module.exports = async blockCount => {
+  if (!tracker) {
+    const { count } = await database.blocks.count()
 
-  if (!synctracker) {
-    synctracker = {
-      starttimestamp: block.data.timestamp,
-      startdate: new Date().getTime()
+    tracker = {
+      start: new Date().getTime(),
+      networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
+      blocksInitial: count,
+      blocksDownloaded: count,
+      blocksSession: 0,
+      blocksPerMillisecond: 0,
+      percent: 0,
+      timeLeft: 0
     }
   }
 
-  const remainingtime = (slots.getTime() - block.data.timestamp) * (block.data.timestamp - synctracker.starttimestamp) / (new Date().getTime() - synctracker.startdate) / constants.blocktime
+  // The total amount of downloaded blocks equals the current height
+  tracker.blocksDownloaded += blockCount
 
-  if (block.data.timestamp - slots.getTime() < 8) {
-    logger.printTracker('Fast Synchronisation', block.data.timestamp, slots.getTime(), human(remainingtime), 3)
-  } else {
-    synctracker = null
-    logger.stopTracker('Fast Synchronisation', slots.getTime(), slots.getTime())
+  // The total amount of downloaded blocks downloaded since start of the current session
+  tracker.blocksSession = tracker.blocksDownloaded - tracker.blocksInitial
+
+  // The percentage of total blocks that is left to be downloaded
+  tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
+
+  // The number of blocks the node can download per millisecond
+  const diffSinceStart = new Date().getTime() - tracker.start
+  tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart
+
+  // The time left to download the missing blocks in milliseconds
+  tracker.timeLeft = Math.trunc((tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond)
+
+  if (tracker.percent < 100 && isFinite(tracker.timeLeft)) {
+    const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
+    const networkHeight = tracker.networkHeight.toLocaleString()
+    const timeLeft = prettyMs(tracker.timeLeft, { secDecimalDigits: 0 })
+
+    logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`, true)
+  }
+
+  if (tracker.percent === 100) {
+    tracker = null
+    logger.stopTracker('Fast Sync', 100, 100)
   }
 }

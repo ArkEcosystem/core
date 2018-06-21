@@ -105,7 +105,7 @@ module.exports = class Monitor {
           return null
         }
 
-        logger.printTracker('Peers Discovery', ++count, max, null, null)
+        logger.printTracker('Peers Discovery', ++count, max)
       } catch (error) {
         wrongPeers++
 
@@ -235,10 +235,10 @@ module.exports = class Monitor {
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
-  getRandomDownloadBlocksPeer (minheight) {
+  getRandomDownloadBlocksPeer (minHeight) {
     let keys = Object.keys(this.peers)
     keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
-    // keys = keys.filter(key => this.peers[key].state.height > minheight)
+    // keys = keys.filter(key => this.peers[key].state.height > minHeight)
     keys = keys.filter(key => this.peers[key].downloadSize !== 100)
 
     const random = keys[keys.length * Math.random() << 0]
@@ -249,7 +249,8 @@ module.exports = class Monitor {
 
       return this.getRandomPeer()
     }
-    logger.debug(`downloading blocks from ${randomPeer.ip}`)
+
+    logger.debug(`Downloading blocks from ${randomPeer.ip}`)
 
     return randomPeer
   }

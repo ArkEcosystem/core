@@ -79,12 +79,13 @@ exports.unconfirmed = {
    */
   async handler (request, h) {
     const pagination = utils.paginate(request)
-    const transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
 
-    return utils.toPagination({
-      count: transactions.length,
-      rows: transactions
-    }, transactions, 'transaction')
+    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
+    transactions = transactions.map(transaction => ({ serialized: transaction }))
+
+    return utils.respondWith({
+      transactions: utils.toCollection(request, transactions, 'transaction')
+    })
   }
 }
 
@@ -98,8 +99,16 @@ exports.showUnconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transaction = await transactionPool.getTransaction(request.param.id)
+    let transaction = await transactionPool.getTransaction(request.query.id)
 
-    return utils.respondWithResource(request, transaction, 'transaction')
+    if (!transaction) {
+      return utils.respondWith('Transaction not found', true)
+    }
+
+    transaction = { serialized: transaction.serialized.toString('hex') }
+
+    return utils.respondWith({
+      transaction: utils.toResource(request, transaction, 'transaction')
+    })
   }
 }

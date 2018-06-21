@@ -12,6 +12,7 @@ module.exports = (model) => {
     version: model.version,
     height: model.height,
     status: model.status,
+    os: model.os,
     latency: model.delay
   }
 }

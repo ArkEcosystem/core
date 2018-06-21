@@ -120,7 +120,7 @@ describe('crypto.js', () => {
       expect(crypto.getId).toBeFunction()
     })
 
-    xit('should return string id and be equal to 619fd7971db6f317fdee3675c862291c976d072a0a1782410e3a6f5309022491', () => {
+    xit('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
       const transaction = {
         type: 0,
         amount: 1000,

@@ -130,6 +130,15 @@ blockchainMachine.actionMap = blockchain => {
 
     async init () {
       try {
+        logger.info('Verifying blockchain stored on DB')
+        const databaseBlokchain = await blockchain.database.verifyBlockchain()
+
+        if (!databaseBlokchain.verified) {
+          logger.error('FATAL: The database is corrupted 🔴')
+          console.error(databaseBlokchain.errors)
+          return blockchain.dispatch('FAILURE')
+        }
+        logger.info('blockchain stored on verified successfully :smile_cat:')
         let block = await blockchain.database.getLastBlock()
 
         if (!block) {
@@ -137,7 +146,7 @@ blockchainMachine.actionMap = blockchain => {
           block = new Block(blockchain.config.genesisBlock)
 
           if (block.data.payloadHash !== blockchain.config.network.nethash) {
-            logger.error('FATAL: The genesis block payload hash is different from configured nethash :redalert:')
+            logger.error('FATAL: The genesis block payload hash is different from configured nethash 🔴')
             return blockchain.dispatch('FAILURE')
           }
 
@@ -215,8 +224,8 @@ blockchainMachine.actionMap = blockchain => {
     async rebuildBlocks () {
       const block = state.lastDownloadedBlock || state.lastBlock
       logger.info(`Downloading blocks from block ${block.data.height}`)
-      tickSyncTracker(block)
       const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
+      await tickSyncTracker(blocks.length)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
