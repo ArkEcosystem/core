@@ -14,13 +14,13 @@ describe('Utils - Generate Wallets', () => {
     expect(wallets.length).toBe(4)
   })
 
-  it('should have wallet with passphrase and address', () => {
+  it('should have wallet with passphrase, keys and address', () => {
     const wallet = generateWallets(1)[0]
 
     expect(wallet).toContainAllKeys([
       'address',
-      'passphrase',
-      'keys'
+      'keys',
+      'passphrase'
     ])
   })
 
