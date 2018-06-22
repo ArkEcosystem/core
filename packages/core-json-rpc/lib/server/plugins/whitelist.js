@@ -1,6 +1,7 @@
 'use strict'
 
 const mm = require('micromatch')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 /**
  * The register method used by hapi.js.
@@ -37,6 +38,8 @@ const register = async (server, options) => {
           }
         }
       }
+
+      logger.warn(`${remoteAddress} tried to access the JSON-RPC without being whitelisted :warning:`)
 
       return h.response().code(403).takeover()
     }

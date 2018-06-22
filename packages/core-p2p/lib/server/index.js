@@ -13,6 +13,7 @@ module.exports = async (p2p, config) => {
     host: config.host,
     port: config.port
   })
+
   server.app.p2p = p2p
 
   // await server.register({

@@ -42,7 +42,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       ...config,
       ...{
         operatorsAliases: Op,
-        logging: process.env.NODE_ENV === 'test'
+        logging: process.env.NODE_ENV === 'test' && !process.env.ARK_CI_TEST
       }
     })
 
@@ -110,9 +110,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('blocks')
       .first()
 
-    if (lastBlock.data.height !== numberOfBlocks.count) {
+    if (lastBlock.data.height !== +numberOfBlocks.count) {
       output.verified = false
-      output.errors.push(`Last block height: ${lastBlock.data.height}, number of stored blocks: ${numberOfBlocks.count}`)
+      output.errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks.count}`)
     }
 
     const blockStats = await this.query
@@ -315,7 +315,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       return
     }
 
-    logger.debug('Updating delegate statistics...')
+    logger.debug('Updating delegate statistics')
 
     try {
       const maxDelegates = config.getConstants(block.height).activeDelegates

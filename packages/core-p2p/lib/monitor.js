@@ -1,5 +1,9 @@
 'use strict'
 
+const prettyMs = require('pretty-ms')
+const moment = require('moment')
+const delay = require('delay')
+
 const { slots } = require('@arkecosystem/crypto')
 
 const container = require('@arkecosystem/core-container')
@@ -9,8 +13,6 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
-const moment = require('moment')
-const delay = require('delay')
 
 module.exports = class Monitor {
   /**
@@ -25,7 +27,7 @@ module.exports = class Monitor {
     this.suspendedPeers = {}
 
     if (!this.config.peers.list) {
-      logger.error('No seed peers defined in peers.json')
+      logger.error('No seed peers defined in peers.json :interrobang:')
 
       process.exit(1)
     }
@@ -79,20 +81,21 @@ module.exports = class Monitor {
   async cleanPeers (fast = false) {
     let keys = Object.keys(this.peers)
     let count = 0
-    let wrongpeers = 0
+    let unresponsivePeers = 0
     const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
-    logger.info(`Checking ${max} peers`)
+    logger.info(`Checking ${max} peers :telescope:`)
 
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.peers[ip].ping(pingDelay)
         logger.printTracker('Peers Discovery', ++count, max)
       } catch (error) {
-        wrongpeers++
+        unresponsivePeers++
 
-        logger.debug(`Removed peer ${ip} from peer list. Peer didn't respond to ping (peer/status) call with delay of ${pingDelay}`)
+        const formattedDelay = prettyMs(pingDelay, { verbose: true })
+        logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`)
         emitter.emit('peer.removed', this.peers[ip])
 
         delete this.peers[ip]
@@ -102,7 +105,7 @@ module.exports = class Monitor {
     }))
 
     logger.stopTracker('Peers Discovery', max, max)
-    logger.info(`Found ${max - wrongpeers}/${max} responsive peers on the network`)
+    logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`)
     logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
     logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
   }
@@ -136,10 +139,12 @@ module.exports = class Monitor {
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
+
       this.suspendedPeers[peer.ip] = {
         peer: newPeer,
         until: moment().add(this.manager.config.suspendMinutes, 'minutes')
       }
+
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -211,8 +216,6 @@ module.exports = class Monitor {
       return this.getRandomPeer()
     }
 
-    logger.debug(`Downloading blocks from ${randomPeer.ip}`)
-
     return randomPeer
   }
 
@@ -260,10 +263,9 @@ module.exports = class Monitor {
     const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
     Object.values(this.peers).forEach(p => p.state && (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
     console.log(heights)
-    const okForging = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
-    const ratio = okForging / syncedPeers.length
+    const allowedToForge = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
 
-    return ratio
+    return allowedToForge / syncedPeers.length
   }
 
   /**
@@ -275,6 +277,8 @@ module.exports = class Monitor {
     const randomPeer = this.getRandomDownloadBlocksPeer(fromBlockHeight)
 
     try {
+      logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
+
       await randomPeer.ping()
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)
@@ -295,30 +299,39 @@ module.exports = class Monitor {
    */
   async broadcastBlock (block) {
     const blockchain = container.resolvePlugin('blockchain')
+
     if (!blockchain) {
-      logger.info(`skipping broadcast of block ${block.data.height} as blockchain is not ready `)
+      logger.info(`Skipping broadcast of block ${block.data.height.toLocaleString()} as blockchain is not ready`)
       return
     }
+
     let blockPing = blockchain.getBlockPing()
     let peers = Object.values(this.peers)
 
     if (blockPing && blockPing.block.id === block.data.id) {
       // wait a bit before broadcasting if a bit early
       const diff = blockPing.last - blockPing.first
-      const maxhop = 4
-      let proba = (maxhop - blockPing.count) / maxhop
+      const maxHop = 4
+      let proba = (maxHop - blockPing.count) / maxHop
+
       if (diff < 500 && proba > 0) {
         await delay(500 - diff)
+
         blockPing = blockchain.getBlockPing()
+
         // got aleady a new block, no broadcast
-        if (blockPing.block.id !== block.data.id) return
-        else proba = (maxhop - blockPing.count) / maxhop
+        if (blockPing.block.id !== block.data.id) {
+          return
+        }
+
+        proba = (maxHop - blockPing.count) / maxHop
       }
+
       // TODO: to be put in config?
       peers = peers.filter(p => Math.random() < proba)
     }
 
-    logger.info(`Broadcasting block ${block.data.height} to ${peers.length} peers`)
+    logger.info(`Broadcasting block ${block.data.height.toLocaleString()} to ${peers.length} peers`)
 
     await Promise.all(peers.map(peer => peer.postBlock(block.toBroadcastV1())))
   }

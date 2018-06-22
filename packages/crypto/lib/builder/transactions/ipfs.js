@@ -34,6 +34,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    */
   vendorField (type) {
     this.data.vendorFieldHex = Buffer.from(this.data.ipfsHash, type).toString('hex')
+
     while (this.data.vendorFieldHex.length < 128) {
       this.data.vendorFieldHex = '00' + this.data.vendorFieldHex
     }

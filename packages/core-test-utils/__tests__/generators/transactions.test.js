@@ -18,7 +18,7 @@ describe('generateTransactions', () => {
     )
 
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({recipientId: devnetAddress})
+      expect(transactions[i]).toMatchObject({ recipientId: devnetAddress })
     }
   })
 })

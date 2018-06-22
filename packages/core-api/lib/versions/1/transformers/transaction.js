@@ -14,7 +14,6 @@ const { Transaction } = require('@arkecosystem/crypto').models
  * @return {Object}
  */
 module.exports = (model) => {
-  const lastBlock = blockchain.getLastBlock()
   const data = Transaction.deserialize(model.serialized.toString('hex'))
 
   return {
@@ -30,6 +29,8 @@ module.exports = (model) => {
     vendorField: data.vendorField,
     signature: data.signature,
     asset: data.asset || {},
-    confirmations: model.block ? lastBlock.data.height - model.block.height : 0
+    confirmations: model.block
+      ? blockchain.getLastBlock().data.height - model.block.height
+      : 0
   }
 }

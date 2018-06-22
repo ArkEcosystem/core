@@ -21,11 +21,6 @@ module.exports = {
       },
       publicKey: {
         type: Sequelize.STRING(66)
-        // very bad practice to disable references, easy to corrupt database...
-        // references: {
-        //   model: 'wallets',
-        //   key: 'publicKey'
-        // }
       },
       balance: Sequelize.BIGINT,
       round: Sequelize.BIGINT,

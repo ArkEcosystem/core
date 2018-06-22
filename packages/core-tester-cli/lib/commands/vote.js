@@ -45,6 +45,7 @@ module.exports = async (options) => {
       config.secondPassphrase,
       utils.parseFee(options.voteFee)
     )
+
     transactions.push(transaction)
 
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
@@ -75,6 +76,7 @@ module.exports = async (options) => {
     for (const detail of delegateVotes) {
       voters += (await utils.getVoters(detail.delegate.publicKey)).length
     }
+
     logger.info(`All transactions have been sent! Total voters: ${voters}`)
 
     if (voters !== expectedVoters) {

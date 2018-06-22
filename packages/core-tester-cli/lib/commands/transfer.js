@@ -21,11 +21,13 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
     return false
   }
+
   for (const transaction of transactions) {
     if (!postResponse.data.transactionIds.find(transactionId => (transaction.id === transactionId))) {
       logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
     }
   }
+
   if (!postResponse.data.transactionIds.length) {
     return false
   }
@@ -70,7 +72,10 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   const transactions = []
   let totalDeductions = 0
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
-  if (options.amount) transactionAmount = options.amount
+
+  if (options.amount) {
+    transactionAmount = options.amount
+  }
 
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(

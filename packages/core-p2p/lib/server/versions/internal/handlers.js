@@ -81,7 +81,10 @@ exports.getRound = {
         }
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }
@@ -107,7 +110,10 @@ exports.getTransactionsForForging = {
         data: await blockchain.getUnconfirmedTransactions(blockSize, true)
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }

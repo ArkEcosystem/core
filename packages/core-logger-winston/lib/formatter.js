@@ -14,10 +14,10 @@ module.exports = (info) => {
   level = {
     'error': chalk.bold.red(level),
     'warn': chalk.bold.yellow(level),
-    'info': chalk.bold.green(level),
+    'info': chalk.bold.blue(level),
     'verbose': chalk.bold.cyan(level),
-    'debug': chalk.bold.magenta(level),
-    'silly': chalk.bold.white(level)
+    'debug': chalk.bold.white(level),
+    'silly': chalk.bold.magenta(level)
   }[info.level]
 
   let message = emoji.emojify(info.message) || JSON.stringify(info.meta)
@@ -26,7 +26,7 @@ module.exports = (info) => {
     'warn': chalk.bold.black.bgYellow(message),
     'info': message,
     'verbose': chalk.bold.cyan(message),
-    'debug': chalk.bold.bgMagenta(message),
+    'debug': chalk.bold.inverse(message),
     'silly': chalk.bold.black.bgWhite(message)
   }[info.level]
 
