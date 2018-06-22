@@ -10,12 +10,10 @@ exports.plugin = {
   alias: 'graphql',
   async register (container, options) {
     if (!options.enabled) {
-      container.resolvePlugin('logger').info('GraphQL API is disabled')
+      container.resolvePlugin('logger').info('GraphQL API is disabled :grey_exclamation:')
 
       return
     }
-
-    container.resolvePlugin('logger').info('Starting GraphQL API')
 
     return require('./server')(options)
   },

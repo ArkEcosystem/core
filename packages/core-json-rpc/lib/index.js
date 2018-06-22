@@ -12,12 +12,10 @@ exports.plugin = {
     const logger = container.resolvePlugin('logger')
 
     if (!options.enabled) {
-      logger.info('JSON-RPC Server is disabled')
+      logger.info('JSON-RPC Server is disabled :grey_exclamation:')
 
       return
     }
-
-    logger.info('Starting JSON-RPC Server')
 
     return require('./server')(options)
   },

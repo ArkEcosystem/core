@@ -28,6 +28,8 @@ module.exports = class PeerManager {
     await this.monitor.start(this.config.networkStart)
 
     this.api = await startServer(this, this.config)
+
+    return this
   }
 
   /**
@@ -116,8 +118,8 @@ module.exports = class PeerManager {
       const host = await checkDNS(this.config.dns)
 
       logger.info(`Your network connectivity has been verified by ${host}`)
-    } catch (err) {
-      logger.error(err.message)
+    } catch (error) {
+      logger.error(error.message)
     }
   }
 
@@ -132,8 +134,8 @@ module.exports = class PeerManager {
       logger.info(`Your NTP connectivity has been verified by ${host}`)
 
       logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
-    } catch (err) {
-      logger.error(err.message)
+    } catch (error) {
+      logger.error(error.message)
     }
   }
 }

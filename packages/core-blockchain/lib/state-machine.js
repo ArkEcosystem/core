@@ -1,6 +1,7 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -120,7 +121,7 @@ blockchainMachine.actionMap = blockchain => {
     downloadPaused: () => logger.info('Blockchain download paused :clock1030:'),
 
     syncingComplete () {
-      logger.info('Blockchain 100% in sync :airplane:')
+      logger.info('Blockchain 100% in sync :100:')
       blockchain.dispatch('SYNCFINISHED')
     },
 
@@ -135,15 +136,17 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async init () {
+      // p2p = container.resolvePlugin('p2p')
+
       try {
         let block = await blockchain.database.getLastBlock()
 
         if (!block) {
           logger.warn('No block found in database :hushed:')
 
-          block = new Block(blockchain.config.genesisBlock)
+          block = new Block(config.genesisBlock)
 
-          if (block.data.payloadHash !== blockchain.config.network.nethash) {
+          if (block.data.payloadHash !== config.network.nethash) {
             logger.error('FATAL: The genesis block payload hash is different from configured the nethash :rotating_light:')
 
             return blockchain.dispatch('FAILURE')
@@ -174,7 +177,7 @@ blockchainMachine.actionMap = blockchain => {
         /*********************************
          *  state machine data init      *
          ********************************/
-        const constants = blockchain.config.getConstants(block.data.height)
+        const constants = config.getConstants(block.data.height)
         state.lastBlock = block
         state.lastDownloadedBlock = block
 
@@ -194,7 +197,7 @@ blockchainMachine.actionMap = blockchain => {
         if (process.env.NODE_ENV === 'test') {
           logger.verbose('TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY. :bangbang:')
 
-          state.lastBlock = new Block(blockchain.config.genesisBlock)
+          state.lastBlock = new Block(config.genesisBlock)
           await blockchain.database.buildWallets(block.data.height)
 
           return blockchain.dispatch('STARTED')
@@ -247,7 +250,8 @@ blockchainMachine.actionMap = blockchain => {
       await tickSyncTracker(blocks.length)
 
       if (!blocks || blocks.length === 0) {
-        logger.info('No new block found on this peer')
+        logger.info('No new blocks found on this peer')
+
         blockchain.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
@@ -285,7 +289,9 @@ blockchainMachine.actionMap = blockchain => {
         if (blocks.length && blocks[0].previousBlock === block.data.id) {
           state.noBlockCounter = 0
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
+
           blockchain.processQueue.push(blocks)
+
           blockchain.dispatch('DOWNLOADED')
         } else {
           state.lastDownloadedBlock = state.lastBlock
@@ -316,7 +322,7 @@ blockchainMachine.actionMap = blockchain => {
 
       await blockchain.removeBlocks(random)
 
-      logger.info(`Removed ${random} blocks`)
+      logger.info(`Removed ${random} blocks :wastebasket:`)
 
       blockchain.dispatch('SUCCESS')
     }

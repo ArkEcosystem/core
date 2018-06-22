@@ -43,7 +43,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`GraphQL API is available and listening on ${server.info.uri}`)
+    logger.info(`GraphQL API Server running at: ${server.info.uri}`)
 
     return server
   } catch (error) {

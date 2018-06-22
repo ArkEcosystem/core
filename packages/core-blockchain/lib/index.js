@@ -11,7 +11,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'blockchain',
   async register (container, options) {
-    const blockchain = new Blockchain(container.resolvePlugin('config'), options.networkStart)
+    const blockchain = new Blockchain(options.networkStart)
 
     if (!process.env.ARK_SKIP_BLOCKCHAIN) {
       await blockchain.start()
