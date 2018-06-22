@@ -42,7 +42,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       ...config,
       ...{
         operatorsAliases: Op,
-        logging: process.env.NODE_ENV === 'test'
+        logging: process.env.NODE_ENV === 'test' && !process.env.ARK_CI_TEST
       }
     })
 
