@@ -262,7 +262,7 @@ blockchainMachine.actionMap = blockchain => {
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {
-          state.lastDownloadedBlock = state.lastBlock
+          // state.lastDownloadedBlock = state.lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
@@ -294,7 +294,7 @@ blockchainMachine.actionMap = blockchain => {
 
           blockchain.dispatch('DOWNLOADED')
         } else {
-          state.lastDownloadedBlock = state.lastBlock
+          // state.lastDownloadedBlock = state.lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
