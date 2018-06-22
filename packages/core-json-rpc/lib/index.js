@@ -12,18 +12,18 @@ exports.plugin = {
     const logger = container.resolvePlugin('logger')
 
     if (!options.enabled) {
-      logger.info('JSON-RPC Server is disabled...')
+      logger.info('JSON-RPC Server is disabled')
 
       return
     }
 
-    logger.info('Starting JSON-RPC Server...')
+    logger.info('Starting JSON-RPC Server')
 
     return require('./server')(options)
   },
   async deregister (container, options) {
     if (options.enabled) {
-      container.resolvePlugin('logger').info('Stopping JSON-RPC Server...')
+      container.resolvePlugin('logger').info('Stopping JSON-RPC Server')
 
       return container.resolvePlugin('json-rpc').stop()
     }
