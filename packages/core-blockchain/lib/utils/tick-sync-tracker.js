@@ -38,7 +38,6 @@ module.exports = async blockCount => {
   tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
 
   if (tracker.percent < 100 && isFinite(tracker.remainingInMilliseconds)) {
-    console.log('LOGGING isFinite')
     const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
     const timeLeft = prettyMs(tracker.remainingInMilliseconds, { secDecimalDigits: 0 })
@@ -47,7 +46,6 @@ module.exports = async blockCount => {
   }
 
   if (tracker.percent === 100) {
-    console.log('LOGGING 100 PERCENT')
     tracker = null
 
     logger.stopTracker('Fast Sync', 100, 100)
