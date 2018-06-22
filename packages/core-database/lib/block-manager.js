@@ -1,6 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
+const { Block } = require('@arkecosystem/crypto').models
 
 module.exports = class BlockHeaderManager {
   /**
@@ -35,12 +36,15 @@ module.exports = class BlockHeaderManager {
    * @return {void}
    */
   reindex (block) {
-    if (block.id) {
-      this.byId[block.id] = block
+    const blockHeader = new Block()
+    Object.assign(blockHeader, block)
+    delete blockHeader.transactions
+    if (blockHeader.id) {
+      this.byId[blockHeader.id] = blockHeader
     }
 
-    if (block.height) {
-      this.byHeight[block.height] = block
+    if (blockHeader.height) {
+      this.byHeight[blockHeader.height] = blockHeader
     }
   }
 
