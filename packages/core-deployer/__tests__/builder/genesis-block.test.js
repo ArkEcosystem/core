@@ -1,7 +1,7 @@
 'use strict'
 
 const GenesisBlockBuilder = require('../../lib/builder/genesis-block')
-const network = require('../../../crypto/lib/config/testnet/network')
+const network = require('../../../crypto/lib/networks/ark/testnet')
 
 let builder
 let genesis
