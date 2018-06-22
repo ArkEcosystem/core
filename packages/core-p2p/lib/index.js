@@ -13,10 +13,7 @@ exports.plugin = {
   async register (container, options) {
     container.resolvePlugin('logger').info('Starting P2P Interface')
 
-    const p2p = new PeerManager(options)
-    await p2p.start()
-
-    return p2p
+    return (new PeerManager(options)).start()
   },
   async deregister (container, options) {
     container.resolvePlugin('logger').info('Stopping P2P Interface')

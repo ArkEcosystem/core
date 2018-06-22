@@ -16,8 +16,8 @@ module.exports = async blockCount => {
       blocksDownloaded: count,
       blocksSession: 0,
       blocksPerMillisecond: 0,
-      percent: 0,
-      timeLeft: 0
+      remainingInMilliseconds: 0,
+      percent: 0
     }
   }
 
@@ -27,26 +27,27 @@ module.exports = async blockCount => {
   // The total amount of downloaded blocks downloaded since start of the current session
   tracker.blocksSession = tracker.blocksDownloaded - tracker.blocksInitial
 
-  // The percentage of total blocks that is left to be downloaded
-  tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
-
   // The number of blocks the node can download per millisecond
   const diffSinceStart = new Date().getTime() - tracker.start
   tracker.blocksPerMillisecond = tracker.blocksSession / diffSinceStart
 
   // The time left to download the missing blocks in milliseconds
-  tracker.timeLeft = Math.trunc((tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond)
+  tracker.remainingInMilliseconds = Math.trunc((tracker.networkHeight - tracker.blocksDownloaded) / tracker.blocksPerMillisecond)
 
-  if (tracker.percent < 100 && isFinite(tracker.timeLeft)) {
+  // The percentage of total blocks that has been downloaded
+  tracker.percent = (tracker.blocksDownloaded * 100) / tracker.networkHeight
+
+  if (tracker.percent < 100 && isFinite(tracker.remainingInMilliseconds)) {
     const blocksDownloaded = tracker.blocksDownloaded.toLocaleString()
     const networkHeight = tracker.networkHeight.toLocaleString()
-    const timeLeft = prettyMs(tracker.timeLeft, { secDecimalDigits: 0 })
+    const timeLeft = prettyMs(tracker.remainingInMilliseconds, { secDecimalDigits: 0 })
 
     logger.printTracker('Fast Sync', tracker.percent, 100, `(${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`, true)
   }
 
   if (tracker.percent === 100) {
     tracker = null
+
     logger.stopTracker('Fast Sync', 100, 100)
   }
 }

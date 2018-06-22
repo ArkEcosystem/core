@@ -10,12 +10,10 @@ exports.plugin = {
   alias: 'api',
   async register (container, options) {
     if (!options.enabled) {
-      container.resolvePlugin('logger').info('Public API is disabled')
+      container.resolvePlugin('logger').info('Public API is disabled :grey_exclamation:')
 
       return
     }
-
-    container.resolvePlugin('logger').info('Starting Public API')
 
     return require('./server')(options)
   },

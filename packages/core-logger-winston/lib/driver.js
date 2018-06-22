@@ -29,14 +29,14 @@ module.exports = class Logger extends LoggerInterface {
    * @param  {Number} current
    * @param  {Number} max
    * @param  {String} postTitle
-   * @param  {Boolean} newLine
+   * @param  {Boolean} useLogger
    * @param  {Number} figures
    * @return {void}
    */
-  printTracker (title, current, max, postTitle, newLine = false, figures = 0) {
+  printTracker (title, current, max, postTitle, useLogger = false, figures = 0) {
     const progress = 100 * current / max
 
-    let line = '\u{1b}[0G  '
+    let line = useLogger ? '' : '\u{1b}[0G  '
     line += title.blue
     line += ' ['
     line += ('='.repeat(progress / 2)).green
@@ -47,7 +47,7 @@ module.exports = class Logger extends LoggerInterface {
       line += postTitle + '                     '
     }
 
-    process.stdout.write(newLine ? `${line}\n` : line)
+    useLogger ? this.info(line) : process.stdout.write(line)
 
     tracker = line
   }
