@@ -10,18 +10,18 @@ exports.plugin = {
   alias: 'graphql',
   async register (container, options) {
     if (!options.enabled) {
-      container.resolvePlugin('logger').info('GraphQL API is disabled...')
+      container.resolvePlugin('logger').info('GraphQL API is disabled')
 
       return
     }
 
-    container.resolvePlugin('logger').info('Starting GraphQL API...')
+    container.resolvePlugin('logger').info('Starting GraphQL API')
 
     return require('./server')(options)
   },
   async deregister (container, options) {
     if (options.enabled) {
-      container.resolvePlugin('logger').info('Stopping GraphQL API...')
+      container.resolvePlugin('logger').info('Stopping GraphQL API')
 
       return container.resolvePlugin('graphql').stop()
     }

@@ -155,7 +155,7 @@ class ConfigLoader {
       ow(this.network.nethash, ow.string.length(64))
       ow(this.network.wif, ow.number)
     } catch (error) {
-      console.error('Invalid configuration. Shutting down...')
+      console.error('Invalid configuration. Shutting down')
       throw Error(error.message)
       process.exit(1) // eslint-disable-line no-unreachable
     }

@@ -83,7 +83,7 @@ module.exports = class Monitor {
     const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
-    logger.info(`Checking ${max} peers`)
+    logger.info(`Checking ${max} peers :earth_africa:`)
 
     await Promise.all(keys.map(async (ip) => {
       try {
@@ -211,8 +211,6 @@ module.exports = class Monitor {
       return this.getRandomPeer()
     }
 
-    logger.debug(`Downloading blocks from ${randomPeer.ip}`)
-
     return randomPeer
   }
 
@@ -275,6 +273,8 @@ module.exports = class Monitor {
     const randomPeer = this.getRandomDownloadBlocksPeer(fromBlockHeight)
 
     try {
+      logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
+
       await randomPeer.ping()
 
       const blocks = await randomPeer.downloadBlocks(fromBlockHeight)

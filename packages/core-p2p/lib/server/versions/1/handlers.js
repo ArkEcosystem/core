@@ -210,7 +210,11 @@ exports.postBlock = {
    */
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-    if (!blockchain) return { success: false }
+
+    if (!blockchain) {
+      return { success: false }
+    }
+
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
@@ -223,10 +227,18 @@ exports.postBlock = {
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
-      if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
+      if (lastDownloadedBlock.data.height + 1 !== block.height) {
+        return { success: true }
+      }
+
       const b = new Block(block)
-      if (!b.verification.verified) throw new Error('invalid block received')
+
+      if (!b.verification.verified) {
+        throw new Error('invalid block received')
+      }
+
       blockchain.pushPingBlock(b.data)
+
       if (b.headerOnly) {
         // let missingIds = []
         let transactions = []
@@ -255,8 +267,10 @@ exports.postBlock = {
           if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
+
       block.ip = requestIp.getClientIp(request)
       blockchain.queueBlock(block)
+
       return { success: true }
     } catch (error) {
       console.log(error)
@@ -288,7 +302,9 @@ exports.postTransactions = {
         transactionIds: []
       }
     }
+
     await transactionPool.guard.validate(request.payload.transactions)
+
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
       logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
@@ -327,11 +343,13 @@ exports.getBlocks = {
   async handler (request, h) {
     try {
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+
       logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
       return { success: true, blocks: blocks || [] }
     } catch (error) {
       logger.error(error.stack)
+
       return h.response({ success: false, error: error }).code(500)
     }
   },

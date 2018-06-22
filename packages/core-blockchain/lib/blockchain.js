@@ -63,7 +63,7 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async start (skipStartedCheck = false) {
-    logger.info('Starting Blockchain Manager...')
+    logger.info('Starting Blockchain Manager :chains:')
 
     this.dispatch('START')
 
@@ -154,7 +154,6 @@ module.exports = class Blockchain {
    * @return {void}
    */
   async rollbackCurrentRound () {
-
     const height = this.getLastBlock().data.height
     const maxDelegates = this.config.getConstants(height).activeDelegates
     const previousRound = Math.floor((height - 1) / maxDelegates)
@@ -175,14 +174,18 @@ module.exports = class Blockchain {
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    logger.info(`Removing ${height - newHeight} blocks to reset current round`)
+    logger.info(`Removing ${height.toLocaleString() - newHeight.toLocaleString()} blocks to reset current round`)
+
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
+
     while (this.getLastBlock().data.height >= newHeight) {
-      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock().data.id + ', height: ' + this.getLastBlock().data.height)
+      logger.printTracker('Removing block', count++, max, 'id: ' + this.getLastBlock().data.id + ', height: ' + this.getLastBlock().data.height.toLocaleString())
       await deleteLastBlock()
     }
+
     await this.database.deleteBlockCommit()
+
     logger.stopTracker(`${max} blocks removed`, count, max)
 
     await this.database.deleteRound(previousRound + 1)
@@ -217,7 +220,7 @@ module.exports = class Blockchain {
         return
       }
 
-      logger.info(`Undoing block ${this.getLastBlock().data.height}`)
+      logger.info(`Undoing block ${this.getLastBlock().data.height.toLocaleString()}`)
 
       await revertLastBlock()
       await __removeBlocks(nblocks - 1)
@@ -227,7 +230,8 @@ module.exports = class Blockchain {
       nblocks = this.getLastBlock().data.height - 1
     }
 
-    logger.info(`Removing ${nblocks} blocks. Reset to height ${this.getLastBlock().data.height - nblocks}`)
+    const resetHeight = this.getLastBlock().data.height - nblocks
+    logger.info(`Removing ${nblocks} blocks. Reset to height ${resetHeight.toLocaleString()}`)
 
     this.queue.pause()
     this.queue.clear(stateMachine)
@@ -254,20 +258,20 @@ module.exports = class Blockchain {
         state.lastBlock = block
         callback()
       } else if (block.data.height > this.getLastBlock().data.height + 1) {
-        logger.info(`Block ${block.data.height} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock().data.height}`)
+        logger.info(`Block ${block.data.height.toLocaleString()} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock().data.height}`)
         state.lastDownloadedBlock = state.lastBlock
         callback()
       } else if (block.data.height < this.getLastBlock().data.height || (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id)) {
         state.lastDownloadedBlock = state.lastBlock
-        logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
+        logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain`)
         callback()
       } else {
         state.lastDownloadedBlock = state.lastBlock
-        logger.info(`Block ${block.data.height} disregarded because on a fork`)
+        logger.info(`Block ${block.data.height.toLocaleString()} disregarded because on a fork`)
         callback()
       }
     } else {
-      logger.warn(`Block ${block.data.height} disregarded because verification failed`)
+      logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`)
       callback()
     }
   }
@@ -280,7 +284,7 @@ module.exports = class Blockchain {
    */
   async processBlock (block, callback) {
     if (!block.verification.verified) {
-      logger.warn(`Block ${block.data.height} disregarded because verification failed`)
+      logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed`)
 
       return callback()
     }
@@ -333,11 +337,11 @@ module.exports = class Blockchain {
    */
   async manageUnchainedBlock (block, state) {
     if (block.data.height > this.getLastBlock().data.height + 1) {
-      logger.info(`Blockchain not ready to accept new block at height ${block.data.height}. Last block: ${this.getLastBlock().data.height}`)
+      logger.info(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${this.getLastBlock().data.height.toLocaleString()}`)
     } else if (block.data.height < this.getLastBlock().data.height) {
-      logger.debug(`Block ${block.data.height} disregarded because already in blockchain`)
+      logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain`)
     } else if (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id) {
-      logger.debug(`Block ${block.data.height} just received`)
+      logger.debug(`Block ${block.data.height.toLocaleString()} just received`)
     } else {
       const isValid = await this.database.validateForkedBlock(block)
 
