@@ -100,12 +100,14 @@ describe('MultiSignatureHandler', () => {
     it('should be ok', () => {
       delete wallet.multisignature
 
+      // no multisignature is currently applied to the wallet
       expect(handler.canApply(wallet, transaction)).toBeTruthy()
     })
 
     it('should not be ok', () => {
       wallet.multisignature = multiSignature
 
+      // the wallet already has a multisignature applied to it
       expect(handler.canApply(wallet, transaction)).toBeFalsy()
     })
   })
