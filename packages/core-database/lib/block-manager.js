@@ -66,6 +66,11 @@ module.exports = class BlockHeaderManager {
     return this.byHeight[height]
   }
 
+  /**
+   * Get last blocks from manager.
+   * @param  {Number} quantity
+   * @return {[]Block}
+   */
   getLastBlocks (quantity) {
     const blocks = _(this.byHeight).toPairs().sortBy(0).fromPairs().value()
     console.log('this.byHeight', this.byHeight)

@@ -338,9 +338,8 @@ module.exports = class ConnectionInterface {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
-    emitter.emit('block.applied', block.data)
-
     this.blockManager.reindex(block)
+    emitter.emit('block.applied', block.data)
   }
 
   /**
@@ -351,6 +350,7 @@ module.exports = class ConnectionInterface {
   async revertBlock (block) {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
+    this.blockManager.revert(block)
     emitter.emit('block.reverted', block.data)
   }
 
