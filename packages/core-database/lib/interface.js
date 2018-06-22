@@ -7,6 +7,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
+const BlockManager = require('./block-manager')
 
 module.exports = class ConnectionInterface {
   /**
@@ -338,6 +339,8 @@ module.exports = class ConnectionInterface {
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
     emitter.emit('block.applied', block.data)
+
+    this.blockManager.reindex(block)
   }
 
   /**
@@ -413,6 +416,14 @@ module.exports = class ConnectionInterface {
    */
   async _registerWalletManager () {
     this.walletManager = new WalletManager()
+  }
+
+  /**
+   * Register the block container.
+   * @return {void}
+   */
+  async _registerBlockManager () {
+    this.blockManager = new BlockManager()
   }
 
   /**

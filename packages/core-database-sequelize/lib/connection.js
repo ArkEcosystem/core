@@ -56,6 +56,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await this.__registerModels()
       await this.__registerRepositories()
       await super._registerWalletManager()
+      await super._registerBlockManager()
 
       return this
     } catch (error) {
@@ -272,6 +273,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async buildWallets (height) {
     this.walletManager.reset()
+    this.blockManager.reset()
 
     const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
     if (fs.existsSync(spvPath)) {
