@@ -16,7 +16,7 @@ module.exports = class ProcessQueue extends QueueInterface {
       try {
         return blockchain.processBlock(new Block(block), cb)
       } catch (error) {
-        logger.info('Failed to process block in ProcessQueue')
+        logger.error(`Failed to process block in ProcessQueue: ${block.height.toLocaleString()}`)
         return cb()
       }
     }, 1)

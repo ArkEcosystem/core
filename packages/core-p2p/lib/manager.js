@@ -89,14 +89,26 @@ module.exports = class PeerManager {
     return this.monitor.getPeers()
   }
 
+  /**
+   * Get the peer for the given IP address.
+   * @return {Peer}
+   */
   getPeer (ip) {
     return this.monitor.getPeer(ip)
   }
 
+  /**
+   * Get a random peer.
+   * @return {Peer}
+   */
   getRandomPeer () {
     return this.monitor.getRandomPeer()
   }
 
+  /**
+   * Get the peer monitor.
+   * @return {Object}
+   */
   getMonitor () {
     return this.monitor
   }

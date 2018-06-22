@@ -3,7 +3,7 @@
 const Boom = require('boom')
 const requestIp = require('request-ip')
 const mm = require('micromatch')
-const container = require('@arkecosystem/core-container')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 /**
  * The register method used by hapi.js.
@@ -15,19 +15,17 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      const address = requestIp.getClientIp(request)
+      const remoteAddress = requestIp.getClientIp(request)
 
       if (Array.isArray(options.whitelist)) {
         for (let i = 0; i < options.whitelist.length; i++) {
-          if (mm.isMatch(address, options.whitelist[i])) {
+          if (mm.isMatch(remoteAddress, options.whitelist[i])) {
             return h.continue
           }
         }
       }
 
-      container
-        .resolvePlugin('logger')
-        .warn(`${address} tried to access the Webhooks API without being whitelisted`)
+      logger.warn(`${remoteAddress} tried to access the Public API without being whitelisted :warning:`)
 
       return Boom.forbidden()
     }

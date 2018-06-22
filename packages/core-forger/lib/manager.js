@@ -92,7 +92,7 @@ module.exports = class ForgerManager {
 
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize}`)
+      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
 
       data.previousBlock = round.lastBlock
       data.timestamp = round.timestamp
@@ -111,7 +111,8 @@ module.exports = class ForgerManager {
 
       return this.__monitor(round, transactionData, data)
     } catch (error) {
-      logger.debug(`Not able to forge: ${error.message}`)
+      logger.error(`Forging failed: ${error.message} :bangbang:`)
+
       // console.log(round)
       // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.data.height.toLocaleString() : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again

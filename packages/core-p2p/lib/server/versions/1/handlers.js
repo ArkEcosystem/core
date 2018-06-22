@@ -7,7 +7,6 @@ const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
 const { slots } = require('@arkecosystem/crypto')
 const schema = require('./schema')
-// const Promise = require('bluebird')
 
 /**
  * @type {Object}

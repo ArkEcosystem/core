@@ -27,6 +27,7 @@ module.exports = async (options) => {
     host: options.host,
     port: options.port
   })
+
   server.app.schemas = {}
 
   await server.register({ plugin: require('./plugins/whitelist'), options })

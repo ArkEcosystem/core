@@ -245,8 +245,8 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async rebuildBlocks () {
-      const block = state.lastDownloadedBlock || state.lastBlock
-      const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
+      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
       await tickSyncTracker(blocks.length)
 
       if (!blocks || blocks.length === 0) {
@@ -256,7 +256,7 @@ blockchainMachine.actionMap = blockchain => {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
 
-        if (blocks.length && blocks[0].previousBlock === block.data.id) {
+        if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
 
           blockchain.rebuildQueue.push(blocks)
@@ -265,7 +265,7 @@ blockchainMachine.actionMap = blockchain => {
           state.lastDownloadedBlock = state.lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
-          logger.warn('Last block: ' + JSON.stringify(block.data))
+          logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
           // disregard the whole block list
           blockchain.dispatch('NOBLOCK')
@@ -274,8 +274,8 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async downloadBlocks () {
-      const block = state.lastDownloadedBlock || state.lastBlock
-      const blocks = await blockchain.p2p.downloadBlocks(block.data.height)
+      const lastBlock = state.lastDownloadedBlock || state.lastBlock
+      const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
@@ -286,7 +286,7 @@ blockchainMachine.actionMap = blockchain => {
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
 
-        if (blocks.length && blocks[0].previousBlock === block.data.id) {
+        if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.noBlockCounter = 0
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
 
@@ -297,7 +297,7 @@ blockchainMachine.actionMap = blockchain => {
           state.lastDownloadedBlock = state.lastBlock
 
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
-          logger.warn('Last block: ' + JSON.stringify(block.data))
+          logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
           // disregard the whole block list
           blockchain.dispatch('NOBLOCK')

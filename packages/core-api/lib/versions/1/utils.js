@@ -30,20 +30,18 @@ const respondWith = (data, error = false) => {
  * Transform the given data into a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Object}
  */
-const toResource = (request, data, transformerClass) => {
-  if (data.balance) data.balance = `${data.balance}`
-  if (data.unconfirmedBalance) data.unconfirmedBalance = `${data.unconfirmedBalance}`
-  return transformResource(request, data, transformerClass)
+const toResource = (request, data, transformer) => {
+  return transformResource(request, data, transformer)
 }
 
 /**
  * Transform the given data into a collection.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Object}
  */
 const toCollection = transformCollection

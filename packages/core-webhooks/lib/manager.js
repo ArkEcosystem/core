@@ -99,7 +99,9 @@ class WebhookManager {
    * @return {void}
    */
   __registerQueue () {
-    this.queue = new Bull('webhooks', { redis: this.config.redis })
+    this.queue = new Bull('webhooks', {
+      redis: this.config.redis
+    })
   }
 }
 

@@ -32,24 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     payloadHash: DataTypes.STRING(64),
     generatorPublicKey: {
       type: DataTypes.STRING(66)
-      // very bad practice to disable references, easy to corrupt database...
-      // references: {
-      //   model: 'wallets',
-      //   key: 'publicKey'
-      // }
     },
     blockSignature: DataTypes.STRING(256)
   }, {})
-
-  Block.associate = (models) => {
-    Block.hasMany(models.transaction)
-
-    // Block.belongsTo(models.wallet, {
-    //   foreignKey: 'publicKey',
-    //   sourceKey: 'generatorPublicKey',
-    //   as: 'transactions'
-    // })
-  }
 
   return Block
 }
