@@ -170,8 +170,11 @@ module.exports = class TransactionPoolInterface {
    */
    blockSender (senderPublicKey) {
     const blockReleaseTime = moment().add(1, 'hours')
+
     this.blockedByPublicKey[senderPublicKey] = blockReleaseTime
-    logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]}`)
+
+    logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`)
+
     return blockReleaseTime
   }
 
@@ -197,9 +200,13 @@ module.exports = class TransactionPoolInterface {
 
         if (!helpers.canApplyToBlockchain(transaction)) {
           await this.removeTransaction(transaction)
-          logger.debug(`Possible double spending attack/unsufficient funds for transaction ${id}`)
+
+          logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)
+
           await this.removeByPublicKey(transaction.senderPublicKey)
+
           this.blockSender(transaction.senderPublicKey)
+
           continue
         }
 
@@ -207,13 +214,13 @@ module.exports = class TransactionPoolInterface {
           const actions = {
             0: () => { // timestamp lock defined
               if (transaction.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock}`)
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock} :unlock:`)
                 transactions.push(transaction.serialized.toString('hex'))
               }
             },
             1: () => { // block height time lock
               if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock().data.height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock}`)
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock} :unlock:`)
                 transactions.push(transaction.serialized.toString('hex'))
               }
             }
@@ -299,7 +306,7 @@ module.exports = class TransactionPoolInterface {
       try {
         await this.walletManager.applyTransaction(transaction)
       } catch (error) {
-        logger.error(`BuildWallets from pool: ${error}`)
+        logger.error('BuildWallets from pool:', error)
         await this.purgeByPublicKey(transaction.senderPublicKey)
       }
     })
@@ -308,7 +315,9 @@ module.exports = class TransactionPoolInterface {
 
   async purgeByPublicKey (senderPublicKey) {
     logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`)
+
     await this.removeTransactionsForSender(senderPublicKey)
+
     this.walletManager.deleteWallet(senderPublicKey)
   }
 }

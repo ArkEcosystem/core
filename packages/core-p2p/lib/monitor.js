@@ -85,7 +85,7 @@ module.exports = class Monitor {
     const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
-    logger.info(`Checking ${max} peers :earth_africa:`)
+    logger.info(`Checking ${max} peers :telescope:`)
 
     await Promise.all(keys.map(async (ip) => {
       try {

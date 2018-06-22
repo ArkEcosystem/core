@@ -59,7 +59,7 @@ module.exports = class Peer {
 
       return response.data
     } catch (error) {
-      // logger.debug('Peer unreachable', this.url + '/peer/blocks/', error.code)
+      // logger.debug('Peer unresponsive', this.url + '/peer/blocks/', error.code)
 
       this.status = error.code
     }
@@ -149,7 +149,7 @@ module.exports = class Peer {
       return body
     }
 
-    throw new Error(`Peer ${this.ip} is unreachable`)
+    throw new Error(`Peer ${this.ip} is unresponsive`)
   }
 
   /**

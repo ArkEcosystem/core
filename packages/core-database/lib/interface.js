@@ -229,13 +229,18 @@ module.exports = class ConnectionInterface {
    */
   isNewRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
+
     return height % maxDelegates === 1
   }
 
   getRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
-    if (height < maxDelegates + 1) return 1
-    else return Math.floor((height - 1) / maxDelegates) + 1
+
+    if (height < maxDelegates + 1) {
+      return 1
+    }
+
+    return Math.floor((height - 1) / maxDelegates) + 1
   }
 
   /**
@@ -253,7 +258,7 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
-        logger.info(`Starting Round ${round}`)
+        logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
           await this.updateDelegateStats(this.getLastBlock(), this.activedelegates)
@@ -272,7 +277,7 @@ module.exports = class ConnectionInterface {
           throw error
         }
       } else {
-        logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
+        logger.warn(`Round ${round} has already been applied. This should happen only if you are a forger. :warning:`)
       }
     }
   }
@@ -290,7 +295,7 @@ module.exports = class ConnectionInterface {
     const nextRound = Math.floor((nextHeight - 1) / config.getConstants(nextHeight).activeDelegates) + 1
 
     if (nextRound === round + 1 && height > maxDelegates) {
-      logger.info(`Back to previous round: ${round}`)
+      logger.info(`Back to previous round: ${round} :back:`)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -309,11 +314,11 @@ module.exports = class ConnectionInterface {
     const forgingDelegate = delegates[slot % delegates.length]
 
     if (!forgingDelegate) {
-      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()}`)
+      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
+      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey} :-1:`)
     } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()}`)
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
     }
 
     return true

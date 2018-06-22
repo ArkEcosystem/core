@@ -29,6 +29,7 @@ module.exports = class TransactionsRepository extends Repository {
 
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
       if (senderPublicKey) {
         conditions.senderPublicKey = senderPublicKey
       }
@@ -75,6 +76,7 @@ module.exports = class TransactionsRepository extends Repository {
 
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
       if (senderPublicKey) {
         conditions.senderPublicKey = senderPublicKey
       }

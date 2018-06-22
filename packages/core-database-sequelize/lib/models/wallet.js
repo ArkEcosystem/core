@@ -27,25 +27,5 @@ module.exports = (sequelize, DataTypes) => {
     missedBlocks: DataTypes.BIGINT
   }, {})
 
-  // Wallet.associate = (models) => {
-  //   Wallet.hasMany(models.block, {
-  //     foreignKey: 'generatorPublicKey',
-  //     sourceKey: 'publicKey',
-  //     as: 'blocks'
-  //   })
-
-  //   Wallet.hasMany(models.transaction, {
-  //     foreignKey: 'senderPublicKey',
-  //     sourceKey: 'publicKey',
-  //     as: 'sentTransactions'
-  //   })
-
-  //   Wallet.hasMany(models.transaction, {
-  //     foreignKey: 'recipientId',
-  //     sourceKey: 'address',
-  //     as: 'receivedTransactions'
-  //   })
-  // }
-
   return Wallet
 }

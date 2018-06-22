@@ -111,12 +111,16 @@ module.exports = class TransactionGuard {
    */
   async __transformAndFilterTransations (transactions) {
     this.transactions = []
+
     await Promise.each(transactions, async (transaction) => {
       const exists = await this.pool.transactionExists(transaction.id)
 
       if (!exists && !this.pool.isSenderBlocked(transaction.senderPublicKey)) {
         const trx = new Transaction(transaction)
-        if (trx.verified) this.transactions.push(new Transaction(transaction))
+
+        if (trx.verified) {
+          this.transactions.push(new Transaction(transaction))
+        }
       }
     })
   }
@@ -132,9 +136,12 @@ module.exports = class TransactionGuard {
     this.transactions = this.transactions.filter(transaction => {
       if (forgedIds.indexOf(transaction.id) === -1) {
         this.broadcast.push(transaction)
+
         return true
       }
+
       this.invalid.push(this.transactions)
+
       return false
     })
   }
@@ -161,9 +168,11 @@ module.exports = class TransactionGuard {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
         if (!helpers.isRecipientOnActiveNetwork(transaction)) {
           this.invalid.push(transaction)
+
           return
         }
       }
+
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
       if (hasExceeded) {
         this.excess.push(transaction)

@@ -18,11 +18,13 @@ module.exports = async (options) => {
   const transactions = []
   wallets.forEach((wallet, i) => {
     wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
+
     const transaction = ark.signature.createSignature(
       wallet.passphrase,
       wallet.secondPassphrase,
       utils.parseFee(options.signatureFee)
     )
+
     wallet.publicKey = transaction.senderPublicKey
     wallet.secondPublicKey = transaction.asset.signature.publicKey
     transactions.push(transaction)
@@ -49,9 +51,7 @@ module.exports = async (options) => {
     for (const walletObject of wallets) {
       const wallet = await utils.getWallet(walletObject.address)
 
-      if (wallet.secondPublicKey !== walletObject.secondPublicKey ||
-          wallet.publicKey !== walletObject.publicKey
-      ) {
+      if (wallet.secondPublicKey !== walletObject.secondPublicKey || wallet.publicKey !== walletObject.publicKey) {
         logger.error(`Invalid second signature for ${walletObject.address}.`)
       }
     }
