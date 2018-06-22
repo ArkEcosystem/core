@@ -35,7 +35,7 @@ exports.show = {
  */
 exports.unconfirmed = {
   query: {
-    offset: Joi.number().integer(),
+    page: Joi.number().integer(),
     limit: Joi.number().integer()
   }
 }
