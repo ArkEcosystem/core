@@ -19,21 +19,43 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       type: DataTypes.INTEGER
     },
-    previousBlock: DataTypes.STRING(64),
+    previousBlock: {
+        type: DataTypes.STRING(64),
+        field: 'previous_block'
+    },
     height: {
       unique: true,
       type: DataTypes.INTEGER
     },
-    numberOfTransactions: DataTypes.INTEGER, // TODO
-    totalAmount: DataTypes.BIGINT,
-    totalFee: DataTypes.BIGINT,
-    reward: DataTypes.BIGINT,
-    payloadLength: DataTypes.INTEGER,
-    payloadHash: DataTypes.STRING(64),
-    generatorPublicKey: {
-      type: DataTypes.STRING(66)
+    numberOfTransactions: {
+        type: DataTypes.INTEGER, // TODO
+        field: 'number_of_transactions'
     },
-    blockSignature: DataTypes.STRING(256)
+    totalAmount: {
+        type: DataTypes.BIGINT,
+        field: 'total_amount'
+    },
+    totalFee: {
+        type: DataTypes.BIGINT,
+        field: 'total_fee'
+    },
+    reward: DataTypes.BIGINT,
+    payloadLength: {
+        type: DataTypes.INTEGER,
+        field: 'payload_length'
+    },
+    payloadHash: {
+        type: DataTypes.STRING(64),
+        field: 'payload_hash'
+    },
+    generatorPublicKey: {
+      type: DataTypes.STRING(66),
+      field: 'generator_public_key'
+    },
+    blockSignature: {
+        type: DataTypes.STRING(256),
+        field: 'block_signature'
+    }
   }, {})
 
   return Block

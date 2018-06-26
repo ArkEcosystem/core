@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     publicKey: {
-      type: DataTypes.STRING(66)
+      type: DataTypes.STRING(66),
+      field: 'public_key'
     },
     balance: DataTypes.BIGINT,
     round: DataTypes.BIGINT
