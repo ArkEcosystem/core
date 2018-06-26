@@ -98,7 +98,7 @@ describe('crypto.js', () => {
       expect(crypto.getHash).toBeFunction()
     })
 
-    it('should return Buffer and Buffer most be 32 bytes length and Buffer must be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
+    it('should return Buffer and Buffer most be 32 bytes length', () => {
       const transaction = {
         version: 1,
         type: 0,
