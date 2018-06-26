@@ -34,7 +34,7 @@ describe('crypto.js', () => {
     //   expect(bytes.toString('hex') + transaction.signature).toHaveLength(292)
     // })
 
-    it('should return Buffer of simply transaction and buffer must be 202 length and buffer must be equal to 00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', () => {
+    it('should return Buffer of simply transaction and buffer must be 202 length', () => {
       const transaction = {
         type: 0,
         amount: 1000,
@@ -71,7 +71,7 @@ describe('crypto.js', () => {
     //   expect(bytes.toString('hex') + transaction.signature + transaction.signSignature).toHaveLength(420)
     // })
 
-    it('should return Buffer of transaction with second signature and buffer must be 266 length and buffer must be equal to 00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a', () => {
+    it('should return Buffer of transaction with second signature and buffer must be 266 length', () => {
       const transaction = {
         version: 1,
         type: 0,
@@ -158,7 +158,7 @@ describe('crypto.js', () => {
       expect(crypto.sign).toBeFunction()
     })
 
-    it('should return a signature equal to 3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe', () => {
+    it('should return a valid signature', () => {
       const keys = crypto.getKeys('secret')
       const transaction = {
         type: 0,
