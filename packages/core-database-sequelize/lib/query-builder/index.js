@@ -1,3 +1,5 @@
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 const { QueryTypes } = require('sequelize')
 const clauses = require('./clauses')
 const SqlBuilder = require('./sql-builder')
@@ -285,11 +287,15 @@ module.exports = class QueryBuiler {
    * @return {QueryBuilder}
    */
   async all () {
+    const { sql, replacements } = SqlBuilder.build(this.clauses)
     const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
 
-    return this.connection.query(SqlBuilder.build(this.clauses), {
+    logger.info(`SQL: ${sql}`)
+
+    return this.connection.query(sql, {
         type: QueryTypes.SELECT,
-        fieldMap: fieldAttributeMap
+        fieldMap: fieldAttributeMap,
+        replacements
     })
   }
 
