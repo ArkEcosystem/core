@@ -53,7 +53,7 @@ module.exports = class TransactionsRepository extends Repository {
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
-      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(selectQuery, {
         limit: params.limit,
         offset: params.offset,
@@ -105,7 +105,7 @@ module.exports = class TransactionsRepository extends Repository {
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
-      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(selectQuery, {
         limit: params.limit,
         offset: params.offset,
@@ -130,15 +130,15 @@ module.exports = class TransactionsRepository extends Repository {
     const buildQuery = query => {
       return query
         .from('transactions')
-        .where('senderPublicKey', wallet.publicKey)
-        .orWhere('recipientId', wallet.address)
+        .where('sender_public_key', wallet.publicKey)
+        .orWhere('recipient_id', wallet.address)
     }
 
     let rows = []
     const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
-      const query = buildQuery(this.query.select('blockId', 'serialized'))
+      const query = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(query, {
         limit: params.limit,
         offset: params.offset,
@@ -209,7 +209,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async findOne (conditions) {
     const transaction = await this.query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
       .where(conditions)
       .first()
@@ -245,7 +245,7 @@ module.exports = class TransactionsRepository extends Repository {
     return this
       .connection
       .query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
       .whereIn('id', ids)
       .all()
@@ -260,9 +260,9 @@ module.exports = class TransactionsRepository extends Repository {
     const orderBy = this.__orderBy(params)
 
     const conditions = buildFilterQuery(params, {
-      exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+      exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
       between: ['timestamp', 'amount', 'fee'],
-      wildcard: ['vendorFieldHex']
+      wildcard: ['vendor_field_hex']
     })
 
     const buildQuery = query => {
@@ -279,7 +279,7 @@ module.exports = class TransactionsRepository extends Repository {
     const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
-      const query = await buildQuery(this.query.select('blockId', 'serialized'))
+      const query = await buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(query, {
         limit: params.limit,
         offset: params.offset,
@@ -298,9 +298,9 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async findWithVendorField () {
     const transactions = await this.query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
-      .whereNotNull('vendorFieldHex')
+      .whereNotNull('vendor_field_hex')
       .all()
 
     return this.__mapBlocksToTransactions(transactions)
@@ -342,7 +342,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   __formatConditions (params) {
     const filter = args => {
-      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+      return args.filter(elem => ['type', 'sender_public_key', 'recipient_id', 'amount', 'fee', 'block_id'].includes(elem))
     }
 
     const statement = filter(Object.keys(params)).reduce((all, column) => {
@@ -374,7 +374,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   __formatConditionsV1 (params) {
     const filter = args => {
-      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
+      return args.filter(elem => ['type', 'sender_public_key', 'recipient_id', 'amount', 'fee', 'block_id'].includes(elem))
     }
 
     return filter(Object.keys(params)).reduce((all, column) => {

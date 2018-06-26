@@ -1,8 +1,8 @@
 'use strict'
 
 module.exports = (actual, expected) => {
-  const allowed = ['id', 'version', 'timestamp', 'previousBlock', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength', 'payloadHash', 'generatorPublicKey', 'blockSignature']
-  const notAllowed = ['createdAt', 'updatedAt']
+  const allowed = ['id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature']
+  const notAllowed = ['created_at', 'updated_at']
 
   return {
     message: () => `Expected ${JSON.stringify(actual)} to be a block table row`,

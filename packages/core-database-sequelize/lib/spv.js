@@ -60,11 +60,11 @@ module.exports = class SPV {
    */
   async __buildReceivedTransactions () {
     const data = await this.query
-      .select('recipientId')
+      .select('recipient_id')
       .sum('amount', 'amount')
       .from('transactions')
       .where('type', TRANSACTION_TYPES.TRANSFER)
-      .groupBy('recipientId')
+      .groupBy('recipient_id')
       .all()
 
     data.forEach(row => {
@@ -82,10 +82,10 @@ module.exports = class SPV {
    */
   async __buildBlockRewards () {
     const data = await this.query
-      .select('generatorPublicKey')
-      .sum(['reward', 'totalFee'], 'reward')
+      .select('generator_public_key')
+      .sum(['reward', 'total_fee'], 'reward')
       .from('blocks')
-      .groupBy('generatorPublicKey')
+      .groupBy('generator_public_key')
       .all()
 
     data.forEach(row => {
@@ -100,7 +100,7 @@ module.exports = class SPV {
    */
   async __buildLastForgedBlocks () {
     const data = await this.query
-      .select('id', 'generatorPublicKey', 'timestamp')
+      .select('id', 'generator_public_key', 'timestamp')
       .from('blocks')
       .orderBy('timestamp', 'DESC')
       .limit(this.activeDelegates)
@@ -118,11 +118,11 @@ module.exports = class SPV {
    */
   async __buildSentTransactions () {
     const data = await this.query
-      .select('senderPublicKey')
+      .select('sender_public_key')
       .sum('amount', 'amount')
       .sum('fee', 'fee')
       .from('transactions')
-      .groupBy('senderPublicKey')
+      .groupBy('sender_public_key')
       .all()
 
     data.forEach(row => {
@@ -141,7 +141,7 @@ module.exports = class SPV {
    */
   async __buildSecondSignatures () {
     const data = await this.query
-      .select('senderPublicKey', 'serialized')
+      .select('sender_public_key', 'serialized')
       .from('transactions')
       .where('type', TRANSACTION_TYPES.SECOND_SIGNATURE)
       .all()
@@ -159,7 +159,7 @@ module.exports = class SPV {
   async __buildDelegates () {
     // Register...
     const transactions = await this.query
-      .select('senderPublicKey', 'serialized')
+      .select('sender_public_key', 'serialized')
       .from('transactions')
       .where('type', TRANSACTION_TYPES.DELEGATE_REGISTRATION)
       .all()
@@ -173,9 +173,9 @@ module.exports = class SPV {
 
     // Rate...
     const delegates = await this.query
-      .select('publicKey', 'votebalance')
+      .select('public_key', 'vote_balance')
       .from('wallets')
-      .whereIn('publicKey', transactions.map(transaction => transaction.senderPublicKey))
+      .whereIn('public_key', transactions.map(transaction => transaction.senderPublicKey))
       .orderBy({
         votebalance: 'DESC',
         publicKey: 'ASC'
@@ -184,13 +184,13 @@ module.exports = class SPV {
 
     // Forged Blocks...
     const forgedBlocks = await this.query
-      .select('generatorPublicKey')
-      .sum('totalFee', 'totalFees')
+      .select('generator_public_key')
+      .sum('total_fee', 'totalFees')
       .sum('reward', 'totalRewards')
-      .count('totalAmount', 'totalProduced')
+      .count('total_amount', 'totalProduced')
       .from('blocks')
-      .whereIn('generatorPublicKey', transactions.map(transaction => transaction.senderPublicKey))
-      .groupBy('generatorPublicKey')
+      .whereIn('generator_public_key', transactions.map(transaction => transaction.senderPublicKey))
+      .groupBy('generator_public_key')
       .all()
 
     for (let i = 0; i < delegates.length; i++) {
@@ -217,10 +217,10 @@ module.exports = class SPV {
    */
   async __buildVotes () {
     const data = await this.query
-      .select('senderPublicKey', 'serialized')
+      .select('sender_public_key', 'serialized')
       .from('transactions')
       .where('type', TRANSACTION_TYPES.VOTE)
-      .orderBy('createdAt', 'DESC')
+      .orderBy('created_at', 'DESC')
       .all()
 
     data.forEach(row => {
@@ -244,10 +244,10 @@ module.exports = class SPV {
    */
   async __buildMultisignatures () {
     const data = await this.query
-      .select('senderPublicKey', 'serialized')
+      .select('sender_public_key', 'serialized')
       .from('transactions')
       .where('type', TRANSACTION_TYPES.MULTI_SIGNATURE)
-      .orderBy('createdAt', 'DESC')
+      .orderBy('created_at', 'DESC')
       .all()
 
     data.forEach(row => {

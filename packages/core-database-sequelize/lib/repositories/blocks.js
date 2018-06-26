@@ -3,7 +3,7 @@
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
-const blocksTableColumns = ['id', 'version', 'timestamp', 'previousBlock', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength', 'payloadHash', 'generatorPublicKey', 'blockSignature']
+const blocksTableColumns = ['id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature']
 
 module.exports = class BlocksRepository extends Repository {
   /**
@@ -15,7 +15,7 @@ module.exports = class BlocksRepository extends Repository {
   async findAll (params = {}) {
     let conditions = {}
 
-    const filter = ['generatorPublicKey', 'totalAmount', 'totalFee', 'reward', 'previousBlock', 'height']
+    const filter = ['generator_public_key', 'total_amount', 'total_fee', 'reward', 'previous_block', 'height']
 
     for (const elem of filter) {
       if (params[elem]) {
@@ -87,8 +87,8 @@ module.exports = class BlocksRepository extends Repository {
     return this.query
       .select('id', 'timestamp')
       .from('blocks')
-      .where('generatorPublicKey', generatorPublicKey)
-      .orderBy('createdAt', 'DESC')
+      .where('generator_public_key', generatorPublicKey)
+      .orderBy('created_at', 'DESC')
       .limit(1)
       .first()
   }
@@ -100,8 +100,8 @@ module.exports = class BlocksRepository extends Repository {
    */
   async search (params) {
     const conditions = buildFilterQuery(params, {
-      exact: ['id', 'version', 'previousBlock', 'payloadHash', 'generatorPublicKey', 'blockSignature'],
-      between: ['timestamp', 'height', 'numberOfTransactions', 'totalAmount', 'totalFee', 'reward', 'payloadLength']
+      exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
+      between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
     })
 
     const orderBy = params.orderBy
