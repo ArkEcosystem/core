@@ -261,7 +261,7 @@ module.exports = class ConnectionInterface {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          await this.updateDelegateStats(this.getLastBlock(), this.activedelegates)
+          await this.updateDelegateStats(height, this.activedelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
 
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state

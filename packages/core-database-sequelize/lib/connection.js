@@ -310,7 +310,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @param  {Array} delegates
    * @return {void}
    */
-  async updateDelegateStats (block, delegates) {
+  async updateDelegateStats (height, delegates) {
     if (!delegates) {
       return
     }
@@ -318,25 +318,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     logger.debug('Updating delegate statistics')
 
     try {
-      const maxDelegates = config.getConstants(block.height).activeDelegates
-      const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" FROM blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
-
+      const maxDelegates = config.getConstants(height).activeDelegates
+      const firstRoundHeight = height - maxDelegates - 1
+      // TODO: remove db call by keeping last 'maxDelegates' blocks in memory maintaining the list at each applyRound/undoRound call
+      const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp", "totalFee", "reward" FROM blocks where "height" > ${firstRoundHeight} ORDER BY "timestamp" DESC`, {type: Sequelize.QueryTypes.SELECT})
       delegates.forEach(delegate => {
-        let index = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let producedBlocks = lastBlockGenerators.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
-        if (index === -1) {
+        if (producedBlocks.length === 0) {
           wallet.missedBlocks++
-
           emitter.emit('forger.missing', {
-            delegate: wallet,
-            block: block
+            delegate: wallet
           })
         } else {
-          wallet.producedBlocks++
-          wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forgedFees += block.totalFee
-          wallet.forgedRewards += block.reward
+          // TODO this whole stuff should be done on a per Block basis (applyBlock/undoBlock)
+          wallet.producedBlocks += producedBlocks.length
+          wallet.lastBlock = producedBlocks.pop()
+          wallet.forgedFees += producedBlocks.reduce((fees, block) => fees + block.totalFee, 0)
+          wallet.forgedRewards += producedBlocks.reduce((rewards, block) => rewards + block.reward, 0)
         }
       })
     } catch (error) {
