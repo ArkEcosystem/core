@@ -300,7 +300,7 @@ blockchainMachine.actionMap = blockchain => {
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
           // disregard the whole block list
-          blockchain.dispatch('NOBLOCK')
+          blockchain.dispatch('FORK')
         }
       }
     },
