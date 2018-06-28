@@ -55,6 +55,14 @@ module.exports = (sequelize, DataTypes) => {
     blockSignature: {
         type: DataTypes.STRING(256),
         field: 'block_signature'
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        field: 'updated_at',
+        type: DataTypes.DATE
     }
   }, {})
 

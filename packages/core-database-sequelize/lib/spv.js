@@ -177,8 +177,8 @@ module.exports = class SPV {
       .from('wallets')
       .whereIn('public_key', transactions.map(transaction => transaction.senderPublicKey))
       .orderBy({
-        votebalance: 'DESC',
-        publicKey: 'ASC'
+        'vote_balance': 'DESC',
+        'public_key': 'ASC'
       })
       .all()
 

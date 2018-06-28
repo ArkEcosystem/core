@@ -37,6 +37,14 @@ module.exports = (sequelize, DataTypes) => {
     missedBlocks: {
         type: DataTypes.BIGINT,
         field: 'missed_blocks'
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        field: 'updated_at',
+        type: DataTypes.DATE
     }
   }, {})
 

@@ -19,7 +19,15 @@ module.exports = (sequelize, DataTypes) => {
       field: 'public_key'
     },
     balance: DataTypes.BIGINT,
-    round: DataTypes.BIGINT
+    round: DataTypes.BIGINT,
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        field: 'updated_at',
+        type: DataTypes.DATE
+    }
   }, {})
 
   return Round

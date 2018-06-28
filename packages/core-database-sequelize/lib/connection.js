@@ -170,8 +170,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('rounds')
       .where('round', round)
       .orderBy({
-        balance: 'DESC',
-        publicKey: 'ASC'
+        'balance': 'DESC',
+        'public_key': 'ASC'
       })
       .all()
 

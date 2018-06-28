@@ -39,7 +39,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
-    serialized: DataTypes.BLOB
+    serialized: DataTypes.BLOB,
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
   }, {})
 
   return Transaction

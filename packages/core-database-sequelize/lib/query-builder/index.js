@@ -13,7 +13,7 @@ module.exports = class QueryBuiler {
    */
   constructor (connection, models) {
     this.connection = connection
-    this.models = Object.keys(models).map(k => models[k])
+    this.models = models ? Object.keys(models).map(k => models[k]) : []
   }
 
   /**

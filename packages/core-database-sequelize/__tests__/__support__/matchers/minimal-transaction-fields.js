@@ -4,7 +4,7 @@ const { isEqual, sortBy } = require('lodash')
 
 module.exports = (actual, expected) => {
   // TODO deserialize transaction and compare with expected
-  const allowedKeys = sortBy(['block_id', 'serialized'])
+  const allowedKeys = sortBy(['blockId', 'serialized'])
   const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key))
 
   return {

@@ -7,21 +7,21 @@ const blocksTableColumns = ['id', 'version', 'timestamp', 'previous_block', 'hei
 
 module.exports = class BlocksRepository extends Repository {
   /**
+   * Create a new block repository instance.
+   * @param  {ConnectionInterface} connection
+   */
+  constructor (connection) {
+    super(connection, 'block')
+  }
+
+  /**
    * Get all blocks for the given parameters.
    * TODO throw an Error if the params aren't the available filters
    * @param  {Object}  params
    * @return {Object}
    */
   async findAll (params = {}) {
-    let conditions = {}
-
-    const filter = ['generator_public_key', 'total_amount', 'total_fee', 'reward', 'previous_block', 'height']
-
-    for (const elem of filter) {
-      if (params[elem]) {
-        conditions[elem] = params[elem]
-      }
-    }
+    const { conditions } = this.__formatConditions(params)
 
     const orderBy = params.orderBy
       ? params.orderBy.split(':')
@@ -99,7 +99,8 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Object}
    */
   async search (params) {
-    const conditions = buildFilterQuery(params, {
+    let { conditions } = this.__formatConditions(params)
+    conditions = buildFilterQuery(conditions, {
       exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
       between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
     })

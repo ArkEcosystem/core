@@ -13,7 +13,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
-    super(connection)
+    super(connection, 'transaction')
 
     // Used to store the height of the block
     this.cache = connection.cache
@@ -25,7 +25,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAll (params = {}) {
-    const conditions = this.__formatConditions(params)
+    const { conditions } = this.__formatConditions(params)
 
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
@@ -208,6 +208,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findOne (conditions) {
+    conditions = this.__formatConditions(conditions).conditions
     const transaction = await this.query
       .select('block_id', 'serialized')
       .from('transactions')
@@ -258,8 +259,8 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async search (params) {
     const orderBy = this.__orderBy(params)
-
-    const conditions = buildFilterQuery(params, {
+    let { conditions } = this.__formatConditions(params)
+    conditions = buildFilterQuery(conditions, {
       exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
       between: ['timestamp', 'amount', 'fee'],
       wildcard: ['vendor_field_hex']
@@ -341,14 +342,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   __formatConditions (params) {
-    const filter = args => {
-      return args.filter(elem => ['type', 'sender_public_key', 'recipient_id', 'amount', 'fee', 'block_id'].includes(elem))
-    }
-
-    const statement = filter(Object.keys(params)).reduce((all, column) => {
-      all[column] = params[column]
-      return all
-    }, {})
+    const { conditions, filter } = super.__formatConditions(params)
 
     // NOTE: This could be used to produce complex queries, but currently isn't used
     ;[Op.or, Op.and].map(elem => {
@@ -358,12 +352,12 @@ module.exports = class TransactionsRepository extends Repository {
 
       const fields = Object.assign({}, ...params[elem])
 
-      statement[elem] = filter(Object.keys(fields)).reduce((all, value) => {
+      conditions[elem] = filter(Object.keys(fields)).reduce((all, value) => {
         return all.concat({ [value]: fields[value] })
       }, [])
     })
 
-    return statement
+    return { conditions, filter }
   }
 
   /**
@@ -373,14 +367,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   __formatConditionsV1 (params) {
-    const filter = args => {
-      return args.filter(elem => ['type', 'sender_public_key', 'recipient_id', 'amount', 'fee', 'block_id'].includes(elem))
-    }
-
-    return filter(Object.keys(params)).reduce((all, column) => {
-      all[column] = params[column]
-      return all
-    }, {})
+    return super.__formatConditions(params).conditions
   }
 
   /**
