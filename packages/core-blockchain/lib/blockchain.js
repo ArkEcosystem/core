@@ -265,12 +265,10 @@ module.exports = class Blockchain {
 
         callback()
       } else if (block.data.height > this.getLastBlock().data.height + 1) {
-        logger.info(`Block ${block.data.height.toLocaleString()} disregarded because blockchain not ready to accept it. Last block: ${this.getLastBlock().data.height} :warning:`)
         state.lastDownloadedBlock = state.lastBlock
         callback()
       } else if (block.data.height < this.getLastBlock().data.height || (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id)) {
         state.lastDownloadedBlock = state.lastBlock
-        logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
         callback()
       } else {
         state.lastDownloadedBlock = state.lastBlock
