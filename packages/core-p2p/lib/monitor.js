@@ -112,13 +112,14 @@ module.exports = class Monitor {
 
   /**
    * ban an existing peer.
-   * @param  {Peer}    peer
+   * @param  {Peer} peer
    * @return {Promise}
    */
   banPeer (ip) {
+    // TODO make a couple of tests on peer to understand the issue with this peer and decide how long to ban it
     const peer = this.peers[ip]
     if (peer) {
-      if (this.suspendedPeers[ip]) {
+      if (this.__isSuspended(peer)) {
         this.suspendedPeers[ip].until = moment(this.suspendedPeers[ip].until).add(1, 'day')
       } else {
          this.suspendedPeers[ip] = {
@@ -126,6 +127,7 @@ module.exports = class Monitor {
           until: moment().add(1, 'hours')
         }
       }
+      logger.debug(`banned peer ${ip} until ${this.suspendedPeers[ip].until}`)
     }
   }
 
