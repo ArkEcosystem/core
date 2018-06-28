@@ -82,6 +82,15 @@ module.exports = class PeerManager {
   }
 
   /**
+   * ban an existing peer.
+   * @param  {Peer}    peer
+   * @return {Promise}
+   */
+  banPeer (ip) {
+    return this.monitor.banPeer(ip)
+  }
+
+  /**
    * Get peers.
    * @return {Peer[]}
    */

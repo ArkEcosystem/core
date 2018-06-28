@@ -111,6 +111,25 @@ module.exports = class Monitor {
   }
 
   /**
+   * ban an existing peer.
+   * @param  {Peer}    peer
+   * @return {Promise}
+   */
+  banPeer (ip) {
+    const peer = this.peers[ip]
+    if (peer) {
+      if (this.suspendedPeers[ip]) {
+        this.suspendedPeers[ip].until = moment(this.suspendedPeers[ip].until).add(1, 'day')
+      } else {
+         this.suspendedPeers[ip] = {
+          peer: peer,
+          until: moment().add(1, 'hours')
+        }
+      }
+    }
+  }
+
+  /**
    * Accept and store a valid peer.
    * @param  {Peer} peer
    * @throws {Error} If invalid peer
