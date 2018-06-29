@@ -31,9 +31,6 @@ module.exports = class PBFTForger {
 
     let quorum = 0
     let noquorum = 0
-    let maxheight = lastBlock.height
-    let overheightquorum = 0
-    let overheightblock = null
     let letsforge = false
 
     for (const peer of peers) {
@@ -44,7 +41,6 @@ module.exports = class PBFTForger {
           noquorum = noquorum + 1
         }
       } else if (peer.height > lastBlock.height) {
-        maxheight = peer.height
         noquorum = noquorum + 1
         // overheightquorum = overheightquorum + 1;
         // overheightblock = peer.blockheader;
@@ -54,11 +50,14 @@ module.exports = class PBFTForger {
     }
     // PBFT: most nodes are on same branch, no other block have been forged and we are on forgeable currentSlot
     const calculatedQuorum = quorum / (quorum + noquorum)
+
     if (calculatedQuorum > 0.66) {
         letsforge = true
     } else {
       // We are forked!
       logger.info(`Fork 6 - Not enough quorum to forge next block. Network height: ${networkHeight}, Quorum: ${calculatedQuorum}, Last Block id: `)
     }
+
+    return letsforge
   }
 }
