@@ -8,7 +8,7 @@ module.exports = (actual, expected) => {
   const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key))
 
   return {
-    message: () => `Expected ${actual} to be a valid object with the minimal transaction fields (block_id and serialized)`,
+    message: () => `Expected ${actual} to be a valid object with the minimal transaction fields (blockId and serialized)`,
     pass: isEqual(sortBy(actualKeys), allowedKeys)
   }
 }

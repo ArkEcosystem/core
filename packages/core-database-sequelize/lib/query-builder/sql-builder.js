@@ -67,13 +67,6 @@ class SqlBuilder {
       }
 
       if (['IN', 'NOT IN'].includes(item.operator)) {
-        if (Array.isArray(item.value)) {
-          item.value = item.value.map(value => {
-            this.__replacements.push(value)
-            return '?'
-          }).join(',')
-        }
-
         this.__replacements.push(item.value)
         return `${item.column} ${item.operator} (?)`
       }
