@@ -14,7 +14,7 @@ const register = async (server, options) => {
     { method: 'POST', path: '/block', ...handlers.postInternalBlock },
     { method: 'POST', path: '/verifyTransaction', ...handlers.postVerifyTransaction },
     { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging },
-    { method: 'GET', path: '/pbftStatus', ...handlers.canDelegateForge }
+    { method: 'GET', path: '/quorum', ...handlers.getQuorum }
   ])
 }
 

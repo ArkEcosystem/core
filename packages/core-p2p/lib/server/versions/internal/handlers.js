@@ -117,3 +117,32 @@ exports.getTransactionsForForging = {
     }
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.getQuorum = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: false, isAllowed: false }
+    }
+    try {
+      return {
+        success: true,
+        quorum: await blockchain.p2p.getQuorum()
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}
