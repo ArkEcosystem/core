@@ -55,6 +55,21 @@ module.exports = class Client {
   }
 
   /**
+   * Get the current network quorum.
+   * @return {Object}
+   */
+  async getQuorum () {
+    await this.__chooseHost()
+
+    const response = await axios.get(`${this.host}/internal/quorum`, {
+      headers: this.headers,
+      timeout: 2000
+    })
+
+    return response.data.round
+  }
+
+  /**
    * Get all transactions that are ready to be forged.
    * @return {Object}
    */
