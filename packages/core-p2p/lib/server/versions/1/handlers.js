@@ -214,10 +214,6 @@ exports.postBlock = {
       return { success: false }
     }
 
-    if (!blockchain.isSynced()) {
-      return { success: false }
-    }
-
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
