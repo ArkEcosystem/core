@@ -203,8 +203,7 @@ module.exports = class TransactionPoolInterface {
 
           logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)
 
-          await this.removeByPublicKey(transaction.senderPublicKey)
-
+          await this.purgeByPublicKey(transaction.senderPublicKey)
           this.blockSender(transaction.senderPublicKey)
 
           continue
