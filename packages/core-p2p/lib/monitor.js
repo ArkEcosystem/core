@@ -293,7 +293,7 @@ module.exports = class Monitor {
     return allowedToForge / syncedPeers.length
   }
 
-  async getQuorum () {
+  async getNetworkState () {
     await this.cleanPeers(true)
     // TODO: remove later
     this.getPBFTForgingStatus()

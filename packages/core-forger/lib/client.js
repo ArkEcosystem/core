@@ -58,15 +58,15 @@ module.exports = class Client {
    * Get the current network quorum.
    * @return {Object}
    */
-  async getQuorum () {
+  async getNetworkState () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/quorum`, {
+    const response = await axios.get(`${this.host}/internal/networkState`, {
       headers: this.headers,
       timeout: 2000
     })
 
-    return response.data.round
+    return response.data
   }
 
   /**

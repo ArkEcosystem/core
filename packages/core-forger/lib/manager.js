@@ -88,9 +88,11 @@ module.exports = class ForgerManager {
         return this.__monitor(round, transactionData, data)
       }
 
-      const networkQuorum = await this.client.getQuorum()
-      if (networkQuorum < 0.66) {
-        logger.info(`Fork 6 - Not enough quorum to forge next block. Quorum: ${networkQuorum}.`)
+      const networkState = await this.client.getNetworkState()
+      if (networkState.success && networkState.quorum < 0.66) {
+        logger.info(`Fork 6 - Not enough quorum to forge next block. Quorum: ${networkState.quorum}, network height: ${networkState.networkHeight}, last block id: ${networkState.lastBlockId}.`)
+
+        await delay(7800) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
       }

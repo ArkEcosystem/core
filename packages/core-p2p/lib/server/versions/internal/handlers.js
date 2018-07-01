@@ -121,7 +121,7 @@ exports.getTransactionsForForging = {
 /**
  * @type {Object}
  */
-exports.getQuorum = {
+exports.getNetworkState = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -134,7 +134,7 @@ exports.getQuorum = {
       return { success: false, isAllowed: false }
     }
     try {
-      const pbftData = await blockchain.p2p.getQuorum()
+      const pbftData = await blockchain.p2p.getNetworkState()
       return {
         success: true,
         quorum: pbftData.quorum,

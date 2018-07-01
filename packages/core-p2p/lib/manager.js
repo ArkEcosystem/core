@@ -130,8 +130,8 @@ module.exports = class PeerManager {
     return this.monitor.getNetworkHeight()
   }
 
-  async getQuorum () {
-    return this.monitor.getQuorum()
+  async getNetworkState () {
+    return this.monitor.getNetworkState()
   }
 
   /**

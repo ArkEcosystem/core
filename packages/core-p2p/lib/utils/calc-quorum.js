@@ -5,15 +5,14 @@ const logger = container.resolvePlugin('logger')
 const { slots } = require('@arkecosystem/crypto')
 
 module.exports = (p2pMonitor, lastBlock) => {
-  if (process.env.ARK_ENV === 'test') {
-    return 1
-  }
-
   const networkHeight = p2pMonitor.getNetworkHeight()
   const peers = p2pMonitor.getPeers()
   const minimumNetworkReach = config.peers.minimumNetworkReach || 20
-
   const currentSlot = slots.getSlotNumber()
+
+  if (process.env.ARK_ENV === 'test') {
+    return {quorum: 1, networkHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id}
+  }
 
   let quorum = 0
   let noquorum = 0
@@ -38,7 +37,6 @@ module.exports = (p2pMonitor, lastBlock) => {
       noquorum = noquorum + 1
     }
   }
-  // PBFT: most nodes are on same branch, no other block have been forged and we are on forgeable currentSlot
 
   const calculatedQuorum = quorum / (quorum + noquorum)
   logger.info(`Network height: ${networkHeight}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
