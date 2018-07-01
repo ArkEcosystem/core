@@ -294,7 +294,8 @@ module.exports = class Monitor {
   }
 
   async getQuorum () {
-    await this.updateNetworkStatus(true)
+    await this.cleanPeers(true)
+    // TODO: remove later
     this.getPBFTForgingStatus()
 
     return calculateQuorum(this, container.resolvePlugin('blockchain').getLastBlock())
