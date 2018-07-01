@@ -134,9 +134,12 @@ exports.getQuorum = {
       return { success: false, isAllowed: false }
     }
     try {
+      const pbftData = await blockchain.p2p.getQuorum()
       return {
         success: true,
-        quorum: await blockchain.p2p.getQuorum()
+        quorum: pbftData.quorum,
+        networkHeight: pbftData.networkHeight,
+        lastBlockId: pbftData.lastBlockId
       }
     } catch (error) {
       return h.response({

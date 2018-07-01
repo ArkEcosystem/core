@@ -9,9 +9,6 @@ module.exports = (p2pMonitor, lastBlock) => {
     return 1
   }
 
-  const start = new Date()
-
-  logger.debug('start quorum math')
   const networkHeight = p2pMonitor.getNetworkHeight()
   const peers = p2pMonitor.getPeers()
   const minimumNetworkReach = config.peers.minimumNetworkReach || 20
@@ -44,17 +41,7 @@ module.exports = (p2pMonitor, lastBlock) => {
   // PBFT: most nodes are on same branch, no other block have been forged and we are on forgeable currentSlot
 
   const calculatedQuorum = quorum / (quorum + noquorum)
-  const duration = new Date() - start
-  logger.info(`Network height: ${networkHeight}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}, duration ${duration}`)
+  logger.info(`Network height: ${networkHeight}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
 
-  // TODO: move to forger
-  /* if (calculatedQuorum > 0.66) {
-      letsforge = true
-  } else {
-    // We are forked!
-   const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
-   logger.info(`Fork 6 - Not enough quorum to forge next block. Network height: ${networkHeight}, Quorum: ${calculatedQuorum}, Last Block id: ${lastBlock.data.id}`)
-  }
-  */
-  return calculatedQuorum
+  return {quorum: calculatedQuorum, networkHeight: networkHeight, lastBlockId: lastBlock.data.id}
 }
