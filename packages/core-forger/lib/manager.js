@@ -102,13 +102,6 @@ module.exports = class ForgerManager {
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
       logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
-      if (!slots.isForgingAllowed()) {
-        logger.info('Forger was not allowed to forge. Slots isForgingAllowed=false')
-
-        await delay(delayTime / 2) // we will check at next slot
-
-        return this.__monitor(round, transactionData, data)
-      }
 
       data.previousBlock = round.lastBlock
       data.timestamp = round.timestamp
