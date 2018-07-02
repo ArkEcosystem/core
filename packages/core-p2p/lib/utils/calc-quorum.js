@@ -5,17 +5,18 @@ const logger = container.resolvePlugin('logger')
 const { slots } = require('@arkecosystem/crypto')
 
 module.exports = (p2pMonitor, lastBlock) => {
-  const networkHeight = p2pMonitor.getNetworkHeight()
   const peers = p2pMonitor.getPeers()
   const minimumNetworkReach = config.peers.minimumNetworkReach || 20
   const currentSlot = slots.getSlotNumber()
 
-  if (process.env.ARK_ENV === 'test') {
-    return {quorum: 1, networkHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id}
-  }
-
   let quorum = 0
   let noquorum = 0
+  let overHeightQuorum = 0
+  let overHeightBlockHeader = null
+
+  if (process.env.ARK_ENV === 'test') {
+    return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum}
+  }
 
   if (peers.length < minimumNetworkReach) {
     logger.info(`Network reach is not sufficient to get quorum. Network reach of ${peers.length} peers.`)
@@ -31,15 +32,17 @@ module.exports = (p2pMonitor, lastBlock) => {
       }
     } else if (peer.state.height > lastBlock.data.height) {
       noquorum = noquorum + 1
-      // overheightquorum = overheightquorum + 1;
-      // overheightblock = peer.blockheader;
+      overHeightQuorum = overHeightQuorum + 1
+      overHeightBlockHeader = peer.state.header
     } else if (lastBlock.data.height - peer.state.height < 3) { // suppose the max network elasticity accross 3 blocks
       noquorum = noquorum + 1
     }
   }
 
   const calculatedQuorum = quorum / (quorum + noquorum)
-  logger.info(`Network height: ${networkHeight}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
+  const forgingAllowed = !overHeightBlockHeader && calculatedQuorum > 0.66
 
-  return {quorum: calculatedQuorum, networkHeight: networkHeight, lastBlockId: lastBlock.data.id}
+  logger.info(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
+
+  return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum}
 }
