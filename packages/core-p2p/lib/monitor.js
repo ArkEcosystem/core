@@ -91,15 +91,17 @@ module.exports = class Monitor {
 
     await Promise.all(keys.map(async (ip) => {
       try {
-        await this.peers[ip].ping(pingDelay)
+        await this.getPeer(ip).ping(pingDelay)
 
-        if (!fast) logger.printTracker('Peers Discovery', ++count, max)
+        if (!fast) {
+          logger.printTracker('Peers Discovery', ++count, max)
+        }
       } catch (error) {
         unresponsivePeers++
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
         logger.debug(`Removed peer ${ip} because it didn't respond within ${formattedDelay}.`)
-        emitter.emit('peer.removed', this.peers[ip])
+        emitter.emit('peer.removed', this.getPeer(ip))
 
         delete this.peers[ip]
 
@@ -142,7 +144,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.peers[peer.ip] || this.__isSuspended(peer) || process.env.ARK_ENV === 'test') {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test') {
       return
     }
 
@@ -201,18 +203,24 @@ module.exports = class Monitor {
    */
   getRandomPeer (acceptableDelay) {
     let keys = Object.keys(this.peers)
-    keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
+    keys = keys.filter((key) => {
+        const peer = this.getPeer(key)
+        if (peer.ban < new Date().getTime()) {
+            return true
+        }
 
-    if (acceptableDelay) {
-      keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
-    }
+        if (acceptableDelay && peer.delay < acceptableDelay) {
+            return true
+        }
+
+        return false
+    })
 
     const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.peers[random]
+    const randomPeer = this.getPeer(random)
 
     if (!randomPeer) {
       // logger.error(this.peers)
-      delete this.peers[random]
 
       // FIXME: this method doesn't exist
       // this.manager.checkOnline()
@@ -229,16 +237,27 @@ module.exports = class Monitor {
    */
   getRandomDownloadBlocksPeer (minHeight) {
     let keys = Object.keys(this.peers)
-    keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
-    // keys = keys.filter(key => this.peers[key].state.height > minHeight)
-    keys = keys.filter(key => this.peers[key].downloadSize !== 100)
+    keys = keys.filter(key => {
+        const peer = this.getPeer(key)
+        if (peer.ban < new Date().getTime()) {
+            return true
+        }
+
+        // if (peer.state.height > minHeight) {
+        //    return true
+        // }
+
+        if (peer.downloadSize !== 100) {
+            return true
+        }
+
+        return false
+    })
 
     const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.peers[random]
+    const randomPeer = this.getPeer(random)
 
     if (!randomPeer) {
-      delete this.peers[random]
-
       return this.getRandomPeer()
     }
 
@@ -254,7 +273,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
@@ -269,7 +288,7 @@ module.exports = class Monitor {
    * @return {Number}
    */
   getNetworkHeight () {
-    const median = Object.values(this.peers)
+    const median = this.getPeers()
       .filter(peer => peer.state.height)
       .map(peer => peer.state.height)
       .sort()
@@ -285,12 +304,26 @@ module.exports = class Monitor {
     const height = this.getNetworkHeight()
     const slot = slots.getSlotNumber()
     const heights = {}
-    const syncedPeers = Object.values(this.peers).filter(peer => peer.state.currentSlot === slot)
-    Object.values(this.peers).forEach(p => p.state && (heights[p.state.height] = heights[p.state.height] ? heights[p.state.height] + 1 : 1))
-    console.log(heights)
-    const allowedToForge = syncedPeers.filter(peer => peer.state && peer.state.forgingAllowed && peer.state.height >= height).length
 
-    return allowedToForge / syncedPeers.length
+    let allowedToForge = 0
+    let syncedPeers = 0
+
+    for (let peer of this.getPeers()) {
+      if (peer.state) {
+        if (peer.state.currentSlot === slot) {
+          syncedPeers++
+
+          if (peer.state.forgingAllowed && peer.state.height >= height) {
+            allowedToForge++
+          }
+        }
+
+        heights[peer.state.height] = heights[peer.state.height] ? heights[peer.state.height] + 1 : 1
+      }
+    }
+
+    console.log(heights)
+    return allowedToForge / syncedPeers
   }
 
   async getNetworkState () {
@@ -339,7 +372,7 @@ module.exports = class Monitor {
     }
 
     let blockPing = blockchain.getBlockPing()
-    let peers = Object.values(this.peers)
+    let peers = this.getPeers()
 
     if (blockPing && blockPing.block.id === block.data.id) {
       // wait a bit before broadcasting if a bit early
@@ -374,7 +407,7 @@ module.exports = class Monitor {
    * @param {Transaction[]} transactions
    */
   async broadcastTransactions (transactions) {
-    const peers = Object.values(this.peers)
+    const peers = this.getPeers()
     logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
     const transactionsV1 = []
@@ -389,11 +422,11 @@ module.exports = class Monitor {
    * @return {Boolean}
    */
   __isSuspended (peer) {
-    const suspededPeer = this.suspendedPeers[peer.ip]
+    const suspendedPeer = this.suspendedPeers[peer.ip]
 
-    if (suspededPeer && moment().isBefore(suspededPeer.until)) {
+    if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
       return true
-    } else if (suspededPeer) {
+    } else if (suspendedPeer) {
       delete this.suspendedPeers[peer.ip]
     }
 
