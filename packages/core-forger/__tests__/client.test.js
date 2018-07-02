@@ -80,6 +80,7 @@ describe('Client', () => {
       expect(networkState).toHaveProperty('nodeHeight')
       expect(networkState).toHaveProperty('lastBlockId')
       expect(networkState).toHaveProperty('overHeightBlockHeader')
+      expect(networkState).toHaveProperty('minimumNetworkReach')
     })
   })
 })

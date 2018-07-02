@@ -15,12 +15,14 @@ module.exports = (p2pMonitor, lastBlock) => {
   let overHeightBlockHeader = null
 
   if (process.env.ARK_ENV === 'test') {
-    return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum}
+    console.log('test')
+    // console.log(lastBlock)
+    return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
   }
 
   if (peers.length < minimumNetworkReach) {
     logger.info(`Network reach is not sufficient to get quorum. Network reach of ${peers.length} peers.`)
-    return 0
+    return {quorum: 0, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: false}
   }
 
   for (const peer of peers) {
@@ -43,6 +45,7 @@ module.exports = (p2pMonitor, lastBlock) => {
   const forgingAllowed = !overHeightBlockHeader && calculatedQuorum > 0.66
 
   logger.info(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
+  console.log('test2')
 
-  return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum}
+  return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum, minimumNetworkReach: true}
 }

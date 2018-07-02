@@ -151,9 +151,9 @@ module.exports = class ForgerManager {
 
   __analyseNetworkState (networkState, currentDelegate) {
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
-     logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}`)
+      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}. NetworkState: ${networkState}.`)
     } else {
-      logger.info(`Fork 6 - Not enough quorum to forge next block. Quorum: ${networkState.quorum}, network height: ${networkState.networkHeight}, last block id: ${networkState.lastBlockId}.`)
+      logger.info(`Fork 6 - Not enough quorum to forge next block. NetworkState: ${networkState}.`)
     }
   }
 }

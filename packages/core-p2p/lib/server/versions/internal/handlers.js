@@ -131,15 +131,12 @@ exports.getNetworkState = {
     const blockchain = container.resolvePlugin('blockchain')
 
     if (!blockchain) {
-      return { success: false, isAllowed: false }
+      return { success: false, forgingAllowed: false }
     }
     try {
-      const pbftData = await blockchain.p2p.getNetworkState()
       return {
         success: true,
-        quorum: pbftData.quorum,
-        networkHeight: pbftData.networkHeight,
-        lastBlockId: pbftData.lastBlockId
+        networkState: await blockchain.p2p.getNetworkState()
       }
     } catch (error) {
       return h.response({

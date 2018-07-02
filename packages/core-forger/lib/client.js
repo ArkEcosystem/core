@@ -66,7 +66,7 @@ module.exports = class Client {
       timeout: 2000
     })
 
-    return response.data
+    return response.data.networkState
   }
 
   /**
