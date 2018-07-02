@@ -70,6 +70,7 @@ module.exports = class ForgerManager {
   async __monitor (round, transactionData, data) {
     try {
       round = await this.client.getRound()
+      const delayTime = config.getConstants(round.lastblock.height).blockTime * 1000 - 200
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
@@ -82,7 +83,7 @@ module.exports = class ForgerManager {
       const delegate = await this.__pickForgingDelegate(round)
       if (!delegate) {
         // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-        await delay(7900) // we will check at next slot
+        await delay(delayTime) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
       }
@@ -91,7 +92,7 @@ module.exports = class ForgerManager {
       if (!networkState.forgingAllowed) {
         this.__analyseNetworkState(networkState, delegate)
 
-        await delay(7800) // we will check at next slot
+        await delay(delayTime) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
       }
@@ -101,11 +102,10 @@ module.exports = class ForgerManager {
       transactionData = await this.client.getTransactions()
       const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
       logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
-
       if (!slots.isForgingAllowed()) {
         logger.info('Forger was not allowed to forge. Slots isForgingAllowed=false')
 
-        await delay(3700) // we will check at next slot
+        await delay(delayTime / 2) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
       }
@@ -124,7 +124,7 @@ module.exports = class ForgerManager {
 
       this.client.broadcast(block.toRawJson())
 
-      await delay(7800) // we will check at next slot
+      await delay(delayTime) // we will check at next slot
 
       return this.__monitor(round, transactionData, data)
     } catch (error) {
