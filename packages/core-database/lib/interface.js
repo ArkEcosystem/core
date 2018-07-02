@@ -7,6 +7,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
+const { Block } = require('@arkecosystem/crypto').models
 
 module.exports = class ConnectionInterface {
   /**
@@ -16,6 +17,7 @@ module.exports = class ConnectionInterface {
   constructor (config) {
     this.config = config
     this.connection = null
+    this.blocksInCurrentRound = null
   }
 
   /**
@@ -214,12 +216,32 @@ module.exports = class ConnectionInterface {
   /**
    * Update delegate statistics in memory.
    * NOTE: must be called before saving new round of delegates
+   * @param  {Block} block
    * @param  {Array} delegates
    * @return {void}
-   * @throws Error
    */
-  async updateDelegateStats (blocks, delegates) {
-    throw new Error('Method [updateDelegateStats] not implemented!')
+  async updateDelegateStats (height, delegates) {
+    if (!delegates || !this.blocksInCurrentRound) {
+      return
+    }
+
+    logger.debug('Updating delegate statistics')
+
+    try {
+      delegates.forEach(delegate => {
+        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
+        if (producedBlocks.length === 0) {
+          wallet.missedBlocks++
+          emitter.emit('forger.missing', {
+            delegate: wallet
+          })
+        }
+      })
+    } catch (error) {
+      logger.error(error.stack)
+    }
   }
 
   /**
@@ -267,7 +289,7 @@ module.exports = class ConnectionInterface {
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
-
+          this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
           // this.walletManager.updateDelegates()
@@ -296,6 +318,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
+      this.blocksInCurrentRound = await this.getBlocks(height - maxDelegates, maxDelegates).map(b => new Block(b))
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -342,6 +365,7 @@ module.exports = class ConnectionInterface {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
+    if (this.blocksInCurrentRound) this.blocksInCurrentRound.push(block)
     emitter.emit('block.applied', block.data)
   }
 
@@ -353,6 +377,10 @@ module.exports = class ConnectionInterface {
   async revertBlock (block) {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
+    if (this.blocksInCurrentRound) {
+      const b = this.blocksInCurrentRound.pop()
+      if (b.data.id !== block.data.id) throw new Error('Reverted wrong block. Restart is needed 💣')
+    }
     emitter.emit('block.reverted', block.data)
   }
 

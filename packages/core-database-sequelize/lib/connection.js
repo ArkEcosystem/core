@@ -79,6 +79,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   async disconnect () {
     try {
       await this.saveBlockCommit()
+      await this.deleteBlockCommit()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
@@ -304,47 +305,6 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Update delegate statistics in memory.
-   * NOTE: must be called before saving new round of delegates
-   * @param  {Block} block
-   * @param  {Array} delegates
-   * @return {void}
-   */
-  async updateDelegateStats (height, delegates) {
-    if (!delegates) {
-      return
-    }
-
-    logger.debug('Updating delegate statistics')
-
-    try {
-      const maxDelegates = config.getConstants(height).activeDelegates
-      const firstRoundHeight = height - maxDelegates - 1
-      // TODO: remove db call by keeping last 'maxDelegates' blocks in memory maintaining the list at each applyRound/undoRound call
-      const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp", "totalFee", "reward" FROM blocks where "height" > ${firstRoundHeight} ORDER BY "timestamp" DESC`, {type: Sequelize.QueryTypes.SELECT})
-      delegates.forEach(delegate => {
-        let producedBlocks = lastBlockGenerators.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
-        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
-
-        if (producedBlocks.length === 0) {
-          wallet.missedBlocks++
-          emitter.emit('forger.missing', {
-            delegate: wallet
-          })
-        } else {
-          // TODO this whole stuff should be done on a per Block basis (applyBlock/undoBlock)
-          wallet.producedBlocks += producedBlocks.length
-          wallet.lastBlock = producedBlocks.pop()
-          wallet.forgedFees += producedBlocks.reduce((fees, block) => fees + block.totalFee, 0)
-          wallet.forgedRewards += producedBlocks.reduce((rewards, block) => rewards + block.reward, 0)
-        }
-      })
-    } catch (error) {
-      logger.error(error.stack)
-    }
-  }
-
-  /**
    * Commit wallets from the memory.
    * @param  {Boolean} force
    * @return {Object}
@@ -406,7 +366,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
-    await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+    if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction: this.asyncTransaction})
   }
 
   /**
@@ -680,7 +640,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       migrations: {
         params: [
           this.connection.getQueryInterface(),
-          Sequelize
+          Sequelize,
+          this
         ],
         path: path.join(__dirname, 'migrations')
       }
