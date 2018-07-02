@@ -42,7 +42,7 @@ module.exports = (p2pMonitor, lastBlock) => {
   const calculatedQuorum = quorum / (quorum + noquorum)
   const forgingAllowed = !overHeightBlockHeader && calculatedQuorum > 0.66
 
-  logger.debug(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
+  logger.debug(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum}, OverHeightQuorum: ${overHeightQuorum} Last Block id: ${lastBlock.data.id}`)
 
-  return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum, minimumNetworkReach: true}
+  return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
 }
