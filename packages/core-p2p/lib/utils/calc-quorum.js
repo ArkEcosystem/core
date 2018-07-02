@@ -15,8 +15,6 @@ module.exports = (p2pMonitor, lastBlock) => {
   let overHeightBlockHeader = null
 
   if (process.env.ARK_ENV === 'test') {
-    console.log('test')
-    // console.log(lastBlock)
     return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
   }
 
@@ -44,8 +42,7 @@ module.exports = (p2pMonitor, lastBlock) => {
   const calculatedQuorum = quorum / (quorum + noquorum)
   const forgingAllowed = !overHeightBlockHeader && calculatedQuorum > 0.66
 
-  logger.info(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
-  console.log('test2')
+  logger.debug(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum} Last Block id: ${lastBlock.data.id}`)
 
   return {quorum: calculatedQuorum, forgingAllowed: forgingAllowed, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightQuorum, minimumNetworkReach: true}
 }
