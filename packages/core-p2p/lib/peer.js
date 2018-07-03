@@ -147,14 +147,17 @@ module.exports = class Peer {
 
     if (body) {
       this.state = body
-      const headerVerified = new Block(this.state.header).verified
-      if (!headerVerified) {
-        logger.debug(`Received invalid header from ${this.url}`)
-        this.countError++
-        this.status = 'FORK'
-      } else {
-        this.countError = 0
-        this.status = 'OK'
+      this.status = 'OK'
+
+      if (container.resolvePlugin('blockchain').isSynced()) {
+        const headerVerified = new Block(this.state.header).verified
+        if (!headerVerified) {
+          logger.debug(`Received invalid header from ${this.url}`)
+          this.countError++
+          this.status = 'FORK'
+        } else {
+          this.countError = 0
+        }
       }
     } else {
       this.counterror++;
