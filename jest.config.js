@@ -1,6 +1,7 @@
 module.exports = {
   bail: false,
   verbose: true,
+  testEnvironment: 'node',
   testMatch: [
     // '**/packages/**/__tests__/**/*.test.js'
 
