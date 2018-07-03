@@ -24,7 +24,7 @@ module.exports = (p2pMonitor, lastBlock) => {
     return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
   }
 
-  if (peers.length < minimumNetworkReach && process.env.ARK_ENV !== 'test') {
+  if (peers.length < minimumNetworkReach) {
     logger.info(`Network reach is not sufficient to get quorum. Network reach of ${peers.length} peers.`)
     return {quorum: 0, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: false}
   }
