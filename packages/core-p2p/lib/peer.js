@@ -145,28 +145,28 @@ module.exports = class Peer {
   async ping (delay) {
     const body = await this.__get('/peer/status', delay || config.peers.globalTimeout)
 
-    if (body) {
-      this.state = body
-      this.status = 'OK'
-
-      if (container.resolvePlugin('blockchain').isSynced()) {
-        const headerVerified = new Block(this.state.header).verified
-        if (!headerVerified) {
-          logger.debug(`Received invalid header from ${this.url}`)
-          this.countError++
-          this.status = 'FORK'
-
-          throw new Error(`Received invalid header from ${this.url}`)
-        } else {
-          this.countError = 0
-
-          return body
-        }
-      }
-    } else {
-      this.counterror++;
+    if (!body) {
+      this.countError++
       throw new Error(`Peer ${this.ip} is unresponsive`)
     }
+
+    this.state = body
+    this.status = 'OK'
+
+    if (container.resolvePlugin('blockchain').isSynced()) {
+      const headerVerified = new Block(this.state.header).verified
+      if (!headerVerified) {
+        logger.debug(`Received invalid header from ${this.url}`)
+        this.countError++
+        this.status = 'FORK'
+
+        throw new Error(`Received invalid header from ${this.url}`)
+      } else {
+        this.countError = 0
+      }
+    }
+
+    return body
   }
 
   /**
