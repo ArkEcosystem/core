@@ -318,7 +318,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = await this.getBlocks(height - maxDelegates, maxDelegates).map(b => new Block(b))
+      this.blocksInCurrentRound = (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
 
       this.activedelegates = await this.getActiveDelegates(height)
 
