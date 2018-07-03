@@ -58,7 +58,7 @@ module.exports = class Monitor {
       // TODO: for tests that involve peers we need to sync them
       if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
-        await this.cleanPeers(fast)
+        await this.cleanPeers()
       }
 
       if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
@@ -80,7 +80,7 @@ module.exports = class Monitor {
    * Clear peers which aren't responding.
    * @param {Boolean} fast
    */
-  async cleanPeers (fast = false) {
+  async cleanPeers (fast = false, tracker = true) {
     let keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
@@ -93,7 +93,7 @@ module.exports = class Monitor {
       try {
         await this.getPeer(ip).ping(pingDelay)
 
-        if (!fast) {
+        if (tracker) {
           logger.printTracker('Peers Discovery', ++count, max)
         }
       } catch (error) {
@@ -109,7 +109,7 @@ module.exports = class Monitor {
       }
     }))
 
-    if (!fast) {
+    if (tracker) {
       logger.stopTracker('Peers Discovery', max, max)
       logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`)
       logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
@@ -327,7 +327,7 @@ module.exports = class Monitor {
   }
 
   async getNetworkState () {
-    await this.cleanPeers(true)
+    await this.cleanPeers()
 
     return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
   }

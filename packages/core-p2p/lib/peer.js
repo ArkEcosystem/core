@@ -21,6 +21,7 @@ module.exports = class Peer {
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
     this.state = {}
+    this.errorCount = 0
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -153,19 +154,15 @@ module.exports = class Peer {
     this.state = body
     this.status = 'OK'
 
-    if (container.resolvePlugin('blockchain').isSynced()) {
-      const headerVerified = new Block(this.state.header).verified
-      if (!headerVerified) {
-        logger.debug(`Received invalid header from ${this.url}`)
-        this.countError++
-        this.status = 'FORK'
-
-        throw new Error(`Received invalid header from ${this.url}`)
-      } else {
-        this.countError = 0
-      }
+    const headerVerified = new Block(this.state.header).verified
+    if (!headerVerified) {
+      logger.debug(`Received invalid header from ${this.url}`)
+      this.errorCount++
+      this.status = 'FORK'
+      // throw new Error(`Received invalid header from ${this.url}`)
+    } else {
+      this.errorCount = 0
     }
-
     return body
   }
 
