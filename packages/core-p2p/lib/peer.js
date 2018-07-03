@@ -7,6 +7,8 @@ const config = container.resolvePlugin('config')
 const threads = require('threads')
 const thread = threads.spawn(`${__dirname}/workers/download.js`)
 
+const { Block } = require('@arkecosystem/crypto').models
+
 module.exports = class Peer {
   /**
    * @constructor
@@ -145,11 +147,19 @@ module.exports = class Peer {
 
     if (body) {
       this.state = body
-
-      return body
+      const headerVerified = new Block(this.state.header).verified
+      if (!headerVerified) {
+        logger.debug(`Received invalid header from ${this.url}`)
+        this.countError++
+        this.status = 'FORK'
+      } else {
+        this.countError = 0
+        this.status = 'OK'
+      }
+    } else {
+      this.counterror++;
+      throw new Error(`Peer ${this.ip} is unresponsive`)
     }
-
-    throw new Error(`Peer ${this.ip} is unresponsive`)
   }
 
   /**
@@ -198,8 +208,6 @@ module.exports = class Peer {
    */
   __parseHeaders (response) {
     ['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
-
-    this.status = 'OK'
 
     return response
   }
