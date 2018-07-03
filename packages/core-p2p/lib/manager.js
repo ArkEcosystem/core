@@ -130,6 +130,10 @@ module.exports = class PeerManager {
     return this.monitor.getNetworkHeight()
   }
 
+  async getNetworkState () {
+    return this.monitor.getNetworkState()
+  }
+
   /**
    * Check if the node can connect to any DNS host.
    * @return {void}

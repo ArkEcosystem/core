@@ -66,4 +66,21 @@ describe('Client', () => {
       expect(response.transactions).toBeArray()
     })
   })
+
+  describe('getNetworkState', () => {
+    it('should be a function', () => {
+      expect(client.getNetworkState).toBeFunction()
+    })
+
+    it('should be ok', async () => {
+      const networkState = await client.getNetworkState()
+
+      expect(networkState).toHaveProperty('quorum')
+      expect(networkState).toHaveProperty('forgingAllowed')
+      expect(networkState).toHaveProperty('nodeHeight')
+      expect(networkState).toHaveProperty('lastBlockId')
+      expect(networkState).toHaveProperty('overHeightBlockHeader')
+      expect(networkState).toHaveProperty('minimumNetworkReach')
+    })
+  })
 })

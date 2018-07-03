@@ -13,6 +13,8 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const isMySelf = require('./utils/is-myself')
+const networkState = require('./utils/network-state')
 
 module.exports = class Monitor {
   /**
@@ -51,12 +53,12 @@ module.exports = class Monitor {
    * Update network status (currently only peers are updated).
    * @return {Promise}
    */
-  async updateNetworkStatus () {
+  async updateNetworkStatus (fast = false) {
     try {
       // TODO: for tests that involve peers we need to sync them
       if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
-        await this.cleanPeers()
+        await this.cleanPeers(fast)
       }
 
       if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
@@ -90,7 +92,10 @@ module.exports = class Monitor {
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.getPeer(ip).ping(pingDelay)
-        logger.printTracker('Peers Discovery', ++count, max)
+
+        if (!fast) {
+          logger.printTracker('Peers Discovery', ++count, max)
+        }
       } catch (error) {
         unresponsivePeers++
 
@@ -104,10 +109,12 @@ module.exports = class Monitor {
       }
     }))
 
-    logger.stopTracker('Peers Discovery', max, max)
-    logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`)
-    logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
-    logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
+    if (!fast) {
+      logger.stopTracker('Peers Discovery', max, max)
+      logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`)
+      logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
+      logger.info(`Network PBFT status: ${this.getPBFTForgingStatus()}`)
+    }
   }
 
   /**
@@ -266,7 +273,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
@@ -276,7 +283,6 @@ module.exports = class Monitor {
       return this.discoverPeers()
     }
   }
-
   /**
    * Get the median network height.
    * @return {Number}
@@ -318,6 +324,12 @@ module.exports = class Monitor {
 
     console.log(heights)
     return allowedToForge / syncedPeers
+  }
+
+  async getNetworkState () {
+    await this.cleanPeers(true)
+
+    return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
   }
 
   /**

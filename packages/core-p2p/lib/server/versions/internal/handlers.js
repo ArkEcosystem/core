@@ -117,3 +117,32 @@ exports.getTransactionsForForging = {
     }
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.getNetworkState = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: false, forgingAllowed: false }
+    }
+    try {
+      return {
+        success: true,
+        networkState: await blockchain.p2p.getNetworkState()
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}

@@ -70,20 +70,29 @@ module.exports = class ForgerManager {
   async __monitor (round, transactionData, data) {
     try {
       round = await this.client.getRound()
+      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 200
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
         // technically it is possible to compute doing shennanigan with arkjs.slots lib
-        await delay(100) // basically looping until we lock at beginning of next slot
+        await delay(250) // basically looping until we lock at beginning of next slot
 
         return this.__monitor(round, transactionData, data)
       }
 
       const delegate = await this.__pickForgingDelegate(round)
-
       if (!delegate) {
         // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-        await delay(7900) // we will check at next slot
+        await delay(delayTime) // we will check at next slot
+
+        return this.__monitor(round, transactionData, data)
+      }
+
+      const networkState = await this.client.getNetworkState()
+      if (!networkState.forgingAllowed) {
+        this.__analyseNetworkState(networkState, delegate)
+
+        await delay(delayTime) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
       }
@@ -100,14 +109,15 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      logger.info(`Block ${block.data.id} was forged by delegate ${delegate.publicKey} :trident:`)
+      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
 
       emitter.emit('block.forged', block.data)
 
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
 
       this.client.broadcast(block.toRawJson())
-      await delay(7800) // we will check at next slot
+
+      await delay(delayTime) // we will check at next slot
 
       return this.__monitor(round, transactionData, data)
     } catch (error) {
@@ -130,5 +140,13 @@ module.exports = class ForgerManager {
    */
   async __pickForgingDelegate (round) {
     return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
+  }
+
+  __analyseNetworkState (networkState, currentDelegate) {
+    if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
+      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}. NetworkState: ${networkState}.`)
+    } else {
+      logger.info(`Fork 6 - Not enough quorum to forge next block. NetworkState: ${networkState}.`)
+    }
   }
 }

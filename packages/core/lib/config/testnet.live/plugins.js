@@ -25,7 +25,7 @@ module.exports = {
   },
   '@arkecosystem/core-database-sequelize': {
     dialect: 'sqlite',
-    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.1.sqlite`,
+    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.live.sqlite`,
     // host: process.env.ARK_DB_HOST || 'localhost',
     // dialect: process.env.ARK_DB_DIALECT || 'postgres',
     // username: process.env.ARK_DB_USERNAME || 'ark',
@@ -50,7 +50,7 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4102
+    port: process.env.ARK_P2P_PORT || 4000
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: true
@@ -58,7 +58,7 @@ module.exports = {
   '@arkecosystem/core-api': {
     enabled: false,
     host: process.env.ARK_API_HOST || '0.0.0.0',
-    port: process.env.ARK_API_PORT || 4103,
+    port: process.env.ARK_API_PORT || 4003,
     whitelist: ['*']
   },
   '@arkecosystem/core-webhooks': {
@@ -87,7 +87,7 @@ module.exports = {
     graphiql: true
   },
   '@arkecosystem/core-forger': {
-    hosts: ['http://127.0.0.1:4102']
+    hosts: ['http://127.0.0.1:4000']
   },
   '@arkecosystem/core-json-rpc': {
     enabled: process.env.ARK_JSON_RPC_ENABLED || false,
