@@ -155,8 +155,12 @@ module.exports = class Peer {
           logger.debug(`Received invalid header from ${this.url}`)
           this.countError++
           this.status = 'FORK'
+
+          throw new Error(`Received invalid header from ${this.url}`)
         } else {
           this.countError = 0
+
+          return body
         }
       }
     } else {
