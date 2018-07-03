@@ -4,6 +4,12 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const { slots } = require('@arkecosystem/crypto')
 
+/**
+ * Returns current network state. Peers are update before the call
+ * @param {Monitor} p2pMonitor
+ * @private {Block} lastBlock
+ * @returns {Object} network state structure
+ */
 module.exports = (p2pMonitor, lastBlock) => {
   const peers = p2pMonitor.getPeers()
   const minimumNetworkReach = config.peers.minimumNetworkReach || 20
@@ -18,7 +24,7 @@ module.exports = (p2pMonitor, lastBlock) => {
     return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
   }
 
-  if (peers.length < minimumNetworkReach) {
+  if (peers.length < minimumNetworkReach && process.env.ARK_ENV !== 'test') {
     logger.info(`Network reach is not sufficient to get quorum. Network reach of ${peers.length} peers.`)
     return {quorum: 0, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: false}
   }

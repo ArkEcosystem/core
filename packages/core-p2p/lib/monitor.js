@@ -14,7 +14,7 @@ const emitter = container.resolvePlugin('event-emitter')
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
 const isMySelf = require('./utils/is-myself')
-const calculateQuorum = require('./utils/calc-quorum')
+const networkState = require('./utils/network-state')
 
 module.exports = class Monitor {
   /**
@@ -328,10 +328,8 @@ module.exports = class Monitor {
 
   async getNetworkState () {
     await this.cleanPeers(true)
-    // TODO: remove later
-    this.getPBFTForgingStatus()
 
-    return calculateQuorum(this, container.resolvePlugin('blockchain').getLastBlock())
+    return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
   }
 
   /**

@@ -70,12 +70,12 @@ module.exports = class ForgerManager {
   async __monitor (round, transactionData, data) {
     try {
       round = await this.client.getRound()
-      const delayTime = config.getConstants(round.lastblock.height).blockTime * 1000 - 200
+      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 200
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
         // technically it is possible to compute doing shennanigan with arkjs.slots lib
-        await delay(100) // basically looping until we lock at beginning of next slot
+        await delay(250) // basically looping until we lock at beginning of next slot
 
         return this.__monitor(round, transactionData, data)
       }
@@ -109,7 +109,7 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      logger.info(`Block ${block.data.id} was forged by delegate ${delegate.publicKey} :trident:`)
+      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
 
       emitter.emit('block.forged', block.data)
 
