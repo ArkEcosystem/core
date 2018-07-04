@@ -155,10 +155,11 @@ module.exports = class Peer {
     this.status = 'OK'
 
     const headerVerified = new Block(this.state.header).verified
+    console.log(headerVerified)
     if (!headerVerified) {
       logger.debug(`Received invalid header from ${this.url}`)
-      this.errorCount++
-      this.status = 'FORK'
+      // this.errorCount++
+      // this.status = 'FORK'
       // throw new Error(`Received invalid header from ${this.url}`)
     } else {
       this.errorCount = 0

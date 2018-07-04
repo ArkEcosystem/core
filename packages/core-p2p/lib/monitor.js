@@ -13,7 +13,6 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
-const isMySelf = require('./utils/is-myself')
 const networkState = require('./utils/network-state')
 
 module.exports = class Monitor {
@@ -27,6 +26,8 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
+    // tempo helper to start forging not righ now
+    this.startForgers = moment().add(config.peers.coldStart || 60, 'seconds')
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -97,6 +98,10 @@ module.exports = class Monitor {
           logger.printTracker('Peers Discovery', ++count, max)
         }
       } catch (error) {
+        if (this.__isColdStartActive()) {
+          return
+        }
+
         unresponsivePeers++
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
@@ -273,7 +278,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
@@ -429,5 +434,13 @@ module.exports = class Monitor {
     }
 
     return false
+  }
+
+  /**
+   * Determines if coldstart is still active. We need this for the network to start, so we dont forge, while
+   * not all peers are up, or the network is not active
+   */
+  __isColdStartActive () {
+    return this.startForgers > moment()
   }
 }

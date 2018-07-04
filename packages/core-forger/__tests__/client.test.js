@@ -81,6 +81,7 @@ describe('Client', () => {
       expect(networkState).toHaveProperty('lastBlockId')
       expect(networkState).toHaveProperty('overHeightBlockHeader')
       expect(networkState).toHaveProperty('minimumNetworkReach')
+      expect(networkState).toHaveProperty('coldStart')
     })
   })
 })
