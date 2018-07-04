@@ -71,6 +71,7 @@ module.exports = class ForgerManager {
     try {
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 200
+      console.log(delayTime)
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
@@ -89,9 +90,7 @@ module.exports = class ForgerManager {
       }
 
       const networkState = await this.client.getNetworkState()
-      if (!networkState.forgingAllowed) {
-        this.__analyseNetworkState(networkState, delegate)
-
+      if (!this.__analyseNetworkState(networkState, delegate)) {
         await delay(delayTime) // we will check at next slot
 
         return this.__monitor(round, transactionData, data)
@@ -109,7 +108,7 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
+      logger.info(`:trident: Forged new block ${block.data.id} by delegate ${delegate.publicKey}`)
 
       emitter.emit('block.forged', block.data)
 
@@ -142,11 +141,29 @@ module.exports = class ForgerManager {
     return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
   }
 
+  /**
+   * Analyses network state and returns if forging is allowed
+   * @param {Object} networkState internal response
+   * @param {Booolean} isAllowedToForge
+   */
   __analyseNetworkState (networkState, currentDelegate) {
-    if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
-      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}. NetworkState: ${networkState}.`)
-    } else {
-      logger.info(`Fork 6 - Not enough quorum to forge next block. NetworkState: ${networkState}.`)
+    if (networkState.coldStart) {
+      logger.info(`Not allowed to forge in the cold start period. NetworkState: ${JSON.stringify(networkState)}`)
+      return false
     }
+    if (networkState.miminimumNetworkReach) {
+      logger.info('Network reach is not sufficient to get quorum.')
+      return false
+    }
+    if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
+      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}. NetworkState: ${JSON.stringify(networkState)}`)
+      return false
+    }
+    if (networkState.quorum < 0.66) {
+      logger.info(`Fork 6 - Not enough quorum to forge next block. NetworkState: ${JSON.stringify(networkState)}.`)
+      return false
+    }
+
+    return true
   }
 }

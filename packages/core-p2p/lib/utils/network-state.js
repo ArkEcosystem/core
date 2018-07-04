@@ -50,5 +50,5 @@ module.exports = (p2pMonitor, lastBlock) => {
 
   const calculatedQuorum = quorum / (quorum + noquorum)
 
-  return {quorum: calculatedQuorum, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
+  return {quorum: calculatedQuorum, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true, coldStart: false}
 }
