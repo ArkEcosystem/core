@@ -278,7 +278,7 @@ module.exports = class Monitor {
           console.log(`whitelisted ${peer.ip}`)
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) ) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
         if (!isLocalhost(peer.ip) && !isMySelf(peer.ip) && process.ARK_ENV !== 'test') {
