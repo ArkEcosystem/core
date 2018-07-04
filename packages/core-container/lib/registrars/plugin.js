@@ -89,7 +89,7 @@ module.exports = class PluginRegistrars {
    * @return {void}
    */
   async __registerWithContainer (plugin, options = {}) {
-    let item = this.__resolve(plugin)
+    const item = this.__resolve(plugin)
 
     if (!item.plugin.register) {
       return
@@ -181,20 +181,18 @@ module.exports = class PluginRegistrars {
   }
 
   /**
-   * Load plugins from any of the available files.
+   * Load plugins from any of the available files (plugins.js or plugins.json).
    * @return {[Object|void]}
    */
   __loadPlugins () {
-    const primary = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.js`))
+    const available = ['plugins.js', 'plugins.json']
 
-    if (fs.existsSync(primary)) {
-      return require(primary)
-    }
-
-    const secondary = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/plugins.json`))
-
-    if (fs.existsSync(secondary)) {
-      return require(secondary)
+    for (let i = 0; i < available.length; i++) {
+      const configPath = path.resolve(expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${available[i]}`))
+      if (fs.existsSync(configPath)) {
+        this.pluginsConfigPath = configPath
+        return require(configPath)
+      }
     }
 
     throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
