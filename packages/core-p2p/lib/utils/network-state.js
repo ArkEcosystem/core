@@ -1,14 +1,14 @@
 'use strict'
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const logger = container.resolvePlugin('logger')
+
 const { slots } = require('@arkecosystem/crypto')
 
 /**
  * Returns current network state. Peers are update before the call
  * @param {Monitor} p2pMonitor
  * @private {Block} lastBlock
- * @returns {Object} network state structure
+ * @returns {Object} JSON response for the forger to assess if allowed to forge or not
  */
 module.exports = (p2pMonitor, lastBlock) => {
   const peers = p2pMonitor.getPeers()
@@ -20,13 +20,16 @@ module.exports = (p2pMonitor, lastBlock) => {
   let overHeightQuorum = 0
   let overHeightBlockHeader = null
 
+  if (p2pMonitor.__isColdStartActive()) {
+    return {quorum: 0, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true, coldStart: true}
+  }
+
   if (process.env.ARK_ENV === 'test') {
-    return {quorum: 1, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
+    return {quorum: 1, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true, coldStart: false}
   }
 
   if (peers.length < minimumNetworkReach) {
-    logger.info(`Network reach is not sufficient to get quorum. Network reach of ${peers.length} peers.`)
-    return {quorum: 0, forgingAllowed: true, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: false}
+    return {quorum: 0, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: false, coldStart: false}
   }
 
   for (const peer of peers) {
@@ -47,7 +50,5 @@ module.exports = (p2pMonitor, lastBlock) => {
 
   const calculatedQuorum = quorum / (quorum + noquorum)
 
-  logger.debug(`Node height: ${lastBlock.data.height}, CalcQuorum: ${calculatedQuorum}, Quorum: ${quorum}, NQuorum: ${noquorum}, OverHeightQuorum: ${overHeightQuorum} Last Block id: ${lastBlock.data.id}`)
-
-  return {quorum: calculatedQuorum, forgingAllowed: calculatedQuorum > 0.66, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true}
+  return {quorum: calculatedQuorum, nodeHeight: lastBlock.data.height, lastBlockId: lastBlock.data.id, overHeightBlockHeader: overHeightBlockHeader, minimumNetworkReach: true, coldStart: false}
 }
