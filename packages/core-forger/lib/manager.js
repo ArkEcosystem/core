@@ -150,7 +150,7 @@ module.exports = class ForgerManager {
       logger.info(`Not allowed to forge in the cold start period. NetworkState: ${JSON.stringify(networkState)}`)
       return false
     }
-    if (networkState.minimumNetworkReach) {
+    if (!networkState.minimumNetworkReach) {
       logger.info('Network reach is not sufficient to get quorum.')
       return false
     }
