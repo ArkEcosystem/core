@@ -272,16 +272,8 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (config.peers.whiteList.includes(peer.ip)) {
-          logger.debug(`Allowing whitelisted peer ${peer.ip}`)
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-        }
-        if (peer.status === 'OK' && !this.getPeer(peer.ip)) {
-          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-        }
-        if (!isLocalhost(peer.ip) && !isMySelf(peer.ip) && process.ARK_ENV !== 'test') {
-          logger.debug('Removing mySelf or localhost from peer list')
-          delete this.peers[peer.ip]
         }
       })
 
@@ -335,7 +327,7 @@ module.exports = class Monitor {
 
   async getNetworkState () {
     if (!this.__isColdStartActive()) {
-      await this.cleanPeers()
+      await this.cleanPeers(false, false)
     }
 
     return networkState(this, container.resolvePlugin('blockchain').getLastBlock())

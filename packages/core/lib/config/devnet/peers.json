@@ -2,7 +2,7 @@
   "minimumNetworkReach": 5,
   "globalTimeout": 5000,
   "coldStart": 30,
-  "whiteList":[],
+  "whiteList": [],
   "blackList": [],
   "list": [
     {
