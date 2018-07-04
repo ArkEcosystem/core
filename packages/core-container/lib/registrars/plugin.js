@@ -136,14 +136,16 @@ module.exports = class PluginRegistrars {
 
   /**
    * Resolve a plugin instance.
-   * @param  {(String|Object)} plugin
+   * @param  {(String|Object)} plugin - plugin name or path, or object
    * @return {Object}
    */
   __resolve (plugin) {
-    let item
+    let item = {}
 
     if (isString(plugin)) {
-      if (!plugin.startsWith('@')) {
+      if (plugin.startsWith('.')) {
+        plugin = path.resolve(`${path.dirname(this.pluginsConfigPath)}/${plugin}`)
+      } else if (!plugin.startsWith('@')) {
         plugin = path.resolve(plugin)
       }
 
