@@ -21,9 +21,7 @@
   "dependencies": {
     "@arkecosystem/crypto": "^0.1.1",
     "axios": "^0.18.0",
-    "deepmerge": "^2.1.0",
     "directory-tree": "^2.1.0",
-    "expand-home-dir": "^0.0.3",
     "fs-extra": "^6.0.1",
     "ow": "^0.3.0"
   },

@@ -23,6 +23,7 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
+    "delay": "^3.0.0",
     "ioredis": "^3.2.2"
   },
   "publishConfig": {

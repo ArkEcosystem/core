@@ -18,9 +18,11 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/crypto": "^0.1.1",
     "awilix": "^3.0.8",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
+    "fs-extra": "^6.0.1",
     "hoek": "^5.0.3",
     "lodash": "^4.17.10",
     "semver": "^5.5.0"

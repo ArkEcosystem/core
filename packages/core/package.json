@@ -46,12 +46,13 @@
     "full:testnet:2tier:1": "ARK_ENV=test ./bin/ark start --config ./lib/config/testnet.1 --network testnet --network-start",
     "full:testnet:2tier": "ARK_ENV=test ./bin/ark start --config ./lib/config/testnet.1 --network testnet --network-start && ./bin/ark start --config ./lib/config/testnet.2 --network testnet --network-start",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores commander,bip38,fs,wif,@arkecosystem/core-api,@arkecosystem/core-blockchain,@arkecosystem/core-config,@arkecosystem/core-database,@arkecosystem/core-database-sequelize,@arkecosystem/core-forger,@arkecosystem/core-graphql,@arkecosystem/core-json-rpc,@arkecosystem/core-logger,@arkecosystem/core-logger-winston,@arkecosystem/core-p2p,@arkecosystem/core-transaction-pool,@arkecosystem/core-transaction-pool-redis,@arkecosystem/core-webhooks,@arkecosystem/crypto"
   },
   "dependencies": {
     "@arkecosystem/core-api": "^0.1.1",
     "@arkecosystem/core-blockchain": "^0.1.1",
     "@arkecosystem/core-config": "^0.1.1",
+    "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/core-database-sequelize": "^0.1.1",
     "@arkecosystem/core-forger": "^0.1.1",
@@ -64,7 +65,10 @@
     "@arkecosystem/core-transaction-pool-redis": "^0.1.1",
     "@arkecosystem/core-webhooks": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
-    "commander": "^2.15.1"
+    "bip38": "^2.0.2",
+    "commander": "^2.15.1",
+    "fs": "^0.0.1-security",
+    "wif": "^2.0.6"
   },
   "publishConfig": {
     "access": "public"
