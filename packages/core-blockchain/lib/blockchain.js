@@ -142,7 +142,7 @@ module.exports = class Blockchain {
     if (stateMachine.state.started) {
       this.processQueue.push(block)
 
-      stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
+      stateMachine.state.lastDownloadedBlock = new Block(block)
     } else {
       logger.info('Block disregarded because blockchain is not ready :exclamation:')
     }

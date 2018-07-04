@@ -226,7 +226,7 @@ exports.postBlock = {
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
-      if (lastDownloadedBlock.data.height + 1 !== block.height) {
+      if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
         return { success: true }
       }
 
