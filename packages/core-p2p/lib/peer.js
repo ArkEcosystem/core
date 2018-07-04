@@ -153,7 +153,7 @@ module.exports = class Peer {
   }
 
   /**
-   * Refresh peer list.
+   * Refresh peer list. It removes blacklisted peers from the fetch
    * @return {Object[]}
    */
   async getPeers () {
@@ -163,7 +163,7 @@ module.exports = class Peer {
 
     const body = await this.__get('/peer/list')
 
-    return body.peers
+    return body.peers.filter(peer => !config.peers.blackList.includes(peer.ip))
   }
 
   /**

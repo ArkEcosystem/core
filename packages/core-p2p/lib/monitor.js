@@ -27,7 +27,6 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
-    // tempo helper to start forging not righ now
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
 
     if (!this.config.peers.list) {
@@ -37,7 +36,7 @@ module.exports = class Monitor {
     }
 
     this.config.peers.list
-      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port))
+      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port) || !config.peers.blackList.includes(peer.ip))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
   }
 
@@ -327,7 +326,7 @@ module.exports = class Monitor {
 
   async getNetworkState () {
     if (!this.__isColdStartActive()) {
-      await this.cleanPeers(false, false)
+      await this.cleanPeers(true, false)
     }
 
     return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
