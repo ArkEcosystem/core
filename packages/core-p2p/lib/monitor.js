@@ -28,7 +28,7 @@ module.exports = class Monitor {
     this.peers = {}
     this.suspendedPeers = {}
     // tempo helper to start forging not righ now
-    this.startForgers = moment().add(config.peers.coldStart || 60, 'seconds')
+    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -272,7 +272,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (config.peers.whitelist.includes(peer.ip)) {
+        if (config.peers.whiteList.includes(peer.ip)) {
           logger.debug(`Allowing whitelisted peer ${peer.ip}`)
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
@@ -445,7 +445,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (config.peers.whitelist.includes(peer.ip)) {
+    if (config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
