@@ -27,6 +27,8 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
+    // tempo helper to start forging not righ now
+    this.startForgers = moment().add(config.peers.coldStart || 60, 'seconds')
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -58,7 +60,7 @@ module.exports = class Monitor {
       // TODO: for tests that involve peers we need to sync them
       if (process.env.ARK_ENV !== 'test') {
         await this.discoverPeers()
-        await this.cleanPeers(fast)
+        await this.cleanPeers()
       }
 
       if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
@@ -80,7 +82,7 @@ module.exports = class Monitor {
    * Clear peers which aren't responding.
    * @param {Boolean} fast
    */
-  async cleanPeers (fast = false) {
+  async cleanPeers (fast = false, tracker = true) {
     let keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
@@ -88,15 +90,18 @@ module.exports = class Monitor {
     const max = keys.length
 
     logger.info(`Checking ${max} peers :telescope:`)
-
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.getPeer(ip).ping(pingDelay)
 
-        if (!fast) {
+        if (tracker) {
           logger.printTracker('Peers Discovery', ++count, max)
         }
       } catch (error) {
+        if (this.__isColdStartActive()) {
+          return
+        }
+
         unresponsivePeers++
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
@@ -109,7 +114,7 @@ module.exports = class Monitor {
       }
     }))
 
-    if (!fast) {
+    if (tracker) {
       logger.stopTracker('Peers Discovery', max, max)
       logger.info(`${max - unresponsivePeers} of ${max} peers on the network are responsive`)
       logger.info(`Median Network Height: ${this.getNetworkHeight()}`)
@@ -129,10 +134,7 @@ module.exports = class Monitor {
       if (this.__isSuspended(peer)) {
         this.suspendedPeers[ip].until = moment(this.suspendedPeers[ip].until).add(1, 'day')
       } else {
-         this.suspendedPeers[ip] = {
-          peer: peer,
-          until: moment().add(1, 'hours')
-        }
+         this.__suspendPeer(peer)
       }
       logger.debug(`banned peer ${ip} until ${this.suspendedPeers[ip].until}`)
     }
@@ -168,10 +170,7 @@ module.exports = class Monitor {
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
 
-      this.suspendedPeers[peer.ip] = {
-        peer: newPeer,
-        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
-      }
+      this.__suspendPeer(newPeer)
 
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
@@ -273,8 +272,16 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
+        if (config.peers.whitelist.includes(peer.ip)) {
+          logger.debug(`Allowing whitelisted peer ${peer.ip}`)
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }
+        if (peer.status === 'OK' && !this.getPeer(peer.ip)) {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }
+        if (!isLocalhost(peer.ip) && !isMySelf(peer.ip) && process.ARK_ENV !== 'test') {
+          logger.debug('Removing mySelf or localhost from peer list')
+          delete this.peers[peer.ip]
         }
       })
 
@@ -327,7 +334,9 @@ module.exports = class Monitor {
   }
 
   async getNetworkState () {
-    await this.cleanPeers(true)
+    if (!this.__isColdStartActive()) {
+      await this.cleanPeers()
+    }
 
     return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
   }
@@ -429,5 +438,28 @@ module.exports = class Monitor {
     }
 
     return false
+  }
+
+  /**
+   * Suspends a peer unless whitelisted
+   * @param {Peer} peer
+   */
+  __suspendPeer (peer) {
+    if (config.peers.whitelist.includes(peer.ip)) {
+      return
+    }
+
+    this.suspendedPeers[peer.ip] = {
+      peer: peer,
+      until: moment().add(1, 'hours')
+    }
+  }
+
+  /**
+   * Determines if coldstart is still active. We need this for the network to start, so we dont forge, while
+   * not all peers are up, or the network is not active
+   */
+  __isColdStartActive () {
+    return this.startForgers > moment()
   }
 }
