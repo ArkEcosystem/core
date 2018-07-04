@@ -2,6 +2,7 @@
   "minimumNetworkReach": 20,
   "blackList": [],
   "globalTimeout": 1000,
+  "coldStart" : 60000,
   "list": [{
     "ip": "127.0.0.1",
     "port": 4000

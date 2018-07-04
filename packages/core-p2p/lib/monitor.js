@@ -13,6 +13,7 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
+const isMySelf = require('./utils/is-myself')
 const networkState = require('./utils/network-state')
 
 module.exports = class Monitor {
@@ -45,6 +46,7 @@ module.exports = class Monitor {
    * @param {Boolean} networkStart
    */
   async start (networkStart = false) {
+    console.log(networkStart)
     if (!networkStart) {
       await this.updateNetworkStatus()
     }
@@ -89,7 +91,7 @@ module.exports = class Monitor {
     const max = keys.length
 
     logger.info(`Checking ${max} peers :telescope:`)
-
+    console.trace()
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.getPeer(ip).ping(pingDelay)
@@ -134,10 +136,7 @@ module.exports = class Monitor {
       if (this.__isSuspended(peer)) {
         this.suspendedPeers[ip].until = moment(this.suspendedPeers[ip].until).add(1, 'day')
       } else {
-         this.suspendedPeers[ip] = {
-          peer: peer,
-          until: moment().add(1, 'hours')
-        }
+         this.__suspendPeer(peer)
       }
       logger.debug(`banned peer ${ip} until ${this.suspendedPeers[ip].until}`)
     }
@@ -173,10 +172,7 @@ module.exports = class Monitor {
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
 
-      this.suspendedPeers[peer.ip] = {
-        peer: newPeer,
-        until: moment().add(this.manager.config.suspendMinutes, 'minutes')
-      }
+      this.__suspendPeer(peer)
 
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
@@ -278,8 +274,16 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip)) {
+        if (config.peers.whitelist.includes(peer.ip)) {
+          console.log(`whitelisted ${peer.ip}`)
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) ) {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+        }
+        if (!isLocalhost(peer.ip) && !isMySelf(peer.ip) && process.ARK_ENV !== 'test') {
+          logger.debug('deleting peeeeeeeeeeer')
+          delete this.peers[peer.ip]
         }
       })
 
@@ -332,7 +336,9 @@ module.exports = class Monitor {
   }
 
   async getNetworkState () {
-    await this.cleanPeers()
+    if (!this.__isColdStartActive() || process.A) {
+      await this.cleanPeers()
+    }
 
     return networkState(this, container.resolvePlugin('blockchain').getLastBlock())
   }
@@ -434,6 +440,21 @@ module.exports = class Monitor {
     }
 
     return false
+  }
+
+  /**
+   * Suspends a peer unless whitelisted
+   * @param {Peer} peer
+   */
+  __suspendPeer (peer) {
+    if (config.peers.whitelist.includes(peer.ip)) {
+      return
+    }
+
+    this.suspendedPeers[peer.ip] = {
+      peer: peer,
+      until: moment().add(1, 'hours')
+    }
   }
 
   /**

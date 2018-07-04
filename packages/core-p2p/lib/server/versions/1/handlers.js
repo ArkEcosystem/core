@@ -216,17 +216,24 @@ exports.postBlock = {
 
     try {
       if (!request.payload || !request.payload.block) {
+        console.log('payload not ok')
         return { success: false }
       }
 
       const block = request.payload.block
 
-      if (blockchain.pingBlock(block)) return {success: true}
+      if (blockchain.pingBlock(block)) {
+        console.log('ping ping done')
+
+        return {success: true}
+      }
       // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
       if (lastDownloadedBlock.data.height + 1 !== block.height) {
+        console.log('last downloaded block not matching')
+
         return { success: true }
       }
 
@@ -253,7 +260,7 @@ exports.postBlock = {
           if (!peer && process.env.NODE_ENV === 'test_p2p') {
             peer = await request.server.app.p2p.getRandomPeer()
           }
-
+          console.log(peer)
           if (!peer) return { success: false }
 
           transactions = await peer.getTransactionsFromIds(block.transactionIds)

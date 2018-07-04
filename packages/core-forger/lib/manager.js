@@ -108,7 +108,7 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
+      logger.info(`:trident: Forged new block ${block.data.id} by delegate ${delegate.publicKey}`)
 
       emitter.emit('block.forged', block.data)
 
@@ -142,7 +142,7 @@ module.exports = class ForgerManager {
   }
 
   /**
-   * Analyses network state and returns if fogring is Allowed
+   * Analyses network state and returns if forging is allowed
    * @param {Object} networkState internal response
    * @param {Booolean} isAllowedToForge
    */
