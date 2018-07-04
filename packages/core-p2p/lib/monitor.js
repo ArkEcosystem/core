@@ -36,7 +36,7 @@ module.exports = class Monitor {
     }
 
     this.config.peers.list
-      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port) || !config.peers.blackList.includes(peer.ip))
+      .filter(peer => (peer.ip !== '127.0.0.1' || peer.port !== container.resolveOptions('p2p').port))
       .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
   }
 
