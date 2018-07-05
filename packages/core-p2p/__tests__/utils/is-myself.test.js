@@ -12,7 +12,6 @@ describe('isMySelf', () => {
     expect(isMySelf('127.0.0.1')).toBeTruthy()
     expect(isMySelf('::1')).toBeTruthy()
     expect(isMySelf('192.167.22.1')).toBeFalsy()
-    expect(isMySelf('192.168.1.197')).toBeTruthy()
   })
 
   it('should be ok for LAN addresses', () => {
