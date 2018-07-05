@@ -4,16 +4,12 @@ const app = require('../__support__/setup')
 
 let checker
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {

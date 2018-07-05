@@ -6,16 +6,12 @@ const app = require('../__support__/setup')
 const genesisBlock = require('../__fixtures__/genesisBlock')
 const genesisTransaction = require('../__fixtures__/genesisTransaction')
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 const sendGET = async (endpoint, params = {}) => {
