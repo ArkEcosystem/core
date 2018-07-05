@@ -27,7 +27,7 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
-    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
+    this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -85,7 +85,7 @@ module.exports = class Monitor {
     let keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
-    const pingDelay = fast ? 1500 : config.peers.globalTimeout
+    const pingDelay = fast ? 1500 : this.config.peers.globalTimeout
     const max = keys.length
 
     logger.info(`Checking ${max} peers :telescope:`)
@@ -436,7 +436,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
