@@ -80,4 +80,17 @@ describe('API - Internal', () => {
       expect(response.data.success).toBeTruthy()
     })
   })
+
+  describe('GET /networkState', () => {
+    it('should be ok', async () => {
+      const response = await sendGET('networkState')
+
+      expect(response.status).toBe(200)
+
+      expect(response.data).toBeObject()
+
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+    })
+  })
 })
