@@ -26,7 +26,7 @@ module.exports = (info) => {
     'warn': chalk.bold.black.bgYellow(message),
     'info': message,
     'verbose': chalk.bold.cyan(message),
-    'debug': chalk.bold.inverse(message),
+    'debug': chalk.black.bgWhite(message),
     'silly': chalk.bold.black.bgWhite(message)
   }[info.level]
 

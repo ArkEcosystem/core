@@ -317,7 +317,7 @@ module.exports = class Blockchain {
       state.lastBlock = block
 
       // broadcast only current block
-      const blocktime = config.getConstants(block.height).blocktime
+      const blocktime = config.getConstants(block.data.height).blocktime
       if (slots.getSlotNumber() * blocktime <= block.data.timestamp) {
         this.p2p.broadcastBlock(block)
       }
