@@ -1,13 +1,15 @@
 const os = require('os')
-const container = require('@arkecosystem/core-container')
-const config = container.resolvePlugin('config')
-
-module.exports = function (peer) {
+/**
+ * Checks if IP belongs to local computer (all network interfaces are checked)
+ * @param {String} ipAddress to check
+ * @returns {Boolean} true/false
+ */
+module.exports = function (ipAddress) {
   const interfaces = os.networkInterfaces()
 
-  return Object.keys(interfaces).some(function (family) {
-    return interfaces[family].some(function (nic) {
-      return nic.address === peer.ip && peer.port === config.server.port
+  return Object.keys(interfaces).some(function (ifname) {
+    return interfaces[ifname].some(function (iface) {
+      return iface.address === ipAddress
     })
   })
 }

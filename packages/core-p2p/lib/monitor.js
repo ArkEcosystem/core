@@ -12,7 +12,6 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
-const isLocalhost = require('./utils/is-localhost')
 const isMySelf = require('./utils/is-myself')
 const networkState = require('./utils/network-state')
 
@@ -27,7 +26,7 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
-    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
+    this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -85,7 +84,7 @@ module.exports = class Monitor {
     let keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
-    const pingDelay = fast ? 1500 : config.peers.globalTimeout
+    const pingDelay = fast ? 1500 : this.config.peers.globalTimeout
     const max = keys.length
 
     logger.info(`Checking ${max} peers :telescope:`)
@@ -145,7 +144,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test') {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMySelf(peer.ip)) {
       return
     }
 
@@ -271,7 +270,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isMySelf(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
@@ -436,7 +435,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
