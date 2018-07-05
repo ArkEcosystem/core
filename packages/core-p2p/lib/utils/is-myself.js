@@ -4,12 +4,10 @@ const os = require('os')
  * @param {String} ipAddress to check
  * @returns {Boolean} true/false
  */
-module.exports = function (ipAddress) {
+module.exports = ipAddress => {
   const interfaces = os.networkInterfaces()
 
-  return Object.keys(interfaces).some(function (ifname) {
-    return interfaces[ifname].some(function (iface) {
-      return iface.address === ipAddress
-    })
+  return Object.keys(interfaces).some(ifname => {
+    return interfaces[ifname].some(iface => iface.address === ipAddress)
   })
 }
