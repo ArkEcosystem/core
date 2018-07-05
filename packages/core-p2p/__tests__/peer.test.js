@@ -6,16 +6,12 @@ const genesisTransaction = require('./__fixtures__/genesisTransaction')
 
 let peer
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {
