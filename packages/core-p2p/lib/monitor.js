@@ -96,10 +96,6 @@ module.exports = class Monitor {
           logger.printTracker('Peers Discovery', ++count, max)
         }
       } catch (error) {
-        if (this.__isColdStartActive()) {
-          return
-        }
-
         unresponsivePeers++
 
         const formattedDelay = prettyMs(pingDelay, { verbose: true })
