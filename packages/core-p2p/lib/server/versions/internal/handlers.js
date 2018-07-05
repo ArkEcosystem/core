@@ -131,7 +131,7 @@ exports.getNetworkState = {
     const blockchain = container.resolvePlugin('blockchain')
 
     if (!blockchain) {
-      return { success: false, forgingAllowed: false }
+      return { success: true, error: 'Blockchain not ready' }
     }
     try {
       return {

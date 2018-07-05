@@ -12,7 +12,6 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
-const isLocalhost = require('./utils/is-localhost')
 const isMySelf = require('./utils/is-myself')
 const networkState = require('./utils/network-state')
 
@@ -145,7 +144,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMySelf(peer)) {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMySelf(peer.ip)) {
       return
     }
 
@@ -271,7 +270,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isLocalhost(peer.ip) && !isMySelf(peer)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isMySelf(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
