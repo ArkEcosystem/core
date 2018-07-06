@@ -12,7 +12,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
-const isMySelf = require('./utils/is-myself')
+const isMyself = require('./utils/is-myself')
 const networkState = require('./utils/network-state')
 
 module.exports = class Monitor {
@@ -140,7 +140,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMySelf(peer.ip)) {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMyself(peer.ip)) {
       return
     }
 
@@ -266,7 +266,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isMySelf(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !isMyself(peer.ip)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
@@ -407,6 +407,14 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Get a list of all suspended peers.
+   * @return {Object}
+   */
+  getSuspendedPeers () {
+    return this.suspendedPeers;
   }
 
   /**

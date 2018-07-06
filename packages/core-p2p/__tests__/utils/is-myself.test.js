@@ -1,17 +1,17 @@
 'use strict'
 
-const isMySelf = require('../../lib/utils/is-myself')
+const isMyself = require('../../lib/utils/is-myself')
 const os = require('os')
 
-describe('isMySelf', () => {
+describe('isMyself', () => {
   it('should be a function', () => {
-    expect(isMySelf).toBeFunction()
+    expect(isMyself).toBeFunction()
   })
 
   it('should be ok for localhost addresses', () => {
-    expect(isMySelf('127.0.0.1')).toBeTruthy()
-    expect(isMySelf('::1')).toBeTruthy()
-    expect(isMySelf('192.167.22.1')).toBeFalsy()
+    expect(isMyself('127.0.0.1')).toBeTruthy()
+    expect(isMyself('::1')).toBeTruthy()
+    expect(isMyself('192.167.22.1')).toBeFalsy()
   })
 
   it('should be ok for LAN addresses', () => {
@@ -21,12 +21,12 @@ describe('isMySelf', () => {
     // getting local addresses
     Object.keys(interfaces).some(function (ifname) {
       interfaces[ifname].some(function (iface) {
-          addresses.push(iface.address)
-        })
+        addresses.push(iface.address)
+      })
     })
 
     addresses.forEach(ipAddress => {
-      expect(isMySelf(ipAddress).toBeTruthy())
+      expect(isMyself(ipAddress).toBeTruthy())
     })
   })
 })

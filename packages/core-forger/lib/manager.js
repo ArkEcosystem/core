@@ -107,7 +107,7 @@ module.exports = class ForgerManager {
 
       const block = await delegate.forge(transactions, data)
 
-      logger.info(`:trident: Forged new block ${block.data.id} by delegate ${delegate.publicKey}`)
+      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
 
       emitter.emit('block.forged', block.data)
 
@@ -147,19 +147,26 @@ module.exports = class ForgerManager {
    */
   __analyseNetworkState (networkState, currentDelegate) {
     if (networkState.coldStart) {
-      logger.info(`Not allowed to forge in the cold start period. NetworkState: ${JSON.stringify(networkState)}`)
+      logger.info('Not allowed to forge in the cold start period.')
+      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
+
     if (!networkState.minimumNetworkReach) {
       logger.info('Network reach is not sufficient to get quorum.')
+      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
+
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
-      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}. NetworkState: ${JSON.stringify(networkState)}`)
+      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}.`)
+      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
+
     if (networkState.quorum < 0.66) {
-      logger.info(`Fork 6 - Not enough quorum to forge next block. NetworkState: ${JSON.stringify(networkState)}.`)
+      logger.info('Fork 6 - Not enough quorum to forge next block.')
+      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
 
