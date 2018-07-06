@@ -58,3 +58,19 @@ exports.show = {
     validate: schema.show
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.suspended = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const peers = blockchain.p2p.getSuspendedPeers()
+
+    return utils.respondWithCollection(request, Object.values(peers).map(peer => peer.peer), 'peer')
+  }
+}

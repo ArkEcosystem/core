@@ -115,6 +115,14 @@ module.exports = class PeerManager {
   }
 
   /**
+   * Get a list of all suspended peers.
+   * @return {Object}
+   */
+  getSuspendedPeers () {
+    return this.monitor.getSuspendedPeers()
+  }
+
+  /**
    * Get the peer monitor.
    * @return {Object}
    */
