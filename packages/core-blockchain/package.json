@@ -21,10 +21,11 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-test-utils": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "async": "^2.6.1",
+    "awilix": "^3.0.8",
     "delay": "^2.0.0",
-    "interval-to-human": "^0.1.1",
     "pretty-ms": "^3.2.0",
     "xstate": "^3.2.1"
   },

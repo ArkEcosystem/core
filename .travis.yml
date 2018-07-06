@@ -15,7 +15,10 @@ install:
 
 stages:
   - lint
+  - depcheck
   - test
+  # TODO
+  # - browser_test
 
 scripts:
   - yarn test:coverage
@@ -24,10 +27,23 @@ jobs:
   include:
     - stage: lint
       script: yarn lint
-    # - yarn depcheck
     # To lint the version 9 too
     - stage: lint
       node_js: 9
       script: yarn lint
+
+    - stage: depcheck
+      script: yarn depcheck
+    # To lint the version 9 too
+    - stage: depcheck
+      node_js: 9
+      script: yarn depcheck
+
+    # TODO
+    # - stage: browser_test
+    #   script: yarn test:coverage
+    # - stage: browser_test
+    #   node_js: 9
+    #   script: yarn test:coverage
 
 cache: yarn
