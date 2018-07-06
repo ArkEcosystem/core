@@ -95,6 +95,8 @@ blockchainMachine.actionMap = blockchain => {
         state.networkStart = false
 
         blockchain.dispatch('SYNCFINISHED')
+      } else if (blockchain.rebuildQueue.length() === 0) {
+          blockchain.dispatch('PROCESSFINISHED')
       }
     },
 
