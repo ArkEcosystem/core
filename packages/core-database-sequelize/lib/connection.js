@@ -56,7 +56,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await this.__registerModels()
       await this.__registerRepositories()
       await super._registerWalletManager()
-      await super._registerBlockManager()
+      await this.__registerBlockManager()
 
       return this
     } catch (error) {
@@ -659,6 +659,16 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     return { [Sequelize.Op[type]]: params }
+  }
+
+  /**
+   * Register the block container.
+   * @return {void}
+   */
+  async __registerBlockManager () {
+    await super.__registerBlockManager()
+    const spv = new SPV(this)
+    await spv.buildBlockHeaders()
   }
 
   /**

@@ -26,36 +26,47 @@ module.exports = class SPV {
   async build (height) {
     this.activeDelegates = config.getConstants(height).activeDelegates
 
-    logger.printTracker('SPV Building', 1, 9, 'Received Transactions')
+    logger.printTracker('SPV Building', 1, 8, 'Received Transactions')
     await this.__buildReceivedTransactions()
 
-    logger.printTracker('SPV Building', 2, 9, 'Block Rewards')
+    logger.printTracker('SPV Building', 2, 8, 'Block Rewards')
     await this.__buildBlockRewards()
 
-    logger.printTracker('SPV Building', 3, 9, 'Last Forged Blocks')
+    logger.printTracker('SPV Building', 3, 8, 'Last Forged Blocks')
     await this.__buildLastForgedBlocks()
 
-    logger.printTracker('SPV Building', 4, 9, 'Sent Transactions')
+    logger.printTracker('SPV Building', 4, 8, 'Sent Transactions')
     await this.__buildSentTransactions()
 
-    logger.printTracker('SPV Building', 5, 9, 'Second Signatures')
+    logger.printTracker('SPV Building', 5, 8, 'Second Signatures')
     await this.__buildSecondSignatures()
 
-    logger.printTracker('SPV Building', 6, 9, 'Delegates')
+    logger.printTracker('SPV Building', 6, 8, 'Delegates')
     await this.__buildDelegates()
 
-    logger.printTracker('SPV Building', 7, 9, 'Votes')
+    logger.printTracker('SPV Building', 7, 8, 'Votes')
     await this.__buildVotes()
 
-    logger.printTracker('SPV Building', 8, 9, 'MultiSignatures')
+    logger.printTracker('SPV Building', 8, 8, 'MultiSignatures')
     await this.__buildMultisignatures()
 
-    logger.printTracker('SPV Building', 9, 9, 'Block Headers')
-    await this.__buildBlockHeaders()
-
-    logger.stopTracker('SPV Building', 9, 9)
+    logger.stopTracker('SPV Building', 8, 8)
     logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
     logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.walletsByUsername).length}`)
+  }
+
+  /**
+   * Load and apply block headers.
+   * @return {void}
+   */
+  async buildBlockHeaders () {
+    logger.info('SPV build block headers')
+    const blocks = await this.query
+      .select('*')
+      .from('blocks')
+      .all()
+    console.log('spv blocks', blocks)
+    this.blockManager.index(blocks)
   }
 
   /**
@@ -258,20 +269,5 @@ module.exports = class SPV {
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature
       }
     })
-  }
-
-  /**
-   * Load and apply block headers.
-   * @return {void}
-   */
-  async __buildBlockHeaders () {
-    const blocks = await this.query
-      .select('*')
-      .from('blocks')
-      .all()
-
-    for (const block of blocks) {
-      this.blockManager.reindex(block)
-    }
   }
 }

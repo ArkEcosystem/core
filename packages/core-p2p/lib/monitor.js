@@ -4,6 +4,7 @@ const { slots } = require('@arkecosystem/crypto')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
@@ -415,12 +416,16 @@ module.exports = class Monitor {
    * @return {[]String}
    */
   async __getRecentBlockIds () {
-    const blocks = await container.resolvePlugin('database').query
-      .select('id')
-      .from('blocks')
-      .orderBy({ timestamp: 'DESC' })
-      .limit(10)
-      .all()
+    let blocks = await database.blockManager.getLastBlocks(10)
+    // if (!blocks) {
+    //   blocks = await container.resolvePlugin('database').query
+    //     .select('id')
+    //     .from('blocks')
+    //     .orderBy({ timestamp: 'DESC' })
+    //     .limit(10)
+    //     .all()
+
+    // }
 
     return blocks.map(block => block.id)
   }
