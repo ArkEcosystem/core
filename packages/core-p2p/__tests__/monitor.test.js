@@ -7,16 +7,12 @@ const ARK_ENV = process.env.ARK_ENV
 let monitor
 let peer
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {
