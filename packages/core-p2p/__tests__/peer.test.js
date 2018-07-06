@@ -4,22 +4,20 @@ const app = require('./__support__/setup')
 const genesisBlock = require('./__fixtures__/genesisBlock')
 const genesisTransaction = require('./__fixtures__/genesisTransaction')
 
+const Peer = require('../lib/peer')
+
 let peer
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {
-  peer = new (require('../lib/peer'))('45.76.142.128', 4002, {
+  peer = new Peer('45.76.142.128', 4002, {
     server: {
       version: '1.1.1',
       port: 4002

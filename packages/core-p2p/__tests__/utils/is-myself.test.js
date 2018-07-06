@@ -19,14 +19,12 @@ describe('isMyself', () => {
     let addresses = []
 
     // getting local addresses
-    Object.keys(interfaces).some(function (ifname) {
-      interfaces[ifname].some(function (iface) {
-        addresses.push(iface.address)
-      })
+    Object.keys(interfaces).forEach(ifname => {
+      interfaces[ifname].some(iface => addresses.push(iface.address))
     })
 
     addresses.forEach(ipAddress => {
-      expect(isMyself(ipAddress).toBeTruthy())
+      expect(isMyself(ipAddress)).toBeTruthy()
     })
   })
 })

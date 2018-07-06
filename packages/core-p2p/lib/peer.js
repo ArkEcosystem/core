@@ -90,14 +90,14 @@ module.exports = class Peer {
 
   async getTransactionsFromIds (ids) {
     // useless since there is a bug on v1
-    const url = '/peer/transactionsFromIds?ids=' + ids.join(',')
+    const url = `/peer/transactionsFromIds?ids=${ids.join(',')}`
     const result = await this.__get(url)
     if (result.success) return result.transactions
     else return []
   }
 
   async getTransactionsFromBlock (blockId) {
-    const url = '/api/transactions?blockId=' + blockId
+    const url = `/api/transactions?blockId=${blockId}`
     const result = await this.__get(url)
     if (result.success) return result.transactions
     else return []
@@ -197,7 +197,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders (response) {
-    ['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
 
     this.status = 'OK'
 
