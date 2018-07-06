@@ -18,12 +18,6 @@ module.exports = async () => {
     ]
   })
 
-  await require('../../lib/database').setUp({
-    dialect: 'sqlite',
-    storage: ':memory:',
-    logging: false
-  })
-
   await require('../../lib/manager').setUp({
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
