@@ -17,13 +17,46 @@ beforeEach(() => {
 })
 
 describe('Check NTP', () => {
+  const hosts = [
+    'pool.ntp.org',
+    'time.google.com'
+  ]
+  const host = hosts[0]
+
   it('should be a function', () => {
     expect(checker).toBeFunction()
   })
 
-  it('should be ok', async () => {
-    const response = await checker(['time.google.com'])
+  it('should get the time from hosts', async () => {
+    const response = await checker([host])
 
     expect(response).toBeObject()
+    expect(response.host).toBe(host)
+    expect(response.time).toBeObject()
+    expect(response.time.t).toBeNumber()
+  })
+
+  xit('should try to connect to hosts randomly', () => {
+  })
+
+  describe('when a host is not avaible', () => {
+    xit('logs the error', () => {
+    })
+  })
+
+  describe('when a host times out', () => {
+    xit('logs the error', () => {
+    })
+  })
+
+  describe('when none of the host could be reached', () => {
+    it('produces an error', async () => {
+      try {
+        await checker(['notime.unknown.not'])
+        expect().fail('An error should have been thrown')
+      } catch (error) {
+        expect(error.message).toMatch(/ntp.*connect/i)
+      }
+    })
   })
 })
