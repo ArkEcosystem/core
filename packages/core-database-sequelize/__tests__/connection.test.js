@@ -44,6 +44,24 @@ describe('Sequelize Connection', () => {
 
       expect(connection.connection).toBeInstanceOf(require('sequelize'))
     })
+
+    describe('when the db is already initialised', () => {
+      it('should throw an Error', async () => {
+        const connection = new (require('../lib/connection'))({
+          dialect: 'sqlite',
+          storage: ':memory:'
+        })
+
+        await connection.make()
+
+        try {
+          await connection.make()
+          expect().fail('Should throw an Error')
+        } catch (error) {
+          expect(error.message).toMatch(/sequelize.*connect/i)
+        }
+      })
+    })
   })
 
   describe('getActiveDelegates', () => {

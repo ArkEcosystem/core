@@ -28,7 +28,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async make () {
     if (this.connection) {
-      throw new Error('Already initialised')
+      throw new Error('Sequelize connection already initialised')
     }
 
     if (this.config.dialect === 'sqlite' && this.config.storage !== ':memory:') {
