@@ -114,20 +114,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       }
     }
 
-    const blockStats = await this.query
-      .select()
-      .sum('number_of_transactions', 'numberOfTransactions')
-      .sum('total_fee', 'totalFee')
-      .sum('total_amount', 'totalAmount')
-      .from('blocks')
-      .first()
-    const transactionStats = await this.query
-      .select()
-      .countDistinct('id', 'count')
-      .sum('fee', 'totalFee')
-      .sum('amount', 'totalAmount')
-      .from('transactions')
-      .first()
+    const blockStats = await this.__blockStats()
+    const transactionStats = await this.__transactionStats()
 
     // Number of stored transactions equals the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {
@@ -726,6 +714,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
+   * This auxiliary method returns the number of blocks of the blockchain and
+   * is used to verify it
    * @return {Number}
    */
   async __numberOfBlocks () {
@@ -735,5 +725,35 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('blocks')
       .first()
     return count
+  }
+
+  /**
+   * This auxiliary method returns some stats about the blocks that are
+   * used to verify the blockchain
+   * @return {Object}
+   */
+  async __blockStats () {
+    return this.query
+      .select()
+      .sum('number_of_transactions', 'numberOfTransactions')
+      .sum('total_fee', 'totalFee')
+      .sum('total_amount', 'totalAmount')
+      .from('blocks')
+      .first()
+  }
+
+  /**
+   * This auxiliary method returns some stats about the transactions that are
+   * used to verify the blockchain
+   * @return {Object}
+   */
+  async __transactionStats () {
+    return this.query
+      .select()
+      .countDistinct('id', 'count')
+      .sum('fee', 'totalFee')
+      .sum('amount', 'totalAmount')
+      .from('transactions')
+      .first()
   }
 }
