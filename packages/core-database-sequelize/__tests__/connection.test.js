@@ -105,8 +105,8 @@ describe('Sequelize Connection', () => {
       beforeEach(stubBlockchain)
 
       it('should return that the blockchain state is valid', async () => {
-        const { verified } = await connection.verifyBlockchain()
-        expect(verified).toBeTruthy()
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeTruthy()
       })
 
       it('should not include any error', async () => {
@@ -121,8 +121,8 @@ describe('Sequelize Connection', () => {
       })
 
       it('should return that the blockchain state is invalid', async () => {
-        const { verified } = await connection.verifyBlockchain()
-        expect(verified).toBeFalsy()
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
       })
 
       it('should return an error message about it', async () => {
@@ -142,8 +142,8 @@ describe('Sequelize Connection', () => {
       })
 
       it('should return that the blockchain state is invalid', async () => {
-        const { verified } = await connection.verifyBlockchain()
-        expect(verified).toBeFalsy()
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
       })
 
       it('should return an error message about it', async () => {
@@ -163,8 +163,8 @@ describe('Sequelize Connection', () => {
       })
 
       it('should return that the blockchain state is invalid', async () => {
-        const { verified } = await connection.verifyBlockchain()
-        expect(verified).toBeFalsy()
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
       })
 
       it('should return an error message about it', async () => {
@@ -184,8 +184,8 @@ describe('Sequelize Connection', () => {
       })
 
       it('should return that the blockchain state is invalid', async () => {
-        const { verified } = await connection.verifyBlockchain()
-        expect(verified).toBeFalsy()
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
       })
 
       it('should return an error message about it', async () => {

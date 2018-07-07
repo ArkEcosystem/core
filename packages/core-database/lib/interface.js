@@ -53,7 +53,7 @@ module.exports = class ConnectionInterface {
    * - Number of stored transactions equals the sum of block.numberOfTransactions in the database
    * - Sum of all tx fees equals the sum of block.totalFee
    * - Sum of all tx amount equals the sum of block.totalAmount
-   * @return {Object} An object { verified, errors } with the result of the verification and the errors
+   * @return {Object} An object { valid, errors } with the result of the verification and the errors
    */
   async verifyBlockchain () {
     throw new Error('Method [verifyBlockchain] not implemented!')
