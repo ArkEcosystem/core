@@ -89,31 +89,29 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Verify the blockchain stored on db is not corrupted making simple tests:
-   * - last block height is equals to the number of stored blocks
-   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
-   * - sum of all tx fees is equals to the sum of block.totalFee
-   * - sum of all tx amount is equals to the sum of block.totalAmount
-   * @param  {Block} block
-   * @return {void}
+   * Verify the blockchain stored on db is not corrupted making simple assertions:
+   * - Last block is available
+   * - Last block height equals the number of stored blocks
+   * - Number of stored transactions equals the sum of block.numberOfTransactions in the database
+   * - Sum of all tx fees equals the sum of block.totalFee
+   * - Sum of all tx amount equals the sum of block.totalAmount
+   * @return {Object} An object { verified, errors } with the result of the verification and the errors
    */
   async verifyBlockchain () {
-    const output = {
-      verified: true,
-      errors: []
-    }
+    const errors = []
 
-    // last block height is equals to the number of stored blocks
     const lastBlock = await this.getLastBlock()
-    const numberOfBlocks = await this.query
-      .select()
-      .countDistinct('height', 'count')
-      .from('blocks')
-      .first()
 
-    if (lastBlock.data.height !== +numberOfBlocks.count) {
-      output.verified = false
-      output.errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks.count}`)
+    // Last block is available
+    if (!lastBlock) {
+      errors.push('Last block is not available')
+    } else {
+      const numberOfBlocks = await this.__numberOfBlocks()
+
+      // Last block height equals the number of stored blocks
+      if (lastBlock.data.height !== +numberOfBlocks) {
+        errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks}`)
+      }
     }
 
     const blockStats = await this.query
@@ -131,25 +129,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('transactions')
       .first()
 
-    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+    // Number of stored transactions equals the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {
-      output.verified = false
-      output.errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
+      errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
     }
 
-    // sum of all tx fees is equals to the sum of block.totalFee
+    // Sum of all tx fees equals the sum of block.totalFee
     if (blockStats.totalFee !== transactionStats.totalFee) {
-      output.verified = false
-      output.errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
+      errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
     }
 
-    // sum of all tx amount is equals to the sum of block.totalAmount
+    // Sum of all tx amount equals the sum of block.totalAmount
     if (blockStats.totalAmount !== transactionStats.totalAmount) {
-      output.verified = false
-      output.errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
+      errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
     }
 
-    return output
+    return {
+      verified: !errors.length,
+      errors
+    }
   }
 
   /**
@@ -165,7 +163,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       return this.activedelegates
     }
 
-    let data = await this.query
+    const data = await this.query
       .select('*')
       .from('rounds')
       .where('round', round)
@@ -478,7 +476,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
   /**
    * Get the last block.
-   * @return {Block}
+   * @return {(Block|null)}
    */
   async getLastBlock () {
     const block = await this.query
@@ -725,5 +723,17 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   __registerCache () {
     this.cache = new Cache(this.config.redis)
+  }
+
+  /**
+   * @return {Number}
+   */
+  async __numberOfBlocks () {
+    const { count } = await this.query
+      .select()
+      .countDistinct('height', 'count')
+      .from('blocks')
+      .first()
+    return count
   }
 }
