@@ -178,7 +178,7 @@ module.exports = class Blockchain {
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
 
-    while (this.getLastBlock().data.height >= newHeight) {
+    while (this.getLastBlock().data.height >= newHeight + 1) {
       const removalBlockId = this.getLastBlock().data.id
       const removalBlockHeight = this.getLastBlock().data.height.toLocaleString()
       logger.printTracker('Removing block', count++, max, `ID: ${removalBlockId}, Height: ${removalBlockHeight}`)
