@@ -559,6 +559,12 @@ describe('Transaction Repository', () => {
       await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153)
     })
 
+    describe('when there are more than 1 condition', () => {
+      it('should search transactions that includes all of them (AND)', async () => {
+        await expectSearch({ recipientId: genesisTransaction.recipientId, type: 3 }, 1)
+      })
+    })
+
     describe('when no results', () => {
       it('should not return them', async () => {
         await connection.saveBlock(genesisBlock)

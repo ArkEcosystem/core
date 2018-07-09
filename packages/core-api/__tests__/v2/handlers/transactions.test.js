@@ -12,7 +12,6 @@ const type = genesisTransactions.type
 const wrongType = 3
 const version = 1
 const senderPublicKey = genesisTransactions.senderPublicKey
-const senderId = genesisTransactions.senderId
 const senderAddress = genesisTransactions.senderId
 const recipientAddress = genesisTransactions.recipientId
 const timestamp = genesisTransactions.timestamp
@@ -87,7 +86,7 @@ describe('API 2.0 - Transactions', () => {
     })
 
     it('should POST a search for transactions with the exact specified blockId', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, blockId })
+      const response = await utils.request('POST', 'transactions/search', { blockId })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -99,8 +98,9 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.blockId).toBe(blockId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified type', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, type })
+      const response = await utils.request('POST', 'transactions/search', { type })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -112,8 +112,9 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.type).toBe(type)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified version', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, version })
+      const response = await utils.request('POST', 'transactions/search', { version })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -124,8 +125,9 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, senderPublicKey })
+      const response = await utils.request('POST', 'transactions/search', { senderPublicKey })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -139,7 +141,7 @@ describe('API 2.0 - Transactions', () => {
 
     // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified senderId', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, senderId })
+      const response = await utils.request('POST', 'transactions/search', { senderId: senderAddress })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -153,7 +155,7 @@ describe('API 2.0 - Transactions', () => {
 
     // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
-      const response = await utils.request('POST', 'transactions/search', { id: transactionId, recipientId: recipientAddress })
+      const response = await utils.request('POST', 'transactions/search', { recipientId: recipientAddress })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
@@ -165,6 +167,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.recipient).toBe(recipientAddress)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified timestamp', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -183,6 +186,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the specified timestamp range', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -201,6 +205,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified amount', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -219,6 +224,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the specified amount range', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -237,6 +243,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified fee', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -255,6 +262,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the specified fee range', async () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
@@ -273,6 +281,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
     })
 
+    // TODO remove the search by id, to be sure that is OK
     it.skip('should POST a search for transactions with the exact specified vendorFieldHex', async () => {
       const transactionId = '0000faa27b422f7648b1a2f634f15c7e5c8e96b84929624fda44abf716bdf784'
       const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'

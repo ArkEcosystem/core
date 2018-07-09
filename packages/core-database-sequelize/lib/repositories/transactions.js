@@ -254,6 +254,7 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * Search all transactions.
+   *
    * @param  {Object} params
    * @return {Object}
    */
