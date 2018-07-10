@@ -8,11 +8,11 @@ env:
   ARK_CI_TEST: true
 
 before_install:
-  - npm install yarn lerna
-  - yarn config set cache-folder $HOME/.yarn-cache
+  - npm install yarn
+  - yarn config set cache-folder $HOME/.cache/yarn
 
-install:
-  - yarn bootstrap
+install: yarn
+#   - yarn bootstrap
 
 stages:
   - lint
@@ -50,10 +50,10 @@ jobs:
 cache:
   yarn: true # This wouldn't do anything because it needs a yarn.lock
   directories:
-    - $HOME/.npm
-    - $HOME/.yarn-cache
-    # - node_modules
-    # - packages/**/node_modules
+    - $HOME/.nvm/.cache
+    - $HOME/.cache/yarn
+    - node_modules
+    - packages/**/node_modules
 
 git:
   # It's not necessary to get more than the last commit (and this branch alone)
