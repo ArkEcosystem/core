@@ -45,6 +45,10 @@ describe('API 2.0 - Webhooks', () => {
       const response = await utils.request('GET', `webhooks/${webhook.data.data.id}`)
       utils.expectSuccessful(response)
       utils.expectResource(response)
+
+      const { data } = response.data
+      const webhookData = Object.assign(webhook.data.data, { token: data.token.substring(0, 32) })
+      expect(data).toEqual(webhookData)
     })
   })
 
