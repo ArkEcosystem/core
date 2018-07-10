@@ -9,6 +9,7 @@ env:
 
 before_install:
   - npm install yarn lerna
+  - yarn config set cache-folder $HOME/.yarn-cache
 
 install:
   - yarn bootstrap
@@ -46,4 +47,10 @@ jobs:
     #   node_js: 9
     #   script: yarn test:coverage
 
-cache: yarn
+cache:
+  yarn: true # This wouldn't do anything because it needs a yarn.lock
+  directories:
+    - $HOME/.npm
+    - $HOME/.yarn-cache
+    # - node_modules
+    # - packages/**/node_modules
