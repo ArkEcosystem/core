@@ -129,7 +129,7 @@ blockchainMachine.actionMap = blockchain => {
 
     rebuildingComplete () {
       logger.info('Blockchain rebuild complete :unicorn_face:')
-      blockchain.dispatch('REBUILDFINISHED')
+      blockchain.dispatch('REBUILDCOMPLETE')
     },
 
     exitApp () {
