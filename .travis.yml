@@ -54,3 +54,7 @@ cache:
     - $HOME/.yarn-cache
     # - node_modules
     # - packages/**/node_modules
+
+git:
+  # It's not necessary to get more than the last commit (and this branch alone)
+  depth: 1
