@@ -173,7 +173,7 @@ module.exports = class Blockchain {
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    logger.info(`Removing ${height.toLocaleString() - newHeight.toLocaleString()} blocks to reset current round :warning:`)
+    logger.info(`Removing ${height - newHeight} blocks to reset current round :warning:`)
 
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
