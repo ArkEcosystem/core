@@ -8,7 +8,9 @@ env:
   ARK_CI_TEST: true
 
 before_install:
-  - npm install yarn
+  # - npm install yarn
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - export PATH="$HOME/.yarn/bin:$PATH"
   - yarn config set cache-folder $HOME/.cache/yarn
 
 install: yarn
