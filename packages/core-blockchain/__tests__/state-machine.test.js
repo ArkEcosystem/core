@@ -11,21 +11,17 @@ let stateMachine
 let container
 let blockchain
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   container = await app.setUp()
 
   stateMachine = require('../lib/state-machine')
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
+beforeEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
 
   // manually register the blockchain
@@ -41,16 +37,12 @@ beforeEach(async (done) => {
     plugin: blockchain,
     options: {}
   }))
-
-  done()
 })
 
-afterEach(async (done) => {
+afterEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = false
 
   await blockchain.resetState()
-
-  done()
 })
 
 describe('State Machine', () => {
