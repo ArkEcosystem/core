@@ -35,12 +35,7 @@ class SqlBuilder {
    * @return {String}
    */
   __buildSelect (clauses) {
-    const columns = clauses.select.columns
-      .map(column => column)
-
-    const aggregates = clauses.select.aggregates
-      .map(column => column)
-
+    const { columns, aggregates } = clauses.select
     return `SELECT ${columns.concat(aggregates).join(',')} `
   }
 
