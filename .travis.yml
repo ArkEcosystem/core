@@ -4,6 +4,11 @@ node_js:
   - node
   - 9
 
+addons:
+  apt:
+    packages:
+      - xsel
+
 env:
   ARK_CI_TEST: true
 
