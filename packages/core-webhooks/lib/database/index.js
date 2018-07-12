@@ -15,7 +15,7 @@ class Database {
    */
   async setUp (config) {
     if (this.connection) {
-      throw new Error('Already initialised')
+      throw new Error('Webhooks database already initialised')
     }
 
     if (config.dialect === 'sqlite' && config.storage !== ':memory:') {

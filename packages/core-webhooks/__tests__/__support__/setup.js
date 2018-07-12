@@ -3,7 +3,9 @@
 const path = require('path')
 const container = require('@arkecosystem/core-container')
 
-module.exports = async () => {
+jest.setTimeout(60000)
+
+exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
@@ -16,12 +18,6 @@ module.exports = async () => {
       '@arkecosystem/core-graphql',
       '@arkecosystem/core-forger'
     ]
-  })
-
-  await require('../../lib/database').setUp({
-    dialect: 'sqlite',
-    storage: ':memory:',
-    logging: false
   })
 
   await require('../../lib/manager').setUp({
@@ -43,4 +39,8 @@ module.exports = async () => {
       ]
     }
   })
+}
+
+exports.tearDown = async () => {
+  await container.tearDown()
 }
