@@ -140,9 +140,18 @@ describe('Models - Transaction', () => {
     })
   })
 
-  it('static deserialize', () => {})
+  describe('static deserialize', () => {
+    it('should match transaction id', () => {
+      [0, 1, 2, 3, 4].map(type => createRandomTx(type))
+        .map(transaction => {
+          const originalId = transaction.id
+          const newTransaction = Transaction.fromBytes(Transaction.serialize(transaction).toString('hex'))
+          expect(newTransaction.id).toEqual(originalId)
+        })
+    })
+  })
 
-  it('serialize', () => {})
+  describe('static serialize', () => {})
 
   it('Signatures are not malleable', () => {
     [0, 1, 2, 3, 4]
