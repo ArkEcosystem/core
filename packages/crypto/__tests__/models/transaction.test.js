@@ -7,7 +7,6 @@ const transactionData = require('./fixtures/transaction')
 
 const configManager = require('../../lib/managers/config')
 const network = require('../../lib/networks/ark/devnet.json')
-const networkMainnet = require('../../lib/networks/ark/mainnet.json')
 
 const createRandomTx = type => {
   let transaction
@@ -25,7 +24,6 @@ const createRandomTx = type => {
       break
 
     case 1: // second signature
-      const passphrase = Math.random().toString(36)
       transaction = builder
         .secondSignature()
         .signatureAsset(Math.random().toString(36))
@@ -56,7 +54,7 @@ const createRandomTx = type => {
       const max = Math.max(1, publicKeys.length)
       const minSignatures = Math.floor(Math.random() * (max - min)) + min
 
-      transactionBuilder = builder
+      const transactionBuilder = builder
         .multiSignature()
         .multiSignatureAsset({
           keysgroup: publicKeys,
