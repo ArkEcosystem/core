@@ -249,7 +249,8 @@ blockchainMachine.actionMap = blockchain => {
     async rebuildBlocks () {
       const lastBlock = state.lastDownloadedBlock || state.lastBlock
       const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
-      await tickSyncTracker(blocks.length)
+
+      tickSyncTracker(blocks.length)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new blocks found on this peer')
@@ -257,10 +258,8 @@ blockchainMachine.actionMap = blockchain => {
         blockchain.dispatch('NOBLOCK')
       } else {
         logger.info(`Downloaded ${blocks.length} new blocks accounting for a total of ${blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0)} transactions`)
-
         if (blocks.length && blocks[0].previousBlock === lastBlock.data.id) {
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
-
           blockchain.rebuildQueue.push(blocks)
           blockchain.dispatch('DOWNLOADED')
         } else {

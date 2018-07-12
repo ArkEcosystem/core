@@ -496,6 +496,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .select('serialized')
       .from('transactions')
       .where('blockId', block.id)
+      .orderBy('sequence', 'ASC')
       .all()
 
     block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
@@ -569,7 +570,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         .select('blockId', 'serialized')
         .from('transactions')
         .whereIn('blockId', ids)
-        .orderBy('createdAt', 'ASC')
+        .orderBy('sequence', 'ASC')
         .all()
       transactions = transactions.map(tx => {
         const data = Transaction.deserialize(tx.serialized.toString('hex'))
