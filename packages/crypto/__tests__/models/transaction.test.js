@@ -25,10 +25,11 @@ const createRandomTx = type => {
       break
 
     case 1: // second signature
+      const passphrase = Math.random().toString(36)
       transaction = builder
         .secondSignature()
         .signatureAsset(Math.random().toString(36))
-        .secondSign(Math.random().toString(36))
+        .sign(Math.random().toString(36))
         .build()
       break
 
@@ -49,22 +50,27 @@ const createRandomTx = type => {
       break
 
     case 4: // multisignature registration
-      const ECkeys = [1, 2, 3].map(() => crypto.getKeys(Math.random().toString(36)))
+      const passphrases = [1, 2, 3].map(() => Math.random().toString(36))
+      const publicKeys = passphrases.map(passphrase => '+' + crypto.getKeys(passphrase).publicKey)
+      const min = Math.min(1, publicKeys.length)
+      const max = Math.max(1, publicKeys.length)
+      const minSignatures = Math.floor(Math.random() * (max - min)) + min
 
-      transaction = builder
+      transactionBuilder = builder
         .multiSignature()
-        .multiSignatureAsset(ECkeys.map(k => k.Q), 48, 2)
+        .multiSignatureAsset({
+          keysgroup: publicKeys,
+          min: minSignatures,
+          lifetime: Math.floor(Math.random() * (72 - 1)) + 1
+        })
         .sign(Math.random().toString(36))
-        .secondSign('')
-        .build()
 
-      const hash = crypto.getHash(transaction, true, true)
-      transaction.signatures = ECkeys.slice(1).map(k => k.sign(hash).toDER().toString('hex'))
+      for (let i = 0; i < minSignatures; i++) {
+        transactionBuilder.multiSignatureSign(passphrases[i])
+      }
+
+      transaction = transactionBuilder.build()
   }
-
-  transaction.recipientId = transactionData.recipientId
-  transaction.senderPublicKey = transactionData.senderPublicKey
-  transaction.network = networkMainnet
 
   return transaction
 }
@@ -93,20 +99,25 @@ describe('Models - Transaction', () => {
     it('returns a new transaction', () => {
       [0, 1, 2, 3, 4].map(type => createRandomTx(type))
         .map(transaction => {
-          transaction.network = 0x17
+          if (transaction.type !== 3) {
+            transaction.network = 23
+            transaction.data.network = 23
+          }
           transaction.version = 1
 
           if (transaction.vendorField) {
             transaction.vendorFieldHex = Buffer.from(transaction.vendorField, 'utf8').toString('hex')
+            transaction.data.vendorField = transaction.vendorField
           }
 
-          if (transaction.asset.delegate) {
+          if (transaction.asset && transaction.asset.delegate) {
             delete transaction.asset.delegate.publicKey
           }
 
           if (transaction.type === 0) {
             delete transaction.asset
             transaction.expiration = 0
+            transaction.data.expiration = 0
           }
 
           if (transaction.signSignature) {
@@ -121,7 +132,7 @@ describe('Models - Transaction', () => {
         })
         .map(transaction => {
           const newTransaction = Transaction.fromBytes(Transaction.serialize(transaction).toString('hex'))
-          expect(newTransaction.data).toEqual(transaction)
+          expect(newTransaction.data).toEqual(transaction.data)
           expect(newTransaction.verified).toBeTruthy()
         })
       const hex = Transaction.serialize(transactionData).toString('hex')
