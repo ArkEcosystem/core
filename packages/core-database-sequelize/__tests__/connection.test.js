@@ -159,7 +159,9 @@ describe('Sequelize Connection', () => {
       const wallet = connection.walletManager.getWalletByPublicKey('03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b')
       expect(wallet.missedBlocks).toBe(0)
 
-      await connection.updateDelegateStats(genesisBlock, delegates)
+      const { height } = genesisBlock.data
+      await connection.applyRound(height)
+      await connection.updateDelegateStats(height, delegates)
 
       expect(wallet.missedBlocks).toBe(1)
     })
