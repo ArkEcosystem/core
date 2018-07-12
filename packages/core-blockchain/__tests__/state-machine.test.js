@@ -63,7 +63,7 @@ describe('State Machine', () => {
       })
 
       xit('should dispatch the event "WAKEUP" after a delay', async () => {
-        await expect(() => actionMap.checkLater()).toCall([blockchain, 'dispatch', 'WAKEUP'])
+        await expect(() => actionMap.checkLater()).toDispatch([blockchain, 'WAKEUP'])
       })
     })
 
@@ -74,12 +74,12 @@ describe('State Machine', () => {
 
       it('should dispatch the event "SYNCED" if the blockchain is synced', () => {
         blockchain.isSynced = jest.fn(() => true)
-        expect(() => actionMap.checkLastBlockSynced()).toCall([blockchain, 'dispatch', 'SYNCED'])
+        expect(() => actionMap.checkLastBlockSynced()).toDispatch([blockchain, 'SYNCED'])
       })
 
       it('should dispatch the event "NOTSYNCED" if the blockchain is not synced', () => {
         blockchain.isSynced = jest.fn(() => false)
-        expect(() => actionMap.checkLastBlockSynced()).toCall([blockchain, 'dispatch', 'NOTSYNCED'])
+        expect(() => actionMap.checkLastBlockSynced()).toDispatch([blockchain, 'NOTSYNCED'])
       })
     })
 
@@ -90,12 +90,12 @@ describe('State Machine', () => {
 
       it('should dispatch the event "SYNCED" if the blockchain is synced after a rebuild', () => {
         blockchain.isRebuildSynced = jest.fn(() => true)
-        expect(() => actionMap.checkRebuildBlockSynced()).toCall([blockchain, 'dispatch', 'SYNCED'])
+        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch([blockchain, 'SYNCED'])
       })
 
       it('should dispatch the event "NOTSYNCED" if the blockchain is not synced after a rebuild', () => {
         blockchain.isRebuildSynced = jest.fn(() => false)
-        expect(() => actionMap.checkRebuildBlockSynced()).toCall([blockchain, 'dispatch', 'NOTSYNCED'])
+        expect(() => actionMap.checkRebuildBlockSynced()).toDispatch([blockchain, 'NOTSYNCED'])
       })
     })
 
@@ -113,7 +113,7 @@ describe('State Machine', () => {
       xdescribe('if the network has started', () => {
         it('should dispatch the event "SYNCFINISHED"', () => {
           stateMachine.state.networkStart = true
-          expect(() => actionMap.downloadFinished()).toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+          expect(() => actionMap.downloadFinished()).toDispatch([blockchain, 'SYNCFINISHED'])
         })
 
         it('should toggle its state', () => {
@@ -126,7 +126,7 @@ describe('State Machine', () => {
       describe('if the network has not started', () => {
         it('should not do anything', () => {
           stateMachine.state.networkStart = false
-          expect(() => actionMap.downloadFinished()).not.toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+          expect(() => actionMap.downloadFinished()).not.toDispatch([blockchain, 'SYNCFINISHED'])
           expect(stateMachine.state.networkStart).toBe(false)
         })
       })
@@ -150,7 +150,7 @@ describe('State Machine', () => {
       })
 
       it('should dispatch the event "SYNCFINISHED"', () => {
-        expect(() => actionMap.syncingComplete()).toCall([blockchain, 'dispatch', 'SYNCFINISHED'])
+        expect(() => actionMap.syncingComplete()).toDispatch([blockchain, 'SYNCFINISHED'])
       })
     })
 
@@ -160,7 +160,7 @@ describe('State Machine', () => {
       })
 
       it('should dispatch the event "REBUILDCOMPLETE"', () => {
-        expect(() => actionMap.rebuildingComplete()).toCall([blockchain, 'dispatch', 'REBUILDCOMPLETE'])
+        expect(() => actionMap.rebuildingComplete()).toDispatch([blockchain, 'REBUILDCOMPLETE'])
       })
     })
 

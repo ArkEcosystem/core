@@ -21,5 +21,5 @@ module.exports = {
   toBeTransferType: require('./transactions/types/transfer'),
   toBeVoteType: require('./transactions/types/vote'),
 
-  toCall: require('./call')
+  toDispatch: require('./blockchain/dispatch')
 }
