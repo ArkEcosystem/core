@@ -137,4 +137,22 @@ describe('Utils - SQL Builder', () => {
       expect(clause).toBe('OFFSET 123 ')
     })
   })
+
+  describe('__replacements', () => {
+    it('should escape SQL Injection based on ""="" is always true', () => {
+      const sql = 'SELECT * FROM blocks WHERE generator_public_key = ?'
+      const replacements = ['\' or \'\'=\'\'']
+      const formatted = Utils.format([sql].concat(replacements), 'sqlite')
+
+      expect(formatted).toBe('SELECT * FROM blocks WHERE generator_public_key = \'\'\' or \'\'\'\'=\'\'\'\'\'')
+    })
+
+    it('should escape SQL Injection based on batched statements', () => {
+      const sql = 'SELECT * FROM blocks WHERE number_of_transactions = ?'
+      const replacements = ['153\'; DROP TABLE blocks']
+      const formatted = Utils.format([sql].concat(replacements), 'sqlite')
+
+      expect(formatted).toBe('SELECT * FROM blocks WHERE number_of_transactions = \'153\'\'; DROP TABLE blocks\'')
+    })
+  })
 })
