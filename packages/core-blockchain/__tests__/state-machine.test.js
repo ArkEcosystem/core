@@ -159,8 +159,8 @@ describe('State Machine', () => {
         expect(actionMap.rebuildingComplete).toBeFunction()
       })
 
-      it('should dispatch the event "REBUILDFINISHED"', () => {
-        expect(() => actionMap.rebuildingComplete()).toCall([blockchain, 'dispatch', 'REBUILDFINISHED'])
+      it('should dispatch the event "REBUILDCOMPLETE"', () => {
+        expect(() => actionMap.rebuildingComplete()).toCall([blockchain, 'dispatch', 'REBUILDCOMPLETE'])
       })
     })
 
