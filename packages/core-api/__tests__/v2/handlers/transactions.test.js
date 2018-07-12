@@ -12,6 +12,7 @@ const type = genesisTransactions.type
 const wrongType = 3
 const version = 1
 const senderPublicKey = genesisTransactions.senderPublicKey
+const senderId = genesisTransactions.senderId
 const senderAddress = genesisTransactions.senderId
 const recipientAddress = genesisTransactions.recipientId
 const timestamp = genesisTransactions.timestamp
@@ -136,6 +137,21 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.sender).toBe(senderAddress)
     })
 
+    // TODO remove the search by id, to be sure that is OK
+    it('should POST a search for transactions with the exact specified senderId', async () => {
+      const response = await utils.request('POST', 'transactions/search', { id: transactionId, senderId })
+      utils.expectSuccessful(response)
+      utils.expectCollection(response)
+
+      expect(response.data.data).toHaveLength(1)
+
+      const transaction = response.data.data[0]
+      utils.expectTransaction(transaction)
+      expect(transaction.id).toBe(transactionId)
+      expect(transaction.sender).toBe(senderAddress)
+    })
+
+    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
       const response = await utils.request('POST', 'transactions/search', { id: transactionId, recipientId: recipientAddress })
       utils.expectSuccessful(response)
