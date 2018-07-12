@@ -1,11 +1,10 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib') // eslint-disable-line no-unused-vars
+
 const { asValue } = require('awilix')
 
 const app = require('./__support__/setup')
-
-// TODO as dependency on package.json?
-const testUtils = require('@arkecosystem/core-test-utils/lib') // eslint-disable-line no-unused-vars
 
 let stateMachine
 let container
