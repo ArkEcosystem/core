@@ -316,7 +316,8 @@ module.exports = class Monitor {
     }
 
     console.log(heights)
-    return allowedToForge / syncedPeers
+    const pbft = allowedToForge / syncedPeers
+    return isNaN(pbft) ? 0 : pbft
   }
 
   async getNetworkState () {

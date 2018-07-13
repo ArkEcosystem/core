@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     blockId: {
       type: DataTypes.STRING(64)
     },
+    sequence: {
+      allowNull: false,
+      type: DataTypes.SMALLINT
+    },
     timestamp: DataTypes.INTEGER,
     senderPublicKey: {
       type: DataTypes.STRING(66)
