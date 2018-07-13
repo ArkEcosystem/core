@@ -439,7 +439,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (this.config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
