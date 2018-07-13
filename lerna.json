@@ -5,6 +5,7 @@
     "plugins/*"
   ],
   "npmClient": "yarn",
+  "npmClientArgs": [ "--no-bin-links"],
   "useWorkspaces": true,
   "version": "independent"
 }
