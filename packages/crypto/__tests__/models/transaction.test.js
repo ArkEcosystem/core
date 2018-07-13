@@ -97,10 +97,6 @@ describe('Models - Transaction', () => {
     it('returns a new transaction', () => {
       [0, 1, 2, 3, 4].map(type => createRandomTx(type))
         .map(transaction => {
-          if (transaction.type !== 3) {
-            transaction.network = 23
-            transaction.data.network = 23
-          }
           transaction.version = 1
 
           if (transaction.vendorField) {
