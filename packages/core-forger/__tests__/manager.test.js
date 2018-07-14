@@ -6,16 +6,12 @@ const { Delegate } = require('@arkecosystem/crypto').models
 
 let manager
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {

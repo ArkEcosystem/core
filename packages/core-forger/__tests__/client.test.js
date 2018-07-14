@@ -5,18 +5,14 @@ const block = require('./__fixtures__/block')
 
 let client
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
 
   client = new (require('../lib/client'))('http://127.0.0.1')
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 describe('Client', () => {
