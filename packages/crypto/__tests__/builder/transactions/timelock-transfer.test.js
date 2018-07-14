@@ -20,7 +20,7 @@ describe('Timelock Transfer Transaction', () => {
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.recipientId', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)
-    expect(builder).toHaveProperty('data.timelocktype', 0x00)
+    expect(builder).toHaveProperty('data.timelockType', 0x00)
     expect(builder).toHaveProperty('data.timelock', null)
   })
 
@@ -32,7 +32,7 @@ describe('Timelock Transfer Transaction', () => {
 
     it('establishes the time lock type', () => {
       builder.timelock(null, 'time lock type')
-      expect(builder.data.timelocktype).toBe('time lock type')
+      expect(builder.data.timelockType).toBe('time lock type')
     })
   })
 
