@@ -4,7 +4,7 @@ const path = require('path')
 const { asValue } = require('awilix')
 
 let container
-beforeEach(async (done) => {
+beforeEach(async () => {
   container = require('../lib')
 
   await container.setUp({
@@ -15,8 +15,6 @@ beforeEach(async (done) => {
   }, {
     skipPlugins: true
   })
-
-  done()
 })
 
 describe('Container', () => {
