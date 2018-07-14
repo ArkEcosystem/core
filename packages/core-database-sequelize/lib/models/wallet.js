@@ -16,15 +16,36 @@ module.exports = (sequelize, DataTypes) => {
     },
     publicKey: {
       unique: true,
-      type: DataTypes.STRING(66)
+      type: DataTypes.STRING(66),
+      field: 'public_key'
     },
-    secondPublicKey: DataTypes.STRING(66),
+    secondPublicKey: {
+        type: DataTypes.STRING(66),
+        field: 'second_public_key'
+    },
     vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
     balance: DataTypes.BIGINT,
-    votebalance: DataTypes.BIGINT,
-    producedBlocks: DataTypes.BIGINT,
-    missedBlocks: DataTypes.BIGINT
+    votebalance: {
+        type: DataTypes.BIGINT,
+        field: 'vote_balance'
+    },
+    producedBlocks: {
+        type: DataTypes.BIGINT,
+        field: 'produced_blocks'
+    },
+    missedBlocks: {
+        type: DataTypes.BIGINT,
+        field: 'missed_blocks'
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
   }, {})
 
   return Wallet

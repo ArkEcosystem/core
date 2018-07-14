@@ -7,26 +7,20 @@ const { Transaction } = require('@arkecosystem/crypto').models
 
 let connection
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
 
   const RedisConnection = require('../lib/connection.js')
   connection = new RedisConnection(require('../lib/defaults'))
   connection = connection.make()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
+beforeEach(async () => {
   await connection.flush()
-
-  done()
 })
 
 describe('Connection', () => {

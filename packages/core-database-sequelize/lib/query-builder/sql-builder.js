@@ -1,5 +1,4 @@
 const { camelCase, upperFirst } = require('lodash')
-const escape = require('./utils/escape')
 
 class SqlBuilder {
   /**
@@ -13,7 +12,9 @@ class SqlBuilder {
       'groupBy', 'orderBy', 'limit', 'offset'
     ]
 
-    return clauseOrder
+    this.__replacements = []
+
+    const sql = clauseOrder
       .map(clause => {
         if (!clauses[clause]) {
           return false
@@ -24,6 +25,8 @@ class SqlBuilder {
       .filter(item => !!item)
       .join('')
       .trim()
+
+    return { sql, replacements: this.__replacements.length > 0 ? this.__replacements : undefined }
   }
 
   /**
@@ -32,12 +35,7 @@ class SqlBuilder {
    * @return {String}
    */
   __buildSelect (clauses) {
-    const columns = clauses.select.columns
-      .map(column => escape(column))
-
-    const aggregates = clauses.select.aggregates
-      .map(column => column)
-
+    const { columns, aggregates } = clauses.select
     return `SELECT ${columns.concat(aggregates).join(',')} `
   }
 
@@ -47,7 +45,7 @@ class SqlBuilder {
    * @return {String}
    */
   __buildFrom (clauses) {
-    return `FROM ${escape(clauses.from)} `
+    return `FROM ${clauses.from} `
   }
 
   /**
@@ -58,22 +56,22 @@ class SqlBuilder {
   __buildWhere (clauses) {
     const map = (item) => {
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
-        return `${escape(item.column)} ${item.operator} ${escape(item.from)} AND ${escape(item.to)}`
+        this.__replacements.push(item.from)
+        this.__replacements.push(item.to)
+        return `${item.column} ${item.operator} ? AND ?`
       }
 
       if (['IN', 'NOT IN'].includes(item.operator)) {
-        if (Array.isArray(item.value)) {
-          item.value = item.value.map(value => escape(value, true)).join(',')
-        }
-
-        return `${escape(item.column)} ${item.operator} (${item.value})`
+        this.__replacements.push(item.value)
+        return `${item.column} ${item.operator} (?)`
       }
 
       if (['IS NULL', 'IS NOT NULL'].includes(item.operator)) {
-        return `${escape(item.column)} ${item.operator}`
+        return `${item.column} ${item.operator}`
       }
 
-      return `${escape(item.column)} ${item.operator} ${escape(item.value, true)}`
+      this.__replacements.push(item.value)
+      return `${item.column} ${item.operator} ?`
     }
 
     const andQuery = Object
@@ -120,8 +118,7 @@ class SqlBuilder {
   __buildOrderBy (clauses) {
     const values = Object
       .values(clauses.orderBy)
-      .map(item => `${escape(item.column)} ${item.direction.toUpperCase()}`)
-
+      .map(item => `${item.column} ${item.direction.toUpperCase()}`)
     return `ORDER BY ${values.join(',')} `
   }
 

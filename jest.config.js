@@ -6,28 +6,33 @@ module.exports = {
     // '**/packages/**/__tests__/**/*.test.js'
 
     '**/packages/client/**/__tests__/**/*.test.js',
-    '**/packages/core-commander/**/__tests__/**/*.test.js',
     '**/packages/core-config/**/__tests__/**/*.test.js',
     '**/packages/core-container/**/__tests__/**/*.test.js',
-    '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
     '**/packages/core-deployer/**/__tests__/**/*.test.js',
     '**/packages/core-event-emitter/**/__tests__/**/*.test.js',
-    '**/packages/core-graphql/**/__tests__/**/*.test.js',
     '**/packages/core-logger-winston/**/__tests__/**/*.test.js',
     '**/packages/core-logger/**/__tests__/**/*.test.js',
+    '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     '**/packages/core-tester-cli/**/__tests__/**/*.test.js',
-    '**/packages/core-webhooks/**/__tests__/**/*.test.js',
-    '**/packages/core/**/__tests__/**/*.test.js',
     '**/packages/validation/**/__tests__/**/*.test.js'
 
-    /* These packages `runInBand`` */
+    /* These packages don't have any test yet */
+
+    // '**/packages/core-graphql/**/__tests__/**/*.test.js',
+    // '**/packages/core/**/__tests__/**/*.test.js',
+
+    /* These packages provoke the "no output" Travis problem */
+
+    // '**/packages/core-webhooks/**/__tests__/**/*.test.js',
+    // '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
+
+    /* These packages `runInBand` */
 
     // '**/packages/core-api/**/__tests__/**/*.test.js',
 
     /* These packages have very long  timeouts or don't end properly */
 
     // '**/packages/core-blockchain/**/__tests__/**/*.test.js',
-    // '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     // '**/packages/core-database/**/__tests__/**/*.test.js',
     // '**/packages/core-forger/**/__tests__/**/*.test.js',
     // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
