@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     version: DataTypes.SMALLINT, // TODO
     blockId: {
-      type: DataTypes.STRING(64)
+      type: DataTypes.STRING(64),
+      field: 'block_id'
     },
     sequence: {
       allowNull: false,
@@ -24,16 +25,29 @@ module.exports = (sequelize, DataTypes) => {
     },
     timestamp: DataTypes.INTEGER,
     senderPublicKey: {
-      type: DataTypes.STRING(66)
+      type: DataTypes.STRING(66),
+      field: 'sender_public_key'
     },
     recipientId: {
-      type: DataTypes.STRING(36)
+      type: DataTypes.STRING(36),
+      field: 'recipient_id'
     },
     type: DataTypes.SMALLINT,
-    vendorFieldHex: DataTypes.BLOB,
+    vendorFieldHex: {
+        type: DataTypes.BLOB,
+        field: 'vendor_field_hex'
+    },
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
-    serialized: DataTypes.BLOB
+    serialized: DataTypes.BLOB,
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
   }, {})
 
   return Transaction

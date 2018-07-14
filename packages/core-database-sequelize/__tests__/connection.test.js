@@ -387,4 +387,32 @@ describe('Sequelize Connection', () => {
       expect(blocks[0]).toBeInstanceOf(Buffer)
     })
   })
+
+  describe('sql injection', () => {
+    it('should be ok #1', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('generator_public_key', '\' or \'\'=\'')
+        .all()
+
+      expect(blocks).toEqual([])
+    })
+
+    it('should be ok #2', async () => {
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('number_of_transactions', '153\'; DROP TABLE blocks')
+        .all()
+
+      expect(blocks).toEqual([])
+
+      const result = await connection.connection.query('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'blocks\';')
+      expect(result).toBeArray();
+      expect(result).toHaveLength(1);
+    })
+  })
 })
