@@ -33,7 +33,7 @@ before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
 
 scripts:
-  - yarn test:coverage
+  - yarn test:coverage --ci
 
 jobs:
   include:
