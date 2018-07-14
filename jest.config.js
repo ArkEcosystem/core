@@ -15,6 +15,7 @@ module.exports = {
     '**/packages/core-graphql/**/__tests__/**/*.test.js',
     '**/packages/core-logger-winston/**/__tests__/**/*.test.js',
     '**/packages/core-logger/**/__tests__/**/*.test.js',
+    '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     '**/packages/core-tester-cli/**/__tests__/**/*.test.js',
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/core/**/__tests__/**/*.test.js',
@@ -27,7 +28,6 @@ module.exports = {
     /* These packages have very long  timeouts or don't end properly */
 
     // '**/packages/core-blockchain/**/__tests__/**/*.test.js',
-    // '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     // '**/packages/core-database/**/__tests__/**/*.test.js',
     // '**/packages/core-forger/**/__tests__/**/*.test.js',
     // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
