@@ -21,6 +21,8 @@ This repository contains all plugins that make up the ARK Core.
 
 ## Core Packages
 
+[![Build Status](https://travis-ci.org/ArkEcosystem/core.svg?branch=master)](https://travis-ci.org/ArkEcosystem/core)
+
 | Package | Version | Description
 |---|---|---|
 | **[core](/packages/core)** | [![npm](https://img.shields.io/npm/v/@arkecosystem/core.svg)](https://www.npmjs.com/package/@arkecosystem/core) | **Includes all packages** |
