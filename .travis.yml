@@ -9,6 +9,9 @@ addons:
     packages:
       - xsel
 
+services:
+  - redis-server
+
 env:
   ARK_CI_TEST: true
 
