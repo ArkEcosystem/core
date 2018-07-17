@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/core-test-utils": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "async": "^2.6.1",
     "awilix": "^3.0.8",
@@ -31,5 +30,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "^0.1.1"
   }
 }
