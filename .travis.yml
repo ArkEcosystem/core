@@ -4,6 +4,11 @@ node_js:
   - node
   - 9
 
+addons:
+  apt:
+    packages:
+      - xsel
+
 env:
   ARK_CI_TEST: true
 
@@ -23,8 +28,12 @@ stages:
   # TODO
   # - browser_test
 
-scripts:
-  - yarn test:coverage
+before_script:
+  - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi'
+  - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
+
+script:
+  - yarn test:coverage --ci
 
 jobs:
   include:

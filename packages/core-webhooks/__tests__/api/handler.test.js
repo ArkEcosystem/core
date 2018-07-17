@@ -1,6 +1,15 @@
 'use strict'
 
+const app = require('../__support__/setup')
 const utils = require('./utils')
+
+beforeAll(async () => {
+  await app.setUp()
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 const postData = {
   event: 'block.forged',

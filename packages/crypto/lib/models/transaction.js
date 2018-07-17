@@ -59,6 +59,7 @@ module.exports = class Transaction {
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     [
       'id',
+      'sequence',
       'version',
       'timestamp',
       'senderPublicKey',
