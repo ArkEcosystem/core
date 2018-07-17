@@ -9,10 +9,10 @@ const config = container.resolvePlugin('config')
 module.exports = class Client {
   /**
    * Create a new client instance.
-   * @param  {Array} hosts
+   * @param  {(Array|String)} hosts - Host or Array of hosts
    */
   constructor (hosts) {
-    this.hosts = hosts
+    this.hosts = Array.isArray(hosts) ? hosts : [hosts]
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -23,7 +23,7 @@ module.exports = class Client {
 
   /**
    * Send the given block to the relay.
-   * @param  {Object} block
+   * @param  {(Block|Object)} block
    * @return {Object}
    */
   async broadcast (block) {

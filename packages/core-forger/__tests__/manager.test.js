@@ -21,7 +21,7 @@ beforeEach(() => {
 
 jest.setTimeout(30000)
 
-describe('Forger Manager', () => {
+xdescribe('Forger Manager', () => {
   describe('loadDelegates', () => {
     it('should be a function', () => {
       expect(manager.loadDelegates).toBeFunction()
