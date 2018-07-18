@@ -1,8 +1,11 @@
 'use strict'
 
 const app = require('./__support__/setup')
+const defaultConfig = require('../lib/defaults')
 
 const { Delegate } = require('@arkecosystem/crypto').models
+
+jest.setTimeout(30000)
 
 let manager
 
@@ -16,12 +19,11 @@ afterAll(async () => {
 
 beforeEach(() => {
   const ForgeManager = require('../lib/manager')
-  manager = new ForgeManager(require('../lib/defaults'))
+  defaultConfig.hosts = ['http://127.0.0.1:4000']
+  manager = new ForgeManager(defaultConfig)
 })
 
-jest.setTimeout(30000)
-
-xdescribe('Forger Manager', () => {
+describe('Forger Manager', () => {
   describe('loadDelegates', () => {
     it('should be a function', () => {
       expect(manager.loadDelegates).toBeFunction()

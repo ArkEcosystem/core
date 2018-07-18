@@ -5,16 +5,22 @@ const block = require('./__fixtures__/block')
 
 jest.setTimeout(30000)
 
+const host = 'http://127.0.0.1:4000'
+
+let Client
 let client
 
 beforeAll(async () => {
   await app.setUp()
-
-  client = new (require('../lib/client'))('http://127.0.0.1:4000')
 })
 
 afterAll(async () => {
   await app.tearDown()
+})
+
+beforeEach(() => {
+  Client = require('../lib/client')
+  client = new Client(host)
 })
 
 describe('Client', () => {
@@ -23,7 +29,13 @@ describe('Client', () => {
   })
 
   describe('constructor', () => {
-    xit('accepts 1 or more hosts as parameter', () => {
+    it('accepts 1 or more hosts as parameter', () => {
+      client = new Client(host)
+      expect(client.hosts).toEqual([host])
+
+      const hosts = [host, 'localhost:4000']
+      client = new Client(hosts)
+      expect(client.hosts).toEqual(hosts)
     })
   })
 
