@@ -14,17 +14,18 @@ module.exports = {
     '**/packages/core-logger/**/__tests__/**/*.test.js',
     '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     '**/packages/core-tester-cli/**/__tests__/**/*.test.js',
+    '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
+    '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/validation/**/__tests__/**/*.test.js'
+
+    /* These packages have failing tests */
+
+    // '**/packages/core-database-sequelize/**/__tests__/**/*.test.js'
 
     /* These packages don't have any test yet */
 
     // '**/packages/core-graphql/**/__tests__/**/*.test.js',
     // '**/packages/core/**/__tests__/**/*.test.js',
-
-    /* These packages provoke the "no output" Travis problem */
-
-    // '**/packages/core-webhooks/**/__tests__/**/*.test.js',
-    // '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
 
     /* These packages `runInBand` */
 
@@ -37,9 +38,8 @@ module.exports = {
     // '**/packages/core-forger/**/__tests__/**/*.test.js',
     // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
     // '**/packages/core-p2p/**/__tests__/**/*.test.js',
-    // '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
     // '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
-    // '**/packages/crypto/**/__tests__/**/*.test.js',
+    // '**/packages/crypto/**/__tests__/**/*.test.js'
   ],
   moduleFileExtensions: [
     'js',
