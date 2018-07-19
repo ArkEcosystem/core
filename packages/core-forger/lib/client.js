@@ -45,7 +45,7 @@ module.exports = class Client {
    */
   async syncCheck () {
     await Promise.each(this.hosts, async (host) => {
-      logger.debug(`Sending wake-up check to relay node ${host}`)
+      logger.debug(`Sending wake-up check to relay node(s) ${host}`)
       await this.__get(`${this.host}/internal/syncCheck`)
     })
   }
