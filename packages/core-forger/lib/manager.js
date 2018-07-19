@@ -83,7 +83,7 @@ module.exports = class ForgerManager {
       }
 
       if (this.__isNextForgingDelegate(round)) {
-        logger.debug(`Delegate ${round.nextForger.publicKey} is next forger. Checking relay hosts if synced`)
+        logger.debug(`Our delegate ${round.nextForger.publicKey} is next in line to forge. Checking relay hosts if they are synced with network`)
         await this.client.syncCheck()
         await delay(delayTime)
       }
