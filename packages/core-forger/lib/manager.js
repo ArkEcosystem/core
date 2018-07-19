@@ -59,112 +59,112 @@ module.exports = class ForgerManager {
       await delay(100)
     }
 
-    return this.__monitor(null, null, {})
+    return this.__monitor(null)
   }
 
   /**
    * Monitor the node for any actions that trigger forging.
    * @param  {Object} round
-   * @param  {Object} transactionData
-   * @param  {Object} data
    * @return {Function}
    */
-  async __monitor (round, transactionData, data) {
+  async __monitor (round) {
     try {
       round = await this.client.getRound()
-      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 500
+      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
         // technically it is possible to compute doing shennanigan with arkjs.slots lib
-        await delay(250) // basically looping until we lock at beginning of next slot
-
-        return this.__monitor(round, transactionData, data)
+        await delay(200) // basically looping until we lock at beginning of next slot
+        return this.__monitor(round)
       }
 
-      if (this.__isNextForgingDelegate(round)) {
-        logger.debug(`Our delegate ${round.nextForger.publicKey} is next in line to forge. Checking relay hosts if they are synced with network`)
-        await this.client.syncCheck()
-        await delay(delayTime / 2)
-
-        return this.__monitor(round, transactionData, data)
-      }
-
-      const delegate = this.__pickForgingDelegate(round)
+      const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
       if (!delegate) {
-        // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
-        await delay(delayTime) // we will check at next slot
+        // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
-        return this.__monitor(round, transactionData, data)
+        if (this.__isDelegateActivated(round.nextForger.publicKey)) {
+          logger.info(`Next forging delegate ${round.nextForger.publicKey} is active on this node.`)
+          await this.client.syncCheck()
+        }
+
+        await delay(delayTime) // we will check at next slot
+        return this.__monitor(round)
       }
 
       const networkState = await this.client.getNetworkState()
       if (!this.__analyseNetworkState(networkState, delegate)) {
         await delay(delayTime) // we will check at next slot
-
-        return this.__monitor(round, transactionData, data)
+        return this.__monitor(round)
       }
 
-      emitter.emit('forger.started', delegate.publicKey)
-
-      transactionData = await this.client.getTransactions()
-      const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
-
-      data.previousBlock = round.lastBlock
-      data.timestamp = round.timestamp
-      data.reward = round.reward
-
-      /* const block = await delegate.forge(transactions, data)
-
-      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
-
-      emitter.emit('block.forged', block.data)
-
-      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
-
-      this.client.broadcast(block.toRawJson())
+      await this.__forgeNewBlock(delegate, round)
 
       await delay(delayTime) // we will check at next slot
-      */
-      return this.__monitor(round, transactionData, data)
+      return this.__monitor(round)
     } catch (error) {
       logger.error(`Forging failed: ${error.message} :bangbang:`)
+      logger.error(error.stack)
 
-      // console.log(round)
-      logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height.toLocaleString() : '')
+      logger.info('Round:', round ? round.current : '', 'Height:', round ? round.lastBlock.height.toLocaleString() : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
       emitter.emit('forger.failed', error.message)
 
-      return this.__monitor(round, transactionData, data)
+      return this.__monitor(round)
     }
   }
 
   /**
-   * Pick the delegate that will forge.
-   * @param  {Object} round
+   * Creates new block by the delegate and sends it to relay node for verification and broadcast
+   * @param {Object} delegate
+   * @param {Object} round
+   */
+  async __forgeNewBlock (delegate, round) {
+      emitter.emit('forger.started', delegate.publicKey)
+
+      const transactions = await this.__getTransactionsForForging()
+
+      const blockOptions = {}
+      blockOptions.previousBlock = round.lastBlock
+      blockOptions.timestamp = round.timestamp
+      blockOptions.reward = round.reward
+
+      const block = await delegate.forge(transactions, blockOptions)
+      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
+
+      emitter.emit('block.forged', block.data)
+      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
+
+      await this.client.broadcast(block.toRawJson())
+  }
+
+  /**
+   * Gets the unconfirmed transactions from the relay nodes transactio pool
+   */
+  async __getTransactionsForForging () {
+      const transactionData = await this.client.getTransactions()
+      const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
+      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
+
+      return transactions
+  }
+
+  /**
+   * Checks if delegate public key is in the loaded (active) delegates list
+   * @param  {Object} PublicKey
    * @return {Object}
    */
-  __pickForgingDelegate (round) {
-    return this.delegates.find(delegate => delegate.publicKey === round.currentForger.publicKey)
+  __isDelegateActivated (queryPublicKey) {
+    return this.delegates.find(delegate => delegate.publicKey === queryPublicKey)
   }
 
   /**
-   * Check if next forging delegate is ours
-   * @param  {Object} round
-   * @return {Boolean}
-   */
-  __isNextForgingDelegate (round) {
-    return this.delegates.find(delegate => delegate.publicKey === round.nextForger.publicKey)
-  }
-
-  /**
-   * Analyses network state and returns if forging is allowed
+   * Analyses network state and decides if forging is allowed
    * @param {Object} networkState internal response
    * @param {Booolean} isAllowedToForge
    */
-  __analyseNetworkState (networkState, currentDelegate) {
+  __analyseNetworkState (networkState, currentForger) {
     if (networkState.coldStart) {
       logger.info('Not allowed to forge in the cold start period.')
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
@@ -177,8 +177,8 @@ module.exports = class ForgerManager {
       return false
     }
 
-    if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentDelegate.publicKey) {
-      logger.info(`Possible double forging for delegate: ${currentDelegate.publicKey}.`)
+    if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
+      logger.info(`Possible double forging for delegate: ${currentForger.publicKey}.`)
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
@@ -191,4 +191,4 @@ module.exports = class ForgerManager {
 
     return true
   }
-}
+ }

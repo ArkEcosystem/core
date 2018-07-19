@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const requestIp = require('request-ip')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
@@ -165,6 +166,7 @@ exports.checkBlockchainSynced = {
     }
 
     try {
+      logger.debug('Blockchain sync check WAKEUP requested by forger')
       blockchain.dispatch('WAKEUP')
 
       return {

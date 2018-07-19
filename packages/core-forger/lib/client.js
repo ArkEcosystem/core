@@ -41,11 +41,11 @@ module.exports = class Client {
   }
 
   /**
-   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync
+   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
    */
   async syncCheck () {
     await Promise.each(this.hosts, async (host) => {
-      logger.debug(`Sending wake-up to relay node ${host}`)
+      logger.debug(`Sending wake-up check to relay node ${host}`)
       await this.__get(`${this.host}/internal/syncCheck`)
     })
   }
