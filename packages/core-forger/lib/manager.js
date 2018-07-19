@@ -79,7 +79,7 @@ module.exports = class ForgerManager {
 
         return this.__monitor(round, transactionData, data)
       }
-
+      
       const delegate = await this.__pickForgingDelegate(round)
       if (!delegate) {
         // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
