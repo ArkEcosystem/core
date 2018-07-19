@@ -1,5 +1,5 @@
 'use strict'
-
+const Promise = require('bluebird')
 const axios = require('axios')
 const delay = require('delay')
 const sample = require('lodash/sample')
@@ -38,6 +38,16 @@ module.exports = class Client {
     })
 
     return response.data.success
+  }
+
+  /**
+   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync
+   */
+  async syncCheck () {
+    await Promise.each(this.hosts, async (host) => {
+      logger.debug(`Sending wake-up to relay node ${host}`)
+      await this.__get(`${this.host}/internal/syncCheck`)
+    })
   }
 
   /**

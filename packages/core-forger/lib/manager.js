@@ -42,6 +42,8 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
+    logger.debug(`Loaded ${this.delegates.map(delegate => delegate.publicKey)} delegates.`)
+
     return this.delegates
   }
 
@@ -70,7 +72,7 @@ module.exports = class ForgerManager {
   async __monitor (round, transactionData, data) {
     try {
       round = await this.client.getRound()
-      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 200
+      const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 500
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
@@ -80,7 +82,13 @@ module.exports = class ForgerManager {
         return this.__monitor(round, transactionData, data)
       }
 
-      const delegate = await this.__pickForgingDelegate(round)
+      if (this.__isNextForgingDelegate(round)) {
+        logger.debug(`Delegate ${round.nextForger.publicKey} is next forger. Checking relay hosts if synced`)
+        await this.client.syncCheck()
+        await delay(delayTime)
+      }
+
+      const delegate = this.__pickForgingDelegate(round)
       if (!delegate) {
         // logger.debug(`Next delegate ${round.delegate.publicKey} is not configured on this node`)
         await delay(delayTime) // we will check at next slot
@@ -105,7 +113,7 @@ module.exports = class ForgerManager {
       data.timestamp = round.timestamp
       data.reward = round.reward
 
-      const block = await delegate.forge(transactions, data)
+      /* const block = await delegate.forge(transactions, data)
 
       logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
 
@@ -116,13 +124,13 @@ module.exports = class ForgerManager {
       this.client.broadcast(block.toRawJson())
 
       await delay(delayTime) // we will check at next slot
-
+      */
       return this.__monitor(round, transactionData, data)
     } catch (error) {
       logger.error(`Forging failed: ${error.message} :bangbang:`)
 
       // console.log(round)
-      // logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.data.height.toLocaleString() : '')
+      logger.info('round:', round ? round.current : '', 'height:', round ? round.lastBlock.height.toLocaleString() : '')
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
       emitter.emit('forger.failed', error.message)
@@ -136,8 +144,17 @@ module.exports = class ForgerManager {
    * @param  {Object} round
    * @return {Object}
    */
-  async __pickForgingDelegate (round) {
-    return this.delegates.find(delegate => delegate.publicKey === round.delegate.publicKey)
+  __pickForgingDelegate (round) {
+    return this.delegates.find(delegate => delegate.publicKey === round.currentForger.publicKey)
+  }
+
+  /**
+   * Check if next forging delegate is ours
+   * @param  {Object} round
+   * @return {Boolean}
+   */
+  __isNextForgingDelegate (round) {
+    return this.delegates.find(delegate => delegate.publicKey === round.nextForger.publicKey)
   }
 
   /**

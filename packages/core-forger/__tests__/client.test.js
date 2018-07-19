@@ -65,6 +65,8 @@ describe('Client', () => {
         expect(round).toHaveProperty('reward')
         expect(round).toHaveProperty('timestamp')
         expect(round).toHaveProperty('delegates')
+        expect(round).toHaveProperty('currentForger')
+        expect(round).toHaveProperty('nextForger')
         expect(round).toHaveProperty('lastBlock')
         expect(round).toHaveProperty('canForge')
       })
