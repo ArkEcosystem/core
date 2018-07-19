@@ -4,7 +4,7 @@ const ark = require('arkjs')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
-const transactionCommand = require('./transactions')
+const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
   const copyTransactions = options.copy
@@ -12,7 +12,7 @@ module.exports = async (options) => {
 
   // Wallets for extra signatures
   const approvalWallets = utils.generateWallets(options.quantity)
-  await transactionCommand(options, approvalWallets, 20, true)
+  await transferCommand(options, approvalWallets, 20, true)
 
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
 
@@ -20,7 +20,7 @@ module.exports = async (options) => {
 
   // Wallets with multi-signature
   const multiSignatureWallets = utils.generateWallets(options.number)
-  await transactionCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
+  await transferCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
 
   let transactions = []
   multiSignatureWallets.forEach((wallet, i) => {

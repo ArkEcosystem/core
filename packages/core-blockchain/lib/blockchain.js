@@ -173,12 +173,12 @@ module.exports = class Blockchain {
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    logger.info(`Removing ${height.toLocaleString() - newHeight.toLocaleString()} blocks to reset current round :warning:`)
+    logger.info(`Removing ${height - newHeight} blocks to reset current round :warning:`)
 
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
 
-    while (this.getLastBlock().data.height >= newHeight) {
+    while (this.getLastBlock().data.height >= newHeight + 1) {
       const removalBlockId = this.getLastBlock().data.id
       const removalBlockHeight = this.getLastBlock().data.height.toLocaleString()
       logger.printTracker('Removing block', count++, max, `ID: ${removalBlockId}, Height: ${removalBlockHeight}`)

@@ -27,7 +27,10 @@ module.exports = {
       }
     },
     rebuildFinished: {
-      onEntry: ['rebuildFinished']
+      onEntry: ['rebuildFinished'],
+      on: {
+        PROCESSFINISHED: 'processFinished'
+      }
     },
     rebuildPaused: {
       onEntry: ['downloadPaused'],

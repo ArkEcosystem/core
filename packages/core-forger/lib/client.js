@@ -1,6 +1,7 @@
 'use strict'
 
 const axios = require('axios')
+const delay = require('delay')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -9,10 +10,10 @@ const config = container.resolvePlugin('config')
 module.exports = class Client {
   /**
    * Create a new client instance.
-   * @param  {Array} hosts
+   * @param  {(Array|String)} hosts - Host or Array of hosts
    */
   constructor (hosts) {
-    this.hosts = hosts
+    this.hosts = Array.isArray(hosts) ? hosts : [hosts]
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -23,7 +24,7 @@ module.exports = class Client {
 
   /**
    * Send the given block to the relay.
-   * @param  {Object} block
+   * @param  {(Block|Object)} block
    * @return {Object}
    */
   async broadcast (block) {
@@ -46,10 +47,7 @@ module.exports = class Client {
   async getRound () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/round`, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    const response = await this.__get(`${this.host}/internal/round`)
 
     return response.data.round
   }
@@ -61,10 +59,7 @@ module.exports = class Client {
   async getNetworkState () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/networkState`, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    const response = await this.__get(`${this.host}/internal/networkState`)
 
     return response.data.networkState
   }
@@ -76,10 +71,7 @@ module.exports = class Client {
   async getTransactions () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/forgingTransactions`, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    const response = await this.__get(`${this.host}/internal/forgingTransactions`)
 
     return response.data.data || {}
   }
@@ -92,16 +84,19 @@ module.exports = class Client {
     const host = sample(this.hosts)
 
     try {
-      await axios.get(`${host}/peer/status`, {
-        headers: this.headers,
-        timeout: 2000
-      })
+      await this.__get(`${host}/peer/status`)
 
       this.host = host
     } catch (error) {
       logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`)
 
+      // Wait more if the connection has been dropped completely
+      await delay(1000)
       await this.__chooseHost()
     }
+  }
+
+  async __get (url) {
+    return axios.get(url, { headers: this.headers, timeout: 2000 })
   }
 }

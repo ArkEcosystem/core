@@ -22,7 +22,8 @@
     "bip39": "^2.5.0",
     "chalk": "^2.4.1",
     "lodash": "^4.17.10",
-    "superheroes": "^1.0.0"
+    "superheroes": "^1.0.0",
+    "xstate": "^3.3.3"
   },
   "publishConfig": {
     "access": "public"

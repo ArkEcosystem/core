@@ -50,10 +50,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       await this.connect()
+      await this.__registerModels()
       await this.__registerQueryBuilder()
       await this.__registerCache()
       await this.__runMigrations()
-      await this.__registerModels()
       await this.__registerRepositories()
       await super._registerWalletManager()
 
@@ -118,9 +118,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     const blockStats = await this.query
       .select()
-      .sum('numberOfTransactions', 'numberOfTransactions')
-      .sum('totalFee', 'totalFee')
-      .sum('totalAmount', 'totalAmount')
+      .sum('number_of_transactions', 'numberOfTransactions')
+      .sum('total_fee', 'totalFee')
+      .sum('total_amount', 'totalAmount')
       .from('blocks')
       .first()
     const transactionStats = await this.query
@@ -170,8 +170,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .from('rounds')
       .where('round', round)
       .orderBy({
-        balance: 'DESC',
-        publicKey: 'ASC'
+        'balance': 'DESC',
+        'public_key': 'ASC'
       })
       .all()
 
@@ -237,17 +237,17 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey)
 
       let query = this.query
-        .select('publicKey')
+        .select('public_key')
         .sum('balance', 'balance')
         .from('wallets')
         .whereNotNull('username')
 
         if (chosen.length) {
-          query = query.whereNotIn('publicKey', chosen)
+          query = query.whereNotIn('public_key', chosen)
         }
 
-        const data2 = await query.groupBy('publicKey')
-          .orderBy('publicKey', 'ASC')
+        const data2 = await query.groupBy('public_key')
+          .orderBy('public_key', 'ASC')
           .limit(maxDelegates - data.length)
           .all()
 
@@ -468,7 +468,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const transactions = await this.query
       .select('serialized')
       .from('transactions')
-      .where('blockId', block.id)
+      .where('block_id', block.id)
       .all()
 
     block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
@@ -495,7 +495,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const transactions = await this.query
       .select('serialized')
       .from('transactions')
-      .where('blockId', block.id)
+      .where('block_id', block.id)
+      .orderBy('sequence', 'ASC')
       .all()
 
     block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
@@ -520,7 +521,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Promise}
    */
   getCommonBlock (ids) {
-    return this.connection.query(`SELECT MAX("height") AS "height", "id", "previousBlock", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
+    return this.connection.query(`SELECT MAX("height") AS "height", "id", "previous_block", "timestamp" FROM blocks WHERE "id" IN ('${ids.join('\',\'')}') GROUP BY "id" ORDER BY "height" DESC`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
@@ -566,10 +567,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     if (ids.length) {
       transactions = await this.query
-        .select('blockId', 'serialized')
+        .select('block_id', 'serialized')
         .from('transactions')
-        .whereIn('blockId', ids)
-        .orderBy('createdAt', 'ASC')
+        .whereIn('block_id', ids)
+        .orderBy('sequence', 'ASC')
         .all()
       transactions = transactions.map(tx => {
         const data = Transaction.deserialize(tx.serialized.toString('hex'))
@@ -624,7 +625,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {void}
    */
   __registerQueryBuilder () {
-    this.query = new QueryBuilder(this.connection)
+    this.query = new QueryBuilder(this.connection, this.models)
   }
 
   /**

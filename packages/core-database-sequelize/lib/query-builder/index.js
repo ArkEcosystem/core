@@ -9,8 +9,9 @@ module.exports = class QueryBuiler {
    * @param  {[type]} connection
    * @return {QueryBuilder}
    */
-  constructor (connection) {
+  constructor (connection, models) {
     this.connection = connection
+    this.models = models ? Object.keys(models).map(k => models[k]) : []
   }
 
   /**
@@ -284,8 +285,15 @@ module.exports = class QueryBuiler {
    * @return {QueryBuilder}
    */
   async all () {
-    return this.connection.query(SqlBuilder.build(this.clauses), {
-      type: QueryTypes.SELECT
+    const { sql, replacements } = SqlBuilder.build(this.clauses)
+    const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
+
+    // logger.verbose(`SQL: ${sql}`)
+
+    return this.connection.query(sql, {
+        type: QueryTypes.SELECT,
+        fieldMap: fieldAttributeMap,
+        replacements
     })
   }
 

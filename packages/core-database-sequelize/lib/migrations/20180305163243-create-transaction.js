@@ -23,6 +23,10 @@ module.exports = {
       blockId: {
         type: Sequelize.STRING(64)
       },
+      sequence: {
+        allowNull: false,
+        type: Sequelize.SMALLINT
+      },
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
         type: Sequelize.STRING(66)

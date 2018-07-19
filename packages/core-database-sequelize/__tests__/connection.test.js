@@ -159,7 +159,9 @@ describe('Sequelize Connection', () => {
       const wallet = connection.walletManager.getWalletByPublicKey('03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b')
       expect(wallet.missedBlocks).toBe(0)
 
-      await connection.updateDelegateStats(genesisBlock, delegates)
+      const { height } = genesisBlock.data
+      await connection.applyRound(height)
+      await connection.updateDelegateStats(height, delegates)
 
       expect(wallet.missedBlocks).toBe(1)
     })
@@ -383,6 +385,34 @@ describe('Sequelize Connection', () => {
 
       expect(blocks).toBeObject()
       expect(blocks[0]).toBeInstanceOf(Buffer)
+    })
+  })
+
+  describe('sql injection', () => {
+    it('should be ok #1', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('generator_public_key', '\' or \'\'=\'')
+        .all()
+
+      expect(blocks).toEqual([])
+    })
+
+    it('should be ok #2', async () => {
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('number_of_transactions', '153\'; DROP TABLE blocks')
+        .all()
+
+      expect(blocks).toEqual([])
+
+      const result = await connection.connection.query('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'blocks\';')
+      expect(result).toBeArray();
+      expect(result).toHaveLength(1);
     })
   })
 })

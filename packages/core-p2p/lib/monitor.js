@@ -316,7 +316,8 @@ module.exports = class Monitor {
     }
 
     console.log(heights)
-    return allowedToForge / syncedPeers
+    const pbft = allowedToForge / syncedPeers
+    return isNaN(pbft) ? 0 : pbft
   }
 
   async getNetworkState () {
@@ -439,7 +440,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (this.config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
