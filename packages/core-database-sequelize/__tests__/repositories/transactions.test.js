@@ -170,9 +170,10 @@ describe('Transaction Repository', () => {
 
     it('should find the same transaction count with parameter senderId and corresponding senderPublicKey', async () => {
       await connection.saveBlock(genesisBlock)
+      const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
 
-      const transactionsSenderId = await repository.findAllLegacy({ senderId : 'AMfyf9iRjXiKNcLQVTUE9oCESUPzmQ6iUT' })
-      const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey : '034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c' })
+      const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey : senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAllLegacy({ senderId : senderWallet.address })
 
       expect(transactionsSenderId.count).toBe(transactionsSenderPublicKey.count);
     })
