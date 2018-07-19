@@ -59,3 +59,12 @@ exports.voters = {
     limit: Joi.number().integer()
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.voterBalances = {
+  params: {
+    id: Joi.string()
+  }
+}

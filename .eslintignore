@@ -1,5 +1,6 @@
 /build/**
 /dist/**
+/packages/dist/**
 /.coverage/**
 /docs/**
 /tmp/**

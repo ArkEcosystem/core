@@ -101,7 +101,7 @@ module.exports = async (config) => {
   try {
     await server.start()
 
-    logger.info(`Public API is available and listening on ${server.info.uri}`)
+    logger.info(`Public API Server running at: ${server.info.uri}`)
 
     return server
   } catch (error) {

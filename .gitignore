@@ -51,6 +51,10 @@ bundle.min.js
 
 # Build
 dist
+packages/**/dist/
 
 # Lockfile
 yarn.lock
+
+# Microsoft Visual Studio settings
+.vs

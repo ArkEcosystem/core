@@ -31,7 +31,7 @@ describe('Delegate Calculator', () => {
     })
 
     it('should calculate the approval', () => {
-      expect(calculatorModule.calculateApproval(delegate, 1)).toBe('8.00')
+      expect(calculatorModule.calculateApproval(delegate, 1)).toBe(8)
     })
   })
 
@@ -41,7 +41,7 @@ describe('Delegate Calculator', () => {
     })
 
     it('should calculate the productivity', () => {
-      expect(calculatorModule.calculateProductivity(delegate)).toBe('90.91')
+      expect(calculatorModule.calculateProductivity(delegate)).toBe(90.91)
     })
   })
 })

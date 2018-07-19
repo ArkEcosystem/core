@@ -42,7 +42,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       ...config,
       ...{
         operatorsAliases: Op,
-        logging: process.env.NODE_ENV === 'test'
+        logging: process.env.NODE_ENV === 'test' && !process.env.ARK_CI_TEST
       }
     })
 
@@ -79,12 +79,77 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   async disconnect () {
     try {
       await this.saveBlockCommit()
+      await this.deleteBlockCommit()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
     }
 
     await this.connection.close()
+  }
+
+  /**
+   * Verify the blockchain stored on db is not corrupted making simple tests:
+   * - last block height is equals to the number of stored blocks
+   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+   * - sum of all tx fees is equals to the sum of block.totalFee
+   * - sum of all tx amount is equals to the sum of block.totalAmount
+   * @param  {Block} block
+   * @return {void}
+   */
+  async verifyBlockchain () {
+    const output = {
+      verified: true,
+      errors: []
+    }
+
+    // last block height is equals to the number of stored blocks
+    const lastBlock = await this.getLastBlock()
+    const numberOfBlocks = await this.query
+      .select()
+      .countDistinct('height', 'count')
+      .from('blocks')
+      .first()
+
+    if (lastBlock.data.height !== +numberOfBlocks.count) {
+      output.verified = false
+      output.errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks.count}`)
+    }
+
+    const blockStats = await this.query
+      .select()
+      .sum('numberOfTransactions', 'numberOfTransactions')
+      .sum('totalFee', 'totalFee')
+      .sum('totalAmount', 'totalAmount')
+      .from('blocks')
+      .first()
+    const transactionStats = await this.query
+      .select()
+      .countDistinct('id', 'count')
+      .sum('fee', 'totalFee')
+      .sum('amount', 'totalAmount')
+      .from('transactions')
+      .first()
+
+    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+    if (blockStats.numberOfTransactions !== transactionStats.count) {
+      output.verified = false
+      output.errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
+    }
+
+    // sum of all tx fees is equals to the sum of block.totalFee
+    if (blockStats.totalFee !== transactionStats.totalFee) {
+      output.verified = false
+      output.errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
+    }
+
+    // sum of all tx amount is equals to the sum of block.totalAmount
+    if (blockStats.totalAmount !== transactionStats.totalAmount) {
+      output.verified = false
+      output.errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
+    }
+
+    return output
   }
 
   /**
@@ -240,47 +305,6 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Update delegate statistics in memory.
-   * NOTE: must be called before saving new round of delegates
-   * @param  {Block} block
-   * @param  {Array} delegates
-   * @return {void}
-   */
-  async updateDelegateStats (block, delegates) {
-    if (!delegates) {
-      return
-    }
-
-    logger.debug('Updating delegate statistics...')
-
-    try {
-      const maxDelegates = config.getConstants(block.height).activeDelegates
-      const lastBlockGenerators = await this.connection.query(`SELECT id, "generatorPublicKey", "timestamp" FROM blocks ORDER BY "timestamp" DESC LIMIT ${maxDelegates}`, {type: Sequelize.QueryTypes.SELECT})
-
-      delegates.forEach(delegate => {
-        let index = lastBlockGenerators.findIndex(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
-        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
-
-        if (index === -1) {
-          wallet.missedBlocks++
-
-          emitter.emit('forger.missing', {
-            delegate: wallet,
-            block: block
-          })
-        } else {
-          wallet.producedBlocks++
-          wallet.lastBlock = lastBlockGenerators[index]
-          wallet.forgedFees += block.totalFee
-          wallet.forgedRewards += block.reward
-        }
-      })
-    } catch (error) {
-      logger.error(error.stack)
-    }
-  }
-
-  /**
    * Commit wallets from the memory.
    * @param  {Boolean} force
    * @return {Object}
@@ -342,7 +366,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     await this.models.block.create(block.data, {transaction: this.asyncTransaction})
-    await this.models.transaction.bulkCreate(block.transactions || [], {transaction: this.asyncTransaction})
+    if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction: this.asyncTransaction})
   }
 
   /**
@@ -359,13 +383,13 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       await this.asyncTransaction.commit()
+      this.asyncTransaction = null
     } catch (error) {
       logger.error(error)
       await this.asyncTransaction.rollback()
+      this.asyncTransaction = null
       throw error
     }
-
-    this.asyncTransaction = null
   }
 
   /**
@@ -384,6 +408,42 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       await transaction.rollback()
+      throw error
+    }
+  }
+
+  /**
+   * Delete the given block (async version).
+   * @param  {Block} block
+   * @return {void}
+   */
+  async deleteBlockAsync (block) {
+    if (!this.asyncTransaction) {
+      this.asyncTransaction = await this.connection.transaction()
+    }
+    await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction: this.asyncTransaction})
+    await this.models.block.destroy({where: {id: block.data.id}}, {transaction: this.asyncTransaction})
+  }
+
+  /**
+   * Commit the block database transaction.
+   * NOTE: to be used in combination with deleteBlockAsync
+   * @return {void}
+   */
+  async deleteBlockCommit () {
+    if (!this.asyncTransaction) {
+      return
+    }
+
+    logger.debug('Committing database transaction')
+
+    try {
+      await this.asyncTransaction.commit()
+      this.asyncTransaction = null
+    } catch (error) {
+      logger.error(error)
+      await this.asyncTransaction.rollback()
+      this.asyncTransaction = null
       throw error
     }
   }
@@ -580,7 +640,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       migrations: {
         params: [
           this.connection.getQueryInterface(),
-          Sequelize
+          Sequelize,
+          this
         ],
         path: path.join(__dirname, 'migrations')
       }

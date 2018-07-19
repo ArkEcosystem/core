@@ -19,10 +19,12 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "^0.1.1",
     "joi": "^13.3.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@arkecosystem/crypto": "^0.1.1"
   }
 }

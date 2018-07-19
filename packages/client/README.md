@@ -8,6 +8,35 @@
 yarn add @arkecosystem/client
 ```
 
+If you want to use the CDN version, is avialable two bundles:
+
+- Without the [@arkecosystem/crypto](http://github.com/ArkEcosystem/ArkEcosystem/core/packages/crypto) package: (_You will need to import both_)
+
+```html
+<script src="https://unpkg.com/@arkecosystem/crypto/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@arkecosystem/client/dist/index.umd.js"></script>
+```
+
+- And a standalone file:
+
+```html
+<script src="https://unpkg.com/@arkecosystem/client/dist/bundle.umd.js"></script>
+```
+
+## Usage
+
+Import the library in node.js:
+
+```
+import ArkClient from @arkecosystem/client
+```
+
+Use the library:
+
+```
+const client = new ArkClient('<your host here>')
+```
+
 ## Security
 
 If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.

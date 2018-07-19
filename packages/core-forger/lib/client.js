@@ -29,7 +29,7 @@ module.exports = class Client {
   async broadcast (block) {
     await this.__chooseHost()
 
-    logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
+    logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
     const response = await axios.post(`${this.host}/internal/block`, block, {
       headers: this.headers,
@@ -52,6 +52,21 @@ module.exports = class Client {
     })
 
     return response.data.round
+  }
+
+  /**
+   * Get the current network quorum.
+   * @return {Object}
+   */
+  async getNetworkState () {
+    await this.__chooseHost()
+
+    const response = await axios.get(`${this.host}/internal/networkState`, {
+      headers: this.headers,
+      timeout: 2000
+    })
+
+    return response.data.networkState
   }
 
   /**

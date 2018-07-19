@@ -7,16 +7,23 @@
  */
 module.exports = (config) => {
   let result = {}
-  const keys = ['@arkecosystem/core-p2p', '@arkecosystem/core-api', '@arkecosystem/core-graphql', '@arkecosystem/core-json-rpc', '@arkecosystem/core-webhooks']
+  const keys = [
+    '@arkecosystem/core-p2p',
+    '@arkecosystem/core-api',
+    '@arkecosystem/core-graphql',
+    '@arkecosystem/core-json-rpc',
+    '@arkecosystem/core-webhooks'
+  ]
 
-  result[keys[0]] = config.plugins[keys[0]].port
-  for (let [k, v] of Object.entries(config.plugins)) {
-    if (keys.includes(k) && v.enabled) {
-      if (v.server && v.server.enabled) {
-        result[k] = v.server.port
+  for (let [name, options] of Object.entries(config.plugins)) {
+    if (keys.includes(name) && options.enabled) {
+      if (options.server && options.server.enabled) {
+        result[name] = options.server.port
+
         continue
       }
-      result[k] = v.port
+
+      result[name] = options.port
     }
   }
 

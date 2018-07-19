@@ -66,6 +66,20 @@ describe('Sequelize Connection', () => {
     })
   })
 
+  describe('verifyBlockchain', () => {
+    it('should be a function', () => {
+      expect(connection.verifyBlockchain).toBeFunction()
+    })
+
+    it.skip('should verify blockchain state as valid', () => {
+
+    })
+
+    it.skip('should verify blockchain state as invalid', () => {
+
+    })
+  })
+
   describe('saveRound', () => {
     it('should be a function', () => {
       expect(connection.saveRound).toBeFunction()

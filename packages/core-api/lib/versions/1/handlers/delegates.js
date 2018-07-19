@@ -97,7 +97,7 @@ exports.search = {
     const query = {
       username: request.query.q
     }
-    const { rows } = await database.delegates.search({...query, ...utils.paginator(request)})
+    const { rows } = await database.delegates.search({...query, ...utils.paginate(request)})
 
     return utils.respondWith({
       delegates: utils.toCollection(request, rows, 'delegate')
@@ -128,6 +128,13 @@ exports.voters = {
     return utils.respondWith({
       accounts: utils.toCollection(request, accounts.rows, 'voter')
     })
+  },
+  config: {
+    plugins: {
+      'hapi-ajv': {
+        querySchema: schema.getVoters
+      }
+    }
   }
 }
 
@@ -160,9 +167,9 @@ exports.forged = {
     const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
 
     return utils.respondWith({
-      fees: wallet.forgedFees,
-      rewards: wallet.forgedRewards,
-      forged: (Number(wallet.forgedFees) + Number(wallet.forgedRewards))
+      fees: Number(wallet.forgedFees),
+      rewards: Number(wallet.forgedRewards),
+      forged: Number(wallet.forgedFees) + Number(wallet.forgedRewards)
     })
   },
   config: {

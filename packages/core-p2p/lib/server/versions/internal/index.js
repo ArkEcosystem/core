@@ -13,7 +13,8 @@ const register = async (server, options) => {
     { method: 'GET', path: '/round', ...handlers.getRound },
     { method: 'POST', path: '/block', ...handlers.postInternalBlock },
     { method: 'POST', path: '/verifyTransaction', ...handlers.postVerifyTransaction },
-    { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging }
+    { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging },
+    { method: 'GET', path: '/networkState', ...handlers.getNetworkState }
   ])
 }
 

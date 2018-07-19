@@ -81,7 +81,10 @@ exports.getRound = {
         }
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }
@@ -107,7 +110,39 @@ exports.getTransactionsForForging = {
         data: await blockchain.getUnconfirmedTransactions(blockSize, true)
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.getNetworkState = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: true, error: 'Blockchain not ready' }
+    }
+    try {
+      return {
+        success: true,
+        networkState: await blockchain.p2p.getNetworkState()
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }

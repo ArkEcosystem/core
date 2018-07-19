@@ -197,28 +197,28 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  xdescribe('GET /transactions/unconfirmed/get?id=', () => {
+  describe('GET /transactions/unconfirmed/get?id=', () => {
     it('should be ok using valid id', async () => {
-      let params = 'id=' + transactionList[transactionList.length - 1].id
+      const transaction = await utils.createTransaction()
 
-      const response = await utils.request('GET', 'transactions/unconfirmed/get?' + params)
+      const response = await utils.request('GET', `transactions/unconfirmed/get?id=${transaction.id}`)
       utils.expectSuccessful(response)
 
       if (response.data.success && response.data.transaction != null) {
         expect(response.data.transaction).toBeObject()
-        expect(response.data.transaction).toHaveProperty('id', transactionList[transactionList.length - 1].id)
+        expect(response.data.transaction).toHaveProperty('id', transaction.id)
       } else {
         expect(response.data.error).toBeString()
       }
     })
   })
 
-  xdescribe('GET /transactions/unconfirmed', () => {
+  describe('GET /transactions/unconfirmed', () => {
     it('should be ok', async () => {
       const response = await utils.request('GET', 'transactions/unconfirmed')
       utils.expectSuccessful(response)
 
-      expect(Array.isArray(response.data.transactions)).toBe(true)
+      expect(response.data.transactions).toBeArray()
     })
   })
 })

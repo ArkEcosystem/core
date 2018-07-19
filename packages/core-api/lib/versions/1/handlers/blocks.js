@@ -19,7 +19,7 @@ exports.index = {
    */
   async handler (request, h) {
     const { count, rows } = await database.blocks.findAll({
-      ...request.query, ...utils.paginator(request)
+      ...request.query, ...utils.paginate(request)
     })
 
     if (!rows) {

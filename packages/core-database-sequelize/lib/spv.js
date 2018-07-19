@@ -227,7 +227,10 @@ module.exports = class SPV {
       const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
 
       if (!wallet.voted) {
-        wallet.apply(Transaction.deserialize(row.serialized.toString('hex')))
+        const vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
+        if (vote.startsWith('+')) {
+          wallet.vote = vote.slice(1)
+        }
         wallet.voted = true
       }
     })

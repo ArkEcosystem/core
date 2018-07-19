@@ -25,6 +25,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/delegates/{id}', ...delegates.show },
     { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
     { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
+    { method: 'GET', path: '/delegates/{id}/voters/balances', ...delegates.voterBalances },
     { method: 'POST', path: '/delegates/search', ...delegates.search },
 
     { method: 'GET', path: '/node/status', ...node.status },
@@ -32,6 +33,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/node/configuration', ...node.configuration },
 
     { method: 'GET', path: '/peers', ...peers.index },
+    { method: 'GET', path: '/peers/suspended', ...peers.suspended },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/transactions', ...transactions.index },

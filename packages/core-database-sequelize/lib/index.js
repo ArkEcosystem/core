@@ -11,7 +11,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'database',
   async register (container, options) {
-    container.resolvePlugin('logger').info('Establishing Database Connection...')
+    container.resolvePlugin('logger').info('Establishing Database Connection')
 
     const sequelize = new SequelizeConnection(options)
 
@@ -21,7 +21,7 @@ exports.plugin = {
     return databaseManager.connection()
   },
   async deregister (container, options) {
-    container.resolvePlugin('logger').info('Closing Database Connection...')
+    container.resolvePlugin('logger').info('Closing Database Connection')
 
     return container.resolvePlugin('database').disconnect()
   }
