@@ -210,7 +210,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Boolean}
    */
   deleteRound (round) {
-    return this.models.round.destroy({where: {round}})
+    return this.models.round.destroy({ where: {round} })
   }
 
   /**
@@ -259,7 +259,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     data = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, maxDelegates)
-      .map(delegate => ({...{round}, ...delegate}))
+      .map(delegate => ({ ...{ round }, ...delegate }))
 
     logger.debug(`Loaded ${data.length} active delegates`)
 
@@ -310,7 +310,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Object}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => wallet.publicKey && (force || wallet.dirty))
+    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => {
+      return wallet.publicKey && (force || wallet.dirty)
+    })
     const chunk = 5000
 
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
@@ -343,12 +345,16 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
-      await this.models.block.create(block.data, {transaction})
-      if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction})
+      await this.models.block.create(block.data, { transaction })
+      if (block.transactions.length > 0) {
+        await this.models.transaction.bulkCreate(block.transactions, { transaction })
+      }
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
-      if (error.sql) logger.info(error.sql)
+      if (error.sql) {
+        logger.info(error.sql)
+      }
       await transaction.rollback()
       throw error
     }
@@ -365,8 +371,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = await this.connection.transaction()
     }
 
-    await this.models.block.create(block.data, {transaction: this.asyncTransaction})
-    if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction: this.asyncTransaction})
+    await this.models.block.create(block.data, { transaction: this.asyncTransaction })
+    if (block.transactions.length > 0) {
+      await this.models.transaction.bulkCreate(block.transactions, { transaction: this.asyncTransaction })
+    }
   }
 
   /**
@@ -402,8 +410,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
-      await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction})
-      await this.models.block.destroy({where: {id: block.data.id}}, {transaction})
+      await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction })
+      await this.models.block.destroy({ where: { id: block.data.id } }, { transaction })
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
@@ -421,8 +429,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (!this.asyncTransaction) {
       this.asyncTransaction = await this.connection.transaction()
     }
-    await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction: this.asyncTransaction})
-    await this.models.block.destroy({where: {id: block.data.id}}, {transaction: this.asyncTransaction})
+    await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction: this.asyncTransaction })
+    await this.models.block.destroy({ where: { id: block.data.id } }, { transaction: this.asyncTransaction })
   }
 
   /**
@@ -471,7 +479,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .where('block_id', block.id)
       .all()
 
-    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -499,7 +507,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .orderBy('sequence', 'ASC')
       .all()
 
-    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -684,8 +692,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       transactions: require('./repositories/transactions')
     }
 
-    for (const [key, value] of Object.entries(repositories)) {
-      this[key] = new value(this) // eslint-disable-line new-cap
+    for (const [key, Value] of Object.entries(repositories)) {
+      this[key] = new Value(this) // eslint-disable-line new-cap
     }
 
     await super._registerRepositories()
