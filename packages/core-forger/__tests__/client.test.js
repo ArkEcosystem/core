@@ -3,20 +3,24 @@
 const app = require('./__support__/setup')
 const block = require('./__fixtures__/block')
 
+jest.setTimeout(30000)
+
+const host = 'http://127.0.0.1:4000'
+
+let Client
 let client
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  client = new (require('../lib/client'))('http://127.0.0.1')
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
+})
 
-  done()
+beforeEach(() => {
+  Client = require('../lib/client')
+  client = new Client(host)
 })
 
 describe('Client', () => {
@@ -24,13 +28,27 @@ describe('Client', () => {
     expect(client).toBeObject()
   })
 
+  describe('constructor', () => {
+    it('accepts 1 or more hosts as parameter', () => {
+      client = new Client(host)
+      expect(client.hosts).toEqual([host])
+
+      const hosts = [host, 'localhost:4000']
+      client = new Client(hosts)
+      expect(client.hosts).toEqual(hosts)
+    })
+  })
+
   describe('broadcast', () => {
     it('should be a function', () => {
       expect(client.broadcast).toBeFunction()
     })
 
-    it('should be truthy if broadcasts', async () => {
-      await expect(client.broadcast(block)).resolves.toBeTruthy()
+    describe('when the host is available', () => {
+      it('should be truthy if broadcasts', async () => {
+        const wasBroadcasted = await client.broadcast(block.toRawJson())
+        expect(wasBroadcasted).toBeTruthy()
+      })
     })
   })
 
@@ -39,15 +57,17 @@ describe('Client', () => {
       expect(client.getRound).toBeFunction()
     })
 
-    it('should be ok', async () => {
-      const round = await client.getRound(block)
+    describe('when the host is available', () => {
+      it('should be ok', async () => {
+        const round = await client.getRound(block)
 
-      expect(round).toHaveProperty('current')
-      expect(round).toHaveProperty('reward')
-      expect(round).toHaveProperty('timestamp')
-      expect(round).toHaveProperty('delegates')
-      expect(round).toHaveProperty('lastBlock')
-      expect(round).toHaveProperty('canForge')
+        expect(round).toHaveProperty('current')
+        expect(round).toHaveProperty('reward')
+        expect(round).toHaveProperty('timestamp')
+        expect(round).toHaveProperty('delegates')
+        expect(round).toHaveProperty('lastBlock')
+        expect(round).toHaveProperty('canForge')
+      })
     })
   })
 
@@ -56,14 +76,17 @@ describe('Client', () => {
       expect(client.getTransactions).toBeFunction()
     })
 
-    it('should be ok', async () => {
-      const response = await client.getTransactions()
-      expect(response).toHaveProperty('count')
-      expect(response.count).toBeNumber()
-      expect(response).toHaveProperty('poolSize')
-      expect(response.poolSize).toBeNumber()
-      expect(response).toHaveProperty('transactions')
-      expect(response.transactions).toBeArray()
+    describe('when the host is available', () => {
+      it('should be ok', async () => {
+        const response = await client.getTransactions()
+
+        expect(response).toHaveProperty('count')
+        expect(response.count).toBeNumber()
+        expect(response).toHaveProperty('poolSize')
+        expect(response.poolSize).toBeNumber()
+        expect(response).toHaveProperty('transactions')
+        expect(response.transactions).toBeArray()
+      })
     })
   })
 
@@ -72,15 +95,17 @@ describe('Client', () => {
       expect(client.getNetworkState).toBeFunction()
     })
 
-    it('should be ok', async () => {
-      const networkState = await client.getNetworkState()
+    describe('when the host is available', () => {
+      it('should be ok', async () => {
+        const networkState = await client.getNetworkState()
 
-      expect(networkState).toHaveProperty('quorum')
-      expect(networkState).toHaveProperty('nodeHeight')
-      expect(networkState).toHaveProperty('lastBlockId')
-      expect(networkState).toHaveProperty('overHeightBlockHeader')
-      expect(networkState).toHaveProperty('minimumNetworkReach')
-      expect(networkState).toHaveProperty('coldStart')
+        expect(networkState).toHaveProperty('quorum')
+        expect(networkState).toHaveProperty('nodeHeight')
+        expect(networkState).toHaveProperty('lastBlockId')
+        expect(networkState).toHaveProperty('overHeightBlockHeader')
+        expect(networkState).toHaveProperty('minimumNetworkReach')
+        expect(networkState).toHaveProperty('coldStart')
+      })
     })
   })
 })
