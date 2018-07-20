@@ -161,7 +161,7 @@ blockchainMachine.actionMap = blockchain => {
 
         const databaseBlokchain = await blockchain.database.verifyBlockchain()
 
-        if (!databaseBlokchain.verified) {
+        if (!databaseBlokchain.valid) {
           logger.error('FATAL: The database is corrupted :rotating_light:')
 
           console.error(databaseBlokchain.errors)

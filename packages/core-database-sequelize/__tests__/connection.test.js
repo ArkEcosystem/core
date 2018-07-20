@@ -44,6 +44,24 @@ describe('Sequelize Connection', () => {
 
       expect(connection.connection).toBeInstanceOf(require('sequelize'))
     })
+
+    describe('when the db is already initialised', () => {
+      it('should throw an Error', async () => {
+        const connection = new (require('../lib/connection'))({
+          dialect: 'sqlite',
+          storage: ':memory:'
+        })
+
+        await connection.make()
+
+        try {
+          await connection.make()
+          expect().fail('Should throw an Error')
+        } catch (error) {
+          expect(error.message).toMatch(/sequelize.*connect/i)
+        }
+      })
+    })
   })
 
   describe('getActiveDelegates', () => {
@@ -67,16 +85,115 @@ describe('Sequelize Connection', () => {
   })
 
   describe('verifyBlockchain', () => {
+    const stubBlockchain = ({ lastBlock, numberOfBlocks, blockStats, transactionStats } = {}) => {
+      lastBlock || lastBlock === null || (lastBlock = genesisBlock)
+      numberOfBlocks || (numberOfBlocks = 1)
+      blockStats || (blockStats = { totalFee: 10, numberOfTransactions: 5, totalAmount: 100 })
+      transactionStats || (transactionStats = { totalFee: 10, count: 5, totalAmount: 100 })
+
+      connection.getLastBlock = jest.fn(() => lastBlock)
+      connection.__numberOfBlocks = jest.fn(() => numberOfBlocks)
+      connection.__blockStats = jest.fn(() => blockStats)
+      connection.__transactionStats = jest.fn(() => transactionStats)
+    }
+
     it('should be a function', () => {
       expect(connection.verifyBlockchain).toBeFunction()
     })
 
-    it.skip('should verify blockchain state as valid', () => {
+    describe('when the blockchain state is valid', () => {
+      beforeEach(stubBlockchain)
 
+      it('should return that the blockchain state is valid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeTruthy()
+      })
+
+      it('should not include any error', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toBeEmpty()
+      })
     })
 
-    it.skip('should verify blockchain state as invalid', () => {
+    describe('when the last block is not available', () => {
+      beforeEach(() => {
+        stubBlockchain({ lastBlock: null })
+      })
 
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/last.*block.*available/i)
+        ]))
+      })
+    })
+
+    describe('when the number of transactions on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { numberOfTransactions: 30 },
+          transactionStats: { count: 25 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/number.*transaction/i)
+        ]))
+      })
+    })
+
+    describe('when the sum of fees on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { totalFee: 276 },
+          transactionStats: { totalFee: 275.998 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/total.*fee/i)
+        ]))
+      })
+    })
+
+    describe('when the sum of amounts on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { totalAmount: 3000 },
+          transactionStats: { totalAmount: 3003 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/total.*amount/i)
+        ]))
+      })
     })
   })
 
