@@ -6,11 +6,11 @@
   "blackList": [],
   "list": [
     {
-      "ip": "213.32.9.98",
+      "ip": "167.114.29.51",
       "port": 4002
     },
     {
-      "ip": "213.32.9.97",
+      "ip": "167.114.29.52",
       "port": 4002
     },
     {
@@ -26,7 +26,7 @@
       "port": 4002
     }
   ],
-    "sources": [
-      "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
-    ]
+  "sources": [
+    "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
+  ]
 }
