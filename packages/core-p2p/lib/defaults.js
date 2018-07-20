@@ -20,6 +20,7 @@ module.exports = {
     'time.google.com'
   ],
   whitelist: [
-    '127.0.0.1'
+    '127.0.0.1',
+    '::ffff:127.0.0.1'
   ]
 }
