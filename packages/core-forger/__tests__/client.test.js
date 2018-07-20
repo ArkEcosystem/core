@@ -59,12 +59,14 @@ describe('Client', () => {
 
     describe('when the host is available', () => {
       it('should be ok', async () => {
-        const round = await client.getRound(block)
+        const round = await client.getRound()
 
         expect(round).toHaveProperty('current')
         expect(round).toHaveProperty('reward')
         expect(round).toHaveProperty('timestamp')
         expect(round).toHaveProperty('delegates')
+        // expect(round).toHaveProperty('currentForger')
+        // expect(round).toHaveProperty('nextForger')
         expect(round).toHaveProperty('lastBlock')
         expect(round).toHaveProperty('canForge')
       })
@@ -106,6 +108,12 @@ describe('Client', () => {
         expect(networkState).toHaveProperty('minimumNetworkReach')
         expect(networkState).toHaveProperty('coldStart')
       })
+    })
+  })
+
+  describe('syncCheck', () => {
+    it('should be a function', () => {
+      expect(client.syncCheck).toBeFunction()
     })
   })
 })
