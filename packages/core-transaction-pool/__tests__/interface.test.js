@@ -6,19 +6,15 @@ const moment = require('moment')
 
 let poolInterface
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   const container = await app.setUp()
   await container.resolvePlugin('blockchain').start()
 
   poolInterface = new (require('../lib/interface'))({ enabled: false })
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 describe('Transaction Pool Interface', () => {

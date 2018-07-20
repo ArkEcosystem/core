@@ -4,24 +4,27 @@ const app = require('./__support__/setup')
 const moment = require('moment')
 const ARK_ENV = process.env.ARK_ENV
 
+const defaults = require('../lib/defaults')
+
+let Manager
+let Monitor
 let monitor
 let peer
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
 
-  done()
+  Manager = require('../lib/manager')
+  Monitor = require('../lib/monitor')
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {
-  const manager = new (require('../lib/manager'))(require('../lib/defaults'))
-  monitor = new (require('../lib/monitor'))(manager)
+  const manager = new Manager(defaults)
+  monitor = new Monitor(manager)
   peer = {
     ip: '45.76.142.128',
     port: 4002,

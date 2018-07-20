@@ -105,10 +105,10 @@ exports.showUnconfirmed = {
       return utils.respondWith('Transaction not found', true)
     }
 
-    transaction = { serialized: transaction.serialized.toString('hex') }
-
     return utils.respondWith({
-      transaction: utils.toResource(request, transaction, 'transaction')
+      transaction: utils.toResource(request, {
+        serialized: transaction.serialized.toString('hex')
+      }, 'transaction')
     })
   }
 }

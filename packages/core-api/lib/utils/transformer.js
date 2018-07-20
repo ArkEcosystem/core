@@ -9,7 +9,9 @@ const path = require('path')
  * @param  {Object} transformer
  * @return {Object}
  */
-const transformResource = (request, data, transformer) => require(path.resolve(__dirname, `../versions/${request.pre.apiVersion}/transformers/${transformer}`))(data)
+const transformResource = (request, data, transformer) => {
+  return require(path.resolve(__dirname, `../versions/${request.pre.apiVersion}/transformers/${transformer}`))(data)
+}
 
 /**
  * Transform the given data to a collection.
@@ -18,7 +20,9 @@ const transformResource = (request, data, transformer) => require(path.resolve(_
  * @param  {Object} transformer
  * @return {Object}
  */
-const transformCollection = (request, data, transformer) => data.map(d => transformResource(request, d, transformer))
+const transformCollection = (request, data, transformer) => {
+  return data.map(d => transformResource(request, d, transformer))
+}
 
 /**
  * @type {Object}

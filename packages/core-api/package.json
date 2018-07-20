@@ -16,7 +16,7 @@
     "test:watch": "ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores catbox-redis"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -35,10 +35,16 @@
     "joi": "^13.3.0",
     "lodash": "^4.17.10",
     "lout": "^11.0.1",
+    "micromatch": "^3.1.10",
     "moment": "^2.22.1",
+    "request-ip": "^2.1.1",
     "vision": "^5.3.2"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "^0.1.1",
+    "axios": "^0.18.0"
   }
 }

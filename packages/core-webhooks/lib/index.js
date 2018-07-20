@@ -15,12 +15,10 @@ exports.plugin = {
     const logger = container.resolvePlugin('logger')
 
     if (!options.enabled) {
-      logger.info('Webhooks are disabled...')
+      logger.info('Webhooks are disabled :grey_exclamation:')
 
       return
     }
-
-    logger.info('Starting Webhooks...')
 
     await database.setUp(options.database)
 
@@ -28,21 +26,15 @@ exports.plugin = {
 
     if (options.server.enabled) {
       return require('./server')(options.server)
-    } else {
-      logger.info('Webhooks API is disabled...')
     }
+
+    logger.info('Webhooks API server is disabled :grey_exclamation:')
   },
   async deregister (container, options) {
     if (options.server.enabled) {
-      container.resolvePlugin('logger').info('Stopping Webhook API...')
+      container.resolvePlugin('logger').info('Stopping Webhook API')
 
       return container.resolvePlugin('webhooks').stop()
     }
   }
 }
-
-/**
- * The database connection.
- * @type {Database}
- */
-exports.database = database

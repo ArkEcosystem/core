@@ -1,18 +1,18 @@
 'use strict'
 
-module.exports = (received, [dispatcher, method, arg]) => {
+module.exports = (received, dispatcher, arg) => {
   const mock = jest.fn()
 
-  dispatcher[method] = mock
+  dispatcher.dispatch = mock
   received()
 
-  const calls = dispatcher[method].mock.calls
+  const calls = dispatcher.dispatch.mock.calls
   const pass = calls && calls[0] ? Object.is(calls[0][0], arg) : false
 
   return {
     // FIXME isNot is necessary to write the right message
     // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
-    message: () => `Expected method "${method}" to ${this.isNot ? 'not' : ''} be called with ${arg}`,
+    message: () => `Expected "${arg}" to ${this.isNot ? 'not' : ''} be dispatched`,
     pass
   }
 }

@@ -25,9 +25,12 @@
     "@arkecosystem/crypto": "^0.1.1",
     "ajv": "^6.5.0",
     "axios": "^0.18.0",
+    "boom": "^7.2.0",
+    "delay": "^3.0.0",
     "hapi": "^17.5.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
+    "pretty-ms": "^3.2.0",
     "request-ip": "^2.0.2",
     "sntp": "^3.0.1",
     "threads": "^0.11.0"

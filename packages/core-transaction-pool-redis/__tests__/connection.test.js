@@ -4,29 +4,24 @@ const app = require('./__support__/setup')
 const delay = require('delay')
 const mockData = require('./__fixtures__/transactions')
 const { Transaction } = require('@arkecosystem/crypto').models
+const defaultConfig = require('../lib/defaults')
 
 let connection
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
 
   const RedisConnection = require('../lib/connection.js')
-  connection = new RedisConnection(require('../lib/defaults'))
+  connection = new RedisConnection(defaultConfig)
   connection = connection.make()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
+afterEach(async () => {
   await connection.flush()
-
-  done()
 })
 
 describe('Connection', () => {

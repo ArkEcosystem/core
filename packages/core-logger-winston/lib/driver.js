@@ -28,11 +28,11 @@ module.exports = class Logger extends LoggerInterface {
    * @param  {String} title
    * @param  {Number} current
    * @param  {Number} max
-   * @param  {String} posttitle
+   * @param  {String} postTitle
    * @param  {Number} figures
    * @return {void}
    */
-  printTracker (title, current, max, posttitle, figures = 0) {
+  printTracker (title, current, max, postTitle, figures = 0) {
     const progress = 100 * current / max
 
     let line = '\u{1b}[0G  '
@@ -42,8 +42,8 @@ module.exports = class Logger extends LoggerInterface {
     line += ' '.repeat(50 - progress / 2) + '] '
     line += progress.toFixed(figures) + '% '
 
-    if (posttitle) {
-      line += posttitle + '                     '
+    if (postTitle) {
+      line += postTitle + '                     '
     }
 
     process.stdout.write(line)

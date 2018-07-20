@@ -31,7 +31,10 @@ const register = async (server, options) => {
         try {
           await server.app.p2p.acceptNewPeer(peer)
         } catch (error) {
-          return h.response({ success: false, message: error.message }).code(500).takeover()
+          return h.response({
+            success: false,
+            message: error.message
+          }).code(500).takeover()
         }
       }
 

@@ -27,6 +27,7 @@ describe('Vote Transaction Rule', () => {
 
   it('should be valid with 1 vote', () => {
     transaction.votesAsset([vote])
+
                .sign('passphrase')
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
@@ -34,6 +35,7 @@ describe('Vote Transaction Rule', () => {
   it('should be valid with 1 unvote', () => {
     transaction.votesAsset([unvote])
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).toBeNull()
   })
 
@@ -45,6 +47,7 @@ describe('Vote Transaction Rule', () => {
     transaction.votesAsset(votes)
                .amount(10 * constants.ARKTOSHI)
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
@@ -52,24 +55,28 @@ describe('Vote Transaction Rule', () => {
     transaction.votesAsset(votes)
                .fee(0)
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to no votes', () => {
     transaction.votesAsset([])
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to more than 1 vote', () => {
     transaction.votesAsset(votes)
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
   it('should be invalid due to invalid votes', () => {
     transaction.votesAsset(invalidVotes)
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 
@@ -86,6 +93,7 @@ describe('Vote Transaction Rule', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name')
                .sign('passphrase')
+
     expect(rule(transaction.getStruct()).errors).not.toBeNull()
   })
 })

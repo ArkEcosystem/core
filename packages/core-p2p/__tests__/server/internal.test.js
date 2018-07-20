@@ -6,16 +6,12 @@ const app = require('../__support__/setup')
 const genesisBlock = require('../__fixtures__/genesisBlock')
 const genesisTransaction = require('../__fixtures__/genesisTransaction')
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 const sendGET = async (endpoint, params = {}) => {
@@ -71,6 +67,19 @@ describe('API - Internal', () => {
   describe('GET /forgingTransactions', () => {
     it('should be ok', async () => {
       const response = await sendGET('forgingTransactions')
+
+      expect(response.status).toBe(200)
+
+      expect(response.data).toBeObject()
+
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+    })
+  })
+
+  describe('GET /networkState', () => {
+    it('should be ok', async () => {
+      const response = await sendGET('networkState')
 
       expect(response.status).toBe(200)
 

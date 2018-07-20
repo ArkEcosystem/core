@@ -7,9 +7,13 @@ module.exports = {
     return database.blocks.findById(transaction.blockId)
   },
   recipient: (transaction) => {
-    return transaction.recipientId ? database.wallets.findById(transaction.recipientId) : []
+    return transaction.recipientId
+      ? database.wallets.findById(transaction.recipientId)
+      : []
   },
   sender: (transaction) => {
-    return transaction.senderPublicKey ? database.wallets.findById(transaction.senderPublicKey) : []
+    return transaction.senderPublicKey
+      ? database.wallets.findById(transaction.senderPublicKey)
+      : []
   }
 }

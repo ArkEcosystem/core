@@ -19,6 +19,8 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/crypto": "^0.1.1",
     "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
     "axios": "^0.18.0",
     "bigi": "^1.4.2",
@@ -26,12 +28,12 @@
     "bip39": "^2.5.0",
     "hapi": "^17.5.0",
     "is-reachable": "^2.4.0",
-    "is-url": "^1.2.4",
     "joi": "^13.3.0",
     "leveldown": "^4.0.0",
     "levelup": "^2.0.2",
     "lodash": "^4.17.10",
-    "micromatch": "^3.1.10"
+    "micromatch": "^3.1.10",
+    "uuid": "^3.3.2"
   },
   "publishConfig": {
     "access": "public"

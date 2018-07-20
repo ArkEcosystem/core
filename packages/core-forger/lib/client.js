@@ -1,5 +1,5 @@
 'use strict'
-
+const Promise = require('bluebird')
 const axios = require('axios')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
@@ -9,10 +9,10 @@ const config = container.resolvePlugin('config')
 module.exports = class Client {
   /**
    * Create a new client instance.
-   * @param  {Array} hosts
+   * @param  {(Array|String)} hosts - Host or Array of hosts
    */
   constructor (hosts) {
-    this.hosts = hosts
+    this.hosts = Array.isArray(hosts) ? hosts : [hosts]
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -23,13 +23,13 @@ module.exports = class Client {
 
   /**
    * Send the given block to the relay.
-   * @param  {Object} block
+   * @param  {(Block|Object)} block
    * @return {Object}
    */
   async broadcast (block) {
     await this.__chooseHost()
 
-    logger.info(`Sending forged block ${block.id} at height ${block.height} with ${block.numberOfTransactions} transactions to relay node`)
+    logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
     const response = await axios.post(`${this.host}/internal/block`, block, {
       headers: this.headers,
@@ -40,18 +40,37 @@ module.exports = class Client {
   }
 
   /**
+   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
+   */
+  async syncCheck () {
+    await Promise.each(this.hosts, async (host) => {
+      logger.debug(`Sending wake-up check to relay node(s) ${host}`)
+      await this.__get(`${this.host}/internal/syncCheck`)
+    })
+  }
+
+  /**
    * Get the current round.
    * @return {Object}
    */
   async getRound () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/round`, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    const response = await this.__get(`${this.host}/internal/round`)
 
     return response.data.round
+  }
+
+  /**
+   * Get the current network quorum.
+   * @return {Object}
+   */
+  async getNetworkState () {
+    await this.__chooseHost()
+
+    const response = await this.__get(`${this.host}/internal/networkState`)
+
+    return response.data.networkState
   }
 
   /**
@@ -61,10 +80,7 @@ module.exports = class Client {
   async getTransactions () {
     await this.__chooseHost()
 
-    const response = await axios.get(`${this.host}/internal/forgingTransactions`, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    const response = await this.__get(`${this.host}/internal/forgingTransactions`)
 
     return response.data.data || {}
   }
@@ -77,10 +93,7 @@ module.exports = class Client {
     const host = sample(this.hosts)
 
     try {
-      await axios.get(`${host}/peer/status`, {
-        headers: this.headers,
-        timeout: 2000
-      })
+      await this.__get(`${host}/peer/status`)
 
       this.host = host
     } catch (error) {
@@ -88,5 +101,9 @@ module.exports = class Client {
 
       await this.__chooseHost()
     }
+  }
+
+  async __get (url) {
+    return axios.get(url, { headers: this.headers, timeout: 2000 })
   }
 }
