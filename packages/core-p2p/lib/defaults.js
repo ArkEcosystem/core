@@ -18,5 +18,8 @@ module.exports = {
   ntp: [
     'pool.ntp.org',
     'time.google.com'
+  ],
+  whitelist: [
+    '127.0.0.1'
   ]
 }

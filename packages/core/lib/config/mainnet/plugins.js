@@ -50,7 +50,8 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4001
+    port: process.env.ARK_P2P_PORT || 4001,
+    whitelist: ['127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: true
