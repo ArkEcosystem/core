@@ -62,6 +62,7 @@ exports.search = {
     blockId: Joi.string(),
     type: Joi.number().integer(),
     version: Joi.number().integer(),
+    senderId: Joi.string(),
     senderPublicKey: Joi.string(),
     recipientId: Joi.string(),
     vendorFieldHex: Joi.string().hex(),

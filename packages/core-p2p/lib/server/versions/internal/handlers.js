@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const requestIp = require('request-ip')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
@@ -75,7 +76,8 @@ exports.getRound = {
           reward: reward,
           timestamp: timestamp,
           delegates: delegates,
-          delegate: delegates[parseInt(timestamp / blockTime) % maxActive],
+          currentForger: delegates[parseInt(timestamp / blockTime) % maxActive],
+          nextForger: delegates[(parseInt(timestamp / blockTime) + 1) % maxActive],
           lastBlock: lastBlock.data,
           canForge: parseInt(1 + lastBlock.data.timestamp / blockTime) * blockTime < timestamp - 1
         }
@@ -137,6 +139,38 @@ exports.getNetworkState = {
       return {
         success: true,
         networkState: await blockchain.p2p.getNetworkState()
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.checkBlockchainSynced = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: true, error: 'Blockchain not ready' }
+    }
+
+    try {
+      logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
+      blockchain.dispatch('WAKEUP')
+
+      return {
+        success: true
       }
     } catch (error) {
       return h.response({
