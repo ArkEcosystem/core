@@ -262,7 +262,8 @@ exports.postBlock = {
 
           // reorder them correctly
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-          logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
+          logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+
           if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
