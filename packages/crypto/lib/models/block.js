@@ -147,10 +147,13 @@ module.exports = class Block {
     }
 
     // fix on real timestamp, this is overloading transaction timestamp with block timestamp for storage only
+    // also add sequence to keep database sequence
+    let sequence = 0
     this.transactions = data.transactions.map(transaction => {
       const stampedTransaction = new Transaction(transaction)
       stampedTransaction.blockId = this.data.id
       stampedTransaction.timestamp = this.data.timestamp
+      stampedTransaction.sequence = sequence++
       return stampedTransaction
     })
 

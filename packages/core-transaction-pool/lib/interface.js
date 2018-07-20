@@ -224,7 +224,7 @@ module.exports = class TransactionPoolInterface {
               }
             }
           }
-          actions[transaction.timelocktype]()
+          actions[transaction.timelockType]()
         } else {
           transactions.push(transaction.serialized.toString('hex'))
         }

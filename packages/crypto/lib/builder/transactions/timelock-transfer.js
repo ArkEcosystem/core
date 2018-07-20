@@ -15,19 +15,19 @@ class TimelockTransferBuilder extends TransactionBuilder {
     this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
-    this.data.timelocktype = 0x00
+    this.data.timelockType = 0x00
     this.data.timelock = null
   }
 
   /**
    * Set the timelock and the timelock type
    * @param  {Number} timelock
-   * @param  {Number} timelocktype
+   * @param  {Number} timelockType
    * @return {TimelockTransferBuilder}
    */
-  timelock (timelock, timelocktype) {
+  timelock (timelock, timelockType) {
     this.data.timelock = timelock
-    this.data.timelocktype = timelocktype
+    this.data.timelockType = timelockType
     return this
   }
 
@@ -42,7 +42,7 @@ class TimelockTransferBuilder extends TransactionBuilder {
     struct.vendorFieldHex = this.data.vendorFieldHex
     struct.asset = this.data.asset
     struct.timelock = this.data.timelock
-    struct.timelocktype = this.data.timelocktype
+    struct.timelockType = this.data.timelockType
     return struct
   }
 }
