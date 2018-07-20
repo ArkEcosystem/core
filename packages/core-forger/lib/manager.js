@@ -165,7 +165,7 @@ module.exports = class ForgerManager {
    */
   __analyseNetworkState (networkState, currentForger) {
     if (networkState.coldStart) {
-      logger.info('Not allowed to forge in the cold start period.')
+      logger.info('Not allowed to forge during the cold start period. Check peers.json for coldStart setting.')
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
