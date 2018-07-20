@@ -3,9 +3,9 @@
 const isWhitelist = require('../../lib/utils/is-whitelist')
 
 const whitelisted = [
-  "127.0.0.1",
-  "::ffff:127.0.0.1",
-  "192.168.*"
+  '127.0.0.1',
+  '::ffff:127.0.0.1',
+  '192.168.*'
 ]
 
 describe('isWhitelist', () => {
