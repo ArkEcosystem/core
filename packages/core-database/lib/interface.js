@@ -47,13 +47,13 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Verify the blockchain stored on db is not corrupted making simple tests:
-   * - last block height is equals to the number of stored blocks
-   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
-   * - sum of all tx fees is equals to the sum of block.totalFee
-   * - sum of all tx amount is equals to the sum of block.totalAmount
-   * @param  {Block} block
-   * @return {void}
+   * Verify the blockchain stored on db is not corrupted making simple assertions:
+   * - Last block is available
+   * - Last block height equals the number of stored blocks
+   * - Number of stored transactions equals the sum of block.numberOfTransactions in the database
+   * - Sum of all tx fees equals the sum of block.totalFee
+   * - Sum of all tx amount equals the sum of block.totalAmount
+   * @return {Object} An object { valid, errors } with the result of the verification and the errors
    */
   async verifyBlockchain () {
     throw new Error('Method [verifyBlockchain] not implemented!')
