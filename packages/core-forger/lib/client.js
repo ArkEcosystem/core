@@ -1,7 +1,6 @@
 'use strict'
 const Promise = require('bluebird')
 const axios = require('axios')
-const delay = require('delay')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -100,8 +99,6 @@ module.exports = class Client {
     } catch (error) {
       logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`)
 
-      // Wait more if the connection has been dropped completely
-      await delay(1000)
       await this.__chooseHost()
     }
   }
