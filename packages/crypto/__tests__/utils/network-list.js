@@ -1,8 +1,7 @@
-// TODO: replace fast-glob with tiny-glob
-const fg = require('fast-glob')
+const tg = require('tiny-glob/sync')
 const path = require('path')
 
-const entries = fg.sync([path.resolve(__dirname, '../../lib/networks/**/*.json')])
+const entries = tg('../../lib/networks/**/*.json', {cwd: __dirname})
 
 let NETWORKS = {}
 entries.forEach(file => (NETWORKS[path.parse(file).name] = require(file)))
