@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ## 0.0.2 -
+- Support for next forger calculations
 - Network state calculation (new internal/networkState) taking PBFT into account
 - Peer optimisations (blacklisting, whitelisting, coldstart) options for peers and forger
 - Relay support for wake-up from forger (to sync before forging)

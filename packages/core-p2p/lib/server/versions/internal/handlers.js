@@ -166,7 +166,7 @@ exports.checkBlockchainSynced = {
     }
 
     try {
-      logger.debug('Blockchain sync check :clock: requested by forger')
+      logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
       blockchain.dispatch('WAKEUP')
 
       return {
