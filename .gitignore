@@ -58,3 +58,7 @@ yarn.lock
 
 # Microsoft Visual Studio settings
 .vs
+
+#Intellij proj directory
+.idea
+*.iml
