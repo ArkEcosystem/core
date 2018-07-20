@@ -52,7 +52,6 @@ module.exports = class ForgerManager {
    * @return {Object}
    */
   async startForging () {
-    // TODO: assuming that blockTime = 8s
     const slot = slots.getSlotNumber()
 
     while (slots.getSlotNumber() === slot) {
