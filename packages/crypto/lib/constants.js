@@ -36,7 +36,6 @@ exports.CONFIGURATIONS = Object.freeze({
   }
 })
 
-
 /**
  * Lookup table for v1 backwards compatibility.
  * @type {Object}
