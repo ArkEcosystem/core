@@ -303,12 +303,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
     for (let i = 0, j = wallets.length; i < j; i += chunk) {
-      await this.connection.transaction(dbtransaction =>
-        Promise.all(
-          wallets
-            .slice(i, i + chunk)
-            .map(wallet => this.models.wallet.upsert(wallet, { dbtransaction }))
-        )
+      await this.connection.transaction(async dbtransaction =>
+        this.models.wallet.bulkCreate(wallets.slice(i, i + chunk), { transaction: dbtransaction })
       )
     }
 
