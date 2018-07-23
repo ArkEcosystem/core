@@ -109,6 +109,15 @@ describe('Transaction Repository', () => {
       expect(transactionsSenderId.count).toBe(transactionsSenderPublicKey.count);
     })
 
+    it('should find no transaction when passed parameter senderId is invalid or unknown', async () => {
+      await connection.saveBlock(genesisBlock)
+      const invalidSenderId = 'thisIsNotAValidSenderId'
+
+      const transactionsSenderId = await repository.findAll({ senderId : invalidSenderId })
+
+      expect(transactionsSenderId.count).toBe(0);
+    })
+
     xit('should find all transactions by some fields only', () => {
     })
 
@@ -188,6 +197,15 @@ describe('Transaction Repository', () => {
       const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
 
       expect(transactionsSenderId.count).toBe(transactionsSenderPublicKey.count);
+    })
+
+    it('should find no transaction when passed parameter senderId is invalid or unknown', async () => {
+      await connection.saveBlock(genesisBlock)
+      const invalidSenderId = 'thisIsNotAValidSenderId'
+
+      const transactionsSenderId = await repository.findAllLegacy({ senderId : invalidSenderId })
+
+      expect(transactionsSenderId.count).toBe(0);
     })
 
     xit('should find all transactions by any field', () => {
