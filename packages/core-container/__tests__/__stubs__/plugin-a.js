@@ -11,5 +11,6 @@ exports.plugin = {
       container,
       options
     }
-  }
+  },
+  deregister: jest.fn()
 }
