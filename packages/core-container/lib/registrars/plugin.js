@@ -57,10 +57,10 @@ module.exports = class PluginRegistrars {
    * @return {void}
    */
   async tearDown () {
-    const plugins = this.deregister.reverse()
+    const modules = this.deregister.reverse()
 
-    for (let i = 0; i < plugins.length; i++) {
-      await plugins[i].plugin.deregister(this.container, plugins[i].options)
+    for (let i = 0; i < modules.length; i++) {
+      await modules[i].plugin.deregister(this.container, modules[i].options)
     }
   }
 
