@@ -3,7 +3,9 @@
 const toBeMinimalTransactionFields = require('../__support__/matchers/minimal-transaction-fields')
 expect.extend({ toBeMinimalTransactionFields })
 
-const { Transaction } = require('@arkecosystem/crypto').models
+const { crypto, models } = require('@arkecosystem/crypto')
+const { Transaction } = models
+const SPV = require('../../lib/spv')
 
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
@@ -29,7 +31,7 @@ afterAll(async () => {
 beforeEach(async () => {
   connection = await createConnection()
   repository = connection.transactions
-  spv = new (require('../../lib/spv'))(connection)
+  spv = new SPV(connection)
 
   // To avoid timing out
   const cache = {}
@@ -506,31 +508,47 @@ describe('Transaction Repository', () => {
       expect(repository.search).toBeFunction()
     })
 
-    it('should search transactions by the specified id', async () => {
+    it('should search transactions by the specified `id`', async () => {
       await expectSearch({ id: genesisTransaction.id }, 1)
     })
 
-    it('should search transactions by the specified blockId', async () => {
+    it('should search transactions by the specified `blockId`', async () => {
       await expectSearch({ blockId: genesisTransaction.blockId }, 153)
     })
 
-    it('should search transactions by the specified type', async () => {
+    it('should search transactions by the specified `type`', async () => {
       await expectSearch({ type: genesisTransaction.type }, 153)
     })
 
-    it('should search transactions by the specified version', async () => {
+    it('should search transactions by the specified `version`', async () => {
       await expectSearch({ version: genesisTransaction.version }, 153)
     })
 
-    it('should search transactions by the specified senderPublicKey', async () => {
+    // TODO when is not on the blockchain?
+    // TODO when is not indexed?
+    describe('when the wallet is indexed', () => {
+      const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23)
+
+      beforeEach(() => {
+        const wallet = getWallet(senderId)
+        wallet.publicKey = genesisTransaction.senderPublicKey
+        spv.walletManager.reindex(wallet)
+      })
+
+      it('should search transactions by the specified `senderId`', async () => {
+        await expectSearch({ senderId }, 51)
+      })
+    })
+
+    it('should search transactions by the specified `senderPublicKey`', async () => {
       await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey }, 51)
     })
 
-    it('should search transactions by the specified recipientId', async () => {
+    it('should search transactions by the specified `recipientId`', async () => {
       await expectSearch({ recipientId: genesisTransaction.recipientId }, 1)
     })
 
-    it('should search transactions by the specified timestamp', async () => {
+    it('should search transactions by the specified `timestamp`', async () => {
       await expectSearch({
         timestamp: {
           from: genesisTransaction.timestamp,
@@ -539,7 +557,7 @@ describe('Transaction Repository', () => {
       }, 153)
     })
 
-    it('should search transactions by the specified amount', async () => {
+    it('should search transactions by the specified `amount`', async () => {
       await expectSearch({
         amount: {
           from: genesisTransaction.amount,
@@ -548,7 +566,7 @@ describe('Transaction Repository', () => {
       }, 50)
     })
 
-    it('should search transactions by the specified fee', async () => {
+    it('should search transactions by the specified `fee`', async () => {
       await expectSearch({
         fee: {
           from: genesisTransaction.fee,
@@ -557,8 +575,14 @@ describe('Transaction Repository', () => {
       }, 153)
     })
 
-    it('should search transactions by the specified vendorFieldHex', async () => {
+    it('should search transactions by the specified `vendorFieldHex`', async () => {
       await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153)
+    })
+
+    describe('when there are more than 1 condition', () => {
+      it('should search transactions that includes all of them (AND)', async () => {
+        await expectSearch({ recipientId: genesisTransaction.recipientId, type: 3 }, 1)
+      })
     })
 
     describe('when no results', () => {

@@ -28,7 +28,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   async make () {
     if (this.connection) {
-      throw new Error('Already initialised')
+      throw new Error('Sequelize connection already initialised')
     }
 
     if (this.config.dialect === 'sqlite' && this.config.storage !== ':memory:') {
@@ -89,67 +89,53 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Verify the blockchain stored on db is not corrupted making simple tests:
-   * - last block height is equals to the number of stored blocks
-   * - number of stored transactions is equals to the sum of block.numberOfTransactions in the database
-   * - sum of all tx fees is equals to the sum of block.totalFee
-   * - sum of all tx amount is equals to the sum of block.totalAmount
-   * @param  {Block} block
-   * @return {void}
+   * Verify the blockchain stored on db is not corrupted making simple assertions:
+   * - Last block is available
+   * - Last block height equals the number of stored blocks
+   * - Number of stored transactions equals the sum of block.numberOfTransactions in the database
+   * - Sum of all tx fees equals the sum of block.totalFee
+   * - Sum of all tx amount equals the sum of block.totalAmount
+   * @return {Object} An object { valid, errors } with the result of the verification and the errors
    */
   async verifyBlockchain () {
-    const output = {
-      verified: true,
-      errors: []
-    }
+    const errors = []
 
-    // last block height is equals to the number of stored blocks
     const lastBlock = await this.getLastBlock()
-    const numberOfBlocks = await this.query
-      .select()
-      .countDistinct('height', 'count')
-      .from('blocks')
-      .first()
 
-    if (lastBlock.data.height !== +numberOfBlocks.count) {
-      output.verified = false
-      output.errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks.count}`)
+    // Last block is available
+    if (!lastBlock) {
+      errors.push('Last block is not available')
+    } else {
+      const numberOfBlocks = await this.__numberOfBlocks()
+
+      // Last block height equals the number of stored blocks
+      if (lastBlock.data.height !== +numberOfBlocks) {
+        errors.push(`Last block height: ${lastBlock.data.height.toLocaleString()}, number of stored blocks: ${numberOfBlocks}`)
+      }
     }
 
-    const blockStats = await this.query
-      .select()
-      .sum('number_of_transactions', 'numberOfTransactions')
-      .sum('total_fee', 'totalFee')
-      .sum('total_amount', 'totalAmount')
-      .from('blocks')
-      .first()
-    const transactionStats = await this.query
-      .select()
-      .countDistinct('id', 'count')
-      .sum('fee', 'totalFee')
-      .sum('amount', 'totalAmount')
-      .from('transactions')
-      .first()
+    const blockStats = await this.__blockStats()
+    const transactionStats = await this.__transactionStats()
 
-    // number of stored transactions is equals to the sum of block.numberOfTransactions in the database
+    // Number of stored transactions equals the sum of block.numberOfTransactions in the database
     if (blockStats.numberOfTransactions !== transactionStats.count) {
-      output.verified = false
-      output.errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
+      errors.push(`Number of transactions: ${transactionStats.count}, number of transactions included in blocks: ${blockStats.numberOfTransactions}`)
     }
 
-    // sum of all tx fees is equals to the sum of block.totalFee
+    // Sum of all tx fees equals the sum of block.totalFee
     if (blockStats.totalFee !== transactionStats.totalFee) {
-      output.verified = false
-      output.errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
+      errors.push(`Total transaction fees: ${transactionStats.totalFee}, total of block.totalFee : ${blockStats.totalFee}`)
     }
 
-    // sum of all tx amount is equals to the sum of block.totalAmount
+    // Sum of all tx amount equals the sum of block.totalAmount
     if (blockStats.totalAmount !== transactionStats.totalAmount) {
-      output.verified = false
-      output.errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
+      errors.push(`Total transaction amounts: ${transactionStats.totalAmount}, total of block.totalAmount : ${blockStats.totalAmount}`)
     }
 
-    return output
+    return {
+      valid: !errors.length,
+      errors
+    }
   }
 
   /**
@@ -165,7 +151,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       return this.activedelegates
     }
 
-    let data = await this.query
+    const data = await this.query
       .select('*')
       .from('rounds')
       .where('round', round)
@@ -210,7 +196,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Boolean}
    */
   deleteRound (round) {
-    return this.models.round.destroy({where: {round}})
+    return this.models.round.destroy({ where: {round} })
   }
 
   /**
@@ -259,7 +245,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     data = data
       .sort((a, b) => b.balance - a.balance)
       .slice(0, maxDelegates)
-      .map(delegate => ({...{round}, ...delegate}))
+      .map(delegate => ({ ...{ round }, ...delegate }))
 
     logger.debug(`Loaded ${data.length} active delegates`)
 
@@ -310,7 +296,9 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Object}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => wallet.publicKey && (force || wallet.dirty))
+    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => {
+      return wallet.publicKey && (force || wallet.dirty)
+    })
     const chunk = 5000
 
     // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
@@ -343,12 +331,16 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
-      await this.models.block.create(block.data, {transaction})
-      if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction})
+      await this.models.block.create(block.data, { transaction })
+      if (block.transactions.length > 0) {
+        await this.models.transaction.bulkCreate(block.transactions, { transaction })
+      }
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
-      if (error.sql) logger.info(error.sql)
+      if (error.sql) {
+        logger.info(error.sql)
+      }
       await transaction.rollback()
       throw error
     }
@@ -365,8 +357,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = await this.connection.transaction()
     }
 
-    await this.models.block.create(block.data, {transaction: this.asyncTransaction})
-    if (block.transactions.length > 0) await this.models.transaction.bulkCreate(block.transactions, {transaction: this.asyncTransaction})
+    await this.models.block.create(block.data, { transaction: this.asyncTransaction })
+    if (block.transactions.length > 0) {
+      await this.models.transaction.bulkCreate(block.transactions, { transaction: this.asyncTransaction })
+    }
   }
 
   /**
@@ -402,8 +396,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
-      await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction})
-      await this.models.block.destroy({where: {id: block.data.id}}, {transaction})
+      await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction })
+      await this.models.block.destroy({ where: { id: block.data.id } }, { transaction })
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
@@ -421,8 +415,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     if (!this.asyncTransaction) {
       this.asyncTransaction = await this.connection.transaction()
     }
-    await this.models.transaction.destroy({where: {blockId: block.data.id}}, {transaction: this.asyncTransaction})
-    await this.models.block.destroy({where: {id: block.data.id}}, {transaction: this.asyncTransaction})
+    await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction: this.asyncTransaction })
+    await this.models.block.destroy({ where: { id: block.data.id } }, { transaction: this.asyncTransaction })
   }
 
   /**
@@ -471,14 +465,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .where('block_id', block.id)
       .all()
 
-    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
     return new Block(block)
   }
 
   /**
    * Get the last block.
-   * @return {Block}
+   * @return {(Block|null)}
    */
   async getLastBlock () {
     const block = await this.query
@@ -499,7 +493,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       .orderBy('sequence', 'ASC')
       .all()
 
-    block.transactions = transactions.map(transaction => Transaction.deserialize(transaction.serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -684,8 +678,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       transactions: require('./repositories/transactions')
     }
 
-    for (const [key, value] of Object.entries(repositories)) {
-      this[key] = new value(this) // eslint-disable-line new-cap
+    for (const [key, Value] of Object.entries(repositories)) {
+      this[key] = new Value(this) // eslint-disable-line new-cap
     }
 
     await super._registerRepositories()
@@ -725,5 +719,49 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    */
   __registerCache () {
     this.cache = new Cache(this.config.redis)
+  }
+
+  /**
+   * This auxiliary method returns the number of blocks of the blockchain and
+   * is used to verify it
+   * @return {Number}
+   */
+  async __numberOfBlocks () {
+    const { count } = await this.query
+      .select()
+      .countDistinct('height', 'count')
+      .from('blocks')
+      .first()
+    return count
+  }
+
+  /**
+   * This auxiliary method returns some stats about the blocks that are
+   * used to verify the blockchain
+   * @return {Object}
+   */
+  async __blockStats () {
+    return this.query
+      .select()
+      .sum('number_of_transactions', 'numberOfTransactions')
+      .sum('total_fee', 'totalFee')
+      .sum('total_amount', 'totalAmount')
+      .from('blocks')
+      .first()
+  }
+
+  /**
+   * This auxiliary method returns some stats about the transactions that are
+   * used to verify the blockchain
+   * @return {Object}
+   */
+  async __transactionStats () {
+    return this.query
+      .select()
+      .countDistinct('id', 'count')
+      .sum('fee', 'totalFee')
+      .sum('amount', 'totalAmount')
+      .from('transactions')
+      .first()
   }
 }

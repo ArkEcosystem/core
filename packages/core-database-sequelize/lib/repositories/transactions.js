@@ -254,11 +254,21 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * Search all transactions.
-   * @param  {Object} payload
+   *
+   * @param  {Object} params
    * @return {Object}
    */
   async search (params) {
     const orderBy = this.__orderBy(params)
+
+    if (params.senderId) {
+      const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
+      if (senderPublicKey) {
+        params.senderPublicKey = senderPublicKey
+      }
+    }
+
     let { conditions } = this.__formatConditions(params)
     conditions = buildFilterQuery(conditions, {
       exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
@@ -456,6 +466,11 @@ module.exports = class TransactionsRepository extends Repository {
     this.cache.set(`heights:${id}`, { height })
   }
 
+  /**
+   * Retrieves the publicKey of the address from the WalletManager in-memory data
+   * @param {String} senderId
+   * @return {String}
+   */
   __publicKeyfromSenderId (senderId) {
     return this.connection.walletManager.getWalletByAddress(senderId).publicKey
   }
