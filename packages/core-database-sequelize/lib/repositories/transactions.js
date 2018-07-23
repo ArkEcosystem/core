@@ -25,15 +25,15 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAll (params = {}) {
-    const { conditions } = this.__formatConditions(params)
-
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
 
       if (senderPublicKey) {
-        conditions.senderPublicKey = senderPublicKey
+        params.senderPublicKey = senderPublicKey
       }
     }
+
+    const { conditions } = this.__formatConditions(params)
 
     const orderBy = this.__orderBy(params)
 
@@ -72,15 +72,15 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllLegacy (params = {}) {
-    const conditions = this.__formatConditionsV1(params)
-
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
 
       if (senderPublicKey) {
-        conditions.sender_public_key = senderPublicKey
+        params.senderPublicKey = senderPublicKey
       }
     }
+
+    const conditions = this.__formatConditionsV1(params)
 
     const orderBy = this.__orderBy(params)
 
