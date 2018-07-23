@@ -153,7 +153,8 @@ for (let plugin in pluginsOriginal) {
 }
 plugins['@arkecosystem/core-p2p'] = {
   host: options.nodeIp,
-  port: options.p2pPort
+  port: options.p2pPort,
+  whitelist: ['127.0.0.1', '192.168.*']
 }
 plugins['@arkecosystem/core-api'] = {
   enabled: true,
