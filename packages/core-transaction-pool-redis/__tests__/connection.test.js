@@ -195,7 +195,7 @@ describe('Connection', () => {
 
     it('should be truthy if exceeded', async () => {
       connection.options.maxTransactionsPerSender = 5
-      connection.options.whitelist = []
+      connection.options.allowedSenders = []
       await connection.addTransaction(mockData.dummy3)
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
@@ -211,7 +211,7 @@ describe('Connection', () => {
 
     it('should be falsy if not exceeded', async () => {
       connection.options.maxTransactionsPerSender = 7
-      connection.options.whitelist = []
+      connection.options.allowedSenders = []
 
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
@@ -225,7 +225,7 @@ describe('Connection', () => {
     it('should be allowed to exceed if whitelisted', async () => {
       await connection.flush()
       connection.options.maxTransactionsPerSender = 5
-      connection.options.whitelist = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
+      connection.options.allowedSenders = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
       await connection.addTransaction(mockData.dummy3)
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
