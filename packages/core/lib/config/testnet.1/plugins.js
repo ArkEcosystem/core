@@ -50,7 +50,8 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4102
+    port: process.env.ARK_P2P_PORT || 4102,
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: true
@@ -76,7 +77,7 @@ module.exports = {
       enabled: process.env.ARK_WEBHOOKS_API_ENABLED || false,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
-      whitelist: ['127.0.0.1', '192.168.*']
+      whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
@@ -94,6 +95,6 @@ module.exports = {
     host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
-    whitelist: ['127.0.0.1', '192.168.*']
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   }
 }
