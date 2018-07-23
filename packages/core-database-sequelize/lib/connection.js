@@ -299,19 +299,21 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => {
       return wallet.publicKey && (force || wallet.dirty)
     })
-    const chunk = 5000
 
-    // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
-    for (let i = 0, j = wallets.length; i < j; i += chunk) {
-      await this.connection.transaction(dbtransaction =>
-        Promise.all(
-          wallets
-            .slice(i, i + chunk)
-            .map(wallet => this.models.wallet.upsert(wallet, { dbtransaction }))
+    if (force) { // all wallets to be updated, performance is better without upsert
+      await this.models.wallet.destroy({truncate: true})
+      const chunk = 5000
+      // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
+      for (let i = 0, j = wallets.length; i < j; i += chunk) {
+        await this.connection.transaction(async dbtransaction =>
+          this.models.wallet.bulkCreate(wallets.slice(i, i + chunk), { transaction: dbtransaction })
         )
+      }
+    } else {
+      await this.connection.transaction(async dbtransaction =>
+        Promise.all(wallets.map(wallet => this.models.wallet.upsert(wallet, {transaction: dbtransaction})))
       )
     }
-
     logger.info(`${wallets.length} modified wallets committed to database`)
 
     // commented out as more use cases to be taken care of
