@@ -8,7 +8,7 @@ const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const { getRandomNumber, logger, updateConfig, writeEnv } = require('../lib/utils')
-const genesisBlockBuilder = require('../lib/builder/genesis-block')
+const GenesisBlockBuilder = require('../lib/builder/genesis-block')
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
@@ -88,7 +88,7 @@ let networkConfig = {
 
 const network = updateConfig('network.json', networkConfig, options.configPath)
 
-const genesis = (new genesisBlockBuilder(network, options)).generate()
+const genesis = (new GenesisBlockBuilder(network, options)).generate()
 
 network.nethash = genesis.genesisBlock.payloadHash
 
