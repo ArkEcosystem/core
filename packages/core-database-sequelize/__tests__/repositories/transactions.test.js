@@ -99,14 +99,17 @@ describe('Transaction Repository', () => {
       })
     })
 
-    it('should find the same transaction count with parameter senderId and corresponding senderPublicKey', async () => {
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
       await connection.saveBlock(genesisBlock)
       const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
 
       const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey : senderWallet.publicKey })
       const transactionsSenderId = await repository.findAll({ senderId : senderWallet.address })
 
-      expect(transactionsSenderId.count).toBe(transactionsSenderPublicKey.count);
+      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
+        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
+        expect(transactionSenderId).toBeMinimalTransactionFields()
+      })
     })
 
     xit('should find all transactions by some fields only', () => {
@@ -180,14 +183,17 @@ describe('Transaction Repository', () => {
       })
     })
 
-    it('should find the same transaction count with parameter senderId and corresponding senderPublicKey', async () => {
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
       await connection.saveBlock(genesisBlock)
       const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
 
       const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey: senderWallet.publicKey })
       const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
 
-      expect(transactionsSenderId.count).toBe(transactionsSenderPublicKey.count);
+      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
+        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
+        expect(transactionSenderId).toBeMinimalTransactionFields()
+      })
     })
 
     xit('should find all transactions by any field', () => {
