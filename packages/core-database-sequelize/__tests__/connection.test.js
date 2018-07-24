@@ -4,12 +4,13 @@ const app = require('./__support__/setup')
 const generateRound = require('./__support__/utils/generate-round')
 const createConnection = require('./__support__/utils/create-connection')
 const activeDelegates = require('./__fixtures__/delegates.json')
-const genesisBlock = require('./__fixtures__/genesisBlock')
 
+let genesisBlock
 let connection
 
 beforeAll(async () => {
   await app.setUp()
+  genesisBlock = require('./__fixtures__/genesisBlock')
 })
 
 afterAll(async () => {

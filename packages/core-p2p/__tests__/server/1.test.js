@@ -3,11 +3,16 @@
 const axios = require('axios')
 
 const app = require('../__support__/setup')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-const genesisTransaction = require('../__fixtures__/genesisTransaction')
 
-beforeAll(async () => {
+let genesisBlock
+let genesisTransaction
+
+beforeAll(async (done) => {
   await app.setUp()
+  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisTransaction = require('../__fixtures__/genesisTransaction')
+
+  done()
 })
 
 afterAll(async () => {

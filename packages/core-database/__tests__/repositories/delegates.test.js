@@ -1,10 +1,9 @@
 'use strict'
 
 const app = require('../__support__/setup')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-
 const { crypto } = require('@arkecosystem/crypto')
 
+let genesisBlock
 let repository
 let walletManager
 let calculateApproval
@@ -12,6 +11,7 @@ let calculateProductivity
 
 beforeAll(async (done) => {
   await app.setUp()
+  genesisBlock = require('../__fixtures__/genesisBlock')
 
   const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
   calculateApproval = delegateCalculator.calculateApproval
