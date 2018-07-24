@@ -351,21 +351,20 @@ module.exports = class Transaction {
         transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
 
-      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
-      }
-
       if (transaction.vendorFieldHex) {
         transaction.vendorField = Buffer.from(transaction.vendorFieldHex, 'hex').toString('utf8')
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
         transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!transaction.id) {
         transaction.id = crypto.getId(transaction)
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE || transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
     }
 
