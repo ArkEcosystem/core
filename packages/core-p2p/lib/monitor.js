@@ -148,10 +148,6 @@ module.exports = class Monitor {
       throw new Error('Request is made on the wrong network')
     }
 
-    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') {
-      return
-    }
-
     const newPeer = new Peer(peer.ip, peer.port)
 
     try {
