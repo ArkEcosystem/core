@@ -5,8 +5,11 @@ const Redis = require('ioredis')
  * More things to add: flushing, expiration, etc.
  */
 module.exports = class Cache {
+  /**
+   * Instantiates new Redis object and connects automatically
+   */
   constructor (options) {
-    this.redis = new Redis(options)
+    this.mount(options)
   }
 
   getRedisOptions () {
@@ -19,5 +22,13 @@ module.exports = class Cache {
 
   async set (key, value) {
     this.redis.set(key, value)
+  }
+
+  mount (options) {
+    this.redis = new Redis(options)
+  }
+
+  destroy () {
+    this.redis.disconnect()
   }
 }

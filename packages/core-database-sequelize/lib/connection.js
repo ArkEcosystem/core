@@ -82,6 +82,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     try {
       await this.saveBlockCommit()
       await this.deleteBlockCommit()
+      this.cache.destroy()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
