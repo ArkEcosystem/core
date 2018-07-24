@@ -140,7 +140,7 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMyself(peer.ip)) {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || isMyself(peer.ip)) {
       return
     }
 
