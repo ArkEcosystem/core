@@ -219,7 +219,7 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      audit.push({'Transfert': true})
+      audit.push({'Transfer': true})
     }
 
     if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
