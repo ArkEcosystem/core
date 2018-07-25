@@ -124,17 +124,4 @@ module.exports = class PoolWalletManager extends WalletManager {
     return transaction
   }
 
-  /**
-   * Apply the given block to a delegate wallet in the pool wallet manager.
-   * We apply only the block reward and fees, as transaction are already be applied
-   * when entering the pool. Applying only if delegate wallet is in pool wallet manager
-   * @param {block}
-   */
-  applyBlock (block) {
-    // if delegate in poll wallet manager - apply rewards
-    const delegateWallet = this.getWalletByPublicKey(block.data.generatorPublicKey)
-    if (delegateWallet) {
-      delegateWallet.applyBlock(block.data)
-    }
-  }
 }
