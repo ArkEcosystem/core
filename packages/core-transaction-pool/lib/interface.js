@@ -290,7 +290,7 @@ module.exports = class TransactionPoolInterface {
         await this.removeTransaction(transaction)
       }
 
-      if (this.getSenderSize(transaction.senderPublicKey) === 0) {
+      if (await this.getSenderSize(transaction.senderPublicKey) === 0) {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
