@@ -180,7 +180,7 @@ module.exports = class TransactionGuard {
       }
 
       try {
-        await this.pool.walletManager.applyTransaction(transaction)
+        await this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
         this.invalid.push(transaction)
         return
