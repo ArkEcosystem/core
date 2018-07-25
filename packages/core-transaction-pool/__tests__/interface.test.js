@@ -38,6 +38,16 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
+  describe('getSenderSize', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getSenderSize).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getSenderSize()).rejects.toThrowError('Method [getSenderSize] not implemented!')
+    })
+  })
+
   describe('addTransaction', () => {
     it('should be a function', () => {
       expect(poolInterface.addTransaction).toBeFunction()
