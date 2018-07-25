@@ -13,9 +13,10 @@ module.exports = class PoolWalletManager extends WalletManager {
    * Create a new pool wallet manager instance.
    * @constructor
    */
-  constructor () {
+  constructor (transactionPool) {
     super()
 
+    this.pool = transactionPool
     this.emitEvents = false
   }
 
@@ -75,21 +76,6 @@ module.exports = class PoolWalletManager extends WalletManager {
       delete this.walletsByPublicKey[publicKey]
 
       delete this.walletsByAddress[crypto.getAddress(publicKey, config.network.pubKeyHash)]
-  }
-
-  /**
-   * Apply the given block to a delegate in the pool wallet manager.
-   * We apply only the block reward and fees, as transaction are already be applied
-   * when entering the pool. Applying only if delegate wallet is in pool wallet manager
-   * Method overrides method from wallet-manager base class
-   * @param  {Block} block
-   * @return {void}
-   */
-  applyBlock (block) {
-    if (this.exists(block.data.generatorPublicKey)) {
-      const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
-      delegate.applyBlock(block.data)
-    }
   }
 
   /**

@@ -23,7 +23,7 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = new PoolWalletManager()
+    this.walletManager = new PoolWalletManager(this)
     this.guard = new TransactionGuard(this)
 
     this.blockedByPublicKey = {}
@@ -254,12 +254,14 @@ module.exports = class TransactionPoolInterface {
   /**
    * Processes recently accepted block by the blockchain.
    * It removes block transaction from the pool and adjusts pool wallets for non existing transactions
+   *
+   * Apply the given block to a delegate in the pool wallet manager.
+   * We apply only the block reward and fees, as transaction are already be applied
+   * when entering the pool. Applying only if delegate wallet is in pool wallet manager
    * @param  {Object} block
    * @return {void}
    */
   async acceptChainedBlock (block) {
-    this.walletManager.applyBlock(block)
-
     for (const transaction of block.transactions) {
       const exists = await this.transactionExists(transaction.id)
       if (!exists) {
@@ -268,7 +270,7 @@ module.exports = class TransactionPoolInterface {
           try {
             await this.walletManager.applyTransaction(transaction)
           } catch (error) {
-            logger.error(`acceptChainedBlock from pool: ${error}`)
+            logger.error(`AcceptChainedBlock from pool: ${error}`)
             await this.purgeByPublicKey(transaction.senderPublicKey)
             this.blockSender(transaction.senderPublicKey)
           }
@@ -281,6 +283,11 @@ module.exports = class TransactionPoolInterface {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
+
+    const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
+      if (delegate) {
+           delegate.applyBlock(block.data)
+      }
   }
 
   /**
