@@ -140,16 +140,12 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMyself(peer.ip)) {
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || isMyself(peer.ip)) {
       return
     }
 
     if (peer.nethash !== this.config.network.nethash) {
       throw new Error('Request is made on the wrong network')
-    }
-
-    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') {
-      return
     }
 
     const newPeer = new Peer(peer.ip, peer.port)
