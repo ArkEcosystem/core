@@ -285,10 +285,7 @@ module.exports = class TransactionPoolInterface {
     }
 
     // if delegate in poll wallet manager - apply rewards
-    const delegateWallet = this.walletManager.getWalletByPublicKey(block.data.generatorPublicKey)
-    if (delegateWallet) {
-      delegateWallet.applyBlock(block.data)
-    }
+    this.walletManager.applyBlock(block)
   }
 
   /**
