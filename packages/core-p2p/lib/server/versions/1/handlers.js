@@ -303,6 +303,11 @@ exports.postTransactions = {
       }
     }
 
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      return { success: false }
+    }
+
     await transactionPool.guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
