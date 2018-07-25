@@ -23,7 +23,7 @@ module.exports = class TransactionPoolInterface {
    */
   constructor (options) {
     this.options = options
-    this.walletManager = new PoolWalletManager(this)
+    this.walletManager = new PoolWalletManager()
     this.guard = new TransactionGuard(this)
 
     this.blockedByPublicKey = {}

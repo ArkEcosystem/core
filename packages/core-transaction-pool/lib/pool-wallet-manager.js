@@ -13,10 +13,9 @@ module.exports = class PoolWalletManager extends WalletManager {
    * Create a new pool wallet manager instance.
    * @constructor
    */
-  constructor (transactionPool) {
+  constructor () {
     super()
 
-    this.pool = transactionPool
     this.emitEvents = false
   }
 
