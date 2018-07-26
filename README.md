@@ -1,5 +1,3 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
-
 # ARK Core
 
 ## Introduction
@@ -15,9 +13,11 @@ This repository contains all plugins that make up the ARK Core.
 
 - API v1 & v2 : https://docs.ark.io/v1.0/reference
 
-## GitHub Development Bounty
-
-- Get involved with ARK development and earn ARK coins : https://bounty.ark.io
+## Run testnet
+  - `start redis`
+  - `start postgres`
+  - cd packages/core and run `yarn full:testnet`
+  if failed then edit username postgress in packages/core/lib/config/testnet/plugins.js
 
 ## Core Packages
 
