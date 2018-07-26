@@ -159,7 +159,7 @@ blockchainMachine.actionMap = blockchain => {
 
         logger.info('Verifying database integrity :hourglass_flowing_sand:')
 
-        /*const databaseBlokchain = await blockchain.database.verifyBlockchain()
+        const databaseBlokchain = await blockchain.database.verifyBlockchain()
 
         if (!databaseBlokchain.valid) {
           logger.error('FATAL: The database is corrupted :rotating_light:')
@@ -169,7 +169,7 @@ blockchainMachine.actionMap = blockchain => {
           return blockchain.dispatch('FAILURE')
         }
 
-        logger.info('Verified database integrity :smile_cat:') */
+        logger.info('Verified database integrity :smile_cat:')
 
         // only genesis block? special case of first round needs to be dealt with
         if (block.data.height === 1) {
