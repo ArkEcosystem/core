@@ -18,5 +18,8 @@ exports.plugin = {
     }
 
     return blockchain
+  },
+  async deregister (container, options) {
+    await container.resolvePlugin('blockchain').stop()
   }
 }

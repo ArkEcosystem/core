@@ -41,9 +41,10 @@ blockchainMachine.actionMap = blockchain => {
     blockchainReady: () => (state.started = true),
 
     async checkLater () {
-      await delay(60000)
-
-      return blockchain.dispatch('WAKEUP')
+      if (!blockchain.isStopped) {
+        await delay(60000)
+        return blockchain.dispatch('WAKEUP')
+      }
     },
 
     checkLastBlockSynced () {
@@ -130,6 +131,10 @@ blockchainMachine.actionMap = blockchain => {
     rebuildingComplete () {
       logger.info('Blockchain rebuild complete :unicorn_face:')
       blockchain.dispatch('REBUILDCOMPLETE')
+    },
+
+    stopped () {
+      logger.info('The blockchain has been stopped :guitar:')
     },
 
     exitApp () {

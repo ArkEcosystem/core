@@ -65,4 +65,8 @@ module.exports = class QueueInterface {
   length () {
     return this.queue.length()
   }
+
+  destroy () {
+    return this.queue.kill()
+  }
 }

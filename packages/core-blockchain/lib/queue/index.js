@@ -42,4 +42,9 @@ module.exports = class Queue {
     this.rebuild.resume()
     this.process.resume()
   }
+
+  destroy () {
+    this.rebuild.destroy()
+    this.process.destroy()
+  }
 }
