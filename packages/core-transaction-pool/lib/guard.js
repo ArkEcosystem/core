@@ -20,7 +20,8 @@ module.exports = class TransactionGuard {
   }
 
   /**
-   * Validate the specified transactions. Order of called functions is important
+   * Validate the specified transactions.
+   * ORDER of called functions is important
    * @param  {Array} transactions
    * @return {void}
    */
@@ -31,9 +32,11 @@ module.exports = class TransactionGuard {
 
     await this.__removeForgedTransactions()
 
-    this.__determineFeeMatchingTransactions()
-
     await this.__determineValidTransactions()
+
+    await this.__determineExcessTransactions()
+
+    this.__determineFeeMatchingTransactions()
   }
 
   /**
@@ -135,34 +138,20 @@ module.exports = class TransactionGuard {
     const forgedIds = await database.getForgedTransactionsIds(transactionIds)
 
     this.transactions = this.transactions.filter(transaction => {
-      if (forgedIds.indexOf(transaction.id) === -1) {
-        this.broadcast.push(transaction)
-
-        return true
+      if (forgedIds.includes(transaction.id)) {
+        this.invalid.push(this.transactions)
+        return false
       }
 
-      this.invalid.push(this.transactions)
-
-      return false
+      return true
     })
   }
 
   /**
-   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
-   * Matched transactions stay in this.transaction, mis-matched transaction are pushed in this.invalid
-   * @return {void}
-   */
-  __determineFeeMatchingTransactions () {
-    const dynamicFeeResults = dynamicFeeMatch(this.transactions)
-    this.transactions = dynamicFeeResults.feesMatching
-    this.invalid.concat(dynamicFeeResults.invalidFees)
-  }
-
-  /**
    * Determines valid transactions by checking rules, according to:
-   * - if sender is over transaction pool limit
-   * - if sender has enough funds
    * - if recipient is on the same network
+   * - if sender has enough funds
+   * Transaction that can be broadcasted are confirmed here
    */
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
@@ -174,12 +163,6 @@ module.exports = class TransactionGuard {
         }
       }
 
-      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
-      if (hasExceeded) {
-        this.excess.push(transaction)
-        return
-      }
-
       try {
         await this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
@@ -187,11 +170,34 @@ module.exports = class TransactionGuard {
         return
       }
 
-      this.accept.push(transaction)
+      this.broadcast.push(transaction)
     })
   }
 
-   /**
+  /**
+   * Determine exccess transactions
+   */
+  async __determineExcessTransactions () {
+    await Promise.each(this.broadcast, async (transaction) => {
+      const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
+      if (hasExceeded) {
+        this.excess.push(transaction)
+      } else {
+        this.accept.push(transaction)
+      }
+    })
+  }
+
+  /**
+   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
+   * Matched transactions stay in this.transaction, mis-matched transaction are pushed in this.invalid
+   * @return {void}
+   */
+  __determineFeeMatchingTransactions () {
+    this.accept = this.accept.filter(transaction => dynamicFeeMatch(transaction))
+  }
+
+  /**
    * Reset all indices.
    * @return {void}
    */
