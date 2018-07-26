@@ -313,6 +313,7 @@ exports.postTransactions = {
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
       logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      logger.verbose(`Received transactions ${transactionPool.guard.accept.map(tx => tx.id)}`)
       transactionPool.addTransactions(transactionPool.guard.accept)
     }
 

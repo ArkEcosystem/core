@@ -266,7 +266,7 @@ module.exports = class Wallet {
       audit.push({'Resignate Delegate': this.username})
     }
 
-    if (!Object.keys(TRANSACTION_TYPES).includes(transaction.type)) {
+    if (!Object.values(TRANSACTION_TYPES).includes(transaction.type)) {
       audit.push({'Unknown Type': true})
     }
 
