@@ -5,6 +5,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const helpers = require('./utils/validation-helpers')
 const database = container.resolvePlugin('database')
+const _ = require('lodash')
 
 module.exports = class TransactionGuard {
   /**
@@ -26,7 +27,7 @@ module.exports = class TransactionGuard {
   async validate (transactions) {
     this.__reset()
 
-    await this.__transformAndFilterTransations(transactions)
+    await this.__transformAndFilterTransations(_.uniqWith(transactions, _.isEqual))
 
     await this.__removeForgedTransactions()
 
