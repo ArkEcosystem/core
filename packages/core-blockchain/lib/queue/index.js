@@ -28,10 +28,10 @@ module.exports = class Queue {
    * @return {void}
    */
   clear (stateMachine) {
-    this.rebuild.remove(() => true)
+    this.rebuild.clear()
     // TODO: move this, not the responsibility of the queue
     stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
-    this.process.remove(() => true)
+    this.process.clear()
   }
 
   /**
