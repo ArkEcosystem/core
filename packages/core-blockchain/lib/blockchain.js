@@ -349,6 +349,7 @@ module.exports = class Blockchain {
   async manageUnchainedBlock (block, state) {
     if (block.data.height > this.getLastBlock().data.height + 1) {
       logger.info(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${this.getLastBlock().data.height.toLocaleString()} :warning:`)
+      state.lastDownloadedBlock = state.lastBlock
     } else if (block.data.height < this.getLastBlock().data.height) {
       logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
     } else if (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id) {
