@@ -27,7 +27,7 @@ module.exports = class TransactionGuard {
   async validate (transactions) {
     this.__reset()
 
-    await this.__transformAndFilterTransations(_.uniqWith(transactions, _.isEqual))
+    await this.__transformAndFilterTransations(_.uniqBy(transactions, 'id'))
 
     await this.__removeForgedTransactions()
 
