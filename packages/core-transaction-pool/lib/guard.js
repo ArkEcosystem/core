@@ -190,7 +190,7 @@ module.exports = class TransactionGuard {
 
   /**
    * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
-   * Matched transactions stay in this.transaction, mis-matched transaction are pushed in this.invalid
+   * Matched transactions stay in this.transaction, fee not accepted by node/delegate are still broadcasted.
    * @return {void}
    */
   __determineFeeMatchingTransactions () {
