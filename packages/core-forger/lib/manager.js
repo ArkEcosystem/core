@@ -69,7 +69,6 @@ module.exports = class ForgerManager {
   async __monitor (round) {
     try {
       round = await this.client.getRound()
-      console.log(round);
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
@@ -79,6 +78,7 @@ module.exports = class ForgerManager {
       }
 
       const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
+      console.log(delegate)
       if (!delegate) {
         // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
