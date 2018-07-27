@@ -11,7 +11,7 @@ const transferCommand = require('./transfer')
 module.exports = async (options) => {
   utils.applyConfigOptions(options)
 
-  const wallets = utils.generateWallets(options.number)
+  const wallets = utils.generateWallets(options.quantity)
   await transferCommand(options, wallets, 2, true)
 
   let delegateVotes = []
