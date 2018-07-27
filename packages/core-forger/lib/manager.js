@@ -80,7 +80,7 @@ module.exports = class ForgerManager {
       const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
       console.log(delegate)
       if (!delegate) {
-        // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
+        logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
           logger.info(`Next forging delegate ${round.nextForger.publicKey} is active on this node.`)
