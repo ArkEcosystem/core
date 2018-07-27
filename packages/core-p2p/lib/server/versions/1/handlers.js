@@ -303,11 +303,17 @@ exports.postTransactions = {
       }
     }
 
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      return { success: false }
+    }
+
     await transactionPool.guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
-      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      logger.info(`Accepted ${transactionPool.guard.accept.length} transactions from ${request.payload.transactions.length} received`)
+      logger.verbose(`Accepted transactions: ${transactionPool.guard.accept.map(tx => tx.id)}`)
       transactionPool.addTransactions(transactionPool.guard.accept)
     }
 

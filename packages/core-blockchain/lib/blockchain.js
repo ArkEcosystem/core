@@ -332,7 +332,7 @@ module.exports = class Blockchain {
 
     try {
       if (this.transactionPool) {
-        this.transactionPool.acceptChainedBlock(block)
+        await this.transactionPool.acceptChainedBlock(block)
       }
     } catch (error) {
       logger.warn('Issue applying block to transaction pool')

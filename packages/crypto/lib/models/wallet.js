@@ -219,7 +219,7 @@ module.exports = class Wallet {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      audit.push({'Transfert': true})
+      audit.push({'Transfer': true})
     }
 
     if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
@@ -266,7 +266,7 @@ module.exports = class Wallet {
       audit.push({'Resignate Delegate': this.username})
     }
 
-    if (!Object.keys(TRANSACTION_TYPES).includes(transaction.type)) {
+    if (!Object.values(TRANSACTION_TYPES).includes(transaction.type)) {
       audit.push({'Unknown Type': true})
     }
 
