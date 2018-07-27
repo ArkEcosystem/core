@@ -258,9 +258,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -292,9 +289,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -326,9 +320,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -360,9 +351,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })

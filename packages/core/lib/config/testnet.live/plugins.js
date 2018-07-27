@@ -42,7 +42,7 @@ module.exports = {
     enabled: process.env.ARK_TRANSACTION_POOL_ENABLED || true,
     key: 'ark1',
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
-    whitelist: ['127.0.0.1', '192.168.*'],
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
@@ -50,7 +50,8 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4000
+    port: process.env.ARK_P2P_PORT || 4000,
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: true
@@ -76,7 +77,7 @@ module.exports = {
       enabled: process.env.ARK_WEBHOOKS_API_ENABLED || false,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
-      whitelist: ['127.0.0.1', '192.168.*']
+      whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
@@ -94,6 +95,6 @@ module.exports = {
     host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
-    whitelist: ['127.0.0.1', '192.168.*']
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   }
 }

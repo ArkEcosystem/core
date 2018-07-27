@@ -29,6 +29,7 @@
     "delay": "^3.0.0",
     "hapi": "^17.5.0",
     "lodash": "^4.17.10",
+    "micromatch": "^3.1.10",
     "moment": "^2.22.2",
     "pretty-ms": "^3.2.0",
     "request-ip": "^2.0.2",
