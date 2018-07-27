@@ -526,10 +526,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getTransactionsFromIds (transactionIds) {
-    const rows = await this.connection.query(`SELECT serialized FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
-    const transactions = await rows.map(row => Transaction.deserialize(row.serialized.toString('hex')))
-
-    return transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+    return this.connection.query(`SELECT serialized, block_id FROM transactions WHERE id IN ('${transactionIds.join('\',\'')}')`, {type: Sequelize.QueryTypes.SELECT})
   }
 
   /**
