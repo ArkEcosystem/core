@@ -103,8 +103,8 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
       const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
 
-      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey : senderWallet.publicKey })
-      const transactionsSenderId = await repository.findAll({ senderId : senderWallet.address })
+      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAll({ senderId: senderWallet.address })
 
       expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
 
