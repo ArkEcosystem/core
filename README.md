@@ -17,7 +17,7 @@ This repository contains all plugins that make up the ARK Core.
 ## Run testnet
   - `start redis`
   - `start postgres`
-  - cd packages/core and run `yarn full:testnet`
+  - cd packages/core and run `yarn full:testnet:kn`
   if failed then edit username postgress in packages/core/lib/config/testnet/plugins.js
 
 ## Core Packages
