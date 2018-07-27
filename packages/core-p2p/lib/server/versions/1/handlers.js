@@ -5,7 +5,9 @@ const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
-const { slots } = require('@arkecosystem/crypto')
+const { slots, crypto } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
+
 const schema = require('./schema')
 
 /**
@@ -119,9 +121,19 @@ exports.getTransactionsFromIds = {
   async handler (request, h) {
     try {
       const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-      const transactions = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
+      const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
-      return { success: true, transactions: transactions }
+      // TODO: v1 compatibility patch. Add transformer and refactor later on
+      const transactions = await rows.map(row => {
+        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
+        transaction.blockId = row.block_id
+        transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
+        return transaction
+      })
+
+      const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+
+      return { success: true, transactions: returnTrx }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
