@@ -15,8 +15,12 @@ This repository contains all plugins that make up the ARK Core.
 - Swaager API: http://0.0.0.0:4003/documentation#/
 
 ## Run testnet
-  - `start redis`
-  - `start postgres`
+  - `yarn global add lerna`
+  - `git clone https://github.com/khanhoatink4/core.git`
+  - `cd core`
+  - `lerna bootstrap`
+  - `start redis server in your computer`
+  - `start postgres server in your computer`
   - cd packages/core and run `yarn full:testnet:kn`
   if failed then edit username postgress in packages/core/lib/config/testnet/plugins.js
 

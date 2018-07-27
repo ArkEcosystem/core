@@ -6,7 +6,7 @@
     "private": 46089520
   },
   "pubKeyHash": 30,
-  "nethash": "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
+  "nethash": "e5fea649cbc692b13151546280e67cac2eeaf12da561e484f4835b4f9442ac4a",
   "wif": 170,
   "client": {
     "token": "DARK",
@@ -15,9 +15,9 @@
   },
   "constants": [{
     "height": 1,
-    "reward": 0,
-    "activeDelegates": 51,
-    "blocktime": 8,
+    "reward": 2500000000,
+    "activeDelegates": 37,
+    "blocktime": 5,
     "block": {
       "version": 0,
       "maxTransactions": 50,
@@ -49,7 +49,7 @@
     }
   }, {
     "height": 75600,
-    "reward": 200000000
+    "reward": 2500000000
   }],
   "exceptions": {
   }
