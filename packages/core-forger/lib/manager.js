@@ -69,6 +69,7 @@ module.exports = class ForgerManager {
   async __monitor (round) {
     try {
       round = await this.client.getRound()
+      console.log(round);
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
