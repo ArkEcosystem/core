@@ -106,9 +106,11 @@ describe('Transaction Repository', () => {
       const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey : senderWallet.publicKey })
       const transactionsSenderId = await repository.findAll({ senderId : senderWallet.address })
 
-      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
-        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
-        expect(transactionSenderId).toBeMinimalTransactionFields()
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 
@@ -190,9 +192,11 @@ describe('Transaction Repository', () => {
       const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey: senderWallet.publicKey })
       const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
 
-      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
-        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
-        expect(transactionSenderId).toBeMinimalTransactionFields()
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 

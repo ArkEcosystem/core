@@ -453,7 +453,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async __getBlockCache (blockId) {
     const height = await this.cache.get(`heights:${blockId}`)
-    return height ? ({ height }) : null
+    return height ? ({ height, id: blockId }) : null
   }
 
   /**
@@ -463,7 +463,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} block.height
    */
   __setBlockCache ({ id, height }) {
-    this.cache.set(`heights:${id}`, { height })
+    this.cache.set(`heights:${id}`, height)
   }
 
   /**
