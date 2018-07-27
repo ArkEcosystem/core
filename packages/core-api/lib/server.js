@@ -1,6 +1,8 @@
 'use strict'
 
 const Hapi = require('hapi')
+const HapiSwagger = require('hapi-swagger')
+
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 
 /**
@@ -85,6 +87,46 @@ module.exports = async (config) => {
         exclude: ['*']
       }
     }
+  })
+
+  const swaggerOptions = {
+    info: {
+      title: 'Test API Documentation',
+      version: '0.0.1'
+    },
+    grouping: 'tags',
+    tags: [
+      {
+        name: 'blocks',
+        description: 'Blocks endpoint'
+      },
+      {
+        name: 'delegates',
+        description: 'Delegates endpoint'
+      },
+      {
+        name: 'accounts',
+        description: 'Accounts endpoint'
+      }, {
+        name: 'transactions',
+        description: 'Transactions endpoint'
+      },
+      {
+        name: 'peers',
+        description: 'Peers endpoint'
+      },
+      {
+        name: 'loader',
+        description: 'Loader endpoint'
+      },
+      {
+        name: 'signatures',
+        description: 'Signatures endpoint'
+      }]
+  }
+  await server.register({
+    plugin: HapiSwagger,
+    options: swaggerOptions
   })
 
   await server.register({

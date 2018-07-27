@@ -12,6 +12,7 @@ This repository contains all plugins that make up the ARK Core.
 ## API Documentation
 
 - API v1 & v2 : https://docs.ark.io/v1.0/reference
+- Swaager API: http://0.0.0.0:4003/documentation#/
 
 ## Run testnet
   - `start redis`

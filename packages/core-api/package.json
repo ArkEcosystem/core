@@ -30,6 +30,7 @@
     "hapi-api-version": "https://github.com/faustbrian/hapi-api-version",
     "hapi-pagination": "https://github.com/faustbrian/hapi-pagination",
     "hapi-rate-limit": "^2.1.2",
+    "hapi-swagger": "^9.1.1",
     "inert": "^5.1.0",
     "ip": "^1.1.5",
     "joi": "^13.3.0",
