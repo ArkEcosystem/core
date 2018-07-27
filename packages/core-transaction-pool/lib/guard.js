@@ -50,7 +50,7 @@ module.exports = class TransactionGuard {
       accept: this.accept.map(transaction => transaction.id),
       excess: this.excess.map(transaction => transaction.id),
       invalid: this.invalid.map(transaction => transaction.id),
-      broadcast: this.invalid.map(transaction => transaction.id)
+      broadcast: this.broadcast.map(transaction => transaction.id)
     }
   }
 
@@ -140,7 +140,7 @@ module.exports = class TransactionGuard {
         return true
       }
 
-      this.invalid.push(this.transactions)
+      this.invalid.push(this.transaction)
 
       return false
     })
