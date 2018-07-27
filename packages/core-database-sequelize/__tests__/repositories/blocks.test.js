@@ -12,11 +12,12 @@ let genesisBlock
 let connection
 let repository
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-  genesisBlock = require('../__fixtures__/genesisBlock')
 
-  done()
+  // Wait for the setup to complete before creating the Genesis Block or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../__fixtures__/genesisBlock')
 })
 
 afterAll(async () => {

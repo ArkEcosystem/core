@@ -11,6 +11,9 @@ let walletManager
 
 beforeAll(async (done) => {
   await app.setUp()
+
+  // Wait for the setup to complete before creating the Genesis Block or else it uses a potentially
+  // wrong network config.
   genesisBlock = require('../__fixtures__/genesisBlock')
   genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
 

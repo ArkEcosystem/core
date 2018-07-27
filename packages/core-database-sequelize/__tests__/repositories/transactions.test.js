@@ -20,12 +20,13 @@ const getWallet = address => {
   return spv.walletManager.getWalletByAddress(address)
 }
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
   genesisBlock = require('../__fixtures__/genesisBlock')
   genesisTransaction = genesisBlock.transactions[0]
-
-  done()
 })
 
 afterAll(async () => {
