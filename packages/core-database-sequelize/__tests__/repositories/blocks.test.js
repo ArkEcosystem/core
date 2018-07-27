@@ -15,7 +15,7 @@ let repository
 beforeAll(async () => {
   await app.setUp()
 
-  // Wait for the setup to complete before creating the Genesis Block or else it uses a potentially
+  // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = require('../__fixtures__/genesisBlock')
 })
