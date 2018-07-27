@@ -1,32 +1,17 @@
 {
-  "minimumNetworkReach": 5,
+  "minimumNetworkReach":2,
   "globalTimeout": 5000,
-  "coldStart": 5,
+  "coldStart": 6,
   "whiteList": [],
   "blackList": [],
   "list": [
     {
-      "ip": "167.114.29.51",
+      "ip": "35.231.12.243",
       "port": 4002
     },
     {
-      "ip": "167.114.29.52",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.53",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.54",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.55",
+      "ip": "35.197.135.197",
       "port": 4002
     }
-  ],
-  "sources": [
-    "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
   ]
 }
