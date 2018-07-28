@@ -292,7 +292,7 @@ describe('Models - Block', () => {
   })
 
   describe('v1 fix', () => {
-    const data2 = data
+    const { outlookTable } = require('../../lib/constants').CONFIGURATIONS.ARK.MAINNET
     const table = {
       '5139199631254983076': '1000099631254983076',
       '4683900276587456793': '1000000276587456793',
@@ -334,29 +334,52 @@ describe('Models - Block', () => {
 
     describe('outlook table', () => {
       it('should be an object', () => {
-        expect(typeof Block.OUTLOOKTABLEFIX).toBe('object')
+        expect(typeof outlookTable).toBe('object')
       })
       it('should have expected values in the outlook table', () => {
-        expect(Block.OUTLOOKTABLEFIX).toEqual(table)
-      })
-      it('should be immutable', () => {
-        expect(Block.OUTLOOKTABLEFIX[0] = 'any value').toThrow()
-      })
-      it('should return false when compared to changed values', () => {
-        table[0] = 'any value'
-        expect(table).not().toBe(Block.OUTLOOKTABLEFIX)
+        expect(outlookTable).toEqual(table)
       })
     })
     describe('apply v1 fix', () => {
-      it('should be a function', () => {
-        expect(typeof Block.applyV1Fix).toBe('function')
-      })
       it('should not process a common block', () => {
-        expect(Block.applyV1Fix(data)).toBe(data)
+        let mock = {
+          id: '187940162505562345',
+          blockSignature: '3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8', // eslint-disable-line max-len
+          generatorPublicKey: '024c8247388a02ecd1de2a3e3fd5b7c61ecc2797fa3776599d558333ef1802d231',
+          height: 10,
+          numberOfTransactions: 0,
+          payloadHash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23',
+          payloadLength: 1,
+          previousBlock: '12123',
+          reward: 1,
+          timestamp: 111150,
+          totalAmount: 10,
+          totalFee: 1,
+          transactions: [],
+          version: 6
+        }
+        const blk = new Block(mock)
+        expect(blk.data.id).toBe(mock.id)
       })
       it('should process a matching id', () => {
-        data2.id = '8225244493039935740'
-        expect(Block.applyV1Fix(data2)).not().toBe(data2)
+        let mock2 = {
+          id: '8225244493039935740',
+          blockSignature: '3045022100a6605198e0f590c88798405bc76748d84e280d179bcefed2c993e70cded2a5dd022008c7f915b89fc4f3250fc4b481abb753c68f30ac351871c50bd6cfaf151370e8', // eslint-disable-line max-len
+          generatorPublicKey: '024c8247388a02ecd1de2a3e3fd5b7c61ecc2797fa3776599d558333ef1802d231',
+          height: 10,
+          numberOfTransactions: 0,
+          payloadHash: '578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23',
+          payloadLength: 1,
+          previousBlock: '12123',
+          reward: 1,
+          timestamp: 111150,
+          totalAmount: 10,
+          totalFee: 1,
+          transactions: [],
+          version: 6
+        }
+        const blk2 = new Block(mock2)
+        expect(blk2.data.id).not.toBe(mock2.id)
       })
     })
   })
