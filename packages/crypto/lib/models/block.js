@@ -6,7 +6,7 @@ const configManager = require('../managers/config')
 const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
-const { OUTLOOKTABLEFIX } = require('../constants')
+const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (buffer) => {
   let temp = buffer.toString('hex')
@@ -86,8 +86,8 @@ module.exports = class Block {
     this.data.idHex = Block.getIdHex(this.data)
     this.data.id = Block.getId(this.data)
 
-    if (OUTLOOKTABLEFIX[this.data.id]) {
-      this.data.id = OUTLOOKTABLEFIX[this.data.id]
+    if (outlookTable[this.data.id]) {
+      this.data.id = outlookTable[this.data.id]
       this.data.idHex = toBytesHex(new Bignum(this.data.id).toBuffer())
     }
     if (data.id !== this.data.id) {
