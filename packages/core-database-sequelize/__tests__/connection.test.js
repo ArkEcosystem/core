@@ -4,6 +4,7 @@ const app = require('./__support__/setup')
 const generateRound = require('./__support__/utils/generate-round')
 const createConnection = require('./__support__/utils/create-connection')
 const activeDelegates = require('./__fixtures__/delegates.json')
+const { Transaction } = require('@arkecosystem/crypto').models
 
 let genesisBlock
 let connection
@@ -436,10 +437,15 @@ describe('Sequelize Connection', () => {
         '3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154'
       ])
 
-      expect(transactions).toBeObject()
-      expect(transactions[0].id).toBe('db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd')
-      expect(transactions[1].id).toBe('0762007f825f02979a883396839d6f7425d5ab18f4b8c266bebe60212c793c6d')
-      expect(transactions[2].id).toBe('3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154')
+      const transactionIds = transactions.map(transaction => {
+        return Transaction.deserialize(transaction.serialized.toString('hex')).id
+      })
+
+      expect(transactions).toBeArray()
+      expect(transactions).toHaveLength(3)
+      expect(transactionIds[0]).toBe('0762007f825f02979a883396839d6f7425d5ab18f4b8c266bebe60212c793c6d')
+      expect(transactionIds[1]).toBe('3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154')
+      expect(transactionIds[2]).toBe('db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd')
     })
   })
 
