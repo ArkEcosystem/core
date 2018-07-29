@@ -98,21 +98,23 @@ describe('API - Client', () => {
     })
 
     it('should ignore local peers', async () => {
-      const localPeer = {
-        ip: '127.0.0.1',
-        height: 3663605,
-        status: 'OK',
-        delay: 17
-      }
-      const data = {
-        success: true,
-        peers: peers.concat([localPeer])
-      }
-      httpMock.onGet('peers').reply(200, { data })
+      ;['127.0.0.1', '::1'].forEach(async ip => {
+        const localPeer = {
+          ip,
+          height: 3663605,
+          status: 'OK',
+          delay: 17
+        }
+        const data = {
+          success: true,
+          peers: peers.concat([localPeer])
+        }
+        httpMock.onGet('peers').reply(200, { data })
 
-      const foundPeers = await Client.findPeers('mainnet')
-      expect(foundPeers).toEqual(arrayContaining(peers))
-      expect(foundPeers).not.toContainEqual(localPeer)
+        const foundPeers = await Client.findPeers('mainnet')
+        expect(foundPeers).toEqual(arrayContaining(peers))
+        expect(foundPeers).not.toContainEqual(localPeer)
+      })
     })
 
     it('should ignore not-OK peers', async () => {

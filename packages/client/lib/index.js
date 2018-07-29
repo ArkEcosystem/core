@@ -41,9 +41,10 @@ module.exports = class ApiClient {
       return networkPeers
     }
 
+    const selfIps = ['127.0.0.1', '::1']
     return sortPeers(peers.filter(peer => {
       // Ignore local and unavailable peers
-      return peer.ip !== '127.0.0.1' && peer.status === 'OK'
+      return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
     }))
   }
 
