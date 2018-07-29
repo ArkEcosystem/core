@@ -1,10 +1,17 @@
 'use strict'
 
-require('../../__support__/setup')
-
+const app = require('../../__support__/setup')
 const utils = require('../utils')
 
 const address = 'AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo'
+
+beforeAll(async () => {
+  await app.setUp()
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 1.0 - Wallets', () => {
   describe('GET api/accounts/getAllAccounts', () => {
