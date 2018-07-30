@@ -29,7 +29,8 @@ module.exports = async (options) => {
       null,
       publicKeys,
       options.lifetime,
-      min
+      min,
+      utils.parseFee(options.multisignatureFee)
     )
     transaction.signatures = []
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -307,7 +308,8 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
       null,
       publicKeys,
       options.lifetime,
-      min
+      min,
+      utils.parseFee(options.multisignatureFee)
     )
     transaction.signatures = []
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
