@@ -4,7 +4,7 @@ module.exports = async (address) => {
     const wallet = await getWallet(address)
 
     if (wallet) {
-        return wallet.balance
+        return +wallet.balance
     }
 
     return null
