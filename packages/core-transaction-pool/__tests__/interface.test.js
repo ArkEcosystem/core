@@ -1,7 +1,6 @@
 'use strict'
 
 const app = require('./__support__/setup')
-const { dummy1, dummy2 } = require('./__fixtures__/transactions')
 const moment = require('moment')
 
 let poolInterface
@@ -35,6 +34,16 @@ describe('Transaction Pool Interface', () => {
 
     it('should throw an exception', async () => {
       await expect(poolInterface.getPoolSize()).rejects.toThrowError('Method [getPoolSize] not implemented!')
+    })
+  })
+
+  describe('getSenderSize', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getSenderSize).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getSenderSize()).rejects.toThrowError('Method [getSenderSize] not implemented!')
     })
   })
 
@@ -164,30 +173,33 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  // TODO: rewrite and adjust to changes
-  describe('determineExcessTransactions', () => {
-    it('should have 2 accept / 0 excess transactions', async () => {
-      poolInterface.hasExceededMaxTransactions = jest.fn(pass => false)
-
-      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
-
-      expect(ids).toBeObject()
-      expect(ids).toHaveProperty('accept')
-      expect(ids.accept).toHaveLength(2)
-      expect(ids).toHaveProperty('excess')
-      expect(ids.excess).toHaveLength(0)
+  describe('getTransactionsForForging', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
+  })
 
-    it('should have 0 accept / 2 excess transactions', async () => {
-      poolInterface.hasExceededMaxTransactions = jest.fn(pass => true)
+  describe('removeForgedAndGetPending', () => {
+    it('should be a function', () => {
+      expect(poolInterface.removeForgedAndGetPending).toBeFunction()
+    })
+  })
 
-      const ids = await poolInterface.determineExcessTransactions([dummy1, dummy2])
+  describe('acceptChainedBlock', () => {
+    it('should be a function', () => {
+      expect(poolInterface.acceptChainedBlock).toBeFunction()
+    })
+  })
 
-      expect(ids).toBeObject()
-      expect(ids).toHaveProperty('accept')
-      expect(ids.accept).toHaveLength(0)
-      expect(ids).toHaveProperty('excess')
-      expect(ids.excess).toHaveLength(2)
+  describe('buildWallets', () => {
+    it('should be a function', () => {
+      expect(poolInterface.buildWallets).toBeFunction()
+    })
+  })
+
+  describe('purgeByPublicKey', () => {
+    it('should be a function', () => {
+      expect(poolInterface.purgeByPublicKey).toBeFunction()
     })
   })
 })

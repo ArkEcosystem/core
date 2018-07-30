@@ -22,6 +22,8 @@ module.exports = class PoolWalletManager extends WalletManager {
   /**
    * Get a wallet by the given address. If wallet is not found it is copied from blockchain wallet manager
    * Method overrides base class method from WalletManager.
+   * WARNING: call only upon guard apply, as if wallet not found it gets it from blockchain.
+   * For existing key checks use function exists(key)
    * @param  {String} address
    * @return {(Wallet|null)}
    */
@@ -72,24 +74,9 @@ module.exports = class PoolWalletManager extends WalletManager {
   }
 
   deleteWallet (publicKey) {
-      delete this.walletsByPublicKey[publicKey]
+    delete this.walletsByPublicKey[publicKey]
 
-      delete this.walletsByAddress[crypto.getAddress(publicKey, config.network.pubKeyHash)]
-  }
-
-  /**
-   * Apply the given block to a delegate in the pool wallet manager.
-   * We apply only the block reward and fees, as transaction are already be applied
-   * when entering the pool. Applying only if delegate wallet is in pool wallet manager
-   * Method overrides method from wallet-manager base class
-   * @param  {Block} block
-   * @return {void}
-   */
-  applyBlock (block) {
-    if (this.exists(block.data.generatorPublicKey)) {
-      const delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
-      delegate.applyBlock(block.data)
-    }
+    delete this.walletsByAddress[crypto.getAddress(publicKey, config.network.pubKeyHash)]
   }
 
   /**
@@ -97,7 +84,7 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+  async applyPoolTransaction (transaction) { /* eslint padded-blocks: "off" */
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 
@@ -139,4 +126,17 @@ module.exports = class PoolWalletManager extends WalletManager {
     return transaction
   }
 
+  /**
+   * Apply the given block to a delegate in the pool wallet manager.
+   * We apply only the block reward and fees, as transaction are already be applied
+   * when entering the pool. Applying only if delegate wallet is in pool wallet manager
+   * @param {block}
+   */
+  applyPoolBlock (block) {
+    // if delegate in poll wallet manager - apply rewards
+    if (this.exists(block.data.generatorPublicKey)) {
+      const delegateWallet = this.getWalletByPublicKey(block.data.generatorPublicKey)
+      delegateWallet.applyBlock(block.data)
+    }
+  }
 }
