@@ -104,6 +104,23 @@ describe('Transaction Repository', () => {
       })
     })
 
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
+      await connection.saveBlock(genesisBlock)
+      const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
+
+      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAll({ senderId: senderWallet.address })
+
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
+      })
+    })
+
     xit('should find all transactions by some fields only', () => {
     })
 
@@ -172,6 +189,23 @@ describe('Transaction Repository', () => {
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
         expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
+      await connection.saveBlock(genesisBlock)
+      const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
+
+      const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
+
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 
