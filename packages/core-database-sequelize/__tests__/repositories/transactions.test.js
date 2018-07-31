@@ -112,6 +112,8 @@ describe('Transaction Repository', () => {
       const transactionsSenderId = await repository.findAll({ senderId: senderWallet.address })
 
       expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
 
       transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
         const transactionSenderId = transactionsSenderId.rows[index]
@@ -198,6 +200,8 @@ describe('Transaction Repository', () => {
       const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
 
       expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
 
       transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
         const transactionSenderId = transactionsSenderId.rows[index]
