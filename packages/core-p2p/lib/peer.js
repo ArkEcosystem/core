@@ -173,7 +173,11 @@ module.exports = class Peer {
    */
   async hasCommonBlocks (ids) {
     try {
-      const body = await this.__get(`/peer/blocks/common?ids=${ids.join(',')}`)
+      let url = `/peer/blocks/common?ids=${ids.join(',')}`
+      if (ids.length === 1) {
+        url += ","
+      }
+      const body = await this.__get(url)
 
       return body && body.success && body.common
     } catch (error) {
