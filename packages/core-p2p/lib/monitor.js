@@ -174,12 +174,16 @@ module.exports = class Monitor {
    * @param  {(Number|undefined)} acceptableDelay
    * @return {Peer}
    */
-  getRandomPeer (acceptableDelay) {
+  getRandomPeer (acceptableDelay, downloadSize) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => this.peers[key].ban < new Date().getTime())
 
     if (acceptableDelay) {
       keys = keys.filter((key) => this.peers[key].delay < acceptableDelay)
+    }
+
+    if (downloadSize) {
+      keys = keys.filter((key) => this.peers[key].downloadSize !== downloadSize)
     }
 
     const random = keys[keys.length * Math.random() << 0]
@@ -203,19 +207,7 @@ module.exports = class Monitor {
    * @return {Peer}
    */
   getRandomDownloadBlocksPeer (minHeight) {
-    let keys = Object.keys(this.peers)
-    keys = keys.filter(key => this.peers[key].ban < new Date().getTime())
-    // keys = keys.filter(key => this.peers[key].state.height > minHeight)
-    keys = keys.filter(key => this.peers[key].downloadSize !== 100)
-
-    const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.peers[random]
-
-    if (!randomPeer) {
-      delete this.peers[random]
-
-      return this.getRandomPeer()
-    }
+    const randomPeer = this.getRandomPeer(null, 100)
 
     logger.debug(`Downloading blocks from ${randomPeer.ip}`)
 
