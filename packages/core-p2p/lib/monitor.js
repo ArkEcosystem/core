@@ -23,7 +23,6 @@ module.exports = class Monitor {
     this.config = config
     this.peers = {}
     this.suspendedPeers = {}
-    this.clearPeersTimer = null
 
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json')
@@ -43,9 +42,6 @@ module.exports = class Monitor {
   async start (networkStart = false) {
     if (!networkStart) {
       await this.updateNetworkStatus()
-      this.clearPeersTimer = setInterval(() => {
-        this.cleanPeers()
-      }, 600000)
     }
   }
 
@@ -89,20 +85,9 @@ module.exports = class Monitor {
 
     logger.info(`Checking ${max} peers`)
 
-    const blockIds = await this.__getRecentBlockIds()
     await Promise.all(keys.map(async (ip) => {
       try {
         await this.peers[ip].ping(pingDelay)
-
-        if (blockIds.length && !(await this.peers[ip].hasCommonBlocks(blockIds))) {
-          logger.error(`Could not get common block for ${ip}`)
-
-          this.__suspendPeer(this.peers[ip])
-          delete this.peers[ip]
-          wrongPeers++
-
-          return null
-        }
 
         logger.printTracker('Peers Discovery', ++count, max)
       } catch (error) {
