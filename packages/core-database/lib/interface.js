@@ -200,17 +200,6 @@ module.exports = class ConnectionInterface {
    * @throws Error
    */
   async getRecentBlockIds () {
-    if (!this.recentBlockIds.length) {
-      const blocks = this.connection.query
-        .select('id')
-        .from('blocks')
-        .orderBy({ timestamp: 'DESC' })
-        .limit(10)
-        .all()
-
-      this.recentBlockIds = blocks.map(block => block.id)
-    }
-
     return this.recentBlockIds
   }
 
