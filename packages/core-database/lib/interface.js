@@ -16,6 +16,7 @@ module.exports = class ConnectionInterface {
   constructor (config) {
     this.config = config
     this.connection = null
+    this.recentBlockIds = []
   }
 
   /**
@@ -192,6 +193,26 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get recent block ids.
+   * @return {void}
+   * @throws Error
+   */
+  async getRecentBlockIds () {
+    if (!this.recentBlockIds.length) {
+      const blocks = this.connection.query
+        .select('id')
+        .from('blocks')
+        .orderBy({ timestamp: 'DESC' })
+        .limit(10)
+        .all()
+
+      this.recentBlockIds = blocks.map(block => block.id)
+    }
+
+    return this.recentBlockIds
+  }
+
+  /**
    * Store the given round.
    * @param  {Array} activeDelegates
    * @return {void}
@@ -338,6 +359,8 @@ module.exports = class ConnectionInterface {
     await this.walletManager.applyBlock(block)
     await this.applyRound(block.data.height)
     emitter.emit('block.applied', block.data)
+    this.recentBlockIds.push(block.id)
+    this.recentBlockIds.shift()
   }
 
   /**

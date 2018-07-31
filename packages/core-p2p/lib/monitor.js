@@ -385,13 +385,6 @@ module.exports = class Monitor {
    * @return {[]String}
    */
   async __getRecentBlockIds () {
-    const blocks = await container.resolvePlugin('database').query
-      .select('id')
-      .from('blocks')
-      .orderBy({ timestamp: 'DESC' })
-      .limit(10)
-      .all()
-
-    return blocks.map(block => block.id)
+    return container.resolvePlugin('database').getRecentBlockIds()
   }
 }
