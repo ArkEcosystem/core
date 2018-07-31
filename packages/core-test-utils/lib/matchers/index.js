@@ -21,5 +21,7 @@ module.exports = {
   toBeTransferType: require('./transactions/types/transfer'),
   toBeVoteType: require('./transactions/types/vote'),
 
-  toCall: require('./call')
+  toDispatch: require('./blockchain/dispatch'),
+  toExecuteOnEntry: require('./blockchain/execute-on-entry'),
+  toTransition: require('./blockchain/transition')
 }

@@ -29,9 +29,7 @@ describe('Transactions', () => {
     })
 
     it('should broadcast tx on mainnet using the new method', async () => {
-      const response = await request('transactions.broadcast', {
-        id: transaction.id
-      })
+      const response = await request('transactions.broadcast', { id: transaction.id })
 
       await expect(ark.crypto.verify(response.data.result)).toBeTruthy()
     })

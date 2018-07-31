@@ -33,6 +33,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/node/configuration', ...node.configuration },
 
     { method: 'GET', path: '/peers', ...peers.index },
+    { method: 'GET', path: '/peers/suspended', ...peers.suspended },
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/transactions', ...transactions.index },

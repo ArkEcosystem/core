@@ -76,12 +76,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
   }
 
-   /**
+  /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
   async getPoolSize () {
     return this.__isReady() ? this.pool.llen(this.__getRedisOrderKey()) : 0
+  }
+
+  /**
+   * Get the number of transaction in the pool from specific sender
+   * @param {String} senderPublicKey
+   * @returns {Number}
+   */
+  async getSenderSize (senderPublicKey) {
+    return this.pool.llen(this.__getRedisSenderPublicKey(senderPublicKey))
   }
 
   /**
@@ -203,8 +212,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return
     }
 
-    if (this.options.whitelist.includes(transaction.senderPublicKey)) {
-      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+    if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
+      logger.debug(`Transaction pool allowing ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
       return false
     }
 

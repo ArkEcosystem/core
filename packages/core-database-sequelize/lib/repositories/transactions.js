@@ -13,7 +13,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
-    super(connection)
+    super(connection, 'transaction')
 
     // Used to store the height of the block
     this.cache = connection.cache
@@ -25,14 +25,15 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAll (params = {}) {
-    const conditions = this.__formatConditions(params)
-
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
       if (senderPublicKey) {
-        conditions.senderPublicKey = senderPublicKey
+        params.senderPublicKey = senderPublicKey
       }
     }
+
+    const { conditions } = this.__formatConditions(params)
 
     const orderBy = this.__orderBy(params)
 
@@ -52,7 +53,7 @@ module.exports = class TransactionsRepository extends Repository {
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
-      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(selectQuery, {
         limit: params.limit,
         offset: params.offset,
@@ -71,14 +72,15 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllLegacy (params = {}) {
-    const conditions = this.__formatConditionsV1(params)
-
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
       if (senderPublicKey) {
-        conditions.senderPublicKey = senderPublicKey
+        params.senderPublicKey = senderPublicKey
       }
     }
+
+    const conditions = this.__formatConditionsV1(params)
 
     const orderBy = this.__orderBy(params)
 
@@ -103,7 +105,7 @@ module.exports = class TransactionsRepository extends Repository {
     // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     // if (count) {
-      const selectQuery = buildQuery(this.query.select('blockId', 'serialized'))
+      const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(selectQuery, {
         limit: params.limit,
         offset: params.offset,
@@ -128,15 +130,15 @@ module.exports = class TransactionsRepository extends Repository {
     const buildQuery = query => {
       return query
         .from('transactions')
-        .where('senderPublicKey', wallet.publicKey)
-        .orWhere('recipientId', wallet.address)
+        .where('sender_public_key', wallet.publicKey)
+        .orWhere('recipient_id', wallet.address)
     }
 
     let rows = []
     const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
-      const query = buildQuery(this.query.select('blockId', 'serialized'))
+      const query = buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(query, {
         limit: params.limit,
         offset: params.offset,
@@ -206,8 +208,9 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findOne (conditions) {
+    conditions = this.__formatConditions(conditions).conditions
     const transaction = await this.query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
       .where(conditions)
       .first()
@@ -243,7 +246,7 @@ module.exports = class TransactionsRepository extends Repository {
     return this
       .connection
       .query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
       .whereIn('id', ids)
       .all()
@@ -251,16 +254,26 @@ module.exports = class TransactionsRepository extends Repository {
 
   /**
    * Search all transactions.
-   * @param  {Object} payload
+   *
+   * @param  {Object} params
    * @return {Object}
    */
   async search (params) {
     const orderBy = this.__orderBy(params)
 
-    const conditions = buildFilterQuery(params, {
-      exact: ['id', 'blockId', 'type', 'version', 'senderPublicKey', 'recipientId'],
+    if (params.senderId) {
+      const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+
+      if (senderPublicKey) {
+        params.senderPublicKey = senderPublicKey
+      }
+    }
+
+    let { conditions } = this.__formatConditions(params)
+    conditions = buildFilterQuery(conditions, {
+      exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
       between: ['timestamp', 'amount', 'fee'],
-      wildcard: ['vendorFieldHex']
+      wildcard: ['vendor_field_hex']
     })
 
     const buildQuery = query => {
@@ -277,7 +290,7 @@ module.exports = class TransactionsRepository extends Repository {
     const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
 
     if (count) {
-      const query = await buildQuery(this.query.select('blockId', 'serialized'))
+      const query = await buildQuery(this.query.select('block_id', 'serialized'))
       const transactions = await this.__runQuery(query, {
         limit: params.limit,
         offset: params.offset,
@@ -296,9 +309,9 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async findWithVendorField () {
     const transactions = await this.query
-      .select('blockId', 'serialized')
+      .select('block_id', 'serialized')
       .from('transactions')
-      .whereNotNull('vendorFieldHex')
+      .whereNotNull('vendor_field_hex')
       .all()
 
     return this.__mapBlocksToTransactions(transactions)
@@ -339,14 +352,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   __formatConditions (params) {
-    const filter = args => {
-      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
-    }
-
-    const statement = filter(Object.keys(params)).reduce((all, column) => {
-      all[column] = params[column]
-      return all
-    }, {})
+    const { conditions, filter } = super.__formatConditions(params)
 
     // NOTE: This could be used to produce complex queries, but currently isn't used
     ;[Op.or, Op.and].map(elem => {
@@ -356,12 +362,12 @@ module.exports = class TransactionsRepository extends Repository {
 
       const fields = Object.assign({}, ...params[elem])
 
-      statement[elem] = filter(Object.keys(fields)).reduce((all, value) => {
+      conditions[elem] = filter(Object.keys(fields)).reduce((all, value) => {
         return all.concat({ [value]: fields[value] })
       }, [])
     })
 
-    return statement
+    return { conditions, filter }
   }
 
   /**
@@ -371,14 +377,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   __formatConditionsV1 (params) {
-    const filter = args => {
-      return args.filter(elem => ['type', 'senderPublicKey', 'recipientId', 'amount', 'fee', 'blockId'].includes(elem))
-    }
-
-    return filter(Object.keys(params)).reduce((all, column) => {
-      all[column] = params[column]
-      return all
-    }, {})
+    return super.__formatConditions(params).conditions
   }
 
   /**
@@ -454,7 +453,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async __getBlockCache (blockId) {
     const height = await this.cache.get(`heights:${blockId}`)
-    return height ? ({ height }) : null
+    return height ? ({ height, id: blockId }) : null
   }
 
   /**
@@ -464,9 +463,14 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {Number} block.height
    */
   __setBlockCache ({ id, height }) {
-    this.cache.set(`heights:${id}`, { height })
+    this.cache.set(`heights:${id}`, height)
   }
 
+  /**
+   * Retrieves the publicKey of the address from the WalletManager in-memory data
+   * @param {String} senderId
+   * @return {String}
+   */
   __publicKeyfromSenderId (senderId) {
     return this.connection.walletManager.getWalletByAddress(senderId).publicKey
   }

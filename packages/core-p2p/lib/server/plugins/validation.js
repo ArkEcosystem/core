@@ -25,9 +25,15 @@ function validate (schema, data) {
  * @return {Hapi.Response}
  */
 function createErrorResponse (request, h, errors) {
-  return request.pre.apiVersion === 1
-    ? h.response({ path: errors[0].dataPath, error: errors[0].message, success: false }).takeover()
-    : Boom.badData(errors)
+  if (request.pre.apiVersion === 1) {
+    return h.response({
+      path: errors[0].dataPath,
+      error: errors[0].message,
+      success: false
+    }).takeover()
+  }
+
+  return Boom.badData(errors)
 }
 
 /**

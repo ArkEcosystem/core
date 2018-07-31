@@ -4,12 +4,17 @@ const app = require('./__support__/setup')
 const generateRound = require('./__support__/utils/generate-round')
 const createConnection = require('./__support__/utils/create-connection')
 const activeDelegates = require('./__fixtures__/delegates.json')
-const genesisBlock = require('./__fixtures__/genesisBlock')
+const { Transaction } = require('@arkecosystem/crypto').models
 
+let genesisBlock
 let connection
 
 beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
 })
 
 afterAll(async () => {
@@ -44,6 +49,24 @@ describe('Sequelize Connection', () => {
 
       expect(connection.connection).toBeInstanceOf(require('sequelize'))
     })
+
+    describe('when the db is already initialised', () => {
+      it('should throw an Error', async () => {
+        const connection = new (require('../lib/connection'))({
+          dialect: 'sqlite',
+          storage: ':memory:'
+        })
+
+        await connection.make()
+
+        try {
+          await connection.make()
+          expect().fail('Should throw an Error')
+        } catch (error) {
+          expect(error.message).toMatch(/sequelize.*connect/i)
+        }
+      })
+    })
   })
 
   describe('getActiveDelegates', () => {
@@ -63,6 +86,119 @@ describe('Sequelize Connection', () => {
       expect(delegates[0]).toHaveProperty('round')
       expect(delegates[0]).toHaveProperty('publicKey')
       expect(delegates[0]).toHaveProperty('balance')
+    })
+  })
+
+  describe('verifyBlockchain', () => {
+    const stubBlockchain = ({ lastBlock, numberOfBlocks, blockStats, transactionStats } = {}) => {
+      lastBlock || lastBlock === null || (lastBlock = genesisBlock)
+      numberOfBlocks || (numberOfBlocks = 1)
+      blockStats || (blockStats = { totalFee: 10, numberOfTransactions: 5, totalAmount: 100 })
+      transactionStats || (transactionStats = { totalFee: 10, count: 5, totalAmount: 100 })
+
+      connection.getLastBlock = jest.fn(() => lastBlock)
+      connection.__numberOfBlocks = jest.fn(() => numberOfBlocks)
+      connection.__blockStats = jest.fn(() => blockStats)
+      connection.__transactionStats = jest.fn(() => transactionStats)
+    }
+
+    it('should be a function', () => {
+      expect(connection.verifyBlockchain).toBeFunction()
+    })
+
+    describe('when the blockchain state is valid', () => {
+      beforeEach(stubBlockchain)
+
+      it('should return that the blockchain state is valid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeTruthy()
+      })
+
+      it('should not include any error', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toBeEmpty()
+      })
+    })
+
+    describe('when the last block is not available', () => {
+      beforeEach(() => {
+        stubBlockchain({ lastBlock: null })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/last.*block.*available/i)
+        ]))
+      })
+    })
+
+    describe('when the number of transactions on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { numberOfTransactions: 30 },
+          transactionStats: { count: 25 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/number.*transaction/i)
+        ]))
+      })
+    })
+
+    describe('when the sum of fees on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { totalFee: 276 },
+          transactionStats: { totalFee: 275.998 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/total.*fee/i)
+        ]))
+      })
+    })
+
+    describe('when the sum of amounts on the block table is different from the transactions table', () => {
+      beforeEach(() => {
+        stubBlockchain({
+          blockStats: { totalAmount: 3000 },
+          transactionStats: { totalAmount: 3003 }
+        })
+      })
+
+      it('should return that the blockchain state is invalid', async () => {
+        const { valid } = await connection.verifyBlockchain()
+        expect(valid).toBeFalsy()
+      })
+
+      it('should return an error message about it', async () => {
+        const { errors } = await connection.verifyBlockchain()
+        expect(errors).toEqual(expect.arrayContaining([
+          expect.stringMatching(/total.*amount/i)
+        ]))
+      })
     })
   })
 
@@ -145,7 +281,9 @@ describe('Sequelize Connection', () => {
       const wallet = connection.walletManager.getWalletByPublicKey('03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b')
       expect(wallet.missedBlocks).toBe(0)
 
-      await connection.updateDelegateStats(genesisBlock, delegates)
+      const { height } = genesisBlock.data
+      await connection.applyRound(height)
+      await connection.updateDelegateStats(height, delegates)
 
       expect(wallet.missedBlocks).toBe(1)
     })
@@ -299,10 +437,15 @@ describe('Sequelize Connection', () => {
         '3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154'
       ])
 
-      expect(transactions).toBeObject()
-      expect(transactions[0].id).toBe('db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd')
-      expect(transactions[1].id).toBe('0762007f825f02979a883396839d6f7425d5ab18f4b8c266bebe60212c793c6d')
-      expect(transactions[2].id).toBe('3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154')
+      const transactionIds = transactions.map(transaction => {
+        return Transaction.deserialize(transaction.serialized.toString('hex')).id
+      })
+
+      expect(transactions).toBeArray()
+      expect(transactions).toHaveLength(3)
+      expect(transactionIds[0]).toBe('0762007f825f02979a883396839d6f7425d5ab18f4b8c266bebe60212c793c6d')
+      expect(transactionIds[1]).toBe('3c39aca95ad807ce19c0325e3059d7b1cf967751c6929035214a4ef320fb8154')
+      expect(transactionIds[2]).toBe('db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd')
     })
   })
 
@@ -369,6 +512,34 @@ describe('Sequelize Connection', () => {
 
       expect(blocks).toBeObject()
       expect(blocks[0]).toBeInstanceOf(Buffer)
+    })
+  })
+
+  describe('sql injection', () => {
+    it('should be ok #1', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('generator_public_key', '\' or \'\'=\'')
+        .all()
+
+      expect(blocks).toEqual([])
+    })
+
+    it('should be ok #2', async () => {
+      const blocks = await connection.query
+        .select('*')
+        .from('blocks')
+        .where('number_of_transactions', '153\'; DROP TABLE blocks')
+        .all()
+
+      expect(blocks).toEqual([])
+
+      const result = await connection.connection.query('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'blocks\';')
+      expect(result).toBeArray();
+      expect(result).toHaveLength(1);
     })
   })
 })

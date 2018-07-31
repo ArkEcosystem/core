@@ -3,19 +3,21 @@
 const axios = require('axios')
 
 const app = require('../__support__/setup')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-const genesisTransaction = require('../__fixtures__/genesisTransaction')
 
-beforeAll(async (done) => {
+let genesisBlock
+let genesisTransaction
+
+beforeAll(async () => {
   await app.setUp()
 
-  done()
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisTransaction = require('../__fixtures__/genesisTransaction')
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 const sendGET = async (endpoint, params = {}) => {

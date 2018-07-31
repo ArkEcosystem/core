@@ -1,7 +1,7 @@
 'use strict'
 
 const requestIp = require('request-ip')
-const isLocalhost = require('../../utils/is-localhost')
+const isWhitelist = require('../../utils/is-whitelist')
 
 /**
  * The register method used by hapi.js.
@@ -15,7 +15,7 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isLocalhost(request.info.remoteAddress)) {
+      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, request.info.remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',
           message: `${request.path} does not exist`
@@ -31,7 +31,10 @@ const register = async (server, options) => {
         try {
           await server.app.p2p.acceptNewPeer(peer)
         } catch (error) {
-          return h.response({ success: false, message: error.message }).code(500).takeover()
+          return h.response({
+            success: false,
+            message: error.message
+          }).code(500).takeover()
         }
       }
 

@@ -3,13 +3,15 @@
 const toBeMinimalTransactionFields = require('../__support__/matchers/minimal-transaction-fields')
 expect.extend({ toBeMinimalTransactionFields })
 
-const { Transaction } = require('@arkecosystem/crypto').models
+const { crypto, models } = require('@arkecosystem/crypto')
+const { Transaction } = models
+const SPV = require('../../lib/spv')
 
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-const genesisTransaction = genesisBlock.transactions[0]
 
+let genesisBlock
+let genesisTransaction
 let connection
 let repository
 let spv
@@ -20,6 +22,11 @@ const getWallet = address => {
 
 beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisTransaction = genesisBlock.transactions[0]
 })
 
 afterAll(async () => {
@@ -29,7 +36,7 @@ afterAll(async () => {
 beforeEach(async () => {
   connection = await createConnection()
   repository = connection.transactions
-  spv = new (require('../../lib/spv'))(connection)
+  spv = new SPV(connection)
 
   // To avoid timing out
   const cache = {}
@@ -94,6 +101,23 @@ describe('Transaction Repository', () => {
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
         expect(transaction).toBeMinimalTransactionFields()
+      })
+    })
+
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
+      await connection.saveBlock(genesisBlock)
+      const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
+
+      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAll({ senderId: senderWallet.address })
+
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 
@@ -168,6 +192,23 @@ describe('Transaction Repository', () => {
       })
     })
 
+    it('should find the same transactions with parameter senderId and corresponding senderPublicKey', async () => {
+      await connection.saveBlock(genesisBlock)
+      const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
+
+      const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
+
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
+      })
+    })
+
     xit('should find all transactions by any field', () => {
     })
 
@@ -200,7 +241,7 @@ describe('Transaction Repository', () => {
 
       const receiverTransactions = await repository.findAllByWallet(receiver)
 
-      expect(receiverTransactions.count).toBe(1)
+      expect(receiverTransactions.count).toBe(2)
       expect(receiverTransactions.rows).toBeArray()
       expect(receiverTransactions.rows).not.toBeEmpty()
       receiverTransactions.rows.forEach(transaction => {
@@ -230,9 +271,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -264,9 +302,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -281,7 +316,7 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAllByRecipient('AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t')
 
-      expect(transactions.count).toBe(1)
+      expect(transactions.count).toBe(2)
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
@@ -298,9 +333,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -332,9 +364,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -452,7 +481,7 @@ describe('Transaction Repository', () => {
     it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const id = '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778'
+      const id = 'ea294b610e51efb3ceb4229f27bf773e87f41d21b6bb1f3bf68629ffd652c2d3'
       const type = 3
 
       const fields = await repository.findByTypeAndId(type, id)
@@ -486,31 +515,49 @@ describe('Transaction Repository', () => {
       expect(repository.search).toBeFunction()
     })
 
-    it('should search transactions by the specified id', async () => {
+    it('should search transactions by the specified `id`', async () => {
       await expectSearch({ id: genesisTransaction.id }, 1)
     })
 
-    it('should search transactions by the specified blockId', async () => {
+    it('should search transactions by the specified `blockId`', async () => {
       await expectSearch({ blockId: genesisTransaction.blockId }, 153)
     })
 
-    it('should search transactions by the specified type', async () => {
+    it('should search transactions by the specified `type`', async () => {
       await expectSearch({ type: genesisTransaction.type }, 153)
     })
 
-    it('should search transactions by the specified version', async () => {
+    it('should search transactions by the specified `version`', async () => {
       await expectSearch({ version: genesisTransaction.version }, 153)
     })
 
-    it('should search transactions by the specified senderPublicKey', async () => {
+    // TODO when is not on the blockchain?
+    // TODO when is not indexed?
+    describe('when the wallet is indexed', () => {
+      const senderId = () => {
+        return crypto.getAddress(genesisTransaction.senderPublicKey, 23)
+      }
+
+      beforeEach(() => {
+        const wallet = getWallet(senderId())
+        wallet.publicKey = genesisTransaction.senderPublicKey
+        spv.walletManager.reindex(wallet)
+      })
+
+      it('should search transactions by the specified `senderId`', async () => {
+        await expectSearch({ senderId: senderId() }, 51)
+      })
+    })
+
+    it('should search transactions by the specified `senderPublicKey`', async () => {
       await expectSearch({ senderPublicKey: genesisTransaction.senderPublicKey }, 51)
     })
 
-    it('should search transactions by the specified recipientId', async () => {
-      await expectSearch({ recipientId: genesisTransaction.recipientId }, 1)
+    it('should search transactions by the specified `recipientId`', async () => {
+      await expectSearch({ recipientId: genesisTransaction.recipientId }, 2)
     })
 
-    it('should search transactions by the specified timestamp', async () => {
+    it('should search transactions by the specified `timestamp`', async () => {
       await expectSearch({
         timestamp: {
           from: genesisTransaction.timestamp,
@@ -519,7 +566,7 @@ describe('Transaction Repository', () => {
       }, 153)
     })
 
-    it('should search transactions by the specified amount', async () => {
+    it('should search transactions by the specified `amount`', async () => {
       await expectSearch({
         amount: {
           from: genesisTransaction.amount,
@@ -528,7 +575,7 @@ describe('Transaction Repository', () => {
       }, 50)
     })
 
-    it('should search transactions by the specified fee', async () => {
+    it('should search transactions by the specified `fee`', async () => {
       await expectSearch({
         fee: {
           from: genesisTransaction.fee,
@@ -537,8 +584,14 @@ describe('Transaction Repository', () => {
       }, 153)
     })
 
-    it('should search transactions by the specified vendorFieldHex', async () => {
+    it('should search transactions by the specified `vendorFieldHex`', async () => {
       await expectSearch({ vendorFieldHex: genesisTransaction.vendorFieldHex }, 153)
+    })
+
+    describe('when there are more than 1 condition', () => {
+      it('should search transactions that includes all of them (AND)', async () => {
+        await expectSearch({ recipientId: genesisTransaction.recipientId, type: 3 }, 1)
+      })
     })
 
     describe('when no results', () => {

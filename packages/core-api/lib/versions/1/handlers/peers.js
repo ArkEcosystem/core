@@ -69,7 +69,9 @@ exports.show = {
       return utils.respondWith('No peers found', true)
     }
 
-    const peer = peers.find(elem => { return elem.ip === request.query.ip && elem.port === +request.query.port })
+    const peer = peers.find(elem => {
+      return elem.ip === request.query.ip && elem.port === +request.query.port
+    })
 
     if (!peer) {
       return utils.respondWith(`Peer ${request.query.ip}:${request.query.port} not found`, true)

@@ -20,11 +20,11 @@ describe('Plugin Registrar', () => {
 
   it('should load the plugins and their options', () => {
     ;['a', 'b', 'c'].forEach(char => {
-      const pluginName = `./__tests__/__stubs__/plugin-${char}`
+      const pluginName = `./plugin-${char}`
       expect(instance.plugins[pluginName]).toBeObject()
     })
 
-    expect(instance.plugins['./__tests__/__stubs__/plugin-b']).toHaveProperty('property', 'value')
+    expect(instance.plugins['./plugin-b']).toHaveProperty('property', 'value')
   })
 
   describe('register', () => {
@@ -32,12 +32,15 @@ describe('Plugin Registrar', () => {
       expect(instance.setUp).toBeFunction()
     })
 
-    it('should register a plugin', async () => {
-      const pluginName = './__tests__/__stubs__/plugin-a'
+    it('should register plugins with relative paths', async () => {
+      const pluginName = './plugin-a'
 
       await instance.register(pluginName, { enabled: false })
 
       expect(instance.container.has('stub-plugin-a')).toBeTrue()
+    })
+
+    xit('should register plugins with @ paths', () => {
     })
   })
 
@@ -55,8 +58,8 @@ describe('Plugin Registrar', () => {
     })
 
     describe('with a plugin name as the value of the `exit` option', () => {
-      it('should register the plugins but ignore the the rest', async () => {
-        instance.options.exit = './__tests__/__stubs__/plugin-a'
+      it('should register the plugins but ignore the rest', async () => {
+        instance.options.exit = './plugin-a'
 
         await instance.setUp()
 
@@ -70,7 +73,7 @@ describe('Plugin Registrar', () => {
   })
 
   describe('tearDown', () => {
-    it('should deregister all the plugins in inverse order', async () => {
+    xit('should deregister all the plugins in inverse order', async () => {
       await instance.setUp()
 
       ;['a', 'b', 'c'].forEach(char => {
@@ -82,6 +85,30 @@ describe('Plugin Registrar', () => {
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
       })
+    })
+
+    it('should deregister plugins supporting deregister', async () => {
+      await instance.setUp()
+
+      ;['a', 'b', 'c'].forEach(char => {
+        expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
+      })
+
+      const plugins = {}
+      await instance.tearDown()
+      ;['a', 'b', 'c'].forEach(char => {
+        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
+      })
+
+      ;['a', 'b'].forEach(char => {
+        const ref = plugins[char]
+        expect(ref.plugin).not.toBeNull()
+        expect(ref.plugin.deregister).toHaveBeenCalled()
+      })
+      // plugin-c does not support deregister
+      const refC = plugins['c']
+      expect(refC.plugin).not.toBeNull()
+      expect(refC.plugin.deregister).not.toBeDefined()
     })
   })
 })

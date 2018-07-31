@@ -59,7 +59,7 @@ module.exports = class Peer {
 
       return response.data
     } catch (error) {
-      // logger.debug('Peer unreachable', this.url + '/peer/blocks/', error.code)
+      // logger.debug('Peer unresponsive', this.url + '/peer/blocks/', error.code)
 
       this.status = error.code
     }
@@ -90,14 +90,14 @@ module.exports = class Peer {
 
   async getTransactionsFromIds (ids) {
     // useless since there is a bug on v1
-    const url = '/peer/transactionsFromIds?ids=' + ids.join(',')
+    const url = `/peer/transactionsFromIds?ids=${ids.join(',')}`
     const result = await this.__get(url)
     if (result.success) return result.transactions
     else return []
   }
 
   async getTransactionsFromBlock (blockId) {
-    const url = '/api/transactions?blockId=' + blockId
+    const url = `/api/transactions?blockId=${blockId}`
     const result = await this.__get(url)
     if (result.success) return result.transactions
     else return []
@@ -149,11 +149,11 @@ module.exports = class Peer {
       return body
     }
 
-    throw new Error(`Peer ${this.ip} is unreachable`)
+    throw new Error(`Peer ${this.ip} is unresponsive`)
   }
 
   /**
-   * Refresh peer list.
+   * Refresh peer list. It removes blacklisted peers from the fetch
    * @return {Object[]}
    */
   async getPeers () {
@@ -163,7 +163,7 @@ module.exports = class Peer {
 
     const body = await this.__get('/peer/list')
 
-    return body.peers
+    return body.peers.filter(peer => !config.peers.blackList.includes(peer.ip))
   }
 
   /**
@@ -214,7 +214,7 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders (response) {
-    ['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
 
     this.status = 'OK'
 

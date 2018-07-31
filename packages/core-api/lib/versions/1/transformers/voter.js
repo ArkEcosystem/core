@@ -10,6 +10,6 @@ module.exports = (model) => {
     username: model.username,
     address: model.address,
     publicKey: model.publicKey,
-    balance: model.balance
+    balance: model.balance + ''
   }
 }

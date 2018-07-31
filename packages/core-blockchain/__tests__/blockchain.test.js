@@ -4,24 +4,24 @@ const { asValue } = require('awilix')
 const { slots } = require('@arkecosystem/crypto')
 
 const app = require('./__support__/setup')
-const genesisBlock = require('./__fixtures__/genesisBlock')
 
+let genesisBlock
 let container
 let blockchain
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   container = await app.setUp()
 
-  done()
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
+beforeEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
 
   // manually register the blockchain
@@ -37,16 +37,12 @@ beforeEach(async (done) => {
     plugin: blockchain,
     options: {}
   }))
-
-  done()
 })
 
-afterEach(async (done) => {
+afterEach(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN = false
 
   await blockchain.resetState()
-
-  done()
 })
 
 describe('Blockchain', () => {

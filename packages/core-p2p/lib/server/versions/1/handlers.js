@@ -5,9 +5,10 @@ const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
-const { slots } = require('@arkecosystem/crypto')
+const { slots, crypto } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
+
 const schema = require('./schema')
-// const Promise = require('bluebird')
 
 /**
  * @type {Object}
@@ -120,9 +121,19 @@ exports.getTransactionsFromIds = {
   async handler (request, h) {
     try {
       const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-      const transactions = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
+      const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
-      return { success: true, transactions: transactions }
+      // TODO: v1 compatibility patch. Add transformer and refactor later on
+      const transactions = await rows.map(row => {
+        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
+        transaction.blockId = row.block_id
+        transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
+        return transaction
+      })
+
+      const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+
+      return { success: true, transactions: returnTrx }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
@@ -210,7 +221,11 @@ exports.postBlock = {
    */
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-    if (!blockchain) return { success: false }
+
+    if (!blockchain) {
+      return { success: false }
+    }
+
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
@@ -223,10 +238,18 @@ exports.postBlock = {
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
       // Are we ready to get it?
-      if (lastDownloadedBlock.data.height + 1 !== block.height) return { success: true }
+      if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+        return { success: true }
+      }
+
       const b = new Block(block)
-      if (!b.verification.verified) throw new Error('invalid block received')
+
+      if (!b.verification.verified) {
+        throw new Error('invalid block received')
+      }
+
       blockchain.pushPingBlock(b.data)
+
       if (b.headerOnly) {
         // let missingIds = []
         let transactions = []
@@ -251,12 +274,15 @@ exports.postBlock = {
 
           // reorder them correctly
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-          logger.debug('found missing transactions: ' + JSON.stringify(block.transactions))
+          logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+
           if (block.transactions.length !== block.numberOfTransactions) return { success: false }
         }
       // } else return { success: false }
+
       block.ip = requestIp.getClientIp(request)
       blockchain.queueBlock(block)
+
       return { success: true }
     } catch (error) {
       console.log(error)
@@ -288,10 +314,18 @@ exports.postTransactions = {
         transactionIds: []
       }
     }
+
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      return { success: false }
+    }
+
     await transactionPool.guard.validate(request.payload.transactions)
+
     // TODO: Review throttling of v1
     if (transactionPool.guard.hasAny('accept')) {
-      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+      logger.info(`Accepted ${transactionPool.guard.accept.length} transactions from ${request.payload.transactions.length} received`)
+      logger.verbose(`Accepted transactions: ${transactionPool.guard.accept.map(tx => tx.id)}`)
       transactionPool.addTransactions(transactionPool.guard.accept)
     }
 
@@ -327,11 +361,13 @@ exports.getBlocks = {
   async handler (request, h) {
     try {
       const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+
       logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
       return { success: true, blocks: blocks || [] }
     } catch (error) {
       logger.error(error.stack)
+
       return h.response({ success: false, error: error }).code(500)
     }
   },

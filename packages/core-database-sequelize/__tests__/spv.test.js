@@ -2,13 +2,17 @@
 
 const app = require('./__support__/setup')
 const createConnection = require('./__support__/utils/create-connection')
-const genesisBlock = require('./__fixtures__/genesisBlock')
 
+let genesisBlock
 let connection
 let spv
 
 beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
 })
 
 afterAll(async () => {
@@ -98,7 +102,7 @@ describe('SPV', () => {
 
       await spv.__buildLastForgedBlocks()
 
-      expect(getWalletByPublicKey(publicKey).lastBlock.data.id).toBe('17184958558311101492')
+      expect(getWalletByPublicKey(publicKey).lastBlock.id).toBe('17184958558311101492')
     })
   })
 

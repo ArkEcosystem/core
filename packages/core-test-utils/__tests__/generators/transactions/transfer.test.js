@@ -8,13 +8,13 @@ describe('Transfer transaction', () => {
     expect(createTransfer).toBeFunction()
   })
 
-  const arkAmount = 20
+  const amount = 20
   const quantity = 4
   const transactions = createTransfer(
     undefined,
     undefined,
     undefined,
-    arkAmount,
+    amount,
     quantity
   )
 
@@ -24,13 +24,13 @@ describe('Transfer transaction', () => {
 
   it('should return an array of 4 transfer objects', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({type: TRANSACTION_TYPES.TRANSFER})
+      expect(transactions[i]).toMatchObject({ type: TRANSACTION_TYPES.TRANSFER })
     }
   })
 
   it('should return an array sending 20 ark', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({amount: arkAmount * Math.pow(10, 8)})
+      expect(transactions[i]).toMatchObject({ amount: amount * Math.pow(10, 8) })
     }
   })
 })

@@ -24,13 +24,13 @@ module.exports = {
     snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
   '@arkecosystem/core-database-sequelize': {
-    // dialect: 'sqlite',
-    // storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
-    host: process.env.ARK_DB_HOST || 'localhost',
-    dialect: process.env.ARK_DB_DIALECT || 'postgres',
-    username: process.env.ARK_DB_USERNAME || 'ark',
-    password: process.env.ARK_DB_PASSWORD || 'password',
-    database: process.env.ARK_DB_DATABASE || 'ark_mainnet',
+    dialect: 'sqlite',
+    storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
+    // host: process.env.ARK_DB_HOST || 'localhost',
+    // dialect: process.env.ARK_DB_DIALECT || 'postgres',
+    // username: process.env.ARK_DB_USERNAME || 'ark',
+    // password: process.env.ARK_DB_PASSWORD || 'password',
+    // database: process.env.ARK_DB_DATABASE || 'ark_mainnet',
     logging: process.env.ARK_DB_LOGGING || false,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
@@ -50,7 +50,8 @@ module.exports = {
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
-    port: process.env.ARK_P2P_PORT || 4001
+    port: process.env.ARK_P2P_PORT || 4001,
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   },
   '@arkecosystem/core-blockchain': {
     fastRebuild: true
@@ -76,7 +77,7 @@ module.exports = {
       enabled: process.env.ARK_WEBHOOKS_API_ENABLED || false,
       host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
       port: process.env.ARK_WEBHOOKS_PORT || 4004,
-      whitelist: ['127.0.0.1', '192.168.*']
+      whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
     }
   },
   '@arkecosystem/core-graphql': {
@@ -94,6 +95,6 @@ module.exports = {
     host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
-    whitelist: ['127.0.0.1', '192.168.*']
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
   }
 }
