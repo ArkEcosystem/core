@@ -153,14 +153,6 @@ module.exports = class Monitor {
     try {
       await newPeer.ping(1500)
 
-      const blockIds = await this.__getRecentBlockIds()
-      if (blockIds.length && !(await newPeer.hasCommonBlocks(blockIds))) {
-        logger.error(`Could not accept new peer '${peer.ip}' due to no common block`)
-        this.__suspendPeer(newPeer)
-
-        return
-      }
-
       this.peers[peer.ip] = newPeer
       logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
 
