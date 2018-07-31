@@ -169,6 +169,17 @@ module.exports = class Monitor {
     return this.peers[ip]
   }
 
+  async peerHasCommonBlocks (peer, blockIds) {
+    if (!(await peer.hasCommonBlocks(blockIds))) {
+      logger.error(`Could not get common block for ${peer.ip}`)
+      this.__suspendPeer(peer)
+
+      return false
+    }
+
+    return true
+  }
+
   /**
    * Get a random, available peer.
    * @param  {(Number|undefined)} acceptableDelay
@@ -206,8 +217,13 @@ module.exports = class Monitor {
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
-  getRandomDownloadBlocksPeer (minHeight) {
+  async getRandomDownloadBlocksPeer (minHeight) {
     const randomPeer = this.getRandomPeer(null, 100)
+
+    const recentBlockIds = await this.__getRecentBlockIds()
+    if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
+      return this.getRandomDownloadBlocksPeer(minHeight)
+    }
 
     logger.debug(`Downloading blocks from ${randomPeer.ip}`)
 
@@ -270,7 +286,7 @@ module.exports = class Monitor {
    * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
-    const randomPeer = this.getRandomDownloadBlocksPeer(fromBlockHeight)
+    const randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
 
     try {
       await randomPeer.ping()
