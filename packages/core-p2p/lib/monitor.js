@@ -9,7 +9,6 @@ const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
 const isLocalhost = require('./utils/is-localhost')
-const { first, orderBy } = require('lodash')
 const moment = require('moment')
 const delay = require('delay')
 
@@ -215,23 +214,6 @@ module.exports = class Monitor {
   }
 
   /**
-   * Get the highest peer.
-   * @return {Peer}
-   */
-  async getHighestPeer () {
-    const peers = []
-    for (const key of Object.keys(this.peers)) {
-      const peer = this.peers[key]
-      try {
-        await peer.ping(1000)
-        peers.push(peer)
-      } catch (error) {}
-    }
-
-    return first(orderBy(peers, ['height'], ['desc']))
-  }
-
-  /**
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
@@ -261,18 +243,13 @@ module.exports = class Monitor {
    */
   async discoverPeers () {
     try {
-      const highestPeer = await this.getHighestPeer()
-      if (!highestPeer) {
-        logger.error('Could not determine highest peer')
-        return this.discoverPeers()
-      }
-      const list = await highestPeer.getPeers()
-      for (const peer of list) {
-        if (peer.status !== 'OK' || this.peers[peer.ip] || isLocalhost(peer.ip)) {
-          continue
+      const list = await this.getRandomPeer().getPeers()
+
+      list.forEach(peer => {
+        if (peer.status === 'OK' && !this.peers[peer.ip] && !isLocalhost(peer.ip)) {
+          this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
-        this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-      }
+      })
 
       return this.peers
     } catch (error) {
