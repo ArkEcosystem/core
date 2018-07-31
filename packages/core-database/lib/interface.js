@@ -389,7 +389,9 @@ module.exports = class ConnectionInterface {
     if (this.blocksInCurrentRound) this.blocksInCurrentRound.push(block)
     emitter.emit('block.applied', block.data)
     this.recentBlockIds.push(block.id)
-    this.recentBlockIds.shift()
+    if (this.recentBlockIds.length > 10) {
+      this.recentBlockIds.shift()
+    }
   }
 
   /**
