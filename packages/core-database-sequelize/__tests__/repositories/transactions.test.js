@@ -9,9 +9,9 @@ const SPV = require('../../lib/spv')
 
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-const genesisTransaction = genesisBlock.transactions[0]
 
+let genesisBlock
+let genesisTransaction
 let connection
 let repository
 let spv
@@ -22,6 +22,11 @@ const getWallet = address => {
 
 beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisTransaction = genesisBlock.transactions[0]
 })
 
 afterAll(async () => {
@@ -103,12 +108,16 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
       const senderWallet = await spv.walletManager.getWalletByPublicKey('034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c')
 
-      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey : senderWallet.publicKey })
-      const transactionsSenderId = await repository.findAll({ senderId : senderWallet.address })
+      const transactionsSenderPublicKey = await repository.findAll({ senderPublicKey: senderWallet.publicKey })
+      const transactionsSenderId = await repository.findAll({ senderId: senderWallet.address })
 
-      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
-        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
-        expect(transactionSenderId).toBeMinimalTransactionFields()
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 
@@ -199,9 +208,13 @@ describe('Transaction Repository', () => {
       const transactionsSenderPublicKey = await repository.findAllLegacy({ senderPublicKey: senderWallet.publicKey })
       const transactionsSenderId = await repository.findAllLegacy({ senderId: senderWallet.address })
 
-      transactionsSenderPublicKey.rows.forEach(transactionSenderPublicKey => {
-        const transactionSenderId = transactionsSenderId.rows.find(tr => tr.id === transactionSenderPublicKey.id)
-        expect(transactionSenderId).toBeMinimalTransactionFields()
+      expect(transactionsSenderPublicKey.count).toBe(transactionsSenderId.count)
+      expect(transactionsSenderPublicKey.rows.length).toBe(transactionsSenderPublicKey.count)
+      expect(transactionsSenderId.rows.length).toBe(transactionsSenderId.count)
+
+      transactionsSenderPublicKey.rows.forEach((transactionSenderPublicKey, index) => {
+        const transactionSenderId = transactionsSenderId.rows[index]
+        expect(transactionSenderId).toEqual(transactionSenderPublicKey)
       })
     })
 
@@ -246,7 +259,7 @@ describe('Transaction Repository', () => {
 
       const receiverTransactions = await repository.findAllByWallet(receiver)
 
-      expect(receiverTransactions.count).toBe(1)
+      expect(receiverTransactions.count).toBe(2)
       expect(receiverTransactions.rows).toBeArray()
       expect(receiverTransactions.rows).not.toBeEmpty()
       receiverTransactions.rows.forEach(transaction => {
@@ -276,9 +289,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -310,9 +320,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -327,7 +334,7 @@ describe('Transaction Repository', () => {
 
       const transactions = await repository.findAllByRecipient('AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t')
 
-      expect(transactions.count).toBe(1)
+      expect(transactions.count).toBe(2)
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
@@ -344,9 +351,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -378,9 +382,6 @@ describe('Transaction Repository', () => {
         expect(transactions.count).toBe(0)
         expect(transactions.rows).toBeArray()
         expect(transactions.rows).toBeEmpty()
-        transactions.rows.forEach(transaction => {
-          expect(transaction).toBeMinimalTransactionFields()
-        })
       })
     })
   })
@@ -498,7 +499,7 @@ describe('Transaction Repository', () => {
     it('should find the transaction fields', async () => {
       await connection.saveBlock(genesisBlock)
 
-      const id = '96fe3cac1ef331269fa0ecad5b56a805fad78fe7278608d4d44991b690282778'
+      const id = 'ea294b610e51efb3ceb4229f27bf773e87f41d21b6bb1f3bf68629ffd652c2d3'
       const type = 3
 
       const fields = await repository.findByTypeAndId(type, id)
@@ -551,16 +552,18 @@ describe('Transaction Repository', () => {
     // TODO when is not on the blockchain?
     // TODO when is not indexed?
     describe('when the wallet is indexed', () => {
-      const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23)
+      const senderId = () => {
+        return crypto.getAddress(genesisTransaction.senderPublicKey, 23)
+      }
 
       beforeEach(() => {
-        const wallet = getWallet(senderId)
+        const wallet = getWallet(senderId())
         wallet.publicKey = genesisTransaction.senderPublicKey
         spv.walletManager.reindex(wallet)
       })
 
       it('should search transactions by the specified `senderId`', async () => {
-        await expectSearch({ senderId }, 51)
+        await expectSearch({ senderId: senderId() }, 51)
       })
     })
 
@@ -569,7 +572,7 @@ describe('Transaction Repository', () => {
     })
 
     it('should search transactions by the specified `recipientId`', async () => {
-      await expectSearch({ recipientId: genesisTransaction.recipientId }, 1)
+      await expectSearch({ recipientId: genesisTransaction.recipientId }, 2)
     })
 
     it('should search transactions by the specified `timestamp`', async () => {

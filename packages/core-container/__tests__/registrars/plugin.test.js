@@ -86,5 +86,29 @@ describe('Plugin Registrar', () => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
       })
     })
+
+    it('should deregister plugins supporting deregister', async () => {
+      await instance.setUp()
+
+      ;['a', 'b', 'c'].forEach(char => {
+        expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
+      })
+
+      const plugins = {}
+      await instance.tearDown()
+      ;['a', 'b', 'c'].forEach(char => {
+        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
+      })
+
+      ;['a', 'b'].forEach(char => {
+        const ref = plugins[char]
+        expect(ref.plugin).not.toBeNull()
+        expect(ref.plugin.deregister).toHaveBeenCalled()
+      })
+      // plugin-c does not support deregister
+      const refC = plugins['c']
+      expect(refC.plugin).not.toBeNull()
+      expect(refC.plugin.deregister).not.toBeDefined()
+    })
   })
 })

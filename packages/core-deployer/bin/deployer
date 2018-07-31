@@ -8,7 +8,7 @@ const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const { getRandomNumber, logger, updateConfig, writeEnv } = require('../lib/utils')
-const genesisBlockBuilder = require('../lib/builder/genesis-block')
+const GenesisBlockBuilder = require('../lib/builder/genesis-block')
 
 process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
 
@@ -23,14 +23,14 @@ commander
   .option('--dbPort <value>', 'Database port', 5432)
   .option('--dbUsername <value>', 'Database username', 'node')
   .option('--dbPassword <value>', 'Database password', 'password')
-  .option('--dbDatabase <value>', 'Database name', `ark_${commander.name}`)
+  .option('--dbDatabase <value>', 'Database name', `ark_${commander.name.toLowerCase()}`)
   .option('--explorerUrl <value>', 'URL to link to explorer', 'http://localhost:4200')
   .option('--activeDelegates <value>', 'How many forgers for the network [51]', 51)
-  .option('--feeSend <value>', 'Fee for sending Transaction', 10000000)
+  .option('--feeTransfer <value>', 'Fee for sending Transaction', 10000000)
   .option('--feeVote <value>', 'Fee for Vote Transaction', 100000000)
   .option('--feeSecondSignature <value>', 'Fee for Second Passphrase Transaction', 500000000)
-  .option('--feeDelegate <value>', 'Fee for Register Delegate Transaction', 2500000000)
-  .option('--feeMultisignature <value>', 'Fee for Multisignature Transaction', 500000000)
+  .option('--feeDelegateRegistration <value>', 'Fee for Register Delegate Transaction', 2500000000)
+  .option('--feeMultiSignature <value>', 'Fee for Multisignature Transaction', 500000000)
   .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21T13:00:00.000Z')
   .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [1]', 1)
   .option('--rewardPerBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
@@ -40,7 +40,6 @@ commander
   .option('--prefixHash <value>', 'Address Prefix Hash [28]', 28)
   .option('--transactionsPerBlock <value>', 'Max Transaction count per Block [50]', 50)
   .option('--wifPrefix <value>', 'Prefix for generating a WIF [rand(1, 255)]', getRandomNumber(1, 255))
-  // .option('--max-votes', 'Max Votes per Wallet [1]')
   .option('--totalPremine <value>', 'How many tokens initially added to genesis account [2100000000000000 (21 million)]', 2100000000000000)
   // .option('--max-tokens-per-account', 'Max amount of tokens per account [12500000000000000 (125 million)]')
   .option('--overwriteConfig', 'Overwrite current deployer config files [off]', false)
@@ -65,30 +64,64 @@ if (fs.existsSync(options.configPath)) {
 }
 fs.ensureDirSync(options.configPath)
 fs.copySync(path.resolve(__dirname, `../../core/lib/config/${options.network}`), options.configPath)
+const networkPath = path.resolve(__dirname, `../../crypto/lib/networks/ark/${options.network}.json`)
+if (!fs.existsSync(networkPath)) {
+  logger.error(`Network '${options.network}' does not exist`)
+  process.exit(1)
+}
+fs.copySync(networkPath, path.resolve(options.configPath, 'network.json'))
 
 let networkConfig = {
   name: options.name.toLowerCase(),
   messagePrefix: `${options.token} message:\n`,
   pubKeyHash: options.prefixHash,
   wif: options.wifPrefix,
-  'constants[0].blocktime': options.blocktime,
-  'constants[0].block.maxTransactions': options.transactionsPerBlock,
-  'constants[0].epoch': options.epoch,
-  'constants[0].activeDelegates': options.activeDelegates,
-  'constants[0].fees.send': options.feeSend,
-  'constants[0].fees.vote': options.feeVote,
-  'constants[0].fees.secondsignature': options.feeSecondSignature,
-  'constants[0].fees.delegate': options.feeDelegate,
-  'constants[0].fees.multisignature': options.feeMultisignature,
-  'client.token': options.token,
-  'client.symbol': options.symbol,
-  'client.explorer': options.explorerUrl,
+  constants: [
+    {
+      blocktime: options.blocktime,
+      block: {
+        version: 0,
+        maxTransactions: options.transactionsPerBlock,
+        maxPayload: 2097152
+      },
+      epoch: options.epoch,
+      activeDelegates: options.activeDelegates,
+      fees: {
+        dynamic : false,
+        transfer: options.feeTransfer,
+        secondSignature: options.feeVote,
+        delegateRegistration: options.feeSecondSignature,
+        vote: options.feeDelegateRegistration,
+        multiSignature: options.feeMultiSignature,
+        ipfs: 0,
+        timelockTransfer: 0,
+        multiPayment: 0,
+        delegateResignation: 0
+      },
+      dynamicOffsets: {
+        transfer: 100,
+        secondSignature: 250,
+        delegateRegistration: 500,
+        vote: 100,
+        multiSignature: 500,
+        ipfs: 250,
+        timelockTransfer: 500,
+        multiPayment: 500,
+        delegateResignation: 500
+      }
+    }
+  ],
+  client: {
+    token: options.token,
+    symbol: options.symbol,
+    explorer: options.explorerUrl,
+  },
   exceptions: {}
 }
 
 const network = updateConfig('network.json', networkConfig, options.configPath)
 
-const genesis = (new genesisBlockBuilder(network, options)).generate()
+const genesis = (new GenesisBlockBuilder(network, options)).generate()
 
 network.nethash = genesis.genesisBlock.payloadHash
 
@@ -103,11 +136,13 @@ if (options.rewardHeight === 1) {
   network.constants[1].reward = options.rewardPerBlock
 }
 
+const requestNodeIp = options.nodeIp === '0.0.0.0' ? '127.0.0.1' : options.nodeIp
+
 updateConfig('network.json', networkConfig, options.configPath)
 updateConfig('peers.json', {
   minimumNetworkReach: 1,
   list: [{
-    ip: '127.0.0.1',
+    ip: requestNodeIp,
     port: options.p2pPort
   }],
   sources: []
@@ -128,6 +163,40 @@ updateConfig('server.json', {
 }, options.configPath)
 
 updateConfig('api/public.json', { port: options.apiPort }, options.configPath)
+
+const pluginsOriginal = require(path.resolve(options.configPath, 'plugins'))
+const plugins = {}
+for (let plugin in pluginsOriginal) {
+  plugins[plugin] = {}
+}
+plugins['@arkecosystem/core-p2p'] = {
+  host: options.nodeIp,
+  port: options.p2pPort,
+  whitelist: ['127.0.0.1', '192.168.*']
+}
+plugins['@arkecosystem/core-api'] = {
+  enabled: true,
+  host: options.nodeIp,
+  port: options.apiPort,
+  whitelist: ['*']
+}
+plugins['@arkecosystem/core-database-sequelize'] = {
+  host: options.dbHost,
+  port: options.dbPort,
+  username: options.dbUsername,
+  password: options.dbPassword,
+  database: options.dbDatabase,
+  dialect: 'postgres'
+}
+plugins['@arkecosystem/core-blockchain'] = {
+  fastRebuild: false
+}
+plugins['@arkecosystem/core-forger'] = {
+  hosts: [`http://${requestNodeIp}:${options.p2pPort}`]
+}
+
+updateConfig('plugins.json', plugins, options.configPath, true)
+fs.removeSync(path.resolve(options.configPath, 'plugins.js'))
 
 writeEnv({
   P2P_PORT: options.p2pPort,
