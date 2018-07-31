@@ -211,7 +211,7 @@ module.exports = class Monitor {
             return true
         }
 
-        if (downloadSize && peer.downloadSize === downloadSize) {
+        if (downloadSize && peer.downloadSize !== downloadSize) {
           return true
         }
 
