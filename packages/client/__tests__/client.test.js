@@ -98,7 +98,11 @@ describe('API - Client', () => {
     })
 
     it('should ignore local peers', async () => {
-      ;['127.0.0.1', '::1'].forEach(async ip => {
+      const ips = ['127.0.0.1', '::ffff:127.0.0.1', '::1']
+
+      expect.assertions(ips.length * 2)
+
+      for (const ip of ips) {
         const localPeer = {
           ip,
           height: 3663605,
@@ -114,7 +118,7 @@ describe('API - Client', () => {
         const foundPeers = await Client.findPeers('mainnet')
         expect(foundPeers).toEqual(arrayContaining(peers))
         expect(foundPeers).not.toContainEqual(localPeer)
-      })
+      }
     })
 
     it('should ignore not-OK peers', async () => {
@@ -133,6 +137,11 @@ describe('API - Client', () => {
       const foundPeers = await Client.findPeers('mainnet')
       expect(foundPeers).toEqual(arrayContaining(peers))
       expect(foundPeers).not.toContainEqual(notOkPeer)
+    })
+
+    xdescribe('when a peer is not valid', () => {
+      it('tries others', () => {
+      })
     })
 
     describe('when the request to find peers fails', () => {

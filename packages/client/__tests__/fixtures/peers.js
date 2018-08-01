@@ -38,10 +38,10 @@ const peer4 = {
   status: 'OK',
   delay: 17
 }
-const peers = [peer1, peer2, peer3, peer4]
+
+exports.peers = [peer1, peer2, peer3, peer4]
 
 exports.peer1 = peer1
 exports.peer2 = peer2
 exports.peer3 = peer3
 exports.peer4 = peer4
-exports.peers = peers

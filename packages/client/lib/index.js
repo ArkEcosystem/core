@@ -17,35 +17,33 @@ module.exports = class ApiClient {
     }
 
     const networkPeers = initialPeers[network]
-    let peers = null
 
     // Shuffle the peers to avoid connecting always to the first ones
     shuffle(networkPeers)
 
-    // Connect to each peer to get an updated list of peers until a success response
-    for (let i = 0; i < networkPeers.length; i++) {
-      const peer = networkPeers[i]
+    const selfIps = ['127.0.0.1', '::ffff:127.0.0.1', '::1']
+    let peers = null
 
+    // Connect to each peer to get an updated list of peers until a success response
+    for (const peer of networkPeers) {
       const client = new ApiClient(peer.ip, version)
       const response = await client.resource('peers').all()
       const { data } = response.data
 
       if (data.success && data.peers) {
-        peers = data.peers
-        break
+        // Ignore local and unavailable peers
+        peers = data.peers.filter(peer => {
+          return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
+        })
+
+        if (peers.length) {
+          break
+        }
       }
     }
 
     // Return at least the initial (hardcoded) peers
-    if (!peers) {
-      return networkPeers
-    }
-
-    const selfIps = ['127.0.0.1', '::1']
-    return sortPeers(peers.filter(peer => {
-      // Ignore local and unavailable peers
-      return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
-    }))
+    return sortPeers(peers && peers.length ? peers : networkPeers)
   }
 
   /**
