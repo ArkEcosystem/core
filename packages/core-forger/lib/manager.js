@@ -128,6 +128,8 @@ module.exports = class ForgerManager {
       blockOptions.timestamp = round.timestamp
       blockOptions.reward = round.reward
 
+    logger.debug(blockOptions)
+
       const block = await delegate.forge(transactions, blockOptions)
       logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
 
