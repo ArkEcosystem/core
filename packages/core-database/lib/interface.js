@@ -229,7 +229,7 @@ module.exports = class ConnectionInterface {
 
     try {
       delegates.forEach(delegate => {
-        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         if (producedBlocks.length === 0) {
