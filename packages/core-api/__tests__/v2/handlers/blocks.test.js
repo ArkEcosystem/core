@@ -1,9 +1,21 @@
 'use strict'
 
-require('../../__support__/setup')
-
+const app = require('../../__support__/setup')
 const utils = require('../utils')
-const genesisBlock = require('../../__support__/config/genesisBlock.json')
+
+let genesisBlock
+
+beforeAll(async () => {
+  await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../../__support__/config/genesisBlock.json')
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 2.0 - Blocks', () => {
   describe('GET /blocks', () => {
