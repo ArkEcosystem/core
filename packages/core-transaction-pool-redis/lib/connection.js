@@ -202,7 +202,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
-   * @param  {String} address
+   * @param  {String} transaction
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
