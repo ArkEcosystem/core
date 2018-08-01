@@ -364,8 +364,10 @@ module.exports = class ConnectionInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
+    if (this.blocksInCurrentRound) {
+      this.blocksInCurrentRound.push(block)
+    }
     await this.applyRound(block.data.height)
-    if (this.blocksInCurrentRound) this.blocksInCurrentRound.push(block)
     emitter.emit('block.applied', block.data)
   }
 
