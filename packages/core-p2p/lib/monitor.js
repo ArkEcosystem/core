@@ -141,6 +141,8 @@ module.exports = class Monitor {
    */
   async acceptNewPeer (peer) {
     if (this.config.peers.blackList.includes(peer.ip)) {
+      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it is blacklisted`)
+
       return
     }
 
