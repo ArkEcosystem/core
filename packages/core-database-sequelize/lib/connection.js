@@ -35,7 +35,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await fs.ensureFile(this.config.storage)
     }
 
-    const config = this.config
+    const config = Object.assign({}, this.config) // shallow copy of this.config to safely delete config.redis below
     delete config.redis
 
     this.connection = new Sequelize({
