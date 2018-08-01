@@ -5,8 +5,8 @@
     "public": 46090600,
     "private": 46089520
   },
-  "pubKeyHash": 23,
-  "nethash": "295e7db37e230249e022d7cf9c603ef49a56a51de8c843923f52b6ae8e7f2e37",
+  "pubKeyHash": 45,
+  "nethash": "360f42a0fedd0865b46fda3f853f2273431c041bbc2eaf4fe8be8c2ab174bf02",
   "wif": 170,
   "client": {
     "token": "KNOW",
@@ -23,7 +23,7 @@
       "maxTransactions": 50,
       "maxPayload": 2097152
     },
-    "epoch": "2018-03-21T13:00:00.000Z",
+    "epoch": "2018-02-21T13:00:00.000Z",
     "fees": {
       "dynamic" : false,
       "transfer": 10000000,
