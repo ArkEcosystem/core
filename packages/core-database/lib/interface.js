@@ -441,6 +441,24 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get blocks for round.
+   * @param  {number} round
+   * @return {[]Block}
+   */
+  async __getBlocksForRound (round) {
+    const lastBlock = await this.getLastBlock()
+    let height = +lastBlock.data.height + 1
+    if (!round) {
+      round = this.getRound(height)
+    }
+
+    const maxDelegates = config.getConstants(height).activeDelegates
+    height = (round * maxDelegates)
+
+    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+  }
+
+  /**
    * Register the wallet container.
    * @return {void}
    */
