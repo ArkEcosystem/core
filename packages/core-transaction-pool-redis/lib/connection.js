@@ -20,8 +20,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return this
     }
 
-    this.pool = null
-    this.subscription = null
     this.keyPrefix = this.options.key
     this.pool = new Redis(this.options.redis)
     this.subscription = new Redis(this.options.redis)
