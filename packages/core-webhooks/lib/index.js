@@ -28,7 +28,7 @@ exports.plugin = {
       return require('./server')(options.server)
     }
 
-    logger.info('Webhooks API is disabled :grey_exclamation:')
+    logger.info('Webhooks API server is disabled :grey_exclamation:')
   },
   async deregister (container, options) {
     if (options.server.enabled) {

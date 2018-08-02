@@ -7,15 +7,19 @@ const { transactionBuilder } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
-const genesisBlock = require('./__fixtures__/genesisBlock') // eslint-disable-line no-unused-vars
 const walletData1 = require('./__fixtures__/wallets.json')[0]
 const walletData2 = require('./__fixtures__/wallets.json')[1]
 const walletDataFake = require('./__fixtures__/wallets.json')[2]
 
+let genesisBlock // eslint-disable-line no-unused-vars
 let walletManager
 
 beforeAll(async (done) => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
 
   walletManager = new (require('../lib/wallet-manager'))()
 

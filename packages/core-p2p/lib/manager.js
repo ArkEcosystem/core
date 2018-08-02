@@ -25,9 +25,9 @@ module.exports = class PeerManager {
     await this.__checkDNSConnectivity()
     await this.__checkNTPConnectivity()
 
-    await this.monitor.start(this.config.networkStart)
-
     this.api = await startServer(this, this.config)
+
+    await this.monitor.start(this.config.networkStart)
 
     return this
   }

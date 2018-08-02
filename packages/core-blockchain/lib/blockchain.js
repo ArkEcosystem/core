@@ -173,12 +173,12 @@ module.exports = class Blockchain {
       stateMachine.state.lastDownloadedBlock = newLastBlock
     }
 
-    logger.info(`Removing ${height.toLocaleString() - newHeight.toLocaleString()} blocks to reset current round :warning:`)
+    logger.info(`Removing ${height - newHeight} blocks to reset current round :warning:`)
 
     let count = 0
     const max = this.getLastBlock().data.height - newHeight
 
-    while (this.getLastBlock().data.height >= newHeight) {
+    while (this.getLastBlock().data.height >= newHeight + 1) {
       const removalBlockId = this.getLastBlock().data.id
       const removalBlockHeight = this.getLastBlock().data.height.toLocaleString()
       logger.printTracker('Removing block', count++, max, `ID: ${removalBlockId}, Height: ${removalBlockHeight}`)
@@ -332,7 +332,7 @@ module.exports = class Blockchain {
 
     try {
       if (this.transactionPool) {
-        this.transactionPool.acceptChainedBlock(block)
+        await this.transactionPool.acceptChainedBlock(block)
       }
     } catch (error) {
       logger.warn('Issue applying block to transaction pool')
@@ -349,6 +349,7 @@ module.exports = class Blockchain {
   async manageUnchainedBlock (block, state) {
     if (block.data.height > this.getLastBlock().data.height + 1) {
       logger.info(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${this.getLastBlock().data.height.toLocaleString()} :warning:`)
+      state.lastDownloadedBlock = state.lastBlock
     } else if (block.data.height < this.getLastBlock().data.height) {
       logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
     } else if (block.data.height === this.getLastBlock().data.height && block.data.id === this.getLastBlock().data.id) {

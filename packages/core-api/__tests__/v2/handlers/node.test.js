@@ -1,8 +1,15 @@
 'use strict'
 
-require('../../__support__/setup')
-
+const app = require('../../__support__/setup')
 const utils = require('../utils')
+
+beforeAll(async () => {
+  await app.setUp()
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 2.0 - Loader', () => {
   describe('GET /node/status', () => {

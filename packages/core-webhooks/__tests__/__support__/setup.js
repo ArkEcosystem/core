@@ -3,7 +3,9 @@
 const path = require('path')
 const container = require('@arkecosystem/core-container')
 
-module.exports = async () => {
+jest.setTimeout(60000)
+
+exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
@@ -18,12 +20,6 @@ module.exports = async () => {
     ]
   })
 
-  await require('../../lib/database').setUp({
-    dialect: 'sqlite',
-    storage: ':memory:',
-    logging: false
-  })
-
   await require('../../lib/manager').setUp({
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
@@ -35,7 +31,7 @@ module.exports = async () => {
     enabled: false,
     host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
     port: process.env.ARK_WEBHOOKS_PORT || 4004,
-    whitelist: ['127.0.0.1', '192.168.*'],
+    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
     pagination: {
       limit: 100,
       include: [
@@ -43,4 +39,8 @@ module.exports = async () => {
       ]
     }
   })
+}
+
+exports.tearDown = async () => {
+  await container.tearDown()
 }

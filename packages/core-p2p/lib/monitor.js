@@ -140,16 +140,18 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
-    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || !isMyself(peer.ip)) {
+    if (this.config.peers.blackList.includes(peer.ip)) {
+      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it is blacklisted`)
+
+      return
+    }
+
+    if (this.getPeer(peer.ip) || this.__isSuspended(peer) || process.env.ARK_ENV === 'test' || isMyself(peer.ip)) {
       return
     }
 
     if (peer.nethash !== this.config.network.nethash) {
       throw new Error('Request is made on the wrong network')
-    }
-
-    if (peer.ip === '::ffff:127.0.0.1' || peer.ip === '127.0.0.1') {
-      return
     }
 
     const newPeer = new Peer(peer.ip, peer.port)
@@ -316,7 +318,8 @@ module.exports = class Monitor {
     }
 
     console.log(heights)
-    return allowedToForge / syncedPeers
+    const pbft = allowedToForge / syncedPeers
+    return isNaN(pbft) ? 0 : pbft
   }
 
   async getNetworkState () {
@@ -439,7 +442,7 @@ module.exports = class Monitor {
    * @param {Peer} peer
    */
   __suspendPeer (peer) {
-    if (this.config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
       return
     }
 

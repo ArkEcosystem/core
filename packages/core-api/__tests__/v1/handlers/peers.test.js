@@ -1,11 +1,18 @@
 'use strict'
 
-require('../../__support__/setup')
-
+const app = require('../../__support__/setup')
 const utils = require('../utils')
 
 const peerIp = '167.114.29.55'
 const peerPort = '4002'
+
+beforeAll(async () => {
+  await app.setUp()
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 1.0 - Peers', () => {
   describe('GET /peers/version', () => {
