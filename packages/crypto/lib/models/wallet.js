@@ -114,7 +114,7 @@ module.exports = class Wallet {
    */
   applyBlock (block) {
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
-      this.balance += block.reward + block.totalFee
+      this.balance += +block.reward + +block.totalFee
 
       // update stats
       this.producedBlocks++
