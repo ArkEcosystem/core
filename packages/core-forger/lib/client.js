@@ -57,7 +57,6 @@ module.exports = class Client {
     await this.__chooseHost()
 
     const response = await this.__get(`${this.host}/internal/round`)
-    logger.debug(this.host)
     return response.data.round
   }
 
