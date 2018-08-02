@@ -20,8 +20,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return this
     }
 
-    this.pool = null
-    this.subscription = null
     this.keyPrefix = this.options.key
     this.pool = new Redis(this.options.redis)
     this.subscription = new Redis(this.options.redis)
@@ -204,7 +202,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
-   * @param  {String} address
+   * @param  {String} transaction
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
