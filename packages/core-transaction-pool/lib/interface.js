@@ -128,7 +128,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
+   * Add many transaction to the pool. Method called from blockchain, upon receiving payload.
    * @param {Array}   transactions
    * @param {Boolean} isBroadcast
    */
@@ -138,7 +138,7 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
-   * @param  {String} address
+   * @param  {String} transaction
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
@@ -177,7 +177,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {Time} blockReleaseTime
    */
-   blockSender (senderPublicKey) {
+  blockSender (senderPublicKey) {
     const blockReleaseTime = moment().add(1, 'hours')
 
     this.blockedByPublicKey[senderPublicKey] = blockReleaseTime
