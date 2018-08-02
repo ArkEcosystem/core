@@ -251,13 +251,13 @@ module.exports = class TransactionPoolInterface {
    * @return {Array} IDs of pending transactions that have yet to be forged.
    */
   async removeForgedAndGetPending (transactionIds) {
-    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.each(forgedIds, async (transactionId) => {
+    await Promise.each(forgedIdsSet, async (transactionId) => {
         await this.removeTransactionById(transactionId)
     })
 
-    return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
+    return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
 
   /**
