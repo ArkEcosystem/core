@@ -209,7 +209,6 @@ module.exports = class Block {
    * @return {Boolean}
    */
   verifySignature () {
-    // console.log(this.data)
     const bytes = Block.serialize(this.data, false)
     const hash = crypto.createHash('sha256').update(bytes).digest()
     const blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
