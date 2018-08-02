@@ -37,7 +37,7 @@ class Bucket {
    * @return {Boolean}
    */
   has (ip) {
-    return this.get(ip)
+    return this.limiters.hasOwnProperty(ip)
   }
 
   /**
@@ -55,7 +55,7 @@ class Bucket {
    *
    * @param  {String} ip
    * @param  {Number} amount
-   * @return {Boolean}
+   * @return {void}
    */
   decrement (ip, amount = 1) {
     this.get(ip).removeTokens(amount, (err, remaining) => {
