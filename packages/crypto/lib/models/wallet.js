@@ -118,8 +118,8 @@ module.exports = class Wallet {
 
       // update stats
       this.producedBlocks++
-      this.forgedFees += block.totalFee
-      this.forgedRewards += block.reward
+      this.forgedFees += +block.totalFee
+      this.forgedRewards += +block.reward
       this.lastBlock = block
     }
 
