@@ -585,8 +585,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
   /**
    * Get recent block ids.
-   * @return {void}
-   * @throws Error
+   * @return {[]String}
    */
   async getRecentBlockIds () {
     if (!this.recentBlockIds.length) {

@@ -196,8 +196,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * Get recent block ids.
-   * @return {void}
-   * @throws Error
+   * @return {[]String}
    */
   async getRecentBlockIds () {
     return this.recentBlockIds
