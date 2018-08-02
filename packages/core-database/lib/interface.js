@@ -233,8 +233,8 @@ module.exports = class ConnectionInterface {
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         if (producedBlocks.length === 0) {
-          logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`)
           wallet.missedBlocks++
+          logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`)
           wallet.dirty = true
           emitter.emit('forger.missing', {
             delegate: wallet
