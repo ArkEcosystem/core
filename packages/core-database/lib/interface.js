@@ -449,6 +449,10 @@ module.exports = class ConnectionInterface {
    */
   async __getBlocksForRound (round) {
     const lastBlock = await this.getLastBlock()
+    if (!lastBlock) {
+      return []
+    }
+
     let height = +lastBlock.data.height
     if (!round) {
       round = this.getRound(height)
