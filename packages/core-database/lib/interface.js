@@ -234,6 +234,7 @@ module.exports = class ConnectionInterface {
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++
+          wallet.dirty = true
           emitter.emit('forger.missing', {
             delegate: wallet
           })
