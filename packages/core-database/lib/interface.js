@@ -449,13 +449,13 @@ module.exports = class ConnectionInterface {
    */
   async __getBlocksForRound (round) {
     const lastBlock = await this.getLastBlock()
-    let height = +lastBlock.data.height + 1
+    let height = +lastBlock.data.height
     if (!round) {
       round = this.getRound(height)
     }
 
     const maxDelegates = config.getConstants(height).activeDelegates
-    height = (round * maxDelegates)
+    height = (round * maxDelegates) + 1
 
     return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
   }
