@@ -73,42 +73,45 @@ describe('Plugin Registrar', () => {
   })
 
   describe('tearDown', () => {
-    xit('should deregister all the plugins in inverse order', async () => {
+    const plugins = {}
+
+    beforeEach(async () => {
       await instance.setUp()
 
       ;['a', 'b', 'c'].forEach(char => {
         expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
       })
 
-      await instance.tearDown()
-
       ;['a', 'b', 'c'].forEach(char => {
-        expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse()
+        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
       })
     })
 
     it('should deregister plugins supporting deregister', async () => {
-      await instance.setUp()
-
-      ;['a', 'b', 'c'].forEach(char => {
-        expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue()
+      ;['a', 'b'].forEach(char => {
+        plugins[char].plugin.deregister = jest.fn()
       })
 
-      const plugins = {}
       await instance.tearDown()
-      ;['a', 'b', 'c'].forEach(char => {
-        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
-      })
 
       ;['a', 'b'].forEach(char => {
-        const ref = plugins[char]
-        expect(ref.plugin).not.toBeNull()
-        expect(ref.plugin.deregister).toHaveBeenCalled()
+        expect(plugins[char].plugin.deregister).toHaveBeenCalled()
       })
-      // plugin-c does not support deregister
-      const refC = plugins['c']
-      expect(refC.plugin).not.toBeNull()
-      expect(refC.plugin.deregister).not.toBeDefined()
+
+      expect(plugins['c'].deregister).not.toBeDefined()
+    })
+
+    it('should deregister all the plugins in inverse order', async () => {
+      const spy = jest.fn()
+
+      ;['a', 'b'].forEach(char => {
+        plugins[char].plugin.deregister = () => spy(char)
+      })
+
+      await instance.tearDown()
+
+      expect(spy).toHaveBeenNthCalledWith(1, 'b')
+      expect(spy).toHaveBeenNthCalledWith(2, 'a')
     })
   })
 })
