@@ -142,6 +142,10 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
+    if (this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
+      return
+    }
+
     if (this.guard.isBlacklisted(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
 
@@ -158,7 +162,7 @@ module.exports = class Monitor {
       return
     }
 
-    if (this.getPeer(peer.ip) || this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
+    if (this.getPeer(peer.ip)) {
       return
     }
 
