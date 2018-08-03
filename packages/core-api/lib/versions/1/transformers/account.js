@@ -15,7 +15,7 @@ module.exports = (model) => {
     votes: model.votes,
     username: model.username,
     balance: `${model.balance}`,
-    unconfirmedBalance: `${model.unconfirmedBalance}`,
+    unconfirmedBalance: `${model.balance}`,
     multisignatures: [],
     u_multisignatures: [],
     unconfirmedSignature: hasSecondSignature ? 1 : 0,
