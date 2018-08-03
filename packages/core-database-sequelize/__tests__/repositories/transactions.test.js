@@ -125,7 +125,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
       const invalidSenderId = 'thisIsNotAValidSenderId'
 
-      const transactionsSenderId = await repository.findAll({ senderId : invalidSenderId })
+      const transactionsSenderId = await repository.findAll({ senderId: invalidSenderId })
 
       expect(transactionsSenderId.count).toBe(0)
       expect(transactionsSenderId.rows.length).toBe(0)
@@ -223,7 +223,7 @@ describe('Transaction Repository', () => {
       await connection.saveBlock(genesisBlock)
       const invalidSenderId = 'thisIsNotAValidSenderId'
 
-      const transactionsSenderId = await repository.findAllLegacy({ senderId : invalidSenderId })
+      const transactionsSenderId = await repository.findAllLegacy({ senderId: invalidSenderId })
 
       expect(transactionsSenderId.count).toBe(0)
       expect(transactionsSenderId.rows.length).toBe(0)
