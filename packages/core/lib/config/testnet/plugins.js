@@ -48,6 +48,16 @@ module.exports = {
       port: process.env.ARK_REDIS_PORT || 6379
     }
   },
+   '@arkecosystem/core-transaction-pool-sequalize': {
+    enabled: process.env.ARK_TRANSACTION_POOL_ENABLED || true,
+    maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
+    allowedSenders: [],
+    database: {
+      dialect: 'sqlite',
+      storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/pool.sqlite`,
+      logging: process.env.ARK_DB_LOGGING || false
+    }
+  },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
     port: process.env.ARK_P2P_PORT || 4000,
