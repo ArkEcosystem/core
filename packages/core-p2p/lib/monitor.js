@@ -158,7 +158,7 @@ module.exports = class Monitor {
       return
     }
 
-    if (this.getPeer(peer.ip) || this.guard.isSuspended(peer) || this.guard.isMyself(peer.ip) || process.env.ARK_ENV === 'test') {
+    if (this.getPeer(peer.ip) || this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
       return
     }
 
@@ -203,7 +203,7 @@ module.exports = class Monitor {
   }
 
   async peerHasCommonBlocks (peer, blockIds) {
-    if (!this.guard.isMyself(peer.ip) && !(await peer.hasCommonBlocks(blockIds))) {
+    if (!this.guard.isMyself(peer) && !(await peer.hasCommonBlocks(blockIds))) {
       logger.error(`Could not get common block for ${peer.ip}`)
 
       this.guard.suspend(peer)
@@ -277,7 +277,7 @@ module.exports = class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !this.guard.isMyself(peer.ip)) {
+        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !this.guard.isMyself(peer)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
