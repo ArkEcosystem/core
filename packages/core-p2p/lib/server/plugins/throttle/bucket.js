@@ -18,6 +18,7 @@ class Bucket {
    */
   add (ip, limit) {
     this.limiters[ip] = new RateLimiter(limit, 'minute', true)
+    this.limits[ip] = limit
   }
 
   /**
