@@ -13,10 +13,11 @@ beforeAll(async () => {
 
   const RedisConnection = require('../lib/connection.js')
   connection = new RedisConnection(defaultConfig)
-  connection = connection.make()
+  connection = await connection.make()
 })
 
 afterAll(async () => {
+  await connection.disconnect()
   await app.tearDown()
 })
 
