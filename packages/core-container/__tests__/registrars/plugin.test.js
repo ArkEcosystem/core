@@ -73,7 +73,7 @@ describe('Plugin Registrar', () => {
   })
 
   describe('tearDown', () => {
-    const modules = {}
+    const plugins = {}
 
     beforeEach(async () => {
       await instance.setUp()
@@ -83,29 +83,29 @@ describe('Plugin Registrar', () => {
       })
 
       ;['a', 'b', 'c'].forEach(char => {
-        modules[char] = (require(`${stubPluginPath}/plugin-${char}`))
+        plugins[char] = (require(`${stubPluginPath}/plugin-${char}`))
       })
     })
 
     it('should deregister plugins supporting deregister', async () => {
       ;['a', 'b'].forEach(char => {
-        modules[char].plugin.deregister = jest.fn()
+        plugins[char].plugin.deregister = jest.fn()
       })
 
       await instance.tearDown()
 
       ;['a', 'b'].forEach(char => {
-        expect(modules[char].plugin.deregister).toHaveBeenCalled()
+        expect(plugins[char].plugin.deregister).toHaveBeenCalled()
       })
 
-      expect(modules['c'].deregister).not.toBeDefined()
+      expect(plugins['c'].deregister).not.toBeDefined()
     })
 
     it('should deregister all the plugins in inverse order', async () => {
       const spy = jest.fn()
 
       ;['a', 'b'].forEach(char => {
-        modules[char].plugin.deregister = () => spy(char)
+        plugins[char].plugin.deregister = () => spy(char)
       })
 
       await instance.tearDown()
