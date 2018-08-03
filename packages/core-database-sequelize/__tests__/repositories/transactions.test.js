@@ -127,7 +127,8 @@ describe('Transaction Repository', () => {
 
       const transactionsSenderId = await repository.findAll({ senderId : invalidSenderId })
 
-      expect(transactionsSenderId.count).toBe(0);
+      expect(transactionsSenderId.count).toBe(0)
+      expect(transactionsSenderId.rows.length).toBe(0)
     })
 
     xit('should find all transactions by some fields only', () => {
@@ -224,7 +225,8 @@ describe('Transaction Repository', () => {
 
       const transactionsSenderId = await repository.findAllLegacy({ senderId : invalidSenderId })
 
-      expect(transactionsSenderId.count).toBe(0);
+      expect(transactionsSenderId.count).toBe(0)
+      expect(transactionsSenderId.rows.length).toBe(0)
     })
 
     xit('should find all transactions by any field', () => {
