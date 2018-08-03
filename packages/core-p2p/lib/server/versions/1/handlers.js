@@ -285,7 +285,7 @@ exports.postBlock = {
 
       return { success: true }
     } catch (error) {
-      console.log(error)
+      logger.error(error)
       return { success: false }
     }
   },
