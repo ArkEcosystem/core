@@ -33,7 +33,10 @@ const register = async (server, options) => {
 
       bucket.decrement(remoteAddress)
 
-      if (bucket.remaining(remoteAddress) <= 0) {
+      const remaining = bucket.remaining(remoteAddress)
+      logger.verbose(`${remoteAddress} has ${remaining} requests left.`)
+
+      if (remaining <= 0) {
         logger.debug(`${remoteAddress} has exceeded the maximum number of requests per minute.`)
 
         return h.response({
