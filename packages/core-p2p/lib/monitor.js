@@ -427,7 +427,10 @@ module.exports = class Monitor {
       peer,
       until: moment().add(this.manager.config.suspendMinutes, 'minutes')
     }
+
     delete this.peers[peer.ip]
+
+    logger.error(`Suspended ${peer.ip}:${peer.port} until ` + this.suspendedPeers[peer.ip].until.humanize())
   }
 
   /**
