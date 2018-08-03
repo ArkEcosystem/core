@@ -430,7 +430,7 @@ module.exports = class Monitor {
 
     delete this.peers[peer.ip]
 
-    logger.debug(`Suspended ${peer.ip} until ` + this.suspendedPeers[peer.ip].until.format("h [hrs], m [min]"))
+    logger.debug(`Suspended ${peer.ip} until ` + this.suspendedPeers[peer.ip].until.format('h [hrs], m [min]'))
   }
 
   /**
@@ -450,6 +450,8 @@ module.exports = class Monitor {
     const suspendedPeer = this.suspendedPeers[peer.ip]
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
+      logger.debug(`${peer.ip} still suspended until ` + suspendedPeer.until.format('h [hrs], m [min]'))
+
       return true
     } else if (suspendedPeer) {
       delete this.suspendedPeers[peer.ip]
