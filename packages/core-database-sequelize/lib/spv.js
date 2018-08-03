@@ -173,7 +173,7 @@ module.exports = class SPV {
 
     // Rate...
     const delegates = await this.query
-      .select('public_key', 'vote_balance')
+      .select('public_key', 'vote_balance', 'missed_blocks')
       .from('wallets')
       .whereIn('public_key', transactions.map(transaction => transaction.senderPublicKey))
       .orderBy({
@@ -200,6 +200,7 @@ module.exports = class SPV {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.votebalance = delegates[i].votebalance
+      wallet.missedBlocks = delegates[i].missedBlocks
 
       if (forgedBlock) {
         wallet.forgedFees = forgedBlock.totalFees

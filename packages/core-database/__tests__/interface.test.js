@@ -203,10 +203,6 @@ describe('Connection Interface', () => {
     it('should be a function', () => {
       expect(ConnectionInterface.updateDelegateStats).toBeFunction()
     })
-
-    it('should throw an exception', async () => {
-      await expect(ConnectionInterface.updateDelegateStats()).rejects.toThrowError('Method [updateDelegateStats] not implemented!')
-    })
   })
 
   describe.skip('applyRound', () => {
