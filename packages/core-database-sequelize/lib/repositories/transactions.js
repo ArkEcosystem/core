@@ -28,9 +28,10 @@ module.exports = class TransactionsRepository extends Repository {
     if (params.senderId) {
       const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
 
-      if (senderPublicKey) {
-        params.senderPublicKey = senderPublicKey
+      if (!senderPublicKey) {
+        return { rows: [], count: 0 }
       }
+      params.senderPublicKey = senderPublicKey
     }
 
     const { conditions } = this.__formatConditions(params)
@@ -73,11 +74,7 @@ module.exports = class TransactionsRepository extends Repository {
    */
   async findAllLegacy (params = {}) {
     if (params.senderId) {
-      const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
-
-      if (senderPublicKey) {
-        params.senderPublicKey = senderPublicKey
-      }
+      params.senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
     }
 
     const conditions = this.__formatConditionsV1(params)
