@@ -28,7 +28,7 @@ const register = async (server, options) => {
       }
 
       if (!bucket.has(remoteAddress)) {
-        bucket.add(remoteAddress, isKnown(remoteAddress) ? 1000 : 1)
+        bucket.add(remoteAddress, isKnown(remoteAddress) ? 2000 : 1)
       }
 
       bucket.decrement(remoteAddress)
