@@ -42,7 +42,7 @@ class Guard {
       return
     }
 
-    const until = moment().add(this.manager.config.suspendMinutes, 'minutes')
+    const until = moment().add(this.monitor.manager.config.suspendMinutes, 'minutes')
 
     this.suspensions[peer.ip] = {
       peer,
