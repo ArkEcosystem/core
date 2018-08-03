@@ -135,10 +135,10 @@ module.exports = class TransactionGuard {
    */
   async __removeForgedTransactions () {
     const transactionIds = this.transactions.map(transaction => transaction.id)
-    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
     this.transactions = this.transactions.filter(transaction => {
-      if (forgedIds.includes(transaction.id)) {
+      if (forgedIdsSet.has(transaction.id)) {
         this.invalid.push(transaction)
         return false
       }
