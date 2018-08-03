@@ -144,11 +144,15 @@ module.exports = class Monitor {
     if (!semver.satisfies(peer.version, this.config.peers.minimumVersion) && !this.config.peers.whiteList.includes(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
 
+      this.__suspendPeer(peer)
+
       return
     }
 
     if (this.config.peers.blackList.includes(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
+
+      this.__suspendPeer(peer)
 
       return
     }
