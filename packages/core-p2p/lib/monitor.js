@@ -3,6 +3,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
+const mm = require('micromatch')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -140,6 +141,12 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
+    if (!mm.isMatch(peer.version, this.config.peers.minimumVersion)) {
+      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
+
+      return
+    }
+
     if (this.config.peers.blackList.includes(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it is blacklisted`)
 
