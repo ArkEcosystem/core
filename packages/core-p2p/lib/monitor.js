@@ -142,13 +142,13 @@ module.exports = class Monitor {
    */
   async acceptNewPeer (peer) {
     if (!mm.isMatch(peer.version, this.config.peers.minimumVersion) && !this.config.peers.whiteList.includes(peer.ip)) {
-      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
+      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
 
       return
     }
 
     if (this.config.peers.blackList.includes(peer.ip)) {
-      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it is blacklisted`)
+      logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
 
       return
     }
@@ -430,7 +430,7 @@ module.exports = class Monitor {
 
     delete this.peers[peer.ip]
 
-    logger.debug(`Suspended ${peer.ip}:${peer.port} until ` + this.suspendedPeers[peer.ip].until.humanize())
+    logger.debug(`Suspended ${peer.ip} until ` + this.suspendedPeers[peer.ip].until.format("h [hrs], m [min]"))
   }
 
   /**
