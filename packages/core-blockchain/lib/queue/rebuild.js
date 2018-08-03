@@ -1,4 +1,5 @@
 const async = require('async')
+const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const { Block } = require('@arkecosystem/crypto').models
 const QueueInterface = require('./interface')
 
@@ -17,8 +18,7 @@ module.exports = class RebuildQueue extends QueueInterface {
         try {
           return blockchain.rebuildBlock(new Block(block), cb)
         } catch (error) {
-          console.log(error)
-          console.log(block)
+          logger.error(`Failed to rebuild block in RebuildQueue: ${block.height.toLocaleString()}`)
           return cb()
         }
       }, 1
