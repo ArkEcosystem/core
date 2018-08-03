@@ -18,6 +18,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
     this.blocksInCurrentRound = null
+    this.recentBlockIds = []
   }
 
   /**
@@ -191,6 +192,14 @@ module.exports = class ConnectionInterface {
    */
   async getBlocks (offset, limit) {
     throw new Error('Method [getBlocks] not implemented!')
+  }
+
+  /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    return this.recentBlockIds
   }
 
   /**
@@ -371,6 +380,10 @@ module.exports = class ConnectionInterface {
     }
     await this.applyRound(block.data.height)
     emitter.emit('block.applied', block.data)
+    this.recentBlockIds.push(block.data.id)
+    if (this.recentBlockIds.length > 10) {
+      this.recentBlockIds.shift()
+    }
   }
 
   /**

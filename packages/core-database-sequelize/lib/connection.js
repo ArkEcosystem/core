@@ -586,6 +586,25 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    if (!this.recentBlockIds.length) {
+      const blocks = await this.query
+        .select('id')
+        .from('blocks')
+        .orderBy({ timestamp: 'DESC' })
+        .limit(10)
+        .all()
+
+      this.recentBlockIds = blocks.map(block => block.id)
+    }
+
+    return this.recentBlockIds
+  }
+
+  /**
    * Get the headers of blocks for the given offset and limit.
    * @param  {Number} offset
    * @param  {Number} limit
