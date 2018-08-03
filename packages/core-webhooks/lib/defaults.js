@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  enabled: !process.env.ARK_WEBHOOKS_DISABLED,
+  enabled: process.env.ARK_WEBHOOKS_ENABLED,
   database: {
     dialect: 'sqlite',
     storage: `${process.env.ARK_PATH_DATA}/database/webhooks.sqlite`,
