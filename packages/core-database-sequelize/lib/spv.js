@@ -203,9 +203,9 @@ module.exports = class SPV {
       wallet.missedBlocks = delegates[i].missedBlocks
 
       if (forgedBlock) {
-        wallet.forgedFees = forgedBlock.totalFees
-        wallet.forgedRewards = forgedBlock.totalRewards
-        wallet.producedBlocks = forgedBlock.totalProduced
+        wallet.forgedFees = +forgedBlock.totalFees
+        wallet.forgedRewards = +forgedBlock.totalRewards
+        wallet.producedBlocks = +forgedBlock.totalProduced
       }
 
       this.walletManager.reindex(wallet)
