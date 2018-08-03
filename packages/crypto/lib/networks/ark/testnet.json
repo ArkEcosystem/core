@@ -6,7 +6,7 @@
     "private": 70615956
   },
   "pubKeyHash": 23,
-  "nethash": "1c3d80d43d52cdf1476d962a2fe4eabb0a3a058496147ce5b7aef0469f8e8339",
+  "nethash": "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
   "wif": 186,
   "client": {
     "token": "TARK",
@@ -16,7 +16,7 @@
   "constants": [{
     "height": 1,
     "reward": 0,
-    "activeDelegates": 37,
+    "activeDelegates": 51,
     "blocktime": 8,
     "block": {
       "version": 0,
