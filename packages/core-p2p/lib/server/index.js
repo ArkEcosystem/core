@@ -23,9 +23,9 @@ module.exports = async (p2p, config) => {
     }
   })
 
-  await server.register({
-    plugin: require('./plugins/throttle')
-  })
+  // await server.register({
+  //   plugin: require('./plugins/throttle')
+  // })
 
   await server.register({
     plugin: require('./plugins/set-headers')
