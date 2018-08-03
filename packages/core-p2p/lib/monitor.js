@@ -34,9 +34,16 @@ module.exports = class Monitor {
       process.exit(1)
     }
 
-    this.config.peers.list
+    const filteredPeers = this.config.peers.list
       .filter(peer => (!this.guard.isMyself(peer) || peer.port !== container.resolveOptions('p2p').port))
-      .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
+
+    filteredPeers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
+
+    if (!filteredPeers.length) {
+      logger.error('No external peers found in peers.json :interrobang:')
+
+      process.exit(1)
+    }
   }
 
   /**
