@@ -203,7 +203,7 @@ module.exports = class Monitor {
   }
 
   async peerHasCommonBlocks (peer, blockIds) {
-    if (!(await peer.hasCommonBlocks(blockIds))) {
+    if (!this.guard.isMyself(peer.ip) && !(await peer.hasCommonBlocks(blockIds))) {
       logger.error(`Could not get common block for ${peer.ip}`)
 
       this.guard.suspend(peer)
