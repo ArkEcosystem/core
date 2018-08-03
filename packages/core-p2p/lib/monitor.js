@@ -3,6 +3,7 @@
 const prettyMs = require('pretty-ms')
 const moment = require('moment')
 const delay = require('delay')
+const semver = require('semver')
 
 const { slots } = require('@arkecosystem/crypto')
 
@@ -140,8 +141,18 @@ module.exports = class Monitor {
    * @throws {Error} If invalid peer
    */
   async acceptNewPeer (peer) {
+    if (!semver.satisfies(peer.version, this.config.peers.minimumVersion) && !this.config.peers.whiteList.includes(peer.ip)) {
+      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
+
+      this.__suspendPeer(peer)
+
+      return
+    }
+
     if (this.config.peers.blackList.includes(peer.ip)) {
-      logger.debug(`Rejected peer ${peer.ip}:${peer.port} as it is blacklisted`)
+      logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
+
+      this.__suspendPeer(peer)
 
       return
     }
@@ -420,7 +431,10 @@ module.exports = class Monitor {
       peer,
       until: moment().add(this.manager.config.suspendMinutes, 'minutes')
     }
+
     delete this.peers[peer.ip]
+
+    logger.debug(`Suspended ${peer.ip} until ` + this.suspendedPeers[peer.ip].until.format('h [hrs], m [min]'))
   }
 
   /**
@@ -440,6 +454,8 @@ module.exports = class Monitor {
     const suspendedPeer = this.suspendedPeers[peer.ip]
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
+      logger.debug(`${peer.ip} still suspended until ` + suspendedPeer.until.format('h [hrs], m [min]'))
+
       return true
     } else if (suspendedPeer) {
       delete this.suspendedPeers[peer.ip]
