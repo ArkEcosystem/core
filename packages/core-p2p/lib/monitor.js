@@ -25,7 +25,7 @@ module.exports = class Monitor {
     this.manager = manager
     this.config = config
     this.peers = {}
-    this.guard = guard.init(config)
+    this.guard = guard.init(config, this)
     this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
 
     if (!this.config.peers.list) {

@@ -10,8 +10,9 @@ class Guard {
     this.suspensions = {}
   }
 
-  init (config) {
+  init (config, monitor) {
     this.config = config
+    this.monitor = monitor
 
     return this
   }
@@ -49,7 +50,7 @@ class Guard {
       untilHuman: until.format('h [hrs], m [min]')
     }
 
-    delete this.peers[peer.ip]
+    delete this.monitor.peers[peer.ip]
 
     logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
   }
