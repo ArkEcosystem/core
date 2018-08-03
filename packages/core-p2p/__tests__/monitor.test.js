@@ -110,7 +110,7 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
-      const peers = monitor.getRandomDownloadBlocksPeer()
+      const peers = await monitor.getRandomDownloadBlocksPeer()
 
       expect(peers).toBeObject()
       expect(peers).toHaveProperty('ip')

@@ -4,13 +4,17 @@ const { asValue } = require('awilix')
 const { slots } = require('@arkecosystem/crypto')
 
 const app = require('./__support__/setup')
-const genesisBlock = require('./__fixtures__/genesisBlock')
 
+let genesisBlock
 let container
 let blockchain
 
 beforeAll(async () => {
   container = await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
 })
 
 afterAll(async () => {

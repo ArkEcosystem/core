@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  enabled: process.env.ARK_TRANSACTION_POOL_ENABLED || true,
+  enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
   key: 'ark',
   maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
   allowedSenders: [],

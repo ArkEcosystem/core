@@ -18,6 +18,7 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
     this.blocksInCurrentRound = null
+    this.recentBlockIds = []
   }
 
   /**
@@ -194,6 +195,14 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    return this.recentBlockIds
+  }
+
+  /**
    * Store the given round.
    * @param  {Array} activeDelegates
    * @return {void}
@@ -229,11 +238,13 @@ module.exports = class ConnectionInterface {
 
     try {
       delegates.forEach(delegate => {
-        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++
+          logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`)
+          wallet.dirty = true
           emitter.emit('forger.missing', {
             delegate: wallet
           })
@@ -318,7 +329,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+      this.blocksInCurrentRound = this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -364,9 +375,15 @@ module.exports = class ConnectionInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
+    if (this.blocksInCurrentRound) {
+      this.blocksInCurrentRound.push(block)
+    }
     await this.applyRound(block.data.height)
-    if (this.blocksInCurrentRound) this.blocksInCurrentRound.push(block)
     emitter.emit('block.applied', block.data)
+    this.recentBlockIds.push(block.data.id)
+    if (this.recentBlockIds.length > 10) {
+      this.recentBlockIds.shift()
+    }
   }
 
   /**
@@ -438,6 +455,28 @@ module.exports = class ConnectionInterface {
       offset += 100000
       console.log(offset)
     }
+  }
+
+  /**
+   * Get blocks for round.
+   * @param  {number} round
+   * @return {[]Block}
+   */
+  async __getBlocksForRound (round) {
+    const lastBlock = await this.getLastBlock()
+    if (!lastBlock) {
+      return []
+    }
+
+    let height = +lastBlock.data.height
+    if (!round) {
+      round = this.getRound(height)
+    }
+
+    const maxDelegates = config.getConstants(height).activeDelegates
+    height = (round * maxDelegates) + 1
+
+    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
   }
 
   /**
