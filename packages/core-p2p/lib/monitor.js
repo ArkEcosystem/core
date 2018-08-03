@@ -165,9 +165,7 @@ module.exports = class Monitor {
       emitter.emit('peer.added', newPeer)
     } catch (error) {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
-
       this.__suspendPeer(newPeer)
-
       // we don't throw since we answer unreacheable peer
       // TODO: in next version, only accept to answer to sound peers that have properly registered
       // hence we will throw an error
@@ -191,12 +189,23 @@ module.exports = class Monitor {
     return this.peers[ip]
   }
 
+  async peerHasCommonBlocks (peer, blockIds) {
+    if (!(await peer.hasCommonBlocks(blockIds))) {
+      logger.error(`Could not get common block for ${peer.ip}`)
+      this.__suspendPeer(peer)
+
+      return false
+    }
+
+    return true
+  }
+
   /**
    * Get a random, available peer.
    * @param  {(Number|undefined)} acceptableDelay
    * @return {Peer}
    */
-  getRandomPeer (acceptableDelay) {
+  getRandomPeer (acceptableDelay, downloadSize) {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => {
         const peer = this.getPeer(key)
@@ -206,6 +215,10 @@ module.exports = class Monitor {
 
         if (acceptableDelay && peer.delay < acceptableDelay) {
             return true
+        }
+
+        if (downloadSize && peer.downloadSize !== downloadSize) {
+          return true
         }
 
         return false
@@ -230,30 +243,12 @@ module.exports = class Monitor {
    * Get a random, available peer which can be used for downloading blocks.
    * @return {Peer}
    */
-  getRandomDownloadBlocksPeer (minHeight) {
-    let keys = Object.keys(this.peers)
-    keys = keys.filter(key => {
-        const peer = this.getPeer(key)
-        if (peer.ban < new Date().getTime()) {
-            return true
-        }
+  async getRandomDownloadBlocksPeer (minHeight) {
+    const randomPeer = this.getRandomPeer(null, 100)
 
-        // if (peer.state.height > minHeight) {
-        //    return true
-        // }
-
-        if (peer.downloadSize !== 100) {
-            return true
-        }
-
-        return false
-    })
-
-    const random = keys[keys.length * Math.random() << 0]
-    const randomPeer = this.getPeer(random)
-
-    if (!randomPeer) {
-      return this.getRandomPeer()
+    const recentBlockIds = await this.__getRecentBlockIds()
+    if (!(await this.peerHasCommonBlocks(randomPeer, recentBlockIds))) {
+      return this.getRandomDownloadBlocksPeer(minHeight)
     }
 
     return randomPeer
@@ -336,7 +331,7 @@ module.exports = class Monitor {
    * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
-    const randomPeer = this.getRandomDownloadBlocksPeer(fromBlockHeight)
+    const randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
 
     try {
       logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
@@ -413,6 +408,22 @@ module.exports = class Monitor {
   }
 
   /**
+   * Suspends a peer unless whitelisted.
+   * @param {Peer} peer
+   */
+  __suspendPeer (peer) {
+    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
+      return
+    }
+
+    this.suspendedPeers[peer.ip] = {
+      peer,
+      until: moment().add(this.manager.config.suspendMinutes, 'minutes')
+    }
+    delete this.peers[peer.ip]
+  }
+
+  /**
    * Get a list of all suspended peers.
    * @return {Object}
    */
@@ -438,18 +449,11 @@ module.exports = class Monitor {
   }
 
   /**
-   * Suspends a peer unless whitelisted
-   * @param {Peer} peer
+   * Get last 10 block IDs from database.
+   * @return {[]String}
    */
-  __suspendPeer (peer) {
-    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
-      return
-    }
-
-    this.suspendedPeers[peer.ip] = {
-      peer: peer,
-      until: moment().add(1, 'hours')
-    }
+  async __getRecentBlockIds () {
+    return container.resolvePlugin('database').getRecentBlockIds()
   }
 
   /**
