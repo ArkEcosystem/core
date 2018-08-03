@@ -1,6 +1,6 @@
 'use strict'
 
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+// const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const requestIp = require('request-ip')
 const bucket = require('./bucket')
 const isWhitelist = require('../../../utils/is-whitelist')
@@ -34,7 +34,7 @@ const register = async (server, options) => {
       bucket.decrement(remoteAddress)
 
       if (bucket.remaining(remoteAddress) <= 0) {
-        logger.debug(`${remoteAddress} has exceeded the maximum number of requests per minute.`)
+        // logger.debug(`${remoteAddress} has exceeded the maximum number of requests per minute.`)
 
         return h.response({
             success: false,
