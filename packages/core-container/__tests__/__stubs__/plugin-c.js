@@ -6,7 +6,7 @@ exports.plugin = {
     version: '1.0.0'
   },
   alias: 'stub-plugin-c',
-  register: (container, options) => {
+  register (container, options) {
     return {
       container,
       options
