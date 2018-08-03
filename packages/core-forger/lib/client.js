@@ -97,7 +97,6 @@ module.exports = class Client {
 
       this.host = host
     } catch (error) {
-      logger.error(error)
       logger.debug(`${host} didn't respond to the forger. Trying another host :sparkler:`)
 
       await this.__chooseHost()
