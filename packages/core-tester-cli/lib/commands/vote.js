@@ -2,6 +2,7 @@
 
 const ark = require('arkjs')
 const delay = require('delay')
+const sample = require('lodash.sample')
 const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
@@ -13,6 +14,12 @@ module.exports = async (options) => {
   const wallets = utils.generateWallets(options.quantity)
   await transferCommand(options, wallets, 2, true)
   let voters = await utils.getVoters(options.delegate)
+
+  if (!options.delegate) {
+    const delegates = await utils.getDelegates()
+
+    options.delegate = sample(delegates).publicKey
+  }
 
   logger.info(`Sending ${options.quantity} vote transactions`)
 
@@ -38,7 +45,6 @@ module.exports = async (options) => {
   if (!options.skipValidation) {
     logger.info(`Expected end voters: ${expectedVoters}`)
   }
-
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
