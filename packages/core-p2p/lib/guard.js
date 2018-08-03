@@ -64,11 +64,11 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${suspendedPeer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      logger.debug(`${suspendedPeer.peer.ip} still suspended for ` + suspendedPeer.untilHuman)
 
       return true
     } else if (suspendedPeer) {
-      delete this.suspensions[suspendedPeer.ip]
+      delete this.suspensions[suspendedPeer.peer.ip]
     }
 
     return false
