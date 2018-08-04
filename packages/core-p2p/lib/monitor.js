@@ -177,7 +177,7 @@ module.exports = class Monitor {
          this.guard.suspend(peer)
       }
 
-      logger.debug(`Banned peer ${ip} for `.this.guard.get(ip).untilHuman)
+      logger.debug(`Banned peer ${ip} for ${this.guard.get(ip).untilHuman}`)
     }
   }
 
