@@ -25,25 +25,8 @@ module.exports = class Monitor {
     this.manager = manager
     this.config = config
     this.peers = {}
-    this.guard = guard.init(config, this)
+    this.guard = guard.init(this)
     this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
-
-    if (!this.config.peers.list) {
-      logger.error('No seed peers defined in peers.json :interrobang:')
-
-      process.exit(1)
-    }
-
-    const filteredPeers = this.config.peers.list
-      .filter(peer => (!this.guard.isMyself(peer) || peer.port !== container.resolveOptions('p2p').port))
-
-    filteredPeers.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
-
-    if (!filteredPeers.length) {
-      logger.error('No external peers found in peers.json :interrobang:')
-
-      process.exit(1)
-    }
   }
 
   /**
@@ -51,8 +34,27 @@ module.exports = class Monitor {
    * @param {Boolean} networkStart
    */
   async start (networkStart = false) {
+    this.__filterPeers()
+
     if (!networkStart) {
       await this.updateNetworkStatus()
+    }
+  }
+
+  __filterPeers () {
+    if (!this.config.peers.list) {
+      logger.error('No seed peers defined in peers.json :interrobang:')
+
+      process.exit(1)
+    }
+
+    const filteredPeers = this.config.peers.list
+      .filter(peer => (peer.port === container.resolveOptions('p2p').port))
+
+    for (let peer of filteredPeers) {
+      this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+
+      // await this.acceptNewPeer(this.peers[peer.ip].toObject())
     }
   }
 
@@ -80,6 +82,59 @@ module.exports = class Monitor {
       this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
       return this.updateNetworkStatus()
+    }
+  }
+
+  /**
+   * Accept and store a valid peer.
+   * @param  {Peer} peer
+   * @throws {Error} If invalid peer
+   */
+  async acceptNewPeer (peer) {
+    if (this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
+      return
+    }
+
+    if (this.guard.isBlacklisted(peer.ip)) {
+      logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
+
+      this.guard.suspend(peer)
+
+      return
+    }
+
+    if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
+      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
+
+      this.guard.suspend(peer)
+
+      return
+    }
+
+    if (this.getPeer(peer.ip)) {
+      return
+    }
+
+    if (peer.nethash !== this.config.network.nethash) {
+      throw new Error('Request is made on the wrong network')
+    }
+
+    const newPeer = new Peer(peer.ip, peer.port)
+
+    try {
+      await newPeer.ping(1500)
+
+      this.peers[peer.ip] = newPeer
+      logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
+
+      emitter.emit('peer.added', newPeer)
+    } catch (error) {
+      logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
+
+      this.guard.suspend(newPeer)
+      // we don't throw since we answer unreacheable peer
+      // TODO: in next version, only accept to answer to sound peers that have properly registered
+      // hence we will throw an error
     }
   }
 
@@ -140,59 +195,6 @@ module.exports = class Monitor {
       }
 
       logger.debug(`Banned peer ${ip} for `.this.guard.get(ip).untilHuman)
-    }
-  }
-
-  /**
-   * Accept and store a valid peer.
-   * @param  {Peer} peer
-   * @throws {Error} If invalid peer
-   */
-  async acceptNewPeer (peer) {
-    if (this.guard.isSuspended(peer) || this.guard.isMyself(peer) || process.env.ARK_ENV === 'test') {
-      return
-    }
-
-    if (this.guard.isBlacklisted(peer.ip)) {
-      logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
-
-      this.guard.suspend(peer)
-
-      return
-    }
-
-    if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
-
-      this.guard.suspend(peer)
-
-      return
-    }
-
-    if (this.getPeer(peer.ip)) {
-      return
-    }
-
-    if (peer.nethash !== this.config.network.nethash) {
-      throw new Error('Request is made on the wrong network')
-    }
-
-    const newPeer = new Peer(peer.ip, peer.port)
-
-    try {
-      await newPeer.ping(1500)
-
-      this.peers[peer.ip] = newPeer
-      logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`)
-
-      emitter.emit('peer.added', newPeer)
-    } catch (error) {
-      logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
-
-      this.guard.suspend(newPeer)
-      // we don't throw since we answer unreacheable peer
-      // TODO: in next version, only accept to answer to sound peers that have properly registered
-      // hence we will throw an error
     }
   }
 

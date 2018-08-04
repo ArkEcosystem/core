@@ -2,17 +2,25 @@
 
 const moment = require('moment')
 const semver = require('semver')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 const isMyself = require('./utils/is-myself')
 
 class Guard {
+  /**
+   * Create a new guard instance.
+   */
   constructor () {
     this.suspensions = {}
   }
 
-  init (config, monitor) {
-    this.config = config
+  /**
+   * Initialise a new guard.
+   * @param {Monitor} monitor
+   */
+  init (monitor) {
     this.monitor = monitor
+    this.config = monitor.config.peers
 
     return this
   }
@@ -38,7 +46,7 @@ class Guard {
    * @param {Peer} peer
    */
   suspend (peer) {
-    if (this.config.peers.whiteList && this.config.peers.whiteList.includes(peer.ip)) {
+    if (this.config.whiteList && this.config.whiteList.includes(peer.ip)) {
       return
     }
 
@@ -64,11 +72,11 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${suspendedPeer.peer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      logger.debug(`${peer.ip} still suspended for ` + suspendedPeer.untilHuman)
 
       return true
     } else if (suspendedPeer) {
-      delete this.suspensions[suspendedPeer.peer.ip]
+      delete this.suspensions[peer.ip]
     }
 
     return false
@@ -80,7 +88,7 @@ class Guard {
    * @return {Boolean}
    */
   isWhitelisted (peer) {
-    return this.config.peers.whiteList.includes(peer.ip)
+    return this.config.whiteList.includes(peer.ip)
   }
 
   /**
@@ -89,7 +97,7 @@ class Guard {
    * @return {Boolean}
    */
   isBlacklisted (peer) {
-    return this.config.peers.blackList.includes(peer.ip)
+    return this.config.blackList.includes(peer.ip)
   }
 
   /**
@@ -98,7 +106,16 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion (peer) {
-    return semver.satisfies(peer.version, this.config.peers.minimumVersion)
+    return semver.satisfies(peer.version, this.config.minimumVersion)
+  }
+
+  /**
+   * Determine if the peer has a valid port.
+   * @param  {Peer}  peer
+   * @return {Boolean}
+   */
+  isValidPort (peer) {
+    return peer.port === container.resolveOptions('p2p').port
   }
 
   /**
