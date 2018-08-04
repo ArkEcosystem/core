@@ -42,25 +42,6 @@ module.exports = class Monitor {
   }
 
   /**
-   * Filter the initial seed list.
-   * @return {void}
-   */
-  __filterPeers () {
-    if (!this.config.peers.list) {
-      logger.error('No seed peers defined in peers.json :interrobang:')
-
-      process.exit(1)
-    }
-
-    const filteredPeers = this.config.peers.list
-      .filter(peer => (!this.guard.isMyself(peer) || !this.guard.isValidPort(peer)))
-
-    for (const peer of filteredPeers) {
-      this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-    }
-  }
-
-  /**
    * Update network status (currently only peers are updated).
    * @return {Promise}
    */
@@ -434,6 +415,25 @@ module.exports = class Monitor {
     transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
+  }
+
+  /**
+   * Filter the initial seed list.
+   * @return {void}
+   */
+  __filterPeers () {
+    if (!this.config.peers.list) {
+      logger.error('No seed peers defined in peers.json :interrobang:')
+
+      process.exit(1)
+    }
+
+    const filteredPeers = this.config.peers.list
+      .filter(peer => (!this.guard.isMyself(peer) || !this.guard.isValidPort(peer)))
+
+    for (const peer of filteredPeers) {
+      this.peers[peer.ip] = new Peer(peer.ip, peer.port)
+    }
   }
 
   /**
