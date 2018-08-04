@@ -47,8 +47,7 @@ module.exports = async (config) => {
 
     return server
   } catch (error) {
-    logger.error(error.stack)
-    // TODO no exit here?
-    process.exit(1)
+    logger.error(`Error starting GraphQL API Server, stopping in 5 seconds: ${error.stack}`)
+    await server.stop()
   }
 }
