@@ -1,7 +1,5 @@
 'use strict'
 
-const { crypto } = require('@arkecosystem/crypto')
-
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
@@ -9,7 +7,6 @@ const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/accounts')
-const { calculateApproval, calculateProductivity } = require('../../../utils/delegate-calculator')
 
 /**
  * @type {Object}
@@ -153,26 +150,10 @@ exports.delegates = {
       return utils.respondWith(`Address ${request.query.address} hasn't voted yet.`, true)
     }
 
-    // TODO: refactor this to be reusable - delegate manager?
-    const delegates = await database.getActiveDelegates(blockchain.getLastBlock().data.height)
-    const delegateRank = delegates.findIndex(d => d.publicKey === account.vote)
-    const delegate = delegates[delegateRank] || {}
-
-    account = await database.wallets.findById(crypto.getAddress(account.vote, config.network.pubKeyHash))
+    const delegate = await database.delegates.findById(account.vote)
 
     return utils.respondWith({
-      delegates: [{
-        username: account.username,
-        address: account.address,
-        publicKey: account.publicKey,
-        vote: delegate.balance + '',
-        producedblocks: Number(account.producedBlocks),
-        missedblocks: account.missedBlocks,
-        forged: account.forged,
-        rate: delegateRank + 1,
-        approval: calculateApproval(delegate),
-        productivity: calculateProductivity(account)
-      }]
+      delegates: [utils.toResource(request, delegate, 'delegate')]
     })
   },
   config: {
