@@ -431,6 +431,12 @@ module.exports = class Monitor {
     const filteredPeers = this.config.peers.list
       .filter(peer => (!this.guard.isMyself(peer) || !this.guard.isValidPort(peer)))
 
+    if (!filteredPeers.length) {
+      logger.error('No external peers found in peers.json :interrobang:')
+
+      process.exit(1)
+    }
+
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
     }
