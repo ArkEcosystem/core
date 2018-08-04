@@ -90,17 +90,15 @@ module.exports = class Peer {
 
   async getTransactionsFromIds (ids) {
     // useless since there is a bug on v1
-    const url = `/peer/transactionsFromIds?ids=${ids.join(',')}`
-    const result = await this.__get(url)
-    if (result.success) return result.transactions
-    else return []
+    const response = await this.__get(`/peer/transactionsFromIds?ids=${ids.join(',')}`)
+
+    return response.success ? response.transactions : []
   }
 
   async getTransactionsFromBlock (blockId) {
-    const url = `/api/transactions?blockId=${blockId}`
-    const result = await this.__get(url)
-    if (result.success) return result.transactions
-    else return []
+    const response = await this.__get(`/api/transactions?blockId=${blockId}`)
+
+    return response.success ? response.transactions : []
   }
 
   /**
@@ -175,7 +173,7 @@ module.exports = class Peer {
     try {
       let url = `/peer/blocks/common?ids=${ids.join(',')}`
       if (ids.length === 1) {
-        url += ","
+        url += ','
       }
       const body = await this.__get(url)
 
