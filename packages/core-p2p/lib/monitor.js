@@ -53,7 +53,7 @@ module.exports = class Monitor {
     }
 
     const filteredPeers = this.config.peers.list
-      .filter(peer => (!this.guard.isMyself(peer) || peer.port !== container.resolveOptions('p2p').port))
+      .filter(peer => (!this.guard.isMyself(peer) || !this.guard.isValidPort(peer)))
 
     for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
