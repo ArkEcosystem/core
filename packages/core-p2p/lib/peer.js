@@ -44,20 +44,6 @@ module.exports = class Peer {
   }
 
   /**
-   * Turn the peer into its object representation.
-   * @return {Object}
-   */
-  toObject () {
-    return {
-      ip: this.ip,
-      port: this.headers.port,
-      version: this.headers.version,
-      os: this.os,
-      nethash: this.headers.nethash
-    }
-  }
-
-  /**
    * Perform POST request for a block.
    * @param  {Block}              block
    * @return {(Object|undefined)}

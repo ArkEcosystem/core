@@ -41,6 +41,10 @@ module.exports = class Monitor {
     }
   }
 
+  /**
+   * Filter the initial seed list.
+   * @return {void}
+   */
   __filterPeers () {
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
@@ -49,12 +53,10 @@ module.exports = class Monitor {
     }
 
     const filteredPeers = this.config.peers.list
-      .filter(peer => (peer.port === container.resolveOptions('p2p').port))
+      .filter(peer => (!this.guard.isMyself(peer) || peer.port !== container.resolveOptions('p2p').port))
 
-    for (let peer of filteredPeers) {
+    for (const peer of filteredPeers) {
       this.peers[peer.ip] = new Peer(peer.ip, peer.port)
-
-      // await this.acceptNewPeer(this.peers[peer.ip].toObject())
     }
   }
 
