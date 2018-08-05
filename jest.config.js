@@ -17,7 +17,9 @@ module.exports = {
     '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/validation/**/__tests__/**/*.test.js',
-    '**/packages/core-database-sequelize/**/__tests__/**/*.test.js'
+    '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
+
+    '**/packages/core-transaction-pool-sequalize/**/__tests__/**/*.test.js'
 
     /* These packages have failing tests */
 
