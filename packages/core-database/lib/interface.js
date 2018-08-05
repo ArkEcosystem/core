@@ -303,7 +303,7 @@ module.exports = class ConnectionInterface {
           this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
-          // this.walletManager.updateDelegates()
+          this.walletManager.updateDelegates()
         } catch (error) {
           // trying to leave database state has it was
           this.deleteRound(round)
