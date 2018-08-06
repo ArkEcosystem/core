@@ -244,7 +244,7 @@ module.exports = class Blockchain {
 
   /**
    * Hande a block during a rebuild.
-   * NOTE: We should be sure this is fail safe (ie callback() is being called)
+   * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
    * @param  {Block} block
    * @param  {Function} callback
    * @return {Object}
@@ -284,7 +284,7 @@ module.exports = class Blockchain {
 
   /**
    * Process the given block.
-   * NOTE: We should be sure this is fail safe (ie callback() is being called)
+   * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
    * @param  {Block} block
    * @param  {Function} callback
    * @return {(Function|void)}
