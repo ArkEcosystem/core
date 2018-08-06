@@ -4,6 +4,7 @@ const path = require('path')
 const container = require('@arkecosystem/core-container')
 
 exports.setUp = async () => {
+
   jest.setTimeout(60000)
 
   process.env.ARK_GRAPHQL_ENABLED = true
@@ -20,3 +21,5 @@ exports.setUp = async () => {
 
   return container
 }
+
+exports.tearDown = async () => container.tearDown()
