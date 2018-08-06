@@ -378,7 +378,7 @@ module.exports = class ConnectionInterface {
       this.blocksInCurrentRound.push(block)
     }
     await this.applyRound(block.data.height)
-    emitter.emit('block.applied', block.data)  
+    emitter.emit('block.applied', block.data)
   }
 
   /**
