@@ -1,5 +1,3 @@
-const { asValue } = require('awilix')
-
 const app = require('./__support__/setup')
 
 let graphql
@@ -19,13 +17,6 @@ beforeEach(async () => {
   graphql = await plugin.register(container, {
     enabled: true
   })
-
-  await container.register('graphql', asValue({
-    name: 'graphql',
-    version: '0.1.0',
-    plugin: graphql,
-    options: {enabled: true}
-  }))
 })
 
 describe('GraphQL', () => {
