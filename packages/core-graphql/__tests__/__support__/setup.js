@@ -7,8 +7,8 @@ exports.setUp = async () => {
   jest.setTimeout(60000)
 
   process.env.ARK_GRAPHQL_ENABLED = true
-  process.env.ARK_GRAPHQL_HOST = 'localhost',
-  process.env.ARK_GRAPHQL_PORT = 4005,
+  process.env.ARK_GRAPHQL_HOST = 'localhost'
+  process.env.ARK_GRAPHQL_PORT = 4005
 
   await container.setUp({
     data: '~/.ark',
@@ -20,4 +20,3 @@ exports.setUp = async () => {
 
   return container
 }
-

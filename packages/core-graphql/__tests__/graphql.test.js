@@ -13,7 +13,6 @@ afterAll(async () => {
   await app.tearDown()
 })
 
-
 beforeEach(async () => {
   const plugin = require('../lib').plugin
 
@@ -25,7 +24,7 @@ beforeEach(async () => {
     name: 'graphql',
     version: '0.1.0',
     plugin: graphql,
-    options: {enabled:true}
+    options: {enabled: true}
   }))
 })
 
