@@ -513,16 +513,6 @@ describe('Sequelize Connection', () => {
       expect(blockIds).toBeArray()
       expect(blockIds).toIncludeAllMembers([genesisBlock.data.id])
     })
-
-    it('should get existing block ids if not empty', async () => {
-      await connection.saveBlock(genesisBlock)
-      connection.recentBlockIds = ['10']
-
-      const blockIds = await connection.getRecentBlockIds()
-
-      expect(blockIds).toBeArray()
-      expect(blockIds).toIncludeAllMembers(['10'])
-    })
   })
 
   describe('getBlockHeaders', () => {
