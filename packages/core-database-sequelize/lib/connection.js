@@ -94,7 +94,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * Get the cache object
    * @return {Cache}
    */
-  getCache() {
+  getCache () {
     return this.cache
   }
 

@@ -9,7 +9,7 @@ module.exports = class Cache {
     this.redis = new Redis(options)
   }
 
-  getRedisOptions() {
+  getRedisOptions () {
     return this.redis.options
   }
 
