@@ -91,6 +91,14 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
+   * Get the cache object
+   * @return {Cache}
+   */
+  getCache() {
+    return this.cache
+  }
+
+  /**
    * Verify the blockchain stored on db is not corrupted making simple assertions:
    * - Last block is available
    * - Last block height equals the number of stored blocks

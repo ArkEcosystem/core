@@ -50,6 +50,22 @@ describe('Sequelize Connection', () => {
       expect(connection.connection).toBeInstanceOf(require('sequelize'))
     })
 
+    it('should have the Cache correctly configured', async () => {
+      const redisOptionsInit = { host: 'customRedisHost', port: 6666 }
+      const connection = new (require('../lib/connection'))({
+        dialect: 'sqlite',
+        storage: ':memory:',
+        redis: redisOptionsInit
+      })
+
+      await connection.make()
+      const cache = connection.getCache()
+      const redisOptions = cache.getRedisOptions()
+
+      expect(redisOptions.host).toBe(redisOptionsInit.host)
+      expect(redisOptions.port).toBe(redisOptionsInit.port)
+    })
+
     describe('when the db is already initialised', () => {
       it('should throw an Error', async () => {
         const connection = new (require('../lib/connection'))({
