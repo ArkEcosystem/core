@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  enabled: process.env.ARK_JSON_RPC_ENABLED || false,
+  enabled: process.env.ARK_JSON_RPC_ENABLED,
   host: process.env.ARK_JSON_RPC_HOST || '0.0.0.0',
   port: process.env.ARK_JSON_RPC_PORT || 8080,
   allowRemote: true,

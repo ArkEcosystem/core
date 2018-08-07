@@ -15,7 +15,9 @@ const register = async (server, options) => {
   server.ext({
     type: 'onRequest',
     async method (request, h) {
-      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, request.info.remoteAddress)) {
+      const remoteAddress = requestIp.getClientIp(request)
+
+      if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',
           message: `${request.path} does not exist`
@@ -23,8 +25,7 @@ const register = async (server, options) => {
       }
 
       if (request.path.startsWith('/peer')) {
-        const peer = {}
-        peer.ip = requestIp.getClientIp(request)
+        const peer = { ip: remoteAddress }
 
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 

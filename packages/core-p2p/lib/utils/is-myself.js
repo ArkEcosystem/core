@@ -1,4 +1,5 @@
 const os = require('os')
+
 /**
  * Checks if IP belongs to local computer (all network interfaces are checked)
  * @param {String} ipAddress to check

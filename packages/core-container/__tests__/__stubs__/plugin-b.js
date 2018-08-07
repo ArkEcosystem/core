@@ -6,11 +6,11 @@ exports.plugin = {
     version: '1.0.0'
   },
   alias: 'stub-plugin-b',
-  register: (container, options) => {
+  register (container, options) {
     return {
       container,
       options
     }
   },
-  deregister: jest.fn()
+  deregister () {}
 }

@@ -128,8 +128,6 @@ class Network {
     const peers = this.network.peers.slice(0, 10)
 
     for (let i = 0; i < peers.length; i++) {
-      // console.log(transaction, peers[i])
-
       logger.info(`Broadcasting to ${peers[i]}`)
 
       await this.postTransaction(transaction, peers[i])

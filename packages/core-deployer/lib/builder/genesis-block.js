@@ -49,7 +49,7 @@ module.exports = class GenesisBlockBuilder {
    */
   __createWallet () {
     const passphrase = bip39.generateMnemonic()
-    const keys = ark.crypto.getKeys(passphrase, {network: this.network})
+    const keys = ark.crypto.getKeys(passphrase, this.network)
 
     return {
       address: ark.crypto.getAddress(keys.publicKey, this.prefixHash),
