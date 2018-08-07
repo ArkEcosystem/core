@@ -39,4 +39,62 @@ describe('Models - Wallet', () => {
       expect(testWallet.canApply(multiTx)).toBeTruthy()
     })
   })
+
+  describe('apply block', () => {
+    let testWallet
+    let block
+
+    beforeEach(() => {
+      testWallet = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
+      testWallet.publicKey = '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece'
+      testWallet.balance = 0
+      testWallet.producedBlocks = 0
+      testWallet.forgedFees = 0
+      testWallet.forgedRewards = 0
+      testWallet.lastBlock = null
+
+      block = {
+        id: 1,
+        generatorPublicKey: testWallet.publicKey,
+        reward: 1000000000,
+        totalFee: 1000000000
+      }
+    })
+
+    it('should apply correct block', () => {
+      testWallet.applyBlock(block)
+      expect(testWallet.balance).toBe(block.reward + block.totalFee)
+      expect(testWallet.producedBlocks).toBe(1)
+      expect(testWallet.forgedFees).toBe(block.totalFee)
+      expect(testWallet.forgedRewards).toBe(block.totalFee)
+      expect(testWallet.lastBlock).toBeObject(block)
+      expect(testWallet.dirty).toBeTruthy()
+    })
+
+    it('should apply correct block with string values', () => {
+      const originalBlock = Object.assign({}, block)
+      block.reward += ''
+      block.totalFee += ''
+      block.reward += ''
+      testWallet.applyBlock(block)
+      expect(testWallet.balance).toBe(originalBlock.reward + originalBlock.totalFee)
+      expect(testWallet.producedBlocks).toBe(1)
+      expect(testWallet.forgedFees).toBe(originalBlock.totalFee)
+      expect(testWallet.forgedRewards).toBe(originalBlock.totalFee)
+      expect(testWallet.lastBlock).toBeObject(originalBlock)
+      expect(testWallet.dirty).toBeTruthy()
+    })
+
+    it('should not apply incorrect block', () => {
+      block.generatorPublicKey = 'wrong'
+      const originalWallet = Object.assign({}, testWallet)
+      testWallet.applyBlock(block)
+      expect(testWallet.balance).toBe(originalWallet.balance)
+      expect(testWallet.producedBlocks).toBe(0)
+      expect(testWallet.forgedFees).toBe(originalWallet.forgedFees)
+      expect(testWallet.forgedRewards).toBe(originalWallet.forgedRewards)
+      expect(testWallet.lastBlock).toBe(originalWallet.lastBlock)
+      expect(testWallet.dirty).toBeTruthy()
+    })
+  })
 })

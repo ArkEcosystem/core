@@ -137,6 +137,22 @@ describe('Connection', () => {
     })
   })
 
+  describe('removeTransactionById', () => {
+    it('should be a function', () => {
+      expect(connection.removeTransactionById).toBeFunction()
+    })
+
+    it('should remove the specified transaction from the pool (by id)', async () => {
+      await connection.addTransaction(mockData.dummy1)
+
+      await expect(connection.getPoolSize()).resolves.toBe(1)
+
+      await connection.removeTransactionById(mockData.dummy1.id)
+
+      await expect(connection.getPoolSize()).resolves.toBe(0)
+    })
+  })
+
   describe('removeTransactions', () => {
     it('should be a function', () => {
       expect(connection.removeTransactions).toBeFunction()

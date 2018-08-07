@@ -57,6 +57,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await this.__registerRepositories()
       await super._registerWalletManager()
 
+      this.blocksInCurrentRound = await this.__getBlocksForRound()
+
       return this
     } catch (error) {
       logger.error('Unable to connect to the database', error.stack)
@@ -572,8 +574,6 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       })
     }
 
-    // console.log(transactions.map(tx => tx.blockId))
-
     for (let block of blocks) {
       if (block.numberOfTransactions > 0) {
         block.transactions = transactions.filter(transaction => transaction.blockId === block.id)
@@ -581,6 +581,21 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     }
 
     return blocks
+  }
+
+  /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    const blocks = await this.query
+      .select('id')
+      .from('blocks')
+      .orderBy({ timestamp: 'DESC' })
+      .limit(10)
+      .all()
+
+    return blocks.map(block => block.id)
   }
 
   /**

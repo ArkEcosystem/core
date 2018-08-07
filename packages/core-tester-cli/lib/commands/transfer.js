@@ -39,7 +39,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   const walletBalance = await utils.getWalletBalance(primaryAddress)
   logger.info('All transactions have been received and forged!')
 
-  if (parseInt(walletBalance) !== parseInt(expectedSenderBalance)) {
+  if (walletBalance !== expectedSenderBalance) {
     successfulTest = false
     logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
   }
@@ -47,7 +47,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   wallets.forEach(async wallet => {
     const balance = await utils.getWalletBalance(wallet.address)
 
-    if (parseInt(balance) !== parseInt(transactionAmount)) {
+    if (balance !== transactionAmount) {
       successfulTest = false
       logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
     }
@@ -115,21 +115,19 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       logger.error('Test failed on first run')
     }
 
-    /*
-    if (successfulTest && !options.skipValidation && !skipTestingAgain) {
-      successfulTest = await sendTransactionsWithResults(
-        transactions,
-        wallets,
-        transactionAmount,
-        expectedSenderBalance,
-        options
-      )
+    // if (successfulTest && !options.skipValidation && !skipTestingAgain) {
+    //   successfulTest = await sendTransactionsWithResults(
+    //     transactions,
+    //     wallets,
+    //     transactionAmount,
+    //     expectedSenderBalance,
+    //     options
+    //   )
 
-      if (!successfulTest) {
-        logger.error('Test failed on second run')
-      }
-    }
-    */
+    //   if (!successfulTest) {
+    //     logger.error('Test failed on second run')
+    //   }
+    // }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }

@@ -500,6 +500,21 @@ describe('Sequelize Connection', () => {
     })
   })
 
+  describe('getRecentBlockIds', () => {
+    it('should be a function', () => {
+      expect(connection.getRecentBlockIds).toBeFunction()
+    })
+
+    it('should get genesis block id from database if empty', async () => {
+      await connection.saveBlock(genesisBlock)
+
+      const blockIds = await connection.getRecentBlockIds()
+
+      expect(blockIds).toBeArray()
+      expect(blockIds).toIncludeAllMembers([genesisBlock.data.id])
+    })
+  })
+
   describe('getBlockHeaders', () => {
     it('should be a function', () => {
       expect(connection.getBlockHeaders).toBeFunction()

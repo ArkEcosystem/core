@@ -140,6 +140,7 @@ const requestNodeIp = options.nodeIp === '0.0.0.0' ? '127.0.0.1' : options.nodeI
 
 updateConfig('network.json', networkConfig, options.configPath)
 updateConfig('peers.json', {
+  minimumVersion: '>=1.1.1',
   minimumNetworkReach: 1,
   list: [{
     ip: requestNodeIp,
