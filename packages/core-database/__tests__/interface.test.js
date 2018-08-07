@@ -165,6 +165,20 @@ describe('Connection Interface', () => {
     })
   })
 
+  describe('getRecentBlockIds', () => {
+    it('should be a function', () => {
+      expect(ConnectionInterface.getRecentBlockIds).toBeFunction()
+    })
+
+    it('should return an array', async () => {
+      ConnectionInterface.recentBlockIds = ['10']
+      const blockIds = await ConnectionInterface.getRecentBlockIds()
+
+      expect(blockIds).toBeArray()
+      expect(blockIds).toIncludeAllMembers(['10'])
+    })
+  })
+
   describe('saveRound', () => {
     it('should be a function', () => {
       expect(ConnectionInterface.saveRound).toBeFunction()
@@ -188,10 +202,6 @@ describe('Connection Interface', () => {
   describe('updateDelegateStats', () => {
     it('should be a function', () => {
       expect(ConnectionInterface.updateDelegateStats).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(ConnectionInterface.updateDelegateStats()).rejects.toThrowError('Method [updateDelegateStats] not implemented!')
     })
   })
 
