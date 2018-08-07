@@ -25,9 +25,11 @@ module.exports = class PeerManager {
     await this.__checkDNSConnectivity()
     await this.__checkNTPConnectivity()
 
+    this.api = await startServer(this, this.config)
+
     await this.monitor.start(this.config.networkStart)
 
-    this.api = await startServer(this, this.config)
+    return this
   }
 
   /**
@@ -80,6 +82,15 @@ module.exports = class PeerManager {
   }
 
   /**
+   * ban an existing peer.
+   * @param  {Peer}    peer
+   * @return {Promise}
+   */
+  banPeer (ip) {
+    return this.monitor.banPeer(ip)
+  }
+
+  /**
    * Get peers.
    * @return {Peer[]}
    */
@@ -87,12 +98,36 @@ module.exports = class PeerManager {
     return this.monitor.getPeers()
   }
 
+  /**
+   * Get the peer for the given IP address.
+   * @return {Peer}
+   */
   getPeer (ip) {
     return this.monitor.getPeer(ip)
   }
 
+  /**
+   * Get a random peer.
+   * @return {Peer}
+   */
   getRandomPeer () {
     return this.monitor.getRandomPeer()
+  }
+
+  /**
+   * Get a list of all suspended peers.
+   * @return {Object}
+   */
+  getSuspendedPeers () {
+    return this.monitor.getSuspendedPeers()
+  }
+
+  /**
+   * Get the peer monitor.
+   * @return {Object}
+   */
+  getMonitor () {
+    return this.monitor
   }
 
   /**
@@ -101,6 +136,10 @@ module.exports = class PeerManager {
    */
   getNetworkHeight () {
     return this.monitor.getNetworkHeight()
+  }
+
+  async getNetworkState () {
+    return this.monitor.getNetworkState()
   }
 
   /**
@@ -112,8 +151,8 @@ module.exports = class PeerManager {
       const host = await checkDNS(this.config.dns)
 
       logger.info(`Your network connectivity has been verified by ${host}`)
-    } catch (err) {
-      logger.error(err.message)
+    } catch (error) {
+      logger.error(error.message)
     }
   }
 
@@ -128,8 +167,8 @@ module.exports = class PeerManager {
       logger.info(`Your NTP connectivity has been verified by ${host}`)
 
       logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
-    } catch (err) {
-      logger.error(err.message)
+    } catch (error) {
+      logger.error(error.message)
     }
   }
 }

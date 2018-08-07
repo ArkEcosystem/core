@@ -50,6 +50,7 @@ describe('crypto.js', () => {
       bytes = crypto.getBytes(transaction)
       expect(bytes).toBeObject()
       expect(bytes.length).toBe(202)
+      expect(bytes.toString('hex')).toBe('00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a')
     })
 
     // it('should return Buffer of transaction with second signature and buffer must be 420 length', () => {
@@ -88,6 +89,7 @@ describe('crypto.js', () => {
       bytes = crypto.getBytes(transaction)
       expect(bytes).toBeObject()
       expect(bytes.length).toBe(266)
+      expect(bytes.toString('hex')).toBe('00aa2902005d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09171dfc69b54c7fe901e91d5a9ab78388645e2427ea00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e803000000000000d007000000000000618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a');
     })
   })
 
@@ -112,6 +114,7 @@ describe('crypto.js', () => {
       const result = crypto.getHash(transaction)
       expect(result).toBeObject()
       expect(result).toHaveLength(32)
+      expect(result.toString('hex')).toBe('952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea')
     })
   })
 
@@ -120,7 +123,7 @@ describe('crypto.js', () => {
       expect(crypto.getId).toBeFunction()
     })
 
-    xit('should return string id and be equal to 619fd7971db6f317fdee3675c862291c976d072a0a1782410e3a6f5309022491', () => {
+    xit('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
       const transaction = {
         type: 0,
         amount: 1000,
@@ -153,6 +156,21 @@ describe('crypto.js', () => {
   describe('sign', () => {
     it('should be a function', () => {
       expect(crypto.sign).toBeFunction()
+    })
+
+    it('should return a valid signature', () => {
+      const keys = crypto.getKeys('secret')
+      const transaction = {
+        type: 0,
+        amount: 1000,
+        fee: 2000,
+        recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
+        timestamp: 141738,
+        asset: {},
+        senderPublicKey: keys.getPublicKeyBuffer().toString('hex')
+      }
+      const signature = crypto.sign(transaction, keys)
+      expect(signature.toString('hex')).toBe('3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe')
     })
   })
 

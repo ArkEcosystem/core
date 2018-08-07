@@ -1,5 +1,10 @@
 {
+  "minimumVersion": ">=1.1.1",
   "minimumNetworkReach": 20,
+  "globalTimeout": 5000,
+  "coldStart": 30,
+  "whiteList": [],
+  "blackList": [],
   "list": [
     {
       "ip": "5.39.9.240",
@@ -130,8 +135,6 @@
       "port": 4001
     }
   ],
-  "blackList": [],
-  "globalTimeout": 5000,
   "sources": [
     "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/mainnet.json"
   ]

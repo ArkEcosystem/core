@@ -21,8 +21,12 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
-    "async": "^2.6.1"
+    "bluebird": "^3.5.1",
+    "bs58check": "^2.1.1",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2"
   },
   "publishConfig": {
     "access": "public"

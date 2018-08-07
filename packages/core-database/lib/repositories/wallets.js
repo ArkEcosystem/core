@@ -1,6 +1,6 @@
 'use strict'
 
-const _ = require('lodash')
+const sortBy = require('lodash/sortBy')
 const filterRows = require('./utils/filter-rows')
 const limitRows = require('./utils/limit-rows')
 
@@ -28,6 +28,7 @@ module.exports = class WalletsRepository {
    */
   findAll (params = {}) {
     const wallets = this.getLocalWallets()
+
     return {
       rows: limitRows(wallets, params),
       count: wallets.length
@@ -41,7 +42,10 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAllByVote (publicKey, params = {}) {
-    const wallets = this.getLocalWallets().filter(wallet => wallet.vote === publicKey)
+    const wallets = this
+      .getLocalWallets()
+      .filter(wallet => wallet.vote === publicKey)
+
     return {
       rows: limitRows(wallets, params),
       count: wallets.length
@@ -71,7 +75,8 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   top (params = {}) {
-    const wallets = _.sortBy(this.getLocalWallets(), 'balance').reverse()
+    const wallets = sortBy(this.getLocalWallets(), 'balance').reverse()
+
     return {
       rows: limitRows(wallets, params),
       count: wallets.length

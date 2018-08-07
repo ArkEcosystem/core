@@ -14,9 +14,9 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const peers = await blockchain.p2p.getPeers()
+    const allPeers = await blockchain.p2p.getPeers()
 
-    let result = peers.sort(() => 0.5 - Math.random())
+    let result = allPeers.sort(() => 0.5 - Math.random())
     result = request.query.os ? result.filter(peer => peer.os === request.query.os) : result
     result = request.query.status ? result.filter(peer => peer.status === request.query.status) : result
     result = request.query.port ? result.filter(peer => peer.port === request.query.port) : result
@@ -56,5 +56,21 @@ exports.show = {
   },
   options: {
     validate: schema.show
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.suspended = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const peers = blockchain.p2p.getSuspendedPeers()
+
+    return utils.respondWithCollection(request, Object.values(peers).map(peer => peer.peer), 'peer')
   }
 }

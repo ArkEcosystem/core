@@ -6,46 +6,7 @@ const configManager = require('../managers/config')
 const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
-
-// TODO: to move to config file for mainnet
-const blockchainV1FixOutlookTable = {
-  '5139199631254983076': '1000099631254983076',
-  '4683900276587456793': '1000000276587456793',
-  '4719273207090574361': '1000073207090574361',
-  '10008425497949974873': '10000425497949974873',
-  '3011426208694781338': '1000026208694781338',
-  '122506651077645039': '100006651077645039',
-  '5720847785115142568': '1000047785115142568',
-  '7018402152859193732': '1000002152859193732',
-  '12530635932931954947': '10000635932931954947',
-  '7061061305098280027': '1000061305098280027',
-  '3983271186026110297': '1000071186026110297',
-  '3546732630357730082': '1000032630357730082',
-  '14024378732446299587': '10000378732446299587',
-  '5160516564770509401': '1000016564770509401',
-  '241883250703033792': '100003250703033792',
-  '18238049267092652511': '10000049267092652511',
-  '3824223895435898486': '1000023895435898486',
-  '4888561739037785996': '1000061739037785996',
-  '1256478353465481084': '1000078353465481084',
-  '12598210368652133913': '10000210368652133913',
-  '17559226088420912749': '10000226088420912749',
-  '13894975866600060289': '10000975866600060289',
-  '11710672157782824154': '10000672157782824154',
-  '5509880884401609373': '1000080884401609373',
-  '11486353335769396593': '10000353335769396593',
-  '10147280738049458646': '10000280738049458646',
-  '5684621525438367021': '1000021525438367021',
-  '719490120693255848': '100000120693255848',
-  '7154018532147250826': '1000018532147250826',
-  '38016207884795383': '10000207884795383',
-  '8324387831264270399': '1000087831264270399',
-  '10123661368384267251': '10000661368384267251',
-  '2222163236406460530': '1000063236406460530',
-  '5059382813585250340': '1000082813585250340',
-  '7091362542116598855': '1000062542116598855',
-  '8225244493039935740': '1000044493039935740'
-}
+const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (buffer) => {
   let temp = buffer.toString('hex')
@@ -125,8 +86,8 @@ module.exports = class Block {
     this.data.idHex = Block.getIdHex(this.data)
     this.data.id = Block.getId(this.data)
 
-    if (blockchainV1FixOutlookTable[this.data.id]) {
-      this.data.id = blockchainV1FixOutlookTable[this.data.id]
+    if (outlookTable[this.data.id]) {
+      this.data.id = outlookTable[this.data.id]
       this.data.idHex = toBytesHex(new Bignum(this.data.id).toBuffer())
     }
     if (data.id !== this.data.id) {
@@ -147,10 +108,13 @@ module.exports = class Block {
     }
 
     // fix on real timestamp, this is overloading transaction timestamp with block timestamp for storage only
+    // also add sequence to keep database sequence
+    let sequence = 0
     this.transactions = data.transactions.map(transaction => {
       const stampedTransaction = new Transaction(transaction)
       stampedTransaction.blockId = this.data.id
       stampedTransaction.timestamp = this.data.timestamp
+      stampedTransaction.sequence = sequence++
       return stampedTransaction
     })
 
@@ -245,7 +209,6 @@ module.exports = class Block {
    * @return {Boolean}
    */
   verifySignature () {
-    // console.log(this.data)
     const bytes = Block.serialize(this.data, false)
     const hash = crypto.createHash('sha256').update(bytes).digest()
     const blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')

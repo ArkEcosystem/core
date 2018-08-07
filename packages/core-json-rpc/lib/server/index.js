@@ -20,13 +20,14 @@ function registerMethods (server, group) {
  */
 module.exports = async (options) => {
   if (options.allowRemote) {
-    logger.warn('JSON-RPC server allows remote connections, this is a potential security risk!')
+    logger.warn('JSON-RPC server allows remote connections, this is a potential security risk :warning:')
   }
 
   const server = new Hapi.Server({
     host: options.host,
     port: options.port
   })
+
   server.app.schemas = {}
 
   await server.register({ plugin: require('./plugins/whitelist'), options })
@@ -40,7 +41,7 @@ module.exports = async (options) => {
   try {
     await server.start()
 
-    logger.info(`JSON-RPC Server is available and listening on ${server.info.uri}`)
+    logger.info(`JSON-RPC Server running at: ${server.info.uri}`)
 
     return server
   } catch (error) {

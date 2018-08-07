@@ -3,6 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const requestIp = require('request-ip')
+const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
@@ -64,10 +65,6 @@ exports.getRound = {
       const delegates = await blockchain.database.getActiveDelegates(height)
       const timestamp = slots.getTime()
 
-      // console.log(delegates.length)
-      // console.log(~~(timestamp / blockTime) % maxActive)
-      // console.log(delegates[~~(timestamp / blockTime) % maxActive])
-
       return {
         success: true,
         round: {
@@ -75,13 +72,17 @@ exports.getRound = {
           reward: reward,
           timestamp: timestamp,
           delegates: delegates,
-          delegate: delegates[parseInt(timestamp / blockTime) % maxActive],
+          currentForger: delegates[parseInt(timestamp / blockTime) % maxActive],
+          nextForger: delegates[(parseInt(timestamp / blockTime) + 1) % maxActive],
           lastBlock: lastBlock.data,
           canForge: parseInt(1 + lastBlock.data.timestamp / blockTime) * blockTime < timestamp - 1
         }
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }
@@ -107,7 +108,71 @@ exports.getTransactionsForForging = {
         data: await blockchain.getUnconfirmedTransactions(blockSize, true)
       }
     } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.getNetworkState = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: true, error: 'Blockchain not ready' }
+    }
+    try {
+      return {
+        success: true,
+        networkState: await blockchain.p2p.getNetworkState()
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
+    }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.checkBlockchainSynced = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: true, error: 'Blockchain not ready' }
+    }
+
+    try {
+      logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
+      blockchain.dispatch('WAKEUP')
+
+      return {
+        success: true
+      }
+    } catch (error) {
+      return h.response({
+        success: false,
+        message: error.message
+      }).code(500).takeover()
     }
   }
 }

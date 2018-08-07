@@ -2,7 +2,7 @@
 
 const config = {
   baseUrlApi: 'http://localhost:4003',
-  baseUrlP2P: 'http://localhost:4002',
+  baseUrlP2P: 'http://localhost:4000',
   passphrase: 'prison tobacco acquire stone dignity palace note decade they current lesson robot',
   secondPassPhrase: '',
   publicKeyHash: 23,

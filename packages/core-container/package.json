@@ -9,8 +9,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
-    "test": "ARK_ENV=test jest --forceExit",
-    "test:coverage": "ARK_ENV=test jest --coverage --forceExit",
+    "test": "ARK_ENV=test jest",
+    "test:coverage": "ARK_ENV=test jest --coverage",
     "test:debug": "ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
     "test:watch": "ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "ARK_ENV=test jest --runInBand --watchAll",
@@ -18,9 +18,11 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/crypto": "^0.1.1",
     "awilix": "^3.0.8",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
+    "fs-extra": "^6.0.1",
     "hoek": "^5.0.3",
     "lodash": "^4.17.10",
     "semver": "^5.5.0"

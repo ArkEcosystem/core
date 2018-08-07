@@ -7,6 +7,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
+const { Block } = require('@arkecosystem/crypto').models
 
 module.exports = class ConnectionInterface {
   /**
@@ -16,6 +17,7 @@ module.exports = class ConnectionInterface {
   constructor (config) {
     this.config = config
     this.connection = null
+    this.blocksInCurrentRound = null
   }
 
   /**
@@ -42,6 +44,19 @@ module.exports = class ConnectionInterface {
    */
   async disconnect () {
     throw new Error('Method [disconnect] not implemented!')
+  }
+
+  /**
+   * Verify the blockchain stored on db is not corrupted making simple assertions:
+   * - Last block is available
+   * - Last block height equals the number of stored blocks
+   * - Number of stored transactions equals the sum of block.numberOfTransactions in the database
+   * - Sum of all tx fees equals the sum of block.totalFee
+   * - Sum of all tx amount equals the sum of block.totalAmount
+   * @return {Object} An object { valid, errors } with the result of the verification and the errors
+   */
+  async verifyBlockchain () {
+    throw new Error('Method [verifyBlockchain] not implemented!')
   }
 
   /**
@@ -97,7 +112,7 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Commit the given block (async version).
+   * Save the given block (async version).
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
@@ -108,12 +123,33 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Commit the block database transaction.
+   * Commit the block save database transaction.
    * NOTE: to be used in combination with saveBlockAsync
    * @return {void}
    * @throws Error
    */
   async saveBlockCommit () {
+    throw new Error('Method [saveBlockCommit] not implemented!')
+  }
+
+  /**
+   * Delete the given block (async version).
+   * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
+   * @param  {Block} block
+   * @return {void}
+   * @throws Error
+   */
+  async deleteBlockAsync (block) {
+    throw new Error('Method [saveBlockAsync] not implemented!')
+  }
+
+  /**
+   * Commit the block delete database transaction.
+   * NOTE: to be used in combination with saveBlockAsync
+   * @return {void}
+   * @throws Error
+   */
+  async deleteBlockCommit () {
     throw new Error('Method [saveBlockCommit] not implemented!')
   }
 
@@ -158,6 +194,14 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    throw new Error('Method [getRecentBlockIds] not implemented!')
+  }
+
+  /**
    * Store the given round.
    * @param  {Array} activeDelegates
    * @return {void}
@@ -180,12 +224,34 @@ module.exports = class ConnectionInterface {
   /**
    * Update delegate statistics in memory.
    * NOTE: must be called before saving new round of delegates
+   * @param  {Block} block
    * @param  {Array} delegates
    * @return {void}
-   * @throws Error
    */
-  async updateDelegateStats (blocks, delegates) {
-    throw new Error('Method [updateDelegateStats] not implemented!')
+  async updateDelegateStats (height, delegates) {
+    if (!delegates || !this.blocksInCurrentRound) {
+      return
+    }
+
+    logger.debug('Updating delegate statistics')
+
+    try {
+      delegates.forEach(delegate => {
+        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey)
+        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+
+        if (producedBlocks.length === 0) {
+          wallet.missedBlocks++
+          logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`)
+          wallet.dirty = true
+          emitter.emit('forger.missing', {
+            delegate: wallet
+          })
+        }
+      })
+    } catch (error) {
+      logger.error(error.stack)
+    }
   }
 
   /**
@@ -195,13 +261,18 @@ module.exports = class ConnectionInterface {
    */
   isNewRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
+
     return height % maxDelegates === 1
   }
 
   getRound (height) {
     const maxDelegates = config.getConstants(height).activeDelegates
-    if (height < maxDelegates + 1) return 1
-    else return Math.floor((height - 1) / maxDelegates) + 1
+
+    if (height < maxDelegates + 1) {
+      return 1
+    }
+
+    return Math.floor((height - 1) / maxDelegates) + 1
   }
 
   /**
@@ -219,16 +290,16 @@ module.exports = class ConnectionInterface {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
       if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
-        logger.info(`Starting Round ${round}`)
+        logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          await this.updateDelegateStats(this.getLastBlock(), this.activedelegates)
+          await this.updateDelegateStats(height, this.activedelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
 
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
-
+          this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
           // this.walletManager.updateDelegates()
@@ -238,7 +309,7 @@ module.exports = class ConnectionInterface {
           throw error
         }
       } else {
-        logger.info(`Round ${round} has already been applied. This should happen only if you are a forger.`)
+        logger.warn(`Round ${round} has already been applied. This should happen only if you are a forger. :warning:`)
       }
     }
   }
@@ -256,7 +327,8 @@ module.exports = class ConnectionInterface {
     const nextRound = Math.floor((nextHeight - 1) / config.getConstants(nextHeight).activeDelegates) + 1
 
     if (nextRound === round + 1 && height > maxDelegates) {
-      logger.info(`Back to previous round: ${round}`)
+      logger.info(`Back to previous round: ${round} :back:`)
+      this.blocksInCurrentRound = this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -275,11 +347,11 @@ module.exports = class ConnectionInterface {
     const forgingDelegate = delegates[slot % delegates.length]
 
     if (!forgingDelegate) {
-      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height}`)
+      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey}`)
+      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey} :-1:`)
     } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height}`)
+      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
     }
 
     return true
@@ -302,6 +374,9 @@ module.exports = class ConnectionInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
+    if (this.blocksInCurrentRound) {
+      this.blocksInCurrentRound.push(block)
+    }
     await this.applyRound(block.data.height)
     emitter.emit('block.applied', block.data)
   }
@@ -314,6 +389,10 @@ module.exports = class ConnectionInterface {
   async revertBlock (block) {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
+    if (this.blocksInCurrentRound) {
+      const b = this.blocksInCurrentRound.pop()
+      if (b.data.id !== block.data.id) throw new Error('Reverted wrong block. Restart is needed 💣')
+    }
     emitter.emit('block.reverted', block.data)
   }
 
@@ -371,6 +450,28 @@ module.exports = class ConnectionInterface {
       offset += 100000
       console.log(offset)
     }
+  }
+
+  /**
+   * Get blocks for round.
+   * @param  {number} round
+   * @return {[]Block}
+   */
+  async __getBlocksForRound (round) {
+    const lastBlock = await this.getLastBlock()
+    if (!lastBlock) {
+      return []
+    }
+
+    let height = +lastBlock.data.height
+    if (!round) {
+      round = this.getRound(height)
+    }
+
+    const maxDelegates = config.getConstants(height).activeDelegates
+    height = (round * maxDelegates) + 1
+
+    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
   }
 
   /**

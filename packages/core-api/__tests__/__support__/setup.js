@@ -7,9 +7,9 @@ const generateRound = require('./utils/generate-round')
 const activeDelegates = require('../__fixtures__/delegates.json')
 const round = generateRound(activeDelegates, 1)
 
-jest.setTimeout(60000)
+exports.setUp = async () => {
+  jest.setTimeout(60000)
 
-beforeAll(async () => {
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
   await container.setUp({
@@ -24,8 +24,8 @@ beforeAll(async () => {
   await connection.buildWallets(1)
   await connection.saveWallets(true)
   await connection.saveRound(round)
-})
+}
 
-afterAll(async () => {
+exports.tearDown = async () => {
   await container.tearDown()
-})
+}

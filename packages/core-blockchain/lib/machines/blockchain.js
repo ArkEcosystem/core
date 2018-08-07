@@ -23,8 +23,9 @@ module.exports = Machine({
     },
     rebuild: {
       on: {
-        PROCESSFINISHED: 'syncWithNetwork',
-        FORK: 'fork'
+        REBUILDCOMPLETE: 'syncWithNetwork',
+        FORK: 'fork',
+        TEST: 'syncWithNetwork'
       },
       ...rebuildFromNetwork
     },

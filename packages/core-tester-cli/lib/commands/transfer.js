@@ -21,13 +21,15 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
     return false
   }
-  for (const transaction of transactions) {
-    if (!postResponse.data.transactionIds.find(transactionId => (transaction.id === transactionId))) {
-      logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
-    }
-  }
+
   if (!postResponse.data.transactionIds.length) {
     return false
+  }
+
+  for (const transaction of transactions) {
+    if (!postResponse.data.transactionIds.includes(transaction.id)) {
+      logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
+    }
   }
 
   const delaySeconds = await utils.getTransactionDelay(transactions)
@@ -50,7 +52,6 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
       logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
     }
   })
-
   return successfulTest
 }
 
@@ -70,7 +71,10 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   const transactions = []
   let totalDeductions = 0
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
-  if (options.amount) transactionAmount = options.amount
+
+  if (options.amount) {
+    transactionAmount = options.amount
+  }
 
   wallets.forEach((wallet, i) => {
     const transaction = ark.transaction.createTransaction(
@@ -111,19 +115,19 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       logger.error('Test failed on first run')
     }
 
-    if (successfulTest && !options.skipValidation && !skipTestingAgain) {
-      successfulTest = await sendTransactionsWithResults(
-        transactions,
-        wallets,
-        transactionAmount,
-        expectedSenderBalance,
-        options
-      )
+    // if (successfulTest && !options.skipValidation && !skipTestingAgain) {
+    //   successfulTest = await sendTransactionsWithResults(
+    //     transactions,
+    //     wallets,
+    //     transactionAmount,
+    //     expectedSenderBalance,
+    //     options
+    //   )
 
-      if (!successfulTest) {
-        logger.error('Test failed on second run')
-      }
-    }
+    //   if (!successfulTest) {
+    //     logger.error('Test failed on second run')
+    //   }
+    // }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }

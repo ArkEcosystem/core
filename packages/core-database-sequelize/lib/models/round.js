@@ -15,24 +15,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     publicKey: {
-      type: DataTypes.STRING(66)
-      // very bad practice to disable references, easy to corrupt database...
-      // references: {
-      //   model: 'wallets',
-      //   key: 'publicKey'
-      // }
+      type: DataTypes.STRING(66),
+      field: 'public_key'
     },
     balance: DataTypes.BIGINT,
-    round: DataTypes.BIGINT
+    round: DataTypes.BIGINT,
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
   }, {})
-
-  // Round.associate = (models) => {
-  //   Round.belongsTo(models.wallet, {
-  //     foreignKey: 'publicKey',
-  //     sourceKey: 'publicKey',
-  //     as: 'delegate'
-  //   })
-  // }
 
   return Round
 }

@@ -2,15 +2,20 @@
 
 const _ = require('lodash')
 const app = require('../__support__/setup')
-const genesisBlock = require('../__fixtures__/genesisBlock')
-
 const { crypto } = require('@arkecosystem/crypto')
 
+let genesisBlock
+let genesisSenders
 let repository
 let walletManager
 
 beforeAll(async (done) => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
 
   done()
 })
@@ -27,8 +32,6 @@ beforeEach(async (done) => {
 
   done()
 })
-
-const genesisSenders = _.uniq(_.compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)))
 
 function generateWallets () {
   return genesisSenders.map(senderPublicKey => ({

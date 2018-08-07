@@ -37,6 +37,7 @@ module.exports = {
       '/api/v2/peers',
       '/api/v2/transactions',
       '/api/v2/transactions/search',
+      '/api/v2/transactions/unconfirmed',
       '/api/v2/votes',
       '/api/v2/wallets',
       '/api/v2/wallets/top',
@@ -48,6 +49,7 @@ module.exports = {
     ]
   },
   whitelist: [
-    '127.0.0.1'
+    '127.0.0.1',
+    '::ffff:127.0.0.1'
   ]
 }

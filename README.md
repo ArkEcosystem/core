@@ -8,18 +8,21 @@ This repository contains all plugins that make up the ARK Core.
 
 ## Documentation
 
-- Development : https://docs.ark.io/v1.0/docs/development
-- Docker : https://docs.ark.io/v1.0/docs/docker
+- Development : https://docs.ark.io/core/development.html
+- Docker : https://docs.ark.io/core/docker.html
 
 ## API Documentation
 
-- API v1 & v2 : https://docs.ark.io/v1.0/reference
+- API v1 : https://docs.ark.io/developers/api/public/v1/
+- API v2 : https://docs.ark.io/developers/api/public/v2/
 
 ## GitHub Development Bounty
 
 - Get involved with ARK development and earn ARK coins : https://bounty.ark.io
 
 ## Core Packages
+
+[![Build Status](https://travis-ci.org/ArkEcosystem/core.svg?branch=master)](https://travis-ci.org/ArkEcosystem/core)
 
 | Package | Version | Description
 |---|---|---|

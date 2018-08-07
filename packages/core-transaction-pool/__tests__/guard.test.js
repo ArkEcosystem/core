@@ -4,16 +4,12 @@ const app = require('./__support__/setup')
 
 let guard
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
 beforeEach(() => {
@@ -42,12 +38,14 @@ describe('Transaction Guard', () => {
       guard.accept = [{ id: 2 }]
       guard.excess = [{ id: 3 }]
       guard.invalid = [{ id: 4 }]
+      guard.broadcast = [{ id: 5 }]
 
       expect(guard.getIds()).toEqual({
         transactions: [1],
         accept: [2],
         excess: [3],
-        invalid: [4]
+        invalid: [4],
+        broadcast: [5]
       })
     })
 
@@ -68,12 +66,14 @@ describe('Transaction Guard', () => {
       guard.accept = [{ id: 2 }]
       guard.excess = [{ id: 3 }]
       guard.invalid = [{ id: 4 }]
+      guard.broadcast = [{ id: 5 }]
 
       expect(guard.getTransactions()).toEqual({
         transactions: [{ id: 1 }],
         accept: [{ id: 2 }],
         excess: [{ id: 3 }],
-        invalid: [{ id: 4 }]
+        invalid: [{ id: 4 }],
+        broadcast: [{ id: 5 }]
       })
     })
 
@@ -156,6 +156,12 @@ describe('Transaction Guard', () => {
     })
   })
 
+  describe('__determineExcessTransactions', () => {
+    it('should be a function', () => {
+      expect(guard.__determineExcessTransactions).toBeFunction()
+    })
+  })
+
   describe('__reset', () => {
     it('should be a function', () => {
       expect(guard.__reset).toBeFunction()
@@ -166,11 +172,13 @@ describe('Transaction Guard', () => {
       guard.accept = [{ id: 2 }]
       guard.excess = [{ id: 3 }]
       guard.invalid = [{ id: 4 }]
+      guard.broadcast = [{ id: 5 }]
 
       expect(guard.transactions).not.toBeEmpty()
       expect(guard.accept).not.toBeEmpty()
       expect(guard.excess).not.toBeEmpty()
       expect(guard.invalid).not.toBeEmpty()
+      expect(guard.broadcast).not.toBeEmpty()
 
       guard.__reset()
 
@@ -178,6 +186,7 @@ describe('Transaction Guard', () => {
       expect(guard.accept).toBeEmpty()
       expect(guard.excess).toBeEmpty()
       expect(guard.invalid).toBeEmpty()
+      expect(guard.broadcast).toBeEmpty()
     })
   })
 })

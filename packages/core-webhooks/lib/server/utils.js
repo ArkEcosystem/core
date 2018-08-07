@@ -39,12 +39,12 @@ const paginate = (request) => {
  * Respond with a resource.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const respondWithResource = (request, data, transformerClass) => {
+const respondWithResource = (request, data, transformer) => {
   return data
-    ? { data: transformResource(request, data, transformerClass) }
+    ? { data: transformResource(request, data, transformer) }
     : Boom.notFound()
 }
 
@@ -52,45 +52,45 @@ const respondWithResource = (request, data, transformerClass) => {
  * Respond with a collection.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Object}
  */
-const respondWithCollection = (request, data, transformerClass) => {
-  return { data: transformCollection(request, data, transformerClass) }
+const respondWithCollection = (request, data, transformer) => {
+  return { data: transformCollection(request, data, transformer) }
 }
 
 /**
  * Alias of "transformResource".
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toResource = (request, data, transformerClass) => {
-  return transformResource(request, data, transformerClass)
+const toResource = (request, data, transformer) => {
+  return transformResource(request, data, transformer)
 }
 
 /**
  * Alias of "transformCollection".
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toCollection = (request, data, transformerClass) => {
-  return transformCollection(request, data, transformerClass)
+const toCollection = (request, data, transformer) => {
+  return transformCollection(request, data, transformer)
 }
 
 /**
  * Transform the given data into a pagination.
  * @param  {Hapi.Request} request
  * @param  {Object} data
- * @param  {String} transformerClass
+ * @param  {String} transformer
  * @return {Hapi.Response}
  */
-const toPagination = (request, data, transformerClass) => {
+const toPagination = (request, data, transformer) => {
   return {
-    results: transformCollection(request, data.rows, transformerClass),
+    results: transformCollection(request, data.rows, transformer),
     totalCount: data.count
   }
 }

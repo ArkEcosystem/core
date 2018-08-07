@@ -4,29 +4,24 @@ const app = require('./__support__/setup')
 const delay = require('delay')
 const mockData = require('./__fixtures__/transactions')
 const { Transaction } = require('@arkecosystem/crypto').models
+const defaultConfig = require('../lib/defaults')
 
 let connection
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   await app.setUp()
 
   const RedisConnection = require('../lib/connection.js')
-  connection = new RedisConnection(require('../lib/defaults'))
+  connection = new RedisConnection(defaultConfig)
   connection = connection.make()
-
-  done()
 })
 
-afterAll(async (done) => {
+afterAll(async () => {
   await app.tearDown()
-
-  done()
 })
 
-beforeEach(async (done) => {
+afterEach(async () => {
   await connection.flush()
-
-  done()
 })
 
 describe('Connection', () => {
@@ -49,6 +44,25 @@ describe('Connection', () => {
       await connection.addTransaction(mockData.dummy1)
 
       await expect(connection.getPoolSize()).resolves.toBe(1)
+    })
+  })
+
+  describe('getSenderSize', () => {
+    it('should be a function', () => {
+      expect(connection.getSenderSize).toBeFunction()
+    })
+
+    it('should return 0 if no transactions were added', async () => {
+      await expect(connection.getSenderSize('undefined')).resolves.toBe(0)
+    })
+
+    it('should return 2 if transactions were added', async () => {
+      await expect(connection.getSenderSize(mockData.dummy1.senderPublicKey)).resolves.toBe(0)
+
+      await connection.addTransaction(mockData.dummy1)
+      await connection.addTransaction(mockData.dummy2)
+
+      await expect(connection.getSenderSize(mockData.dummy1.senderPublicKey)).resolves.toBe(2)
     })
   })
 
@@ -118,6 +132,22 @@ describe('Connection', () => {
       await expect(connection.getPoolSize()).resolves.toBe(1)
 
       await connection.removeTransaction(mockData.dummy1)
+
+      await expect(connection.getPoolSize()).resolves.toBe(0)
+    })
+  })
+
+  describe('removeTransactionById', () => {
+    it('should be a function', () => {
+      expect(connection.removeTransactionById).toBeFunction()
+    })
+
+    it('should remove the specified transaction from the pool (by id)', async () => {
+      await connection.addTransaction(mockData.dummy1)
+
+      await expect(connection.getPoolSize()).resolves.toBe(1)
+
+      await connection.removeTransactionById(mockData.dummy1.id)
 
       await expect(connection.getPoolSize()).resolves.toBe(0)
     })
@@ -200,7 +230,7 @@ describe('Connection', () => {
 
     it('should be truthy if exceeded', async () => {
       connection.options.maxTransactionsPerSender = 5
-      connection.options.whitelist = []
+      connection.options.allowedSenders = []
       await connection.addTransaction(mockData.dummy3)
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
@@ -216,7 +246,7 @@ describe('Connection', () => {
 
     it('should be falsy if not exceeded', async () => {
       connection.options.maxTransactionsPerSender = 7
-      connection.options.whitelist = []
+      connection.options.allowedSenders = []
 
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)
@@ -230,7 +260,7 @@ describe('Connection', () => {
     it('should be allowed to exceed if whitelisted', async () => {
       await connection.flush()
       connection.options.maxTransactionsPerSender = 5
-      connection.options.whitelist = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
+      connection.options.allowedSenders = ['03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357', 'ghjk']
       await connection.addTransaction(mockData.dummy3)
       await connection.addTransaction(mockData.dummy4)
       await connection.addTransaction(mockData.dummy5)

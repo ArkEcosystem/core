@@ -1,4 +1,9 @@
 {
+  "minimumVersion": ">=1.1.1",
+  "minimumNetworkReach": 20,
+  "globalTimeout": 5000,
+  "coldStart": 30,
+  "whiteList":[],
   "blackList": [],
   "list": [{
     "ip": "127.0.0.1",
@@ -6,6 +11,5 @@
   }, {
     "ip": "127.0.0.1",
     "port": 4202
-  }],
-  "globalTimeout": 2000
+  }]
 }

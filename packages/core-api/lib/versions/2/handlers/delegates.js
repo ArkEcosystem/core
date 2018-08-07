@@ -1,6 +1,7 @@
 'use strict'
 
 const Boom = require('boom')
+const orderBy = require('lodash/orderBy')
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/delegates')
@@ -117,5 +118,36 @@ exports.voters = {
   },
   options: {
     validate: schema.voters
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.voterBalances = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const delegate = await database.delegates.findById(request.params.id)
+
+    if (!delegate) {
+      return Boom.notFound()
+    }
+
+    const wallets = await database.wallets
+      .getLocalWallets()
+      .filter(wallet => wallet.vote === delegate.publicKey)
+
+    const voters = {}
+    orderBy(wallets, ['balance'], ['desc'])
+      .forEach(wallet => (voters[wallet.address] = wallet.balance))
+
+    return { data: voters }
+  },
+  options: {
+    validate: schema.voterBalances
   }
 }

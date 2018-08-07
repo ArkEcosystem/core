@@ -114,12 +114,14 @@ exports.unconfirmed = {
     }
 
     const pagination = utils.paginate(request)
-    const transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
 
-    return utils.toPagination({
-      count: transactions.length,
+    let transactions = await transactionPool.getTransactions(pagination.offset, pagination.limit)
+    transactions = transactions.map(transaction => ({ serialized: transaction }))
+
+    return utils.toPagination(request, {
+      count: await transactionPool.getPoolSize(),
       rows: transactions
-    }, transactions, 'transaction')
+    }, 'transaction')
   }
 }
 
@@ -137,7 +139,13 @@ exports.showUnconfirmed = {
       return Boom.teapot()
     }
 
-    const transaction = await transactionPool.getTransaction(request.param.id)
+    let transaction = await transactionPool.getTransaction(request.params.id)
+
+    if (!transaction) {
+      return Boom.notFound()
+    }
+
+    transaction = { serialized: transaction.serialized.toString('hex') }
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

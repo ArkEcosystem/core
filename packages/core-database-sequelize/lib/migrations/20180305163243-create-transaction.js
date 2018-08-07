@@ -22,27 +22,17 @@ module.exports = {
       version: Sequelize.SMALLINT, // TODO
       blockId: {
         type: Sequelize.STRING(64)
-        // references: {
-        //   model: 'blocks',
-        //   key: 'id'
-        // }
+      },
+      sequence: {
+        allowNull: false,
+        type: Sequelize.SMALLINT
       },
       timestamp: Sequelize.INTEGER,
       senderPublicKey: {
         type: Sequelize.STRING(66)
-        // very bad practice to disable references, easy to corrupt database...
-        // references: {
-        //   model: 'wallets',
-        //   key: 'publicKey'
-        // }
       },
       recipientId: {
         type: Sequelize.STRING(36)
-        // very bad practice to disable references, easy to corrupt database...
-        // references: {
-        //   model: 'wallets',
-        //   key: 'address'
-        // }
       },
       type: Sequelize.SMALLINT,
       vendorFieldHex: Sequelize.BLOB,

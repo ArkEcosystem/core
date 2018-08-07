@@ -6,7 +6,7 @@
     "private": 46089520
   },
   "pubKeyHash": 30,
-  "nethash": "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
+  "nethash": "2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867",
   "wif": 170,
   "client": {
     "token": "DARK",
@@ -48,11 +48,9 @@
       "delegateResignation": 500
     }
   }, {
-    "height": 75600,
+    "height": 10800,
     "reward": 200000000
   }],
   "exceptions": {
-    "49eb0b459075bd1d4c6231204308f66f233c04fe250263cdf7625623f99db4d4": true,
-    "6d2e9f554a0c793eb5364ef049453044e6a1333e4242905b8c7264646b544215": true
   }
 }

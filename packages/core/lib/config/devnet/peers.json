@@ -1,5 +1,10 @@
 {
-  "minimumNetworkReach": 3,
+  "minimumVersion": ">=1.1.1",
+  "minimumNetworkReach": 5,
+  "globalTimeout": 5000,
+  "coldStart": 5,
+  "whiteList": [],
+  "blackList": [],
   "list": [
     {
       "ip": "167.114.29.51",
@@ -22,8 +27,6 @@
       "port": 4002
     }
   ],
-  "blackList": [],
-  "globalTimeout": 6000,
   "sources": [
     "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
   ]

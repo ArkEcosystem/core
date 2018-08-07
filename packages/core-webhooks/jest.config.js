@@ -1,5 +1,4 @@
 'use strict'
-
 module.exports = {
   testEnvironment: 'node',
   bail: false,
@@ -18,6 +17,5 @@ module.exports = {
     '!**/node_modules/**'
   ],
   watchman: false,
-  globalSetup: './__tests__/__support__/setup.js',
   setupTestFrameworkScriptFile: 'jest-extended'
 }

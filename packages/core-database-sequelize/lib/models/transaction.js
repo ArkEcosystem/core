@@ -17,51 +17,38 @@ module.exports = (sequelize, DataTypes) => {
     version: DataTypes.SMALLINT, // TODO
     blockId: {
       type: DataTypes.STRING(64),
-      // very bad practice to disable references, easy to corrupt database...
-      references: {
-        model: 'blocks',
-        key: 'id'
-      }
+      field: 'block_id'
+    },
+    sequence: {
+      allowNull: false,
+      type: DataTypes.SMALLINT
     },
     timestamp: DataTypes.INTEGER,
     senderPublicKey: {
-      type: DataTypes.STRING(66)
-      // very bad practice to disable references, easy to corrupt database...
-      // references: {
-      //   model: 'wallets',
-      //   key: 'publicKey'
-      // }
+      type: DataTypes.STRING(66),
+      field: 'sender_public_key'
     },
     recipientId: {
-      type: DataTypes.STRING(36)
-      // very bad practice to disable references, easy to corrupt database...
-      // references: {
-      //   model: 'wallets',
-      //   key: 'address'
-      // }
+      type: DataTypes.STRING(36),
+      field: 'recipient_id'
     },
     type: DataTypes.SMALLINT,
-    vendorFieldHex: DataTypes.BLOB,
+    vendorFieldHex: {
+        type: DataTypes.BLOB,
+        field: 'vendor_field_hex'
+    },
     amount: DataTypes.BIGINT,
     fee: DataTypes.BIGINT,
-    serialized: DataTypes.BLOB
+    serialized: DataTypes.BLOB,
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+    }
   }, {})
-
-  Transaction.associate = (models) => {
-    Transaction.belongsTo(models.block)
-
-    // Transaction.belongsTo(models.wallet, {
-    //   foreignKey: 'publicKey',
-    //   sourceKey: 'senderPublicKey',
-    //   as: 'sender'
-    // })
-
-    // Transaction.belongsTo(models.wallet, {
-    //   foreignKey: 'generatorPublicKey',
-    //   sourceKey: 'recipientId',
-    //   as: 'recipient'
-    // })
-  }
 
   return Transaction
 }

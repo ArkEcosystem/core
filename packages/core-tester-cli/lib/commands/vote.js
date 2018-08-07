@@ -2,7 +2,7 @@
 
 const ark = require('arkjs')
 const delay = require('delay')
-const sampleSize = require('lodash/sampleSize')
+const sample = require('lodash.sample')
 const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
@@ -11,37 +11,23 @@ const transferCommand = require('./transfer')
 module.exports = async (options) => {
   utils.applyConfigOptions(options)
 
-  const wallets = utils.generateWallets(options.number)
+  const wallets = utils.generateWallets(options.quantity)
   await transferCommand(options, wallets, 2, true)
+  let voters = await utils.getVoters(options.delegate)
 
-  let delegateVotes = []
   if (!options.delegate) {
     const delegates = await utils.getDelegates()
-    const chosen = sampleSize(delegates, options.quantity)
 
-    for (let i = 0; i < chosen.length; i++) {
-      delegateVotes.push({
-        delegate: chosen[i],
-        voters: await utils.getVoters(chosen[i].publicKey)
-      })
-    }
+    options.delegate = sample(delegates).publicKey
   }
 
-  let voters = 0
-  delegateVotes.forEach(detail => {
-    voters += detail.voters.length
-  })
-
-  logger.info(`Sending ${options.number} vote transactions`)
-  if (!options.skipValidation) {
-    logger.info(`Delegate starting voters: ${voters}`)
-  }
+  logger.info(`Sending ${options.quantity} vote transactions`)
 
   const transactions = []
   wallets.forEach((wallet, i) => {
     const transaction = ark.vote.createVote(
       wallet.passphrase,
-      delegateVotes.map(detail => `+${detail.delegate.publicKey}`),
+      [`+${options.delegate}`],
       config.secondPassphrase,
       utils.parseFee(options.voteFee)
     )
@@ -55,11 +41,10 @@ module.exports = async (options) => {
     process.exit() // eslint-disable-line no-unreachable
   }
 
-  const expectedVoters = voters + wallets.length
+  const expectedVoters = voters.length + wallets.length
   if (!options.skipValidation) {
     logger.info(`Expected end voters: ${expectedVoters}`)
   }
-
   try {
     await utils.request.post('/peer/transactions', {transactions}, true)
 
@@ -72,9 +57,8 @@ module.exports = async (options) => {
     await delay(delaySeconds * 1000)
 
     let voters = 0
-    for (const detail of delegateVotes) {
-      voters += (await utils.getVoters(detail.delegate.publicKey)).length
-    }
+    voters += (await utils.getVoters(options.delegate)).length
+
     logger.info(`All transactions have been sent! Total voters: ${voters}`)
 
     if (voters !== expectedVoters) {

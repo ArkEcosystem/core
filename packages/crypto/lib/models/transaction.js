@@ -59,6 +59,7 @@ module.exports = class Transaction {
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     [
       'id',
+      'sequence',
       'version',
       'timestamp',
       'senderPublicKey',
@@ -75,7 +76,7 @@ module.exports = class Transaction {
       'asset',
       'expiration',
       'timelock',
-      'timelocktype'
+      'timelockType'
     ].forEach((key) => {
       this[key] = this.data[key]
     }, this)
@@ -185,7 +186,7 @@ module.exports = class Transaction {
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       bb.writeUInt64(transaction.amount)
-      bb.writeByte(transaction.timelocktype)
+      bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
     }
@@ -307,7 +308,7 @@ module.exports = class Transaction {
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       transaction.amount = buf.readUInt64(assetOffset / 2).toNumber()
-      transaction.timelocktype = buf.readInt8(assetOffset / 2 + 8) & 0xff
+      transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
       transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
 
@@ -350,21 +351,20 @@ module.exports = class Transaction {
         transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
 
-      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
-      }
-
       if (transaction.vendorFieldHex) {
         transaction.vendorField = Buffer.from(transaction.vendorFieldHex, 'hex').toString('utf8')
       }
 
       if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
         transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
       if (!transaction.id) {
         transaction.id = crypto.getId(transaction)
+      }
+
+      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE || transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
       }
     }
 

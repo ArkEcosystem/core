@@ -11,7 +11,7 @@ exports.plugin = {
   defaults: require('./defaults'),
   alias: 'databaseManager',
   async register (container, options) {
-    container.resolvePlugin('logger').info('Starting Database Manager...')
+    container.resolvePlugin('logger').info('Starting Database Manager')
 
     return databaseManager
   }

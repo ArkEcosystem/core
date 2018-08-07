@@ -13,15 +13,19 @@ module.exports = async (p2p, config) => {
     host: config.host,
     port: config.port
   })
+
   server.app.p2p = p2p
 
-  // await server.register({
-  //   plugin: require('./plugins/validation')
-  // })
-
   await server.register({
-    plugin: require('./plugins/accept-request')
+    plugin: require('./plugins/accept-request'),
+    options: {
+      whitelist: config.whitelist
+    }
   })
+
+  // await server.register({
+  //   plugin: require('./plugins/throttle')
+  // })
 
   await server.register({
     plugin: require('./plugins/set-headers')
