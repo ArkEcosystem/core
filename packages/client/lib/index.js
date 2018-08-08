@@ -8,7 +8,7 @@ module.exports = class ApiClient {
   /**
    * Finds all the available peers, sorted by block heigh and delay
    *
-   * @param {String} network - Network name
+   * @param {String} network - Network name ('devnet' or 'mainnet')
    * @param {Number} version - API version
    */
   static async findPeers (network, version) {
