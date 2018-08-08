@@ -5,6 +5,7 @@ const delegates = require('./handlers/delegates')
 const node = require('./handlers/node')
 const peers = require('./handlers/peers')
 const transactions = require('./handlers/transactions')
+const transactionsStore = require('./handlers/transactions/store')
 const votes = require('./handlers/votes')
 const wallets = require('./handlers/wallets')
 
@@ -37,7 +38,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/peers/{ip}', ...peers.show },
 
     { method: 'GET', path: '/transactions', ...transactions.index },
-    { method: 'POST', path: '/transactions', ...transactions.store },
+    { method: 'POST', path: '/transactions', ...transactionsStore },
     { method: 'GET', path: '/transactions/{id}', ...transactions.show },
     { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
     { method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed },

@@ -3,7 +3,6 @@
 const Promise = require('bluebird')
 
 const container = require('@arkecosystem/core-container')
-const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
 
@@ -24,7 +23,6 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = new PoolWalletManager()
-    this.guard = new TransactionGuard(this)
 
     this.blockedByPublicKey = {}
   }

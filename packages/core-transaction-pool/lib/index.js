@@ -19,3 +19,9 @@ exports.plugin = {
  * @type {TransactionPoolInterface}
  */
 exports.TransactionPoolInterface = require('./interface')
+
+/**
+ * The interface used by concrete implementations.
+ * @type {TransactionGuard}
+ */
+exports.TransactionGuard = require('./guard')

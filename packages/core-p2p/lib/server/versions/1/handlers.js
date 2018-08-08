@@ -1,6 +1,7 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
@@ -320,24 +321,25 @@ exports.postTransactions = {
       return { success: false }
     }
 
-    await transactionPool.guard.validate(request.payload.transactions)
+    const guard = new TransactionGuard(transactionPool)
+    await guard.validate(request.payload.transactions)
 
     // TODO: Review throttling of v1
-    if (transactionPool.guard.hasAny('accept')) {
-      logger.info(`Accepted ${transactionPool.guard.accept.length} transactions from ${request.payload.transactions.length} received`)
-      logger.verbose(`Accepted transactions: ${transactionPool.guard.accept.map(tx => tx.id)}`)
-      transactionPool.addTransactions(transactionPool.guard.accept)
+    if (guard.hasAny('accept')) {
+      logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
+      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
+      transactionPool.addTransactions(guard.accept)
     }
 
-    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
+    if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
       container
         .resolvePlugin('p2p')
-        .broadcastTransactions(transactionPool.guard.broadcast)
+        .broadcastTransactions(guard.broadcast)
     }
 
     return {
       success: true,
-      transactionIds: transactionPool.guard.getIds('accept')
+      transactionIds: guard.getIds('accept')
     }
   },
   config: {
