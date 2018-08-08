@@ -14,6 +14,7 @@ module.exports = class HttpClient {
     }
 
     this.version = apiVersion
+    this.timeout = 60000
     this.headers = {}
   }
 
@@ -31,6 +32,14 @@ module.exports = class HttpClient {
    */
   setHeaders (headers = {}) {
     this.headers = headers
+  }
+
+  /**
+   * Establish the timeout of the requests.
+   * @param {Number} timeout
+   */
+  setTimeout (timeout) {
+    this.timeout = timeout
   }
 
   /**
@@ -99,6 +108,7 @@ module.exports = class HttpClient {
     const client = axios.create({
       baseURL: this.host,
       headers: this.headers,
+      timeout: this.timeout
     })
 
     try {
