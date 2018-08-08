@@ -101,11 +101,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (!(transaction instanceof Transaction)) {
-      return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
+      logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
+      return
     }
 
     if (await this.transactionExists(transaction.id)) {
-      return logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
+      logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
+      return
     }
 
     try {

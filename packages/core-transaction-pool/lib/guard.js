@@ -26,8 +26,6 @@ module.exports = class TransactionGuard {
    * @return {void}
    */
   async validate (transactions) {
-    this.__reset()
-
     await this.__transformAndFilterTransations(_.uniqBy(transactions, 'id'))
 
     await this.__removeForgedTransactions()
@@ -178,14 +176,26 @@ module.exports = class TransactionGuard {
    * Determine exccess transactions
    */
   async __determineExcessTransactions () {
-    await Promise.each(this.broadcast, async (transaction) => {
+    for (let transaction of this.broadcast) {
       const hasExceeded = await this.pool.hasExceededMaxTransactions(transaction)
+
       if (hasExceeded) {
         this.excess.push(transaction)
       } else {
-        this.accept.push(transaction)
+        /**
+         * We need to check this again after checking it in "__transformAndFilterTransations"
+         * because the state of the transaction pool could have changed since then
+         * if concurrent requests are occurring via API.
+         */
+        const exists = await this.pool.transactionExists(transaction.id)
+
+        if (exists) {
+          this.invalid.push(transaction)
+        } else {
+          this.accept.push(transaction)
+        }
       }
-    })
+    }
   }
 
   /**

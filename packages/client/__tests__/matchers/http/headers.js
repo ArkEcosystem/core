@@ -1,20 +1,29 @@
 'use strict'
 
+/**
+ * Check that the request configuration includes some headers with the expected
+ * values. The assertion is case insensitive.
+ */
 module.exports = (actual, expected) => {
-  // These headers should be added to the request
-  const additional = ['API-Version', 'Nethash', 'Port', 'Version']
+  const requestNormalizedHeaders = Object.keys(actual.headers).map(header => header.toLowerCase())
+
+  let found = 0
+  for (const header in expected) {
+    const normalizedHeader = header.toLowerCase()
+
+    if (requestNormalizedHeaders.indexOf(normalizedHeader) !== -1) {
+      const expectedValue = expected[header]
+
+      if (expectedValue === actual.headers[header]) {
+        found++
+      } else {
+        break
+      }
+    }
+  }
 
   return {
-    message: () => {
-      const actualHeaders = additional.reduce((all, header) => {
-        if (header in additional) {
-          all[header] = actual.data.headers[header]
-        }
-        return all
-      }, {})
-
-      return `Expected actual headers to match expected: ${JSON.stringify(actualHeaders)} vs. ${JSON.stringify(expected)}`
-    },
-    pass: additional.every(header => actual.data.headers[header] === expected[header])
+    message: () => `Expected actual headers to include and match expected: ${JSON.stringify(actual)} vs. ${JSON.stringify(expected)}`,
+    pass: found === Object.keys(expected).length
   }
 }
