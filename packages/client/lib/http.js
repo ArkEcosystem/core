@@ -1,4 +1,3 @@
-const { configManager } = require('@arkecosystem/crypto')
 const axios = require('axios')
 
 module.exports = class HttpClient {
@@ -87,8 +86,6 @@ module.exports = class HttpClient {
     const client = axios.create({
       baseURL: this.host,
       headers: {
-        nethash: configManager.get('nethash'),
-        version: configManager.get('pubKeyHash'),
         port: '1',
         'API-Version': this.version
       }

@@ -22,9 +22,6 @@ const browserConfig = {
       browsers: 'defaults'
     }
   },
-  externals: {
-    '@arkecosystem/crypto': 'ArkCrypto'
-  },
   output: {
     ...format(pkg.browser),
     library: 'ArkEcosystemClient',
