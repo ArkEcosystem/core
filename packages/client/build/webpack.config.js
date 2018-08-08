@@ -27,7 +27,7 @@ const browserConfig = {
   },
   output: {
     ...format(pkg.browser),
-    library: 'ArkClient',
+    library: 'ArkEcosystemClient',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     globalObject: 'this'
