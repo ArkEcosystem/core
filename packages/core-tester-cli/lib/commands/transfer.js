@@ -3,6 +3,7 @@
 const ark = require('arkjs')
 const config = require('../config')
 const delay = require('delay')
+const unique = require('lodash/uniq')
 const utils = require('../utils')
 const logger = utils.logger
 
@@ -33,6 +34,19 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
         successfulTest = false
       }
+    }
+  }
+
+  for (const key of Object.keys(postResponse.data)) {
+    if (key === 'success') {
+      continue
+    }
+
+    const dataLength = postResponse.data[key].length
+    const uniqueLength = unique(postResponse.data[key]).length
+    if (dataLength !== uniqueLength) {
+      logger.error(`Response data for '${key}' has ${dataLength - uniqueLength} duplicate transaction ids`)
+      successfulTest = false
     }
   }
 
