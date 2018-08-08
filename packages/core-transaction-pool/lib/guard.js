@@ -182,9 +182,11 @@ module.exports = class TransactionGuard {
       if (hasExceeded) {
         this.excess.push(transaction)
       } else {
-        // We need to check this again after checking it in "__transformAndFilterTransations"
-        // because the state of the transaction pool could have changed since then
-        // if concurrent requests are occurring via API.
+        /**
+         * We need to check this again after checking it in "__transformAndFilterTransations"
+         * because the state of the transaction pool could have changed since then
+         * if concurrent requests are occurring via API.
+         */
         const exists = await this.pool.transactionExists(transaction.id)
 
         if (exists) {
