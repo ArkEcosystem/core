@@ -8,8 +8,8 @@
     "lint": "lerna run lint",
     "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",
-    "test": "ARK_ENV=test jest --forceExit",
-    "test:coverage": "ARK_ENV=test jest --coverage --forceExit"
+    "test": "cross-env ARK_ENV=test jest --forceExit",
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --forceExit"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.51",
@@ -17,6 +17,7 @@
     "axios": "^0.18.0",
     "babel-loader": "^8.0.0-beta",
     "body-parser": "^1.18.3",
+    "cross-env": "^5.2.0",
     "depcheck": "^0.6.9",
     "docdash": "^0.4.0",
     "eslint": "^4.19.1",
