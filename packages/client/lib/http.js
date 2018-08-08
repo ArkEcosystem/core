@@ -14,6 +14,7 @@ module.exports = class HttpClient {
     }
 
     this.version = apiVersion
+    this.headers = {}
   }
 
   /**
@@ -22,6 +23,14 @@ module.exports = class HttpClient {
    */
   setVersion (version) {
     this.version = version
+  }
+
+  /**
+   * Establish the headers of the requests.
+   * @param {Object} headers
+   */
+  setHeaders (headers = {}) {
+    this.headers = headers
   }
 
   /**
@@ -83,12 +92,13 @@ module.exports = class HttpClient {
    * @throws Will throw an error if the HTTP request fails.
    */
   sendRequest (method, path, payload) {
+    if (!this.headers['API-Version']) {
+      this.headers['API-Version'] = this.version
+    }
+
     const client = axios.create({
       baseURL: this.host,
-      headers: {
-        port: '1',
-        'API-Version': this.version
-      }
+      headers: this.headers,
     })
 
     try {
