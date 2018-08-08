@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "axios": "^0.18.0",
     "delay": "^3.0.0",
