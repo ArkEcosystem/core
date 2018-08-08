@@ -38,7 +38,8 @@ before_script:
   - sudo redis-server /etc/redis/redis.conf --port 6379
 
 script:
-  - yarn test:coverage --ci
+  # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
+  - yarn test:coverage --ci --maxWorkers 4
   - codecov
 
 jobs:
