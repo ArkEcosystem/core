@@ -8,16 +8,7 @@
 yarn add @arkecosystem/client
 ```
 
-If you want to use the CDN version, is available two bundles:
-
-- Without the [@arkecosystem/crypto](http://github.com/ArkEcosystem/ArkEcosystem/core/packages/crypto) package: (_You will need to import both_)
-
-```html
-<script src="https://unpkg.com/@arkecosystem/crypto/dist/index.umd.js"></script>
-<script src="https://unpkg.com/@arkecosystem/client/dist/index.umd.js"></script>
-```
-
-- And a standalone file:
+If you want to use the CDN version:
 
 ```html
 <script src="https://unpkg.com/@arkecosystem/client/dist/bundle.umd.js"></script>
