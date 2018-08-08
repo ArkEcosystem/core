@@ -10,10 +10,11 @@ const ark = require('@arkecosystem/crypto')
 const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
+const memory = require('./memory')
 const PoolWalletManager = require('./pool-wallet-manager')
 const helpers = require('./utils/validation-helpers')
 const moment = require('moment')
-const _ = require('lodash')
+const uniq = require('lodash/uniq')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -23,6 +24,7 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = new PoolWalletManager()
+    this.memory = memory
 
     this.blockedByPublicKey = {}
   }
@@ -195,7 +197,7 @@ module.exports = class TransactionPoolInterface {
     try {
       let transactionIds = await this.getTransactionsIds(start, size)
       transactionIds = await this.removeForgedAndGetPending(transactionIds)
-      transactionIds = _.uniq(transactionIds)
+      transactionIds = uniq(transactionIds)
 
       let transactions = []
       for (const id of transactionIds) {
