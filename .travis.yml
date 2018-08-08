@@ -39,6 +39,7 @@ before_script:
 
 script:
   - yarn test:coverage --ci
+  - codecov
 
 jobs:
   include:

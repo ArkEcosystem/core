@@ -17,6 +17,7 @@
     "axios": "^0.18.0",
     "babel-loader": "^8.0.0-beta",
     "body-parser": "^1.18.3",
+    "codecov": "^3.0.4",
     "depcheck": "^0.6.9",
     "docdash": "^0.4.0",
     "eslint": "^4.19.1",
