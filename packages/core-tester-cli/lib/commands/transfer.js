@@ -155,10 +155,10 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     } else {
       let i = 0
       for (; i < options.floodAttempts; i++) {
-        performRun(i + 1, false, (i > 0))
+        performRun(i + 1, true, (i > 0))
       }
 
-      await performRun(i + 1, true, (i > 0))
+      await performRun(i + 1, false, (i > 0))
     }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
