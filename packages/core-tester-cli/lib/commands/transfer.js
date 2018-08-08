@@ -63,6 +63,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
       logger.error(`Incorrect destination balance for ${wallet.address}. Should be '${transactionAmount}' but is '${balance}'`)
     }
   })
+
   return successfulTest
 }
 
@@ -121,7 +122,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
         wallets,
         transactionAmount,
         expectedSenderBalance,
-        options,
+        Object.assign({skipValidation: true}, options),
         isSubsequentRun
       )
 
