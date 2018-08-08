@@ -20,6 +20,7 @@ const registerCommand = (name, description) => {
 
 registerCommand('transfer', 'send multiple transactions')
   .option('--skip-second-run', 'skip second sending of transactions', false)
+  .option('-f, --flood-attempts', 'flood node with same transactions', 0)
   .action(async (options) => require('../lib/commands/transfer')(options))
 
 registerCommand('second-signature', 'create wallets with second signature')

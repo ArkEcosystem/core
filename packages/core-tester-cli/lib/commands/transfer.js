@@ -87,11 +87,12 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     transactionAmount = options.amount
   }
 
-  wallets.forEach((wallet, i) => {
+  for (const id in wallets) {
+    const wallet = wallets[id]
     const transaction = ark.transaction.createTransaction(
       options.recipient || wallet.address,
       transactionAmount,
-      `TID: ${i}`,
+      `TID: ${id}`,
       config.passphrase,
       wallet.secondPassphrase || config.secondPassphrase,
       config.publicKeyHash,
@@ -100,8 +101,8 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
-    logger.info(`${i} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
-  })
+    logger.info(`${id} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
+  }
 
   if (options.copy) {
     utils.copyToClipboard(transactions)
@@ -144,10 +145,19 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   }
 
   try {
-    const successfulTest = await performRun(1)
+    if (!options.floodAttempts) {
+      const successfulTest = await performRun(1)
 
-    if (successfulTest && !options.skipSecondRun && !options.skipValidation && !skipTestingAgain) {
-      await performRun(2, true, true)
+      if (successfulTest && !options.skipSecondRun && !options.skipValidation && !skipTestingAgain) {
+        await performRun(2, true, true)
+      }
+    } else {
+      let i = 0
+      for (; i < options.floodAttempts; i++) {
+        performRun(i + 1, false, (i > 0))
+      }
+
+      await performRun(i + 1, true, (i > 0))
     }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
