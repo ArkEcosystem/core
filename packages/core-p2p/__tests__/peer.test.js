@@ -1,5 +1,8 @@
 'use strict'
 
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
+const axiosMock = new MockAdapter(axios)
 const app = require('./__support__/setup')
 
 let genesisBlock
@@ -80,15 +83,30 @@ describe('Peer', () => {
   })
 
   describe('downloadBlocks', () => {
+    // https://github.com/facebook/jest/issues/3601
+    const errorCapturer = fn => fn.then(res => () => res).catch(err => () => { throw err })
+
     it('should be a function', () => {
       expect(peer.downloadBlocks).toBeFunction()
     })
 
-    it('should be ok', async () => {
-      const blocks = await peer.downloadBlocks(1)
+    describe('when the request reply with the blocks', () => {
+      it('should return the blocks', async () => {
+        const blocks = [{}]
+        axiosMock.onGet(`${peer.url}/peer/blocks`).reply(200, { blocks })
 
-      expect(blocks).toBeArray()
-      expect(blocks.length).toBeGreaterThan(10)
+        const result = await peer.downloadBlocks(1)
+
+        expect(result).toEqual(blocks)
+      })
+    })
+
+    describe('when the request reply with the blocks', () => {
+      it('should return the blocks', async () => {
+        axiosMock.onGet(`${peer.url}/peer/blocks`).reply(500, { data: {} })
+
+        expect(await errorCapturer(peer.downloadBlocks(1))).toThrowError(/request.*500/i)
+      })
     })
   })
 
