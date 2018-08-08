@@ -7,7 +7,7 @@ const utils = require('../utils')
 const logger = utils.logger
 
 const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
-const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options) => {
+const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options, isSubsequentRun) => {
   let successfulTest = true
 
   const postResponse = await utils.request.post('/peer/transactions', {transactions}, true)
@@ -22,13 +22,17 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
     return false
   }
 
-  if (!postResponse.data.transactionIds.length) {
+  if (!isSubsequentRun && !postResponse.data.transactionIds.length) {
     return false
   }
 
-  for (const transaction of transactions) {
-    if (!postResponse.data.transactionIds.includes(transaction.id)) {
-      logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
+  if (!isSubsequentRun) {
+    for (const transaction of transactions) {
+      if (!postResponse.data.transactionIds.includes(transaction.id)) {
+        logger.error(`Transaction '${transaction.id}' didn't get approved on the network`)
+
+        successfulTest = false
+      }
     }
   }
 
@@ -36,9 +40,16 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   logger.info(`Waiting ${delaySeconds} seconds for node to process and forge transfer transactions`)
   await delay(delaySeconds * 1000)
 
-  const walletBalance = await utils.getWalletBalance(primaryAddress)
-  logger.info('All transactions have been received and forged!')
+  for (const transaction of transactions) {
+    const transactionResponse = await utils.getTransaction(transaction.id)
+    if (transactionResponse && transactionResponse.id !== transaction.id) {
+      logger.error(`Transaction '${transaction.id}' didn't get applied on the network`)
 
+      successfulTest = false
+    }
+  }
+
+  const walletBalance = await utils.getWalletBalance(primaryAddress)
   if (walletBalance !== expectedSenderBalance) {
     successfulTest = false
     logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
@@ -102,32 +113,42 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
   }
 
-  try {
+  const performRun = async (run, skipWait, isSubsequentRun) => {
+    if (skipWait) {
+      sendTransactionsWithResults(
+        transactions,
+        wallets,
+        transactionAmount,
+        expectedSenderBalance,
+        options,
+        isSubsequentRun
+      )
+
+      return
+    }
+
     let successfulTest = await sendTransactionsWithResults(
       transactions,
       wallets,
       transactionAmount,
       expectedSenderBalance,
-      options
+      options,
+      isSubsequentRun
     )
 
     if (!successfulTest) {
-      logger.error('Test failed on first run')
+      logger.error(`Test failed on run ${run}`)
+    } else {
+      logger.info(`All transactions have been received and forged for run ${run}!`)
     }
+  }
 
-    // if (successfulTest && !options.skipValidation && !skipTestingAgain) {
-    //   successfulTest = await sendTransactionsWithResults(
-    //     transactions,
-    //     wallets,
-    //     transactionAmount,
-    //     expectedSenderBalance,
-    //     options
-    //   )
+  try {
+    const successfulTest = await performRun(1)
 
-    //   if (!successfulTest) {
-    //     logger.error('Test failed on second run')
-    //   }
-    // }
+    if (successfulTest && !options.skipSecondRun && !options.skipValidation && !skipTestingAgain) {
+      await performRun(2, true, true)
+    }
   } catch (error) {
     logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
   }
