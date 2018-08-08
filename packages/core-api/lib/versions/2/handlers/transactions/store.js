@@ -22,7 +22,6 @@ module.exports = {
       }
     }
 
-
     /**
      * Here we will make sure we memorize the transactions for future requests
      * and decide which transactions are valid or invalid in order to prevent
