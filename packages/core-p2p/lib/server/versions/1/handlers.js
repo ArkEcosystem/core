@@ -321,18 +321,32 @@ exports.postTransactions = {
       return { success: false }
     }
 
+    /**
+     * Here we will make sure we memorize the transactions for future requests
+     * and decide which transactions are valid or invalid in order to prevent
+     * duplication and race conditions caused by concurrent requests.
+     */
+    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
+
     const guard = new TransactionGuard(transactionPool)
-    await guard.validate(request.payload.transactions)
+    guard.invalid = invalid
+    await guard.validate(valid)
 
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
+
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
-      transactionPool.addTransactions(guard.accept)
+
+      await transactionPool.addTransactions(guard.accept)
+
+      transactionPool.memory
+        .forget(guard.getIds('accept'))
+        .forget(guard.getIds('excess'))
     }
 
     if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
-      container
+      await container
         .resolvePlugin('p2p')
         .broadcastTransactions(guard.broadcast)
     }

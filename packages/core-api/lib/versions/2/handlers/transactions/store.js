@@ -4,9 +4,7 @@ const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
-
 const schema = require('../../schema/transactions')
-const memory = require('./memory')
 
 /**
  * @type {Object}
@@ -24,7 +22,13 @@ module.exports = {
       }
     }
 
-    const { valid, invalid } = memory.memorize(request.payload.transactions)
+
+    /**
+     * Here we will make sure we memorize the transactions for future requests
+     * and decide which transactions are valid or invalid in order to prevent
+     * duplication and race conditions caused by concurrent requests.
+     */
+    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
     guard.invalid = invalid
@@ -35,7 +39,7 @@ module.exports = {
 
       await transactionPool.addTransactions(guard.accept)
 
-      memory
+      transactionPool.memory
         .forget(guard.getIds('accept'))
         .forget(guard.getIds('excess'))
     }
