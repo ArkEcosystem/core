@@ -38,7 +38,7 @@ before_script:
   - sudo redis-server /etc/redis/redis.conf --port 6379
 
 script:
-  - yarn test:coverage --ci
+  - yarn test:coverage --ci --forceExit
   - codecov
 
 jobs:
