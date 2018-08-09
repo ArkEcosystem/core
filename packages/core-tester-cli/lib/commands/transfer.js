@@ -98,7 +98,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
   let totalDeductions = 0
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
 
-  if (options.amount) {
+  if (!arkPerTransaction && options.amount) {
     transactionAmount = options.amount
   }
 
