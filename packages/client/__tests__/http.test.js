@@ -1,5 +1,5 @@
-const toHaveHeaders = require('./matchers/http/headers')
-expect.extend({ toHaveHeaders })
+const toHaveAtLeastHeaders = require('./matchers/http/headers')
+expect.extend({ toHaveAtLeastHeaders })
 
 const HttpClient = require('../lib/http')
 
@@ -10,23 +10,11 @@ beforeEach(() => {
 })
 
 describe('API - HTTP Client', () => {
-  const headers = {
-    'API-version': 2,
-    Nethash: 'test nethash',
-    Port: '1',
-    Version: 'test version (pubKeyHash)'
-  }
+  let headers
 
   beforeEach(() => {
-    const { configManager } = require('@arkecosystem/crypto')
-    configManager.get = option => {
-      if (option === 'nethash') {
-        return headers.Nethash
-      } else if (option === 'pubKeyHash') {
-        return headers.Version
-      }
-
-      throw new Error(`Wrong option "${option}" to mock`)
+    headers = {
+      'API-Version': client.version
     }
   })
 
@@ -64,6 +52,26 @@ describe('API - HTTP Client', () => {
     })
   })
 
+  describe('setTimeout', () => {
+    it('should set the timeout', () => {
+      expect(client.timeout).toBe(60000)
+      client.setTimeout(5000)
+      expect(client.timeout).toBe(5000)
+    })
+  })
+
+  describe('setHeaders', () => {
+    it('should set the headers', () => {
+      const newHeaders = {
+        'API-Version': 30,
+        other: 'value'
+      }
+      client.setHeaders(newHeaders)
+
+      expect(client.headers).toEqual(newHeaders)
+    })
+  })
+
   describe('get', () => {
     it('should send GET requests', async () => {
       const response = await client.get('get')
@@ -74,7 +82,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('get')
 
-      expect(response).toHaveHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(headers)
     })
   })
 
@@ -88,7 +96,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('get')
 
-      expect(response).toHaveHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(headers)
     })
   })
 
@@ -102,7 +110,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('get')
 
-      expect(response).toHaveHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(headers)
     })
   })
 
@@ -116,7 +124,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('get')
 
-      expect(response).toHaveHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(headers)
     })
   })
 
@@ -130,7 +138,7 @@ describe('API - HTTP Client', () => {
     it('should use the necessary request headers', async () => {
       const response = await client.get('get')
 
-      expect(response).toHaveHeaders(headers)
+      expect(response.config).toHaveAtLeastHeaders(headers)
     })
   })
 })

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "ajv": "^6.5.0",
     "bignumber.js": "^7.1.0",

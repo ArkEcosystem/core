@@ -3,6 +3,8 @@
 const Boom = require('boom')
 
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
+
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
@@ -44,25 +46,38 @@ exports.store = {
       }
     }
 
-    await transactionPool.guard.validate(request.payload.transactions)
+    /**
+     * Here we will make sure we memorize the transactions for future requests
+     * and decide which transactions are valid or invalid in order to prevent
+     * duplication and race conditions caused by concurrent requests.
+     */
+    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
-    if (transactionPool.guard.hasAny('accept')) {
-      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
+    const guard = new TransactionGuard(transactionPool)
+    guard.invalid = invalid
+    await guard.validate(valid)
 
-      transactionPool.addTransactions(transactionPool.guard.accept)
+    if (guard.hasAny('accept')) {
+      logger.info(`Received ${guard.accept.length} new transactions`)
+
+      await transactionPool.addTransactions(guard.accept)
+
+      transactionPool.memory
+        .forget(guard.getIds('accept'))
+        .forget(guard.getIds('excess'))
     }
 
-    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
-      container
+    if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
+      await container
         .resolvePlugin('p2p')
-        .broadcastTransactions(transactionPool.guard.broadcast)
+        .broadcastTransactions(guard.broadcast)
     }
 
     return {
       data: {
-        accept: transactionPool.guard.getIds('accept'),
-        excess: transactionPool.guard.getIds('excess'),
-        invalid: transactionPool.guard.getIds('invalid')
+        accept: guard.getIds('accept'),
+        excess: guard.getIds('excess'),
+        invalid: guard.getIds('invalid')
       }
     }
   },
