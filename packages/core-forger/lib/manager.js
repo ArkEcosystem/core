@@ -5,6 +5,7 @@ const delay = require('delay')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -42,7 +43,13 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    logger.debug(`Loaded ${this.delegates.map(delegate => delegate.publicKey)} delegates.`)
+    const delegates = this.delegates.map(delegate => {
+      const wallet = database.walletManager.getWalletByPublicKey(delegate.publicKey)
+
+      return `${wallet.username} (${wallet.publicKey})`
+    })
+
+    logger.debug(`Loaded ${delegates} delegates.`)
 
     return this.delegates
   }
@@ -83,7 +90,8 @@ module.exports = class ForgerManager {
         // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
-          logger.info(`Next forging delegate ${round.nextForger.publicKey} is active on this node.`)
+          const username = database.walletManager.getWalletByPublicKey(round.nextForger.publicKey).username
+          logger.info(`Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`)
           await this.client.syncCheck()
         }
 
@@ -130,7 +138,8 @@ module.exports = class ForgerManager {
       blockOptions.reward = round.reward
 
       const block = await delegate.forge(transactions, blockOptions)
-      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
+      const username = database.walletManager.getWalletByPublicKey(delegate.publicKey).username
+      logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
       emitter.emit('block.forged', block.data)
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
@@ -177,7 +186,8 @@ module.exports = class ForgerManager {
     }
 
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
-      logger.info(`Possible double forging for delegate: ${currentForger.publicKey}.`)
+      const username = database.walletManager.getWalletByPublicKey(currentForger.publicKey).username
+      logger.info(`Possible double forging for delegate: ${username} (${currentForger.publicKey}).`)
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }

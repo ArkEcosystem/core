@@ -346,12 +346,16 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
+    const generatorUsername = this.walletManager.getWalletByPublicKey(block.data.generatorPublicKey).username
+
     if (!forgingDelegate) {
-      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
+      logger.debug(`Could not decide if delegate ${generatorUsername} (${block.data.generatorPublicKey}) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey} :-1:`)
+      const forgingUsername = this.walletManager.getWalletByPublicKey(forgingDelegate.publicKey).username
+
+      throw new Error(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
     } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
+      logger.debug(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
     }
 
     return true
