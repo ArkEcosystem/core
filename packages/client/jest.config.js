@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: 'node',
   bail: false,
   verbose: true,
   testMatch: [
