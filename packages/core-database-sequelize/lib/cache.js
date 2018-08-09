@@ -9,6 +9,10 @@ module.exports = class Cache {
     this.redis = new Redis(options)
   }
 
+  getRedisOptions () {
+    return this.redis.options
+  }
+
   async get (key) {
     this.redis.get(key)
   }

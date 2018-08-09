@@ -22,22 +22,14 @@ const browserConfig = {
       browsers: 'defaults'
     }
   },
-  externals: {
-    '@arkecosystem/crypto': 'ArkCrypto'
-  },
   output: {
     ...format(pkg.browser),
-    library: 'ArkClient',
+    library: 'ArkEcosystemClient',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     globalObject: 'this'
   }
 }
-
-// bundle with crypto package
-const bundleConfig = {...browserConfig}
-bundleConfig.externals = {}
-bundleConfig.output = {...browserConfig.output, filename: browserConfig.output.filename.replace('index', 'bundle')}
 
 const moduleConfig = {
   target: 'node',
@@ -61,4 +53,4 @@ const moduleConfig = {
   }
 }
 
-module.exports = [bundleConfig, browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry));
+module.exports = [browserConfig, moduleConfig].map(({ babel, ...entry }) => merge(base(babel), entry));
