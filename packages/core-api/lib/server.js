@@ -14,7 +14,7 @@ module.exports = async (config) => {
     port: config.port,
     routes: {
       cors: {
-        additionalHeaders: ['nethash', 'port', 'version', 'api-version']
+        additionalHeaders: ['api-version']
       },
       validate: {
         async failAction (request, h, err) {
