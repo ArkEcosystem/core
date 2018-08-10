@@ -40,8 +40,10 @@ blockchainMachine.state = state
 blockchainMachine.actionMap = blockchain => {
   return {
     blockchainReady: () => {
-      state.started = true
-      emitter.emit('state:started', true)
+      if (!state.started) {
+        state.started = true
+        emitter.emit('state:started', true)
+      }
     },
 
     async checkLater () {
