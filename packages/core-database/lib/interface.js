@@ -18,6 +18,9 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
     this.blocksInCurrentRound = null
+    this.stateStarted = false
+
+    this.__registerListeners()
   }
 
   /**
@@ -302,7 +305,9 @@ module.exports = class ConnectionInterface {
           this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
-          this.walletManager.updateDelegates()
+          if (this.stateStarted) {
+            this.walletManager.updateDelegates()
+          }
         } catch (error) {
           // trying to leave database state has it was
           this.deleteRound(round)
@@ -476,6 +481,16 @@ module.exports = class ConnectionInterface {
     height = (round * maxDelegates) + 1
 
     return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('state:started', () => {
+      this.stateStarted = true
+    })
   }
 
   /**
