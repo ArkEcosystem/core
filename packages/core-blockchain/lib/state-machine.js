@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
+const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -38,7 +39,12 @@ blockchainMachine.state = state
  */
 blockchainMachine.actionMap = blockchain => {
   return {
-    blockchainReady: () => (state.started = true),
+    blockchainReady: () => {
+      if (!state.started) {
+        state.started = true
+        emitter.emit('state:started', true)
+      }
+    },
 
     async checkLater () {
       await delay(60000)
