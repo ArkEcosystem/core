@@ -31,7 +31,7 @@ const browserConfig = {
   },
   output: {
     ...format(pkg.browser),
-    library: 'ArkCrypto',
+    library: 'ArkEcosystemCrypto',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     globalObject: 'this'
