@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "prepublish": "yarn run lint && yarn run build",
-    "build": "rm -rf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
+    "build": "rimraf dist && cross-env NODE_ENV=production webpack --config build/webpack.config.js",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --forceExit",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --forceExit",
