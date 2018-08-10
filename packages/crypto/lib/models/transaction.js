@@ -5,6 +5,10 @@ const crypto = require('../crypto/crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
 
+const legacyIdFixLookup = {
+  'ca764c01dd78f93393b02f7f6c4f0c12ed8e7ca26d3098e91d6e461a238a6b33': '80d75c7b90288246199e4a97ba726bad6639595ef92ad7c2bd14fd31563241ab'
+}
+
 /**
  * TODO copy some parts to ArkDocs
  * @classdesc This model holds the transaction data and its serialization
@@ -115,6 +119,26 @@ module.exports = class Transaction {
     }
 
     return this.data
+  }
+
+  /**
+   * Checks if transaction id is fixed from v1.
+   * @return {(String|Boolean)}
+   */
+  isLegacyIdFix () {
+    return Transaction.idIsLegacyIdFix(this.id)
+  }
+
+  /**
+   * Static method to check if transaction id is fixed from v1.
+   * @return {(String|Boolean)}
+   */
+  static idIsLegacyIdFix (id) {
+    if (legacyIdFixLookup[id]) {
+      return legacyIdFixLookup[id]
+    }
+
+    return false
   }
 
   // AIP11 serialization

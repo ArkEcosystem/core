@@ -286,6 +286,10 @@ module.exports = class Block {
         // Checking if transactions of the block adds up to block values.
         let appliedTransactions = {}
         this.transactionIds.forEach(id => {
+          const legacyIdFix = Transaction.idIsLegacyIdFix(id)
+          if (legacyIdFix) {
+            id = legacyIdFix
+          }
           const bytes = Buffer.from(id, 'hex')
 
           if (appliedTransactions[id]) {
@@ -315,13 +319,18 @@ module.exports = class Block {
         let totalAmount = 0
         let totalFee = 0
         this.transactions.forEach(transaction => {
-          const bytes = Buffer.from(transaction.data.id, 'hex')
+          let id = transaction.data.id
+          const legacyIdFix = transaction.isLegacyIdFix()
+          if (legacyIdFix) {
+            id = legacyIdFix
+          }
+          const bytes = Buffer.from(id, 'hex')
 
-          if (appliedTransactions[transaction.data.id]) {
-            result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+          if (appliedTransactions[id]) {
+            result.errors.push('Encountered duplicate transaction: ' + id)
           }
 
-          appliedTransactions[transaction.data.id] = transaction.data
+          appliedTransactions[id] = transaction.data
 
           totalAmount += transaction.data.amount
           totalFee += transaction.data.fee
