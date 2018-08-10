@@ -242,7 +242,6 @@ module.exports = class Monitor {
 
       // FIXME: this method doesn't exist
       // this.manager.checkOnline()
-
       return this.getRandomPeer()
     }
 
