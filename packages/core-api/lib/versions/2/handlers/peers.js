@@ -16,7 +16,7 @@ exports.index = {
   async handler (request, h) {
     const allPeers = await blockchain.p2p.getPeers()
 
-    let result = allPeers.sort(() => 0.5 - Math.random())
+    let result = allPeers.sort((a, b) => a.delay - b.delay)
     result = request.query.os ? result.filter(peer => peer.os === request.query.os) : result
     result = request.query.status ? result.filter(peer => peer.status === request.query.status) : result
     result = request.query.port ? result.filter(peer => peer.port === request.query.port) : result
