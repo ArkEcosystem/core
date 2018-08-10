@@ -25,7 +25,6 @@ describe('Delegate Calculator', () => {
     it.skip('should calculate correctly', () => {
       delegate.votebalance = 100000 * Math.pow(10, 8)
       container.resolvePlugin = jest.fn(plugin => {
-        console.log('plugin wuuut', plugin)
         if (plugin === 'blockchain') {
           return {
             getLastBlock: () => {
