@@ -26,7 +26,7 @@ module.exports = class ApiClient {
 
     // Connect to each peer to get an updated list of peers until a success response
     for (const peer of networkPeers) {
-      const client = new ApiClient(peer.ip, version)
+      const client = new ApiClient(`http://${peer.ip}:${peer.port}`, version)
       const response = await client.resource('peers').all()
       const { data } = response.data
 
@@ -54,7 +54,7 @@ module.exports = class ApiClient {
    */
   static async connect (network, version) {
     const peers = await ApiClient.findPeers(network, version)
-    return new ApiClient(peers[0].ip, version)
+    return new ApiClient(`http://${peers[0].ip}:${peers[0].port}`, version)
   }
 
   /**
