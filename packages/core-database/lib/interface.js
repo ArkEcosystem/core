@@ -333,7 +333,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = this.__getBlocksForRound(round)
+      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -396,11 +396,18 @@ module.exports = class ConnectionInterface {
    * @return {void}
    */
   async revertBlock (block) {
+    if (!this.blocksInCurrentRound.length) {
+      this.blocksInCurrentRound = await this.__getBlocksForRound()
+    }
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
-    if (this.blocksInCurrentRound) {
+    if (this.blocksInCurrentRound.length) {
       const b = this.blocksInCurrentRound.pop()
-      if (b.data.id !== block.data.id) throw new Error('Reverted wrong block. Restart is needed 💣')
+      if (b.data.id !== block.data.id) {
+        throw new Error('Reverted wrong block. Restart is needed 💣')
+      }
+    } else {
+      throw new Error('No blocks found for current round. Restart is needed 💣')
     }
     emitter.emit('block.reverted', block.data)
   }
