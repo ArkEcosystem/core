@@ -1,4 +1,3 @@
-const { configManager } = require('@arkecosystem/crypto')
 const axios = require('axios')
 
 module.exports = class HttpClient {
@@ -15,6 +14,8 @@ module.exports = class HttpClient {
     }
 
     this.version = apiVersion
+    this.timeout = 60000
+    this.headers = {}
   }
 
   /**
@@ -23,6 +24,22 @@ module.exports = class HttpClient {
    */
   setVersion (version) {
     this.version = version
+  }
+
+  /**
+   * Establish the headers of the requests.
+   * @param {Object} headers
+   */
+  setHeaders (headers = {}) {
+    this.headers = headers
+  }
+
+  /**
+   * Establish the timeout of the requests.
+   * @param {Number} timeout
+   */
+  setTimeout (timeout) {
+    this.timeout = timeout
   }
 
   /**
@@ -84,14 +101,14 @@ module.exports = class HttpClient {
    * @throws Will throw an error if the HTTP request fails.
    */
   sendRequest (method, path, payload) {
+    if (!this.headers['API-Version']) {
+      this.headers['API-Version'] = this.version
+    }
+
     const client = axios.create({
       baseURL: this.host,
-      headers: {
-        nethash: configManager.get('nethash'),
-        version: configManager.get('pubKeyHash'),
-        port: '1',
-        'API-Version': this.version
-      }
+      headers: this.headers,
+      timeout: this.timeout
     })
 
     try {
