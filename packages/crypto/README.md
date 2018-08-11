@@ -19,13 +19,13 @@ If you want to use the CDN version:
 Import the library in node.js:
 
 ```
-import ArkCrypto from @arkecosystem/crypto
+import ArkEcosytemCrypto from @arkecosystem/crypto
 ```
 
 Use the library:
 
 ```
-const constants = ArkCrypto.constants
+const constants = ArkEcosytemCrypto.constants
 ```
 
 ## Security
