@@ -21,17 +21,18 @@ aliases:
           key: v2-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: yarn test
+      - run: yarn run lint
 
   - &test
 
 workflows:
   version: 2
   all:
-    - node10
-    - node9:
-      requires:
-        - node10
+    - lint-node9
+    # - node10
+    # - node9:
+    #   requires:
+    #     - node10
 
 jobs:
 
@@ -40,33 +41,33 @@ jobs:
     docker:
       - image: circleci/node:9
 
-  test-node10:
-    docker:
-      - image: circleci/node:10
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
-    working_directory: ~/repo
-
-    steps:
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v2-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
-
-      - run: yarn install
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v2-dependencies-{{ checksum "package.json" }}
-        
-      # run tests!
-      - run: yarn test
+  # test-node10:
+  #   docker:
+  #     - image: circleci/node:10
+  #     
+  #     # Specify service dependencies here if necessary
+  #     # CircleCI maintains a library of pre-built images
+  #     # documented at https://circleci.com/docs/2.0/circleci-images/
+  #     # - image: circleci/mongo:3.4.4
+  #
+  #   working_directory: ~/repo
+  #
+  #   steps:
+  #     - checkout
+  #
+  #     # Download and cache dependencies
+  #     - restore_cache:
+  #         keys:
+  #         - v2-dependencies-{{ checksum "package.json" }}
+  #         # fallback to using the latest cache if no exact match is found
+  #         - v2-dependencies-
+  #
+  #     - run: yarn install
+  #
+  #     - save_cache:
+  #         paths:
+  #           - node_modules
+  #         key: v2-dependencies-{{ checksum "package.json" }}
+  #       
+  #     # run tests!
+  #     - run: yarn test
