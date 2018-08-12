@@ -67,7 +67,7 @@ module.exports = class WalletManager {
    * Update the vote balances and ranks of delegates.
    * @return {void}
    */
-  updateDelegates () {
+  async updateDelegates () {
     let delegates = this.getDelegates().map(delegate => {
       const voters = this
         .getLocalWallets()

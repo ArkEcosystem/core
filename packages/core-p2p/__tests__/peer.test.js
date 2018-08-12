@@ -124,7 +124,7 @@ describe('Peer', () => {
     })
 
     it('should not be ok', async () => {
-      expect(peer.ping(1)).rejects.toThrowError('is unreachable')
+      expect(await peer.ping(1)).toThrowError('is unreachable')
     })
   })
 

@@ -22,14 +22,12 @@ exports.index = {
       return utils.respondWith('No peers found', true)
     }
 
-    let peers = allPeers.sort(() => 0.5 - Math.random())
+    let peers = allPeers.sort((a, b) => a.delay - b.delay)
     peers = request.query.os ? allPeers.filter(peer => peer.os === request.query.os) : peers
     peers = request.query.status ? allPeers.filter(peer => peer.status === request.query.status) : peers
     peers = request.query.port ? allPeers.filter(peer => peer.port === request.query.port) : peers
     peers = request.query.version ? allPeers.filter(peer => peer.version === request.query.version) : peers
     peers = peers.slice(0, (request.query.limit || 100))
-
-    peers = peers.sort((a, b) => a.delay - b.delay)
 
     if (request.query.orderBy) {
       const order = request.query.orderBy.split(':')
