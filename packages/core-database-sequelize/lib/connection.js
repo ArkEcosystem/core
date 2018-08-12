@@ -712,6 +712,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {void}
    */
   __registerListeners () {
+    super.__registerListeners()
     emitter.on('wallet:cold:created', async coldWallet => {
       try {
         const wallet = await this.query
