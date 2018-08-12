@@ -77,6 +77,7 @@ module.exports = class ForgerManager {
     try {
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
+
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
         // technically it is possible to compute doing shennanigan with arkjs.slots lib
@@ -86,7 +87,7 @@ module.exports = class ForgerManager {
 
       const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
       if (!delegate) {
-        logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
+        // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
           const username = database.walletManager.getWalletByPublicKey(round.nextForger.publicKey).username
@@ -135,8 +136,6 @@ module.exports = class ForgerManager {
       blockOptions.previousBlock = round.lastBlock
       blockOptions.timestamp = round.timestamp
       blockOptions.reward = round.reward
-
-    logger.debug(blockOptions)
 
       const block = await delegate.forge(transactions, blockOptions)
       const username = database.walletManager.getWalletByPublicKey(delegate.publicKey).username

@@ -31,7 +31,7 @@ commander
   .option('--feeSecondSignature <value>', 'Fee for Second Passphrase Transaction', 500000000)
   .option('--feeDelegateRegistration <value>', 'Fee for Register Delegate Transaction', 2500000000)
   .option('--feeMultiSignature <value>', 'Fee for Multisignature Transaction', 500000000)
-  .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2018-02-21T13:00:00.000Z')
+  .option('--epoch <value>', 'Set Epoch based on time the chain was created', '2017-02-21T13:00:00.000Z')
   .option('--rewardHeight <value>', 'Block Height when Forgers receive Rewards [1]', 1)
   .option('--rewardPerBlock <value>', 'How many Rewarded Tokens per Forged Block [200000000 (2)]', 200000000)
   .option('--blocktime <value>', 'Time per block (seconds) [8]', 8)

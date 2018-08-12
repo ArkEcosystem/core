@@ -22,7 +22,6 @@
     "debug:snapshot": "node --inspect-brk ./bin/ark snapshot",
     "start": "./bin/ark start",
     "start:mainnet": "./bin/ark start --config ./lib/config/mainnet --network mainnet",
-    "start:devnet": "./bin/ark start --config ./lib/config/devnet --network devnet --network-start",
     "start:devnet": "./bin/ark start --config ./lib/config/devnet --network devnet",
     "start:testnet": "cross-env ARK_ENV=test ./bin/ark start --config ./lib/config/testnet --network testnet",
     "start:testnet:live": "./bin/ark start --config ./lib/config/testnet.live --network testnet",
