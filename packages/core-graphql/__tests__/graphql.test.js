@@ -4,11 +4,7 @@ let graphql
 
 beforeAll(async () => {
   const container = await app.setUp()
-  graphql = await require('../lib').plugin.register(container, {
-    enabled: true,
-    host: 'localhost',
-    port: 4005
-  })
+  graphql = await container.resolvePlugin('graphql')
 })
 
 afterAll(() => {

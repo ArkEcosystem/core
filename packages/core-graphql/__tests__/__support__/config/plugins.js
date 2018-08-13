@@ -18,5 +18,12 @@ module.exports = {
         }
       }
     }
+  },
+'@arkecosystem/core-graphql': {
+    enabled: true,
+    host: 'localhost',
+    port: 4005,
+    path: '/graphql',
+    graphiql: true
   }
 }
