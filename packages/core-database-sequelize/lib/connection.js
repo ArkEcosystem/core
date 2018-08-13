@@ -320,6 +320,15 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         )
       }
     } else {
+      // NOTE: UPSERT is far from optimal. It can takes several seconds here 
+      // if many accounts have to be updated at each round turn
+      //
+      // What can be done is to update accounts at each block in unsync manner
+      // what is really important is that db is sync with wallets in memory
+      // at round turn because votes computation to calculate active delegate list is made against database
+      //
+      // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
+      // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
       await this.connection.transaction(async dbtransaction =>
         Promise.all(wallets.map(wallet => this.models.wallet.upsert(wallet, {transaction: dbtransaction})))
       )
@@ -351,6 +360,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       if (error.sql) {
+        logger.info('Function saveBlock')
         logger.info(error.sql)
       }
       await transaction.rollback()
@@ -392,6 +402,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = null
     } catch (error) {
       logger.error(error)
+      if (error.sql) {
+        logger.info('Function saveBlockCommit')
+        logger.info(error.sql)
+      }
       await this.asyncTransaction.rollback()
       this.asyncTransaction = null
       throw error
@@ -413,6 +427,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
+      if (error.sql) {
+        logger.info('Function deleteBlock')
+        logger.info(error.sql)
+      }
       await transaction.rollback()
       throw error
     }
@@ -448,6 +466,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = null
     } catch (error) {
       logger.error(error)
+      if (error.sql) {
+        logger.info('Function deleteBlockCommit')
+        logger.info(error.sql)
+      }
       await this.asyncTransaction.rollback()
       this.asyncTransaction = null
       throw error
