@@ -52,8 +52,14 @@ module.exports = class PeerManager {
    * @param  {Number}   fromBlockHeight
    * @return {Object[]}
    */
-  downloadBlocks (fromBlockHeight) {
-    return this.monitor.downloadBlocks(fromBlockHeight)
+  async downloadBlocks (fromBlockHeight) {
+    try {
+      return await this.monitor.downloadBlocks(fromBlockHeight)
+    } catch (error) {
+      logger.error(`Could not download blocks: ${error.message}`)
+    }
+
+    return []
   }
 
   /**
