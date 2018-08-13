@@ -15,7 +15,7 @@ afterAll(async () => {
   app.tearDown()
 })
 
-describe('GraphQL', async () => {
+describe('GraphQL', () => {
   it('should be an object', () => {
     expect(graphql).toBeObject()
   })
