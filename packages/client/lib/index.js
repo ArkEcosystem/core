@@ -26,19 +26,27 @@ module.exports = class ApiClient {
 
     // Connect to each peer to get an updated list of peers until a success response
     for (const peer of networkPeers) {
-      const client = new ApiClient(`http://${peer.ip}:${peer.port}`, version)
-      const response = await client.resource('peers').all()
-      const { data } = response.data
+      const peerUrl = `http://${peer.ip}:${peer.port}`
 
-      if (data.success && data.peers) {
-        // Ignore local and unavailable peers
-        peers = data.peers.filter(peer => {
-          return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
-        })
+      // This method should not crash when a peer fails
+      try {
+        const client = new ApiClient(peerUrl, version)
+        const response = await client.resource('peers').all()
+        const { data } = response.data
 
-        if (peers.length) {
-          break
+        if (data.success && data.peers) {
+          // Ignore local and unavailable peers
+          peers = data.peers.filter(peer => {
+            return selfIps.indexOf(peer.ip) === -1 && peer.status === 'OK'
+          })
+
+          if (peers.length) {
+            break
+          }
         }
+      } catch (error) {
+        // TODO only if a new feature to enable logging is added
+        // console.log(`Cannot find find peers of \`${peerUrl}\``)
       }
     }
 
