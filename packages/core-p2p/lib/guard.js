@@ -64,7 +64,7 @@ class Guard {
   }
 
   /**
-   * Suspends a peer unless whitelisted.
+   * Remove a suspended peer.
    * @param {Peer} peer
    * @return {void}
    */
