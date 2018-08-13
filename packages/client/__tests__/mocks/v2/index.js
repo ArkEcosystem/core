@@ -11,14 +11,19 @@ const Votes = require('./votes')
 const Wallets = require('./wallets')
 const Webhooks = require('./webhooks')
 
-const mock = new MockAdapter(axios)
+module.exports = config => {
+  const mock = new MockAdapter(axios)
+  const { host } = config
 
-Blocks(mock)
-Delegates(mock)
-Node(mock)
-Peers(mock)
-Statistics(mock)
-Transactions(mock)
-Votes(mock)
-Wallets(mock)
-Webhooks(mock)
+  Blocks(mock, host)
+  Delegates(mock, host)
+  Node(mock, host)
+  Peers(mock, host)
+  Statistics(mock, host)
+  Transactions(mock, host)
+  Votes(mock, host)
+  Wallets(mock, host)
+  Webhooks(mock, host)
+
+  return mock
+}
