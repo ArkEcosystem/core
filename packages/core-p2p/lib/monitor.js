@@ -221,7 +221,8 @@ module.exports = class Monitor {
    * @param  {(Number|undefined)} acceptableDelay
    * @return {Peer}
    */
-  getRandomPeer (acceptableDelay, downloadSize) {
+  getRandomPeer (acceptableDelay, downloadSize, failedAttempts) {
+    failedAttempts = failedAttempts === undefined ? 0 : failedAttempts
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => {
         const peer = this.getPeer(key)
@@ -244,12 +245,19 @@ module.exports = class Monitor {
     const randomPeer = this.getPeer(random)
 
     if (!randomPeer) {
+      failedAttempts++
       // logger.error(this.peers)
 
       // FIXME: this method doesn't exist
       // this.manager.checkOnline()
 
-      return this.getRandomPeer()
+      if (failedAttempts > 10) {
+        throw new Error('Failed to find random peer')
+      } else if (failedAttempts > 5) {
+        return this.getRandomPeer(null, downloadSize, failedAttempts)
+      }
+
+      return this.getRandomPeer(acceptableDelay, downloadSize, failedAttempts)
     }
 
     return randomPeer
