@@ -11,7 +11,7 @@ beforeAll(async () => {
   })
 })
 
-afterAll(async () => {
+afterAll(() => {
   app.tearDown()
 })
 

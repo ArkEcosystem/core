@@ -15,4 +15,4 @@ exports.setUp = async () => {
   return container
 }
 
-exports.tearDown = async () => container.tearDown()
+exports.tearDown = () => container.tearDown()
