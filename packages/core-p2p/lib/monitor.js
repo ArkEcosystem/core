@@ -182,6 +182,14 @@ module.exports = class Monitor {
   }
 
   /**
+   * Reset banned peer list.
+   * @return {void}
+   */
+  async resetSuspendedPeers () {
+    return this.guard.resetSuspendedPeers()
+  }
+
+  /**
    * Get all available peers.
    * @return {Peer[]}
    */

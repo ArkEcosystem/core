@@ -333,6 +333,8 @@ blockchainMachine.actionMap = blockchain => {
 
       logger.info(`Removed ${random} blocks :wastebasket:`)
 
+      await blockchain.p2p.resetSuspendedPeers()
+
       blockchain.dispatch('SUCCESS')
     }
   }
