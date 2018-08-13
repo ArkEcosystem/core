@@ -39,7 +39,7 @@ before_script:
 
 script:
   # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
-  - yarn test:coverage --ci --forceExit --maxWorkers 4
+  - yarn test:force-exit --ci --coverage
   - codecov
 
 jobs:
