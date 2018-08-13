@@ -24,7 +24,7 @@ exports.getPeers = {
     try {
       const peers = request.server.app.p2p.getPeers()
         .map(peer => peer.toBroadcastInfo())
-        .sort(() => Math.random() - 0.5)
+        .sort((a, b) => a.delay - b.delay)
 
       return {
         success: true,

@@ -18,6 +18,9 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
     this.blocksInCurrentRound = null
+    this.stateStarted = false
+
+    this.__registerListeners()
   }
 
   /**
@@ -145,12 +148,12 @@ module.exports = class ConnectionInterface {
 
   /**
    * Commit the block delete database transaction.
-   * NOTE: to be used in combination with saveBlockAsync
+   * NOTE: to be used in combination with deleteBlockAsync
    * @return {void}
    * @throws Error
    */
   async deleteBlockCommit () {
-    throw new Error('Method [saveBlockCommit] not implemented!')
+    throw new Error('Method [deleteBlockCommit] not implemented!')
   }
 
   /**
@@ -302,7 +305,9 @@ module.exports = class ConnectionInterface {
           this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
-          // this.walletManager.updateDelegates()
+          if (this.stateStarted) {
+            this.walletManager.updateDelegates()
+          }
         } catch (error) {
           // trying to leave database state has it was
           this.deleteRound(round)
@@ -328,7 +333,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = this.__getBlocksForRound(round)
+      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -346,12 +351,16 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
+    const generatorUsername = this.walletManager.getWalletByPublicKey(block.data.generatorPublicKey).username
+
     if (!forgingDelegate) {
-      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
+      logger.debug(`Could not decide if delegate ${generatorUsername} (${block.data.generatorPublicKey}) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey} :-1:`)
+      const forgingUsername = this.walletManager.getWalletByPublicKey(forgingDelegate.publicKey).username
+
+      throw new Error(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
     } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
+      logger.debug(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
     }
 
     return true
@@ -390,8 +399,13 @@ module.exports = class ConnectionInterface {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
     if (this.blocksInCurrentRound) {
-      const b = this.blocksInCurrentRound.pop()
-      if (b.data.id !== block.data.id) throw new Error('Reverted wrong block. Restart is needed 💣')
+      this.blocksInCurrentRound.pop()
+      // COMMENTED OUT: needs to be sure is properly synced
+      // if (b.data.id !== block.data.id) {
+      //   logger.debug(`block to revert: ${JSON.stringify(b.data)}`)
+      //   logger.debug(`reverted block: ${JSON.stringify(block.data)}`)
+      //   throw new Error('Reverted wrong block. Restart is needed 💣')
+      // }
     }
     emitter.emit('block.reverted', block.data)
   }
@@ -472,6 +486,16 @@ module.exports = class ConnectionInterface {
     height = (round * maxDelegates) + 1
 
     return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('state:started', () => {
+      this.stateStarted = true
+    })
   }
 
   /**

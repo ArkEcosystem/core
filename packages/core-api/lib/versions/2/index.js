@@ -15,7 +15,7 @@ const wallets = require('./handlers/wallets')
  * @return {void}
  */
 const register = async (server, options) => {
-  let routes = [
+  server.route([
     { method: 'GET', path: '/blocks', ...blocks.index },
     { method: 'GET', path: '/blocks/{id}', ...blocks.show },
     { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
@@ -56,9 +56,7 @@ const register = async (server, options) => {
     { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
     { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
     { method: 'POST', path: '/wallets/search', ...wallets.search }
-  ]
-
-  server.route(routes)
+  ])
 }
 
 /**
