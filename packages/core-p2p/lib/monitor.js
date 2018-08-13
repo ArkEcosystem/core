@@ -162,11 +162,11 @@ module.exports = class Monitor {
   }
 
   /**
-   * ban an existing peer.
+   * Suspend an existing peer.
    * @param  {Peer} peer
-   * @return {Promise}
+   * @return {void}
    */
-  banPeer (ip) {
+  suspendPeer (ip) {
     // TODO make a couple of tests on peer to understand the issue with this peer and decide how long to ban it
     const peer = this.peers[ip]
 
