@@ -97,6 +97,14 @@ module.exports = class PeerManager {
   }
 
   /**
+   * Check if we have any peers.
+   * @return {bool}
+   */
+  hasPeers () {
+    return !!this.monitor.getPeers().length
+  }
+
+  /**
    * Get peers.
    * @return {Peer[]}
    */
