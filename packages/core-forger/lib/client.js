@@ -86,6 +86,18 @@ module.exports = class Client {
   }
 
   /**
+   * Get a list of all active delegate usernames.
+   * @return {Object}
+   */
+  async getUsernames () {
+    await this.__chooseHost()
+
+    const response = await this.__get(`${this.host}/internal/usernames`)
+
+    return response.data.data || {}
+  }
+
+  /**
    * Chose a responsive host.
    * @return {void}
    */

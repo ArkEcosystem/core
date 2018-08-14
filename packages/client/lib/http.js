@@ -106,15 +106,11 @@ module.exports = class HttpClient {
     }
 
     const client = axios.create({
-      baseURL: this.host,
+      baseURL: `${this.host}/api/`,
       headers: this.headers,
       timeout: this.timeout
     })
 
-    try {
-      return client[method](path, payload)
-    } catch (error) {
-      throw error
-    }
+    return client[method](path, payload)
   }
 }

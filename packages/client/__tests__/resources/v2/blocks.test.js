@@ -1,11 +1,14 @@
 const Client = require('../../../lib')
 const ApiResource = require('../../../lib/resources/v2/blocks')
-require('../../mocks/v2')
+
+const configureMocks = require('../../mocks/v2')
+const host = 'https://example.net:4003'
+configureMocks({ host })
 
 let resource
 
 beforeEach(() => {
-  resource = (new Client('https://localhost:4003')).setVersion(2).resource('blocks')
+  resource = (new Client(host)).setVersion(2).resource('blocks')
 })
 
 describe('API - 2.0 - Resources - Blocks', () => {

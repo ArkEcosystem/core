@@ -16,7 +16,7 @@ module.exports = class Blocks extends Base {
    * @return {Promise}
    */
   get (id) {
-    return this.http.get('blocks/get', {id})
+    return this.http.get('blocks/get', { id })
   }
 
   /**

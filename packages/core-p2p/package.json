@@ -34,10 +34,12 @@
     "pretty-ms": "^3.2.0",
     "request-ip": "^2.0.2",
     "semver": "^5.5.0",
-    "sntp": "^3.0.1",
-    "threads": "^0.11.0"
+    "sntp": "^3.0.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.15.0"
   }
 }

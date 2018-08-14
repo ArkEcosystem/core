@@ -5,7 +5,6 @@ const delay = require('delay')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
@@ -43,13 +42,14 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    const delegates = this.delegates.map(delegate => {
-      const wallet = database.walletManager.getWalletByPublicKey(delegate.publicKey)
+    this.usernames = await this.client.getUsernames()
 
-      return `${wallet.username} (${wallet.publicKey})`
+    const delegates = this.delegates.map(delegate => {
+      return `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`
     })
 
     logger.debug(`Loaded ${delegates} delegates.`)
+    logger.debug(JSON.stringify(delegates, null, 4))
 
     return this.delegates
   }
@@ -75,6 +75,8 @@ module.exports = class ForgerManager {
    */
   async __monitor (round) {
     try {
+      this.__loadUsernames()
+
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
 
@@ -90,7 +92,7 @@ module.exports = class ForgerManager {
         // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
-          const username = database.walletManager.getWalletByPublicKey(round.nextForger.publicKey).username
+          const username = this.usernames[round.nextForger.publicKey]
           logger.info(`Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`)
           await this.client.syncCheck()
         }
@@ -138,7 +140,8 @@ module.exports = class ForgerManager {
       blockOptions.reward = round.reward
 
       const block = await delegate.forge(transactions, blockOptions)
-      const username = database.walletManager.getWalletByPublicKey(delegate.publicKey).username
+
+      const username = this.usernames[delegate.publicKey]
       logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
       emitter.emit('block.forged', block.data)
@@ -186,7 +189,7 @@ module.exports = class ForgerManager {
     }
 
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
-      const username = database.walletManager.getWalletByPublicKey(currentForger.publicKey).username
+      const username = this.usernames[currentForger.publicKey]
       logger.info(`Possible double forging for delegate: ${username} (${currentForger.publicKey}).`)
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
@@ -200,4 +203,12 @@ module.exports = class ForgerManager {
 
     return true
   }
- }
+
+  /**
+   * Get a list of all active delegate usernames.
+   * @return {Object}
+   */
+  async __loadUsernames () {
+    this.usernames = await this.client.getUsernames()
+  }
+}
