@@ -42,7 +42,9 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    logger.debug(`Loaded ${this.delegates.map(delegate => delegate.publicKey)} delegates.`)
+    const delegates = this.delegates.map(delegate => delegate.publicKey).join(',')
+
+    logger.debug(`Loaded ${delegates} delegates.`)
 
     return this.delegates
   }

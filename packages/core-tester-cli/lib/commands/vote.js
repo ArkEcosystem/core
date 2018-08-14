@@ -2,7 +2,7 @@
 
 const ark = require('arkjs')
 const delay = require('delay')
-const sample = require('lodash.sample')
+const sample = require('lodash/sample')
 const utils = require('../utils')
 const config = require('../config')
 const logger = utils.logger
