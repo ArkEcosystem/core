@@ -325,7 +325,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         )
       }
     } else {
-      // NOTE: UPSERT is far from optimal. It can takes several seconds here 
+      // NOTE: UPSERT is far from optimal. It can takes several seconds here
       // if many accounts have to be updated at each round turn
       //
       // What can be done is to update accounts at each block in unsync manner
