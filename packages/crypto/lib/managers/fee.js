@@ -31,6 +31,19 @@ class FeeManager {
   }
 
   /**
+   * Get fee value based on type.
+   * @param  {Transaction} transaction
+   * @return {Number}
+   */
+  getForTransaction (transaction) {
+    if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      return this.fees[transaction.type] * (transaction.asset.multisignature.keysgroup.length + 1)
+    }
+
+    return this.fees[transaction.type]
+  }
+
+  /**
    * Ensure fee type is valid.
    * @param  {Number} type
    * @return {Boolean}

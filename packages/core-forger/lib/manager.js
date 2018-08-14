@@ -42,9 +42,14 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    const delegates = this.delegates.map(delegate => delegate.publicKey).join(',')
+    this.usernames = await this.client.getUsernames()
+
+    const delegates = this.delegates.map(delegate => {
+      return `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`
+    })
 
     logger.debug(`Loaded ${delegates} delegates.`)
+    logger.debug(JSON.stringify(delegates, null, 4))
 
     return this.delegates
   }
@@ -70,6 +75,8 @@ module.exports = class ForgerManager {
    */
   async __monitor (round) {
     try {
+      this.__loadUsernames()
+
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
 
@@ -85,7 +92,8 @@ module.exports = class ForgerManager {
         // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
         if (this.__isDelegateActivated(round.nextForger.publicKey)) {
-          logger.info(`Next forging delegate ${round.nextForger.publicKey} is active on this node.`)
+          const username = this.usernames[round.nextForger.publicKey]
+          logger.info(`Next forging delegate ${username} (${round.nextForger.publicKey}) is active on this node.`)
           await this.client.syncCheck()
         }
 
@@ -132,7 +140,9 @@ module.exports = class ForgerManager {
       blockOptions.reward = round.reward
 
       const block = await delegate.forge(transactions, blockOptions)
-      logger.info(`Forged new block ${block.data.id} by delegate ${delegate.publicKey} :trident:`)
+
+      const username = this.usernames[delegate.publicKey]
+      logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
       emitter.emit('block.forged', block.data)
       transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
@@ -179,7 +189,8 @@ module.exports = class ForgerManager {
     }
 
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
-      logger.info(`Possible double forging for delegate: ${currentForger.publicKey}.`)
+      const username = this.usernames[currentForger.publicKey]
+      logger.info(`Possible double forging for delegate: ${username} (${currentForger.publicKey}).`)
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
       return false
     }
@@ -192,4 +203,12 @@ module.exports = class ForgerManager {
 
     return true
   }
- }
+
+  /**
+   * Get a list of all active delegate usernames.
+   * @return {Object}
+   */
+  async __loadUsernames () {
+    this.usernames = await this.client.getUsernames()
+  }
+}

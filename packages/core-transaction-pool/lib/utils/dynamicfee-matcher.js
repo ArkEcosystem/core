@@ -8,10 +8,11 @@ const config = container.resolvePlugin('config')
  * @return {Boolean} matches T/F
  */
 module.exports = (transaction) => {
+  const staticFee = feeManager.getForTransaction(transaction)
   const blockchain = container.resolvePlugin('blockchain')
   const feeConstants = config.getConstants(blockchain.getLastBlock().data.height).fees
-  if (!feeConstants.dynamic && transaction.fee !== feeManager.get(transaction.type)) {
-    // logger.debug(`Received transaction fee '${transaction.fee}' for '${transaction.id}' does not match static fee of '${feeManager.get(transaction.type)}'`)
+  if (!feeConstants.dynamic && transaction.fee !== staticFee) {
+    // logger.debug(`Received transaction fee '${transaction.fee}' for '${transaction.id}' does not match static fee of '${staticFee}'`)
     return false
   }
 
@@ -28,7 +29,7 @@ module.exports = (transaction) => {
       return false
     }
 
-    if (transaction.fee > feeManager.get(transaction.type)) {
+    if (transaction.fee > staticFee) {
       // logger.debug(`Fee not accepted - transaction fee of '${transaction.fee}' for '${transaction.id}' is above static fee of '${feeManager.get(transaction.type)}'`)
       return false
     }
