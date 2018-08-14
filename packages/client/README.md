@@ -4,6 +4,8 @@
 
 ## Installation
 
+### Node.js
+
 ```bash
 yarn add @arkecosystem/client
 ```
@@ -16,10 +18,14 @@ If you want to use the CDN version:
 
 ## Usage
 
-Import the library in node.js:
+Import the library in Node.js:
 
 ```
 import ArkEcosystemClient from @arkecosystem/client
+```
+or
+```
+const ArkEcosystemClient require('@arkecosystem/client')
 ```
 
 Use the library:
@@ -27,6 +33,9 @@ Use the library:
 ```
 const client = new ArkEcosystemClient('<your host here>')
 ```
+
+### Examples
+There are more examples in the `examples` folder.
 
 ## Security
 
