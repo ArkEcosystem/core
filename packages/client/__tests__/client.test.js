@@ -8,12 +8,16 @@ const HttpClient = require('../lib/http')
 const ApiResource = require('../lib/resources/v1/transactions')
 const initialPeers = require('../lib/peers')
 
+// https://github.com/facebook/jest/issues/3601
+const errorCapturer = fn => fn.then(res => () => res).catch(err => () => { throw err })
+
+const host = 'https://example.net:4003'
 const { peers } = require('./fixtures/peers')
 
 let client
 
 beforeEach(() => {
-  client = (new Client('https://localhost:4003'))
+  client = (new Client(host))
 })
 
 describe('API - Client', () => {
@@ -59,23 +63,13 @@ describe('API - Client', () => {
     })
 
     it('should throw an Error if the API version is falsy', async () => {
-      try {
-        expect(async () => client.setVersion(0)).toThrow()
-        expect().fail('Should fail on the previous line')
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-      }
+      expect(client.setVersion).toThrowError(/api.*version/i)
     })
   })
 
   describe('static findPeers', () => {
     it('should throw an Error if the network does not have initial peers', async () => {
-      try {
-        expect(async () => Client.findPeers('wrong')).toThrow()
-        expect().fail('Should fail on the previous line')
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-      }
+      expect(await errorCapturer(Client.findPeers('wrong'))).toThrowError(/network.*wrong/i)
     })
 
     xit('should connect randomly to the initial peers', () => {
@@ -86,9 +80,12 @@ describe('API - Client', () => {
         success: true,
         peers
       }
-      httpMock.onGet('peers').reply(200, { data })
 
-      const foundPeers = await Client.findPeers('mainnet')
+      peers.forEach(peer => {
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+      })
+
+      const foundPeers = await Client.findPeers('devnet')
       expect(foundPeers).toEqual([
         peers[1],
         peers[3],
@@ -113,9 +110,12 @@ describe('API - Client', () => {
           success: true,
           peers: peers.concat([localPeer])
         }
-        httpMock.onGet('peers').reply(200, { data })
 
-        const foundPeers = await Client.findPeers('mainnet')
+        peers.forEach(peer => {
+          httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+        })
+
+        const foundPeers = await Client.findPeers('devnet')
         expect(foundPeers).toEqual(arrayContaining(peers))
         expect(foundPeers).not.toContainEqual(localPeer)
       }
@@ -124,6 +124,7 @@ describe('API - Client', () => {
     it('should ignore not-OK peers', async () => {
       const notOkPeer = {
         ip: '7.7.7.7',
+        port: 3333,
         height: 3663605,
         status: 'not OK',
         delay: 17
@@ -132,9 +133,12 @@ describe('API - Client', () => {
         success: true,
         peers: peers.concat([notOkPeer])
       }
-      httpMock.onGet('peers').reply(200, { data })
 
-      const foundPeers = await Client.findPeers('mainnet')
+      peers.forEach(peer => {
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+      })
+
+      const foundPeers = await Client.findPeers('devnet')
       expect(foundPeers).toEqual(arrayContaining(peers))
       expect(foundPeers).not.toContainEqual(notOkPeer)
     })
@@ -145,16 +149,16 @@ describe('API - Client', () => {
     })
 
     describe('when the request to find peers fails', () => {
-      it('returns the list of initial (hardcoded) peers', async () => {
-        const data = {
-          success: false,
-          peers
-        }
-        httpMock.onGet('peers').reply(200, { data })
+      beforeEach(() => {
+        peers.forEach(peer => {
+          httpMock.onGet(/http.*\/api\/peers/).reply(500)
+        })
+      })
 
-        const foundPeers = await Client.findPeers('mainnet')
+      it('returns the list of initial (hardcoded) peers', async () => {
+        const foundPeers = await Client.findPeers('devnet')
         expect(foundPeers).not.toEqual(arrayContaining(peers))
-        expect(foundPeers).toEqual(arrayContaining(initialPeers.mainnet))
+        expect(foundPeers).toEqual(arrayContaining(initialPeers.devnet))
       })
     })
   })
@@ -174,10 +178,12 @@ describe('API - Client', () => {
         success: true,
         peers
       }
-      httpMock.onGet('peers').reply(200, { data })
+      peers.forEach(peer => {
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
+      })
 
-      const client = await Client.connect('mainnet')
-      expect(client.getConnection().host).toEqual(peers[1].ip)
+      const client = await Client.connect('devnet')
+      expect(client.getConnection().host).toEqual(`http://${peers[1].ip}:${peers[1].port}`)
     })
   })
 })

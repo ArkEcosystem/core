@@ -8,8 +8,9 @@
     "lint": "lerna run lint",
     "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",
-    "test": "cross-env ARK_ENV=test jest --forceExit",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --forceExit"
+    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
+		"test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.51",
@@ -36,6 +37,7 @@
     "lint-staged": "^7.1.2",
     "regenerator-runtime": "^0.11.1",
     "request-promise": "^4.2.2",
+    "rimraf": "^2.6.2",
     "standard": "^11.0.1",
     "uuid": "^3.2.1",
     "webpack": "^4.8.3",
