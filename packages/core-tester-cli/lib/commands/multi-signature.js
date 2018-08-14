@@ -29,7 +29,8 @@ module.exports = async (options) => {
       null,
       publicKeys,
       options.lifetime,
-      min
+      min,
+      options.multisigFee
     )
     transaction.signatures = []
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -50,12 +51,31 @@ module.exports = async (options) => {
   }
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    const response = (await utils.request.post('/api/v2/transactions', {transactions})).data
+    let hasUnprocessed = false
+    for (const transaction of transactions) {
+      if (!response.data.accept.includes(transaction.id)) {
+        hasUnprocessed = true
+        logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+      }
+    }
+    if (hasUnprocessed) {
+      process.exit(1)
+    }
+
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
     await delay(delaySeconds * 1000)
+
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
+      if (!tx) {
+        logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+      }
+    }
   } catch (error) {
-    logger.error(`There was a problem sending multi-signature transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending multi-signature transactions: ${message}`)
     process.exit(1)
   }
 
@@ -96,19 +116,20 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (!tx) {
-        logger.error(`Transaction '${transactions[i].id}' is be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should be on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -145,19 +166,20 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (!tx) {
-        logger.error(`Transaction '${transactions[i].id}' should be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should be on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -195,19 +217,20 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -233,19 +256,20 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -272,19 +296,20 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -307,7 +332,8 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
       null,
       publicKeys,
       options.lifetime,
-      min
+      min,
+      options.multisigFee
     )
     transaction.signatures = []
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -323,19 +349,20 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }

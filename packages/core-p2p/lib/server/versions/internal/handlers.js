@@ -176,3 +176,28 @@ exports.checkBlockchainSynced = {
     }
   }
 }
+
+/**
+ * @type {Object}
+ */
+exports.getUsernames = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+    const walletManager = container.resolvePlugin('database').walletManager
+
+    const lastBlock = blockchain.getLastBlock()
+    const delegates = await blockchain.database.getActiveDelegates(lastBlock.data.height + 1)
+
+    const data = {}
+    for (const delegate of delegates) {
+      data[delegate.publicKey] = walletManager.getWalletByPublicKey(delegate.publicKey).username
+    }
+
+    return { success: true, data }
+  }
+}
