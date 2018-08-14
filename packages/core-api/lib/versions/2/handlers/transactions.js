@@ -77,7 +77,8 @@ exports.store = {
       data: {
         accept: guard.getIds('accept'),
         excess: guard.getIds('excess'),
-        invalid: guard.getIds('invalid')
+        invalid: guard.getIds('invalid'),
+        broadcast: guard.getIds('broadcast')
       }
     }
   },
