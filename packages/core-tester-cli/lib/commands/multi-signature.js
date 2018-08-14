@@ -51,10 +51,10 @@ module.exports = async (options) => {
   }
 
   try {
-    const response = (await utils.request.post('/peer/transactions', {transactions}, true)).data
+    const response = (await utils.request.post('/api/v2/transactions', {transactions})).data
     let hasUnprocessed = false
     for (const transaction of transactions) {
-      if (!response.transactionIds.includes(transaction.id)) {
+      if (!response.data.accept.includes(transaction.id)) {
         hasUnprocessed = true
         logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
       }
@@ -74,7 +74,8 @@ module.exports = async (options) => {
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending multi-signature transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending multi-signature transactions: ${message}`)
     process.exit(1)
   }
 
@@ -115,7 +116,7 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -127,7 +128,8 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -164,7 +166,7 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -176,7 +178,8 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -214,7 +217,7 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -226,7 +229,8 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -252,7 +256,7 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -264,7 +268,8 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -291,7 +296,7 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -303,7 +308,8 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
@@ -343,7 +349,7 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
   })
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.request.post('/api/v2/transactions', {transactions})
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -355,7 +361,8 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
       }
     }
   } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response.data.message}`)
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
     process.exit(1)
   }
 }
