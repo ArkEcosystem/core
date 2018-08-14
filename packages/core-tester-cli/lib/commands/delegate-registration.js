@@ -56,7 +56,7 @@ module.exports = async (options) => {
   }
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.postTransactions(transactions)
 
     if (options.skipValidation) {
       return

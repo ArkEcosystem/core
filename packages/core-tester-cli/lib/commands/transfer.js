@@ -11,25 +11,30 @@ const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphras
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options, isSubsequentRun) => {
   let successfulTest = true
 
-  const postResponse = await utils.request.post('/peer/transactions', {transactions}, true)
+  let postResponse
+  try {
+    postResponse = await utils.postTransactions(transactions)
+  } catch (error) {
+    if (options.skipValidation) {
+      return true
+    }
+
+    const message = error.response ? error.response.data.error : error.message
+    logger.error(`Transaction request failed. Error: ${message}`)
+    return false
+  }
 
   if (options.skipValidation) {
     return true
   }
 
-  if (!postResponse.data.success) {
-    logger.error(`Transaction request failed. Error: ${postResponse.data.error}`)
-
-    return false
-  }
-
-  if (!isSubsequentRun && !postResponse.data.transactionIds.length) {
+  if (!isSubsequentRun && !postResponse.data.accept.length) {
     return false
   }
 
   if (!isSubsequentRun) {
     for (const transaction of transactions) {
-      if (!postResponse.data.transactionIds.includes(transaction.id)) {
+      if (!postResponse.data.accept.includes(transaction.id)) {
         logger.error(`Transaction '${transaction.id}' didn't get approved on the network`)
 
         successfulTest = false

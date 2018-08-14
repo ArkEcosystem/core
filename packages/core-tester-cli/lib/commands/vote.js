@@ -46,7 +46,7 @@ module.exports = async (options) => {
     logger.info(`Expected end voters: ${expectedVoters}`)
   }
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.postTransactions(transactions)
 
     if (options.skipValidation) {
       return

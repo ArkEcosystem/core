@@ -51,7 +51,7 @@ module.exports = async (options) => {
   }
 
   try {
-    const response = (await utils.request.post('/api/v2/transactions', {transactions})).data
+    const response = await utils.postTransactions(transactions)
     let hasUnprocessed = false
     for (const transaction of transactions) {
       if (!response.data.accept.includes(transaction.id)) {
@@ -116,7 +116,7 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -166,7 +166,7 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -217,7 +217,7 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -256,7 +256,7 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -296,7 +296,7 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
@@ -349,7 +349,7 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
   })
 
   try {
-    await utils.request.post('/api/v2/transactions', {transactions})
+    await utils.postTransactions(transactions)
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
