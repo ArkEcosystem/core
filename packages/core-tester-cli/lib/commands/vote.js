@@ -16,6 +16,10 @@ module.exports = async (options) => {
 
   if (!options.delegate) {
     const delegates = await utils.getDelegates()
+    if (!delegates.length) {
+      logger.error('Could not find any delegates to vote for')
+      process.exit(1)
+    }
 
     options.delegate = sample(delegates).publicKey
   }
