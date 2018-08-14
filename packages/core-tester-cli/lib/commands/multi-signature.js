@@ -120,10 +120,10 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (!tx) {
-        logger.error(`Transaction '${transactions[i].id}' is be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should be on the blockchain`)
       }
     }
   } catch (error) {
@@ -169,10 +169,10 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (!tx) {
-        logger.error(`Transaction '${transactions[i].id}' should be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should be on the blockchain`)
       }
     }
   } catch (error) {
@@ -219,10 +219,10 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not be on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
       }
     }
   } catch (error) {
@@ -257,10 +257,10 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
@@ -296,10 +296,10 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
@@ -348,10 +348,10 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
     logger.info(`Waiting ${delaySeconds} seconds to apply transactions`)
     await delay(delaySeconds * 1000)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = await utils.getTransaction(transactions[i].id)
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
       if (tx) {
-        logger.error(`Transaction '${transactions[i].id}' should not on the blockchain`)
+        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
       }
     }
   } catch (error) {
