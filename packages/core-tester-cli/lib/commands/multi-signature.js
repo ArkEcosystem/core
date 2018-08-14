@@ -51,10 +51,28 @@ module.exports = async (options) => {
   }
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    const response = (await utils.request.post('/peer/transactions', {transactions}, true)).data
+    let hasUnprocessed = false
+    for (const transaction of transactions) {
+      if (!response.transactionIds.includes(transaction.id)) {
+        hasUnprocessed = true
+        logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+      }
+    }
+    if (hasUnprocessed) {
+      process.exit(1)
+    }
+
     const delaySeconds = await utils.getTransactionDelay(transactions)
     logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
     await delay(delaySeconds * 1000)
+
+    for (const transaction of transactions) {
+      const tx = await utils.getTransaction(transaction.id)
+      if (!tx) {
+        logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+      }
+    }
   } catch (error) {
     logger.error(`There was a problem sending multi-signature transactions: ${error.response.data.message}`)
     process.exit(1)
