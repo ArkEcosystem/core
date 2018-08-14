@@ -7,10 +7,13 @@ const activeDelegates = require('./__fixtures__/delegates.json')
 const { Transaction } = require('@arkecosystem/crypto').models
 
 let genesisBlock
+let Connection
 let connection
 
 beforeAll(async () => {
   await app.setUp()
+
+  Connection = require('../lib/connection')
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -40,7 +43,7 @@ describe('Sequelize Connection', () => {
     })
 
     it('should instantiate sequelize', async () => {
-      const connection = new (require('../lib/connection'))({
+      const connection = new Connection({
         dialect: 'sqlite',
         storage: ':memory:'
       })
@@ -52,7 +55,7 @@ describe('Sequelize Connection', () => {
 
     it('should have the Cache correctly configured', async () => {
       const redisOptionsInit = { host: 'customRedisHost', port: 6666 }
-      const connection = new (require('../lib/connection'))({
+      const connection = new Connection({
         dialect: 'sqlite',
         storage: ':memory:',
         redis: redisOptionsInit
@@ -68,7 +71,7 @@ describe('Sequelize Connection', () => {
 
     describe('when the db is already initialised', () => {
       it('should throw an Error', async () => {
-        const connection = new (require('../lib/connection'))({
+        const connection = new Connection({
           dialect: 'sqlite',
           storage: ':memory:'
         })
