@@ -223,9 +223,13 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
     await delay(delaySeconds * 1000)
 
     for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (tx) {
-        logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+      try {
+        const tx = await utils.getTransaction(transaction.id)
+        if (tx) {
+          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+        }
+      } catch (error) {
+
       }
     }
   } catch (error) {
@@ -262,9 +266,13 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
     await delay(delaySeconds * 1000)
 
     for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (tx) {
-        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
+      try {
+        const tx = await utils.getTransaction(transaction.id)
+        if (tx) {
+          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+        }
+      } catch (error) {
+
       }
     }
   } catch (error) {
@@ -302,9 +310,13 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
     await delay(delaySeconds * 1000)
 
     for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (tx) {
-        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
+      try {
+        const tx = await utils.getTransaction(transaction.id)
+        if (tx) {
+          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+        }
+      } catch (error) {
+
       }
     }
   } catch (error) {
@@ -355,9 +367,13 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
     await delay(delaySeconds * 1000)
 
     for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (tx) {
-        logger.error(`Transaction '${transactions.id}' should not on the blockchain`)
+      try {
+        const tx = await utils.getTransaction(transaction.id)
+        if (tx) {
+          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+        }
+      } catch (error) {
+
       }
     }
   } catch (error) {
