@@ -306,7 +306,7 @@ blockchainMachine.actionMap = blockchain => {
           logger.warn('Downloaded block not accepted: ' + JSON.stringify(blocks[0]))
           logger.warn('Last block: ' + JSON.stringify(lastBlock.data))
 
-          blockchain.p2p.banPeer(blocks[0].ip)
+          blockchain.p2p.suspendPeer(blocks[0].ip)
 
           // disregard the whole block list
           blockchain.dispatch('FORK')
@@ -332,6 +332,8 @@ blockchainMachine.actionMap = blockchain => {
       await blockchain.removeBlocks(random)
 
       logger.info(`Removed ${random} blocks :wastebasket:`)
+
+      await blockchain.p2p.resetSuspendedPeers()
 
       blockchain.dispatch('SUCCESS')
     }

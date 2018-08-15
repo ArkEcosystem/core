@@ -162,11 +162,11 @@ module.exports = class Monitor {
   }
 
   /**
-   * ban an existing peer.
+   * Suspend an existing peer.
    * @param  {Peer} peer
-   * @return {Promise}
+   * @return {void}
    */
-  banPeer (ip) {
+  suspendPeer (ip) {
     // TODO make a couple of tests on peer to understand the issue with this peer and decide how long to ban it
     const peer = this.peers[ip]
 
@@ -176,9 +176,15 @@ module.exports = class Monitor {
       } else {
          this.guard.suspend(peer)
       }
-
-      logger.debug(`Banned peer ${ip} for ${this.guard.get(ip).untilHuman}`)
     }
+  }
+
+  /**
+   * Reset banned peer list.
+   * @return {void}
+   */
+  async resetSuspendedPeers () {
+    return this.guard.resetSuspendedPeers()
   }
 
   /**
@@ -215,7 +221,8 @@ module.exports = class Monitor {
    * @param  {(Number|undefined)} acceptableDelay
    * @return {Peer}
    */
-  getRandomPeer (acceptableDelay, downloadSize) {
+  getRandomPeer (acceptableDelay, downloadSize, failedAttempts) {
+    failedAttempts = failedAttempts === undefined ? 0 : failedAttempts
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => {
         const peer = this.getPeer(key)
@@ -238,12 +245,19 @@ module.exports = class Monitor {
     const randomPeer = this.getPeer(random)
 
     if (!randomPeer) {
+      failedAttempts++
       // logger.error(this.peers)
 
       // FIXME: this method doesn't exist
       // this.manager.checkOnline()
 
-      return this.getRandomPeer()
+      if (failedAttempts > 10) {
+        throw new Error('Failed to find random peer')
+      } else if (failedAttempts > 5) {
+        return this.getRandomPeer(null, downloadSize, failedAttempts)
+      }
+
+      return this.getRandomPeer(acceptableDelay, downloadSize, failedAttempts)
     }
 
     return randomPeer
