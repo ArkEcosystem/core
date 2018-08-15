@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
 const utils = require('../utils')
 const schema = require('../schema/peers')
@@ -51,8 +52,13 @@ exports.show = {
    */
   async handler (request, h) {
     const peers = await blockchain.p2p.getPeers()
+    const peer = peers.find(p => p.ip === request.params.ip)
 
-    return utils.respondWithResource(request, peers.find(p => p.ip === request.params.ip), 'peer')
+    if (!peer) {
+      return Boom.notFound('Peer not found')
+    }
+
+    return utils.respondWithResource(request, peer, 'peer')
   },
   options: {
     validate: schema.show

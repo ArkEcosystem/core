@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
@@ -35,6 +36,10 @@ exports.show = {
    */
   async handler (request, h) {
     const transaction = await database.transactions.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id)
+
+    if (!transaction) {
+      return Boom.notFound('Vote not found')
+    }
 
     return utils.respondWithResource(request, transaction, 'transaction')
   },
