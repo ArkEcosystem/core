@@ -188,6 +188,11 @@ exports.getUsernames = {
    */
   async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return { success: false, error: 'Blockchain not ready' }
+    }
+
     const walletManager = container.resolvePlugin('database').walletManager
 
     const lastBlock = blockchain.getLastBlock()
