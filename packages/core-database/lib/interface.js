@@ -292,11 +292,11 @@ module.exports = class ConnectionInterface {
     if (nextHeight % maxDelegates === 1) {
       const round = Math.floor((nextHeight - 1) / maxDelegates) + 1
 
-      if (!this.activedelegates || this.activedelegates.length === 0 || (this.activedelegates.length && this.activedelegates[0].round !== round)) {
+      if (!this.roundDelegates || this.roundDelegates.length === 0 || (this.roundDelegates.length && this.roundDelegates[0].round !== round)) {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          await this.updateDelegateStats(height, this.activedelegates)
+          await this.updateDelegateStats(height, this.roundDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
 
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
@@ -335,7 +335,7 @@ module.exports = class ConnectionInterface {
       logger.info(`Back to previous round: ${round} :back:`)
       this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
-      this.activedelegates = await this.getActiveDelegates(height)
+      this.roundDelegates = await this.getActiveDelegates(height)
 
       await this.deleteRound(nextRound)
     }
