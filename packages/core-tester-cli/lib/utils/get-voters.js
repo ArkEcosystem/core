@@ -1,11 +1,12 @@
-const request = require('./request')
+const paginate = require('./paginate')
 
 module.exports = async (publicKey) => {
-    const response = (await request.get(`/api/v1/delegates/voters?publicKey=${publicKey}`)).data
+  try {
+    const voters = await paginate(`/api/v2/delegates/${publicKey}/voters`)
 
-    if (response.success) {
-        return response.accounts
-    }
+    return voters
+  } catch (error) {
+  }
 
-    return []
+  return []
 }

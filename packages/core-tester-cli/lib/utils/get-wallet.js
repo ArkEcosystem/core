@@ -1,11 +1,16 @@
 const request = require('./request')
 
 module.exports = async (address) => {
-    const response = (await request.get(`/api/accounts?address=${address}`)).data
-
-    if (response.success) {
-        return response.account
-    }
-
+  let response
+  try {
+    response = (await request.get(`/api/v2/wallets/${address}`)).data
+  } catch (error) {
     return null
+  }
+
+  if (response.data) {
+    return response.data
+  }
+
+  return null
 }
