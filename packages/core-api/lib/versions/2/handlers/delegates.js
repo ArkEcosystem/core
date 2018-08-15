@@ -38,7 +38,7 @@ exports.show = {
     const delegate = await database.delegates.findById(request.params.id)
 
     if (!delegate) {
-      return Boom.notFound()
+      return Boom.notFound('Delegate not found')
     }
 
     return utils.respondWithResource(request, delegate, 'delegate')
@@ -84,7 +84,7 @@ exports.blocks = {
     const delegate = await database.delegates.findById(request.params.id)
 
     if (!delegate) {
-      return Boom.notFound()
+      return Boom.notFound('Delegate not found')
     }
 
     const blocks = await database.blocks.findAllByGenerator(delegate.publicKey, utils.paginate(request))
@@ -109,7 +109,7 @@ exports.voters = {
     const delegate = await database.delegates.findById(request.params.id)
 
     if (!delegate) {
-      return Boom.notFound()
+      return Boom.notFound('Delegate not found')
     }
 
     const wallets = await database.wallets.findAllByVote(delegate.publicKey, utils.paginate(request))
@@ -134,7 +134,7 @@ exports.voterBalances = {
     const delegate = await database.delegates.findById(request.params.id)
 
     if (!delegate) {
-      return Boom.notFound()
+      return Boom.notFound('Delegate not found')
     }
 
     const wallets = await database.wallets
