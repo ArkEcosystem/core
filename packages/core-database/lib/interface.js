@@ -280,7 +280,7 @@ module.exports = class ConnectionInterface {
 
   /**
    * Apply the round.
-   * Note that the round is applied and the end of the round (so checking height + 1)
+   * Note that the round is applied at the end of the round (so checking height + 1)
    * so the next block to apply starting the new round will be ready to be validated
    * @param  {Number} height
    * @return {void}
@@ -299,17 +299,17 @@ module.exports = class ConnectionInterface {
           await this.updateDelegateStats(height, this.roundDelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
 
-          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
+          const delegates = await this.buildDelegates(maxDelegates, nextHeight) // round build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
-          await this.getActiveDelegates(nextHeight) // generate the new active delegates list
+          await this.getActiveDelegates(nextHeight) // generate the new round delegates list
           this.blocksInCurrentRound = []
-          // TODO: find a betxter place to call this as this
+          // TODO: find a better place to call this as this
           // currently blocks execution but needs to be updated every round
           if (this.stateStarted) {
             this.walletManager.updateDelegates()
           }
         } catch (error) {
-          // trying to leave database state has it was
+          // trying to leave database state as it was
           this.deleteRound(round)
           throw error
         }
