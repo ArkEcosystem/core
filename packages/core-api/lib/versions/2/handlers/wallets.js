@@ -53,7 +53,7 @@ exports.show = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     return utils.respondWithResource(request, wallet, 'wallet')
@@ -76,7 +76,7 @@ exports.transactions = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllByWallet(
@@ -106,7 +106,7 @@ exports.transactionsSent = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllBySender(
@@ -136,7 +136,7 @@ exports.transactionsReceived = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllByRecipient(
@@ -166,7 +166,7 @@ exports.votes = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.allVotesBySender(
