@@ -52,8 +52,16 @@ module.exports = class PeerManager {
    * @param  {Number}   fromBlockHeight
    * @return {Object[]}
    */
-  downloadBlocks (fromBlockHeight) {
-    return this.monitor.downloadBlocks(fromBlockHeight)
+  async downloadBlocks (fromBlockHeight) {
+    try {
+      const blocks = await this.monitor.downloadBlocks(fromBlockHeight)
+
+      return blocks
+    } catch (error) {
+      logger.error(`Could not download blocks: ${error.message}`)
+    }
+
+    return []
   }
 
   /**
@@ -82,12 +90,20 @@ module.exports = class PeerManager {
   }
 
   /**
-   * ban an existing peer.
+   * Suspend an existing peer.
    * @param  {Peer}    peer
-   * @return {Promise}
+   * @return {void}
    */
-  banPeer (ip) {
-    return this.monitor.banPeer(ip)
+  suspendPeer (ip) {
+    return this.monitor.suspendPeer(ip)
+  }
+
+  /**
+   * Check if we have any peers.
+   * @return {bool}
+   */
+  hasPeers () {
+    return !!this.monitor.getPeers().length
   }
 
   /**
