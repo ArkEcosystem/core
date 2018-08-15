@@ -190,7 +190,7 @@ exports.getUsernames = {
     const blockchain = container.resolvePlugin('blockchain')
 
     if (!blockchain) {
-      return { success: true, error: 'Blockchain not ready' }
+      return { success: false, error: 'Blockchain not ready' }
     }
 
     const walletManager = container.resolvePlugin('database').walletManager
