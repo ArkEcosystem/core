@@ -19,7 +19,9 @@ const register = async (server, options) => {
 
       if (!container.resolvePlugin('blockchain')) {
         if (request.path.startsWith('/peer')) {
-          return { success: false }
+          return h.response({
+            success: false
+          }).code(200).takeover()
         }
 
         return Boom.serverUnavailable('Blockchain not ready')
