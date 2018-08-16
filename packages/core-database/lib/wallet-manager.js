@@ -240,6 +240,10 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(data)
 
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      this.reindex(sender)
+    }
+
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
