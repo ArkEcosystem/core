@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Default configuration for the @arkecosystem/core-graphql plugin
  */

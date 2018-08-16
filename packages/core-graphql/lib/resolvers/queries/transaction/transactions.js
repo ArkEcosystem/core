@@ -4,7 +4,6 @@ const database = require('@arkecosystem/core-container').resolvePlugin('database
 const { constants } = require('@arkecosystem/crypto')
 const { formatOrderBy, unserializeTransactions } = require('../../../helpers')
 
-
 /**
  * Get multiple transactions from the database
  * @return {Transaction[]}

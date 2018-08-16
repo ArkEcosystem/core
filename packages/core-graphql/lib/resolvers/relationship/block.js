@@ -3,7 +3,6 @@
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')
 
-
 /**
  * Useful and common database operations with block data.
  */

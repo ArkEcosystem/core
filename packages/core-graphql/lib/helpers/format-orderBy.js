@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Logic used by our orderBy input
  * @param {Object} parameter

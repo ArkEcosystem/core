@@ -3,7 +3,6 @@
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { formatOrderBy } = require('../../../helpers')
 
-
 /**
  * Get multiple wallets from the database
  * @return {Wallet[]}

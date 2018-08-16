@@ -2,7 +2,6 @@
 
 const { Transaction } = require('@arkecosystem/crypto').models
 
-
 /**
  * Deserialize multiple transactions
  */

@@ -1,6 +1,5 @@
 'use strict'
 
-
 /**
  * Root module for our two helper functions
  */

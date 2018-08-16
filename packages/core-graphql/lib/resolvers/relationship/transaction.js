@@ -2,7 +2,6 @@
 
 const database = require('@arkecosystem/core-container').resolvePlugin('database')
 
-
 /**
  * Useful and common database operations with transaction data.
  */
