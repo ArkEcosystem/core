@@ -1,4 +1,3 @@
-# Ark Core
 
 # PHANTOM Core
 
