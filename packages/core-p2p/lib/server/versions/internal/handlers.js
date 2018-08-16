@@ -126,15 +126,10 @@ exports.getNetworkState = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: true, error: 'Blockchain not ready' }
-    }
     try {
       return {
         success: true,
-        networkState: await blockchain.p2p.getNetworkState()
+        networkState: await container.resolvePlugin('blockchain').p2p.getNetworkState()
       }
     } catch (error) {
       return h.response({
@@ -155,15 +150,9 @@ exports.checkBlockchainSynced = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: true, error: 'Blockchain not ready' }
-    }
-
     try {
       logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
-      blockchain.dispatch('WAKEUP')
+      container.resolvePlugin('blockchain').dispatch('WAKEUP')
 
       return {
         success: true
@@ -188,11 +177,6 @@ exports.getUsernames = {
    */
   async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: false, error: 'Blockchain not ready' }
-    }
-
     const walletManager = container.resolvePlugin('database').walletManager
 
     const lastBlock = blockchain.getLastBlock()
