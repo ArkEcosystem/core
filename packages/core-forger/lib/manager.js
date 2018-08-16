@@ -49,7 +49,6 @@ module.exports = class ForgerManager {
     })
 
     logger.debug(`Loaded ${delegates} delegates.`)
-    logger.debug(JSON.stringify(delegates, null, 4))
 
     return this.delegates
   }
