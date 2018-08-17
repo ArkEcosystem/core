@@ -41,7 +41,8 @@ module.exports = Machine({
       onEntry: ['checkLater', 'blockchainReady'],
       on: {
         WAKEUP: 'syncWithNetwork',
-        NEWBLOCK: 'processingBlock'
+        NEWBLOCK: 'processingBlock',
+        STOP: 'stopped'
       }
     },
     processingBlock: {
@@ -58,6 +59,14 @@ module.exports = Machine({
         FAILURE: 'exit'
       },
       ...fork
+    },
+    /**
+     * This state should be used for stopping the blockchain on purpose, not as
+     * a result of critical errors. In those cases, using the `exit` state would
+     * be a better option
+     */
+    stopped: {
+      onEntry: ['stopped']
     },
     exit: {
       onEntry: ['exitApp']
