@@ -49,7 +49,6 @@ module.exports = class ForgerManager {
     })
 
     logger.debug(`Loaded ${delegates} delegates.`)
-    logger.debug(JSON.stringify(delegates, null, 4))
 
     return this.delegates
   }
@@ -67,7 +66,6 @@ module.exports = class ForgerManager {
 
     return this.__monitor(null)
   }
-
   /**
    * Monitor the node for any actions that trigger forging.
    * @param  {Object} round
@@ -83,11 +81,14 @@ module.exports = class ForgerManager {
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
         // technically it is possible to compute doing shennanigan with arkjs.slots lib
+
         await delay(200) // basically looping until we lock at beginning of next slot
+
         return this.__monitor(round)
       }
 
       const delegate = this.__isDelegateActivated(round.currentForger.publicKey)
+
       if (!delegate) {
         // logger.debug(`Current forging delegate ${round.currentForger.publicKey} is not configured on this node.`)
 
@@ -98,24 +99,38 @@ module.exports = class ForgerManager {
         }
 
         await delay(delayTime) // we will check at next slot
+
         return this.__monitor(round)
       }
 
       const networkState = await this.client.getNetworkState()
+
       if (!this.__analyseNetworkState(networkState, delegate)) {
         await delay(delayTime) // we will check at next slot
+
         return this.__monitor(round)
       }
 
       await this.__forgeNewBlock(delegate, round)
 
       await delay(delayTime) // we will check at next slot
+
       return this.__monitor(round)
     } catch (error) {
+      // README: The Blockchain is not ready, monitor until it is instead of crashing.
+      if (error.response.status === 503) {
+        logger.warn(`Blockchain not ready - ${error.response.status} ${error.response.statusText}`)
+
+        await delay(2000)
+
+        return this.__monitor(round)
+      }
+
+      // README: The Blockchain is ready but an action still failed.
       logger.error(`Forging failed: ${error.message} :bangbang:`)
-      logger.error(error.stack)
 
       logger.info('Round:', round ? round.current : '', 'Height:', round ? round.lastBlock.height.toLocaleString() : '')
+
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
       emitter.emit('forger.failed', error.message)
@@ -154,9 +169,13 @@ module.exports = class ForgerManager {
    * Gets the unconfirmed transactions from the relay nodes transactio pool
    */
   async __getTransactionsForForging () {
-      const transactionData = await this.client.getTransactions()
-      const transactions = transactionData.transactions ? transactionData.transactions.map(serializedTx => Transaction.fromBytes(serializedTx)) : []
-      logger.debug(`Received ${transactions.length} transactions from the pool containing ${transactionData.poolSize} :money_with_wings:`)
+      const response = await this.client.getTransactions()
+
+      const transactions = response.transactions
+        ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+        : []
+
+      logger.debug(`Received ${transactions.length} transactions from the pool containing ${response.poolSize} :money_with_wings:`)
 
       return transactions
   }
@@ -179,25 +198,30 @@ module.exports = class ForgerManager {
     if (networkState.coldStart) {
       logger.info('Not allowed to forge during the cold start period. Check peers.json for coldStart setting.')
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
+
       return false
     }
 
     if (!networkState.minimumNetworkReach) {
       logger.info('Network reach is not sufficient to get quorum.')
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
+
       return false
     }
 
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
       const username = this.usernames[currentForger.publicKey]
+
       logger.info(`Possible double forging for delegate: ${username} (${currentForger.publicKey}).`)
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
+
       return false
     }
 
     if (networkState.quorum < 0.66) {
       logger.info('Fork 6 - Not enough quorum to forge next block.')
       logger.debug(`Network State: ${JSON.stringify(networkState)}`)
+
       return false
     }
 
