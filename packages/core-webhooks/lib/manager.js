@@ -18,11 +18,9 @@ class WebhookManager {
 
     map(this.config.events, 'name').forEach(event => {
       emitter.on(event, async payload => {
-        let webhooks = await database.findByEvent(event)
-        webhooks = this.getMatchingWebhooks(webhooks, payload)
+        const webhooks = await database.findByEvent(event)
 
-        for (let i = 0; i < webhooks.length; i++) {
-          const webhook = webhooks[i]
+        for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
           try {
             const response = await axios.post(webhook.data.webhook.target, {
               timestamp: +new Date(),
@@ -52,21 +50,23 @@ class WebhookManager {
   getMatchingWebhooks (webhooks, payload) {
     const matches = []
 
-    webhooks.forEach(webhook => {
+    for (const webhook of webhooks) {
       if (!webhook.conditions) {
-        webhooks.push(webhook)
+        matches.push(webhook)
+
+        continue
       }
 
-      for (let condition of webhook.conditions) {
+      for (const condition of webhook.conditions) {
         const satisfies = require(`./conditions/${condition.condition}`)
 
         if (!satisfies(payload[condition.key], condition.value)) {
-          break
+          continue
         }
 
         matches.push(webhook)
       }
-    })
+    }
 
     return matches
   }

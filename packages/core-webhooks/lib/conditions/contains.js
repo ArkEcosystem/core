@@ -2,8 +2,8 @@
 
 /**
  * Check if A contains B.
- * @param  {*} a
- * @param  {*} b
+ * @param  {*} actual
+ * @param  {*} expected
  * @return {Boolean}
  */
-module.exports = (a, b) => (a.includes(b))
+module.exports = (actual, expected) => (actual.includes(expected))
