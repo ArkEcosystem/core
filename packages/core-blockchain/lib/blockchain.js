@@ -77,6 +77,16 @@ module.exports = class Blockchain {
     return true
   }
 
+  async stop () {
+    logger.info('Stopping Blockchain Manager :chains:')
+
+    this.isStopped = true
+
+    this.dispatch('STOP')
+
+    this.queue.destroy()
+  }
+
   checkNetwork () {
     throw new Error('Method [checkNetwork] not implemented!')
   }
