@@ -7,11 +7,15 @@ const Wallet = require('./relationship/wallet')
 const GraphQLTypes = require('graphql-tools-types')
 
 /**
- * Resolvers used by the executed schema when encountering a scalar or type.
+ * Resolvers used by the executed schema when encountering a
+ * scalar or type.
+ *
  * All of our scalars are based on graphql-tools-types which helps us with
  * query standardization.
- * We introduce relationships for our own types, these hold the processing
- * responsibilities of the complete GraphQL query flow.
+ *
+ * We introduce relationships and queries for our own types,
+ * these hold the data processing responsibilities of the complete
+ * GraphQL query flow.
  */
 module.exports = {
   JSON: GraphQLTypes.JSON({ name: 'Json' }),
