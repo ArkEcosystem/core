@@ -133,16 +133,14 @@ module.exports = async (config) => {
   await server.register({
     plugin: require('./versions/1'),
     routes: {
-      prefix: '/api/v1',
-      cors: true
+      prefix: '/api/v1'
     }
   })
 
   await server.register({
     plugin: require('./versions/2'),
     routes: {
-      prefix: '/api/v2',
-      cors: true
+      prefix: '/api/v2'
     },
     options: config
   })
