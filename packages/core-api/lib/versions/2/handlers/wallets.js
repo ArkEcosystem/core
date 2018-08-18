@@ -169,6 +169,9 @@ exports.votes = {
       return Boom.notFound('Wallet not found')
     }
 
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
+
     const transactions = await database.transactions.allVotesBySender(
       wallet.publicKey, {
         ...request.params,
