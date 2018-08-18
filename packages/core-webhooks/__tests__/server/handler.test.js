@@ -26,8 +26,8 @@ const postData = {
   }]
 }
 
-function createWebhook () {
-  return utils.request('POST', 'webhooks', postData)
+function createWebhook (data = null) {
+  return utils.request('POST', 'webhooks', data || postData)
 }
 
 describe('API 2.0 - Webhooks', () => {
@@ -40,8 +40,26 @@ describe('API 2.0 - Webhooks', () => {
   })
 
   describe('POST /webhooks', () => {
-    it('should POST a new webhook', async () => {
+    it.only('should POST a new webhook with a simple condition', async () => {
       const response = await createWebhook()
+      utils.expectSuccessful(response, 201)
+      utils.expectResource(response)
+    })
+
+    it('should POST a new webhook with a complex condition', async () => {
+      const response = await createWebhook({
+        event: 'block.forged',
+        target: 'https://httpbin.org/post',
+        enabled: true,
+        conditions: [{
+          key: 'fee',
+          condition: 'between',
+          value: {
+            min: 1,
+            max: 2
+          }
+        }]
+      })
       utils.expectSuccessful(response, 201)
       utils.expectResource(response)
     })

@@ -45,7 +45,12 @@ module.exports = class Client {
   async syncCheck () {
     await Promise.each(this.hosts, async (host) => {
       logger.debug(`Sending wake-up check to relay node(s) ${host}`)
-      await this.__get(`${this.host}/internal/syncCheck`)
+
+      try {
+        await this.__get(`${this.host}/internal/syncCheck`)
+      } catch (e) {
+        //
+      }
     })
   }
 
@@ -68,9 +73,13 @@ module.exports = class Client {
   async getNetworkState () {
     await this.__chooseHost()
 
-    const response = await this.__get(`${this.host}/internal/networkState`)
+    try {
+      const response = await this.__get(`${this.host}/internal/networkState`)
 
-    return response.data.networkState
+      return response.data.networkState
+    } catch (e) {
+      return {}
+    }
   }
 
   /**
@@ -80,9 +89,13 @@ module.exports = class Client {
   async getTransactions () {
     await this.__chooseHost()
 
-    const response = await this.__get(`${this.host}/internal/forgingTransactions`)
+    try {
+      const response = await this.__get(`${this.host}/internal/forgingTransactions`)
 
-    return response.data.data || {}
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
   }
 
   /**
@@ -92,9 +105,13 @@ module.exports = class Client {
   async getUsernames () {
     await this.__chooseHost()
 
-    const response = await this.__get(`${this.host}/internal/usernames`)
+    try {
+      const response = await this.__get(`${this.host}/internal/usernames`)
 
-    return response.data.data || {}
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
   }
 
   /**

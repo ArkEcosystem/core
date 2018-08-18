@@ -21,7 +21,6 @@
     "@arkecosystem/core-container": "^0.1.1",
     "axios": "^0.18.0",
     "boom": "^7.2.0",
-    "bull": "^3.4.2",
     "fs-extra": "^6.0.1",
     "hapi": "^17.5.0",
     "hapi-pagination": "^2.0.0",

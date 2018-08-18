@@ -257,6 +257,60 @@ describe('Wallet Manager', () => {
       })
     })
 
+    describe('when the transaction is a delegate registration', () => {
+      const username = 'delegate_1'
+
+      let sender
+      let transaction
+
+      beforeEach(() => {
+        sender = new Wallet(walletData1.address)
+
+        // NOTE: the order is important: we sign a transaction with a random pass
+        // to override the sender public key with a fake one
+
+        transaction = transactionBuilder
+          .delegateRegistration()
+          .usernameAsset(username)
+          .sign(Math.random().toString(36))
+          .build()
+
+        sender.publicKey = transaction.senderPublicKey
+
+        walletManager.reindex(sender)
+      })
+
+      it('should apply the transaction to the sender', async () => {
+        const balance = 30 * Math.pow(10, 8)
+        sender.balance = balance
+
+        expect(sender.balance).toBe(balance)
+
+        await walletManager.applyTransaction(transaction)
+
+        expect(sender.balance).toBe(balance - transaction.fee)
+        expect(sender.username).toBe(username)
+        expect(walletManager.getWalletByUsername(username)).toBe(sender)
+      })
+
+      it('should fail if the transaction cannot be applied', async () => {
+        const balance = 1
+        sender.balance = balance
+
+        expect(sender.balance).toBe(balance)
+
+        try {
+          expect(async () => {
+            await walletManager.applyTransaction(transaction)
+          }).toThrowError(/apply transaction/)
+
+          expect(null).toBe('this should fail if no error is thrown')
+        } catch (error) {
+          expect(sender.balance).toBe(balance)
+        }
+      })
+    })
+
     describe('when the transaction is not a transfer', () => {
     })
   })

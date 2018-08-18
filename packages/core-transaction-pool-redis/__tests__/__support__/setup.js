@@ -14,8 +14,7 @@ exports.setUp = async () => {
   }, {
     exit: '@arkecosystem/core-blockchain',
     exclude: [
-      '@arkecosystem/core-transaction-pool-redis',
-      '@arkecosystem/core-p2p'
+      '@arkecosystem/core-transaction-pool-redis'
     ]
   })
 }

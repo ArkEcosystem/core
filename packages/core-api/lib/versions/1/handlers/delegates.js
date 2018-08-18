@@ -123,6 +123,13 @@ exports.voters = {
    */
   async handler (request, h) {
     const delegate = await database.delegates.findById(request.query.publicKey)
+
+    if (!delegate) {
+      return utils.respondWith({
+        accounts: []
+      })
+    }
+
     const accounts = await database.wallets.findAllByVote(delegate.publicKey)
 
     return utils.respondWith({

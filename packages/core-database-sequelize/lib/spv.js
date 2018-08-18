@@ -200,7 +200,7 @@ module.exports = class SPV {
 
       const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
       wallet.votebalance = delegates[i].votebalance
-      wallet.missedBlocks = delegates[i].missedBlocks
+      wallet.missedBlocks = parseInt(delegates[i].missedBlocks)
 
       if (forgedBlock) {
         wallet.forgedFees = +forgedBlock.totalFees
