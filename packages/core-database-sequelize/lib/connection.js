@@ -27,6 +27,8 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {SequelizeConnection}
    */
   async make () {
+    logger.verbose(`Connecting to Sequelize database (${this.config.dialect})`)
+
     if (this.connection) {
       throw new Error('Sequelize connection already initialised')
     }
@@ -75,19 +77,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
   }
 
   /**
-   * Disconnect from the database.
-   * @return {Boolean}
+   * Disconnects from the database and closes the cache.
+   * @return {Promise} The successfulness of closing the Sequelize connection
    */
   async disconnect () {
     try {
       await this.saveBlockCommit()
       await this.deleteBlockCommit()
+      this.cache.destroy()
     } catch (error) {
       logger.warn('Issue in commiting blocks, database might be corrupted')
       logger.warn(error.message)
     }
 
-    await this.connection.close()
+    logger.verbose(`Disconnecting from Sequelize database (${this.config.dialect})`)
+
+    return this.connection.close()
   }
 
   /**
@@ -320,6 +325,15 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
         )
       }
     } else {
+      // NOTE: UPSERT is far from optimal. It can takes several seconds here
+      // if many accounts have to be updated at each round turn
+      //
+      // What can be done is to update accounts at each block in unsync manner
+      // what is really important is that db is sync with wallets in memory
+      // at round turn because votes computation to calculate active delegate list is made against database
+      //
+      // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
+      // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
       await this.connection.transaction(async dbtransaction =>
         Promise.all(wallets.map(wallet => this.models.wallet.upsert(wallet, {transaction: dbtransaction})))
       )
@@ -351,6 +365,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     } catch (error) {
       logger.error(error.stack)
       if (error.sql) {
+        logger.info('Function saveBlock')
         logger.info(error.sql)
       }
       await transaction.rollback()
@@ -392,6 +407,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = null
     } catch (error) {
       logger.error(error)
+      if (error.sql) {
+        logger.info('Function saveBlockCommit')
+        logger.info(error.sql)
+      }
       await this.asyncTransaction.rollback()
       this.asyncTransaction = null
       throw error
@@ -413,6 +432,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
+      if (error.sql) {
+        logger.info('Function deleteBlock')
+        logger.info(error.sql)
+      }
       await transaction.rollback()
       throw error
     }
@@ -448,6 +471,10 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       this.asyncTransaction = null
     } catch (error) {
       logger.error(error)
+      if (error.sql) {
+        logger.info('Function deleteBlockCommit')
+        logger.info(error.sql)
+      }
       await this.asyncTransaction.rollback()
       this.asyncTransaction = null
       throw error

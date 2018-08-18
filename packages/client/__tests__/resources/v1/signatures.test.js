@@ -1,11 +1,14 @@
 const Client = require('../../../lib')
 const ApiResource = require('../../../lib/resources/v1/signatures')
-require('../../mocks/v1')
+
+const configureMocks = require('../../mocks/v1')
+const host = 'https://example.net:4003'
+configureMocks({ host })
 
 let resource
 
 beforeEach(() => {
-  resource = (new Client('https://localhost:4003')).setVersion(1).resource('signatures')
+  resource = (new Client(host)).setVersion(1).resource('signatures')
 })
 
 describe('API - 1.0 - Resources - Signatures', () => {

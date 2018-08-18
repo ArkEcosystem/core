@@ -9,6 +9,7 @@ module.exports = (model) => {
   return {
     address: model.address,
     publicKey: model.publicKey,
+    secondPublicKey: model.secondPublicKey,
     balance: model.balance,
     isDelegate: !!model.username
   }

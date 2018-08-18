@@ -148,12 +148,12 @@ module.exports = class ConnectionInterface {
 
   /**
    * Commit the block delete database transaction.
-   * NOTE: to be used in combination with saveBlockAsync
+   * NOTE: to be used in combination with deleteBlockAsync
    * @return {void}
    * @throws Error
    */
   async deleteBlockCommit () {
-    throw new Error('Method [saveBlockCommit] not implemented!')
+    throw new Error('Method [deleteBlockCommit] not implemented!')
   }
 
   /**
@@ -333,7 +333,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = this.__getBlocksForRound(round)
+      this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -399,8 +399,13 @@ module.exports = class ConnectionInterface {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
     if (this.blocksInCurrentRound) {
-      const b = this.blocksInCurrentRound.pop()
-      if (b.data.id !== block.data.id) throw new Error('Reverted wrong block. Restart is needed 💣')
+      this.blocksInCurrentRound.pop()
+      // COMMENTED OUT: needs to be sure is properly synced
+      // if (b.data.id !== block.data.id) {
+      //   logger.debug(`block to revert: ${JSON.stringify(b.data)}`)
+      //   logger.debug(`reverted block: ${JSON.stringify(block.data)}`)
+      //   throw new Error('Reverted wrong block. Restart is needed 💣')
+      // }
     }
     emitter.emit('block.reverted', block.data)
   }

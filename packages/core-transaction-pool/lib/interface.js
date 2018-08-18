@@ -254,7 +254,7 @@ module.exports = class TransactionPoolInterface {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
     await Promise.each(forgedIdsSet, async (transactionId) => {
-        await this.removeTransactionById(transactionId)
+      await this.removeTransactionById(transactionId)
     })
 
     return transactionIds.filter(id => !forgedIdsSet.has(id))

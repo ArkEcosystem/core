@@ -1,11 +1,11 @@
 const request = require('./request')
 
 module.exports = async (id) => {
-    const response = (await request.get(`/api/transactions/get?id=${id}`)).data
+  const response = (await request.get(`/api/v2/transactions/${id}`)).data
 
-    if (response.success) {
-        return response.transaction
-    }
+  if (response.data) {
+      return response.data
+  }
 
-    return null
+  return null
 }

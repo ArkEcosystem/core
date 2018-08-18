@@ -9,6 +9,7 @@
     "depcheck": "lerna run depcheck",
     "prepare": "lerna run prepare",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
+    "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
 		"test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles"
   },
   "devDependencies": {
