@@ -31,6 +31,7 @@
       "delegateRegistration": 10000000000,
       "vote": 1000000000,
       "multiSignature": 1000000000,
+      "attachInfo": 100000000,
       "ipfs": 0,
       "timelockTransfer": 0,
       "multiPayment": 0,
