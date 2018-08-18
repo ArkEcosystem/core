@@ -11,18 +11,12 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @return {Hapi.Server}
  */
 
-let corsHeaders = {
-  origin: ['*'],
-  headers: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type', 'CORELATION_ID'],
-  credentials: true
-}
-
 module.exports = async (config) => {
   const baseConfig = {
     host: config.host,
     port: config.port,
     routes: {
-      cors: corsHeaders,
+      cors: true,
       validate: {
         async failAction (request, h, err) {
           throw err
@@ -138,12 +132,18 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('./versions/1'),
-    routes: { prefix: '/api/v1' }
+    routes: {
+      prefix: '/api/v1',
+      cors: true
+    }
   })
 
   await server.register({
     plugin: require('./versions/2'),
-    routes: { prefix: '/api/v2' },
+    routes: {
+      prefix: '/api/v2',
+      cors: true
+    },
     options: config
   })
 
