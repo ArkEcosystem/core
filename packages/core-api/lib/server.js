@@ -10,12 +10,19 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @param  {Object} config
  * @return {Hapi.Server}
  */
+
+let corsHeaders = {
+  origin: ['*'],
+  headers: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type', 'CORELATION_ID'],
+  credentials: true
+}
+
 module.exports = async (config) => {
   const baseConfig = {
     host: config.host,
     port: config.port,
     routes: {
-      cors: true,
+      cors: corsHeaders,
       validate: {
         async failAction (request, h, err) {
           throw err
