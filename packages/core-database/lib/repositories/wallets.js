@@ -29,12 +29,12 @@ module.exports = class WalletsRepository {
   findAll (params = {}) {
     const wallets = this.getLocalWallets()
 
-    const order = params.orderBy
+    let [iteratee, order] = params.orderBy
       ? params.orderBy.split(':')
       : ['rate', 'asc']
 
     return {
-      rows: limitRows(orderBy(wallets, order), params),
+      rows: limitRows(orderBy(wallets, iteratee, order), params),
       count: wallets.length
     }
   }
@@ -79,7 +79,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   top (params = {}) {
-    const wallets = orderBy(this.getLocalWallets(), ['balance', 'desc'])
+    const wallets = orderBy(this.getLocalWallets(), ['balance'], ['desc'])
 
     return {
       rows: limitRows(wallets, params),
