@@ -2,8 +2,8 @@
 
 /**
  * Check if A is lesser than or equal to B.
- * @param  {*} a
- * @param  {*} b
+ * @param  {Number} actual
+ * @param  {Number} expected
  * @return {Boolean}
  */
-module.exports = (a, b) => (a <= b)
+module.exports = (actual, expected) => (actual <= expected)
