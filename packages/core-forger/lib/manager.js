@@ -5,7 +5,6 @@ const delay = require('delay')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Delegate, Transaction } = require('@arkecosystem/crypto').models
@@ -118,7 +117,7 @@ module.exports = class ForgerManager {
       return this.__monitor(round)
     } catch (error) {
       // README: The Blockchain is not ready, monitor until it is instead of crashing.
-      if (error.response.status === 503) {
+      if (error.response && error.response.status === 503) {
         logger.warn(`Blockchain not ready - ${error.response.status} ${error.response.statusText}`)
 
         await delay(2000)
@@ -133,7 +132,7 @@ module.exports = class ForgerManager {
 
       await delay(2000) // no idea when this will be ok, so waiting 2s before checking again
 
-      emitter.emit('forger.failed', error.message)
+      this.client.emitEvent('forger.failed', error.message)
 
       return this.__monitor(round)
     }
@@ -145,7 +144,13 @@ module.exports = class ForgerManager {
    * @param {Object} round
    */
   async __forgeNewBlock (delegate, round) {
-      emitter.emit('forger.started', delegate.publicKey)
+      // TODO: Disabled for now as this could cause a delay in forging that
+      // results in missing a block which we want to avoid.
+      //
+      // We should either use a very radical timeout like 500ms or look
+      // into another solution for broadcasting this specific event.
+      //
+      // this.client.emitEvent('forger.started', delegate.publicKey)
 
       const transactions = await this.__getTransactionsForForging()
 
@@ -159,8 +164,8 @@ module.exports = class ForgerManager {
       const username = this.usernames[delegate.publicKey]
       logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
-      emitter.emit('block.forged', block.data)
-      transactions.forEach(transaction => emitter.emit('transaction.forged', transaction.data))
+      this.client.emitEvent('block.forged', block.data)
+      transactions.forEach(transaction => this.client.emitEvent('transaction.forged', transaction.data))
 
       await this.client.broadcast(block.toRawJson())
   }
