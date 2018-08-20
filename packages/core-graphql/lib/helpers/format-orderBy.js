@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Logic used by our orderBy input
+ * @param {Object} parameter
+ * @param {String} defaultValue
+ * @return {String}
+ */
 module.exports = (parameter, defaultValue) => {
   let order
 
