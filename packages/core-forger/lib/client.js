@@ -1,7 +1,7 @@
 'use strict'
 const Promise = require('bluebird')
 const axios = require('axios')
-const sample = require('lodash/sample')
+const { sample, some } = require('lodash')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -50,7 +50,9 @@ module.exports = class Client {
     // actions on a remote host based on events you should be using webhooks
     // that get triggered by the events you wish to react to.
 
-    const host = this.hosts.find(host => host.includes('127.0.0.1'))
+    const host = this.hosts.find(host => some(host, [
+      'localhost', '127.0.0.1', '::ffff:127.0.0.1', '192.168.*'
+    ]))
 
     if (!host) {
       return logger.error('Was unable to find any local hosts.')
