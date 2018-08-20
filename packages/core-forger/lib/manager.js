@@ -144,7 +144,9 @@ module.exports = class ForgerManager {
    * @param {Object} round
    */
   async __forgeNewBlock (delegate, round) {
-      this.client.emitEvent('forger.started', delegate.publicKey)
+      // NOTE: Disabled for now as this could cause a delay in forging that
+      // results in missing a block which we want to avoid.
+      // this.client.emitEvent('forger.started', delegate.publicKey)
 
       const transactions = await this.__getTransactionsForForging()
 
