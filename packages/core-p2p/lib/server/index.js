@@ -52,6 +52,16 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
+    plugin: require('./versions/config'),
+    routes: { prefix: '/config' }
+  })
+
+  await server.register({
+    plugin: require('./versions/1'),
+    routes: { prefix: '/peer' }
+  })
+
+  await server.register({
     plugin: require('./versions/internal'),
     routes: { prefix: '/internal' }
   })
@@ -62,8 +72,6 @@ module.exports = async (p2p, config) => {
       routes: { prefix: '/remote' }
     })
   }
-
-  await server.register({ plugin: require('./versions/1') })
 
   try {
     await server.start()
