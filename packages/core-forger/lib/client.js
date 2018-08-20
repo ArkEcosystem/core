@@ -1,5 +1,4 @@
 'use strict'
-const Promise = require('bluebird')
 const axios = require('axios')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
@@ -43,15 +42,15 @@ module.exports = class Client {
    * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
    */
   async syncCheck () {
-    await Promise.each(this.hosts, async (host) => {
-      logger.debug(`Sending wake-up check to relay node(s) ${host}`)
+    await this.__chooseHost()
 
-      try {
-        await this.__get(`${this.host}/internal/syncCheck`)
-      } catch (e) {
-        //
-      }
-    })
+    logger.debug(`Sending wake-up check to relay node ${this.host}`)
+
+    try {
+      await this.__get(`${this.host}/internal/syncCheck`)
+    } catch (error) {
+      logger.error(`Could not sync check: ${error.message}`)
+    }
   }
 
   /**
