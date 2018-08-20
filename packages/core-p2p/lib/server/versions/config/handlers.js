@@ -20,11 +20,11 @@ exports.getConfig = {
         network: {
           version: config.network.pubKeyHash,
           nethash: config.network.nethash,
-          explorer: config.network.client.explorer
-        },
-        token: {
-          name: config.network.client.token,
-          symbol: config.network.client.symbol
+          explorer: config.network.client.explorer,
+          token: {
+            name: config.network.client.token,
+            symbol: config.network.client.symbol
+          }
         },
         plugins: transform(config)
       }
