@@ -20,7 +20,10 @@ exports.getConfig = {
         token: config.network.client.token,
         symbol: config.network.client.symbol,
         explorer: config.network.client.explorer,
-        version: config.network.pubKeyHash,
+        versions: {
+          network: config.network.pubKeyHash,
+          core: container.resolveOptions('blockchain').version
+        },
         plugins: transform(config)
       }
     }
