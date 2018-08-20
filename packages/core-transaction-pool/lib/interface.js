@@ -3,7 +3,6 @@
 const Promise = require('bluebird')
 
 const container = require('@arkecosystem/core-container')
-const TransactionGuard = require('./guard')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
 
@@ -11,10 +10,11 @@ const ark = require('@arkecosystem/crypto')
 const { slots } = ark
 const { TRANSACTION_TYPES } = ark.constants
 
+const memory = require('./memory')
 const PoolWalletManager = require('./pool-wallet-manager')
 const helpers = require('./utils/validation-helpers')
 const moment = require('moment')
-const _ = require('lodash')
+const uniq = require('lodash/uniq')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -24,7 +24,7 @@ module.exports = class TransactionPoolInterface {
   constructor (options) {
     this.options = options
     this.walletManager = new PoolWalletManager()
-    this.guard = new TransactionGuard(this)
+    this.memory = memory
 
     this.blockedByPublicKey = {}
   }
@@ -37,12 +37,21 @@ module.exports = class TransactionPoolInterface {
     return this.driver
   }
 
-   /**
+  /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
   async getPoolSize () {
     throw new Error('Method [getPoolSize] not implemented!')
+  }
+
+  /**
+   * Get the number of transaction in the pool from specific sender
+   * @param  {String} senderPublicKey
+   * @return {Number}
+   */
+  async getSenderSize (senderPublicKey) {
+    throw new Error('Method [getSenderSize] not implemented!')
   }
 
   /**
@@ -119,7 +128,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Add many transaction to the pool. Method called from blockchain, upon receiveing payload.
+   * Add many transaction to the pool. Method called from blockchain, upon receiving payload.
    * @param {Array}   transactions
    * @param {Boolean} isBroadcast
    */
@@ -129,7 +138,7 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
-   * @param  {String} address
+   * @param  {String} transaction
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
@@ -137,7 +146,7 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Check whether ransaction is already in pool
+   * Check whether transaction is already in pool
    * @param  {Transaction} transaction
    * @return {Boolean}
    */
@@ -168,7 +177,7 @@ module.exports = class TransactionPoolInterface {
    * @param  {String} senderPublicKey
    * @return {Time} blockReleaseTime
    */
-   blockSender (senderPublicKey) {
+  blockSender (senderPublicKey) {
     const blockReleaseTime = moment().add(1, 'hours')
 
     this.blockedByPublicKey[senderPublicKey] = blockReleaseTime
@@ -188,7 +197,7 @@ module.exports = class TransactionPoolInterface {
     try {
       let transactionIds = await this.getTransactionsIds(start, size)
       transactionIds = await this.removeForgedAndGetPending(transactionIds)
-      transactionIds = _.uniq(transactionIds)
+      transactionIds = uniq(transactionIds)
 
       let transactions = []
       for (const id of transactionIds) {
@@ -242,45 +251,51 @@ module.exports = class TransactionPoolInterface {
    * @return {Array} IDs of pending transactions that have yet to be forged.
    */
   async removeForgedAndGetPending (transactionIds) {
-    const forgedIds = await database.getForgedTransactionsIds(transactionIds)
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.each(forgedIds, async (transactionId) => {
+    await Promise.each(forgedIdsSet, async (transactionId) => {
         await this.removeTransactionById(transactionId)
     })
 
-    return transactionIds.filter(id => forgedIds.indexOf(id) === -1)
+    return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
 
   /**
    * Processes recently accepted block by the blockchain.
    * It removes block transaction from the pool and adjusts pool wallets for non existing transactions
+   *
    * @param  {Object} block
    * @return {void}
    */
   async acceptChainedBlock (block) {
-    this.walletManager.applyBlock(block)
-
     for (const transaction of block.transactions) {
       const exists = await this.transactionExists(transaction.id)
       if (!exists) {
+        const senderWallet = this.walletManager.exists(transaction.senderPublicKey) ? this.walletManager.getWalletByPublicKey(transaction.senderPublicKey) : false
         // if wallet in pool we try to apply transaction
-        if (this.walletManager.exists(transaction.senderPublicKey) || this.walletManager.exists(transaction.recipientId)) {
+        if (senderWallet || this.walletManager.exists(transaction.recipientId)) {
           try {
-            await this.walletManager.applyTransaction(transaction)
+            await this.walletManager.applyPoolTransaction(transaction)
           } catch (error) {
-            logger.error(`acceptChainedBlock from pool: ${error}`)
+            logger.error(`AcceptChainedBlock in pool: ${error}`)
             await this.purgeByPublicKey(transaction.senderPublicKey)
             this.blockSender(transaction.senderPublicKey)
+          }
+
+          if (senderWallet.balance === 0) {
+            this.walletManager.deleteWallet(transaction.senderPublicKey)
           }
         }
       } else {
         await this.removeTransaction(transaction)
       }
 
-      if (this.walletManager.getWalletByPublicKey(transaction.senderPublicKey).balance === 0) {
+      if (await this.getSenderSize(transaction.senderPublicKey) === 0) {
         this.walletManager.deleteWallet(transaction.senderPublicKey)
       }
     }
+
+    this.walletManager.applyPoolBlock(block)
   }
 
   /**
@@ -303,7 +318,7 @@ module.exports = class TransactionPoolInterface {
       }
 
       try {
-        await this.walletManager.applyTransaction(transaction)
+        await this.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
         logger.error('BuildWallets from pool:', error)
         await this.purgeByPublicKey(transaction.senderPublicKey)

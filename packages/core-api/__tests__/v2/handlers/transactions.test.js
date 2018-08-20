@@ -1,28 +1,59 @@
 'use strict'
 
-require('../../__support__/setup')
-
+const app = require('../../__support__/setup')
 const utils = require('../utils')
-const genesisBlock = require('../../__support__/config/genesisBlock.json')
-const genesisTransactions = genesisBlock.transactions[0]
 
-const transactionId = genesisTransactions.id
-const blockId = genesisBlock.id
-const type = genesisTransactions.type
-const wrongType = 3
-const version = 1
-const senderPublicKey = genesisTransactions.senderPublicKey
-const senderAddress = genesisTransactions.senderId
-const recipientAddress = genesisTransactions.recipientId
-const timestamp = genesisTransactions.timestamp
-const timestampFrom = timestamp
-const timestampTo = timestamp
-const amount = genesisTransactions.amount
-const amountFrom = amount
-const amountTo = amount
-const fee = genesisTransactions.fee
-const feeFrom = fee
-const feeTo = fee
+let genesisBlock
+let genesisTransactions
+
+let transactionId
+let blockId
+let type
+let wrongType
+let version
+let senderPublicKey
+let senderAddress
+let recipientAddress
+let timestamp
+let timestampFrom
+let timestampTo
+let amount
+let amountFrom
+let amountTo
+let fee
+let feeFrom
+let feeTo
+
+beforeAll(async () => {
+  await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  genesisTransactions = genesisBlock.transactions[0]
+
+  transactionId = genesisTransactions.id
+  blockId = genesisBlock.id
+  type = genesisTransactions.type
+  wrongType = 3
+  version = 1
+  senderPublicKey = genesisTransactions.senderPublicKey
+  senderAddress = genesisTransactions.senderId
+  recipientAddress = genesisTransactions.recipientId
+  timestamp = genesisTransactions.timestamp
+  timestampFrom = timestamp
+  timestampTo = timestamp
+  amount = genesisTransactions.amount
+  amountFrom = amount
+  amountTo = amount
+  fee = genesisTransactions.fee
+  feeFrom = fee
+  feeTo = fee
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 2.0 - Transactions', () => {
   describe('GET /transactions', () => {

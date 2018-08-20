@@ -1,14 +1,21 @@
 'use strict'
 
 const app = require('./__support__/setup')
-const genesisBlock = require('./__fixtures__/genesisBlock')
-const genesisTransaction = require('./__fixtures__/genesisTransaction')
+
+let genesisBlock
+let genesisTransaction
 
 let Peer
 let peer
 
 beforeAll(async () => {
   await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('./__fixtures__/genesisBlock')
+  genesisTransaction = require('./__fixtures__/genesisTransaction')
+
   Peer = require('../lib/peer')
 })
 
@@ -99,7 +106,7 @@ describe('Peer', () => {
     })
 
     it('should not be ok', async () => {
-      expect(peer.ping(1)).rejects.toThrowError('is unreachable')
+      expect(await peer.ping(1)).toThrowError('is unreachable')
     })
   })
 

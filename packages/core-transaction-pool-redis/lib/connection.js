@@ -20,8 +20,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       return this
     }
 
-    this.pool = null
-    this.subscription = null
     this.keyPrefix = this.options.key
     this.pool = new Redis(this.options.redis)
     this.subscription = new Redis(this.options.redis)
@@ -76,12 +74,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
   }
 
-   /**
+  /**
    * Get the number of transactions in the pool.
    * @return {Number}
    */
   async getPoolSize () {
     return this.__isReady() ? this.pool.llen(this.__getRedisOrderKey()) : 0
+  }
+
+  /**
+   * Get the number of transaction in the pool from specific sender
+   * @param {String} senderPublicKey
+   * @returns {Number}
+   */
+  async getSenderSize (senderPublicKey) {
+    return this.pool.llen(this.__getRedisSenderPublicKey(senderPublicKey))
   }
 
   /**
@@ -94,11 +101,13 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (!(transaction instanceof Transaction)) {
-      return logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
+      logger.warn(`Discarded Transaction ${transaction} - Invalid object.`)
+      return
     }
 
     if (await this.transactionExists(transaction.id)) {
-      return logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
+      logger.debug(`Duplicated Transaction ${transaction.id} - Transaction already in pool.`)
+      return
     }
 
     try {
@@ -195,7 +204,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
   /**
    * Check whether sender of transaction has exceeded max transactions in queue.
-   * @param  {String} address
+   * @param  {String} transaction
    * @return {(Boolean|void)}
    */
   async hasExceededMaxTransactions (transaction) {
@@ -204,7 +213,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     if (this.options.allowedSenders.includes(transaction.senderPublicKey)) {
-      logger.debug(`Transaction pool allowing whitelisted ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
+      logger.debug(`Transaction pool allowing ${transaction.senderPublicKey} senderPublicKey, thus skipping throttling.`)
       return false
     }
 

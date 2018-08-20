@@ -18,6 +18,9 @@ module.exports = class ConnectionInterface {
     this.config = config
     this.connection = null
     this.blocksInCurrentRound = null
+    this.stateStarted = false
+
+    this.__registerListeners()
   }
 
   /**
@@ -194,6 +197,14 @@ module.exports = class ConnectionInterface {
   }
 
   /**
+   * Get recent block ids.
+   * @return {[]String}
+   */
+  async getRecentBlockIds () {
+    throw new Error('Method [getRecentBlockIds] not implemented!')
+  }
+
+  /**
    * Store the given round.
    * @param  {Array} activeDelegates
    * @return {void}
@@ -229,11 +240,13 @@ module.exports = class ConnectionInterface {
 
     try {
       delegates.forEach(delegate => {
-        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.generatorPublicKey === delegate.publicKey)
+        let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey)
         let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++
+          logger.debug(`Delegate ${wallet.username} (${wallet.publicKey}) just missed a block. Total: ${wallet.missedBlocks}`)
+          wallet.dirty = true
           emitter.emit('forger.missing', {
             delegate: wallet
           })
@@ -292,7 +305,9 @@ module.exports = class ConnectionInterface {
           this.blocksInCurrentRound = []
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
-          // this.walletManager.updateDelegates()
+          if (this.stateStarted) {
+            this.walletManager.updateDelegates()
+          }
         } catch (error) {
           // trying to leave database state has it was
           this.deleteRound(round)
@@ -318,7 +333,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
-      this.blocksInCurrentRound = (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+      this.blocksInCurrentRound = this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
 
@@ -336,12 +351,16 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
+    const generatorUsername = this.walletManager.getWalletByPublicKey(block.data.generatorPublicKey).username
+
     if (!forgingDelegate) {
-      logger.debug(`Could not decide if delegate ${block.data.generatorPublicKey} is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
+      logger.debug(`Could not decide if delegate ${generatorUsername} (${block.data.generatorPublicKey}) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      throw new Error(`Delegate ${block.data.generatorPublicKey} not allowed to forge, should be ${forgingDelegate.publicKey} :-1:`)
+      const forgingUsername = this.walletManager.getWalletByPublicKey(forgingDelegate.publicKey).username
+
+      throw new Error(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
     } else {
-      logger.debug(`Delegate ${block.data.generatorPublicKey} allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
+      logger.debug(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) allowed to forge block ${block.data.height.toLocaleString()} :+1:`)
     }
 
     return true
@@ -364,8 +383,10 @@ module.exports = class ConnectionInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     await this.walletManager.applyBlock(block)
+    if (this.blocksInCurrentRound) {
+      this.blocksInCurrentRound.push(block)
+    }
     await this.applyRound(block.data.height)
-    if (this.blocksInCurrentRound) this.blocksInCurrentRound.push(block)
     emitter.emit('block.applied', block.data)
   }
 
@@ -438,6 +459,38 @@ module.exports = class ConnectionInterface {
       offset += 100000
       console.log(offset)
     }
+  }
+
+  /**
+   * Get blocks for round.
+   * @param  {number} round
+   * @return {[]Block}
+   */
+  async __getBlocksForRound (round) {
+    const lastBlock = await this.getLastBlock()
+    if (!lastBlock) {
+      return []
+    }
+
+    let height = +lastBlock.data.height
+    if (!round) {
+      round = this.getRound(height)
+    }
+
+    const maxDelegates = config.getConstants(height).activeDelegates
+    height = (round * maxDelegates) + 1
+
+    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+  }
+
+  /**
+   * Register event listeners.
+   * @return {void}
+   */
+  __registerListeners () {
+    emitter.on('state:started', () => {
+      this.stateStarted = true
+    })
   }
 
   /**

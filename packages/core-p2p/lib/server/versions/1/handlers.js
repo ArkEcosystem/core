@@ -1,11 +1,14 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
 const transactionPool = container.resolvePlugin('transactionPool')
-const { slots } = require('@arkecosystem/crypto')
+const { slots, crypto } = require('@arkecosystem/crypto')
+const { Transaction } = require('@arkecosystem/crypto').models
+
 const schema = require('./schema')
 
 /**
@@ -21,7 +24,7 @@ exports.getPeers = {
     try {
       const peers = request.server.app.p2p.getPeers()
         .map(peer => peer.toBroadcastInfo())
-        .sort(() => Math.random() - 0.5)
+        .sort((a, b) => a.delay - b.delay)
 
       return {
         success: true,
@@ -119,9 +122,19 @@ exports.getTransactionsFromIds = {
   async handler (request, h) {
     try {
       const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-      const transactions = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
+      const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
-      return { success: true, transactions: transactions }
+      // TODO: v1 compatibility patch. Add transformer and refactor later on
+      const transactions = await rows.map(row => {
+        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
+        transaction.blockId = row.block_id
+        transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
+        return transaction
+      })
+
+      const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+
+      return { success: true, transactions: returnTrx }
     } catch (error) {
       return h.response({ success: false, message: error.message }).code(500).takeover()
     }
@@ -273,7 +286,7 @@ exports.postBlock = {
 
       return { success: true }
     } catch (error) {
-      console.log(error)
+      logger.error(error)
       return { success: false }
     }
   },
@@ -303,23 +316,44 @@ exports.postTransactions = {
       }
     }
 
-    await transactionPool.guard.validate(request.payload.transactions)
-
-    // TODO: Review throttling of v1
-    if (transactionPool.guard.hasAny('accept')) {
-      logger.info(`Received ${transactionPool.guard.accept.length} new transactions`)
-      transactionPool.addTransactions(transactionPool.guard.accept)
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!blockchain) {
+      return { success: false }
     }
 
-    if (!request.payload.isBroadCasted && transactionPool.guard.hasAny('broadcast')) {
-      container
+    /**
+     * Here we will make sure we memorize the transactions for future requests
+     * and decide which transactions are valid or invalid in order to prevent
+     * duplication and race conditions caused by concurrent requests.
+     */
+    const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
+
+    const guard = new TransactionGuard(transactionPool)
+    guard.invalid = invalid
+    await guard.validate(valid)
+
+    // TODO: Review throttling of v1
+    if (guard.hasAny('accept')) {
+      logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
+
+      logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
+
+      await transactionPool.addTransactions(guard.accept)
+
+      transactionPool.memory
+        .forget(guard.getIds('accept'))
+        .forget(guard.getIds('excess'))
+    }
+
+    if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
+      await container
         .resolvePlugin('p2p')
-        .broadcastTransactions(transactionPool.guard.broadcast)
+        .broadcastTransactions(guard.broadcast)
     }
 
     return {
       success: true,
-      transactionIds: transactionPool.guard.getIds('accept')
+      transactionIds: guard.getIds('accept')
     }
   },
   config: {

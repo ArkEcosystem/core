@@ -65,10 +65,6 @@ exports.getRound = {
       const delegates = await blockchain.database.getActiveDelegates(height)
       const timestamp = slots.getTime()
 
-      // console.log(delegates.length)
-      // console.log(~~(timestamp / blockTime) % maxActive)
-      // console.log(delegates[~~(timestamp / blockTime) % maxActive])
-
       return {
         success: true,
         round: {

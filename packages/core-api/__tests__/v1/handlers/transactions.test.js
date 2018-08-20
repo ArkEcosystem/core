@@ -1,16 +1,28 @@
 'use strict'
 
-require('../../__support__/setup')
-
 require('@arkecosystem/core-test-utils')
 
+const app = require('../../__support__/setup')
 const utils = require('../utils')
-const genesisBlock = require('../../__support__/config/genesisBlock.json')
 
 const address1 = 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
 const address2 = 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri'
 
-const transactionList = genesisBlock.transactions
+let genesisBlock
+let transactionList
+
+beforeAll(async () => {
+  await app.setUp()
+
+  // Create the genesis block after the setup has finished or else it uses a potentially
+  // wrong network config.
+  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  transactionList = genesisBlock.transactions
+})
+
+afterAll(async () => {
+  await app.tearDown()
+})
 
 describe('API 1.0 - Transactions', () => {
   describe('GET /transactions', () => {
