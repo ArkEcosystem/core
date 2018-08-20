@@ -4,9 +4,12 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const requestIp = require('request-ip')
 const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
+
+const schema = require('./schema')
 
 /**
  * @type {Object}
@@ -188,5 +191,25 @@ exports.getUsernames = {
     }
 
     return { success: true, data }
+  }
+}
+
+/**
+* Emit the given event and payload to the local host.
+ * @type {Object}
+ */
+exports.emitEvent = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  handler: (request, h) => {
+    emitter.emit(request.payload.event, request.payload.body)
+
+    return h.response(null).code(204)
+  },
+  options: {
+    validate: schema.emitEvent
   }
 }

@@ -40,6 +40,35 @@ module.exports = class Client {
   }
 
   /**
+   * Emit the given event and payload to the local host.
+   * @param  {String} event
+   * @param  {Object} body
+   * @return {Object}
+   */
+  async emitEvent (event, body) {
+    // NOTE: Events need to be emitted to the localhost. If you need to trigger
+    // actions on a remote host based on events you should be using webhooks
+    // that get triggered by the events you wish to react to.
+
+    const host = this.hosts.find(host => host.includes('127.0.0.1'))
+
+    if (!host) {
+      return logger.error('Was unable to find any local hosts.')
+    }
+
+    try {
+      await axios.post(`${host}/internal/events`, {
+        event, body
+      }, {
+        headers: this.headers,
+        timeout: 2000
+      })
+    } catch (error) {
+      logger.error(`Failed to emit "${event}" to "${host}"`)
+    }
+  }
+
+  /**
    * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
    */
   async syncCheck () {
