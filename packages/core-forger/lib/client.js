@@ -48,8 +48,8 @@ module.exports = class Client {
 
     try {
       await this.__get(`${this.host}/internal/syncCheck`)
-    } catch (e) {
-      logger.error(e.message)
+    } catch (error) {
+      logger.error(`Could not sync check: ${error.message}`)
     }
   }
 
