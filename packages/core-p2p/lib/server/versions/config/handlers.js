@@ -16,12 +16,16 @@ exports.getConfig = {
   async handler (request, h) {
     return {
       data: {
-        nethash: config.network.nethash,
-        token: config.network.client.token,
-        symbol: config.network.client.symbol,
-        explorer: config.network.client.explorer,
+        network: {
+          version: config.network.pubKeyHash,
+          nethash: config.network.nethash,
+          explorer: config.network.client.explorer,
+        },
+        token: {
+          name: config.network.client.token,
+          symbol: config.network.client.symbol
+        },
         versions: {
-          network: config.network.pubKeyHash,
           core: container.resolveOptions('blockchain').version
         },
         plugins: transform(config)
