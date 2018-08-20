@@ -14,7 +14,6 @@ module.exports = (config) => {
   ]
 
   let result = {}
-  result[allowed[0]] = config.plugins[allowed[0]].port
 
   for (const [name, options] of Object.entries(config.plugins)) {
     if (allowed.includes(name)) {
