@@ -10,6 +10,7 @@ module.exports = (model) => {
     address: model.address,
     publicKey: model.publicKey,
     balance: model.balance,
-    isDelegate: !!model.username
+    isDelegate: !!model.username,
+    isUltraNode: !!model.username
   }
 }

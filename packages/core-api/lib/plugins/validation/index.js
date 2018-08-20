@@ -5,7 +5,7 @@ const PLUGIN_NAME = 'hapi-ajv'
 const fs = require('fs')
 const path = require('path')
 const Boom = require('boom')
-const AJV = require('ajv')
+const AJV = require('ajv') // so sanh schema va data js
 
 const ajv = new AJV()
 

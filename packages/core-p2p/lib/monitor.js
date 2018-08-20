@@ -27,7 +27,6 @@ module.exports = class Monitor {
     this.peers = {}
     this.suspendedPeers = {}
     this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
-
     if (!this.config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
 

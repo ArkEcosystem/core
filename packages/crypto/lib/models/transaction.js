@@ -162,6 +162,12 @@ module.exports = class Transaction {
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
     }
+    // register ultranode - ltt
+    if (transaction.type === TRANSACTION_TYPES.ULTRANODE_REGISTRATION){
+      const ultranodeBytes = Buffer.from(transaction.asset.ultranode.username, 'utf8')
+      bb.writeByte(ultranodeBytes.length)
+      bb.append(ultranodeBytes, 'hex')
+    }
 
     if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       let joined = null
@@ -277,6 +283,20 @@ module.exports = class Transaction {
 
       transaction.asset = {
         delegate: {
+          username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString('utf8')
+        }
+      }
+
+      Transaction.parseSignatures(hexString, transaction, assetOffset + (usernamelength + 1) * 2)
+    }
+    /**
+     * Register Ultranode - LTT
+     * */
+    if (transaction.type === TRANSACTION_TYPES.ULTRANODE_REGISTRATION) {
+      const usernamelength = buf.readInt8(assetOffset / 2) & 0xff
+
+      transaction.asset = {
+        ultranode: {
           username: buf.slice(assetOffset / 2 + 1, assetOffset / 2 + 1 + usernamelength).toString('utf8')
         }
       }

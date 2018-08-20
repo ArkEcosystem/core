@@ -12,6 +12,7 @@ const { slots } = require('@arkecosystem/crypto')
  */
 module.exports = (p2pMonitor, lastBlock) => {
   const peers = p2pMonitor.getPeers()
+  console.log(peers);
   const minimumNetworkReach = config.peers.minimumNetworkReach || 20
   const currentSlot = slots.getSlotNumber()
 

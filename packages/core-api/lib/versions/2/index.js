@@ -6,6 +6,7 @@ const node = require('./handlers/node')
 const peers = require('./handlers/peers')
 const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
+const ultranode = require('./handlers/ultranode') // Handler Ultra Node
 const wallets = require('./handlers/wallets')
 
 /**
@@ -20,6 +21,8 @@ const register = async (server, options) => {
     { method: 'GET', path: '/blocks/{id}', ...blocks.show },
     { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
     { method: 'POST', path: '/blocks/search', ...blocks.search },
+
+    { method: 'GET', path: '/ultranodes', ...ultranode.index}, // Get list Ultra Node
 
     { method: 'GET', path: '/delegates', ...delegates.index },
     { method: 'GET', path: '/delegates/{id}', ...delegates.show },
