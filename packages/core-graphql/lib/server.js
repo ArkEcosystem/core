@@ -15,8 +15,18 @@ module.exports = async (config) => {
     port: config.port
   })
 
+  /**
+   * Register useful hapi.js plugins, the same are also found
+   * in @arkecosystem/core-api.
+   */
   await server.register([require('vision'), require('inert'), require('lout')])
 
+  /**
+   * Register Apollo GraphQL plugin for hapi.js server with
+   * our own parameters.
+   * The bulk of the Ark logic for GraphQL is rooted in the
+   * schema module.
+   */
   await server.register({
     plugin: graphqlHapi,
     options: {
@@ -28,6 +38,9 @@ module.exports = async (config) => {
     }
   })
 
+  /**
+   * Optionally register the GraphiQL Apollo hapi.js plugin
+   */
   if (config.graphiql) {
     await server.register({
       plugin: graphiqlHapi,
@@ -40,6 +53,12 @@ module.exports = async (config) => {
     })
   }
 
+  /**
+   * Start the hapi.js server and return it, exit process if
+   * errors are caught.
+   * The returned hapi.js instance is accessible through:
+   * (@arkecosystem/core-container).resolvePlugin('graphql')
+   */
   try {
     await server.start()
 
