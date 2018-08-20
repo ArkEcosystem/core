@@ -1,5 +1,4 @@
 'use strict'
-const Promise = require('bluebird')
 const axios = require('axios')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
