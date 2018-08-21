@@ -68,7 +68,7 @@ exports.show = {
     }
 
     const peer = peers.find(elem => {
-      return elem.ip === request.query.ip && elem.port === +request.query.port
+      return elem.ip === request.query.ip && +elem.port === +request.query.port
     })
 
     if (!peer) {

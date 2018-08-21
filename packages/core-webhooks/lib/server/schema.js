@@ -36,7 +36,7 @@ exports.store = {
     enabled: Joi.boolean().default(true),
     conditions: Joi.array().items(Joi.object({
       key: Joi.string(),
-      value: Joi.string(),
+      value: Joi.any(),
       condition: Joi.string().valid(conditions)
     }))
   }
@@ -52,7 +52,7 @@ exports.update = {
     enabled: Joi.boolean(),
     conditions: Joi.array().items(Joi.object({
       key: Joi.string(),
-      value: Joi.string(),
+      value: Joi.any(),
       condition: Joi.string().valid(conditions)
     }))
   }
