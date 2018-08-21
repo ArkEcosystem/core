@@ -31,15 +31,15 @@ module.exports = (monitor, lastBlock) => {
   let overHeightBlockHeader = null
 
   if (monitor.__isColdStartActive()) {
-    return createStateObject(0, true, true)
+    return createStateObject(0, true, true, overHeightBlockHeader)
   }
 
   if (process.env.ARK_ENV === 'test') {
-    return createStateObject(1, true, false)
+    return createStateObject(1, true, false, overHeightBlockHeader)
   }
 
   if (peers.length < minimumNetworkReach) {
-    return createStateObject(0, false, false)
+    return createStateObject(0, false, false, overHeightBlockHeader)
   }
 
   for (const peer of peers) {
