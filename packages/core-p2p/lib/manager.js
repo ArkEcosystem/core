@@ -139,6 +139,14 @@ module.exports = class PeerManager {
   }
 
   /**
+   * Reset banned peer list.
+   * @return {void}
+   */
+  async resetSuspendedPeers () {
+    return this.monitor.resetSuspendedPeers()
+  }
+
+  /**
    * Get the peer monitor.
    * @return {Object}
    */
