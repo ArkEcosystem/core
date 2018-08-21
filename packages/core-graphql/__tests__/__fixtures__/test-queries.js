@@ -15,22 +15,18 @@ module.exports = {
     { limit: 1, offset: 0, orderBy: null, filter: null }
   ],
   transaction: [
-    { id: 'test tx 1' }, { id: 'test tx 2' }, { id: 'test tx 3' }
+    { id: 'test tx 1' },
+    { id: 'test tx 2' },
+    { id: 'test tx 3' }
   ],
   transactions: [
     { limit: 3, orderBy: null, filter: null },
     { limit: 1, orderBy: null, filter: null }
   ],
   wallet: [
-    {
-      address: 'AdXpdaTXD9s2Nw23Sys7Crbinvsj6ohUA6'
-    },
-    {
-      publicKey: 'arbitrary'
-    },
-    {
-      username: 'cheesePuff'
-    }
+    { address: 'AdXpdaTXD9s2Nw23Sys7Crbinvsj6ohUA6' },
+    { publicKey: 'arbitrary' },
+    { username: 'cheesePuff' }
   ],
   wallets: [
     { limit: 3, orderBy: 'username', filter: null },
