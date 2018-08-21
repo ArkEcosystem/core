@@ -1,6 +1,7 @@
 'use strict'
 
-const PeerManager = require('./manager')
+const monitor = require('./monitor')
+const startServer = require('./server')
 
 /**
  * The struct used by the plugin container.
@@ -13,11 +14,15 @@ exports.plugin = {
   async register (container, options) {
     container.resolvePlugin('logger').info('Starting P2P Interface')
 
-    return (new PeerManager(options)).start()
+    await monitor.start(options)
+
+    monitor.server = await startServer(monitor, options)
+
+    return monitor
   },
   async deregister (container, options) {
     container.resolvePlugin('logger').info('Stopping P2P Interface')
 
-    return container.resolvePlugin('p2p').stop()
+    return container.resolvePlugin('p2p').server.stop()
   }
 }

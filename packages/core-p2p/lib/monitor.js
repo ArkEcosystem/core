@@ -15,14 +15,15 @@ const Peer = require('./peer')
 const guard = require('./guard')
 const networkState = require('./utils/network-state')
 
-module.exports = class Monitor {
+const checkDNS = require('./utils/check-dns')
+const checkNTP = require('./utils/check-ntp')
+
+class Monitor {
   /**
    * @constructor
-   * @param  {PeerManager} manager
    * @throws {Error} If no seed peers
    */
-  constructor (manager) {
-    this.manager = manager
+  constructor () {
     this.config = config
     this.peers = {}
     this.guard = guard.init(this)
@@ -31,21 +32,26 @@ module.exports = class Monitor {
 
   /**
    * Method to run on startup.
-   * @param {Boolean} networkStart
+   * @param {Object} config
    */
-  async start (networkStart = false) {
+  async start (config) {
+    await this.__checkDNSConnectivity(config.dns)
+    await this.__checkNTPConnectivity(config.ntp)
+
     this.__filterPeers()
 
-    if (!networkStart) {
+    if (!config.networkStart) {
       await this.updateNetworkStatus()
     }
+
+    return this
   }
 
   /**
    * Update network status (currently only peers are updated).
    * @return {Promise}
    */
-  async updateNetworkStatus (fast = false) {
+  async updateNetworkStatus () {
     try {
       // TODO: for tests that involve peers we need to sync them
       if (process.env.ARK_ENV !== 'test') {
@@ -172,9 +178,9 @@ module.exports = class Monitor {
 
     if (peer) {
       if (this.guard.isSuspended(peer)) {
-          this.guard.suspensions[ip].until = moment(this.guard.suspensions[ip].until).add(1, 'day')
+        this.guard.suspensions[ip].until = moment(this.guard.suspensions[ip].until).add(1, 'day')
       } else {
-         this.guard.suspend(peer)
+        this.guard.suspend(peer)
       }
     }
   }
@@ -223,6 +229,7 @@ module.exports = class Monitor {
    */
   getRandomPeer (acceptableDelay, downloadSize, failedAttempts) {
     failedAttempts = failedAttempts === undefined ? 0 : failedAttempts
+
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => {
         const peer = this.getPeer(key)
@@ -246,10 +253,6 @@ module.exports = class Monitor {
 
     if (!randomPeer) {
       failedAttempts++
-      // logger.error(this.peers)
-
-      // FIXME: this method doesn't exist
-      // this.manager.checkOnline()
 
       if (failedAttempts > 10) {
         throw new Error('Failed to find random peer')
@@ -297,6 +300,15 @@ module.exports = class Monitor {
       return this.discoverPeers()
     }
   }
+
+  /**
+   * Check if we have any peers.
+   * @return {bool}
+   */
+  hasPeers () {
+    return !!this.getPeers().length
+  }
+
   /**
    * Get the median network height.
    * @return {Number}
@@ -336,8 +348,8 @@ module.exports = class Monitor {
       }
     }
 
-    console.log(heights)
     const pbft = allowedToForge / syncedPeers
+
     return isNaN(pbft) ? 0 : pbft
   }
 
@@ -367,7 +379,7 @@ module.exports = class Monitor {
 
       return blocks
     } catch (error) {
-      logger.error(`Block download: ${error.message}`)
+      logger.error(`Could not download blocks: ${error.message}`)
 
       return this.downloadBlocks(fromBlockHeight)
     }
@@ -471,4 +483,36 @@ module.exports = class Monitor {
   __isColdStartActive () {
     return this.startForgers > moment()
   }
+
+  /**
+   * Check if the node can connect to any DNS host.
+   * @return {void}
+   */
+  async __checkDNSConnectivity (options) {
+    try {
+      const host = await checkDNS(options)
+
+      logger.info(`Your network connectivity has been verified by ${host}`)
+    } catch (error) {
+      logger.error(error.message)
+    }
+  }
+
+  /**
+   * Check if the node can connect to any NTP host.
+   * @return {void}
+   */
+  async __checkNTPConnectivity (options) {
+    try {
+      const { host, time } = await checkNTP(options)
+
+      logger.info(`Your NTP connectivity has been verified by ${host}`)
+
+      logger.info('Local clock is off by ' + parseInt(time.t) + 'ms from NTP :alarm_clock:')
+    } catch (error) {
+      logger.error(error.message)
+    }
+  }
 }
+
+module.exports = new Monitor()
