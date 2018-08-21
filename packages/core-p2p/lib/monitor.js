@@ -24,10 +24,9 @@ class Monitor {
    * @throws {Error} If no seed peers
    */
   constructor () {
-    this.config = config
     this.peers = {}
     this.guard = guard.init(this)
-    this.startForgers = moment().add(this.config.peers.coldStart || 30, 'seconds')
+    this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
   /**
@@ -35,6 +34,8 @@ class Monitor {
    * @param {Object} config
    */
   async start (config) {
+    this.config = config
+
     await this.__checkDNSConnectivity(config.dns)
     await this.__checkNTPConnectivity(config.ntp)
 
@@ -59,8 +60,8 @@ class Monitor {
         await this.cleanPeers()
       }
 
-      if (Object.keys(this.peers).length < this.config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
-        this.config.peers.list
+      if (Object.keys(this.peers).length < config.peers.list.length - 1 && process.env.ARK_ENV !== 'test') {
+        config.peers.list
           .forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
         return this.updateNetworkStatus()
@@ -68,7 +69,7 @@ class Monitor {
     } catch (error) {
       logger.error(`Network Status: ${error.message}`)
 
-      this.config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
+      config.peers.list.forEach(peer => (this.peers[peer.ip] = new Peer(peer.ip, peer.port)), this)
 
       return this.updateNetworkStatus()
     }
@@ -93,7 +94,7 @@ class Monitor {
     }
 
     if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
-      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${this.config.peers.minimumVersion} - Received: ${peer.version}`)
+      logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${config.peers.minimumVersion} - Received: ${peer.version}`)
 
       this.guard.suspend(peer)
 
@@ -104,7 +105,7 @@ class Monitor {
       return
     }
 
-    if (peer.nethash !== this.config.network.nethash) {
+    if (peer.nethash !== config.network.nethash) {
       throw new Error('Request is made on the wrong network')
     }
 
@@ -135,7 +136,7 @@ class Monitor {
     let keys = Object.keys(this.peers)
     let count = 0
     let unresponsivePeers = 0
-    const pingDelay = fast ? 1500 : this.config.peers.globalTimeout
+    const pingDelay = fast ? 1500 : config.peers.globalTimeout
     const max = keys.length
 
     logger.info(`Checking ${max} peers :telescope:`)
@@ -448,13 +449,13 @@ class Monitor {
    * @return {void}
    */
   __filterPeers () {
-    if (!this.config.peers.list) {
+    if (!config.peers.list) {
       logger.error('No seed peers defined in peers.json :interrobang:')
 
       process.exit(1)
     }
 
-    const filteredPeers = this.config.peers.list
+    const filteredPeers = config.peers.list
       .filter(peer => (!this.guard.isMyself(peer) || !this.guard.isValidPort(peer)))
 
     // if (!filteredPeers.length) {
