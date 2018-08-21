@@ -25,7 +25,6 @@ class Monitor {
    */
   constructor () {
     this.peers = {}
-    this.guard = guard.init(this)
     this.startForgers = moment().add(config.peers.coldStart || 30, 'seconds')
   }
 
@@ -38,6 +37,8 @@ class Monitor {
 
     await this.__checkDNSConnectivity(config.dns)
     await this.__checkNTPConnectivity(config.ntp)
+
+    this.guard = guard.init(this)
 
     this.__filterPeers()
 
