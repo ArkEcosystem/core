@@ -4,6 +4,8 @@ const path = require('path')
 const container = require('@arkecosystem/core-container')
 
 exports.setUp = async () => {
+  jest.setTimeout(60000)
+
   process.env.ARK_SKIP_BLOCKCHAIN = true
 
   await container.setUp({
