@@ -29,5 +29,8 @@ exports.getConfig = {
         plugins: transform(config)
       }
     }
+  },
+  config: {
+    cors: true
   }
 }
