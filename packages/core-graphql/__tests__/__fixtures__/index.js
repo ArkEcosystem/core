@@ -1,5 +1,5 @@
 const testQueries = require('./test-queries')
-const testData = require('./test-history')
+const testData = require('./test-data')
 const testExpected = require('./test-expected')
 const testHistory = require('./test-history')
 
