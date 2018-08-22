@@ -103,8 +103,6 @@ module.exports = class Client {
    * @return {Object}
    */
   async getNetworkState () {
-    await this.__chooseHost()
-
     try {
       const response = await this.__get(`${this.host}/internal/networkState`)
 
@@ -119,8 +117,6 @@ module.exports = class Client {
    * @return {Object}
    */
   async getTransactions () {
-    await this.__chooseHost()
-
     try {
       const response = await this.__get(`${this.host}/internal/forgingTransactions`)
 
