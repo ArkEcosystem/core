@@ -101,7 +101,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   hasAny (type) {
-    return this[type].length
+    return !!this[type].length
   }
 
   /**
