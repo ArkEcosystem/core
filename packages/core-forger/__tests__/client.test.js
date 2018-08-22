@@ -45,10 +45,6 @@ describe('Client', () => {
     })
 
     describe('when the host is available', () => {
-      beforeEach(async () => {
-        await client.__chooseHost()
-      })
-
       it('should be truthy if broadcasts', async () => {
         await client.__chooseHost()
 
@@ -85,11 +81,9 @@ describe('Client', () => {
     })
 
     describe('when the host is available', () => {
-      beforeEach(async () => {
-        await client.__chooseHost()
-      })
-
       it('should be ok', async () => {
+        await client.__chooseHost()
+
         const response = await client.getTransactions()
 
         expect(response).toHaveProperty('count')
@@ -108,11 +102,9 @@ describe('Client', () => {
     })
 
     describe('when the host is available', () => {
-      beforeEach(async () => {
-        await client.__chooseHost()
-      })
-
       it('should be ok', async () => {
+        await client.__chooseHost()
+
         const networkState = await client.getNetworkState()
 
         expect(networkState).toHaveProperty('quorum')
