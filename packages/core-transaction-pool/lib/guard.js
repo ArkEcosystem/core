@@ -82,7 +82,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   has (type, count) {
-    return this.hasAny(type) === count
+    return this[type].length === count
   }
 
   /**
@@ -92,7 +92,7 @@ module.exports = class TransactionGuard {
    * @return {Boolean}
    */
   hasAtLeast (type, count) {
-    return this.hasAny(type) >= count
+    return this[type].length >= count
   }
 
   /**
