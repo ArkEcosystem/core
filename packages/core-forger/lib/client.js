@@ -26,8 +26,6 @@ module.exports = class Client {
    * @return {Object}
    */
   async broadcast (block) {
-    await this.__chooseHost()
-
     logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
     const response = await axios.post(`${this.host}/internal/block`, block, {
