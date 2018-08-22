@@ -1,15 +1,13 @@
 'use strict'
 
 const Joi = require('joi')
+const pagination = require('./pagination')
 
 /**
  * @type {Object}
  */
 exports.index = {
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+  query: {...pagination, ...{ orderBy: Joi.string() }}
 }
 
 /**
@@ -25,10 +23,7 @@ exports.show = {
  * @type {Object}
  */
 exports.search = {
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  },
+  query: pagination,
   payload: {
     username: Joi.string()
   }
@@ -41,10 +36,7 @@ exports.blocks = {
   params: {
     id: Joi.string()
   },
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+  query: pagination
 }
 
 /**
@@ -54,10 +46,7 @@ exports.voters = {
   params: {
     id: Joi.string()
   },
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+  query: pagination
 }
 
 /**

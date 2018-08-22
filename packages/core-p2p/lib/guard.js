@@ -64,6 +64,32 @@ class Guard {
   }
 
   /**
+   * Remove a suspended peer.
+   * @param {Peer} peer
+   * @return {void}
+   */
+  async unsuspend (peer) {
+    if (!this.suspensions[peer.ip]) {
+      return
+    }
+
+    delete this.suspensions[peer.ip]
+
+    await this.monitor.acceptNewPeer(peer)
+  }
+
+  /**
+   * Reset suspended peer list.
+   * @return {void}
+   */
+  async resetSuspendedPeers () {
+    logger.info('Clearing suspended peers')
+    for (const ip of Object.keys(this.suspensions)) {
+      await this.unsuspend(this.get(ip).peer)
+    }
+  }
+
+  /**
    * Determine if peer is suspended or not.
    * @param  {Peer} peer
    * @return {Boolean}

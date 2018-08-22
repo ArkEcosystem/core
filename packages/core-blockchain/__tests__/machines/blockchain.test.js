@@ -77,6 +77,10 @@ describe('Blockchain machine', () => {
     it('should transition to `processingBlock` on `NEWBLOCK`', () => {
       expect(machine).toTransition({ from: 'idle', on: 'NEWBLOCK', to: 'processingBlock' })
     })
+
+    it('should transition to `stopped` on `STOP`', () => {
+      expect(machine).toTransition({ from: 'idle', on: 'STOP', to: 'stopped' })
+    })
   })
 
   describe('state `processingBlock`', () => {
@@ -104,6 +108,12 @@ describe('Blockchain machine', () => {
 
     it('should transition to `fork` on `FAILURE`', () => {
       expect(machine).toTransition({ from: 'fork', on: 'FAILURE', to: 'exit' })
+    })
+  })
+
+  describe('state `stopped`', () => {
+    it('should execute the `stopped` action when is entered', () => {
+      expect(machine).toExecuteOnEntry({ state: 'stopped', actions: ['stopped'] })
     })
   })
 

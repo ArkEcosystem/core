@@ -16,7 +16,10 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.findAllByType(TRANSACTION_TYPES.VOTE, utils.paginate(request))
+    const transactions = await database.transactions.findAllByType(TRANSACTION_TYPES.VOTE, {
+      ...request.query,
+      ...utils.paginate(request)
+    })
 
     return utils.toPagination(request, transactions, 'transaction')
   },

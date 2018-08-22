@@ -85,6 +85,7 @@ exports.getCommonBlock = {
         success: false
       }
     }
+
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
@@ -179,20 +180,7 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    let lastBlock = null
-
-    if (blockchain) {
-      lastBlock = blockchain.getLastBlock()
-    }
-
-    if (!lastBlock) {
-      return {
-        success: false,
-        message: 'Node is not ready'
-      }
-    }
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
@@ -222,10 +210,6 @@ exports.postBlock = {
    */
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: false }
-    }
 
     try {
       if (!request.payload || !request.payload.block) {
@@ -267,7 +251,9 @@ exports.postBlock = {
             peer = await request.server.app.p2p.getRandomPeer()
           }
 
-          if (!peer) return { success: false }
+          if (!peer) {
+            return { success: false }
+          }
 
           transactions = await peer.getTransactionsFromIds(block.transactionIds)
           // issue on v1, using /api/ instead of /peer/
@@ -277,7 +263,9 @@ exports.postBlock = {
           block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
           logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
 
-          if (block.transactions.length !== block.numberOfTransactions) return { success: false }
+          if (block.transactions.length !== block.numberOfTransactions) {
+            return { success: false }
+          }
         }
       // } else return { success: false }
 
@@ -314,11 +302,6 @@ exports.postTransactions = {
         success: false,
         transactionIds: []
       }
-    }
-
-    const blockchain = container.resolvePlugin('blockchain')
-    if (!blockchain) {
-      return { success: false }
     }
 
     /**
