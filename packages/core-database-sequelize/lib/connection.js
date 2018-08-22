@@ -239,7 +239,6 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
       let query = this.query
         .select('public_key')
-        .sum('balance', 'balance')
         .from('wallets')
         .whereNotNull('username')
 
@@ -247,8 +246,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
           query = query.whereNotIn('public_key', chosen)
         }
 
-        const data2 = await query.groupBy('public_key')
-          .orderBy('public_key', 'ASC')
+        const data2 = await query.orderBy('public_key', 'ASC')
           .limit(maxDelegates - data.length)
           .all()
 
