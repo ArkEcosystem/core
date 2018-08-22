@@ -265,6 +265,11 @@ module.exports = class WalletManager {
 
     sender.revertTransactionForSender(data)
 
+    // removing the wallet from the delegates index
+    if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      this.walletsByUsername[data.asset.delegate.username] = null
+    }
+
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)
     }

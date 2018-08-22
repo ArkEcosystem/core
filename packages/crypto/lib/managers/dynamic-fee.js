@@ -14,7 +14,7 @@ class DynamicFeeManager {
   * @returns {Number} Calculated dynamic fee in ARKTOSHI
   */
   calculateFee (feeMultiplier, transaction) {
-    if (feeMultiplier === 0) {
+    if (feeMultiplier <= 0) {
       feeMultiplier = 1
     }
 
