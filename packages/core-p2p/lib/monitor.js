@@ -369,9 +369,15 @@ class Monitor {
    * @return {Object[]}
    */
   async downloadBlocks (fromBlockHeight) {
+    let randomPeer
     try {
-      const randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
+      randomPeer = await this.getRandomDownloadBlocksPeer(fromBlockHeight)
+    } catch (error) {
+      logger.error(`Could not download blocks: ${error.message}`)
 
+      return []
+    }
+    try {
       logger.info(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${randomPeer.ip}`)
 
       await randomPeer.ping()
