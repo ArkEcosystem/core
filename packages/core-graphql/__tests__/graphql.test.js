@@ -1,25 +1,13 @@
 const app = require('./__support__/setup')
 
-/**
- * Core plugins used by the testing suite.
- */
 let graphql
 let logger
 
-/**
- * Hard coded queries to run, data to feed into the database
- * and expected results from the queries.
- */
 const { testQueries,
         testData,
         testExpected
       } = require('./__fixtures__')
 
-/**
- * Important elements to setUp and assign before running the tests.
- * We setup a container (see __support__/) and grant access to
- * both the GraphQL and Logger Core plugins to the suite.
- */
 beforeAll(async () => {
   const container = await app.setUp()
   graphql = await container.resolvePlugin('graphql')
@@ -27,26 +15,15 @@ beforeAll(async () => {
   logger.info('Starting GraphQL Tests!')
 })
 
-/**
- * Tear down the container.
- */
 afterAll(() => {
   app.tearDown()
 })
 
-/**
- * Ensure that our graphql plugin has been properly loaded
- * then run the tests.
- */
 describe('GraphQL', () => {
   it('should be an object', () => {
     expect(graphql).toBeObject()
   })
 
-  /**
-   * Test queries to be performed on the test data in the database
-   * and matched against expected results
-   */
   describe('test queries', () => {
     it('should be an object', () => {
       expect(testQueries).toBeObject()
@@ -54,7 +31,7 @@ describe('GraphQL', () => {
     })
 
     describe('test query for Block', () => {
-      it('Should have queries', () => {
+      it('should have queries', () => {
         expect(testQueries.block.length).toBeTruthy()
 
         logger.debug('Proceeding with Block test queries')
@@ -66,7 +43,7 @@ describe('GraphQL', () => {
     })
 
     describe('test query for Blocks', () => {
-      it('Should have queries', () => {
+      it('should have queries', () => {
         expect(testQueries.blocks.length).toBeTruthy()
 
         logger.debug('Proceeding with Blocks test queries')
@@ -126,18 +103,12 @@ describe('GraphQL', () => {
     })
   })
 
-  /**
-   * Test data to be fed into a database and queried by test queries.
-   */
   describe('test data', () => {
     it('should be an object', () => {
       expect(testData).toBeObject()
     })
   })
 
-  /**
-   * Expected results from running test queries on the test data.
-   */
   describe('test expected', () => {
     it('should be an object', () => {
       expect(testExpected).toBeObject()
