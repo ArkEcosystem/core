@@ -4,12 +4,15 @@ const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 const axiosMock = new MockAdapter(axios)
 const app = require('./__support__/setup')
+const container = require('@arkecosystem/core-container')
 
 let genesisBlock
 let genesisTransaction
 
 let Peer
 let peer
+
+let headers
 
 beforeAll(async () => {
   await app.setUp()
@@ -20,6 +23,15 @@ beforeAll(async () => {
   genesisTransaction = require('./__fixtures__/genesisTransaction')
 
   Peer = require('../lib/peer')
+
+  // The headers initialized here are then used for mocking peer responses with axiosMock
+  const config = container.resolvePlugin('config')
+  headers = {
+    nethash: config.network.nethash,
+    version: container.resolveOptions('blockchain').version,
+    port: container.resolveOptions('p2p').port,
+    os: require('os').platform()
+  }
 })
 
 afterAll(async () => {
@@ -28,6 +40,8 @@ afterAll(async () => {
 
 beforeEach(() => {
   peer = new Peer('45.76.142.128', 4002)
+
+  axiosMock.reset() // important: resets any existing mocking behavior
 })
 
 describe('Peer', () => {
@@ -116,6 +130,8 @@ describe('Peer', () => {
     })
 
     it('should be ok', async () => {
+      axiosMock.onGet(`${peer.url}/peer/status`).reply(() => [200, { success: true }, headers])
+
       const response = await peer.ping(5000)
 
       expect(response).toBeObject()
@@ -124,7 +140,8 @@ describe('Peer', () => {
     })
 
     it('should not be ok', async () => {
-      expect(await peer.ping(1)).toThrowError('is unreachable')
+      axiosMock.onGet(`${peer.url}/peer/status`).reply(500)
+      expect(peer.ping(1)).rejects.toThrowError('is unresponsive')
     })
   })
 
@@ -134,10 +151,13 @@ describe('Peer', () => {
     })
 
     it('should be ok', async () => {
+      const peersMock = [ { ip: '1.1.1.1' } ]
+      axiosMock.onGet(`${peer.url}/peer/status`).reply(() => [200, { success: true }, headers])
+      axiosMock.onGet(`${peer.url}/peer/list`).reply(() => [200, { peers: peersMock }, headers])
+
       const peers = await peer.getPeers()
 
-      expect(peers).toBeArray()
-      expect(peers.length).toBeGreaterThan(10)
+      expect(peers).toEqual(peersMock)
     })
   })
 
