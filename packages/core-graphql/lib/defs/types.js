@@ -1,5 +1,14 @@
 'use strict';
 
+/**
+ * Actual types which are relevant to queries issued to our GraphQL endpoint.
+ * The basic ones are Block, Wallet and Transaction. They each have specific
+ * properties and are representative of how they are stored in the Blockchain.
+ * For example, a Block type has an array of transactions [Transaction], and
+ * Transaction itself is a type which has sender and recipiet Wallet types.
+ * Same principles apply to Wallet types, there is interoperability between
+ * the defined types of this schema.
+ */
 module.exports = `
   type Block {
     id: String
