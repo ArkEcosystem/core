@@ -6,16 +6,13 @@ const ARK_ENV = process.env.ARK_ENV
 
 const defaults = require('../lib/defaults')
 
-let Manager
-let Monitor
 let monitor
 let peer
 
 beforeAll(async () => {
   await app.setUp()
 
-  Manager = require('../lib/manager')
-  Monitor = require('../lib/monitor')
+  monitor = require('../lib/monitor')
 })
 
 afterAll(async () => {
@@ -23,8 +20,8 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  const manager = new Manager(defaults)
-  monitor = new Monitor(manager)
+  monitor.config = defaults
+
   peer = {
     ip: '45.76.142.128',
     port: 4002,
@@ -131,6 +128,12 @@ describe('Monitor', () => {
     })
   })
 
+  describe('hasPeers', () => {
+    it('should be a function', () => {
+      expect(monitor.hasPeers).toBeFunction()
+    })
+  })
+
   describe('getNetworkHeight', () => {
     it('should be a function', () => {
       expect(monitor.getNetworkHeight).toBeFunction()
@@ -192,7 +195,7 @@ describe('Monitor', () => {
     })
 
     it('should have timeout of 60 minutes', () => {
-      expect(monitor.manager.config.suspendMinutes).toBe(60)
+      expect(monitor.config.suspendMinutes).toBe(60)
     })
 
     it('should return true', async () => {
@@ -216,6 +219,18 @@ describe('Monitor', () => {
 
     it('should return false because not suspended', () => {
       expect(monitor.__isSuspended(peer)).toBe(false)
+    })
+  })
+
+  describe('__checkDNSConnectivity', () => {
+    it('should be a function', () => {
+      expect(monitor.__checkDNSConnectivity).toBeFunction()
+    })
+  })
+
+  describe('__checkNTPConnectivity', () => {
+    it('should be a function', () => {
+      expect(monitor.__checkNTPConnectivity).toBeFunction()
     })
   })
 })
