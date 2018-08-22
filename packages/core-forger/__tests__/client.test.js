@@ -33,7 +33,7 @@ describe('Client', () => {
       client = new Client(host)
       expect(client.hosts).toEqual([host])
 
-      const hosts = [host, 'localhost:4000']
+      const hosts = [host, 'http://localhost:4000']
       client = new Client(hosts)
       expect(client.hosts).toEqual(hosts)
     })
@@ -46,6 +46,8 @@ describe('Client', () => {
 
     describe('when the host is available', () => {
       it('should be truthy if broadcasts', async () => {
+        await client.__chooseHost()
+
         const wasBroadcasted = await client.broadcast(block.toRawJson())
         expect(wasBroadcasted).toBeTruthy()
       })
@@ -80,6 +82,8 @@ describe('Client', () => {
 
     describe('when the host is available', () => {
       it('should be ok', async () => {
+        await client.__chooseHost()
+
         const response = await client.getTransactions()
 
         expect(response).toHaveProperty('count')
@@ -99,6 +103,8 @@ describe('Client', () => {
 
     describe('when the host is available', () => {
       it('should be ok', async () => {
+        await client.__chooseHost()
+
         const networkState = await client.getNetworkState()
 
         expect(networkState).toHaveProperty('quorum')

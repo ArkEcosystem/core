@@ -11,7 +11,7 @@ module.exports = async blockCount => {
 
     tracker = {
       start: new Date().getTime(),
-      networkHeight: container.resolvePlugin('p2p').getMonitor().getNetworkHeight(),
+      networkHeight: container.resolvePlugin('p2p').getNetworkHeight(),
       blocksInitial: +count,
       blocksDownloaded: +count,
       blocksSession: 0,

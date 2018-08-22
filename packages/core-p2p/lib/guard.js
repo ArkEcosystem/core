@@ -3,6 +3,7 @@
 const moment = require('moment')
 const semver = require('semver')
 const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const isMyself = require('./utils/is-myself')
 
@@ -20,7 +21,6 @@ class Guard {
    */
   init (monitor) {
     this.monitor = monitor
-    this.config = monitor.config.peers
 
     return this
   }
@@ -46,11 +46,11 @@ class Guard {
    * @param {Peer} peer
    */
   suspend (peer) {
-    if (this.config.whiteList && this.config.whiteList.includes(peer.ip)) {
+    if (config.peers.whiteList && config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
-    const until = moment().add(this.monitor.manager.config.suspendMinutes, 'minutes')
+    const until = moment().add(this.monitor.config.suspendMinutes, 'minutes')
 
     this.suspensions[peer.ip] = {
       peer,
@@ -114,7 +114,7 @@ class Guard {
    * @return {Boolean}
    */
   isWhitelisted (peer) {
-    return this.config.whiteList.includes(peer.ip)
+    return config.peers.whiteList.includes(peer.ip)
   }
 
   /**
@@ -123,7 +123,7 @@ class Guard {
    * @return {Boolean}
    */
   isBlacklisted (peer) {
-    return this.config.blackList.includes(peer.ip)
+    return config.peers.blackList.includes(peer.ip)
   }
 
   /**
@@ -132,7 +132,7 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion (peer) {
-    return semver.satisfies(peer.version, this.config.minimumVersion)
+    return semver.satisfies(peer.version, config.peers.minimumVersion)
   }
 
   /**
