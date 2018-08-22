@@ -238,7 +238,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey)
 
       let query = this.query
-        .select('public_key')
+        .select('public_key', '0 as balance')
         .from('wallets')
         .whereNotNull('username')
 
