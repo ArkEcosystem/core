@@ -18,6 +18,7 @@ module.exports = {
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/validation/**/__tests__/**/*.test.js',
     '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
+    '**/packages/core-database/**/__tests__/**/*.test.js',
     '**/packages/core-forger/**/__tests__/**/*.test.js'
 
     /* These packages have failing tests */
@@ -34,7 +35,6 @@ module.exports = {
     /* These packages have very long  timeouts or don't end properly */
 
     // '**/packages/core-blockchain/**/__tests__/**/*.test.js',
-    // '**/packages/core-database/**/__tests__/**/*.test.js',
     // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
     // '**/packages/core-p2p/**/__tests__/**/*.test.js',
     // '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
