@@ -14,7 +14,8 @@ class TransactionHandler {
       [TRANSACTION_TYPES.IPFS]: require('./ipfs'),
       [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('./timelock-transfer'),
       [TRANSACTION_TYPES.MULTI_PAYMENT]: require('./multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('./delegate-resignation')
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('./delegate-resignation'),
+      [TRANSACTION_TYPES.ULTRANODE_REGISTRATION]: require('./ultranode-registration')
     }
   }
 

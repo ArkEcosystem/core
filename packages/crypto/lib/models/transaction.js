@@ -163,7 +163,7 @@ module.exports = class Transaction {
       bb.append(delegateBytes, 'hex')
     }
     // register ultranode - ltt
-    if (transaction.type === TRANSACTION_TYPES.ULTRANODE_REGISTRATION){
+    if (transaction.type === TRANSACTION_TYPES.ULTRANODE_REGISTRATION) {
       const ultranodeBytes = Buffer.from(transaction.asset.ultranode.username, 'utf8')
       bb.writeByte(ultranodeBytes.length)
       bb.append(ultranodeBytes, 'hex')

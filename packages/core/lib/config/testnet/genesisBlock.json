@@ -1339,15 +1339,15 @@
     "id": "5baf9e318c9e4cb0513a21eaea27e51c849f95fddc963207fb07aa2fd2b9f9d4",
     "senderId": "AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1"
   }, {
-    "type": 2,
+    "type": 9,
     "amount": 0,
     "fee": 0,
     "recipientId": null,
     "senderPublicKey": "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
     "timestamp": 0,
     "asset": {
-      "delegate": {
-        "username": "genesis_17",
+      "ultranode": {
+        "username": "ultranode 1",
         "publicKey": "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357"
       }
     },
@@ -1355,15 +1355,15 @@
     "id": "b4a959ad75f81b7fdbb957c90a3a63a6c5589e7819e2c455733a3a2b4b034634",
     "senderId": "AJPicaX6vmokoK3x8abBMDpi8GMPc7rLiW"
   }, {
-    "type": 2,
+    "type": 9,
     "amount": 0,
     "fee": 0,
     "recipientId": null,
     "senderPublicKey": "030fc33db3d3ab20d73bc6d52633a4f3cc26081ce307c89ab9fe493def7dba4b80",
     "timestamp": 0,
     "asset": {
-      "delegate": {
-        "username": "genesis_34",
+      "ultranode": {
+        "username": "ultranode 2",
         "publicKey": "030fc33db3d3ab20d73bc6d52633a4f3cc26081ce307c89ab9fe493def7dba4b80"
       }
     },
@@ -2153,6 +2153,6 @@
     "senderId": "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD"
   }],
   "height": 1,
-  "id": "17184958558311101492",
+  "id": "17184958558311101499",
   "blockSignature": "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b"
 }

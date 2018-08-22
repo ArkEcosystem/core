@@ -39,6 +39,7 @@ module.exports = class Wallet {
     this.vote = null
     this.voted = false
     this.username = null
+    this.ultra_node = null
     this.lastBlock = null
     this.votebalance = 0
     this.multisignature = null

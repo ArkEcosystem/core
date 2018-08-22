@@ -2,10 +2,10 @@
 
 const Promise = require('bluebird')
 
-const { map, orderBy, sumBy } = require('lodash')
-const { crypto } = require('@arkecosystem/crypto')
-const { Wallet } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const {map, orderBy, sumBy} = require('lodash')
+const {crypto} = require('@arkecosystem/crypto')
+const {Wallet} = require('@arkecosystem/crypto').models
+const {TRANSACTION_TYPES} = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
@@ -33,6 +33,7 @@ module.exports = class WalletManager {
     this.walletsByAddress = {}
     this.walletsByPublicKey = {}
     this.walletsByUsername = {}
+    this.walletsByUltraNode = {}
   }
 
   /**
@@ -60,6 +61,10 @@ module.exports = class WalletManager {
 
     if (wallet.username) {
       this.walletsByUsername[wallet.username] = wallet
+    }
+
+    if (wallet.ultra_node) {
+      this.walletsByUltraNode[wallet.ultra_node] = wallet
     }
   }
 
@@ -205,8 +210,8 @@ module.exports = class WalletManager {
    * @return {Transaction}
    */
   async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
-    const { data } = transaction
-    const { type, asset, recipientId, senderPublicKey } = data
+    const {data} = transaction
+    const {type, asset, recipientId, senderPublicKey} = data
 
     const sender = this.getWalletByPublicKey(senderPublicKey)
     let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
@@ -221,7 +226,12 @@ module.exports = class WalletManager {
       logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
 
-    // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+      // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
+    } else if (type === TRANSACTION_TYPES.ULTRANODE_REGISTRATION && this.walletsByUltraNode[asset.ultranode.username.toLowerCase()]) {
+
+      logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
+
     } else if (type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)]) {
 
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
@@ -255,7 +265,7 @@ module.exports = class WalletManager {
    * @param  {Object} data
    * @return {Transaction}
    */
-  async revertTransaction ({ type, data }) {
+  async revertTransaction ({type, data}) {
     const sender = this.getWalletByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.getWalletByAddress(data.recipientId)
 
@@ -265,7 +275,7 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-   this.__emitEvent('transaction.reverted', data)
+    this.__emitEvent('transaction.reverted', data)
 
     return data
   }
@@ -359,20 +369,20 @@ module.exports = class WalletManager {
    * @return {void}
    */
   __emitTransactionEvents (transaction) {
-   this.__emitEvent('transaction.applied', transaction.data)
+    this.__emitEvent('transaction.applied', transaction.data)
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-     this.__emitEvent('delegate.registered', transaction.data)
+      this.__emitEvent('delegate.registered', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-     this.__emitEvent('delegate.resigned', transaction.data)
+      this.__emitEvent('delegate.resigned', transaction.data)
     }
 
     if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const vote = transaction.asset.votes[0]
 
-     this.__emitEvent(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+      this.__emitEvent(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
         delegate: vote,
         transaction: transaction.data
       })

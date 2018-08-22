@@ -13,7 +13,8 @@ class TransactionValidator {
       [TRANSACTION_TYPES.IPFS]: require('../rules/models/transactions/ipfs'),
       [TRANSACTION_TYPES.TIMELOCK_TRANSFER]: require('../rules/models/transactions/timelock-transfer'),
       [TRANSACTION_TYPES.MULTI_PAYMENT]: require('../rules/models/transactions/multi-payment'),
-      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation')
+      [TRANSACTION_TYPES.DELEGATE_RESIGNATION]: require('../rules/models/transactions/delegate-resignation'),
+      [TRANSACTION_TYPES.ULTRANODE_REGISTRATION]: require('../rules/models/transactions/ultranode-registration')
     }
   }
 

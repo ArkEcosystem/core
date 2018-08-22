@@ -30,7 +30,7 @@ module.exports = {
     dialect: process.env.ARK_DB_DIALECT || 'postgres',
     username: process.env.ARK_DB_USERNAME || 'postgres',
     password: process.env.ARK_DB_PASSWORD || 'trunglt2512',
-    database: process.env.ARK_DB_DATABASE || 'know_data_2',
+    database: process.env.ARK_DB_DATABASE || 'know_data',
     logging: process.env.ARK_DB_LOGGING || false,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',

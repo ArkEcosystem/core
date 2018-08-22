@@ -20,31 +20,35 @@ module.exports = (sequelize, DataTypes) => {
       field: 'public_key'
     },
     secondPublicKey: {
-        type: DataTypes.STRING(66),
-        field: 'second_public_key'
+      type: DataTypes.STRING(66),
+      field: 'second_public_key'
     },
     vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
+    ultranode: {
+      type: DataTypes.STRING(64),
+      field: 'ultra_node'
+    },
     balance: DataTypes.BIGINT,
     votebalance: {
-        type: DataTypes.BIGINT,
-        field: 'vote_balance'
+      type: DataTypes.BIGINT,
+      field: 'vote_balance'
     },
     producedBlocks: {
-        type: DataTypes.BIGINT,
-        field: 'produced_blocks'
+      type: DataTypes.BIGINT,
+      field: 'produced_blocks'
     },
     missedBlocks: {
-        type: DataTypes.BIGINT,
-        field: 'missed_blocks'
+      type: DataTypes.BIGINT,
+      field: 'missed_blocks'
     },
     createdAt: {
-        type: DataTypes.DATE,
-        field: 'created_at'
+      type: DataTypes.DATE,
+      field: 'created_at'
     },
     updatedAt: {
-        type: DataTypes.DATE,
-        field: 'updated_at'
+      type: DataTypes.DATE,
+      field: 'updated_at'
     }
   }, {})
 
