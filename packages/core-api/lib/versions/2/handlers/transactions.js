@@ -40,10 +40,8 @@ exports.store = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!transactionPool) {
-      return {
-        data: []
-      }
+    if (!transactionPool.options.enabled) {
+      return Boom.teapot()
     }
 
     /**
