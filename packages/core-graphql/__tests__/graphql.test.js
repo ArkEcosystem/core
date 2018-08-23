@@ -41,9 +41,9 @@ describe('GraphQL', () => {
       expect(references.data.blocks).toBe(testData.blocks)
 
       it('should load transactions', () => {
-        for(let i = 0; i < testData.transactions.length; i++){
+        for (let i = 0; i < testData.transactions.length; i++) {
           let transaction = testData.transactions[i]
-          let blockIndex = references.data.blocks.findIndex(block => block.id == transaction.block)
+          let blockIndex = references.data.blocks.findIndex(block => block.id === transaction.block)
 
           references.data.blocks[blockIndex].transactions.push(transaction)
         }
@@ -167,7 +167,62 @@ describe('GraphQL', () => {
     it('should be an object', () => {
       expect(testQueries).toBeObject()
     })
+
+    describe('test query for Block', () => {
+      it('should have queries', () => {
+        expect(testQueries.block.length).toBeTruthy()
+
+        testQueries.block.forEach((block) => {
+        })
+      })
+    })
+
+    describe('test query for Blocks', () => {
+      it('should have queries', () => {
+        expect(testQueries.blocks.length).toBeTruthy()
+
+        testQueries.blocks.forEach((blocks) => {
+        })
+      })
+    })
+
+    describe('test query for Transaction', () => {
+      it('should have queries', () => {
+        expect(testQueries.transaction.length).toBeTruthy()
+
+        testQueries.transaction.forEach((transaction) => {
+        })
+      })
+    })
+
+    describe('test query for Transactions', () => {
+      it('should have queries', () => {
+        expect(testQueries.transactions.length).toBeTruthy()
+
+        testQueries.transactions.forEach((transactions) => {
+        })
+      })
+    })
+
+    describe('test query for Wallet', () => {
+      it('should have queries', () => {
+        expect(testQueries.wallet.length).toBeTruthy()
+
+        testQueries.wallet.forEach((wallet) => {
+        })
+      })
+    })
+
+    describe('test query for Wallets', () => {
+      it('should have queries', () => {
+        expect(testQueries.wallets.length).toBeTruthy()
+
+        testQueries.wallets.forEach((wallets) => {
+        })
+      })
+    })
   })
+
   describe('test expected', () => {
     it('should be an object', () => {
       expect(testExpected).toBeObject()
