@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const { transactionBuilder } = require('@arkecosystem/crypto')
+const { transactionBuilder } = require('@phantomchain/crypto')
 const database = require('../../services/database')
 
 module.exports = {

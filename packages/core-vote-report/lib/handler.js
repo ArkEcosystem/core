@@ -1,10 +1,10 @@
 const sumBy = require('lodash/sumBy')
-const { configManager } = require('@arkecosystem/crypto')
+const { configManager } = require('@phantomchain/crypto')
 const {
   delegateCalculator,
   supplyCalculator,
-} = require('@arkecosystem/core-utils')
-const app = require('@arkecosystem/core-container')
+} = require('@phantomchain/core-utils')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')

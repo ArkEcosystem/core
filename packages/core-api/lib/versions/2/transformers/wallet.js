@@ -1,4 +1,4 @@
-const { bignumify } = require('@arkecosystem/core-utils')
+const { bignumify } = require('@phantomchain/core-utils')
 
 /**
  * Turns a "wallet" object into a generic object.

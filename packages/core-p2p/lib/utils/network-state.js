@@ -1,8 +1,8 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 
-const { slots } = require('@arkecosystem/crypto')
+const { slots } = require('@phantomcore/crypto')
 
 /**
  * Returns current network state. Peers are update before the call
@@ -38,7 +38,7 @@ module.exports = (monitor, lastBlock) => {
     return createStateObject(0, true, true, overHeightBlockHeader)
   }
 
-  if (process.env.ARK_ENV === 'test') {
+  if (process.env.PHANTOM_ENV === 'test') {
     return createStateObject(1, true, false, overHeightBlockHeader)
   }
 

@@ -1,8 +1,8 @@
 const axios = require('axios')
-const { configManager } = require('@arkecosystem/crypto')
+const { configManager } = require('@phantomchain/crypto')
 const isReachable = require('is-reachable')
 const sample = require('lodash/sample')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const p2p = app.resolvePlugin('p2p')
@@ -18,7 +18,7 @@ class Network {
 
     this.client = axios.create({
       headers: {
-        Accept: 'application/vnd.ark.core-api.v2+json',
+        Accept: 'application/vnd.phantom.core-api.v2+json',
         'Content-Type': 'application/json',
       },
       timeout: 3000,
@@ -71,7 +71,7 @@ class Network {
         `http://${this.server.ip}:${peerPort}/config`,
       )
 
-      const plugin = response.data.data.plugins['@arkecosystem/core-api']
+      const plugin = response.data.data.plugins['@phantomchain/core-api']
 
       if (!plugin.enabled) {
         const index = this.peers.findIndex(peer => peer.ip === this.server.ip)

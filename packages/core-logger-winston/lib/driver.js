@@ -1,5 +1,5 @@
 const winston = require('winston')
-const { LoggerInterface } = require('@arkecosystem/core-logger')
+const { LoggerInterface } = require('@phantomcore/core-logger')
 require('colors')
 
 let tracker = null

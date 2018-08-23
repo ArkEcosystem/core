@@ -1,7 +1,7 @@
-const database = require('@arkecosystem/core-container').resolvePlugin(
+const database = require('@phantomchain/core-container').resolvePlugin(
   'database',
 )
-const { formatTimestamp, bignumify } = require('@arkecosystem/core-utils')
+const { formatTimestamp, bignumify } = require('@phantomchain/core-utils')
 
 /**
  * Turns a "block" object into a generic object.

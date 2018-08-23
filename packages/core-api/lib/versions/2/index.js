@@ -105,7 +105,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'Ark Public API - v2',
+  name: 'PHANTOM  Public API - v2',
   version: '2.0.0',
   register,
 }

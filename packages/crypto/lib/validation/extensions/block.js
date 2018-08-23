@@ -1,7 +1,7 @@
 module.exports = joi => ({
-  name: 'arkBlock',
+  name: 'phantomBlock',
   base: joi.object().keys({
-    id: joi.arkBlockId().required(),
+    id: joi.phantomBlockId().required(),
     idHex: joi.string().hex(),
     version: joi
       .number()
@@ -12,7 +12,7 @@ module.exports = joi => ({
       .integer()
       .min(0)
       .required(),
-    previousBlock: joi.arkBlockId().required(),
+    previousBlock: joi.phantomBlockId().required(),
     previousBlockHex: joi.string().hex(),
     height: joi
       .number()
@@ -58,6 +58,6 @@ module.exports = joi => ({
       .string()
       .hex()
       .required(),
-    transactions: joi.arkTransactions(),
+    transactions: joi.phantomTransactions(),
   }),
 })

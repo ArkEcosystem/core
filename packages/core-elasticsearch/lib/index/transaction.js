@@ -2,11 +2,11 @@
 
 const first = require('lodash/first')
 const last = require('lodash/last')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const database = app.resolvePlugin('database')
 const logger = app.resolvePlugin('logger')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Transaction } = require('@phantomchain/crypto').models
 const Index = require('./index')
 const client = require('../services/client')
 const storage = require('../services/storage')

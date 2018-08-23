@@ -1,6 +1,6 @@
 module.exports = {
-  dsn: process.env.ARK_ERROR_TRACKER_SENTRY_DSN,
+  dsn: process.env.PHANTOM_ERROR_TRACKER_SENTRY_DSN,
   debug: true,
   attachStacktrace: true,
-  environment: process.env.ARK_NETWORK_NAME,
+  environment: process.env.PHANTOM_NETWORK_NAME,
 }

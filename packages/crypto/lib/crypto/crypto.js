@@ -12,7 +12,7 @@ const { Bignum } = require('../utils')
 const feeManager = require('../managers/fee')
 const {
   transactionIdFixTable,
-} = require('../constants').CONFIGURATIONS.ARK.MAINNET
+} = require('../constants').CONFIGURATIONS.PHANTOM.MAINNET
 
 class Crypto {
   /**

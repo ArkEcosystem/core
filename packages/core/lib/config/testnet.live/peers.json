@@ -25,5 +25,7 @@
       "port": 4000
     }
   ],
-  "sources": ["https://test-explorer.arknet.cloud/testnet.json"]
+  "sources": [
+    "https://test-explorer.phantomnet.cloud/testnet.json"
+  ]
 }

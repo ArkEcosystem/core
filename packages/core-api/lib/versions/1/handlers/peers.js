@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const p2p = app.resolvePlugin('p2p')
 

@@ -15,31 +15,31 @@ describe('Second Signature Transaction', () => {
   it('should be valid', () => {
     transaction.signatureAsset('second passphrase').sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()).error,
     ).toBeNull()
   })
 
   it('should be valid with correct data', () => {
     transaction
       .signatureAsset('second passphrase')
-      .fee(1 * constants.ARKTOSHI)
+      .fee(1 * constants.PHANTOMTOSHI)
       .sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()).error,
     ).toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
-    expect(Joi.validate('test', Joi.arkSecondSignature()).error).not.toBeNull()
+    expect(Joi.validate('test', Joi.phantomSecondSignature()).error).not.toBeNull()
   })
 
   it('should be invalid due to non-zero amount', () => {
     transaction
       .signatureAsset('second passphrase')
-      .amount(10 * constants.ARKTOSHI)
+      .amount(10 * constants.PHANTOMTOSHI)
       .sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()).error,
     ).not.toBeNull()
   })
 
@@ -49,7 +49,7 @@ describe('Second Signature Transaction', () => {
       .fee(0)
       .sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()).error,
     ).not.toBeNull()
   })
 
@@ -60,7 +60,7 @@ describe('Second Signature Transaction', () => {
       .sign('passphrase')
       .secondSign('second passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()),
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()),
     ).not.toBeNull()
   })
 
@@ -68,7 +68,7 @@ describe('Second Signature Transaction', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name').sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkSecondSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomSecondSignature()).error,
     ).not.toBeNull()
   })
 })

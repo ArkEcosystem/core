@@ -1,5 +1,5 @@
-const app = require('@arkecosystem/core-container')
-const Joi = require('@arkecosystem/crypto').validator.engine.joi
+const app = require('@phantomchain/core-container')
+const Joi = require('@phantomchain/crypto').validator.engine.joi
 const pagination = require('./pagination')
 
 /**
@@ -51,7 +51,7 @@ exports.index = {
  */
 exports.store = {
   payload: {
-    transactions: Joi.arkTransactions()
+    transactions: Joi.phantomTransactions()
       .min(1)
       .max(
         app.resolveOptions('transactionPool').maxTransactionsPerRequest,

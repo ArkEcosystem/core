@@ -56,7 +56,7 @@ describe('Remote Loader', () => {
       axiosMock.onGet('http://127.0.0.1:4002/config/network').reply(() => [
         200,
         {
-          data: require('../../crypto/lib/networks/ark/devnet.json'),
+          data: require('../../crypto/lib/networks/phantom/devnet.json'),
         },
       ])
 

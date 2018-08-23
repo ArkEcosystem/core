@@ -1,5 +1,5 @@
 const dayjs = require('dayjs-ext')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 /**
  * Format the given epoch based timestamp into human and unix.

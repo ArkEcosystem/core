@@ -215,7 +215,7 @@ module.exports = class Container {
       const logger = this.resolvePlugin('logger')
       logger.suppressConsoleOutput(this.silentShutdown)
       logger.info(
-        'Ark Core is trying to gracefully shut down to avoid data corruption :pizza:',
+        'PHANTOM Core is trying to gracefully shut down to avoid data corruption :pizza:',
       )
 
       try {

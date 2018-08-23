@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const transform = require('../transformers/plugins')
@@ -29,7 +29,7 @@ exports.config = {
 exports.network = {
   handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/network.json`),
+      data: require(`${process.env.PHANTOM_PATH_CONFIG}/network.json`),
     }
   },
 }
@@ -37,7 +37,7 @@ exports.network = {
 exports.genesisBlock = {
   handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/genesisBlock.json`),
+      data: require(`${process.env.PHANTOM_PATH_CONFIG}/genesisBlock.json`),
     }
   },
 }
@@ -45,14 +45,14 @@ exports.genesisBlock = {
 exports.peers = {
   handler(request, h) {
     return {
-      data: require(`${process.env.ARK_PATH_CONFIG}/peers.json`),
+      data: require(`${process.env.PHANTOM_PATH_CONFIG}/peers.json`),
     }
   },
 }
 
 exports.delegates = {
   handler(request, h) {
-    const data = require(`${process.env.ARK_PATH_CONFIG}/delegates.json`)
+    const data = require(`${process.env.PHANTOM_PATH_CONFIG}/delegates.json`)
     data.secrets = []
     delete data.bip38
 

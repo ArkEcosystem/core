@@ -3,7 +3,7 @@ const engine = require('../engine')
 module.exports = attributes => {
   const { error, value } = engine.validate(
     attributes,
-    engine.joi.arkPublicKey(),
+    engine.joi.phantomPublicKey(),
   )
 
   return {

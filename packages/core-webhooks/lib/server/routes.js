@@ -41,7 +41,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'Ark Webhooks API',
+  name: 'PHANTOM  Webhooks API',
   version: '0.1.0',
   register,
 }

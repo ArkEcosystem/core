@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const { bignumify } = require('@arkecosystem/core-utils')
+const { bignumify } = require('@phantomchain/core-utils')
 
 /**
  * Check if the given value is a boolean.

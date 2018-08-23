@@ -1,9 +1,9 @@
-const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
-const { Bignum, transactionBuilder } = require('@arkecosystem/crypto')
+const { Block, Transaction, Wallet } = require('@phantomchain/crypto').models
+const { Bignum, transactionBuilder } = require('@phantomchain/crypto')
 const {
-  ARKTOSHI,
+  PHANTOMTOSHI,
   TRANSACTION_TYPES,
-} = require('@arkecosystem/crypto').constants
+} = require('@phantomchain/crypto').constants
 const app = require('./__support__/setup')
 
 let ConnectionInterface
@@ -16,7 +16,7 @@ beforeAll(async done => {
   ConnectionInterface = require('../lib/interface')
   connectionInterface = new ConnectionInterface()
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
   done()
@@ -346,7 +346,7 @@ describe('Connection Interface', () => {
       for (let i = 0; i < 51; i++) {
         const transfer = transactionBuilder
           .transfer()
-          .amount(i * ARKTOSHI)
+          .amount(i * PHANTOMTOSHI)
           .recipientId(delegatesRound2[i].address)
           .sign(keys.passphrase)
           .build()

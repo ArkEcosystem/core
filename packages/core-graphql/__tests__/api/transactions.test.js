@@ -2,13 +2,13 @@
 
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
-require('@arkecosystem/core-test-utils/lib/matchers')
+require('@phantomchain/core-test-utils/lib/matchers')
 
 let genesisBlock
 
 beforeAll(async () => {
   await app.setUp()
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
+  genesisBlock = require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(() => {

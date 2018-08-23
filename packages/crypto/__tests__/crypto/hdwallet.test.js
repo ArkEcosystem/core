@@ -1,7 +1,7 @@
 const bip32 = require('bip32')
 const { crypto, hdwallet } = require('../../lib/crypto')
 const configManager = require('../../lib/managers/config')
-const network = require('../../lib/networks/ark/mainnet.json')
+const network = require('../../lib/networks/phantom/mainnet.json')
 
 const mnemonic = 'sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh'
 
@@ -36,7 +36,7 @@ describe('HDWallet', () => {
   })
 
   describe('bip44', () => {
-    it('can create a BIP44, ark, account 0, external address', () => {
+    it('can create a BIP44, phantom, account 0, external address', () => {
       /* eslint quotes: ["error", "single", { avoidEscape: true }] */
       const path = "m/44'/111'/0'/0/0"
       const root = bip32.fromSeed(

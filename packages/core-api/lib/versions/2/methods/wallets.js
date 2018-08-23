@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 const generateCacheKey = require('../../../utils/generate-cache-key')
 const utils = require('../utils')
 const {

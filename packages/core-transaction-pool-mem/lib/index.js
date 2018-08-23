@@ -8,7 +8,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'transactionPool',
-  extends: '@arkecosystem/core-transaction-pool',
+  extends: '@phantomchain/core-transaction-pool',
   async register(container, options) {
     container.resolvePlugin('logger').info('Connecting to transaction pool')
 

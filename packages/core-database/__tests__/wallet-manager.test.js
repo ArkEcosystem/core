@@ -1,17 +1,17 @@
 /* eslint max-len: "off" */
 
-const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
-const { Bignum, crypto, transactionBuilder } = require('@arkecosystem/crypto')
+const { Block, Transaction, Wallet } = require('@phantomchain/crypto').models
+const { Bignum, crypto, transactionBuilder } = require('@phantomchain/crypto')
 const {
-  ARKTOSHI,
+  PHANTOMTOSHI,
   TRANSACTION_TYPES,
-} = require('@arkecosystem/crypto').constants
+} = require('@phantomchain/crypto').constants
 
-const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const genDelegateReg = require('@arkecosystem/core-test-utils/lib/generators/transactions/delegate')
-const gen2ndSignature = require('@arkecosystem/core-test-utils/lib/generators/transactions/signature')
-const genvote = require('@arkecosystem/core-test-utils/lib/generators/transactions/vote')
-const block3 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')[1]
+const genTransfer = require('@phantomchain/core-test-utils/lib/generators/transactions/transfer')
+const genDelegateReg = require('@phantomchain/core-test-utils/lib/generators/transactions/delegate')
+const gen2ndSignature = require('@phantomchain/core-test-utils/lib/generators/transactions/signature')
+const genvote = require('@phantomchain/core-test-utils/lib/generators/transactions/vote')
+const block3 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')[1]
 const app = require('./__support__/setup')
 
 const block = new Block(block3)
@@ -27,7 +27,7 @@ beforeAll(async done => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
   walletManager = new (require('../lib/wallet-manager'))()
@@ -225,10 +225,10 @@ describe('Wallet Manager', () => {
     )[0]
     describe.each`
       type          | transaction    | amount               | balanceSuccess               | balanceFail
-      ${'transfer'} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(1 * ARKTOSHI)}  | ${Bignum.ONE}
-      ${'delegate'} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * ARKTOSHI)} | ${Bignum.ONE}
-      ${'2nd sign'} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * ARKTOSHI)} | ${Bignum.ONE}
-      ${'vote'}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * ARKTOSHI)}  | ${Bignum.ONE}
+      ${'transfer'} | ${transfer}    | ${new Bignum(96579)} | ${new Bignum(1 * PHANTOMTOSHI)}  | ${Bignum.ONE}
+      ${'delegate'} | ${delegateReg} | ${Bignum.ZERO}       | ${new Bignum(30 * PHANTOMTOSHI)} | ${Bignum.ONE}
+      ${'2nd sign'} | ${secondSign}  | ${Bignum.ZERO}       | ${new Bignum(10 * PHANTOMTOSHI)} | ${Bignum.ONE}
+      ${'vote'}     | ${vote}        | ${Bignum.ZERO}       | ${new Bignum(5 * PHANTOMTOSHI)}  | ${Bignum.ONE}
     `(
       'when the transaction is a $type',
       ({ type, transaction, amount, balanceSuccess, balanceFail }) => {
@@ -529,7 +529,7 @@ describe('Wallet Manager', () => {
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
-          balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
+          balance: new Bignum((i + 1) * 1000 * PHANTOMTOSHI),
           publicKey: `v${delegateKey}`,
           vote: delegateKey,
         }
@@ -543,7 +543,7 @@ describe('Wallet Manager', () => {
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i]
         expect(delegate.voteBalance).toEqual(
-          new Bignum((5 - i) * 1000 * ARKTOSHI),
+          new Bignum((5 - i) * 1000 * PHANTOMTOSHI),
         )
       }
     })

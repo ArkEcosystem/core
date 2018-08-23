@@ -2,7 +2,7 @@ const { TRANSACTION_TYPES } = require('../../../constants')
 const transaction = require('./base')
 
 module.exports = joi => ({
-  name: 'arkMultiPayment',
+  name: 'phantomMultiPayment',
   base: transaction(joi).append({
     type: joi
       .number()

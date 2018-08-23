@@ -1,11 +1,11 @@
-const { client, crypto } = require('@arkecosystem/crypto')
+const { client, crypto } = require('@phantomchain/crypto')
 
 /**
  * Get the testnet genesis delegates information
  * @return {Array} array of objects like { secret, publicKey, address, balance }
  */
 
-client.getConfigManager().setFromPreset('ark', 'testnet')
+client.getConfigManager().setFromPreset('phantom', 'testnet')
 
 const delegatesConfig = require('../../config/testnet/delegates.json')
 const genesisTransactions = require('../../config/testnet/genesisBlock.json')

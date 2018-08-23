@@ -1,17 +1,17 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_JSON_RPC_ENABLED = true
+  process.env.PHANTOM_JSON_RPC_ENABLED = true
 
   await appHelper.setUp({
     exclude: [
-      '@arkecosystem/core-api',
-      '@arkecosystem/core-webhooks',
-      '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger',
+      '@phantomchain/core-api',
+      '@phantomchain/core-webhooks',
+      '@phantomchain/core-graphql',
+      '@phantomchain/core-forger',
     ],
   })
 }

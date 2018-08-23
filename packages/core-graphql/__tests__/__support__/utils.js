@@ -1,9 +1,9 @@
-const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
+const apiHelpers = require('@phantomchain/core-test-utils/lib/helpers/api')
 
 class Helpers {
   async request(query) {
     const url = 'http://localhost:4005/graphql'
-    const server = require('@arkecosystem/core-container').resolvePlugin(
+    const server = require('@phantomchain/core-container').resolvePlugin(
       'graphql',
     )
 

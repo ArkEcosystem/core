@@ -4,7 +4,7 @@ const crypto = require('../../lib/crypto/crypto')
 const configManager = require('../../lib/managers/config')
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../../lib/constants')
 
-beforeEach(() => configManager.setConfig(CONFIGURATIONS.ARK.DEVNET))
+beforeEach(() => configManager.setConfig(CONFIGURATIONS.PHANTOM.DEVNET))
 
 describe('crypto.js', () => {
   describe('getBytes', () => {
@@ -301,11 +301,11 @@ describe('crypto.js', () => {
     it('should get address from compressed WIF (mainnet)', () => {
       const keys = crypto.getKeysFromWIF(
         'SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4',
-        CONFIGURATIONS.ARK.MAINNET,
+        CONFIGURATIONS.PHANTOM.MAINNET,
       )
       const address = crypto.getAddress(
         keys.publicKey,
-        CONFIGURATIONS.ARK.MAINNET.pubKeyHash,
+        CONFIGURATIONS.PHANTOM.MAINNET.pubKeyHash,
       )
       expect(keys.compressed).toBeTruthy()
       expect(address).toBe('APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez')
@@ -314,11 +314,11 @@ describe('crypto.js', () => {
     it('should get address from compressed WIF (devnet)', () => {
       const keys = crypto.getKeysFromWIF(
         'SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4',
-        CONFIGURATIONS.ARK.DEVNET,
+        CONFIGURATIONS.PHANTOM.DEVNET,
       )
       const address = crypto.getAddress(
         keys.publicKey,
-        CONFIGURATIONS.ARK.DEVNET.pubKeyHash,
+        CONFIGURATIONS.PHANTOM.DEVNET.pubKeyHash,
       )
       expect(keys.compressed).toBeTruthy()
       expect(address).toBe('DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS')
@@ -393,7 +393,7 @@ describe('crypto.js', () => {
 
   describe('validate address on different networks', () => {
     it('should validate MAINNET addresses', () => {
-      configManager.setConfig(CONFIGURATIONS.ARK.MAINNET)
+      configManager.setConfig(CONFIGURATIONS.PHANTOM.MAINNET)
 
       expect(
         crypto.validateAddress('AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX'),
@@ -401,7 +401,7 @@ describe('crypto.js', () => {
     })
 
     it('should validate DEVNET addresses', () => {
-      configManager.setConfig(CONFIGURATIONS.ARK.DEVNET)
+      configManager.setConfig(CONFIGURATIONS.PHANTOM.DEVNET)
 
       expect(
         crypto.validateAddress('DARiJqhogp2Lu6bxufUFQQMuMyZbxjCydN'),

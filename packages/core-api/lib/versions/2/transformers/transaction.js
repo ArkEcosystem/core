@@ -1,12 +1,12 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const blockchain = app.resolvePlugin('blockchain')
 
-const { crypto } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { crypto } = require('@phantomcore/crypto')
+const { Transaction } = require('@phantomcore/crypto').models
 
-const { bignumify, formatTimestamp } = require('@arkecosystem/core-utils')
+const { bignumify, formatTimestamp } = require('@phantomchain/core-utils')
 
 /**
  * Turns a "transaction" object into a generic object.

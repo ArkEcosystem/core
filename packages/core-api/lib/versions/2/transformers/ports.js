@@ -6,11 +6,11 @@
 module.exports = config => {
   const result = {}
   const keys = [
-    '@arkecosystem/core-p2p',
-    '@arkecosystem/core-api',
-    '@arkecosystem/core-graphql',
-    '@arkecosystem/core-json-rpc',
-    '@arkecosystem/core-webhooks',
+    '@phantomchain/core-p2p',
+    '@phantomchain/core-api',
+    '@phantomchain/core-graphql',
+    '@phantomchain/core-json-rpc',
+    '@phantomchain/core-webhooks',
   ]
 
   result[keys[0]] = config.plugins[keys[0]].port

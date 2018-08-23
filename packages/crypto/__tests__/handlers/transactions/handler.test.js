@@ -1,5 +1,5 @@
 const BaseHandler = require('../../../lib/handlers/transactions/handler')
-const { ARKTOSHI } = require('../../../lib/constants')
+const { PHANTOMTOSHI } = require('../../../lib/constants')
 const Bignum = require('../../../lib/utils/bignum')
 
 let handler
@@ -77,7 +77,7 @@ describe('Handler', () => {
     it('should be ok', () => {
       handler.apply = jest.fn()
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.applyTransactionToSender(wallet, transaction)
@@ -94,7 +94,7 @@ describe('Handler', () => {
 
       transaction.senderPublicKey = 'a'.repeat(66)
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.applyTransactionToSender(wallet, transaction)
@@ -105,7 +105,7 @@ describe('Handler', () => {
     it('should not fail due to case mismatch', () => {
       handler.apply = jest.fn()
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
       transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
       wallet.publicKey = wallet.publicKey.toLowerCase()
@@ -128,7 +128,7 @@ describe('Handler', () => {
     it('should be ok', () => {
       handler.revert = jest.fn()
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.revertTransactionForSender(wallet, transaction)
@@ -145,7 +145,7 @@ describe('Handler', () => {
 
       transaction.senderPublicKey = 'a'.repeat(66)
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.revertTransactionForSender(wallet, transaction)
@@ -156,7 +156,7 @@ describe('Handler', () => {
     it('should not fail due to case mismatch', () => {
       handler.revert = jest.fn()
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
       transaction.senderPublicKey = transaction.senderPublicKey.toUpperCase()
       wallet.publicKey = wallet.publicKey.toLowerCase()
@@ -177,7 +177,7 @@ describe('Handler', () => {
     })
 
     it('should be ok', () => {
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.applyTransactionToRecipient(wallet, transaction)
@@ -190,7 +190,7 @@ describe('Handler', () => {
     it('should not be ok', () => {
       transaction.recipientId = 'invalid-recipientId'
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.applyTransactionToRecipient(wallet, transaction)
@@ -205,7 +205,7 @@ describe('Handler', () => {
     })
 
     it('should be ok', () => {
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.revertTransactionForRecipient(wallet, transaction)
@@ -218,7 +218,7 @@ describe('Handler', () => {
     it('should not be ok', () => {
       transaction.recipientId = 'invalid-recipientId'
 
-      const initialBalance = 1000 * ARKTOSHI
+      const initialBalance = 1000 * PHANTOMTOSHI
       wallet.balance = new Bignum(initialBalance)
 
       handler.revertTransactionForRecipient(wallet, transaction)

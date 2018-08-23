@@ -1,10 +1,10 @@
 const {
   Bignum,
   crypto,
-  constants: { ARKTOSHI },
-} = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
-const { delegateCalculator } = require('@arkecosystem/core-utils')
+  constants: { PHANTOMTOSHI },
+} = require('@phantomchain/crypto')
+const { Block } = require('@phantomchain/crypto').models
+const { delegateCalculator } = require('@phantomchain/core-utils')
 const app = require('../__support__/setup')
 
 let genesisBlock
@@ -17,7 +17,7 @@ beforeAll(async done => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
   done()
@@ -320,7 +320,7 @@ describe('Delegate Repository', () => {
       const delegate = {
         username: 'test',
         publicKey: 'test',
-        voteBalance: new Bignum(10000 * ARKTOSHI),
+        voteBalance: new Bignum(10000 * PHANTOMTOSHI),
         producedBlocks: 1000,
         missedBlocks: 500,
       }

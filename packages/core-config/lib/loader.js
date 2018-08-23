@@ -5,7 +5,7 @@ const dirTree = require('directory-tree')
 const fs = require('fs-extra')
 const ow = require('ow')
 const path = require('path')
-const { configManager } = require('@arkecosystem/crypto')
+const { configManager } = require('@phantomcore/crypto')
 
 class ConfigLoader {
   /**
@@ -15,7 +15,7 @@ class ConfigLoader {
    */
   async setUp(options) {
     this.options = options
-    this.network = JSON.parse(process.env.ARK_NETWORK)
+    this.network = JSON.parse(process.env.PHANTOM_NETWORK)
 
     await this.__createFromDirectory()
 
@@ -50,12 +50,12 @@ class ConfigLoader {
    */
   async copyFiles(dest) {
     if (!dest) {
-      dest = `${process.env.ARK_PATH_DATA}/config`
+      dest = `${process.env.PHANTOM_PATH_DATA}/config`
     }
 
     await fs.ensureDir(dest)
 
-    return fs.copy(process.env.ARK_PATH_CONFIG, dest)
+    return fs.copy(process.env.PHANTOM_PATH_CONFIG, dest)
   }
 
   /**
@@ -86,7 +86,7 @@ class ConfigLoader {
    * @return {Object}
    */
   __getFiles() {
-    const basePath = path.resolve(process.env.ARK_PATH_CONFIG)
+    const basePath = path.resolve(process.env.PHANTOM_PATH_CONFIG)
 
     if (!fs.existsSync(basePath)) {
       throw new Error(

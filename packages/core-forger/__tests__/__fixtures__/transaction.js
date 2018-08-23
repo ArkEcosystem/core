@@ -1,4 +1,4 @@
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Transaction } = require('@phantomchain/crypto').models
 
 module.exports = new Transaction({
   type: 0,

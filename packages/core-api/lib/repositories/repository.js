@@ -1,5 +1,5 @@
 const snakeCase = require('lodash/snakeCase')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const database = app.resolvePlugin('database')
 

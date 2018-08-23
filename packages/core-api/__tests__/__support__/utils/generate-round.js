@@ -1,4 +1,4 @@
-const { bignumify } = require('@arkecosystem/core-utils')
+const { bignumify } = require('@phantomchain/core-utils')
 
 module.exports = (delegates, round) => delegates.map(delegate => ({
   round,

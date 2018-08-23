@@ -1,4 +1,4 @@
-jest.mock('@arkecosystem/core-container', () => ({
+jest.mock('@phantomchain/core-container', () => ({
   resolvePlugin: name => {
     if (name === 'logger') {
       return {

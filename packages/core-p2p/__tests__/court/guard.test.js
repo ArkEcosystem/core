@@ -3,7 +3,7 @@
 const dayjs = require('dayjs-ext')
 const app = require('../__support__/setup')
 
-const ARK_ENV = process.env.ARK_ENV
+const PHANTOM_ENV = process.env.PHANTOM_ENV
 
 const defaults = require('../../lib/defaults')
 const offences = require('../../lib/court/offences')
@@ -15,7 +15,7 @@ let peerMock
 
 beforeAll(async () => {
   await app.setUp()
-  container = require('@arkecosystem/core-container')
+  container = require('@phantomchain/core-container')
 
   guard = require('../../lib/court/guard')
   Peer = require('../../lib/peer')
@@ -45,18 +45,18 @@ describe('Guard', () => {
     })
 
     it('should return true', async () => {
-      process.env.ARK_ENV = false
+      process.env.PHANTOM_ENV = false
       await guard.monitor.acceptNewPeer(peerMock)
-      process.env.ARK_ENV = ARK_ENV
+      process.env.PHANTOM_ENV = PHANTOM_ENV
 
       expect(guard.isSuspended(peerMock)).toBe(true)
     })
 
     it('should return false because passed', async () => {
-      process.env.ARK_ENV = false
+      process.env.PHANTOM_ENV = false
       await guard.monitor.acceptNewPeer(peerMock)
       guard.suspensions[peerMock.ip].until = dayjs().subtract(1, 'minutes')
-      process.env.ARK_ENV = ARK_ENV
+      process.env.PHANTOM_ENV = PHANTOM_ENV
 
       expect(guard.isSuspended(peerMock)).toBe(false)
     })

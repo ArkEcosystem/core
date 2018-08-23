@@ -3,8 +3,8 @@ const {
   client,
   transactionBuilder,
   NetworkManager,
-} = require('@arkecosystem/crypto')
-const apiHelpers = require('@arkecosystem/core-test-utils/lib/helpers/api')
+} = require('@phantomchain/crypto')
+const apiHelpers = require('@phantomchain/core-test-utils/lib/helpers/api')
 
 class Helpers {
   async request(method, path, params = {}) {
@@ -14,7 +14,7 @@ class Helpers {
       'Content-Type': 'application/json',
     }
 
-    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+    const server = require('@phantomchain/core-container').resolvePlugin('api')
 
     return apiHelpers.request(server.http, method, url, headers, params)
   }
@@ -22,11 +22,11 @@ class Helpers {
   async requestWithAcceptHeader(method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
     const headers = {
-      Accept: 'application/vnd.ark.core-api.v2+json',
+      Accept: 'application/vnd.phantom.core-api.v2+json',
       'Content-Type': 'application/json',
     }
 
-    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+    const server = require('@phantomchain/core-container').resolvePlugin('api')
 
     return apiHelpers.request(server.http, method, url, headers, params)
   }

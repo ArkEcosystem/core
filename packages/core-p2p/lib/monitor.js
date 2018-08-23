@@ -11,9 +11,9 @@ const shuffle = require('lodash/shuffle')
 const take = require('lodash/take')
 const pluralize = require('pluralize')
 
-const { slots } = require('@arkecosystem/crypto')
+const { slots } = require('@phantomcore/crypto')
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')
@@ -100,7 +100,7 @@ class Monitor {
    * @return {Promise}
    */
   async updateNetworkStatus(networkStart) {
-    if (process.env.ARK_ENV === 'test' || process.env.NODE_ENV === 'test') {
+    if (process.env.PHANTOM_ENV === 'test' || process.env.NODE_ENV === 'test') {
       return
     }
 
@@ -153,7 +153,7 @@ class Monitor {
       this.guard.isSuspended(peer) ||
       this.guard.isMyself(peer) ||
       this.pendingPeers[peer.ip] ||
-      process.env.ARK_ENV === 'test'
+      process.env.PHANTOM_ENV === 'test'
     ) {
       return
     }
@@ -745,7 +745,7 @@ class Monitor {
 
     try {
       fs.writeFileSync(
-        `${process.env.ARK_PATH_CONFIG}/peers_backup.json`,
+        `${process.env.PHANTOM_PATH_CONFIG}/peers_backup.json`,
         JSON.stringify(peers, null, 2),
       )
     } catch (err) {

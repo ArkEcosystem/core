@@ -1,12 +1,12 @@
-const app = require('@arkecosystem/core-container')
-const { Wallet } = require('@arkecosystem/crypto').models
-const { WalletManager } = require('@arkecosystem/core-database')
+const app = require('@phantomchain/core-container')
+const { Wallet } = require('@phantomchain/crypto').models
+const { WalletManager } = require('@phantomchain/core-database')
 
 const logger = app.resolvePlugin('logger')
 const database = app.resolvePlugin('database')
 const config = app.resolvePlugin('config')
-const { crypto } = require('@arkecosystem/crypto')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { crypto } = require('@phantomchain/crypto')
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
 
 module.exports = class PoolWalletManager extends WalletManager {
   /**

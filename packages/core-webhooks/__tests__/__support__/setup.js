@@ -1,16 +1,16 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_WEBHOOKS_ENABLED = true
+  process.env.PHANTOM_WEBHOOKS_ENABLED = true
 
   await appHelper.setUp({
     exclude: [
-      '@arkecosystem/core-api',
-      '@arkecosystem/core-graphql',
-      '@arkecosystem/core-forger',
+      '@phantomchain/core-api',
+      '@phantomchain/core-graphql',
+      '@phantomchain/core-forger',
     ],
   })
 
@@ -18,8 +18,8 @@ exports.setUp = async () => {
 
   await require('../../lib/server')({
     enabled: false,
-    host: process.env.ARK_WEBHOOKS_HOST || '0.0.0.0',
-    port: process.env.ARK_WEBHOOKS_PORT || 4004,
+    host: process.env.PHANTOM_WEBHOOKS_HOST || '0.0.0.0',
+    port: process.env.PHANTOM_WEBHOOKS_PORT || 4004,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
     pagination: {
       limit: 100,

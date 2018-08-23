@@ -1,16 +1,16 @@
 /* eslint max-len: "off" */
 
-const { bignumify } = require('@arkecosystem/core-utils')
-const container = require('@arkecosystem/core-container')
-const crypto = require('@arkecosystem/crypto')
+const { bignumify } = require('@phantomchain/core-utils')
+const container = require('@phantomchain/core-container')
+const crypto = require('@phantomchain/crypto')
 const delay = require('delay')
-const delegatesSecrets = require('@arkecosystem/core-test-utils/fixtures/testnet/passphrases')
-const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const delegatesSecrets = require('@phantomchain/core-test-utils/fixtures/testnet/passphrases')
+const generateTransfer = require('@phantomchain/core-test-utils/lib/generators/transactions/transfer')
 const randomSeed = require('random-seed')
 const mockData = require('./__fixtures__/transactions')
 const app = require('./__support__/setup')
 
-const ARKTOSHI = crypto.constants.ARKTOSHI
+const PHANTOMTOSHI = crypto.constants.PHANTOMTOSHI
 const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction
 const slots = crypto.slots
@@ -128,7 +128,7 @@ describe('Connection', () => {
     it('should not add not-appliable transactions', () => {
       // This should be skipped due to insufficient funds
       const highFeeTransaction = new Transaction(mockData.dummy3)
-      highFeeTransaction.fee = bignumify(1e9 * ARKTOSHI)
+      highFeeTransaction.fee = bignumify(1e9 * PHANTOMTOSHI)
       // changing public key as fixture transactions have the same one
       highFeeTransaction.senderPublicKey =
         '000000000000000000000000000000000000000420000000000000000000000000'
@@ -620,7 +620,7 @@ describe('Connection', () => {
         const transaction = new Transaction(mockData.dummy1)
         transaction.id = fakeTransactionId(i)
         transaction.fee = bignumify(
-          rand.intBetween(0.002 * ARKTOSHI, 2 * ARKTOSHI),
+          rand.intBetween(0.002 * PHANTOMTOSHI, 2 * PHANTOMTOSHI),
         )
         transaction.serialized = Transaction.serialize(transaction).toString(
           'hex',

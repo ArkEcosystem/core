@@ -1,4 +1,4 @@
-const { SECOND_SIGNATURE } = require('@arkecosystem/crypto').constants
+const { SECOND_SIGNATURE } = require('@phantomchain/crypto').constants
 
 const toBeSecondSignatureType = received => ({
   message: () => 'Expected value to be a valid SECOND_SIGNATURE transaction.',

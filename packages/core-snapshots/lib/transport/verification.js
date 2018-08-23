@@ -1,8 +1,8 @@
 const { camelizeKeys } = require('xcase')
 const createHash = require('create-hash')
-const { crypto } = require('@arkecosystem/crypto')
-const { Block, Transaction } = require('@arkecosystem/crypto').models
-const app = require('@arkecosystem/core-container')
+const { crypto } = require('@phantomchain/crypto')
+const { Block, Transaction } = require('@phantomchain/crypto').models
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 

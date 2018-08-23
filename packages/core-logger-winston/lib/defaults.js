@@ -3,21 +3,30 @@ module.exports = {
     console: {
       constructor: 'Console',
       options: {
-        level: process.env.ARK_LOG_LEVEL || 'debug',
+<<<<<<< HEAD
+        level: process.env.PHANTOM_LOG_LEVEL || 'debug',
         format: require('./formatter')(true),
         stderrLevels: ['error', 'warn'],
       },
+=======
+        colorize: true,
+        level: process.env.PHANTOM_LOG_LEVEL || 'debug',
+        timestamp: () => Date.now(),
+        formatter: (info) => require('./formatter')(info)
+      }
+>>>>>>> renaming
     },
     dailyRotate: {
       package: 'winston-daily-rotate-file',
       constructor: 'DailyRotateFile',
       options: {
-        level: process.env.ARK_LOG_LEVEL || 'debug',
+<<<<<<< HEAD
+        level: process.env.PHANTOM_LOG_LEVEL || 'debug',
         format: require('./formatter')(false),
         filename:
-          process.env.ARK_LOG_FILE
-          || `${process.env.ARK_PATH_DATA}/logs/core/${
-            process.env.ARK_NETWORK_NAME
+          process.env.PHANTOM_LOG_FILE
+          || `${process.env.PHANTOM_PATH_DATA}/logs/core/${
+            process.env.PHANTOM_NETWORK_NAME
           }/%DATE%.log`,
         datePattern: 'YYYY-MM-DD',
         zippedArchive: true,
@@ -26,4 +35,13 @@ module.exports = {
       },
     },
   },
+=======
+        filename: process.env.PHANTOM_LOG_FILE || `${process.env.PHANTOM_PATH_DATA}/logs/core/${process.env.PHANTOM_NETWORK_NAME}/%DATE%.log`,
+        datePattern: 'YYYY-MM-DD',
+        level: process.env.PHANTOM_LOG_LEVEL || 'debug',
+        zippedArchive: true
+      }
+    }
+  }
+>>>>>>> renaming
 }

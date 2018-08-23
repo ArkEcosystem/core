@@ -1,8 +1,8 @@
 const configManager = require('../../lib/managers/config')
 const feeManager = require('../../lib/managers/fee')
 const dynamicFeeManager = require('../../lib/managers/dynamic-fee')
-const network = require('../../lib/networks/ark/devnet.json')
-const networkMainnet = require('../../lib/networks/ark/mainnet.json')
+const network = require('../../lib/networks/phantom/devnet.json')
+const networkMainnet = require('../../lib/networks/phantom/mainnet.json')
 const { TRANSACTION_TYPES } = require('../../lib/constants')
 
 beforeEach(() => configManager.setConfig(network))

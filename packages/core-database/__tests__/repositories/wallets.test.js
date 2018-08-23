@@ -1,7 +1,7 @@
 const uniq = require('lodash/uniq')
 const compact = require('lodash/compact')
-const { Bignum, crypto } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
+const { Bignum, crypto } = require('@phantomchain/crypto')
+const { Block } = require('@phantomchain/crypto').models
 const app = require('../__support__/setup')
 
 let genesisBlock
@@ -15,7 +15,7 @@ beforeAll(async done => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
   genesisSenders = uniq(
     compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)),

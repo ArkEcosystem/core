@@ -13,10 +13,10 @@ module.exports = class NetworkManager {
   /**
    * Find network by token and name.
    * @param  {String} name
-   * @param  {String} [token=ark]
+   * @param  {String} [token=phantom]
    * @return {Object}
    */
-  static findByName(name, token = 'ark') {
+  static findByName (name, token = 'phantom') {
     return get(networks, `${token.toLowerCase()}.${name}`)
   }
 }

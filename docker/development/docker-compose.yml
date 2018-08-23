@@ -6,15 +6,15 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: ark-development-postgres
+    container_name: phantom-development-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: ark_development
-     POSTGRES_USER: ark
+     POSTGRES_DB: phantom_development
+     POSTGRES_USER: phantom
 
 volumes:
   postgres:

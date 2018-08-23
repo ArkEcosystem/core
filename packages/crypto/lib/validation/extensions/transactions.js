@@ -1,16 +1,16 @@
 module.exports = joi => ({
-  name: 'arkTransactions',
+  name: 'phantomTransactions',
   base: joi
     .array()
     .items(
       joi
         .alternatives()
         .try(
-          joi.arkTransfer(),
-          joi.arkSecondSignature(),
-          joi.arkDelegateRegistration(),
-          joi.arkVote(),
-          joi.arkMultiSignature(),
+          joi.phantomTransfer(),
+          joi.phantomSecondSignature(),
+          joi.phantomDelegateRegistration(),
+          joi.phantomVote(),
+          joi.phantomMultiSignature(),
         ),
     ),
 })

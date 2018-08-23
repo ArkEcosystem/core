@@ -4,7 +4,7 @@
     "node": true,
     "jest": true
   },
-  "extends": ["@arkecosystem/eslint-config-base", "prettier"],
+  "extends": ["@phantomchain/eslint-config-base", "prettier"],
   "rules": {
     "class-methods-use-this": "off",
     "complexity": "off",

@@ -237,7 +237,7 @@ module.exports = class PluginRegistrars {
 
     for (const file of files) {
       const configPath = path.resolve(
-        expandHomeDir(`${process.env.ARK_PATH_CONFIG}/${file}`),
+        expandHomeDir(`${process.env.PHANTOM_PATH_CONFIG}/${file}`),
       )
 
       if (fs.existsSync(configPath)) {

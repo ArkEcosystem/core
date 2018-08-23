@@ -1,4 +1,4 @@
-const ark = require('../../../lib/client')
+const phantom = require('../../../lib/client')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
 const { crypto } = require('../../../lib/crypto')
 const feeManager = require('../../../lib/managers/fee')
@@ -7,7 +7,7 @@ const transactionBuilderTests = require('./__shared__/transaction')
 let builder
 
 beforeEach(() => {
-  builder = ark.getBuilder().transfer()
+  builder = phantom.getBuilder().transfer()
 
   global.builder = builder
 })
@@ -48,7 +48,7 @@ describe('Transfer Transaction', () => {
         .fee(10)
         .network(network)
 
-      const passphraseTransaction = ark.getBuilder().transfer()
+      const passphraseTransaction = phantom.getBuilder().transfer()
       passphraseTransaction.data = { ...wifTransaction.data }
 
       wifTransaction.signWithWif(wif, 170)
@@ -74,7 +74,7 @@ describe('Transfer Transaction', () => {
         .network(network)
         .sign(passphrase)
 
-      const passphraseTransaction = ark.getBuilder().transfer()
+      const passphraseTransaction = phantom.getBuilder().transfer()
       passphraseTransaction.data = { ...wifTransaction.data }
 
       wifTransaction.secondSignWithWif(wif, 170)

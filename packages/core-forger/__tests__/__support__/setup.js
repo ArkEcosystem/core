@@ -1,9 +1,9 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 exports.setUp = async () => {
   await appHelper.setUp({
-    exit: '@arkecosystem/core-logger-winston',
+    exit: '@phantomchain/core-logger-winston',
   })
 }
 

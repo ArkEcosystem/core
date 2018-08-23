@@ -1,12 +1,12 @@
-const { crypto, slots } = require('@arkecosystem/crypto')
-const app = require('@arkecosystem/core-container')
+const { crypto, slots } = require('@phantomchain/crypto')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')
 const emitter = app.resolvePlugin('event-emitter')
-const { Block } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { roundCalculator } = require('@arkecosystem/core-utils')
+const { Block } = require('@phantomchain/crypto').models
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
+const { roundCalculator } = require('@phantomchain/core-utils')
 const cloneDeep = require('lodash/cloneDeep')
 const assert = require('assert')
 const WalletManager = require('./wallet-manager')

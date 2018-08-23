@@ -1,4 +1,4 @@
-const { IPFS } = require('@arkecosystem/crypto').constants
+const { IPFS } = require('@phantomcore/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/ipfs')
 

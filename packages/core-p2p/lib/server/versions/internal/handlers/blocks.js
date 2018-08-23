@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 const schema = require('../schemas/blocks')
 
 /**

@@ -1,5 +1,5 @@
 const bip39 = require('bip39')
-const { client, crypto } = require('@arkecosystem/crypto')
+const { client, crypto } = require('@phantomcore/crypto')
 
 module.exports = (network, quantity = 10) => {
   network = network || 'testnet'
@@ -7,7 +7,7 @@ module.exports = (network, quantity = 10) => {
     throw new Error('Invalid network')
   }
 
-  client.getConfigManager().setFromPreset('ark', network)
+  client.getConfigManager().setFromPreset('phantom', network)
 
   const wallets = []
   for (let i = 0; i < quantity; i++) {

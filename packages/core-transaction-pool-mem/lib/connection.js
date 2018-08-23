@@ -3,10 +3,10 @@
 
 const {
   TransactionPoolInterface,
-} = require('@arkecosystem/core-transaction-pool')
+} = require('@phantomchain/core-transaction-pool')
 
 const assert = require('assert')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 const Mem = require('./mem')
 const MemPoolTransaction = require('./mem-pool-transaction')
 const Storage = require('./storage')

@@ -48,7 +48,7 @@ describe('Commands - Second signature', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: SecondSignatureCommand.__arkToArktoshi(opts.signatureFee),
+            fee: SecondSignatureCommand.__phatnomToPhantomtoshi(opts.signatureFee),
             asset: {
               signature: {
                 publicKey: expect.any(String),

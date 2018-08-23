@@ -2,7 +2,7 @@
   "version": 2,
   "jobs": {
     "test-node10-0": {
-      "working_directory": "~/ark-core",
+      "working_directory": "~/phantom-core",
       "docker": [
         {
           "image": "circleci/node:10-browsers"
@@ -11,8 +11,8 @@
           "image": "postgres:alpine",
           "environment": {
             "POSTGRES_PASSWORD": "password",
-            "POSTGRES_DB": "ark_development",
-            "POSTGRES_USER": "ark"
+            "POSTGRES_DB": "phantom_development",
+            "POSTGRES_USER": "phantom"
           }
         }
       ],
@@ -55,14 +55,14 @@
         },
         {
           "run": {
-            "name": "Create .ark/database directory",
-            "command": "mkdir -p $HOME/.ark/database"
+            "name": "Create .phantom/database directory",
+            "command": "mkdir -p $HOME/.phantom/database"
           }
         },
         {
           "run": {
             "name": "Test",
-            "command": "./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest {{TESTPATHS}} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
+            "command": "./node_modules/.bin/cross-env PHANTOM_ENV=test ./node_modules/.bin/jest {{TESTPATHS}} --detectOpenHandles --runInBand --forceExit --ci --coverage | tee test_output.txt\n"
           }
         },
         {

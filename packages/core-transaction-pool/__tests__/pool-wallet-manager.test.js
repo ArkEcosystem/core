@@ -1,13 +1,13 @@
-const { crypto } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
+const { crypto } = require('@phantomchain/crypto')
+const { Block } = require('@phantomchain/crypto').models
 const bip39 = require('bip39')
-const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
-const generateTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
-const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+const delegates = require('@phantomchain/core-test-utils/fixtures/testnet/delegates')
+const generateTransfer = require('@phantomchain/core-test-utils/lib/generators/transactions/transfer')
+const generateWallets = require('@phantomchain/core-test-utils/lib/generators/wallets')
+const blocks2to100 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('./__support__/setup')
 
-const arktoshi = 10 ** 8
+const phantomtoshi = 10 ** 8
 let container
 let poolWalletManager
 let blockchain
@@ -102,13 +102,13 @@ describe('applyPoolTransactionToSender', () => {
           // transfer from delegate to wallet 0
           from: delegate,
           to: wallets[0],
-          amount: 100 * arktoshi,
+          amount: 100 * phantomtoshi,
         },
         {
           // transfer from wallet 0 to delegatej
           from: wallets[0],
           to: delegate,
-          amount: 55 * arktoshi,
+          amount: 55 * phantomtoshi,
         },
       ]
 
@@ -151,7 +151,7 @@ describe('applyPoolTransactionToSender', () => {
       })
 
       expect(+delegateWallet.balance).toBe(
-        delegate.balance - (100 + 0.1) * arktoshi,
+        delegate.balance - (100 + 0.1) * phantomtoshi,
       )
       expect(poolWallets[0].balance.isZero()).toBeTrue()
     })
@@ -165,7 +165,7 @@ describe('Apply transactions and block rewards to wallets on new block', () => {
   beforeEach(__resetToHeight1)
   afterEach(__resetToHeight1)
 
-  it.each([2 * arktoshi, 0])(
+  it.each([2 * phantomtoshi, 0])(
     'should apply forged block reward %i to delegate wallet',
     async reward => {
       const forgingDelegate = delegates[reward ? 2 : 3] // use different delegate to have clean initial balance
@@ -183,7 +183,7 @@ describe('Apply transactions and block rewards to wallets on new block', () => {
         true,
       )[0]
 
-      const totalFee = 0.1 * arktoshi
+      const totalFee = 0.1 * phantomtoshi
       const blockWithReward = Object.assign({}, blocks2to100[0], {
         reward,
         generatorPublicKey,

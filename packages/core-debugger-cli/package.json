@@ -1,6 +1,6 @@
 {
-  "name": "@arkecosystem/core-debugger-cli",
-  "description": "Debugger CLI for Ark Core",
+  "name": "@phantomchain/core-debugger-cli",
+  "description": "Debugger CLI for PHANTOM Core",
   "version": "0.2.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"
@@ -8,19 +8,19 @@
   "license": "MIT",
   "main": "lib/index.js",
   "bin": {
-    "ark:debugger": "./bin/debugger"
+    "phantom:debugger": "./bin/debugger"
   },
   "scripts": {
     "start": "./bin/debugger",
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+    "test:watch": "cross-env PHANTOM_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env PHANTOM_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "~0.2",
+    "@phantomchain/crypto": "~0.2",
     "clipboardy": "^1.2.3",
     "commander": "^2.19.0"
   },

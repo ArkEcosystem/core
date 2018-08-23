@@ -2,7 +2,7 @@
 
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
-require('@arkecosystem/core-test-utils/lib/matchers')
+require('@phantomchain/core-test-utils/lib/matchers')
 
 beforeAll(async () => {
   await app.setUp()

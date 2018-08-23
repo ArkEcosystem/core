@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/timelock-transfer')
 

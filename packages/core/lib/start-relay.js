@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 /**
  * Start a relay.
@@ -8,14 +8,14 @@ const app = require('@arkecosystem/core-container')
  */
 module.exports = async (options, version) => {
   await app.setUp(version, options, {
-    exclude: ['@arkecosystem/core-forger'],
+    exclude: ['@phantomchain/core-forger'],
     options: {
-      '@arkecosystem/core-p2p': {
+      '@phantomchain/core-p2p': {
         networkStart: options.networkStart,
         disableDiscovery: options.disableDiscovery,
         skipDiscovery: options.skipDiscovery,
       },
-      '@arkecosystem/core-blockchain': {
+      '@phantomchain/core-blockchain': {
         networkStart: options.networkStart,
       },
     },

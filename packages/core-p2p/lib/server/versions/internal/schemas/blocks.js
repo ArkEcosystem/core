@@ -1,10 +1,10 @@
-const Joi = require('@arkecosystem/crypto').validator.engine.joi
+const Joi = require('@phantomchain/crypto').validator.engine.joi
 
 /**
  * @type {Object}
  */
 exports.store = {
   payload: {
-    block: Joi.arkBlock().options({ stripUnknown: true }),
+    block: Joi.phantomBlock().options({ stripUnknown: true }),
   },
 }

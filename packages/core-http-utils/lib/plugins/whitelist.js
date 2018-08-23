@@ -1,6 +1,6 @@
 const Boom = require('boom')
 const mm = require('micromatch')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const logger = require('@phantomchain/core-container').resolvePlugin('logger')
 
 const register = async (server, options) => {
   server.ext({

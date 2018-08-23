@@ -1,14 +1,14 @@
 version: 2
 jobs:
   test-node10-0:
-    working_directory: ~/ark-core
+    working_directory: ~/phantom-core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: ark_development
-          POSTGRES_USER: ark
+          POSTGRES_DB: phantom_development
+          POSTGRES_USER: phantom
     steps:
       - checkout
       - run:
@@ -67,12 +67,12 @@ jobs:
             - ./packages/utils/node_modules
             - ./node_modules
       - run:
-          name: Create .ark/database directory
-          command: mkdir -p $HOME/.ark/database
+          name: Create .phantom/database directory
+          command: mkdir -p $HOME/.phantom/database
       - run:
           name: Test
           command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./node_modules/.bin/cross-env PHANTOM_ENV=test ./node_modules/.bin/jest
             ./packages/core-webhooks/ ./packages/core-transaction-pool-mem/
             ./packages/core-test-utils/ ./packages/core-p2p/
             ./packages/core-json-rpc/ ./packages/core-http-utils/
@@ -88,14 +88,14 @@ jobs:
           name: Codecov
           command: ./node_modules/.bin/codecov
   test-node10-1:
-    working_directory: ~/ark-core
+    working_directory: ~/phantom-core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: ark_development
-          POSTGRES_USER: ark
+          POSTGRES_DB: phantom_development
+          POSTGRES_USER: phantom
     steps:
       - checkout
       - run:
@@ -154,12 +154,12 @@ jobs:
             - ./packages/utils/node_modules
             - ./node_modules
       - run:
-          name: Create .ark/database directory
-          command: mkdir -p $HOME/.ark/database
+          name: Create .phantom/database directory
+          command: mkdir -p $HOME/.phantom/database
       - run:
           name: Test
           command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./node_modules/.bin/cross-env PHANTOM_ENV=test ./node_modules/.bin/jest
             ./packages/crypto/ ./packages/core-utils/
             ./packages/core-tester-cli/ ./packages/core-snapshots/
             ./packages/core-logger/ ./packages/core-api/ ./packages/core-forger/
@@ -174,14 +174,14 @@ jobs:
           name: Codecov
           command: ./node_modules/.bin/codecov
   test-node10-2:
-    working_directory: ~/ark-core
+    working_directory: ~/phantom-core
     docker:
       - image: 'circleci/node:10-browsers'
       - image: 'postgres:alpine'
         environment:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: ark_development
-          POSTGRES_USER: ark
+          POSTGRES_DB: phantom_development
+          POSTGRES_USER: phantom
     steps:
       - checkout
       - run:
@@ -240,12 +240,12 @@ jobs:
             - ./packages/utils/node_modules
             - ./node_modules
       - run:
-          name: Create .ark/database directory
-          command: mkdir -p $HOME/.ark/database
+          name: Create .phantom/database directory
+          command: mkdir -p $HOME/.phantom/database
       - run:
           name: Test
           command: >
-            ./node_modules/.bin/cross-env ARK_ENV=test ./node_modules/.bin/jest
+            ./node_modules/.bin/cross-env PHANTOM_ENV=test ./node_modules/.bin/jest
             ./packages/utils/ ./packages/core-vote-report/
             ./packages/core-transaction-pool/ ./packages/core-snapshots-cli/
             ./packages/core-logger-winston/ ./packages/core-jest-matchers/

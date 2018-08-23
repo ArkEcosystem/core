@@ -1,4 +1,4 @@
-const { Bignum, client, crypto } = require('@arkecosystem/crypto')
+const { Bignum, client, crypto } = require('@phantomchain/crypto')
 const bip39 = require('bip39')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')

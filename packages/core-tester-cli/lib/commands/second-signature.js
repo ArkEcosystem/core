@@ -1,6 +1,6 @@
 /* eslint no-await-in-loop: "off" */
 
-const { client } = require('@arkecosystem/crypto')
+const { client } = require('@phantomchain/crypto')
 const pluralize = require('pluralize')
 const { logger } = require('../utils')
 const Command = require('./command')
@@ -48,7 +48,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       logger.info(
         `${i} ==> ${transaction.id}, ${
           wallet.address
-        } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+        } (fee: ${Command.__phantomtoshiToPhantom(transaction.fee)})`,
       )
     })
 

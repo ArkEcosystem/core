@@ -1,6 +1,6 @@
 FROM node:10
 
-WORKDIR /ark-core
+WORKDIR /phantom-core
 
 COPY  entrypoint.sh /
 

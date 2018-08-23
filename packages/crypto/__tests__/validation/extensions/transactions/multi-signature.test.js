@@ -37,7 +37,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).toBeNull()
   })
 
@@ -45,7 +45,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).toBeNull()
   })
 
@@ -54,22 +54,22 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
-    expect(Joi.validate('test', Joi.arkMultiSignature()).error).not.toBeNull()
+    expect(Joi.validate('test', Joi.phantomMultiSignature()).error).not.toBeNull()
   })
 
   it('should be invalid due to non-zero amount', () => {
     transaction
       .multiSignatureAsset(multiSignatureAsset)
-      .amount(10 * constants.ARKTOSHI)
+      .amount(10 * constants.PHANTOMTOSHI)
       .sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -80,7 +80,7 @@ describe('Multi Signature Transaction', () => {
       .sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -89,7 +89,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -98,7 +98,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -107,7 +107,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -116,7 +116,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -125,7 +125,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -140,7 +140,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, values)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -149,14 +149,14 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
   it('should be invalid due to no signatures', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -164,7 +164,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases.slice(1))
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -172,7 +172,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, ['wrong passphrase', ...passphrases])
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -181,7 +181,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -190,7 +190,7 @@ describe('Multi Signature Transaction', () => {
     transaction.multiSignatureAsset(multiSignatureAsset).sign('passphrase')
     signTransaction(transaction, passphrases)
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
     ).not.toBeNull()
   })
 
@@ -200,7 +200,7 @@ describe('Multi Signature Transaction', () => {
       transaction.multiSignatureAsset(publicKey).sign('passphrase')
       signTransaction(transaction, passphrases)
       expect(
-        Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).error,
+        Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).error,
       ).not.toBeNull()
     } catch (error) {}
   })
@@ -209,7 +209,7 @@ describe('Multi Signature Transaction', () => {
     transaction = transactionBuilder.delegateRegistration()
     transaction.usernameAsset('delegate_name').sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkMultiSignature()).errors,
+      Joi.validate(transaction.getStruct(), Joi.phantomMultiSignature()).errors,
     ).not.toBeNull()
   })
 })

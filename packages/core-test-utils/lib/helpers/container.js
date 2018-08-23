@@ -1,16 +1,16 @@
 const path = require('path')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 module.exports = {
   setUp: async options =>
     app.setUp(
       '2.0.0',
       {
-        data: options.data || '~/.ark',
+        data: options.data || '~/.phantom',
         config: options.config
           ? options.config
           : path.resolve(__dirname, '../../config/testnet'),
-        token: options.token || 'ark',
+        token: options.token || 'phantom',
         network: options.network || 'testnet',
       },
       options,

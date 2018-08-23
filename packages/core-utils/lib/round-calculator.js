@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 /**
  * Calculate the round and nextRound based on the height and active delegates.

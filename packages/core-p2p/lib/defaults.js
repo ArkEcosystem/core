@@ -1,7 +1,13 @@
 module.exports = {
-  host: process.env.ARK_P2P_HOST || '0.0.0.0',
-  port: process.env.ARK_P2P_PORT || 4002,
+<<<<<<< HEAD
+  host: process.env.PHANTOM_P2P_HOST || '0.0.0.0',
+  port: process.env.PHANTOM_P2P_PORT || 4002,
   remoteInterface: false,
+=======
+  port: process.env.PHANTOM_P2P_PORT || 4002,
+  remoteinterface: true,
+  suspendMinutes: 60,
+>>>>>>> renaming
   dns: [
     // Google
     '8.8.8.8',

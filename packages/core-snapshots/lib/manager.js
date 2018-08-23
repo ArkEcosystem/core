@@ -1,7 +1,7 @@
 /* eslint max-len: "off" */
 
 const pick = require('lodash/pick')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const database = require('./db')

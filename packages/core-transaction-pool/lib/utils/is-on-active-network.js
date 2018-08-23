@@ -1,6 +1,6 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 const bs58check = require('bs58check')
-const { configManager } = require('@arkecosystem/crypto')
+const { configManager } = require('@phantomchain/crypto')
 
 const logger = app.resolvePlugin('logger')
 

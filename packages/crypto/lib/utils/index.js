@@ -1,5 +1,5 @@
 module.exports = {
   Bignum: require('./bignum'),
-  formatArktoshi: require('./format-arktoshi'),
+  formatPhantomtoshi: require('./format-phantomtoshi'),
   sortTransactions: require('./sort-transactions'),
 }

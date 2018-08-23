@@ -1,6 +1,6 @@
 const async = require('async')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
-const { Block } = require('@arkecosystem/crypto').models
+const logger = require('@phantomcore/core-container').resolvePlugin('logger')
+const { Block } = require('@phantomcore/crypto').models
 const QueueInterface = require('./interface')
 
 module.exports = class RebuildQueue extends QueueInterface {

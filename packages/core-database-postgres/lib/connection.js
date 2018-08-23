@@ -9,20 +9,20 @@ const pluralize = require('pluralize')
 const fs = require('fs')
 const path = require('path')
 
-const { ConnectionInterface } = require('@arkecosystem/core-database')
+const { ConnectionInterface } = require('@phantomchain/core-database')
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')
 const emitter = app.resolvePlugin('event-emitter')
 
-const { roundCalculator } = require('@arkecosystem/core-utils')
+const { roundCalculator } = require('@phantomchain/core-utils')
 
 const {
   Bignum,
   models: { Block, Transaction },
-} = require('@arkecosystem/crypto')
+} = require('@phantomchain/crypto')
 
 const SPV = require('./spv')
 
@@ -248,13 +248,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async buildWallets(height) {
     this.walletManager.reset()
 
-    const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
+    const spvPath = `${process.env.PHANTOM_PATH_DATA}/spv.json`
 
     if (fs.existsSync(spvPath)) {
       fs.removeSync(spvPath)
 
       logger.info(
-        'Ark Core ended unexpectedly - resuming from where we left off :runner:',
+        'PHANTOM Core ended unexpectedly - resuming from where we left off :runner:',
       )
 
       return true

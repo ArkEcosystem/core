@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require('@phantomchain/crypto')
 
 module.exports = {
   name: 'wallets.create',

@@ -1,4 +1,4 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
+require('@phantomchain/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -9,7 +9,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
+  genesisBlock = require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(async () => {
@@ -80,7 +80,7 @@ describe('API 1.0 - Blocks', () => {
 
       expect(response.data.nethash).toBeString()
 
-      const container = require('@arkecosystem/core-container')
+      const container = require('@phantomcore/core-container')
       const config = container.resolvePlugin('config')
 
       expect(response.data.nethash).toBe(config.network.nethash)

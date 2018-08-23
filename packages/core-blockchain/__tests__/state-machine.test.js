@@ -1,4 +1,4 @@
-require('@arkecosystem/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
+require('@phantomchain/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
 
 const { asValue } = require('awilix')
 
@@ -11,7 +11,7 @@ let blockchain
 beforeAll(async () => {
   container = await app.setUp()
 
-  process.env.ARK_SKIP_BLOCKCHAIN = true
+  process.env.PHANTOM_SKIP_BLOCKCHAIN = true
 
   // Manually register the blockchain
   const plugin = require('../lib').plugin
@@ -41,7 +41,7 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
-  process.env.ARK_SKIP_BLOCKCHAIN = false
+  process.env.PHANTOM_SKIP_BLOCKCHAIN = false
   blockchain.resetState()
 })
 

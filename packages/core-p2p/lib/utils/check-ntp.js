@@ -2,7 +2,7 @@
 
 const Sntp = require('sntp')
 const shuffle = require('lodash/shuffle')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+const logger = require('@phantomcore/core-container').resolvePlugin('logger')
 
 /**
  * Check if it is possible to connect to any NTP host.

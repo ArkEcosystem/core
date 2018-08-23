@@ -1,6 +1,6 @@
 const BetterSqlite3 = require('better-sqlite3')
 const fs = require('fs-extra')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Transaction } = require('@phantomchain/crypto').models
 const MemPoolTransaction = require('./mem-pool-transaction')
 
 /**

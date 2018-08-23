@@ -1,5 +1,5 @@
-const { bignumify } = require('@arkecosystem/core-utils')
-const blockchain = require('@arkecosystem/core-container').resolvePlugin(
+const { bignumify } = require('@phantomchain/core-utils')
+const blockchain = require('@phantomchain/core-container').resolvePlugin(
   'blockchain',
 )
 

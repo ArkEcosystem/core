@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const database = app.resolvePlugin('database')
 

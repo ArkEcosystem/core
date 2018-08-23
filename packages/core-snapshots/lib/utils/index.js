@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 exports.getPath = (table, folder, codec) => {
   const filename = `${table}.${codec}`
@@ -7,14 +7,14 @@ exports.getPath = (table, folder, codec) => {
 }
 
 exports.writeMetaFile = snapshotInfo => {
-  const path = `${process.env.ARK_PATH_DATA}/snapshots/${
-    process.env.ARK_NETWORK_NAME
+  const path = `${process.env.PHANTOM_PATH_DATA}/snapshots/${
+    process.env.PHANTOM_NETWORK_NAME
   }/${snapshotInfo.folder}/meta.json`
   fs.writeFileSync(path, JSON.stringify(snapshotInfo, 'utf8'))
 }
 
-exports.getFilePath = (filename, folder) => `${process.env.ARK_PATH_DATA}/snapshots/${
-  process.env.ARK_NETWORK_NAME
+exports.getFilePath = (filename, folder) => `${process.env.PHANTOM_PATH_DATA}/snapshots/${
+  process.env.PHANTOM_NETWORK_NAME
 }/${folder}/${filename}`
 
 exports.copySnapshot = (sourceFolder, destFolder, codec) => {

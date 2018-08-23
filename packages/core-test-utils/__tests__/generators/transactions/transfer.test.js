@@ -1,7 +1,7 @@
 const {
   Bignum,
-  constants: { ARKTOSHI, TRANSACTION_TYPES },
-} = require('@arkecosystem/crypto')
+  constants: { PHANTOMTOSHI, TRANSACTION_TYPES },
+} = require('@phantomchain/crypto')
 const createTransfer = require('../../../lib/generators/transactions/transfer')
 
 describe('Transfer transaction', () => {
@@ -9,7 +9,7 @@ describe('Transfer transaction', () => {
     expect(createTransfer).toBeFunction()
   })
 
-  const amount = new Bignum(20 * ARKTOSHI)
+  const amount = new Bignum(20 * PHANTOMTOSHI)
   const quantity = 4
   const transactions = createTransfer(
     undefined,
@@ -31,7 +31,7 @@ describe('Transfer transaction', () => {
     }
   })
 
-  it('should return an array sending 20 ark', () => {
+  it('should return an array sending 20 phantom', () => {
     for (let i = 0; i < transactions.length; i++) {
       expect(transactions[i]).toMatchObject({ amount })
     }

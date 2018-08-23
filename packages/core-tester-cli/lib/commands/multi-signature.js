@@ -1,6 +1,6 @@
 /* eslint no-await-in-loop: "off" */
 
-const { client } = require('@arkecosystem/crypto')
+const { client } = require('@phantomchain/crypto')
 const pluralize = require('pluralize')
 const take = require('lodash/take')
 const { logger } = require('../utils')
@@ -162,7 +162,7 @@ module.exports = class MultiSignatureCommand extends Command {
         logger.info(
           `${i} ==> ${transaction.id}, ${
             wallet.address
-          } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+          } (fee: ${Command.__phantomtoshiToPhantom(transaction.fee)})`,
         )
       }
     })
@@ -181,7 +181,7 @@ module.exports = class MultiSignatureCommand extends Command {
     logger.info('Sending transactions with signatures')
 
     const transactions = transfer.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
       approvalWallets,
     )
@@ -224,7 +224,7 @@ module.exports = class MultiSignatureCommand extends Command {
     )
 
     const transactions = transfer.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
       take(approvalWallets, min),
     )
@@ -268,7 +268,7 @@ module.exports = class MultiSignatureCommand extends Command {
     )
 
     const transactions = transfer.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
       take(approvalWallets, max),
     )
@@ -309,7 +309,7 @@ module.exports = class MultiSignatureCommand extends Command {
     logger.info('Sending transactions without signatures')
 
     const transactions = transfer.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
     )
 
@@ -349,7 +349,7 @@ module.exports = class MultiSignatureCommand extends Command {
     logger.info('Sending transactions with empty signatures')
 
     const transactions = transfer.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
     )
     for (const transaction of transactions) {

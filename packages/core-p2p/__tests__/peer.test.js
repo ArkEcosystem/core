@@ -4,7 +4,7 @@ const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 
 const axiosMock = new MockAdapter(axios)
-const { Block, Transaction } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@phantomchain/crypto').models
 const app = require('./__support__/setup')
 
 let genesisBlock
@@ -19,7 +19,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
   genesisTransaction = new Transaction(genesisBlock.transactions[0])
 

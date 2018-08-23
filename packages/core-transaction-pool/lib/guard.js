@@ -1,7 +1,7 @@
 /* eslint max-len: "off" */
 
-const app = require('@arkecosystem/core-container')
-const crypto = require('@arkecosystem/crypto')
+const app = require('@phantomchain/core-container')
+const crypto = require('@phantomchain/crypto')
 const pluralize = require('pluralize')
 
 const {

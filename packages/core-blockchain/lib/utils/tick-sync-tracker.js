@@ -1,5 +1,5 @@
 const prettyMs = require('pretty-ms')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 let tracker = null

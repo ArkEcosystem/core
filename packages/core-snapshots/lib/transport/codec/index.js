@@ -1,8 +1,8 @@
 module.exports = {
   get(codec) {
     switch (codec) {
-      case 'ark':
-        return require('./ark-codec')
+      case 'phantom':
+        return require('./phantom-codec')
       case 'lite':
         return require('./lite-codec')
       case 'msgpack':

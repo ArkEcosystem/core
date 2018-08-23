@@ -1,5 +1,5 @@
 const configManager = require('../../lib/managers/config')
-const network = require('../../lib/networks/ark/devnet.json')
+const network = require('../../lib/networks/phantom/devnet.json')
 const slots = require('../../lib/crypto/slots')
 
 beforeEach(() => configManager.setConfig(network))

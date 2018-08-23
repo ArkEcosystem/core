@@ -1,4 +1,4 @@
-const { client } = require('@arkecosystem/crypto')
+const { client } = require('@phantomchain/crypto')
 const loader = require('./loader')
 
 /**

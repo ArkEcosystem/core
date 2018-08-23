@@ -1,14 +1,14 @@
 /* eslint no-await-in-loop: "off" */
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const emitter = app.resolvePlugin('event-emitter')
 const logger = app.resolvePlugin('logger')
 
-const { slots } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
-const { roundCalculator } = require('@arkecosystem/core-utils')
+const { slots } = require('@phantomchain/crypto')
+const { Block } = require('@phantomchain/crypto').models
+const { roundCalculator } = require('@phantomchain/core-utils')
 
 const pluralize = require('pluralize')
 const tickSyncTracker = require('./utils/tick-sync-tracker')
@@ -100,7 +100,7 @@ blockchainMachine.actionMap = blockchain => ({
       event = 'SYNCED'
     }
 
-    if (process.env.ARK_ENV === 'test') {
+    if (process.env.PHANTOM_ENV === 'test') {
       event = 'TEST'
     }
 
@@ -157,7 +157,7 @@ blockchainMachine.actionMap = blockchain => ({
 
   exitApp() {
     app.forceExit(
-      'Failed to startup blockchain. Exiting Ark Core! :rotating_light:',
+      'Failed to startup blockchain. Exiting PHANTOM Core! :rotating_light:',
     )
   },
 

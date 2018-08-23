@@ -1,5 +1,5 @@
 const NetworkManager = require('../../lib/managers/network')
-const networkMainnet = require('../../lib/networks/ark/mainnet.json')
+const networkMainnet = require('../../lib/networks/phantom/mainnet.json')
 
 describe('Network Manager', () => {
   it('should be instantiated', () => {

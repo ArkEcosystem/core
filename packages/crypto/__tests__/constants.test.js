@@ -1,9 +1,9 @@
 const constants = require('../lib/constants')
 
 describe('Constants', () => {
-  it('arktoshi is valid', () => {
-    expect(constants.ARKTOSHI).toBeDefined()
-    expect(constants.ARKTOSHI).toBe(100000000)
+  it('phantomtoshi is valid', () => {
+    expect(constants.PHANTOMTOSHI).toBeDefined()
+    expect(constants.PHANTOMTOSHI).toBe(100000000)
   })
 
   it('transaction types are defined', () => {
@@ -42,10 +42,10 @@ describe('Constants', () => {
     expect(constants.CONFIGURATIONS).toBeDefined()
     expect(constants.CONFIGURATIONS).toBeFrozen()
 
-    expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeDefined()
-    expect(constants.CONFIGURATIONS.ARK.MAINNET).toBeObject()
+    expect(constants.CONFIGURATIONS.PHANTOM.MAINNET).toBeDefined()
+    expect(constants.CONFIGURATIONS.PHANTOM.MAINNET).toBeObject()
 
-    expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeDefined()
-    expect(constants.CONFIGURATIONS.ARK.DEVNET).toBeObject()
+    expect(constants.CONFIGURATIONS.PHANTOM.DEVNET).toBeDefined()
+    expect(constants.CONFIGURATIONS.PHANTOM.DEVNET).toBeObject()
   })
 })

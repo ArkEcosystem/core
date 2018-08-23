@@ -1,8 +1,8 @@
-const { crypto, formatArktoshi } = require('@arkecosystem/crypto')
-const { Wallet } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const { roundCalculator } = require('@arkecosystem/core-utils')
-const app = require('@arkecosystem/core-container')
+const { crypto, formatPhantomtoshi } = require('@phantomchain/crypto')
+const { Wallet } = require('@phantomchain/crypto').models
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
+const { roundCalculator } = require('@phantomchain/core-utils')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const logger = app.resolvePlugin('logger')
@@ -250,7 +250,7 @@ module.exports = class WalletManager {
             mapped,
             null,
             4,
-          )} have a matching vote balance of ${formatArktoshi(voteBalance)}`,
+          )} have a matching vote balance of ${formatPhantomtoshi(voteBalance)}`,
         )
       }
     }

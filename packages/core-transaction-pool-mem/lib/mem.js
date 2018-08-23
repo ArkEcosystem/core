@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { slots } = require('@arkecosystem/crypto')
+const { slots } = require('@phantomchain/crypto')
 
 class Mem {
   /**

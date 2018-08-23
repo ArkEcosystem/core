@@ -7,7 +7,7 @@ class Storage {
    * @return {void}
    */
   constructor() {
-    this.base = `${process.env.ARK_PATH_DATA}/plugins/core-elasticsearch`
+    this.base = `${process.env.PHANTOM_PATH_DATA}/plugins/core-elasticsearch`
   }
 
   /**

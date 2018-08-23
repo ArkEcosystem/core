@@ -10,12 +10,12 @@ const stubConfig = {
 }
 
 beforeEach(() => {
-  process.env.ARK_PATH_CONFIG = stubConfigPath
-  process.env.ARK_NETWORK = JSON.stringify(stubConfig.network)
+  process.env.PHANTOM_PATH_CONFIG = stubConfigPath
+  process.env.PHANTOM_NETWORK = JSON.stringify(stubConfig.network)
 })
 
 afterEach(() => {
-  delete process.env.ARK_PATH_CONFIG
+  delete process.env.PHANTOM_PATH_CONFIG
 })
 
 describe('Config Loader', () => {

@@ -33,7 +33,7 @@ describe('Vote Transaction', () => {
 
       .sign('passphrase')
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).toBeNull()
   })
 
@@ -41,22 +41,22 @@ describe('Vote Transaction', () => {
     transaction.votesAsset([unvote]).sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
-    expect(Joi.validate('test', Joi.arkVote()).error).not.toBeNull()
+    expect(Joi.validate('test', Joi.phantomVote()).error).not.toBeNull()
   })
 
   it('should be invalid due to non-zero amount', () => {
     transaction
       .votesAsset([vote])
-      .amount(10 * constants.ARKTOSHI)
+      .amount(10 * constants.PHANTOMTOSHI)
       .sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 
@@ -67,7 +67,7 @@ describe('Vote Transaction', () => {
       .sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 
@@ -75,7 +75,7 @@ describe('Vote Transaction', () => {
     transaction.votesAsset([]).sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 
@@ -83,7 +83,7 @@ describe('Vote Transaction', () => {
     transaction.votesAsset(votes).sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 
@@ -91,7 +91,7 @@ describe('Vote Transaction', () => {
     transaction.votesAsset(invalidVotes).sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 
@@ -99,7 +99,7 @@ describe('Vote Transaction', () => {
     try {
       transaction.votesAsset(vote).sign('passphrase')
       expect(
-        Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+        Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
       ).not.toBeNull()
     } catch (error) {}
   })
@@ -109,7 +109,7 @@ describe('Vote Transaction', () => {
     transaction.usernameAsset('delegate_name').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkVote()).error,
+      Joi.validate(transaction.getStruct(), Joi.phantomVote()).error,
     ).not.toBeNull()
   })
 })

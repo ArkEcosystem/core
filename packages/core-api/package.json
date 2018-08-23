@@ -1,6 +1,6 @@
 {
-  "name": "@arkecosystem/core-api",
-  "description": "Public API for Ark Core",
+  "name": "@phantomchain/core-api",
+  "description": "Public API for PHANTOM Core",
   "version": "0.2.14",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",
@@ -9,19 +9,19 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+    "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+    "test:watch": "cross-env PHANTOM_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env PHANTOM_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "@arkecosystem/core-http-utils": "~0.2",
-    "@arkecosystem/core-transaction-pool": "~0.2",
-    "@arkecosystem/core-utils": "~0.2",
-    "@arkecosystem/crypto": "~0.2",
+    "@phantomchain/core-container": "~0.2",
+    "@phantomchain/core-http-utils": "~0.2",
+    "@phantomchain/core-transaction-pool": "~0.2",
+    "@phantomchain/core-utils": "~0.2",
+    "@phantomchain/crypto": "~0.2",
     "ajv": "^6.5.5",
     "boom": "^7.3.0",
     "bs58check": "^2.1.2",
@@ -36,7 +36,7 @@
     "lodash.snakecase": "^4.1.1"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "~0.2",
+    "@phantomchain/core-test-utils": "~0.2",
     "axios": "^0.18.0"
   },
   "publishConfig": {

@@ -1,4 +1,4 @@
-const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const { createServer, mountServer } = require('@phantomchain/core-http-utils')
 const server = require('./schema')
 
 /**

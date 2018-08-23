@@ -1,6 +1,6 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
-const { Block } = require('@arkecosystem/crypto').models
-const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+require('@phantomchain/core-test-utils/lib/matchers')
+const { Block } = require('@phantomchain/crypto').models
+const blocks2to100 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -15,7 +15,7 @@ let container
 
 beforeAll(async () => {
   await app.setUp()
-  container = require('@arkecosystem/core-container')
+  container = require('@phantomchain/core-container')
 })
 
 afterAll(async () => {

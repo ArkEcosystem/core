@@ -8,7 +8,7 @@ exports.plugin = {
   pkg: require('../package.json'),
   defaults: require('./defaults'),
   alias: 'logger',
-  extends: '@arkecosystem/core-logger',
+  extends: '@phantomchain/core-logger',
   async register(container, options) {
     const logManager = container.resolvePlugin('logManager')
     await logManager.makeDriver(new WinstonDriver(options))

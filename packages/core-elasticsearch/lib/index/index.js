@@ -1,6 +1,6 @@
 /* eslint camelcase: "off" */
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const emitter = app.resolvePlugin('event-emitter')
 const logger = app.resolvePlugin('logger')
@@ -23,7 +23,7 @@ module.exports = class Index {
     )
     this.listen()
 
-    logger.info(`[Elasticsearch] Indexing ${this.getIndex()} :bookmark:`)
+    logger.info(`[Elasticsearch] Indexing ${this.getIndex()} :bookmphantom:`)
     this.index()
   }
 

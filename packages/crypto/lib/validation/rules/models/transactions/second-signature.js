@@ -11,7 +11,7 @@ module.exports = transaction => {
         .required(),
       blockid: engine.joi
         .alternatives()
-        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
+        .try(engine.joi.phantomBlockId(), engine.joi.number().unsafe()),
       type: engine.joi.number().valid(TRANSACTION_TYPES.SECOND_SIGNATURE),
       timestamp: engine.joi
         .number()
@@ -29,8 +29,8 @@ module.exports = transaction => {
           .positive()
           .required(),
       ),
-      senderId: engine.joi.arkAddress(),
-      senderPublicKey: engine.joi.arkPublicKey().required(),
+      senderId: engine.joi.phantomAddress(),
+      senderPublicKey: engine.joi.phantomPublicKey().required(),
       signature: engine.joi
         .string()
         .alphanum()
@@ -41,7 +41,7 @@ module.exports = transaction => {
         .object({
           signature: engine.joi
             .object({
-              publicKey: engine.joi.arkPublicKey().required(),
+              publicKey: engine.joi.phantomPublicKey().required(),
             })
             .required(),
         })

@@ -4,7 +4,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const {
   models: { Block },
-} = require('@arkecosystem/crypto')
+} = require('@phantomchain/crypto')
 const { spawnSync } = require('child_process')
 
 module.exports = class RemoteLoader {
@@ -74,7 +74,7 @@ module.exports = class RemoteLoader {
   }
 
   __configureDatabase(network) {
-    const command = spawnSync('createdb', [`ark_${network.name}`])
+    const command = spawnSync('createdb', [`phantom_${network.name}`])
 
     if (command.stderr.length > 0) {
       console.error(command.stderr.toString())

@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 /**
  * Start a forger.
@@ -9,17 +9,17 @@ const app = require('@arkecosystem/core-container')
 module.exports = async (options, version) => {
   await app.setUp(version, options, {
     include: [
-      '@arkecosystem/core-event-emitter',
-      '@arkecosystem/core-config',
-      '@arkecosystem/core-logger',
-      '@arkecosystem/core-logger-winston',
-      '@arkecosystem/core-forger',
+      '@phantomchain/core-event-emitter',
+      '@phantomchain/core-config',
+      '@phantomchain/core-logger',
+      '@phantomchain/core-logger-winston',
+      '@phantomchain/core-forger',
     ],
     options: {
-      '@arkecosystem/core-forger': {
-        bip38: options.bip38 || process.env.ARK_FORGER_BIP38,
+      '@phantomchain/core-forger': {
+        bip38: options.bip38 || process.env.PHANTOM_FORGER_BIP38,
         address: options.address,
-        password: options.password || process.env.ARK_FORGER_PASSWORD,
+        password: options.password || process.env.PHANTOM_FORGER_PASSWORD,
       },
     },
   })

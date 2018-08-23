@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
 
 const toBeTimelockTransferType = received => ({
   message: () => 'Expected value to be a valid TIMELOCK_TRANSFER transaction.',

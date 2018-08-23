@@ -2,8 +2,8 @@ const {
   createServer,
   mountServer,
   plugins,
-} = require('@arkecosystem/core-http-utils')
-const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
+} = require('@phantomchain/core-http-utils')
+const logger = require('@phantomchain/core-container').resolvePlugin('logger')
 
 function registerMethods(server, group) {
   Object.values(require(`./methods/${group}`)).forEach(method => {

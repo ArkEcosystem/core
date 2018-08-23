@@ -1,7 +1,7 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
-const blockchainHelper = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
-const { Block } = require('@arkecosystem/crypto').models
-const blocks2to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+require('@phantomchain/core-test-utils/lib/matchers')
+const blockchainHelper = require('@phantomchain/core-test-utils/lib/helpers/blockchain')
+const { Block } = require('@phantomchain/crypto').models
+const blocks2to100 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -11,11 +11,11 @@ let container
 beforeAll(async () => {
   await app.setUp()
   await blockchainHelper.resetBlockchain()
-  container = require('@arkecosystem/core-container')
+  container = require('@phantomchain/core-container')
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
+  genesisBlock = require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(async () => {

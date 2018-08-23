@@ -1,4 +1,4 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
+require('@phantomchain/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 

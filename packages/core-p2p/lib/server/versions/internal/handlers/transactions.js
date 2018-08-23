@@ -1,8 +1,8 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Transaction } = require('@phantomchain/crypto').models
 
 const schema = require('../schemas/transactions')
 

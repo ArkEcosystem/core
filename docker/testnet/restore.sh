@@ -1,6 +1,6 @@
 DOCKER_DB_NAME="$(docker-compose ps -q postgres)"
 DB_HOSTNAME=postgres
-DB_USER=ark
+DB_USER=phantom
 LOCAL_DUMP_PATH="snapshot.dump"
 
 docker-compose up -d postgres

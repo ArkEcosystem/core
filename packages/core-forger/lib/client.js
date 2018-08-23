@@ -3,7 +3,7 @@
 const axios = require('axios')
 const sample = require('lodash/sample')
 const delay = require('delay')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')

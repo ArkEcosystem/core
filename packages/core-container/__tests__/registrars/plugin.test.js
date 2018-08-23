@@ -6,7 +6,7 @@ const stubPluginPath = path.resolve(__dirname, '../__stubs__')
 
 let instance
 beforeEach(() => {
-  process.env.ARK_PATH_CONFIG = stubPluginPath
+  process.env.PHANTOM_PATH_CONFIG = stubPluginPath
 
   instance = new PluginRegistrar(new Container())
 })

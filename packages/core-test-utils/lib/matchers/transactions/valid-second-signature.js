@@ -1,4 +1,4 @@
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require('@phantomchain/crypto')
 
 const toHaveValidSecondSignature = (actual, expected) => {
   let verified

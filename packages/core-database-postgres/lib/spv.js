@@ -1,8 +1,8 @@
 const {
   Bignum,
   models: { Transaction },
-} = require('@arkecosystem/crypto')
-const app = require('@arkecosystem/core-container')
+} = require('@phantomchain/crypto')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')

@@ -6,14 +6,14 @@
     "commit": "git-cz",
     "lint": "lerna run lint",
     "prepare": "lerna run prepare",
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
+    "test:force-exit": "cross-env PHANTOM_ENV=test jest --runInBand --forceExit",
+    "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
     "format": "prettier --write \"./*.{js,json,md}\" \"./packages/**/*.{js,json,md}\"",
     "snyk": "./node_modules/.bin/snyk protect"
   },
   "devDependencies": {
-    "@arkecosystem/eslint-config-base": "^0.1.0",
+    "@phantomchain/eslint-config-base": "^0.1.0",
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
     "axios": "^0.18.0",

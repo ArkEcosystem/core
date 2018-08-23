@@ -1,4 +1,4 @@
-const database = require('@arkecosystem/core-container').resolvePlugin(
+const database = require('@phantomchain/core-container').resolvePlugin(
   'database',
 )
 const { formatOrderBy, unserializeTransactions } = require('../../helpers')

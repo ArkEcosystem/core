@@ -1,9 +1,9 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 const database = app.resolvePlugin('database')
 const blockchain = app.resolvePlugin('blockchain')
-const { slots } = require('@arkecosystem/crypto')
+const { slots } = require('@phantomchain/crypto')
 
 const utils = require('../utils')
 const schema = require('../schemas/delegates')

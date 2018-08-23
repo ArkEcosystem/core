@@ -1,5 +1,5 @@
-const { Bignum, crypto, formatArktoshi } = require('@arkecosystem/crypto')
-const { bignumify } = require('@arkecosystem/core-utils')
+const { Bignum, crypto, formatPhantomtoshi } = require('@phantomchain/crypto')
+const { bignumify } = require('@phantomchain/core-utils')
 const bip39 = require('bip39')
 const clipboardy = require('clipboardy')
 const delay = require('delay')
@@ -322,21 +322,21 @@ module.exports = class Command {
   }
 
   /**
-   * Convert ARK to Arktoshi.
-   * @param  {Number} ark
+   * Convert PHANTOM to Phantomtoshi.
+   * @param  {Number} phantom
    * @return {Bignum}
    */
-  static __arkToArktoshi(ark) {
-    return bignumify(ark * 1e8)
+  static __phatnomToPhantomtoshi(phantom) {
+    return bignumify(phantom * 1e8)
   }
 
   /**
-   * Convert Arktoshi to ARK.
-   * @param  {Bignum} arktoshi
+   * Convert Phantomtoshi to PHANTOM.
+   * @param  {Bignum} phantomtoshi
    * @return {String}
    */
-  static __arktoshiToArk(arktoshi) {
-    return formatArktoshi(arktoshi)
+  static __phantomtoshiToPhantom(phantomtoshi) {
+    return formatPhantomtoshi(phantomtoshi)
   }
 
   /**

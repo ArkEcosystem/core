@@ -1,4 +1,4 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
+require('@phantomchain/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -24,7 +24,7 @@ describe('API 1.0 - Peers', () => {
   })
 
   describe('GET /peers', () => {
-    // NOTE Seems that ark-node replies successfully
+    // NOTE Seems that phantom-node replies successfully
     // it('should fail using empty parameters', async () => {
     //   const response = await utils.request('GET', 'peers', {
     //     state: null,

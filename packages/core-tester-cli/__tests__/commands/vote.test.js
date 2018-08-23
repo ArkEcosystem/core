@@ -53,7 +53,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
+            fee: VoteCommand.__phatnomToPhantomtoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`],
             },
@@ -93,7 +93,7 @@ describe('Commands - Vote', () => {
       {
         transactions: [
           expect.objectContaining({
-            fee: VoteCommand.__arkToArktoshi(opts.voteFee),
+            fee: VoteCommand.__phatnomToPhantomtoshi(opts.voteFee),
             asset: {
               votes: [`+${expectedDelegate}`],
             },

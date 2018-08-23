@@ -183,7 +183,7 @@ describe('Models - Block', () => {
         ['devnet', 14492],
         ['testnet', 46488],
       ])('%s', (network, length) => {
-        const genesis = require(`@arkecosystem/core/lib/config/${network}/genesisBlock.json`)
+        const genesis = require(`@phantomchain/core/lib/config/${network}/genesisBlock.json`)
         const serialized = Block.serializeFull(genesis).toString('hex')
         const genesisBlock = new Block(Block.deserialize(serialized))
         expect(serialized).toHaveLength(length)
@@ -440,7 +440,7 @@ describe('Models - Block', () => {
   describe('v1 fix', () => {
     const {
       outlookTable,
-    } = require('../../lib/constants').CONFIGURATIONS.ARK.MAINNET
+    } = require('../../lib/constants').CONFIGURATIONS.PHANTOM.MAINNET
     const table = {
       '5139199631254983076': '1000099631254983076',
       '4683900276587456793': '1000000276587456793',

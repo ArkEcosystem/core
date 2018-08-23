@@ -1,4 +1,4 @@
-const { TRANSFER } = require('@arkecosystem/crypto').constants
+const { TRANSFER } = require('@phantomcore/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/transfer')
 

@@ -1,4 +1,4 @@
-const ark = require('../../../lib/client')
+const phantom = require('../../../lib/client')
 const crypto = require('../../../lib/crypto/crypto')
 const feeManager = require('../../../lib/managers/fee')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
@@ -7,7 +7,7 @@ const transactionBuilderTests = require('./__shared__/transaction')
 let builder
 
 beforeEach(() => {
-  builder = ark.getBuilder().multiSignature()
+  builder = phantom.getBuilder().multiSignature()
 
   global.builder = builder
 })

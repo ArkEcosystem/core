@@ -4,6 +4,11 @@ const MockAdapter = require('axios-mock-adapter')
 const axiosMock = new MockAdapter(axios)
 
 const app = require('./__support__/setup')
+<<<<<<< HEAD
+=======
+const moment = require('moment')
+const PHANTOM_ENV = process.env.PHANTOM_ENV
+>>>>>>> renaming
 
 const defaults = require('../lib/defaults')
 
@@ -79,16 +84,20 @@ describe('Monitor', () => {
     })
 
     it('should be ok', async () => {
+<<<<<<< HEAD
       axiosMock
         .onGet(`${peerMock.url}/peer/status`)
         .reply(() => [200, { success: true }, peerMock.headers])
-      process.env.ARK_ENV = false
+      process.env.PHANTOM_ENV = false
+=======
+      process.env.PHANTOM_ENV = false
+>>>>>>> renaming
 
       await monitor.acceptNewPeer(peerMock)
 
       expect(monitor.peers[peerMock.ip]).toBeObject()
 
-      process.env.ARK_ENV = 'test'
+      process.env.PHANTOM_ENV = 'test'
     })
   })
 
@@ -251,7 +260,34 @@ describe('Monitor', () => {
 
   describe('__checkDNSConnectivity', () => {
     it('should be a function', () => {
+<<<<<<< HEAD
       expect(monitor.__checkDNSConnectivity).toBeFunction()
+=======
+      expect(monitor.__isSuspended).toBeFunction()
+    })
+
+    it('should have timeout of 60 minutes', () => {
+      expect(monitor.manager.config.suspendMinutes).toBe(60)
+    })
+
+    it('should return true', async () => {
+      process.env.PHANTOM_ENV = false
+      peer.ip = '1.2.3.4'
+      await monitor.acceptNewPeer(peer)
+      process.env.PHANTOM_ENV = PHANTOM_ENV
+
+      expect(monitor.__isSuspended(peer)).toBe(true)
+    })
+
+    it('should return false because passed', async () => {
+      process.env.PHANTOM_ENV = false
+      peer.ip = '1.2.3.4'
+      await monitor.acceptNewPeer(peer)
+      monitor.suspendedPeers['1.2.3.4'].until = moment().subtract(1, 'minutes')
+      process.env.PHANTOM_ENV = PHANTOM_ENV
+
+      expect(monitor.__isSuspended(peer)).toBe(false)
+>>>>>>> renaming
     })
   })
 

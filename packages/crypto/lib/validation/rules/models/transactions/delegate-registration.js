@@ -11,7 +11,7 @@ module.exports = transaction => {
         .required(),
       blockid: engine.joi
         .alternatives()
-        .try(engine.joi.arkBlockId(), engine.joi.number().unsafe()),
+        .try(engine.joi.phantomBlockId(), engine.joi.number().unsafe()),
       type: engine.joi.number().valid(TRANSACTION_TYPES.DELEGATE_REGISTRATION),
       timestamp: engine.joi
         .number()
@@ -33,9 +33,9 @@ module.exports = transaction => {
           .positive()
           .required(),
       ),
-      senderId: engine.joi.arkAddress(),
+      senderId: engine.joi.phantomAddress(),
       recipientId: engine.joi.empty(),
-      senderPublicKey: engine.joi.arkPublicKey().required(),
+      senderPublicKey: engine.joi.phantomPublicKey().required(),
       signature: engine.joi
         .string()
         .alphanum()
@@ -46,8 +46,8 @@ module.exports = transaction => {
         .object({
           delegate: engine.joi
             .object({
-              username: engine.joi.arkUsername().required(),
-              publicKey: engine.joi.arkPublicKey(),
+              username: engine.joi.phantomUsername().required(),
+              publicKey: engine.joi.phantomPublicKey(),
             })
             .required(),
         })

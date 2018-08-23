@@ -1,5 +1,5 @@
 const Handlebars = require('handlebars')
-const { createServer, mountServer } = require('@arkecosystem/core-http-utils')
+const { createServer, mountServer } = require('@phantomchain/core-http-utils')
 
 module.exports = async config => {
   const server = await createServer(

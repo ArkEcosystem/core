@@ -1,10 +1,10 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const database = app.resolvePlugin('database')
 
 const dayjs = require('dayjs-ext')
-const { slots } = require('@arkecosystem/crypto')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { slots } = require('@phantomchain/crypto')
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
 const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 

@@ -24,7 +24,7 @@ exports.plugin = {
     }
 
     // Don't keep bip38 password in memory
-    delete process.env.ARK_FORGER_PASSWORD
+    delete process.env.PHANTOM_FORGER_PASSWORD
     delete options.password
 
     container

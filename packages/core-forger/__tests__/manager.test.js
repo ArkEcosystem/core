@@ -1,4 +1,4 @@
-const { Delegate, Transaction } = require('@arkecosystem/crypto').models
+const { Delegate, Transaction } = require('@phantomchain/crypto').models
 const app = require('./__support__/setup')
 const defaultConfig = require('../lib/defaults')
 const delegate = require('./__fixtures__/delegate')
@@ -21,7 +21,7 @@ afterAll(async () => {
 
 beforeEach(() => {
   const ForgeManager = require('../lib/manager')
-  defaultConfig.hosts = [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`]
+  defaultConfig.hosts = [`http://127.0.0.1:${process.env.PHANTOM_P2P_PORT || 4000}`]
   forgeManager = new ForgeManager(defaultConfig)
 })
 
@@ -147,7 +147,7 @@ describe('Forger Manager', () => {
     it('should be ok', async () => {
       forgeManager.delegates = [
         {
-          username: 'arkxdev',
+          username: 'phantomxdev',
           publicKey:
             '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
         },
@@ -158,7 +158,7 @@ describe('Forger Manager', () => {
       )
 
       expect(forger).toBeObject()
-      expect(forger.username).toBe('arkxdev')
+      expect(forger.username).toBe('phantomxdev')
       expect(forger.publicKey).toBe(
         '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
       )

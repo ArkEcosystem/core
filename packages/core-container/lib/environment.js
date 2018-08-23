@@ -1,7 +1,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const expandHomeDir = require('expand-home-dir')
-const { NetworkManager } = require('@arkecosystem/crypto')
+const { NetworkManager } = require('@phantomcore/crypto')
 
 module.exports = class Environment {
   /**
@@ -31,7 +31,7 @@ module.exports = class Environment {
 
     for (const [key, value] of Object.entries(this.variables)) {
       if (allowedKeys.includes(key)) {
-        process.env[`ARK_PATH_${key.toUpperCase()}`] = path.resolve(
+        process.env[`PHANTOM_PATH_${key.toUpperCase()}`] = path.resolve(
           expandHomeDir(value),
         )
       }
@@ -53,7 +53,7 @@ module.exports = class Environment {
     } else {
       try {
         const networkPath = path.resolve(
-          expandHomeDir(`${process.env.ARK_PATH_CONFIG}/network.json`),
+          expandHomeDir(`${process.env.PHANTOM_PATH_CONFIG}/network.json`),
         )
 
         config = require(networkPath)
@@ -69,8 +69,8 @@ module.exports = class Environment {
       process.exit(1) // eslint-disable-line no-unreachable
     }
 
-    process.env.ARK_NETWORK = JSON.stringify(config)
-    process.env.ARK_NETWORK_NAME = config.name
+    process.env.PHANTOM_NETWORK = JSON.stringify(config)
+    process.env.PHANTOM_NETWORK_NAME = config.name
   }
 
   /**
@@ -84,7 +84,7 @@ module.exports = class Environment {
       return
     }
 
-    const envPath = expandHomeDir(`${process.env.ARK_PATH_DATA}/.env`)
+    const envPath = expandHomeDir(`${process.env.PHANTOM_PATH_DATA}/.env`)
 
     if (fs.existsSync(envPath)) {
       const env = require('envfile').parseFileSync(envPath)

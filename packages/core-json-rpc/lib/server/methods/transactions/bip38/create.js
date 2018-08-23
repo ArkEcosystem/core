@@ -1,6 +1,6 @@
 const Boom = require('boom')
 const Joi = require('joi')
-const { transactionBuilder } = require('@arkecosystem/crypto')
+const { transactionBuilder } = require('@phantomchain/crypto')
 const database = require('../../../services/database')
 const getBIP38Wallet = require('../../../utils/bip38-keys')
 

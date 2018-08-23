@@ -2,8 +2,8 @@ const path = require('path')
 
 module.exports = {
   enabled: false,
-  host: process.env.ARK_API_HOST || '0.0.0.0',
-  port: process.env.ARK_API_PORT || 4003,
+  host: process.env.PHANTOM_API_HOST || '0.0.0.0',
+  port: process.env.PHANTOM_API_PORT || 4003,
   cache: {
     /**
      * How many seconds the server will try to complete the request and cache the result.
@@ -17,30 +17,30 @@ module.exports = {
      * If you experience issues with the cache timeout, which is indicated by a 503 status codes,
      * you should consider upgrading your hardware or tweak your PostgreSQL settings.
      */
-    generateTimeout: process.env.ARK_API_CACHE_TIMEOUT || 8000,
+    generateTimeout: process.env.PHANTOM_API_CACHE_TIMEOUT || 8000,
   },
   // @see https://hapijs.com/api#-serveroptionstls
   ssl: {
-    enabled: process.env.ARK_API_SSL,
-    host: process.env.ARK_API_SSL_HOST || '0.0.0.0',
-    port: process.env.ARK_API_SSL_PORT || 8443,
-    key: process.env.ARK_API_SSL_KEY,
-    cert: process.env.ARK_API_SSL_CERT,
+    enabled: process.env.PHANTOM_API_SSL,
+    host: process.env.PHANTOM_API_SSL_HOST || '0.0.0.0',
+    port: process.env.PHANTOM_API_SSL_PORT || 8443,
+    key: process.env.PHANTOM_API_SSL_KEY,
+    cert: process.env.PHANTOM_API_SSL_CERT,
   },
   // @see https://github.com/p-meier/hapi-api-version
   versions: {
     validVersions: [1, 2],
     defaultVersion: 1,
     basePath: '/api/',
-    vendorName: 'ark.core-api',
+    vendorName: 'phantom.core-api',
   },
   // @see https://github.com/wraithgar/hapi-rate-limit
   rateLimit: {
-    enabled: !process.env.ARK_API_RATE_LIMIT,
+    enabled: !process.env.PHANTOM_API_RATE_LIMIT,
     pathLimit: false,
-    userLimit: process.env.ARK_API_RATE_LIMIT_USER_LIMIT || 300,
+    userLimit: process.env.PHANTOM_API_RATE_LIMIT_USER_LIMIT || 300,
     userCache: {
-      expiresIn: process.env.ARK_API_RATE_LIMIT_USER_EXPIRES || 60000,
+      expiresIn: process.env.PHANTOM_API_RATE_LIMIT_USER_EXPIRES || 60000,
     },
     ipWhitelist: ['127.0.0.1', '::ffff:127.0.0.1'],
   },

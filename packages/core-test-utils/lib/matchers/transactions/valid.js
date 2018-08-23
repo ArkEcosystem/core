@@ -1,4 +1,4 @@
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require('@phantomchain/crypto')
 
 const toBeValidTransaction = (transaction, network) => ({
   message: () => 'Expected value to be a valid transaction',

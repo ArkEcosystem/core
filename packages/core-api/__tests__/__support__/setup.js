@@ -1,7 +1,7 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
-const activeDelegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+const activeDelegates = require('@phantomchain/core-test-utils/fixtures/testnet/delegates')
 const generateRound = require('./utils/generate-round')
 
 const round = generateRound(

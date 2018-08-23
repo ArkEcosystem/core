@@ -1,10 +1,10 @@
 /* eslint no-restricted-globals: "off" */
 
-const app = require('@arkecosystem/core-container')
-const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
-const { slots, crypto } = require('@arkecosystem/crypto')
-const { Block, Transaction } = require('@arkecosystem/crypto').models
-const Joi = require('@arkecosystem/crypto').validator.engine.joi
+const app = require('@phantomchain/core-container')
+const { TransactionGuard } = require('@phantomchain/core-transaction-pool')
+const { slots, crypto } = require('@phantomchain/crypto')
+const { Block, Transaction } = require('@phantomchain/crypto').models
+const Joi = require('@phantomchain/crypto').validator.engine.joi
 
 const pluralize = require('pluralize')
 
@@ -326,7 +326,7 @@ exports.postTransactions = {
     },
     validate: {
       payload: {
-        transactions: Joi.arkTransactions()
+        transactions: Joi.phantomTransactions()
           .min(1)
           .max(app.resolveOptions('transactionPool').maxTransactionsPerRequest)
           .options({ stripUnknown: true }),

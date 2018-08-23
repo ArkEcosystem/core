@@ -2,7 +2,7 @@ const {
   createServer,
   mountServer,
   plugins,
-} = require('@arkecosystem/core-http-utils')
+} = require('@phantomchain/core-http-utils')
 
 /**
  * Creates a new hapi.js server.

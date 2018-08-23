@@ -1,6 +1,6 @@
 /* eslint no-await-in-loop: "off" */
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const emitter = app.resolvePlugin('event-emitter')
 const database = app.resolvePlugin('database')

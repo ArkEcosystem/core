@@ -14,7 +14,7 @@ exports.plugin = {
 
     container.register('state', asValue(require('./state-storage')))
 
-    if (!process.env.ARK_SKIP_BLOCKCHAIN) {
+    if (!process.env.PHANTOM_SKIP_BLOCKCHAIN) {
       await blockchain.start()
     }
 

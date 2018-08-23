@@ -10,10 +10,10 @@ const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
 const {
   transactionIdFixTable,
-} = require('../constants').CONFIGURATIONS.ARK.MAINNET
+} = require('../constants').CONFIGURATIONS.PHANTOM.MAINNET
 
 /**
- * TODO copy some parts to ArkDocs
+ * TODO copy some parts to PhantomDocs
  * @classdesc This model holds the transaction data and its serialization
  *
  * A Transaction stores on the db:
@@ -25,8 +25,8 @@ const {
  *   - recipientId (address of the recipient)
  *   - type
  *   - vendorFieldHex (hexadecimal version of the vendorField)
- *   - amount (in arktoshi)
- *   - fee (in arktoshi)
+ *   - amount (in phantomtoshi)
+ *   - fee (in phantomtoshi)
  *   - serialized
  *
  * Apart, the Model includes other fields:
@@ -169,7 +169,7 @@ module.exports = class Transaction {
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
-    bb.writeByte(transaction.network || configManager.get('pubKeyHash')) // ark = 0x17, devnet = 0x30
+    bb.writeByte(transaction.network || configManager.get('pubKeyHash')) // phantom.org = 0x17, devnet = 0x30
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')

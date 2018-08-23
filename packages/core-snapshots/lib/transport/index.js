@@ -7,7 +7,7 @@ const msgpack = require('msgpack-lite')
 const pluralize = require('pluralize')
 const zlib = require('zlib')
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const emitter = app.resolvePlugin('event-emitter')

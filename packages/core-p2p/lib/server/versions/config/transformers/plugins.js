@@ -5,10 +5,10 @@
  */
 module.exports = config => {
   const allowed = [
-    '@arkecosystem/core-api',
-    '@arkecosystem/core-graphql',
-    '@arkecosystem/core-json-rpc',
-    '@arkecosystem/core-webhooks',
+    '@phantomchain/core-api',
+    '@phantomchain/core-graphql',
+    '@phantomchain/core-json-rpc',
+    '@phantomchain/core-webhooks',
   ]
 
   const result = {}

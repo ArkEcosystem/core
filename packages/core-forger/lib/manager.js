@@ -2,13 +2,13 @@
 
 const delay = require('delay')
 
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')
 
-const { slots } = require('@arkecosystem/crypto')
-const { Delegate, Transaction } = require('@arkecosystem/crypto').models
+const { slots } = require('@phantomcore/crypto')
+const { Delegate, Transaction } = require('@phantomcore/crypto').models
 
 const isEmpty = require('lodash/isEmpty')
 const uniq = require('lodash/uniq')
@@ -115,8 +115,7 @@ module.exports = class ForgerManager {
 
       if (!round.canForge) {
         // logger.debug('Block already forged in current slot')
-        // technically it is possible to compute doing shennanigan with arkjs.slots lib
-
+        // technically it is possible to compute doing shennanigan with phantomjs.slots lib
         await delay(200) // basically looping until we lock at beginning of next slot
 
         return this.__monitor(round)

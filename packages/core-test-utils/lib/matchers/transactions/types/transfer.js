@@ -1,4 +1,4 @@
-const { TRANSFER } = require('@arkecosystem/crypto').constants
+const { TRANSFER } = require('@phantomchain/crypto').constants
 
 const toBeTransferType = received => ({
   message: () => 'Expected value to be a valid TRANSFER transaction.',

@@ -1,5 +1,5 @@
 const assert = require('assert')
-const crypto = require('@arkecosystem/crypto')
+const crypto = require('@phantomchain/crypto')
 
 const TRANSACTION_TYPES = crypto.constants.TRANSACTION_TYPES
 const Transaction = crypto.models.Transaction

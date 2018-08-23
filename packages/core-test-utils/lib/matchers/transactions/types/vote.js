@@ -1,4 +1,4 @@
-const { VOTE } = require('@arkecosystem/crypto').constants
+const { VOTE } = require('@phantomchain/crypto').constants
 
 const toBeVoteType = received => ({
   message: () => 'Expected value to be a valid VOTE transaction.',

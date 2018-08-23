@@ -1,7 +1,7 @@
 const Boom = require('boom')
 const Joi = require('joi')
 const bip38 = require('bip38')
-const { crypto, utils } = require('@arkecosystem/crypto')
+const { crypto, utils } = require('@phantomchain/crypto')
 const database = require('../../../services/database')
 const decryptWIF = require('../../../utils/decrypt-wif')
 

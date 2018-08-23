@@ -1,4 +1,4 @@
-const { delegateCalculator } = require('@arkecosystem/core-utils')
+const { delegateCalculator } = require('@phantomchain/core-utils')
 const orderBy = require('lodash/orderBy')
 const limitRows = require('./utils/limit-rows')
 

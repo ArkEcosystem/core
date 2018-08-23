@@ -1,7 +1,13 @@
 {
-  "name": "@arkecosystem/core-p2p",
-  "description": "P2P API for Ark Core",
+<<<<<<< HEAD
+  "name": "@phantomchain/core-p2p",
+  "description": "P2P API for PHANTOM Core",
   "version": "0.2.11",
+=======
+  "name": "@phantomcore/core-p2p",
+  "description": "P2P API for PHANTOM Core",
+  "version": "0.1.1",
+>>>>>>> renaming
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
     "Kristjan Košič <kristjan@ark.io>",
@@ -11,19 +17,35 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
-    "test:coverage": "cross-env ARK_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
-    "test:debug": "cross-env ARK_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
-    "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
-    "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
+<<<<<<< HEAD
+    "test": "cross-env PHANTOM_ENV=test jest --runInBand --detectOpenHandles",
+    "test:coverage": "cross-env PHANTOM_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.js|index.js)$' --runInBand --detectOpenHandles",
+    "test:debug": "cross-env PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand",
+    "test:watch": "cross-env PHANTOM_ENV=test jest --runInBand --watch",
+    "test:watch:all": "cross-env PHANTOM_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix"
   },
   "dependencies": {
-    "@arkecosystem/core-container": "~0.2",
-    "@arkecosystem/core-http-utils": "~0.2",
-    "@arkecosystem/core-transaction-pool": "~0.2",
-    "@arkecosystem/crypto": "~0.2",
+    "@phantomchain/core-container": "~0.2",
+    "@phantomchain/core-http-utils": "~0.2",
+    "@phantomchain/core-transaction-pool": "~0.2",
+    "@phantomchain/crypto": "~0.2",
     "ajv": "^6.5.5",
+=======
+    "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "PHANTOM_ENV=test jest --forceExit",
+    "test:coverage": "PHANTOM_ENV=test jest --coverage --forceExit",
+    "test:debug": "PHANTOM_ENV=test node --inspect-brk ../../node_modules/.bin/jest --runInBand --watch",
+    "test:watch": "PHANTOM_ENV=test jest --runInBand --watch",
+    "test:watch:all": "PHANTOM_ENV=test jest --runInBand --watchAll",
+    "lint": "eslint ./ --fix",
+    "depcheck": "depcheck ./"
+  },
+  "dependencies": {
+    "@phantomcore/core-container": "^0.1.1",
+    "@phantomcore/core-transaction-pool": "^0.1.1",
+    "@phantomcore/crypto": "^0.1.1",
+>>>>>>> renaming
     "axios": "^0.18.0",
     "boom": "^7.3.0",
     "dayjs-ext": "^2.2.0",
@@ -46,7 +68,7 @@
     "sntp": "^3.0.2"
   },
   "devDependencies": {
-    "@arkecosystem/core-test-utils": "~0.2",
+    "@phantomchain/core-test-utils": "~0.2",
     "axios-mock-adapter": "^1.15.0"
   },
   "publishConfig": {

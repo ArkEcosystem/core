@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TRANSACTION_TYPES } = require('@phantomchain/crypto').constants
 const generateCacheKey = require('../../../utils/generate-cache-key')
 const {
   transactions: transactionsRepository,

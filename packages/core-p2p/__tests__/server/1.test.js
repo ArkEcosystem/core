@@ -1,5 +1,5 @@
-const { Block, Transaction } = require('@arkecosystem/crypto').models
-const genTransfer = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
+const { Block, Transaction } = require('@phantomchain/crypto').models
+const genTransfer = require('@phantomchain/core-test-utils/lib/generators/transactions/transfer')
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 
@@ -11,7 +11,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
 })
 

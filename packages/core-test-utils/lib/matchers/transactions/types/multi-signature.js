@@ -1,4 +1,4 @@
-const { MULTI_SIGNATURE } = require('@arkecosystem/crypto').constants
+const { MULTI_SIGNATURE } = require('@phantomchain/crypto').constants
 
 const toBeMultiSignatureType = received => ({
   message: () => 'Expected value to be a valid MULTI_SIGNATURE transaction.',

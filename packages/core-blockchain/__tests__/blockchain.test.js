@@ -9,8 +9,8 @@ const axiosMock = new MockAdapter(axios)
 const delay = require('delay')
 
 const { asValue } = require('awilix')
-const { crypto, slots } = require('@arkecosystem/crypto')
-const { Block, Wallet } = require('@arkecosystem/crypto').models
+const { crypto, slots } = require('@phantomchain/crypto')
+const { Block, Wallet } = require('@phantomchain/crypto').models
 
 let genesisBlock
 let configManager
@@ -20,8 +20,8 @@ let logger
 let loggerDebugBackup
 let peerMock
 
-const blocks1to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
-const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155')
+const blocks1to100 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')
+const blocks101to155 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.101-155')
 const app = require('./__support__/setup')
 
 beforeAll(async () => {
@@ -37,7 +37,7 @@ beforeAll(async () => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(
-    require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'),
+    require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json'),
   )
 
   configManager = container.resolvePlugin('config')
@@ -95,7 +95,7 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
-      process.env.ARK_SKIP_BLOCKCHAIN = false
+      process.env.PHANTOM_SKIP_BLOCKCHAIN = false
 
       const started = await blockchain.start(true)
 
@@ -477,8 +477,8 @@ describe('Blockchain', () => {
 })
 
 async function __start() {
-  process.env.ARK_SKIP_BLOCKCHAIN = false
-  process.env.ARK_ENV = false
+  process.env.PHANTOM_SKIP_BLOCKCHAIN = false
+  process.env.PHANTOM_ENV = false
 
   const plugin = require('../lib').plugin
 
@@ -539,7 +539,7 @@ async function __resetToHeight1() {
 
 function __mockPeer() {
   // Mocking a peer which will send blocks until height 155
-  const Peer = require('@arkecosystem/core-p2p/lib/peer')
+  const Peer = require('@phantomchain/core-p2p/lib/peer')
   peerMock = new Peer('0.0.0.99', 4002)
   Object.assign(peerMock, peerMock.headers, { status: 200 })
 

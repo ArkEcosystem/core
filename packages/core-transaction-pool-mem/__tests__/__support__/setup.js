@@ -1,12 +1,12 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(30000)
 
 exports.setUp = async () => {
   await appHelper.setUp({
-    exit: '@arkecosystem/core-blockchain',
-    exclude: ['@arkecosystem/core-transaction-pool-mem'],
+    exit: '@phantomchain/core-blockchain',
+    exclude: ['@phantomchain/core-transaction-pool-mem'],
   })
 }
 

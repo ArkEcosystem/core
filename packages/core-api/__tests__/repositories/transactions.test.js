@@ -1,5 +1,5 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
-const { crypto } = require('@arkecosystem/crypto')
+require('@phantomchain/core-test-utils/lib/matchers')
+const { crypto } = require('@phantomchain/crypto')
 const app = require('../__support__/setup')
 
 let genesisBlock
@@ -11,7 +11,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
+  genesisBlock = require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json')
   genesisTransaction = genesisBlock.transactions[0]
 })
 

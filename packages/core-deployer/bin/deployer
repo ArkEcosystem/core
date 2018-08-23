@@ -15,7 +15,7 @@ const {
 } = require('../lib/utils')
 const GenesisBlockBuilder = require('../lib/builder/genesis-block')
 
-process.env.ARK_PATH_CONFIG = path.resolve(os.homedir(), '.ark')
+process.env.PHANTOM_PATH_CONFIG = path.resolve(os.homedir(), '.phantom')
 
 commander
   .version(require('../package.json').version)
@@ -31,7 +31,7 @@ commander
   .option(
     '--dbDatabase <value>',
     'Database name',
-    `ark_${commander.name.toLowerCase()}`,
+    `phantom_${commander.name.toLowerCase()}`,
   )
   .option(
     '--explorerUrl <value>',
@@ -102,8 +102,8 @@ commander
   )
   .option(
     '--configPath <value>',
-    'Deployer config path destination [~/.ark/deployer]',
-    `${process.env.ARK_PATH_CONFIG}/deployer`,
+    'Deployer config path destination [~/.phantom/deployer]',
+    `${process.env.PHANTOM_PATH_CONFIG}/deployer`,
   )
   .parse(process.argv)
 
@@ -137,7 +137,7 @@ fs.copySync(
 )
 const networkPath = path.resolve(
   __dirname,
-  `../../crypto/lib/networks/ark/${options.network}.json`,
+  `../../crypto/lib/networks/phantom/${options.network}.json`,
 )
 if (!fs.existsSync(networkPath)) {
   logger.error(`Network '${options.network}' does not exist`)
@@ -274,28 +274,28 @@ const plugins = {}
 for (let plugin in pluginsOriginal) {
   plugins[plugin] = {}
 }
-plugins['@arkecosystem/core-p2p'] = {
+plugins['@phantomcore/core-p2p'] = {
   host: options.nodeIp,
   port: options.p2pPort,
   whitelist: ['127.0.0.1', '192.168.*'],
 }
-plugins['@arkecosystem/core-api'] = {
+plugins['@phantomcore/core-api'] = {
   enabled: true,
   host: options.nodeIp,
   port: options.apiPort,
   whitelist: ['*'],
 }
-plugins['@arkecosystem/core-database-postgres'] = {
+plugins['@phantomchain/core-database-postgres'] = {
   host: options.dbHost,
   port: options.dbPort,
   username: options.dbUsername,
   password: options.dbPassword,
   database: options.dbDatabase,
 }
-plugins['@arkecosystem/core-blockchain'] = {
+plugins['@phantomchain/core-blockchain'] = {
   fastRebuild: false,
 }
-plugins['@arkecosystem/core-forger'] = {
+plugins['@phantomchain/core-forger'] = {
   hosts: [`http://${requestNodeIp}:${options.p2pPort}`],
 }
 
@@ -308,5 +308,5 @@ writeEnv(
     API_PORT: options.apiPort,
     DB_PORT: options.dbPort,
   },
-  '~/.ark/.env',
+  '~/.phantom/.env',
 )

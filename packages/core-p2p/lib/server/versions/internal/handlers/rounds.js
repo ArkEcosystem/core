@@ -1,8 +1,8 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const config = app.resolvePlugin('config')
 
-const { slots } = require('@arkecosystem/crypto')
+const { slots } = require('@phantomchain/crypto')
 
 /**
  * @type {Object}

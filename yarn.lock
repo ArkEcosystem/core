@@ -23,9 +23,9 @@
   resolved "https://registry.yarnpkg.com/@apollographql/graphql-playground-html/-/graphql-playground-html-1.6.6.tgz#022209e28a2b547dcde15b219f0c50f47aa5beb3"
   integrity sha512-lqK94b+caNtmKFs5oUVXlSpN3sm5IXZ+KfhMxOtr0LR2SqErzkoJilitjDvJ1WbjHlxLI7WtCjRmOLdOGJqtMQ==
 
-"@arkecosystem/eslint-config-base@^0.1.0":
+"@phantomchain/eslint-config-base@^0.1.0":
   version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/eslint-config-base/-/eslint-config-base-0.1.0.tgz#c4e39d1051598b1ecc7f7ce4ca54f577deecaf0c"
+  resolved "https://registry.yarnpkg.com/@phantomchain/eslint-config-base/-/eslint-config-base-0.1.0.tgz#c4e39d1051598b1ecc7f7ce4ca54f577deecaf0c"
   integrity sha512-5Fx2xy+gOkwW92ahUACAjv7cHHKtxPS5Sz6Ef5ejbglrkXl/7Wzh+OKDJ1yXS1lkjI0CQr6ooWiSh7nRp4HHqw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.0.0-beta.35":

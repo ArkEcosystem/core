@@ -1,4 +1,4 @@
-# Ark Core - HTTP Utilities
+# PHANTOM Core - HTTP Utilities
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
@@ -6,7 +6,7 @@
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-http-utils.html).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.phantom.org/guidebook/core/plugins/core-http-utils.html).
 
 ## Security
 

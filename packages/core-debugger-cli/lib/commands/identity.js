@@ -1,4 +1,4 @@
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require('@phantomchain/crypto')
 const handleOutput = require('../utils/handle-output')
 
 module.exports = opts => {

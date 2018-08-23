@@ -1,5 +1,5 @@
-const { Bignum } = require('@arkecosystem/crypto')
-const app = require('@arkecosystem/core-container')
+const { Bignum } = require('@phantomchain/crypto')
+const app = require('@phantomchain/core-container')
 
 /**
  * Calculate the total supply at the given height

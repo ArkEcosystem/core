@@ -1,6 +1,6 @@
 /* eslint no-await-in-loop: "off" */
 
-const { Bignum, client, crypto } = require('@arkecosystem/crypto')
+const { Bignum, client, crypto } = require('@phantomchain/crypto')
 const delay = require('delay')
 const pluralize = require('pluralize')
 const unique = require('lodash/uniq')
@@ -37,12 +37,12 @@ module.exports = class TransferCommand extends Command {
 
     if (!this.options.skipValidation) {
       logger.info(
-        `Sender starting balance: ${Command.__arktoshiToArk(walletBalance)}`,
+        `Sender starting balance: ${Command.__phantomtoshiToPhantom(walletBalance)}`,
       )
     }
 
     let totalDeductions = Bignum.ZERO
-    const transactionAmount = Command.__arkToArktoshi(this.options.amount || 2)
+    const transactionAmount = Command.__phatnomToPhantomtoshi(this.options.amount || 2)
 
     const transactions = this.generateTransactions(
       transactionAmount,
@@ -66,7 +66,7 @@ module.exports = class TransferCommand extends Command {
     )
     if (!this.options.skipValidation) {
       logger.info(
-        `Sender expected ending balance: ${Command.__arktoshiToArk(
+        `Sender expected ending balance: ${Command.__phantomtoshiToPhantom(
           expectedSenderBalance,
         )}`,
       )
@@ -168,7 +168,7 @@ module.exports = class TransferCommand extends Command {
         logger.info(
           `${i} ==> ${transaction.id}, ${
             transaction.recipientId
-          } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+          } (fee: ${Command.__phantomtoshiToPhantom(transaction.fee)})`,
         )
       }
     })
@@ -297,9 +297,9 @@ module.exports = class TransferCommand extends Command {
       if (!walletBalance.isEqualTo(runOptions.expectedSenderBalance)) {
         successfulTest = false
         logger.error(
-          `Sender balance incorrect: '${Command.__arktoshiToArk(
+          `Sender balance incorrect: '${Command.__phantomtoshiToPhantom(
             walletBalance,
-          )}' but should be '${Command.__arktoshiToArk(
+          )}' but should be '${Command.__phantomtoshiToPhantom(
             runOptions.expectedSenderBalance,
           )}'`,
         )
@@ -313,9 +313,9 @@ module.exports = class TransferCommand extends Command {
         logger.error(
           `Incorrect destination balance for ${
             wallet.address
-          }. Should be '${Command.__arktoshiToArk(
+          }. Should be '${Command.__phantomtoshiToPhantom(
             runOptions.transactionAmount,
-          )}' but is '${Command.__arktoshiToArk(balance)}'`,
+          )}' but is '${Command.__phantomtoshiToPhantom(balance)}'`,
         )
       }
     }
@@ -332,7 +332,7 @@ module.exports = class TransferCommand extends Command {
     logger.info('Testing VendorField value is set correctly')
 
     const transactions = this.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
       null,
       null,
@@ -371,7 +371,7 @@ module.exports = class TransferCommand extends Command {
     logger.info('Testing empty VendorField value')
 
     const transactions = this.generateTransactions(
-      Command.__arkToArktoshi(2),
+      Command.__phatnomToPhantomtoshi(2),
       wallets,
       null,
       null,

@@ -2,7 +2,7 @@ const {
   bignumify,
   formatTimestamp,
   delegateCalculator,
-} = require('@arkecosystem/core-utils')
+} = require('@phantomchain/core-utils')
 
 /**
  * Turns a "delegate" object into a generic object.

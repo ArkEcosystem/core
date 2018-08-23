@@ -3,25 +3,25 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: ark-devnet-postgres
+    container_name: phantom-devnet-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: ark_devnet
-     POSTGRES_USER: ark
+     POSTGRES_DB: phantom_devnet
+     POSTGRES_USER: phantom
 
-  ark-core:
+  phantom-core:
     build: .
-    image: ark-core
-    container_name: ark-devnet-core
+    image: phantom-core
+    container_name: phantom-devnet-core
     ports:
      - "4002:4002"
      - "4003:4003"
     volumes:
-     - ark-core:/ark-core
+     - phantom-core:/phantom-core
     tty: true
     privileged: true
     links:
@@ -36,7 +36,7 @@ services:
 
 volumes:
   postgres:
-  ark-core:
+  phantom-core:
     driver_opts:
       type: none
       device: $PWD/../../

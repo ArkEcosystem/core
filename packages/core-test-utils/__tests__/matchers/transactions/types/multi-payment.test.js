@@ -1,4 +1,4 @@
-const { MULTI_PAYMENT } = require('@arkecosystem/crypto').constants
+const { MULTI_PAYMENT } = require('@phantomcore/crypto').constants
 
 require('../../../../lib/matchers/transactions/types/multi-payment')
 

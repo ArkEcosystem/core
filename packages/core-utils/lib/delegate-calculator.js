@@ -1,6 +1,6 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
-let { Bignum } = require('@arkecosystem/crypto')
+let { Bignum } = require('@phantomchain/crypto')
 
 Bignum = Bignum.clone({ DECIMAL_PLACES: 2 })
 

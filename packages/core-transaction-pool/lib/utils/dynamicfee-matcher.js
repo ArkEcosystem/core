@@ -1,9 +1,9 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 const {
   feeManager,
   dynamicFeeManager,
-  formatArktoshi,
-} = require('@arkecosystem/crypto')
+  formatPhantomtoshi,
+} = require('@phantomchain/crypto')
 
 /**
  * Determine if a transaction's fee meets the minimum requirements for broadcasting
@@ -32,18 +32,18 @@ module.exports = transaction => {
     if (fee >= minFeeBroadcast) {
       broadcast = true
       logger.debug(
-        `Transaction ${id} eligible for broadcast - fee of ${formatArktoshi(
+        `Transaction ${id} eligible for broadcast - fee of ${formatPhantomtoshi(
           fee,
         )} is ${
           fee === minFeeBroadcast ? 'equal to' : 'greater than'
-        } minimum fee (${formatArktoshi(minFeeBroadcast)})`,
+        } minimum fee (${formatPhantomtoshi(minFeeBroadcast)})`,
       )
     } else {
       broadcast = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast - fee of ${formatArktoshi(
+        `Transaction ${id} not eligible for broadcast - fee of ${formatPhantomtoshi(
           fee,
-        )} is smaller than minimum fee (${formatArktoshi(minFeeBroadcast)})`,
+        )} is smaller than minimum fee (${formatPhantomtoshi(minFeeBroadcast)})`,
       )
     }
 
@@ -54,18 +54,18 @@ module.exports = transaction => {
     if (fee >= minFeePool) {
       enterPool = true
       logger.debug(
-        `Transaction ${id} eligible to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} eligible to enter pool - fee of ${formatPhantomtoshi(
           fee,
         )} is ${
           fee === minFeePool ? 'equal to' : 'greater than'
-        } minimum fee (${formatArktoshi(minFeePool)})`,
+        } minimum fee (${formatPhantomtoshi(minFeePool)})`,
       )
     } else {
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} not eligible to enter pool - fee of ${formatPhantomtoshi(
           fee,
-        )} is smaller than minimum fee (${formatArktoshi(minFeePool)})`,
+        )} is smaller than minimum fee (${formatPhantomtoshi(minFeePool)})`,
       )
     }
   } else {
@@ -76,17 +76,17 @@ module.exports = transaction => {
       broadcast = true
       enterPool = true
       logger.debug(
-        `Transaction ${id} eligible for broadcast and to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} eligible for broadcast and to enter pool - fee of ${formatPhantomtoshi(
           fee,
-        )} is equal to static fee (${formatArktoshi(staticFee)})`,
+        )} is equal to static fee (${formatPhantomtoshi(staticFee)})`,
       )
     } else {
       broadcast = false
       enterPool = false
       logger.debug(
-        `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${formatArktoshi(
+        `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${formatPhantomtoshi(
           fee,
-        )} does not match static fee (${formatArktoshi(staticFee)})`,
+        )} does not match static fee (${formatPhantomtoshi(staticFee)})`,
       )
     }
   }

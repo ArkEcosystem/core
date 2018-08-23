@@ -1,5 +1,5 @@
-const { NetworkManager } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { NetworkManager } = require('@phantomchain/crypto')
+const { Transaction } = require('@phantomchain/crypto').models
 const genTransfer = require('../../../lib/generators/transactions/transfer')
 const genWallets = require('../../../lib/generators/wallets')
 

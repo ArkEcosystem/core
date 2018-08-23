@@ -1,4 +1,4 @@
-const { client } = require('@arkecosystem/crypto')
+const { client } = require('@phantomchain/crypto')
 const pluralize = require('pluralize')
 const sample = require('lodash/sample')
 const { logger } = require('../utils')
@@ -55,7 +55,7 @@ module.exports = class VoteCommand extends Command {
       logger.info(
         `${i} ==> ${transaction.id}, ${
           wallet.address
-        } (fee: ${Command.__arktoshiToArk(transaction.fee)})`,
+        } (fee: ${Command.__phantomtoshiToPhantom(transaction.fee)})`,
       )
     })
 

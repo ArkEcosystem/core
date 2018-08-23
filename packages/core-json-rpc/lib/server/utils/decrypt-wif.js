@@ -1,4 +1,4 @@
-const { configManager, crypto } = require('@arkecosystem/crypto')
+const { configManager, crypto } = require('@phantomchain/crypto')
 const bip38 = require('bip38')
 const wif = require('wif')
 

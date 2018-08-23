@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const { crypto, utils } = require('@arkecosystem/crypto')
+const { crypto, utils } = require('@phantomchain/crypto')
 const bip39 = require('bip39')
 const bip38 = require('bip38')
 const database = require('../../../services/database')

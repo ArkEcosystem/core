@@ -1,9 +1,9 @@
 /* eslint max-len: "off" */
 
-require('@arkecosystem/core-test-utils/lib/matchers')
-const generateTransfers = require('@arkecosystem/core-test-utils/lib/generators/transactions/transfer')
-const generateWallets = require('@arkecosystem/core-test-utils/lib/generators/wallets')
-const delegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
+require('@phantomchain/core-test-utils/lib/matchers')
+const generateTransfers = require('@phantomchain/core-test-utils/lib/generators/transactions/transfer')
+const generateWallets = require('@phantomchain/core-test-utils/lib/generators/wallets')
+const delegates = require('@phantomchain/core-test-utils/fixtures/testnet/delegates')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -35,7 +35,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
+  genesisBlock = require('@phantomchain/core-test-utils/config/testnet/genesisBlock.json')
   genesisTransactions = genesisBlock.transactions[0]
 
   transactionId = genesisTransactions.id
@@ -600,7 +600,7 @@ describe('API 2.0 - Transactions', () => {
     )
 
     it.each([3, 5, 8])(
-      'should not accept the last of %i transactions emptying a wallet when the last one is 1 arktoshi too much',
+      'should not accept the last of %i transactions emptying a wallet when the last one is 1 phantomtoshi too much',
       async txNumber => {
         const sender = delegates[txNumber + 1] // use txNumber + 1 so that we don't use the same delegates as the above test
         const receivers = generateWallets('testnet', 2)

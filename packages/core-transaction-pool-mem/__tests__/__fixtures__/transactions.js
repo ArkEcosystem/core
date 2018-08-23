@@ -1,7 +1,7 @@
-const ark = require('@arkecosystem/crypto')
+const phantom = require('@phantomchain/crypto')
 
-const { slots } = ark
-const { Transaction } = ark.models
+const { slots } = phantom
+const { Transaction } = phantom.models
 
 exports.dummy1 = new Transaction({
   version: 1,

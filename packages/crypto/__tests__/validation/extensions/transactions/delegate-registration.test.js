@@ -16,25 +16,25 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('delegate1').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).toBeNull()
   })
 
   it('should be invalid due to no transaction as object', () => {
     expect(
-      Joi.validate('test', Joi.arkDelegateRegistration()).error,
+      Joi.validate('test', Joi.phantomDelegateRegistration()).error,
     ).not.toBeNull()
   })
 
   it('should be invalid due to non-zero amount', () => {
     transaction
       .usernameAsset('delegate1')
-      .amount(10 * constants.ARKTOSHI)
+      .amount(10 * constants.PHANTOMTOSHI)
       .sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -43,7 +43,7 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('test 123').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -52,7 +52,7 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('£££').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -61,7 +61,7 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('1234567890123456789012345').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -70,7 +70,7 @@ describe('Delegate Registration Transaction', () => {
     try {
       transaction.usernameAsset(undefined).sign('passphrase')
       expect(
-        Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+        Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
           .error,
       ).not.toBeNull()
     } catch (error) {}
@@ -80,7 +80,7 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -89,7 +89,7 @@ describe('Delegate Registration Transaction', () => {
     transaction.usernameAsset('I_AM_INVALID').sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })
@@ -98,11 +98,11 @@ describe('Delegate Registration Transaction', () => {
     transaction = transactionBuilder.transfer()
     transaction
       .recipientId(null)
-      .amount(10 * constants.ARKTOSHI)
+      .amount(10 * constants.PHANTOMTOSHI)
       .sign('passphrase')
 
     expect(
-      Joi.validate(transaction.getStruct(), Joi.arkDelegateRegistration())
+      Joi.validate(transaction.getStruct(), Joi.phantomDelegateRegistration())
         .error,
     ).not.toBeNull()
   })

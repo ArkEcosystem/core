@@ -1,6 +1,6 @@
-const { Bignum } = require('@arkecosystem/crypto')
-const { Wallet } = require('@arkecosystem/crypto').models
-const app = require('@arkecosystem/core-container')
+const { Bignum } = require('@phantomchain/crypto')
+const { Wallet } = require('@phantomchain/crypto').models
+const app = require('@phantomchain/core-container')
 const delegateCalculator = require('../lib/delegate-calculator')
 
 let delegate

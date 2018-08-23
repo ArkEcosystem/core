@@ -1,5 +1,5 @@
 module.exports = {
-  snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${
-    process.env.ARK_NETWORK_NAME
+  snapshots: `${process.env.PHANTOM_PATH_DATA}/snapshots/${
+    process.env.PHANTOM_NETWORK_NAME
   }`,
 }

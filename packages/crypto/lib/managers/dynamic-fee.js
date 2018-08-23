@@ -10,20 +10,20 @@ class DynamicFeeManager {
 
   /**
    * Calculate minimum fee of a transaction for entering the pool.
-   * @param {Number} Minimum fee ARKTOSHI/byte
+   * @param {Number} Minimum fee PHANTOMTOSHI/byte
    * @param {Transaction} Transaction for which we calculate the fee
-   * @returns {Number} Calculated minimum acceptable fee in ARKTOSHI
+   * @returns {Number} Calculated minimum acceptable fee in PHANTOMTOSHI
    */
-  calculateFee(arktoshiPerByte, transaction) {
-    if (arktoshiPerByte <= 0) {
-      arktoshiPerByte = 1
+  calculateFee(phantomtoshiPerByte, transaction) {
+    if (phantomtoshiPerByte <= 0) {
+      phantomtoshiPerByte = 1
     }
 
     // serialized is in hex
     const transactionSizeInBytes = transaction.serialized.length / 2
 
     return (
-      (this.get(transaction.type) + transactionSizeInBytes) * arktoshiPerByte
+      (this.get(transaction.type) + transactionSizeInBytes) * phantomtoshiPerByte
     )
   }
 

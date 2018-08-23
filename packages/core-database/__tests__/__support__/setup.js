@@ -1,16 +1,16 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 exports.setUp = async () => {
   jest.setTimeout(60000)
 
-  process.env.ARK_SKIP_BLOCKCHAIN = true
+  process.env.PHANTOM_SKIP_BLOCKCHAIN = true
 
   await appHelper.setUp({
-    exit: '@arkecosystem/core-blockchain',
+    exit: '@phantomchain/core-blockchain',
     exclude: [
-      '@arkecosystem/core-p2p',
-      '@arkecosystem/core-transaction-pool-mem',
+      '@phantomchain/core-p2p',
+      '@phantomchain/core-transaction-pool-mem',
     ],
   })
 }

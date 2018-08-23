@@ -1,5 +1,5 @@
 module.exports = joi => ({
-  name: 'arkUsername',
+  name: 'phantomUsername',
   base: joi
     .string()
     .regex(/^[a-z0-9!@$&_.]+$/)

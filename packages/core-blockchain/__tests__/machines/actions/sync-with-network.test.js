@@ -1,4 +1,4 @@
-require('@arkecosystem/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
+require('@phantomchain/core-test-utils/lib/matchers') // eslint-disable-line no-unused-vars
 
 const machine = require('../../../lib/machines/blockchain')
 

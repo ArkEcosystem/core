@@ -1,5 +1,5 @@
 const fs = require('fs-extra')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const snapshotManager = app.resolvePlugin('snapshots')
@@ -8,7 +8,7 @@ module.exports = async options => {
   if (
     options.filename
     && !fs.existsSync(
-      `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${
+      `${process.env.PHANTOM_PATH_DATA}/snapshots/${process.env.PHANTOM_NETWORK_NAME}/${
         options.filename
       }`,
     )

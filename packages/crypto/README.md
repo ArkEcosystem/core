@@ -30,7 +30,7 @@ const client = new PhantomChainClient('<your host here>')
 
 ## Security
 
-If you discover a security vulnerability within this package, please send an e-mail to security@phnatom.org. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within this package, please send an e-mail to security@phantom.org. All security vulnerabilities will be promptly addressed.
 
 ## Credits
 

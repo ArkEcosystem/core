@@ -1,11 +1,11 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
   await appHelper.setUp({
-    exit: '@arkecosystem/core-blockchain',
+    exit: '@phantomchain/core-blockchain',
   })
 
   return app

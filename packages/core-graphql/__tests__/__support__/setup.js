@@ -1,13 +1,13 @@
-const app = require('@arkecosystem/core-container')
-const appHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
+const app = require('@phantomchain/core-container')
+const appHelper = require('@phantomchain/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_GRAPHQL_ENABLED = true
+  process.env.PHANTOM_GRAPHQL_ENABLED = true
 
   await appHelper.setUp({
-    exclude: ['@arkecosystem/core-api', '@arkecosystem/core-forger'],
+    exclude: ['@phantomchain/core-api', '@phantomchain/core-forger'],
   })
 
   return app

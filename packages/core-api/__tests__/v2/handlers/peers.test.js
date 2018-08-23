@@ -1,5 +1,5 @@
-require('@arkecosystem/core-test-utils/lib/matchers')
-const peers = require('@arkecosystem/core-test-utils/config/testnet/peers.json')
+require('@phantomchain/core-test-utils/lib/matchers')
+const peers = require('@phantomchain/core-test-utils/config/testnet/peers.json')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 

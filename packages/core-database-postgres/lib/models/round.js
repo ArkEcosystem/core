@@ -1,4 +1,4 @@
-const { bignumify } = require('@arkecosystem/core-utils')
+const { bignumify } = require('@phantomchain/core-utils')
 const Model = require('./model')
 
 module.exports = class Round extends Model {

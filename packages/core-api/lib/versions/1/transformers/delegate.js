@@ -1,4 +1,4 @@
-const { delegateCalculator } = require('@arkecosystem/core-utils')
+const { delegateCalculator } = require('@phantomchain/core-utils')
 
 /**
  * Turns a "delegate" object into a generic object.

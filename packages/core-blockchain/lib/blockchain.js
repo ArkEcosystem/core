@@ -1,9 +1,9 @@
 /* eslint max-len: "off" */
 /* eslint no-await-in-loop: "off" */
 
-const { slots } = require('@arkecosystem/crypto')
-const { Block } = require('@arkecosystem/crypto').models
-const app = require('@arkecosystem/core-container')
+const { slots } = require('@phantomchain/crypto')
+const { Block } = require('@phantomchain/crypto').models
+const app = require('@phantomchain/core-container')
 
 const logger = app.resolvePlugin('logger')
 const config = app.resolvePlugin('config')
@@ -25,9 +25,9 @@ module.exports = class Blockchain {
 
     if (this.state.networkStart) {
       logger.warn(
-        'Ark Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:',
+        'PHANTOM Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong. :warning:',
       )
-      logger.info('Starting Ark Core for a new world, welcome aboard :rocket:')
+      logger.info('Starting PHANTOM Core for a new world, welcome aboard :rocket:')
     }
 
     this.actions = stateMachine.actionMap(this)
@@ -81,11 +81,11 @@ module.exports = class Blockchain {
       this.stop()
     })
 
-    if (skipStartedCheck || process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK) {
+    if (skipStartedCheck || process.env.PHANTOM_SKIP_BLOCKCHAIN_STARTED_CHECK) {
       return true
     }
 
-    // TODO: this state needs to be set after state.getLastBlock() is available if ARK_ENV=test
+    // TODO: this state needs to be set after state.getLastBlock() is available if PHANTOM_ENV=test
     while (!this.state.started && !this.isStopped) {
       await delay(1000)
     }

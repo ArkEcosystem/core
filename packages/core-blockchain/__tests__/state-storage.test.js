@@ -1,6 +1,6 @@
-const { Block } = require('@arkecosystem/crypto').models
-const blocks1to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
-const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155')
+const { Block } = require('@phantomchain/crypto').models
+const blocks1to100 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.2-100')
+const blocks101to155 = require('@phantomchain/core-test-utils/fixtures/testnet/blocks.101-155')
 
 const state = require('../lib/state-storage')
 const app = require('./__support__/setup')

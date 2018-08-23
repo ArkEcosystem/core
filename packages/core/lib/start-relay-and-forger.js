@@ -1,4 +1,4 @@
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 /**
  * Start a relay and forger.
@@ -9,18 +9,18 @@ const app = require('@arkecosystem/core-container')
 module.exports = async (options, version) => {
   await app.setUp(version, options, {
     options: {
-      '@arkecosystem/core-p2p': {
+      '@phantomchain/core-p2p': {
         networkStart: options.networkStart,
         disableDiscovery: options.disableDiscovery,
         skipDiscovery: options.skipDiscovery,
       },
-      '@arkecosystem/core-blockchain': {
+      '@phantomchain/core-blockchain': {
         networkStart: options.networkStart,
       },
-      '@arkecosystem/core-forger': {
-        bip38: options.bip38 || process.env.ARK_FORGER_BIP38,
+      '@phantomchain/core-forger': {
+        bip38: options.bip38 || process.env.PHANTOM_FORGER_BIP38,
         address: options.address,
-        password: options.password || process.env.ARK_FORGER_PASSWORD,
+        password: options.password || process.env.PHANTOM_FORGER_PASSWORD,
       },
     },
   })

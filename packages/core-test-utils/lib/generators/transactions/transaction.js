@@ -1,11 +1,11 @@
 const superheroes = require('superheroes')
-const { client, crypto } = require('@arkecosystem/crypto')
+const { client, crypto } = require('@phantomchain/crypto')
 const {
   TRANSFER,
   SECOND_SIGNATURE,
   DELEGATE_REGISTRATION,
   VOTE,
-} = require('@arkecosystem/crypto').constants.TRANSACTION_TYPES
+} = require('@phantomchain/crypto').constants.TRANSACTION_TYPES
 const defaultPassphrase = require('../../../fixtures/testnet/passphrases')[0]
 
 module.exports = (
@@ -38,7 +38,7 @@ module.exports = (
     passphrase = passphrase[0]
   }
 
-  client.getConfigManager().setFromPreset('ark', network)
+  client.getConfigManager().setFromPreset('phantom', network)
 
   const transactions = []
   for (let i = 0; i < quantity; i++) {

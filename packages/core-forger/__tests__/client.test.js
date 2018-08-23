@@ -7,7 +7,7 @@ const mockAxios = new MockAdapter(axios)
 
 jest.setTimeout(30000)
 
-const host = `http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`
+const host = `http://127.0.0.1:${process.env.PHANTOM_P2P_PORT || 4000}`
 
 let Client
 let client

@@ -1,9 +1,9 @@
 const Bignum = require('../../lib/utils/bignum')
 const Wallet = require('../../lib/models/wallet')
 const multiTx = require('./fixtures/multi-transaction')
-const { ARKTOSHI } = require('../../lib/constants')
+const { PHANTOMTOSHI } = require('../../lib/constants')
 const configManager = require('../../lib/managers/config')
-const network = require('../../lib/networks/ark/devnet.json')
+const network = require('../../lib/networks/phantom/devnet.json')
 
 describe('Models - Wallet', () => {
   beforeEach(() => configManager.setConfig(network))
@@ -14,7 +14,7 @@ describe('Models - Wallet', () => {
       const address = 'Abcde'
       const wallet = new Wallet(address)
       const balance = parseInt((Math.random() * 1000).toFixed(8))
-      wallet.balance = new Bignum(balance * ARKTOSHI)
+      wallet.balance = new Bignum(balance * PHANTOMTOSHI)
       expect(wallet.toString()).toBe(
         `${address} (${balance} ${configManager.config.client.symbol})`,
       )

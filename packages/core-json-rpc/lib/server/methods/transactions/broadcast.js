@@ -1,6 +1,6 @@
 const Boom = require('boom')
 const Joi = require('joi')
-const { crypto } = require('@arkecosystem/crypto')
+const { crypto } = require('@phantomchain/crypto')
 const network = require('../../services/network')
 const database = require('../../services/database')
 

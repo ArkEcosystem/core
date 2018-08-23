@@ -12,11 +12,11 @@ let peerMock
 beforeAll(async () => {
   await app.setUp()
 
-  const Peer = require('@arkecosystem/core-p2p/lib/peer')
+  const Peer = require('@phantomchain/core-p2p/lib/peer')
   peerMock = new Peer('0.0.0.99', 4002)
   Object.assign(peerMock, peerMock.headers, { status: 'OK' })
 
-  const monitor = require('@arkecosystem/core-container').resolvePlugin('p2p')
+  const monitor = require('@phantomchain/core-container').resolvePlugin('p2p')
   monitor.peers = {}
   monitor.peers[peerMock.ip] = peerMock
 })

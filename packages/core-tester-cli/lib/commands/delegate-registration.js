@@ -1,4 +1,4 @@
-const { client } = require('@arkecosystem/crypto')
+const { client } = require('@phantomchain/crypto')
 const pluralize = require('pluralize')
 const superheroes = require('superheroes')
 const { logger } = require('../utils')
@@ -59,7 +59,7 @@ module.exports = class DelegateRegistrationCommand extends Command {
       logger.info(
         `${i} ==> ${transaction.id}, ${
           wallet.address
-        } (fee: ${Command.__arktoshiToArk(transaction.fee)}, username: ${
+        } (fee: ${Command.__phantomtoshiToPhantom(transaction.fee)}, username: ${
           wallet.username
         })`,
       )

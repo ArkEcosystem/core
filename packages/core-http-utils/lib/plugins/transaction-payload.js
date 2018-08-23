@@ -1,5 +1,5 @@
 const Boom = require('boom')
-const app = require('@arkecosystem/core-container')
+const app = require('@phantomchain/core-container')
 
 const register = async (server, options) => {
   server.ext({
