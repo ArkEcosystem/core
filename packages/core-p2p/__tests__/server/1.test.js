@@ -59,6 +59,20 @@ describe('API - Version 1', () => {
       expect(response.data).toHaveProperty('blocks')
       expect(response.data.blocks).toBeArray()
     })
+
+    it('should retrieve lastBlock if no "lastBlockHeight" specified', async () => {
+      const response = await sendGET('peer/blocks');
+
+      expect(response.status).toBe(200);
+      expect(response.data).toBeObject()
+
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('blocks')
+      expect(response.data.blocks).toBeArray()
+      expect(response.data.blocks).toHaveLength(1)
+    })
   })
 
   describe('GET /peer/transactionsFromIds', () => {
