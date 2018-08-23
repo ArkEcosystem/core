@@ -359,12 +359,12 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      let database = container.resolvePlugin('database')
+      const database = container.resolvePlugin('database')
+      const blockchain = container.resolvePlugin('blockchain')
       let reqBlockHeight = parseInt(request.query.lastBlockHeight)
       let blocks = []
       if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
-        blocks.push(await database.getLastBlock())
-
+        blocks.push(blockchain.getLastBlock())
       } else {
         blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
       }
