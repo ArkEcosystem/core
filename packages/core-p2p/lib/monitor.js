@@ -196,6 +196,14 @@ class Monitor {
   }
 
   /**
+   * Get a list of all suspended peers.
+   * @return {void}
+   */
+  async getSuspendedPeers () {
+    return this.guard.all()
+  }
+
+  /**
    * Get all available peers.
    * @return {Peer[]}
    */
