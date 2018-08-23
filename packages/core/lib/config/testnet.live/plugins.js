@@ -42,7 +42,8 @@ module.exports = {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
     key: 'ark1',
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
-    whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+    allowedSenders: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+    maxTransactionsPerRequest: 150,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379

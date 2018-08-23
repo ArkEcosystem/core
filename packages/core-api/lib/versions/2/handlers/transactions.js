@@ -47,7 +47,7 @@ exports.store = {
       }
     }
 
-    if (request.payload.transactions.length > config.getConstants(blockchain.getLastBlock().data.height).maxTransactionsPerRequest) {
+    if (request.payload.transactions.length > transactionPool.maxTransactionsPerRequest) {
       return h.response({ success: false, error: 'Number of transactions is exceeding max payload size per single request' }).code(500)
     }
 

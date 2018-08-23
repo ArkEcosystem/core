@@ -5,6 +5,7 @@ module.exports = {
   key: 'ark',
   maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
   allowedSenders: [],
+  maxTransactionsPerRequest: 150,
   redis: {
     host: process.env.ARK_REDIS_HOST || 'localhost',
     port: process.env.ARK_REDIS_PORT || 6379
