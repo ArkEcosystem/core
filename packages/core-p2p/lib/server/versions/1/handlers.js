@@ -12,8 +12,6 @@ const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
 
-
-
 /**
  * @type {Object}
  */
