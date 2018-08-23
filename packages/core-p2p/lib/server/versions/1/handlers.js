@@ -245,28 +245,28 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-          let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
-          // only for test because it can be used for DDOS attack
-          if (!peer && process.env.NODE_ENV === 'test_p2p') {
-            peer = await request.server.app.p2p.getRandomPeer()
-          }
-
-          if (!peer) {
-            return { success: false }
-          }
-
-          transactions = await peer.getTransactionsFromIds(block.transactionIds)
-          // issue on v1, using /api/ instead of /peer/
-          if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
-
-          // reorder them correctly
-          block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-          logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
-
-          if (block.transactions.length !== block.numberOfTransactions) {
-            return { success: false }
-          }
+        let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
+        // only for test because it can be used for DDOS attack
+        if (!peer && process.env.NODE_ENV === 'test_p2p') {
+          peer = await request.server.app.p2p.getRandomPeer()
         }
+
+        if (!peer) {
+          return {success: false}
+        }
+
+        transactions = await peer.getTransactionsFromIds(block.transactionIds)
+        // issue on v1, using /api/ instead of /peer/
+        if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+
+        // reorder them correctly
+        block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
+        logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+
+        if (block.transactions.length !== block.numberOfTransactions) {
+          return {success: false}
+        }
+      }
       // } else return { success: false }
 
       block.ip = requestIp.getClientIp(request)
@@ -359,7 +359,15 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const database = container.resolvePlugin('database')
+      const blockchain = container.resolvePlugin('blockchain')
+      let reqBlockHeight = parseInt(request.query.lastBlockHeight)
+      let blocks = []
+      if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
+        blocks.push(blockchain.getLastBlock())
+      } else {
+        blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+      }
 
       logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 
