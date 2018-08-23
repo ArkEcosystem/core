@@ -4,6 +4,7 @@ module.exports = {
   enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
   key: 'ark',
   maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
+  whitelist: [],
   allowedSenders: [],
   maxTransactionsPerRequest: 150,
   redis: {
