@@ -41,12 +41,11 @@ describe('GraphQL', () => {
       expect(references.data.blocks).toBe(testData.blocks)
 
       it('should load transactions', () => {
-        for (let i = 0; i < testData.transactions.length; i++) {
-          let transaction = testData.transactions[i]
+        testData.transactions.forEach(transaction => {
           let blockIndex = references.data.blocks.findIndex(block => block.id === transaction.block)
 
           references.data.blocks[blockIndex].transactions.push(transaction)
-        }
+        })
       })
 
       it('should now have transactions', () => {
