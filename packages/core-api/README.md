@@ -1,4 +1,4 @@
-# Ark Core - Public API
+![PHANTOM Core](https://i.imgur.com/dPHOKrL.jpg)
 
 <p align="center">
     <img src="../../banner.png?sanitize=true" />
