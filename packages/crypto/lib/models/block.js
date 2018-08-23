@@ -95,6 +95,10 @@ module.exports = class Block {
       console.log(`'${this.data.id}': '${data.id}',`)
     }
 
+    if (data.ip) {
+      this.ip = data.ip
+    }
+
     // if (data.height === 1622706) {
     //   console.log(data)
     //   console.log(this.data)
