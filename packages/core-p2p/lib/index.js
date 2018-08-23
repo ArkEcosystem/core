@@ -14,9 +14,9 @@ exports.plugin = {
   async register (container, options) {
     container.resolvePlugin('logger').info('Starting P2P Interface')
 
-    await monitor.start(options)
-
     monitor.server = await startServer(monitor, options)
+
+    await monitor.start(options)
 
     return monitor
   },
