@@ -30,8 +30,6 @@ describe('GraphQL', () => {
       it('should have queries', () => {
         expect(testQueries.block.length).toBeTruthy()
 
-        logger.debug('Proceeding with Block test queries')
-
         testQueries.block.forEach((block) => {
         })
       })
@@ -40,8 +38,6 @@ describe('GraphQL', () => {
     describe('test query for Blocks', () => {
       it('should have queries', () => {
         expect(testQueries.blocks.length).toBeTruthy()
-
-        logger.debug('Proceeding with Blocks test queries')
 
         testQueries.blocks.forEach((blocks) => {
         })
@@ -52,8 +48,6 @@ describe('GraphQL', () => {
       it('should have queries', () => {
         expect(testQueries.transaction.length).toBeTruthy()
 
-        logger.debug('Proceeding with Transaction test queries')
-
         testQueries.transaction.forEach((transaction) => {
         })
       })
@@ -62,8 +56,6 @@ describe('GraphQL', () => {
     describe('test query for Transactions', () => {
       it('should have queries', () => {
         expect(testQueries.transactions.length).toBeTruthy()
-
-        logger.debug('Proceeding with Transactions test queries')
 
         testQueries.transactions.forEach((transactions) => {
         })
@@ -74,8 +66,6 @@ describe('GraphQL', () => {
       it('should have queries', () => {
         expect(testQueries.wallet.length).toBeTruthy()
 
-        logger.debug('Proceeding with Wallet test queries')
-
         testQueries.wallet.forEach((wallet) => {
         })
       })
@@ -84,8 +74,6 @@ describe('GraphQL', () => {
     describe('test query for Wallets', () => {
       it('should have queries', () => {
         expect(testQueries.wallets.length).toBeTruthy()
-
-        logger.debug('Proceeding with Wallets test queries')
 
         testQueries.wallets.forEach((wallets) => {
         })
