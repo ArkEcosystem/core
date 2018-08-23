@@ -10,6 +10,7 @@ const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
+const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -44,6 +45,10 @@ exports.store = {
       return {
         data: []
       }
+    }
+
+    if (request.payload.transactions.length > config.getConstants(blockchain.getLastBlock().data.height).maxTransactionsPerRequest) {
+      return h.response({ success: false, error: 'Number of transactions is exceeding max payload size per single request' }).code(500)
     }
 
     /**
