@@ -169,7 +169,7 @@ module.exports = class Transaction {
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
-    bb.writeByte(transaction.network || configManager.get('pubKeyHash')) // phantom.org = 0x17, devnet = 0x30
+    bb.writeByte(transaction.network || configManager.get('pubKeyHash')) // phantom.org = 0x37, devnet = 0x37
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
