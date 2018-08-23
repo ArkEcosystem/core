@@ -69,7 +69,7 @@ module.exports = {
       amount: 7,
       fee: 0,
       signature: 'ASDASDFGSDGSDFASD',
-      block: 777,
+      block: '777',
       recipient: {},
       sender: {}
     },
@@ -84,7 +84,7 @@ module.exports = {
       amount: 7,
       fee: 0,
       signature: 'LJKLUIOUIOUIO',
-      block: 123,
+      block: '123',
       recipient: {},
       sender: {}
     },
@@ -99,7 +99,7 @@ module.exports = {
       amount: 7,
       fee: 0,
       signature: 'SDFLJKLJSDF',
-      block: 7,
+      block: '7',
       recipient: {},
       sender: {}
     }
