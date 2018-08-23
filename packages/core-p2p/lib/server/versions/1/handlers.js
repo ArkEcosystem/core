@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
+const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
@@ -228,7 +229,7 @@ exports.postBlock = {
       }
 
       block.ip = requestIp.getClientIp(request)
-      const blockObject = new Block(block)
+      const blockObject = new Block(block, database.walletManager)
 
       if (!blockObject.verification.verified) {
         throw new Error('invalid block received')

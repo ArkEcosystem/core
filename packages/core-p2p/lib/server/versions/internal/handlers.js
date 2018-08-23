@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
+const database = container.resolvePlugin('database')
 const requestIp = require('request-ip')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
@@ -40,7 +41,7 @@ exports.postInternalBlock = {
   handler: (request, h) => {
     const block = request.payload
     block.ip = requestIp.getClientIp(request)
-    container.resolvePlugin('blockchain').queueBlock(new Block(block))
+    container.resolvePlugin('blockchain').queueBlock(new Block(block, database.walletManager))
 
     return { success: true }
   }
