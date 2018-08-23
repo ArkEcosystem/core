@@ -2,7 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const database = container.resolvePlugin('database')
 const emitter = container.resolvePlugin('event-emitter')
 const logger = container.resolvePlugin('logger')
 
@@ -303,7 +302,7 @@ blockchainMachine.actionMap = blockchain => {
           state.noBlockCounter = 0
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
 
-          blocks = blocks.map(block => new Block(block, database.walletManager))
+          blocks = blocks.map(block => new Block(block))
           blockchain.processQueue.push(blocks)
 
           blockchain.dispatch('DOWNLOADED')

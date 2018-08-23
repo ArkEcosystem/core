@@ -68,7 +68,7 @@ module.exports = class Block {
    * @constructor
    * @param {Object} data - The data of the block
    */
-  constructor (data, walletManager) {
+  constructor (data) {
     if (!data.transactions) {
       data.transactions = []
     }
@@ -128,7 +128,7 @@ module.exports = class Block {
       this.transactionIds = data.transactionIds
     }
 
-    this.verification = this.verify(walletManager)
+    this.verification = this.verify()
 
     if (!this.verification.verified && this.data.height !== 1) {
       // console.log(JSON.stringify(data, null, 2))
@@ -226,10 +226,9 @@ module.exports = class Block {
 
   /*
    * Verify this block.
-   * @param  {WalletManager} walletManager
    * @return {Object}
    */
-  verify (walletManager) {
+  verify () {
     const block = this.data
     const result = {
       verified: false,
@@ -329,11 +328,6 @@ module.exports = class Block {
 
           if (!transaction.verified) {
             result.errors.push('Invalid transaction in block: ' + transaction.data.id)
-          } else if (walletManager) {
-            const sender = walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
-            if (!sender.canApply(transaction.data)) {
-              result.errors.push('Cannot apply transaction to sender: ' + transaction.data.id)
-            }
           } else if (transactionValidator.validate(transaction.data).fails) {
             result.errors.push('Invalid transaction schema in block: ' + transaction.data.id)
           }
