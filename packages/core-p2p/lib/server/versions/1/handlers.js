@@ -340,6 +340,9 @@ exports.postTransactions = {
     }
   },
   config: {
+    cors: {
+      additionalHeaders: ['nethash', 'port', 'version']
+    },
     plugins: {
       'hapi-ajv': {
         payloadSchema: schema.postTransactions
