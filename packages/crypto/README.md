@@ -1,19 +1,17 @@
-# Ark - Crypto
+![PHANTOM Core](https://i.imgur.com/spuGSIQ.jpg)
 
-<p align="center">
-    <img src="./banner.png?sanitize=true" />
-</p>
+# PHANTOM - Client
 
 ## Installation
 
 ```bash
-yarn add @arkecosystem/crypto
+yarn add @phantomchain/crypto
 ```
 
 If you want to use the CDN version:
 
 ```html
-<script src="https://unpkg.com/@arkecosystem/crypto/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@phantomchain/crypto/dist/index.umd.js"></script>
 ```
 
 ## Usage
@@ -21,18 +19,18 @@ If you want to use the CDN version:
 Import the library in node.js:
 
 ```
-import ArkEcosystemCrypto from @arkecosystem/crypto
+import PhantomChainClient from @phantomcore/client
 ```
 
 Use the library:
 
 ```
-const constants = ArkEcosystemCrypto.constants
+const client = new PhantomChainClient('<your host here>')
 ```
 
 ## Security
 
-If you discover a security vulnerability within this package, please send an e-mail to security@ark.io. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within this package, please send an e-mail to security@phnatom.org. All security vulnerabilities will be promptly addressed.
 
 ## Credits
 
@@ -45,4 +43,4 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) ©
