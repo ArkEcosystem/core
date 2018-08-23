@@ -7,7 +7,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
-const { Transaction } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const schema = require('./schema')
 
@@ -40,7 +40,7 @@ exports.postInternalBlock = {
   handler: (request, h) => {
     const block = request.payload
     block.ip = requestIp.getClientIp(request)
-    container.resolvePlugin('blockchain').queueBlock(block)
+    container.resolvePlugin('blockchain').queueBlock(new Block(block))
 
     return { success: true }
   }
