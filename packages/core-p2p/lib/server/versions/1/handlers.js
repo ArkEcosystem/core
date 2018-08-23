@@ -6,13 +6,13 @@ const { Block } = require('@arkecosystem/crypto').models
 const requestIp = require('request-ip')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
+const schema = require('./schema')
 
 const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const blockchain = container.resolvePlugin('blockchain')
 
-const schema = require('./schema')
+
 
 /**
  * @type {Object}
@@ -300,6 +300,12 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+
+    if (!blockchain) {
+      return h.response({ success: false, error: 'Blockchain not ready' }).code(500)
+    }
+
     if (!request.payload || !request.payload.transactions || !transactionPool) {
       return {
         success: false,

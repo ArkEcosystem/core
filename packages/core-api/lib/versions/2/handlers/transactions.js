@@ -10,7 +10,6 @@ const config = container.resolvePlugin('config')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
-const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
@@ -41,7 +40,8 @@ exports.store = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!transactionPool) {
+    const blockchain = container.resolvePlugin('blockchain')
+    if (!transactionPool || !blockchain) {
       return {
         data: []
       }
