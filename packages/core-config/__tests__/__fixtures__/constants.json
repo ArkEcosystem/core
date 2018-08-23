@@ -5,7 +5,7 @@
   "blocktime": 8,
   "block": {
     "version": 0,
-    "maxTransactions": 50,
+    "maxTransactions": 150,
     "maxPayload": 2097152
   },
   "epoch": "2017-03-21T13:00:00.000Z",
@@ -27,7 +27,7 @@
   "blocktime": 8,
   "block": {
     "version": 0,
-    "maxTransactions": 50,
+    "maxTransactions": 150,
     "maxPayload": 2097152
   },
   "epoch": "2017-03-21T13:00:00.000Z",
