@@ -18,7 +18,6 @@
     "reward": 0,
     "activeDelegates": 51,
     "blocktime": 8,
-    "maxTransactionsPerRequest": 150,
     "block": {
       "version": 0,
       "maxTransactions": 50,
