@@ -7,6 +7,7 @@ const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
+const { transactionValidator } = require('@arkecosystem/validation')
 
 const toBytesHex = (buffer) => {
   let temp = buffer.toString('hex')
@@ -67,7 +68,7 @@ module.exports = class Block {
    * @constructor
    * @param {Object} data - The data of the block
    */
-  constructor (data) {
+  constructor (data, walletManager) {
     if (!data.transactions) {
       data.transactions = []
     }
@@ -123,7 +124,7 @@ module.exports = class Block {
       this.transactionIds = data.transactionIds
     }
 
-    this.verification = this.verify()
+    this.verification = this.verify(walletManager)
 
     if (!this.verification.verified && this.data.height !== 1) {
       // console.log(JSON.stringify(data, null, 2))
@@ -221,9 +222,10 @@ module.exports = class Block {
 
   /*
    * Verify this block.
+   * @param  {WalletManager} walletManager
    * @return {Object}
    */
-  verify () {
+  verify (walletManager) {
     const block = this.data
     const result = {
       verified: false,
@@ -319,6 +321,17 @@ module.exports = class Block {
 
           if (appliedTransactions[transaction.data.id]) {
             result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+          }
+
+          if (!transaction.verified) {
+            result.errors.push('Invalid transaction in block: ' + transaction.data.id)
+          } else if (walletManager) {
+            const sender = walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
+            if (!sender.canApply(transaction.data)) {
+              result.errors.push('Cannot apply transaction to sender: ' + transaction.data.id)
+            }
+          } else if (transactionValidator.validate(transaction.data).fails) {
+            result.errors.push('Invalid transaction schema in block: ' + transaction.data.id)
           }
 
           appliedTransactions[transaction.data.id] = transaction.data
