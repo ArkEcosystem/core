@@ -29,7 +29,7 @@ beforeEach(async () => {
   const initialPeersMock = {};
   ['0.0.0.0', '0.0.0.1', '0.0.0.2', '0.0.0.3', '0.0.0.4'].forEach(ip => {
     const initialPeer = new Peer(ip, 4002)
-    initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, { downloadSize: 100 })
+    initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, { ban: 0 })
   });
   monitor.peers = initialPeersMock
 
