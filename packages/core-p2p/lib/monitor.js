@@ -243,19 +243,19 @@ class Monitor {
     let keys = Object.keys(this.peers)
     keys = keys.filter((key) => {
         const peer = this.getPeer(key)
-        if (peer.ban < new Date().getTime()) {
-            return true
+        if (peer.ban > new Date().getTime()) {
+            return false
         }
 
-        if (acceptableDelay && peer.delay < acceptableDelay) {
-            return true
+        if (acceptableDelay && peer.delay > acceptableDelay) {
+            return false
         }
 
         if (downloadSize && peer.downloadSize !== downloadSize) {
-          return true
+          return false
         }
 
-        return false
+        return true
     })
 
     const random = keys[keys.length * Math.random() << 0]
