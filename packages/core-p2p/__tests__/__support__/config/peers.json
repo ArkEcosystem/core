@@ -23,6 +23,8 @@
     }
   ],
   "blackList": [],
+  "whiteList": [],
+  "minimumVersion": ">=2.0.0",
   "sources": [
     "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
   ]
