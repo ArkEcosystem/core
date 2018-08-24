@@ -140,12 +140,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return
     }
-
-    const addTransactionPromises = []
-    transactions.forEach(transaction => {
-      addTransactionPromises.push(this.addTransaction(transaction))
-    })
-    await Promise.all(addTransactionPromises)
+    
+    await Promise.all(transactions.map(transaction => this.addTransaction(transaction)))
   }
 
   /**
