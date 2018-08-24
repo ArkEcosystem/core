@@ -159,17 +159,22 @@ class Guard {
    * @return {Boolean}
    */
   __determineSuspensionTime (peer) {
-    // 1. High Latency / Timeout
+    // 1. High Latency
     if (peer.delay > 2000) {
+      return moment().add(1, 'minutes')
+    }
+
+    // 2. Timeout / Request Error
+    if (peer.delay === -1) {
       return moment().add(2, 'minutes')
     }
 
-    // 2. Faulty Response
+    // 3. Faulty Response
     if (peer.status !== 200) {
       return moment().add(5, 'minutes')
     }
 
-    // 3. Any cases we are unable to make a decision on
+    // Any cases we are unable to make a decision on
     return moment().add(30, 'minutes')
   }
 }
