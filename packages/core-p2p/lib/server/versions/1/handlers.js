@@ -337,7 +337,7 @@ exports.postTransactions = {
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
-      await transactionPool.addTransactions(guard.accept)
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
 
       transactionPool.memory
         .forget(guard.getIds('accept'))
