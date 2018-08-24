@@ -123,8 +123,8 @@ exports.unconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!container.resolve('transactionPool').options.enabled) {
-      return Boom.teapot()
+    if (!transactionPool.options.enabled) {
+      return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
     const pagination = utils.paginate(request)
@@ -149,8 +149,8 @@ exports.showUnconfirmed = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!container.resolve('transactionPool').options.enabled) {
-      return Boom.teapot()
+    if (!transactionPool.options.enabled) {
+      return Boom.serverUnavailable('Transaction pool is disabled.')
     }
 
     let transaction = await transactionPool.getTransaction(request.params.id)
