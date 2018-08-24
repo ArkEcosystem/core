@@ -1,7 +1,7 @@
 'use strict'
 
 const { asValue } = require('awilix')
-const { slots } = require('@arkecosystem/crypto')
+const { models, slots } = require('@arkecosystem/crypto')
 
 const app = require('./__support__/setup')
 
@@ -140,7 +140,7 @@ describe('Blockchain', () => {
     it('should be ok', async () => {
       blockchain.queueBlock = jest.fn(block => (blockchain.stateMachine.state.lastDownloadedBlock = block))
 
-      await blockchain.queueBlock(genesisBlock)
+      await blockchain.queueBlock(new models.Block(genesisBlock))
 
       expect(blockchain.stateMachine.state.lastDownloadedBlock).toEqual(genesisBlock)
     })

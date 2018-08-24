@@ -7,6 +7,7 @@ const slots = require('../crypto/slots')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
+const { transactionValidator } = require('@arkecosystem/validation')
 
 const toBytesHex = (buffer) => {
   let temp = buffer.toString('hex')
@@ -92,6 +93,10 @@ module.exports = class Block {
     }
     if (data.id !== this.data.id) {
       console.log(`'${this.data.id}': '${data.id}',`)
+    }
+
+    if (data.ip) {
+      this.ip = data.ip
     }
 
     // if (data.height === 1622706) {
@@ -319,6 +324,12 @@ module.exports = class Block {
 
           if (appliedTransactions[transaction.data.id]) {
             result.errors.push('Encountered duplicate transaction: ' + transaction.data.id)
+          }
+
+          if (!transaction.verified) {
+            result.errors.push('Invalid transaction in block: ' + transaction.data.id)
+          } else if (transactionValidator.validate(transaction.data).fails) {
+            result.errors.push('Invalid transaction schema in block: ' + transaction.data.id)
           }
 
           appliedTransactions[transaction.data.id] = transaction.data

@@ -227,15 +227,16 @@ exports.postBlock = {
         return { success: true }
       }
 
-      const b = new Block(block)
+      block.ip = requestIp.getClientIp(request)
+      const blockObject = new Block(block)
 
-      if (!b.verification.verified) {
+      if (!blockObject.verification.verified) {
         throw new Error('invalid block received')
       }
 
-      blockchain.pushPingBlock(b.data)
+      blockchain.pushPingBlock(blockObject.data)
 
-      if (b.headerOnly) {
+      if (blockObject.headerOnly) {
         // let missingIds = []
         let transactions = []
         // if (transactionPool) {
@@ -269,8 +270,7 @@ exports.postBlock = {
       }
       // } else return { success: false }
 
-      block.ip = requestIp.getClientIp(request)
-      blockchain.queueBlock(block)
+      blockchain.queueBlock(blockObject)
 
       return { success: true }
     } catch (error) {

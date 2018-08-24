@@ -287,7 +287,7 @@ blockchainMachine.actionMap = blockchain => {
 
     async downloadBlocks () {
       const lastBlock = state.lastDownloadedBlock || state.lastBlock
-      const blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
+      let blocks = await blockchain.p2p.downloadBlocks(lastBlock.data.height)
 
       if (!blocks || blocks.length === 0) {
         logger.info('No new block found on this peer')
@@ -302,6 +302,7 @@ blockchainMachine.actionMap = blockchain => {
           state.noBlockCounter = 0
           state.lastDownloadedBlock = {data: blocks.slice(-1)[0]}
 
+          blocks = blocks.map(block => new Block(block))
           blockchain.processQueue.push(blocks)
 
           blockchain.dispatch('DOWNLOADED')

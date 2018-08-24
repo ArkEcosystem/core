@@ -147,12 +147,12 @@ module.exports = class Blockchain {
    * @return {void}
    */
   queueBlock (block) {
-    logger.info(`Received new block at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions from ${block.ip}`)
+    logger.info(`Received new block at height ${block.data.height.toLocaleString()} with ${block.data.numberOfTransactions} transactions from ${block.ip}`)
 
     if (stateMachine.state.started) {
       this.processQueue.push(block)
 
-      stateMachine.state.lastDownloadedBlock = new Block(block)
+      stateMachine.state.lastDownloadedBlock = block
     } else {
       logger.info('Block disregarded because blockchain is not ready :exclamation:')
     }
