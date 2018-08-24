@@ -176,6 +176,17 @@ class Guard {
       return moment().add(5, 'minutes')
     }
 
+    // 4. Node is not at height
+    const heightDifference = Math.abs(peer.state.height - this.getNetworkHeight())
+    if (heightDifference >= 153) {
+      return moment().add(30, 'minutes')
+    }
+
+    // 5. Wrong version
+    if (!this.isValidVersion(peer)) {
+      return moment().add(6, 'hours')
+    }
+
     // Any cases we are unable to make a decision on
     return moment().add(30, 'minutes')
   }
