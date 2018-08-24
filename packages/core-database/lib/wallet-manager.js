@@ -334,6 +334,14 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Checks if a given publicKey is a registered delegate
+   * @param {String} publicKey
+   */
+  __isDelegate (publicKey) {
+    return this.walletsByUsername.some(delegateWallet => delegateWallet.publicKey === publicKey)
+  }
+
+  /**
    * Determine if the wallet can be removed from memory.
    * @param  {Object} wallet
    * @return {Boolean}
