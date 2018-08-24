@@ -170,6 +170,8 @@ class Guard {
     }
 
     // 3. Faulty Response
+    // NOTE: We check this extra because a response can still succeed if
+    // it returns any codes that are not 4xx or 5xx.
     if (peer.status !== 200) {
       return moment().add(5, 'minutes')
     }
