@@ -156,7 +156,7 @@ class Guard {
   /**
    * Determine for how long the peer should be banned.
    * @param  {Peer}  peer
-   * @return {Boolean}
+   * @return {moment}
    */
   __determineSuspensionTime (peer) {
     // 1. High Latency
