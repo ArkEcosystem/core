@@ -6,6 +6,6 @@ module.exports = {
   logging: process.env.PHANTOM_DB_LOGGING,
   redis: {
     host: process.env.PHANTOM_REDIS_HOST || 'localhost',
-    port: process.env.PHANTOM_REDIS_PORT || 6379
+    port: process.env.PHANTOM_REDIS_PORT || 5432
   }
 }
