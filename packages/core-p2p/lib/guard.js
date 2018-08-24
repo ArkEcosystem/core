@@ -50,7 +50,7 @@ class Guard {
       return
     }
 
-    const until = moment().add(this.monitor.config.suspendMinutes, 'minutes')
+    const until = this.__determineSuspensionTime(peer)
 
     this.suspensions[peer.ip] = {
       peer,
@@ -151,6 +151,26 @@ class Guard {
    */
   isMyself (peer) {
     return isMyself(peer.ip)
+  }
+
+  /**
+   * Determine for how long the peer should be banned.
+   * @param  {Peer}  peer
+   * @return {Boolean}
+   */
+  __determineSuspensionTime (peer) {
+    // 1. High Latency / Timeout
+    if (peer.delay > 2000) {
+      return moment().add(2, 'minutes')
+    }
+
+    // 2. Faulty Response
+    if (peer.status !== 200) {
+      return moment().add(5, 'minutes')
+    }
+
+    // 3. Any cases we are unable to make a decision on
+    return moment().add(30, 'minutes')
   }
 }
 

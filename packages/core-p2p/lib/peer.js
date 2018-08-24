@@ -197,11 +197,13 @@ module.exports = class Peer {
       })
 
       this.delay = new Date().getTime() - temp
+      this.status = response.status
 
       this.__parseHeaders(response)
 
       return response.data
     } catch (error) {
+      this.delay = -1
       this.status = error.code
     }
   }
