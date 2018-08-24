@@ -166,31 +166,36 @@ class Guard {
       return duration
     }
 
-    // 1. Wrong version
+    // 1. Blacklisted
+    if (!this.isBlacklisted(peer)) {
+      return createMoment(1, 'day', 'Blacklisted')
+    }
+
+    // 2. Wrong version
     if (!this.isValidVersion(peer)) {
       return createMoment(6, 'hours', 'Invalid Version')
     }
 
-    // 2. Node is not at height
+    // 3. Node is not at height
     const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
 
     if (heightDifference >= 153) {
       return createMoment(30, 'minutes', 'Node is not at height')
     }
 
-    // 3. Faulty Response
+    // 4. Faulty Response
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
     if (peer.status !== 200) {
       return createMoment(5, 'minutes', 'Invalid Response Status')
     }
 
-    // 4. Timeout or potentially a Request Error
+    // 5. Timeout or potentially a Request Error
     if (peer.delay === -1) {
       return createMoment(2, 'minutes', 'Timeout')
     }
 
-    // 5. High Latency
+    // 6. High Latency
     if (peer.delay > 2000) {
       return createMoment(1, 'minutes', 'High Latency')
     }
