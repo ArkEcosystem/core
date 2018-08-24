@@ -41,7 +41,7 @@ exports.store = {
    */
   async handler (request, h) {
     if (!transactionPool.options.enabled) {
-      return Boom.teapot()
+      return Boom.teapot('Transaction pool is disabled.')
     }
 
     /**
