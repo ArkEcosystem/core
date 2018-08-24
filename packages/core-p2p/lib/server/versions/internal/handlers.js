@@ -4,9 +4,12 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const requestIp = require('request-ip')
 const logger = container.resolvePlugin('logger')
+const emitter = container.resolvePlugin('event-emitter')
 
 const { slots } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
+
+const schema = require('./schema')
 
 /**
  * @type {Object}
@@ -126,15 +129,10 @@ exports.getNetworkState = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: true, error: 'Blockchain not ready' }
-    }
     try {
       return {
         success: true,
-        networkState: await blockchain.p2p.getNetworkState()
+        networkState: await container.resolvePlugin('blockchain').p2p.getNetworkState()
       }
     } catch (error) {
       return h.response({
@@ -155,15 +153,9 @@ exports.checkBlockchainSynced = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: true, error: 'Blockchain not ready' }
-    }
-
     try {
       logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
-      blockchain.dispatch('WAKEUP')
+      container.resolvePlugin('blockchain').dispatch('WAKEUP')
 
       return {
         success: true
@@ -174,5 +166,50 @@ exports.checkBlockchainSynced = {
         message: error.message
       }).code(500).takeover()
     }
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.getUsernames = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  async handler (request, h) {
+    const blockchain = container.resolvePlugin('blockchain')
+    const walletManager = container.resolvePlugin('database').walletManager
+
+    const lastBlock = blockchain.getLastBlock()
+    const delegates = await blockchain.database.getActiveDelegates(lastBlock.data.height + 1)
+
+    const data = {}
+    for (const delegate of delegates) {
+      data[delegate.publicKey] = walletManager.getWalletByPublicKey(delegate.publicKey).username
+    }
+
+    return { success: true, data }
+  }
+}
+
+/**
+* Emit the given event and payload to the local host.
+ * @type {Object}
+ */
+exports.emitEvent = {
+  /**
+   * @param  {Hapi.Request} request
+   * @param  {Hapi.Toolkit} h
+   * @return {Hapi.Response}
+   */
+  handler: (request, h) => {
+    emitter.emit(request.payload.event, request.payload.body)
+
+    return h.response(null).code(204)
+  },
+  options: {
+    validate: schema.emitEvent
   }
 }

@@ -15,7 +15,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blocks = await database.blocks.findAll(utils.paginate(request))
+    const blocks = await database.blocks.findAll({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, blocks, 'block')
   },
@@ -35,6 +35,10 @@ exports.show = {
    */
   async handler (request, h) {
     const block = await database.blocks.findById(request.params.id)
+
+    if (!block) {
+      return Boom.notFound('Block not found')
+    }
 
     return utils.respondWithResource(request, block, 'block')
   },
@@ -56,7 +60,7 @@ exports.transactions = {
     const block = await database.blocks.findById(request.params.id)
 
     if (!block) {
-      return Boom.notFound()
+      return Boom.notFound('Block not found')
     }
 
     const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))

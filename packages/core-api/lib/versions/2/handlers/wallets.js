@@ -15,7 +15,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const wallets = await database.wallets.findAll(utils.paginate(request))
+    const wallets = await database.wallets.findAll({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, wallets, 'wallet')
   },
@@ -53,7 +53,7 @@ exports.show = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     return utils.respondWithResource(request, wallet, 'wallet')
@@ -76,7 +76,7 @@ exports.transactions = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllByWallet(
@@ -106,7 +106,7 @@ exports.transactionsSent = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllBySender(
@@ -136,7 +136,7 @@ exports.transactionsReceived = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
 
     const transactions = await database.transactions.findAllByRecipient(
@@ -166,8 +166,11 @@ exports.votes = {
     const wallet = await database.wallets.findById(request.params.id)
 
     if (!wallet) {
-      return Boom.notFound()
+      return Boom.notFound('Wallet not found')
     }
+
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
 
     const transactions = await database.transactions.allVotesBySender(
       wallet.publicKey, {

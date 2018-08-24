@@ -13,13 +13,17 @@ module.exports = async (options) => {
 
   const wallets = utils.generateWallets(options.quantity)
   await transferCommand(options, wallets, 2, true)
-  let voters = await utils.getVoters(options.delegate)
 
   if (!options.delegate) {
     const delegates = await utils.getDelegates()
+    if (!delegates.length) {
+      logger.error('Could not find any delegates to vote for')
+      process.exit(1)
+    }
 
     options.delegate = sample(delegates).publicKey
   }
+  let voters = await utils.getVoters(options.delegate)
 
   logger.info(`Sending ${options.quantity} vote transactions`)
 
@@ -46,7 +50,7 @@ module.exports = async (options) => {
     logger.info(`Expected end voters: ${expectedVoters}`)
   }
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.postTransactions(transactions)
 
     if (options.skipValidation) {
       return

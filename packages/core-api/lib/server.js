@@ -10,6 +10,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
  * @param  {Object} config
  * @return {Hapi.Server}
  */
+
 module.exports = async (config) => {
   const baseConfig = {
     host: config.host,
@@ -133,12 +134,16 @@ module.exports = async (config) => {
 
   await server.register({
     plugin: require('./versions/1'),
-    routes: {prefix: '/api/v1'}
+    routes: {
+      prefix: '/api/v1'
+    }
   })
 
   await server.register({
     plugin: require('./versions/2'),
-    routes: {prefix: '/api/v2'},
+    routes: {
+      prefix: '/api/v2'
+    },
     options: config
   })
 

@@ -11,5 +11,6 @@ module.exports = {
   getWalletBalance: require('./get-wallet-balance'),
   logger: require('./logger'),
   parseFee: require('./parse-fee'),
+  postTransactions: require('./post-transactions'),
   request: require('./request')
 }

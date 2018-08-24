@@ -4,8 +4,6 @@ const axios = require('axios')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const threads = require('threads')
-const thread = threads.spawn(`${__dirname}/workers/download.js`)
 
 module.exports = class Peer {
   /**
@@ -103,26 +101,24 @@ module.exports = class Peer {
 
   /**
    * Download blocks from peer.
-   * @param  {Number}               fromBlockHeight
+   * @param  {Number} fromBlockHeight
    * @return {(Object[]|undefined)}
    */
   async downloadBlocks (fromBlockHeight) {
-    const message = {
-      height: fromBlockHeight,
-      headers: this.headers,
-      url: this.url
-    }
-
     try {
-      const blocks = await thread.send(message).promise()
+      const { data } = await axios.get(`${this.url}/peer/blocks`, {
+        params: { lastBlockHeight: fromBlockHeight },
+        headers: this.headers,
+        timeout: 60000
+      })
 
-      const size = blocks.length
+      const size = data.blocks.length
 
       if (size === 100 || size === 400) {
         this.downloadSize = size
       }
 
-      return blocks
+      return data.blocks
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
 

@@ -9,12 +9,17 @@ const Peers = require('./peers')
 const Signatures = require('./signatures')
 const Transactions = require('./transactions')
 
-const mock = new MockAdapter(axios)
+module.exports = config => {
+  const mock = new MockAdapter(axios)
+  const { host } = config
 
-Accounts(mock)
-Blocks(mock)
-Delegates(mock)
-Loader(mock)
-Peers(mock)
-Signatures(mock)
-Transactions(mock)
+  Accounts(mock, host)
+  Blocks(mock, host)
+  Delegates(mock, host)
+  Loader(mock, host)
+  Peers(mock, host)
+  Signatures(mock, host)
+  Transactions(mock, host)
+
+  return mock
+}

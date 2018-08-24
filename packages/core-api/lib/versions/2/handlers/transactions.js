@@ -24,7 +24,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.findAll(utils.paginate(request))
+    const transactions = await database.transactions.findAll({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, transactions, 'transaction')
   }
@@ -77,7 +77,8 @@ exports.store = {
       data: {
         accept: guard.getIds('accept'),
         excess: guard.getIds('excess'),
-        invalid: guard.getIds('invalid')
+        invalid: guard.getIds('invalid'),
+        broadcast: guard.getIds('broadcast')
       }
     }
   },
@@ -104,7 +105,7 @@ exports.show = {
     const transaction = await database.transactions.findById(request.params.id)
 
     if (!transaction) {
-      return Boom.notFound()
+      return Boom.notFound('Transaction not found')
     }
 
     return utils.respondWithResource(request, transaction, 'transaction')
@@ -157,7 +158,7 @@ exports.showUnconfirmed = {
     let transaction = await transactionPool.getTransaction(request.params.id)
 
     if (!transaction) {
-      return Boom.notFound()
+      return Boom.notFound('Transaction not found')
     }
 
     transaction = { serialized: transaction.serialized.toString('hex') }

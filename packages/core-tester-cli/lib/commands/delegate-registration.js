@@ -22,15 +22,16 @@ module.exports = async (options) => {
   }
 
   const transactions = []
-  const usedDelegateNames = {}
+  const usedDelegateNames = delegates.map(delegate => delegate.username)
   wallets.forEach((wallet, i) => {
     wallet.username = superheroes.random()
 
-    while (typeof usedDelegateNames[wallet.username] !== 'undefined') {
+    while (usedDelegateNames.includes(wallet.username)) {
       wallet.username = superheroes.random()
     }
 
     wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
+    usedDelegateNames.push(wallet.username)
 
     const transaction = ark.delegate.createDelegate(
       wallet.passphrase,
@@ -55,7 +56,7 @@ module.exports = async (options) => {
   }
 
   try {
-    await utils.request.post('/peer/transactions', {transactions}, true)
+    await utils.postTransactions(transactions)
 
     if (options.skipValidation) {
       return

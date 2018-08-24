@@ -1,5 +1,4 @@
 'use strict'
-const Promise = require('bluebird')
 const axios = require('axios')
 const sample = require('lodash/sample')
 const container = require('@arkecosystem/core-container')
@@ -27,8 +26,6 @@ module.exports = class Client {
    * @return {Object}
    */
   async broadcast (block) {
-    await this.__chooseHost()
-
     logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
     const response = await axios.post(`${this.host}/internal/block`, block, {
@@ -40,13 +37,51 @@ module.exports = class Client {
   }
 
   /**
+   * Emit the given event and payload to the local host.
+   * @param  {String} event
+   * @param  {Object} body
+   * @return {Object}
+   */
+  async emitEvent (event, body) {
+    // NOTE: Events need to be emitted to the localhost. If you need to trigger
+    // actions on a remote host based on events you should be using webhooks
+    // that get triggered by the events you wish to react to.
+
+    const allowedHosts = ['localhost', '127.0.0.1', '::ffff:127.0.0.1', '192.168.*']
+
+    const host = this.hosts.find(host => {
+      return allowedHosts.some(allowedHost => host.includes(allowedHost))
+    })
+
+    if (!host) {
+      return logger.error('Was unable to find any local hosts.')
+    }
+
+    try {
+      await axios.post(`${host}/internal/events`, {
+        event, body
+      }, {
+        headers: this.headers,
+        timeout: 2000
+      })
+    } catch (error) {
+      logger.error(`Failed to emit "${event}" to "${host}"`)
+    }
+  }
+
+  /**
    * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
    */
   async syncCheck () {
-    await Promise.each(this.hosts, async (host) => {
-      logger.debug(`Sending wake-up check to relay node(s) ${host}`)
+    await this.__chooseHost()
+
+    logger.debug(`Sending wake-up check to relay node ${this.host}`)
+
+    try {
       await this.__get(`${this.host}/internal/syncCheck`)
-    })
+    } catch (error) {
+      logger.error(`Could not sync check: ${error.message}`)
+    }
   }
 
   /**
@@ -66,11 +101,13 @@ module.exports = class Client {
    * @return {Object}
    */
   async getNetworkState () {
-    await this.__chooseHost()
+    try {
+      const response = await this.__get(`${this.host}/internal/networkState`)
 
-    const response = await this.__get(`${this.host}/internal/networkState`)
-
-    return response.data.networkState
+      return response.data.networkState
+    } catch (e) {
+      return {}
+    }
   }
 
   /**
@@ -78,11 +115,29 @@ module.exports = class Client {
    * @return {Object}
    */
   async getTransactions () {
+    try {
+      const response = await this.__get(`${this.host}/internal/forgingTransactions`)
+
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
+  }
+
+  /**
+   * Get a list of all active delegate usernames.
+   * @return {Object}
+   */
+  async getUsernames () {
     await this.__chooseHost()
 
-    const response = await this.__get(`${this.host}/internal/forgingTransactions`)
+    try {
+      const response = await this.__get(`${this.host}/internal/usernames`)
 
-    return response.data.data || {}
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
   }
 
   /**

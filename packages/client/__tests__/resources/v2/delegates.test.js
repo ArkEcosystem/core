@@ -1,11 +1,14 @@
 const Client = require('../../../lib')
 const ApiResource = require('../../../lib/resources/v2/delegates')
-require('../../mocks/v2')
+
+const configureMocks = require('../../mocks/v2')
+const host = 'https://example.net:4003'
+configureMocks({ host })
 
 let resource
 
 beforeEach(() => {
-  resource = (new Client('https://localhost:4003')).setVersion(2).resource('delegates')
+  resource = (new Client(host)).setVersion(2).resource('delegates')
 })
 
 describe('API - 2.0 - Resources - Delegates', () => {

@@ -1,9 +1,9 @@
-module.exports = (mock) => {
-  mock.onGet('transactions').reply(200, { data: [] })
-  mock.onPost('transactions').reply(200, { data: [] })
-  mock.onGet('transactions/123').reply(200, { data: [] })
-  mock.onGet('transactions/unconfirmed').reply(200, { data: [] })
-  mock.onGet('transactions/unconfirmed/123').reply(200, { data: [] })
-  mock.onPost('transactions/search').reply(200, { data: [] })
-  mock.onGet('transactions/types').reply(200, { data: [] })
+module.exports = (mock, host) => {
+  mock.onGet(`${host}/api/transactions`).reply(200, { data: [] })
+  mock.onPost(`${host}/api/transactions`).reply(200, { data: [] })
+  mock.onGet(`${host}/api/transactions/123`).reply(200, { data: [] })
+  mock.onGet(`${host}/api/transactions/unconfirmed`).reply(200, { data: [] })
+  mock.onGet(`${host}/api/transactions/unconfirmed/123`).reply(200, { data: [] })
+  mock.onPost(`${host}/api/transactions/search`).reply(200, { data: [] })
+  mock.onGet(`${host}/api/transactions/types`).reply(200, { data: [] })
 }

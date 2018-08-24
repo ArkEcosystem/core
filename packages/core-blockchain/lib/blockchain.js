@@ -77,6 +77,16 @@ module.exports = class Blockchain {
     return true
   }
 
+  async stop () {
+    logger.info('Stopping Blockchain Manager :chains:')
+
+    this.isStopped = true
+
+    this.dispatch('STOP')
+
+    this.queue.destroy()
+  }
+
   checkNetwork () {
     throw new Error('Method [checkNetwork] not implemented!')
   }
@@ -204,6 +214,7 @@ module.exports = class Blockchain {
     const revertLastBlock = async () => {
       const lastBlock = stateMachine.state.lastBlock
 
+      // TODO: if revertBlock Failed, it might corrupt the database because one block could be left stored
       await this.database.revertBlock(lastBlock)
       await this.database.deleteBlockAsync(lastBlock)
 
@@ -296,16 +307,17 @@ module.exports = class Blockchain {
     }
 
     try {
-      this.__isChained(stateMachine.state.lastBlock, block)
-      ? await this.acceptChainedBlock(block)
-      : await this.manageUnchainedBlock(block)
-
-      stateMachine.state.lastBlock = block
+      if (this.__isChained(stateMachine.state.lastBlock, block)) {
+        await this.acceptChainedBlock(block)
+        stateMachine.state.lastBlock = block
+      } else {
+        await this.manageUnchainedBlock(block)
+      }
     } catch (error) {
       logger.error(`Refused new block ${JSON.stringify(block.data)}`)
       logger.debug(error.stack)
-      stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
       this.dispatch('FORK')
+      return callback()
     }
 
     try {
@@ -328,7 +340,7 @@ module.exports = class Blockchain {
    * @param  {Object} state
    * @return {void}
    */
-  async acceptChainedBlock (block, state) {
+  async acceptChainedBlock (block) {
     await this.database.applyBlock(block)
     await this.database.saveBlock(block)
 
@@ -391,6 +403,10 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isSynced (block) {
+    if (!this.p2p.hasPeers()) {
+      return true
+    }
+
     block = block || this.getLastBlock()
 
     return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.height).blocktime
@@ -402,6 +418,10 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isRebuildSynced (block) {
+    if (!this.p2p.hasPeers()) {
+      return true
+    }
+
     block = block || this.getLastBlock()
 
     const remaining = slots.getTime() - block.data.timestamp

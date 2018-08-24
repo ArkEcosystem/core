@@ -3,6 +3,7 @@
 const moment = require('moment')
 const semver = require('semver')
 const container = require('@arkecosystem/core-container')
+const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const isMyself = require('./utils/is-myself')
 
@@ -20,7 +21,6 @@ class Guard {
    */
   init (monitor) {
     this.monitor = monitor
-    this.config = monitor.config.peers
 
     return this
   }
@@ -46,11 +46,11 @@ class Guard {
    * @param {Peer} peer
    */
   suspend (peer) {
-    if (this.config.whiteList && this.config.whiteList.includes(peer.ip)) {
+    if (config.peers.whiteList && config.peers.whiteList.includes(peer.ip)) {
       return
     }
 
-    const until = moment().add(this.monitor.manager.config.suspendMinutes, 'minutes')
+    const until = moment().add(this.monitor.config.suspendMinutes, 'minutes')
 
     this.suspensions[peer.ip] = {
       peer,
@@ -61,6 +61,32 @@ class Guard {
     delete this.monitor.peers[peer.ip]
 
     logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
+  }
+
+  /**
+   * Remove a suspended peer.
+   * @param {Peer} peer
+   * @return {void}
+   */
+  async unsuspend (peer) {
+    if (!this.suspensions[peer.ip]) {
+      return
+    }
+
+    delete this.suspensions[peer.ip]
+
+    await this.monitor.acceptNewPeer(peer)
+  }
+
+  /**
+   * Reset suspended peer list.
+   * @return {void}
+   */
+  async resetSuspendedPeers () {
+    logger.info('Clearing suspended peers')
+    for (const ip of Object.keys(this.suspensions)) {
+      await this.unsuspend(this.get(ip).peer)
+    }
   }
 
   /**
@@ -88,7 +114,7 @@ class Guard {
    * @return {Boolean}
    */
   isWhitelisted (peer) {
-    return this.config.whiteList.includes(peer.ip)
+    return config.peers.whiteList.includes(peer.ip)
   }
 
   /**
@@ -97,7 +123,7 @@ class Guard {
    * @return {Boolean}
    */
   isBlacklisted (peer) {
-    return this.config.blackList.includes(peer.ip)
+    return config.peers.blackList.includes(peer.ip)
   }
 
   /**
@@ -106,7 +132,7 @@ class Guard {
    * @return {Boolean}
    */
   isValidVersion (peer) {
-    return semver.satisfies(peer.version, this.config.minimumVersion)
+    return semver.satisfies(peer.version, config.peers.minimumVersion)
   }
 
   /**

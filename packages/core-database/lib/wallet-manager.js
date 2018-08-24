@@ -250,6 +250,10 @@ module.exports = class WalletManager {
 
     sender.applyTransactionToSender(data)
 
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      this.reindex(sender)
+    }
+
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
@@ -270,6 +274,11 @@ module.exports = class WalletManager {
     const recipient = this.getWalletByAddress(data.recipientId)
 
     sender.revertTransactionForSender(data)
+
+    // removing the wallet from the delegates index
+    if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      this.walletsByUsername[data.asset.delegate.username] = null
+    }
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.revertTransactionForRecipient(data)

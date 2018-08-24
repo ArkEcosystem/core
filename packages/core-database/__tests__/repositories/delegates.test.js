@@ -313,8 +313,8 @@ describe('Delegate Repository', () => {
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()
-      expect(results[0].approval).toBeNumber() // 0.18
-      expect(results[0].productivity).toBeNumber() // 98.97
+      expect(results[0].approval).toBeString() // '0.18'
+      expect(results[0].productivity).toBeString() // '98.97'
       expect(results[0].approval).toBe(calculateApproval(delegate, height))
       expect(results[0].productivity).toBe(calculateProductivity(delegate))
     })
