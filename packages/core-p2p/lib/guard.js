@@ -59,8 +59,6 @@ class Guard {
     }
 
     delete this.monitor.peers[peer.ip]
-
-    logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
   }
 
   /**
@@ -159,37 +157,45 @@ class Guard {
    * @return {moment}
    */
   __determineSuspensionTime (peer) {
+    const createMoment = (number, period, message) => {
+      const duration = this.get(peer.ip).untilHuman
+
+      logger.debug(`Suspended ${peer.ip} for ${duration} because of "${message}"`)
+
+      return moment().add(number, period)
+    }
+
     // 1. Wrong version
     if (!this.isValidVersion(peer)) {
-      return moment().add(6, 'hours')
+      return createMoment(6, 'hours', 'Invalid Version')
     }
 
     // 2. Node is not at height
-    const heightDifference = Math.abs(this.getNetworkHeight() - peer.state.height)
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
 
     if (heightDifference >= 153) {
-      return moment().add(30, 'minutes')
+      return createMoment(30, 'minutes', 'Node is not at height')
     }
 
     // 3. Faulty Response
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
     if (peer.status !== 200) {
-      return moment().add(5, 'minutes')
+      return createMoment(5, 'minutes', 'Invalid Response Status')
     }
 
     // 4. Timeout or potentially a Request Error
     if (peer.delay === -1) {
-      return moment().add(2, 'minutes')
+      return createMoment(2, 'minutes', 'Timeout')
     }
 
     // 5. High Latency
     if (peer.delay > 2000) {
-      return moment().add(1, 'minutes')
+      return createMoment(1, 'minutes', 'High Latency')
     }
 
     // Any cases we are unable to make a decision on
-    return moment().add(30, 'minutes')
+    return createMoment(30, 'minutes', 'Unknown')
   }
 }
 
