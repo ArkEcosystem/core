@@ -8,6 +8,7 @@ const transactions = require('./handlers/transactions')
 const votes = require('./handlers/votes')
 const ultranode = require('./handlers/ultranode') // Handler Ultra Node
 const wallets = require('./handlers/wallets')
+const Path = require('path')
 
 /**
  * Register the v2 routes.
@@ -17,48 +18,60 @@ const wallets = require('./handlers/wallets')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/blocks', ...blocks.index },
-    { method: 'GET', path: '/blocks/{id}', ...blocks.show },
-    { method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions },
-    { method: 'POST', path: '/blocks/search', ...blocks.search },
+    {
+      method: 'GET',
+      path: '/docs/{param*}',
+      handler: {
+        directory: {
+          path: Path.join(__dirname, '../../api-docs'),
+          redirectToSlash: true,
+          index: true
+        }
+      }
+    },
 
-    { method: 'GET', path: '/ultranodes', ...ultranode.index}, // Get list Ultra Node
+    {method: 'GET', path: '/blocks', ...blocks.index},
+    {method: 'GET', path: '/blocks/{id}', ...blocks.show},
+    {method: 'GET', path: '/blocks/{id}/transactions', ...blocks.transactions},
+    {method: 'POST', path: '/blocks/search', ...blocks.search},
 
-    { method: 'GET', path: '/delegates', ...delegates.index },
-    { method: 'GET', path: '/delegates/{id}', ...delegates.show },
-    { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
-    { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
-    { method: 'GET', path: '/delegates/{id}/voters/balances', ...delegates.voterBalances },
-    { method: 'POST', path: '/delegates/search', ...delegates.search },
+    {method: 'GET', path: '/ultranodes', ...ultranode.index}, // Get list Ultra Node
 
-    { method: 'GET', path: '/node/status', ...node.status },
-    { method: 'GET', path: '/node/syncing', ...node.syncing },
-    { method: 'GET', path: '/node/configuration', ...node.configuration },
+    {method: 'GET', path: '/delegates', ...delegates.index},
+    {method: 'GET', path: '/delegates/{id}', ...delegates.show},
+    {method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks},
+    {method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters},
+    {method: 'GET', path: '/delegates/{id}/voters/balances', ...delegates.voterBalances},
+    {method: 'POST', path: '/delegates/search', ...delegates.search},
 
-    { method: 'GET', path: '/peers', ...peers.index },
-    { method: 'GET', path: '/peers/suspended', ...peers.suspended },
-    { method: 'GET', path: '/peers/{ip}', ...peers.show },
+    {method: 'GET', path: '/node/status', ...node.status},
+    {method: 'GET', path: '/node/syncing', ...node.syncing},
+    {method: 'GET', path: '/node/configuration', ...node.configuration},
 
-    { method: 'GET', path: '/transactions', ...transactions.index },
-    { method: 'POST', path: '/transactions', ...transactions.store },
-    { method: 'GET', path: '/transactions/{id}', ...transactions.show },
-    { method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed },
-    { method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed },
-    { method: 'POST', path: '/transactions/search', ...transactions.search },
-    { method: 'GET', path: '/transactions/types', ...transactions.types },
-    { method: 'GET', path: '/transactions/fees', ...transactions.fees },
+    {method: 'GET', path: '/peers', ...peers.index},
+    {method: 'GET', path: '/peers/suspended', ...peers.suspended},
+    {method: 'GET', path: '/peers/{ip}', ...peers.show},
 
-    { method: 'GET', path: '/votes', ...votes.index },
-    { method: 'GET', path: '/votes/{id}', ...votes.show },
+    {method: 'GET', path: '/transactions', ...transactions.index},
+    {method: 'POST', path: '/transactions', ...transactions.store},
+    {method: 'GET', path: '/transactions/{id}', ...transactions.show},
+    {method: 'GET', path: '/transactions/unconfirmed', ...transactions.unconfirmed},
+    {method: 'GET', path: '/transactions/unconfirmed/{id}', ...transactions.showUnconfirmed},
+    {method: 'POST', path: '/transactions/search', ...transactions.search},
+    {method: 'GET', path: '/transactions/types', ...transactions.types},
+    {method: 'GET', path: '/transactions/fees', ...transactions.fees},
 
-    { method: 'GET', path: '/wallets', ...wallets.index },
-    { method: 'GET', path: '/wallets/top', ...wallets.top },
-    { method: 'GET', path: '/wallets/{id}', ...wallets.show },
-    { method: 'GET', path: '/wallets/{id}/transactions', ...wallets.transactions },
-    { method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent },
-    { method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived },
-    { method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes },
-    { method: 'POST', path: '/wallets/search', ...wallets.search }
+    {method: 'GET', path: '/votes', ...votes.index},
+    {method: 'GET', path: '/votes/{id}', ...votes.show},
+
+    {method: 'GET', path: '/wallets', ...wallets.index},
+    {method: 'GET', path: '/wallets/top', ...wallets.top},
+    {method: 'GET', path: '/wallets/{id}', ...wallets.show},
+    {method: 'GET', path: '/wallets/{id}/transactions', ...wallets.transactions},
+    {method: 'GET', path: '/wallets/{id}/transactions/sent', ...wallets.transactionsSent},
+    {method: 'GET', path: '/wallets/{id}/transactions/received', ...wallets.transactionsReceived},
+    {method: 'GET', path: '/wallets/{id}/votes', ...wallets.votes},
+    {method: 'POST', path: '/wallets/search', ...wallets.search}
   ])
 }
 
