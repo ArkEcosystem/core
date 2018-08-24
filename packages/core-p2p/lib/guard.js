@@ -167,7 +167,7 @@ class Guard {
     }
 
     // 1. Blacklisted
-    if (!this.isBlacklisted(peer)) {
+    if (this.isBlacklisted(peer)) {
       return createMoment(1, 'day', 'Blacklisted')
     }
 
