@@ -69,6 +69,12 @@ module.exports = class Environment {
    * @return {void}
    */
   __exportVariables () {
+    // Don't pollute the test environment, which is more in line with how
+    // travis runs the tests.
+    if (process.env.NODE_ENV === 'test') {
+      return
+    }
+
     const envPath = expandHomeDir(`${process.env.ARK_PATH_DATA}/.env`)
 
     if (fs.existsSync(envPath)) {
