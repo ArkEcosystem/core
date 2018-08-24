@@ -159,14 +159,16 @@ class Guard {
    * @return {moment}
    */
   __determineSuspensionTime (peer) {
-    // 1. High Latency
-    if (peer.delay > 2000) {
-      return moment().add(1, 'minutes')
+    // 1. Wrong version
+    if (!this.isValidVersion(peer)) {
+      return moment().add(6, 'hours')
     }
 
-    // 2. Timeout / Request Error
-    if (peer.delay === -1) {
-      return moment().add(2, 'minutes')
+    // 2. Node is not at height
+    const heightDifference = Math.abs(this.getNetworkHeight() - peer.state.height)
+
+    if (heightDifference >= 153) {
+      return moment().add(30, 'minutes')
     }
 
     // 3. Faulty Response
@@ -176,16 +178,14 @@ class Guard {
       return moment().add(5, 'minutes')
     }
 
-    // 4. Node is not at height
-    const heightDifference = Math.abs(this.getNetworkHeight() - peer.state.height)
-
-    if (heightDifference >= 153) {
-      return moment().add(30, 'minutes')
+    // 4. Timeout or potentially a Request Error
+    if (peer.delay === -1) {
+      return moment().add(2, 'minutes')
     }
 
-    // 5. Wrong version
-    if (!this.isValidVersion(peer)) {
-      return moment().add(6, 'hours')
+    // 5. High Latency
+    if (peer.delay > 2000) {
+      return moment().add(1, 'minutes')
     }
 
     // Any cases we are unable to make a decision on
