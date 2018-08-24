@@ -35,7 +35,7 @@ before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi'
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
   # To avoid a problem when starting the Redis service
-  - sudo redis-server /etc/redis/redis.conf --port 5432
+  #- sudo redis-server /etc/redis/redis.conf --port 5432
 
 script:
   - yarn test:coverage --ci
