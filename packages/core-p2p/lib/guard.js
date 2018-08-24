@@ -158,11 +158,11 @@ class Guard {
    */
   __determineSuspensionTime (peer) {
     const createMoment = (number, period, message) => {
-      const duration = this.get(peer.ip).untilHuman
+      const duration = moment().add(number, period)
 
       logger.debug(`Suspended ${peer.ip} for ${duration} because of "${message}"`)
 
-      return moment().add(number, period)
+      return duration
     }
 
     // 1. Wrong version
