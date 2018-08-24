@@ -108,7 +108,7 @@ describe('API - Version 1', () => {
       expect(response.data.height).toBeNumber()
 
       expect(response.data).toHaveProperty('id')
-      expect(response.data.id).toBeNumber()
+      expect(response.data.id).toBeString()
     })
   })
 
