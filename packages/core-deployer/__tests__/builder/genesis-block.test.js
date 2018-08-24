@@ -73,7 +73,7 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should have a valid address', () => {
-      expect(wallet.address).toEqual(expect.stringMatching(/^A/))
+      expect(wallet.address).toEqual(expect.stringMatching(/^P/))
     })
   })
 
@@ -98,7 +98,7 @@ describe('Genesis Block Builder', () => {
     })
 
     it('should have a valid address', () => {
-      expect(delegateWallet.address).toEqual(expect.stringMatching(/^A/))
+      expect(delegateWallet.address).toEqual(expect.stringMatching(/^P/))
     })
 
     it('should have a valid username', () => {
