@@ -7,7 +7,7 @@ describe('generateTransactions', () => {
   })
 
   it('should create transfer transactions for devnet', () => {
-    const devnetAddress = 'DJQL8LWj81nRJNv9bbUgNXXELcB3q5qjZH'
+    const devnetAddress = 'PL2dXvNtTg2bHY88e4ihnNxjNoJiu3xbK4'
     const transactions = generateTransactions(
       'devnet',
       TRANSACTION_TYPES.TRANSFER,
