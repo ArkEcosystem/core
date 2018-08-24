@@ -5,7 +5,7 @@ const { Transaction } = phantom.models
 
 exports.dummy1 = new Transaction({
   version: 1,
-  network: 23,
+  network: 55,
   type: 0,
   timestamp: 35672738,
   senderPublicKey:
@@ -166,7 +166,7 @@ exports.dummy10 = new Transaction({
 
 exports.dummyExp1 = new Transaction({
   version: 1,
-  network: 23,
+  network: 55,
   type: 0,
   timestamp: slots.getTime(),
   senderPublicKey:

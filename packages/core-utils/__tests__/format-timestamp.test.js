@@ -5,7 +5,7 @@ app.resolvePlugin = jest.fn(plugin => {
   if (plugin === 'config') {
     return {
       getConstants: () => ({
-        epoch: '2017-03-21T13:00:00.000Z',
+        epoch: '2019-01-03T12:00:00.000Z',
       }),
     }
   }

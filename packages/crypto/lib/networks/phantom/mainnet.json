@@ -2,15 +2,15 @@
   "name": "mainnet",
   "messagePrefix": "PHANTOM message:\n",
   "bip32": {
-    "public": 46090600,
-    "private": 46089520
+    "public": 70617039,
+    "private": 70615956
   },
-  "pubKeyHash": 23,
-  "nethash": "6e84d08bd299ed97c212c886c98a57e36545c8f5d645ca7eeae63a8bd62d8988",
+  "pubKeyHash": 55,
+  "nethash": "63b3351133e5721c199594c9d4f0e0e57adc5554216a390d3ea77c38366d01c9",
   "wif": 170,
   "aip20": 0,
   "client": {
-    "token": "PHANTOM",
+    "token": "XPH",
     "symbol": "ⓟ",
     "explorer": "https://explorer.phantom.org"
   },
@@ -25,30 +25,30 @@
         "maxTransactions": 50,
         "maxPayload": 2097152
       },
-      "epoch": "2017-03-21T13:00:00.000Z",
+      "epoch": "2019-01-03T12:00:00.000Z",
       "fees": {
         "dynamic": true,
         "dynamicFees": {
-          "minFeePool": 3000,
-          "minFeeBroadcast": 3000,
+          "minFeePool": 30000,
+          "minFeeBroadcast": 30000,
           "addonBytes": {
-            "transfer": 100,
-            "secondSignature": 250,
-            "delegateRegistration": 400000,
-            "vote": 100,
-            "multiSignature": 500,
-            "ipfs": 250,
-            "timelockTransfer": 500,
-            "multiPayment": 500,
-            "delegateResignation": 400000
+            "transfer": 1000,
+            "secondSignature": 2500,
+            "delegateRegistration": 4000000,
+            "vote": 1000,
+            "multiSignature": 5000,
+            "ipfs": 2500,
+            "timelockTransfer": 5000,
+            "multiPayment": 5000,
+            "delegateResignation": 4000000
           }
         },
         "staticFees": {
-          "transfer": 10000000,
-          "secondSignature": 500000000,
-          "delegateRegistration": 2500000000,
-          "vote": 100000000,
-          "multiSignature": 500000000,
+          "transfer": 100000000,
+          "secondSignature": 5000000000,
+          "delegateRegistration": 25000000000,
+          "vote": 1000000000,
+          "multiSignature": 5000000000,
           "ipfs": 0,
           "timelockTransfer": 0,
           "multiPayment": 0,
@@ -57,8 +57,8 @@
       }
     },
     {
-      "height": 75600,
-      "reward": 200000000
+      "height": 300000,
+      "reward": 2000000000
     },
     {
       "height": 6600000,

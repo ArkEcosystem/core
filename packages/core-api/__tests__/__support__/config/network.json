@@ -5,7 +5,7 @@
     "public": 70617039,
     "private": 70615956
   },
-  "pubKeyHash": 23,
+  "pubKeyHash": 55,
   "nethash": "d9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192",
   "wif": 186,
   "client": {
@@ -23,7 +23,7 @@
       "maxTransactions": 50,
       "maxPayload": 2097152
     },
-    "epoch": "2017-03-21T13:00:00.000Z",
+    "epoch": "2019-01-03T12:00:00.000Z",
     "fees": {
       "dynamic" : false,
       "transfer": 10000000,

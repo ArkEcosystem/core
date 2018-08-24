@@ -2,7 +2,7 @@ const { Transaction } = require('@phantomcore/crypto').models
 
 exports.dummy1 = new Transaction({
   version: 1,
-  network: 23,
+  network: 55,
   type: 0,
   timestamp: 35672738,
   senderPublicKey:

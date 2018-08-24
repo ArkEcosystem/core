@@ -2,7 +2,7 @@ require('../../../lib/matchers/models/transaction')
 
 const transaction = {
   version: 1,
-  network: 23,
+  network: 55,
   type: 0,
   timestamp: 35672738,
   senderPublicKey:
