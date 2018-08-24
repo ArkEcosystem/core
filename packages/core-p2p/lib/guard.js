@@ -177,7 +177,8 @@ class Guard {
     }
 
     // 4. Node is not at height
-    const heightDifference = Math.abs(peer.state.height - this.getNetworkHeight())
+    const heightDifference = Math.abs(this.getNetworkHeight() - peer.state.height)
+
     if (heightDifference >= 153) {
       return moment().add(30, 'minutes')
     }
