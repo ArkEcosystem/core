@@ -21,7 +21,7 @@ This repository contains all plugins that make up the PHANTOM Core.
 
 [![Build Status](https://travis-ci.org/PhantomCore/core.svg?branch=master)](https://travis-ci.org/PhantomCore/core)
 
-| Package | Version | Description
+| Package | Description
 |---|---|---|
 | **[core](/packages/core)** | [![npm](https://img.shields.io/npm/v/@phantomchain/core.svg)](https://www.npmjs.com/package/@phantomchain/core) | **Includes all packages** |
 | [client](/packages/client) | [![npm](https://img.shields.io/npm/v/@phantomchain/client.svg)](https://www.npmjs.com/package/@phantomchain/client) | A JavaScript library to interact with the PHANTOM Blockchain |
