@@ -219,14 +219,14 @@ module.exports = class WalletManager {
 
     if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
-      logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
+      logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
-    } else if (type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)]) {
+    } else if (type === TRANSACTION_TYPES.VOTE && !this.__isDelegate(asset.votes[0].slice(1))) {
 
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
+      logger.error(`Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
 
     } else if (config.network.exceptions[data.id]) {
 
@@ -338,7 +338,12 @@ module.exports = class WalletManager {
    * @param {String} publicKey
    */
   __isDelegate (publicKey) {
-    return this.walletsByUsername.some(delegateWallet => delegateWallet.publicKey === publicKey)
+    const delegateWallet = this.walletsByPublicKey[publicKey]
+    if (delegateWallet && delegateWallet.username) {
+      return !!this.walletsByUsername[delegateWallet.username]
+    }
+
+    return false
   }
 
   /**

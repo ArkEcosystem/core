@@ -121,7 +121,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 
-    logger.info(`${id} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
+    logger.info(`${id} ==> ${transaction.id}, ${options.recipient || wallet.passphrase} (fee: ${transaction.fee})`)
   }
 
   if (options.copy) {
