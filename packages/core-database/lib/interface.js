@@ -23,6 +23,8 @@ module.exports = class ConnectionInterface {
     this.__registerListeners()
   }
 
+  // XXX add the new methods here
+
   /**
    * Get the current connection.
    * @return {ConnectionInterface}

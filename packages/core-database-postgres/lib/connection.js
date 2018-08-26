@@ -589,6 +589,52 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     return this.cache
   }
 
+  /* Transaction pool aux methods @{ */
+
+  /**
+   * Add transactions to the transaction pool.
+   * @param {Array of Transaction objects} transactions
+   * @return {void}
+   */
+  async transactionPoolAdd (transactions) {
+    const bulk = transactions.map(t => {
+      return {
+        id: t.id,
+        senderPublicKey: t.senderPublicKey,
+        serialized: t.serialized
+      }
+    })
+
+    await this.db.pool.create(bulk)
+  }
+
+  /**
+   * Remove transactions from the transaction pool given their ids.
+   * @param  {Array} ids
+   * @return {void}
+   */
+  async transactionPoolRemoveById (ids) {
+    await this.db.pool.delete(ids)
+  }
+
+  /**
+   * Remove all transactions from the transaction pool.
+   * @return {void}
+   */
+  async transactionPoolDeleteAll () {
+    await this.db.pool.truncate()
+  }
+
+  /**
+   * Get all transactions from the transaction pool, in insertion order.
+   * @return {Array} [{ id: ..., serialized: ...}, ... ]
+   */
+  async transactionPoolLoad () {
+    return this.db.pool.load()
+  }
+
+  /* @} */
+
   /**
    * Run all migrations.
    * @return {void}
