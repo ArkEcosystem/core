@@ -313,7 +313,7 @@ class Monitor {
 
   /**
    * Check if we have any peers.
-   * @return {bool}
+   * @return {boolean}
    */
   hasPeers () {
     return !!this.getPeers().length
