@@ -16,7 +16,8 @@ const register = async (server, options) => {
     { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging },
     { method: 'GET', path: '/networkState', ...handlers.getNetworkState },
     { method: 'GET', path: '/syncCheck', ...handlers.checkBlockchainSynced },
-    { method: 'GET', path: '/usernames', ...handlers.getUsernames }
+    { method: 'GET', path: '/usernames', ...handlers.getUsernames },
+    { method: 'POST', path: '/events', ...handlers.emitEvent }
   ])
 }
 

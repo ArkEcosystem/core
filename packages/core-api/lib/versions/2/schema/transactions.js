@@ -1,15 +1,13 @@
 'use strict'
 
 const Joi = require('joi')
+const pagination = require('./pagination')
 
 /**
  * @type {Object}
  */
 exports.index = {
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+  query: {...pagination, ...{ orderBy: Joi.string() }}
 }
 
 /**
@@ -34,10 +32,7 @@ exports.show = {
  * @type {Object}
  */
 exports.unconfirmed = {
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  }
+  query: pagination
 }
 
 /**
@@ -53,10 +48,7 @@ exports.showUnconfirmed = {
  * @type {Object}
  */
 exports.search = {
-  query: {
-    page: Joi.number().integer(),
-    limit: Joi.number().integer()
-  },
+  query: pagination,
   payload: {
     id: Joi.string(),
     blockId: Joi.string(),

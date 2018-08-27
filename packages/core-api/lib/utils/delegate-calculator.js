@@ -23,9 +23,12 @@ exports.calculateApproval = (delegate) => {
  * @return {Number}
  */
 exports.calculateProductivity = (delegate) => {
-  if (!delegate.missedBlocks && !delegate.producedBlocks) {
+  const missedBlocks = parseInt(delegate.missedBlocks)
+  const producedBlocks = parseInt(delegate.producedBlocks)
+
+  if (!missedBlocks && !producedBlocks) {
     return 0
   }
 
-  return +(100 - (delegate.missedBlocks / ((delegate.producedBlocks + delegate.missedBlocks) / 100))).toFixed(2)
+  return +(100 - (missedBlocks / ((producedBlocks + missedBlocks) / 100))).toFixed(2)
 }

@@ -1,7 +1,8 @@
 'use strict'
 
 const Boom = require('boom')
-const blockchain = require('@arkecosystem/core-container').resolvePlugin('blockchain')
+const container = require('@arkecosystem/core-container')
+const blockchain = container.resolvePlugin('blockchain')
 const utils = require('../utils')
 const schema = require('../schema/peers')
 
@@ -75,7 +76,7 @@ exports.suspended = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const peers = blockchain.p2p.getSuspendedPeers()
+    const peers = container.resolvePlugin('p2p').getSuspendedPeers()
 
     return utils.respondWithCollection(request, Object.values(peers).map(peer => peer.peer), 'peer')
   }

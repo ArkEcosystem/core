@@ -9,7 +9,7 @@ let genesisBlock
 let genesisTransaction
 
 let Peer
-let peer
+let peerMock
 
 beforeAll(async () => {
   await app.setUp()
@@ -27,21 +27,24 @@ afterAll(async () => {
 })
 
 beforeEach(() => {
-  peer = new Peer('45.76.142.128', 4002)
+  peerMock = new Peer('0.0.0.99', 4002)
+  Object.assign(peerMock, peerMock.headers)
+
+  axiosMock.reset() // important: resets any existing mocking behavior
 })
 
 describe('Peer', () => {
   it('should be an object', () => {
-    expect(peer).toBeObject()
+    expect(peerMock).toBeObject()
   })
 
   describe('toBroadcastInfo', () => {
     it('should be a function', () => {
-      expect(peer.toBroadcastInfo).toBeFunction()
+      expect(peerMock.toBroadcastInfo).toBeFunction()
     })
 
     it('should be ok', async () => {
-      const struct = peer.toBroadcastInfo()
+      const struct = peerMock.toBroadcastInfo()
 
       expect(struct).toBeObject()
       expect(struct).toHaveProperty('ip')
@@ -56,11 +59,11 @@ describe('Peer', () => {
 
   describe.skip('postBlock', () => {
     it('should be a function', () => {
-      expect(peer.postBlock).toBeFunction()
+      expect(peerMock.postBlock).toBeFunction()
     })
 
     it('should be ok', async () => {
-      const response = await peer.postBlock(genesisBlock.toBroadcastV1())
+      const response = await peerMock.postBlock(genesisBlock.toBroadcastV1())
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
@@ -70,11 +73,11 @@ describe('Peer', () => {
 
   describe.skip('postTransactions', () => {
     it('should be a function', () => {
-      expect(peer.postTransactions).toBeFunction()
+      expect(peerMock.postTransactions).toBeFunction()
     })
 
     it('should be ok', async () => {
-      const response = await peer.postTransactions([genesisTransaction.toBroadcastV1()])
+      const response = await peerMock.postTransactions([genesisTransaction.toBroadcastV1()])
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
@@ -87,15 +90,15 @@ describe('Peer', () => {
     const errorCapturer = fn => fn.then(res => () => res).catch(err => () => { throw err })
 
     it('should be a function', () => {
-      expect(peer.downloadBlocks).toBeFunction()
+      expect(peerMock.downloadBlocks).toBeFunction()
     })
 
     describe('when the request reply with the blocks', () => {
       it('should return the blocks', async () => {
         const blocks = [{}]
-        axiosMock.onGet(`${peer.url}/peer/blocks`).reply(200, { blocks })
+        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks })
 
-        const result = await peer.downloadBlocks(1)
+        const result = await peerMock.downloadBlocks(1)
 
         expect(result).toEqual(blocks)
       })
@@ -103,20 +106,22 @@ describe('Peer', () => {
 
     describe('when the request reply with the blocks', () => {
       it('should return the blocks', async () => {
-        axiosMock.onGet(`${peer.url}/peer/blocks`).reply(500, { data: {} })
+        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(500, { data: {} })
 
-        expect(await errorCapturer(peer.downloadBlocks(1))).toThrowError(/request.*500/i)
+        expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrowError(/request.*500/i)
       })
     })
   })
 
   describe('ping', () => {
     it('should be a function', () => {
-      expect(peer.ping).toBeFunction()
+      expect(peerMock.ping).toBeFunction()
     })
 
     it('should be ok', async () => {
-      const response = await peer.ping(5000)
+      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers])
+
+      const response = await peerMock.ping(5000)
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
@@ -124,32 +129,36 @@ describe('Peer', () => {
     })
 
     it('should not be ok', async () => {
-      expect(await peer.ping(1)).toThrowError('is unreachable')
+      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(500)
+      expect(peerMock.ping(1)).rejects.toThrowError('is unresponsive')
     })
   })
 
   describe('getPeers', () => {
     it('should be a function', () => {
-      expect(peer.getPeers).toBeFunction()
+      expect(peerMock.getPeers).toBeFunction()
     })
 
     it('should be ok', async () => {
-      const peers = await peer.getPeers()
+      const peersMock = [ { ip: '1.1.1.1' } ]
+      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [200, { success: true }, peerMock.headers])
+      axiosMock.onGet(`${peerMock.url}/peer/list`).reply(() => [200, { peers: peersMock }, peerMock.headers])
 
-      expect(peers).toBeArray()
-      expect(peers.length).toBeGreaterThan(10)
+      const peers = await peerMock.getPeers()
+
+      expect(peers).toEqual(peersMock)
     })
   })
 
   describe('__get', () => {
     it('should be a function', () => {
-      expect(peer.__get).toBeFunction()
+      expect(peerMock.__get).toBeFunction()
     })
   })
 
   describe('__parseHeaders', () => {
     it('should be a function', () => {
-      expect(peer.__parseHeaders).toBeFunction()
+      expect(peerMock.__parseHeaders).toBeFunction()
     })
 
     it('should be ok', async () => {
@@ -159,11 +168,11 @@ describe('Peer', () => {
         version: 'version'
       }
 
-      await peer.__parseHeaders({ headers })
+      await peerMock.__parseHeaders({ headers })
 
-      expect(peer.nethash).toBe(headers.nethash)
-      expect(peer.os).toBe(headers.os)
-      expect(peer.version).toBe(headers.version)
+      expect(peerMock.nethash).toBe(headers.nethash)
+      expect(peerMock.os).toBe(headers.os)
+      expect(peerMock.version).toBe(headers.version)
     })
   })
 })
