@@ -136,14 +136,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * Add many transaction to the pool.
    * @param {Array}   transactions, already transformed and verified by transaction guard - must have serialized field
    */
-  addTransactions (transactions) {
+  async addTransactions (transactions) {
     if (!this.__isReady()) {
       return
     }
-
-    transactions.forEach(transaction => {
-        this.addTransaction(transaction)
-    })
+    
+    await Promise.all(transactions.map(transaction => this.addTransaction(transaction)))
   }
 
   /**
