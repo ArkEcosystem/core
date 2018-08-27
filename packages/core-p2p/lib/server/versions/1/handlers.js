@@ -297,10 +297,18 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.payload || !request.payload.transactions || !transactionPool) {
+    let error
+    if (!request.payload || !request.payload.transactions) {
+      error = 'No transactions received'
+    } else if (!transactionPool) {
+      error = 'Transaction pool not available'
+    }
+
+    if (error) {
       return {
         success: false,
-        transactionIds: []
+        message: error,
+        error: error
       }
     }
 
@@ -315,13 +323,21 @@ exports.postTransactions = {
     guard.invalid = invalid
     await guard.validate(valid)
 
+    if (guard.hasAny('invalid')) {
+      return {
+        success: false,
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform'
+      }
+    }
+
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
-      await transactionPool.addTransactions(guard.accept)
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
 
       transactionPool.memory
         .forget(guard.getIds('accept'))
