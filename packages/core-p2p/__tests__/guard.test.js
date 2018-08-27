@@ -63,7 +63,7 @@ describe('Guard', () => {
 
   describe('__determineSuspensionTime', () => {
     const convertToMinutes = actual => {
-      return Math.round(moment.duration(actual.diff(moment.now())).asMinutes())
+      return Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
     }
 
     const dummy = {
