@@ -50,13 +50,9 @@ class Guard {
       return
     }
 
-    const until = this.__determineSuspensionTime(peer)
+    const { until, reason } = this.__determineSuspensionTime(peer)
 
-    this.suspensions[peer.ip] = {
-      peer,
-      until,
-      untilHuman: until.format('h [hrs], m [min]')
-    }
+    this.suspensions[peer.ip] = { peer, until, reason }
 
     delete this.monitor.peers[peer.ip]
   }
@@ -82,6 +78,7 @@ class Guard {
    */
   async resetSuspendedPeers () {
     logger.info('Clearing suspended peers')
+
     for (const ip of Object.keys(this.suspensions)) {
       await this.unsuspend(this.get(ip).peer)
     }
@@ -96,7 +93,9 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${peer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
+
+      logger.debug(`${peer.ip} still suspended for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${suspendedPeer.reason}".`)
 
       return true
     } else if (suspendedPeer) {
@@ -157,13 +156,13 @@ class Guard {
    * @return {moment}
    */
   __determineSuspensionTime (peer) {
-    const createMoment = (number, period, message) => {
+    const createMoment = (number, period, reason) => {
       const until = moment().utc().add(number, period)
       const untilDiff = moment.duration(until.diff(moment.now()))
 
-      logger.debug(`Suspended ${peer.ip} for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${message}"`)
+      logger.debug(`Suspended ${peer.ip} for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${reason}"`)
 
-      return until
+      return { until, reason }
     }
 
     // 1. Blacklisted
