@@ -176,6 +176,8 @@ class Guard {
     }
 
     // 3. Node is not at height
+    // NOTE: Suspending this peer only means that we no longer
+    // will download blocks from him but he can still download blocks from us.
     const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
 
     if (heightDifference >= 153) {
