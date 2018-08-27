@@ -77,7 +77,7 @@ describe('Guard', () => {
     })
 
     it('should return a 1 day suspension for "Blacklisted"', () => {
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         ip: 'dummy-ip-addr'
       })
 
@@ -85,7 +85,7 @@ describe('Guard', () => {
     })
 
     it('should return a 6 hours suspension for "Invalid Version"', () => {
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         version: '1.0.0'
       })
 
@@ -95,7 +95,7 @@ describe('Guard', () => {
     it('should return a 10 minutes suspension for "Node is not at height"', () => {
       guard.monitor.getNetworkHeight = jest.fn(() => 154)
 
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         ...dummy,
         state: {
           height: 1
@@ -106,7 +106,7 @@ describe('Guard', () => {
     })
 
     it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         ...dummy,
         ...{ status: 201 }
       })
@@ -115,7 +115,7 @@ describe('Guard', () => {
     })
 
     it('should return a 2 minutes suspension for "Timeout"', () => {
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         ...dummy,
         ...{ delay: -1 }
       })
@@ -124,7 +124,7 @@ describe('Guard', () => {
     })
 
     it('should return a 1 minutes suspension for "High Latency"', () => {
-      const actual = guard.__determineSuspensionTime({
+      const { until: actual } = guard.__determineSuspensionTime({
         ...dummy,
         ...{ delay: 3000 }
       })
@@ -133,7 +133,7 @@ describe('Guard', () => {
     })
 
     it('should return a 30 minutes suspension for "Unknown"', () => {
-      const actual = guard.__determineSuspensionTime(dummy)
+      const { until: actual } = guard.__determineSuspensionTime(dummy)
 
       expect(convertToMinutes(actual)).toBe(30)
     })
