@@ -3,6 +3,8 @@
 const path = require('path')
 const container = require('@arkecosystem/core-container')
 
+jest.setTimeout(60000)
+
 exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
@@ -10,8 +12,7 @@ exports.setUp = async () => {
     token: 'ark',
     network: 'testnet'
   }, {
-    exit: '@arkecosystem/core-blockchain',
-    exclude: ['@arkecosystem/core-p2p']
+    exit: '@arkecosystem/core-blockchain'
   })
 
   return container
