@@ -114,7 +114,9 @@ describe('Blockchain', () => {
         blockchain: blockchain.stateMachine.initialState,
         started: false,
         lastBlock: null,
-        lastDownloadedBlock: null
+        lastDownloadedBlock: null,
+        blockPing: null,
+        noBlockCounter: 0
       })
     })
   })
@@ -125,10 +127,11 @@ describe('Blockchain', () => {
     })
 
     it('should be ok', async () => {
-      const response = await blockchain.postTransactions(genesisBlock.transactions, false)
+      await blockchain.postTransactions(genesisBlock.transactions, false)
+      const transactions = await blockchain.transactionPool.getTransactions(0, 100)
 
       expect(genesisBlock.transactions.length).toBe(52)
-      expect(response.length).toBe(52)
+      expect(transactions).toEqual(genesisBlock.transactions.map(transaction => transaction.serialized.toString('hex')))
     })
   })
 
@@ -251,12 +254,6 @@ describe('Blockchain', () => {
       blockchain.stateMachine.state.lastBlock = genesisBlock
 
       expect(blockchain.getLastBlock()).toEqual(genesisBlock)
-    })
-
-    it('should be ok using onlyData', () => {
-      blockchain.stateMachine.state.lastBlock = genesisBlock
-
-      expect(blockchain.getLastBlock()).toEqual(genesisBlock.data)
     })
   })
 
