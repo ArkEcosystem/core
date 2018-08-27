@@ -133,12 +133,12 @@ module.exports = class Blockchain {
   /**
    * Hand the given transactions to the transaction handler.
    * @param  {Array}   transactions
-   * @return {Array}
+   * @return {void}
    */
-  postTransactions (transactions) {
+  async postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions :moneybag:`)
 
-    return this.transactionPool.addTransactions(transactions)
+    await this.transactionPool.addTransactions(transactions)
   }
 
   /**

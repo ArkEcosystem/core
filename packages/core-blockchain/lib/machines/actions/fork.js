@@ -9,11 +9,13 @@ module.exports = {
       }
     },
     network: {
-      onEntry: ['checkNetwork'],
+      onEntry: ['checkNetwork']
+      /* these transitions are not used yet (TODO?)
       on: {
         SUCCESS: 'blockchain',
         FAILURE: 'reset'
       }
+      */
     },
     revertBlocks: {
     },
