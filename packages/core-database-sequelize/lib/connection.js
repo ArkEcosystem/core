@@ -238,8 +238,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey)
 
       let query = this.query
-        .select('public_key')
-        .sum('balance', 'balance')
+        .select('public_key', '0 as balance')
         .from('wallets')
         .whereNotNull('username')
 
@@ -247,8 +246,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
           query = query.whereNotIn('public_key', chosen)
         }
 
-        const data2 = await query.groupBy('public_key')
-          .orderBy('public_key', 'ASC')
+        const data2 = await query.orderBy('public_key', 'ASC')
           .limit(maxDelegates - data.length)
           .all()
 
@@ -288,7 +286,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
       await this.__registerListeners()
 
-      return this.walletManager.walletsByAddress || []
+      return this.walletManager.walletsByAddress || {}
     } catch (error) {
       logger.error(error.stack)
     }
@@ -302,7 +300,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const wallets = await this.query.select('*').from('wallets').all()
     wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
-    return this.walletManager.walletsByAddress || []
+    return this.walletManager.walletsByAddress || {}
   }
 
   /**

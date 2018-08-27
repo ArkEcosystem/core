@@ -32,7 +32,7 @@ module.exports = class Peer {
   toBroadcastInfo () {
     return {
       ip: this.ip,
-      port: this.port,
+      port: +this.port,
       version: this.version,
       os: this.os,
       status: this.status,

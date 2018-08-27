@@ -77,6 +77,16 @@ module.exports = class Blockchain {
     return true
   }
 
+  async stop () {
+    logger.info('Stopping Blockchain Manager :chains:')
+
+    this.isStopped = true
+
+    this.dispatch('STOP')
+
+    this.queue.destroy()
+  }
+
   checkNetwork () {
     throw new Error('Method [checkNetwork] not implemented!')
   }
@@ -123,12 +133,12 @@ module.exports = class Blockchain {
   /**
    * Hand the given transactions to the transaction handler.
    * @param  {Array}   transactions
-   * @return {Array}
+   * @return {void}
    */
-  postTransactions (transactions) {
+  async postTransactions (transactions) {
     logger.info(`Received ${transactions.length} new transactions :moneybag:`)
 
-    return this.transactionPool.addTransactions(transactions)
+    await this.transactionPool.addTransactions(transactions)
   }
 
   /**
@@ -393,6 +403,10 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isSynced (block) {
+    if (!this.p2p.hasPeers()) {
+      return true
+    }
+
     block = block || this.getLastBlock()
 
     return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.height).blocktime
@@ -404,6 +418,10 @@ module.exports = class Blockchain {
    * @return {Boolean}
    */
   isRebuildSynced (block) {
+    if (!this.p2p.hasPeers()) {
+      return true
+    }
+
     block = block || this.getLastBlock()
 
     const remaining = slots.getTime() - block.data.timestamp
