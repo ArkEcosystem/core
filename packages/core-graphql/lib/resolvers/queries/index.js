@@ -7,6 +7,9 @@ const transactions = require('./transaction/transactions')
 const wallet = require('./wallet/wallet')
 const wallets = require('./wallet/wallets')
 
+/**
+ * Queries exposed by our GraphQL schema
+ */
 module.exports = {
   block,
   blocks,

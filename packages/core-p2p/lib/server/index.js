@@ -32,6 +32,36 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
+    plugin: require('./plugins/blockchain-ready'),
+    options: {
+      routes: [
+        '/peer/height',
+        '/peer/blocks/common',
+        '/peer/status',
+        '/peer/blocks',
+        '/peer/transactions',
+        '/internal/round',
+        '/internal/block',
+        '/internal/forgingTransactions',
+        '/internal/networkState',
+        '/internal/syncCheck',
+        '/internal/usernames',
+        '/remote/blockchain/{event}'
+      ]
+    }
+  })
+
+  await server.register({
+    plugin: require('./versions/config'),
+    routes: { prefix: '/config' }
+  })
+
+  await server.register({
+    plugin: require('./versions/1'),
+    routes: { prefix: '/peer' }
+  })
+
+  await server.register({
     plugin: require('./versions/internal'),
     routes: { prefix: '/internal' }
   })
@@ -42,8 +72,6 @@ module.exports = async (p2p, config) => {
       routes: { prefix: '/remote' }
     })
   }
-
-  await server.register({ plugin: require('./versions/1') })
 
   try {
     await server.start()

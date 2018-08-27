@@ -85,6 +85,7 @@ exports.getCommonBlock = {
         success: false
       }
     }
+
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
@@ -179,20 +180,7 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    let lastBlock = null
-
-    if (blockchain) {
-      lastBlock = blockchain.getLastBlock()
-    }
-
-    if (!lastBlock) {
-      return {
-        success: false,
-        message: 'Node is not ready'
-      }
-    }
+    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
       success: true,
@@ -222,10 +210,6 @@ exports.postBlock = {
    */
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain) {
-      return { success: false }
-    }
 
     try {
       if (!request.payload || !request.payload.block) {
@@ -261,24 +245,28 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-          let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
-          // only for test because it can be used for DDOS attack
-          if (!peer && process.env.NODE_ENV === 'test_p2p') {
-            peer = await request.server.app.p2p.getRandomPeer()
-          }
-
-          if (!peer) return { success: false }
-
-          transactions = await peer.getTransactionsFromIds(block.transactionIds)
-          // issue on v1, using /api/ instead of /peer/
-          if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
-
-          // reorder them correctly
-          block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
-          logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
-
-          if (block.transactions.length !== block.numberOfTransactions) return { success: false }
+        let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
+        // only for test because it can be used for DDOS attack
+        if (!peer && process.env.NODE_ENV === 'test_p2p') {
+          peer = await request.server.app.p2p.getRandomPeer()
         }
+
+        if (!peer) {
+          return {success: false}
+        }
+
+        transactions = await peer.getTransactionsFromIds(block.transactionIds)
+        // issue on v1, using /api/ instead of /peer/
+        if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+
+        // reorder them correctly
+        block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
+        logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
+
+        if (block.transactions.length !== block.numberOfTransactions) {
+          return {success: false}
+        }
+      }
       // } else return { success: false }
 
       block.ip = requestIp.getClientIp(request)
@@ -309,16 +297,19 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.payload || !request.payload.transactions || !transactionPool) {
-      return {
-        success: false,
-        transactionIds: []
-      }
+    let error
+    if (!request.payload || !request.payload.transactions) {
+      error = 'No transactions received'
+    } else if (!transactionPool) {
+      error = 'Transaction pool not available'
     }
 
-    const blockchain = container.resolvePlugin('blockchain')
-    if (!blockchain) {
-      return { success: false }
+    if (error) {
+      return {
+        success: false,
+        message: error,
+        error: error
+      }
     }
 
     /**
@@ -332,13 +323,21 @@ exports.postTransactions = {
     guard.invalid = invalid
     await guard.validate(valid)
 
+    if (guard.hasAny('invalid')) {
+      return {
+        success: false,
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform'
+      }
+    }
+
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
-      await transactionPool.addTransactions(guard.accept)
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
 
       transactionPool.memory
         .forget(guard.getIds('accept'))
@@ -357,6 +356,9 @@ exports.postTransactions = {
     }
   },
   config: {
+    cors: {
+      additionalHeaders: ['nethash', 'port', 'version']
+    },
     plugins: {
       'hapi-ajv': {
         payloadSchema: schema.postTransactions
@@ -376,7 +378,15 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      const blocks = await container.resolvePlugin('database').getBlocks(parseInt(request.query.lastBlockHeight) + 1, 400)
+      const database = container.resolvePlugin('database')
+      const blockchain = container.resolvePlugin('blockchain')
+      let reqBlockHeight = parseInt(request.query.lastBlockHeight)
+      let blocks = []
+      if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
+        blocks.push(blockchain.getLastBlock())
+      } else {
+        blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+      }
 
       logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
 

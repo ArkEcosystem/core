@@ -17,6 +17,10 @@ const register = async (server, options) => {
     async method (request, h) {
       const remoteAddress = requestIp.getClientIp(request)
 
+      if (request.path.startsWith('/config')) {
+        return h.continue
+      }
+
       if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',
