@@ -66,6 +66,12 @@ describe('Guard', () => {
       return Math.round(moment.duration(actual.diff(moment.now())).asMinutes())
     }
 
+    const dummy = {
+      version: '2.0.0',
+      status: 200,
+      state: {}
+    }
+
     it('should be a function', () => {
       expect(guard.__determineSuspensionTime).toBeFunction()
     })
@@ -86,16 +92,23 @@ describe('Guard', () => {
       expect(convertToMinutes(actual)).toBe(360)
     })
 
-    // it('should return a 30 minutes suspension for "Node is not at height"', () => {
-    //   const actual = guard.__determineSuspensionTime({ })
+    it('should return a 10 minutes suspension for "Node is not at height"', () => {
+      guard.monitor.getNetworkHeight = jest.fn(() => 154)
 
-    //   expect(convertToMinutes(actual)).toBe(30)
-    // })
+      const actual = guard.__determineSuspensionTime({
+        ...dummy,
+        state: {
+          height: 1
+        }
+      })
+
+      expect(convertToMinutes(actual)).toBe(10)
+    })
 
     it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
       const actual = guard.__determineSuspensionTime({
-        version: '2.0.0',
-        status: 201
+        ...dummy,
+        ...{ status: 201 }
       })
 
       expect(convertToMinutes(actual)).toBe(5)
@@ -103,9 +116,8 @@ describe('Guard', () => {
 
     it('should return a 2 minutes suspension for "Timeout"', () => {
       const actual = guard.__determineSuspensionTime({
-        version: '2.0.0',
-        status: 200,
-        delay: -1
+        ...dummy,
+        ...{ delay: -1 }
       })
 
       expect(convertToMinutes(actual)).toBe(2)
@@ -113,19 +125,15 @@ describe('Guard', () => {
 
     it('should return a 1 minutes suspension for "High Latency"', () => {
       const actual = guard.__determineSuspensionTime({
-        version: '2.0.0',
-        status: 200,
-        delay: 3000
+        ...dummy,
+        ...{ delay: 3000 }
       })
 
       expect(convertToMinutes(actual)).toBe(1)
     })
 
     it('should return a 30 minutes suspension for "Unknown"', () => {
-      const actual = guard.__determineSuspensionTime({
-        version: '2.0.0',
-        status: 200
-      })
+      const actual = guard.__determineSuspensionTime(dummy)
 
       expect(convertToMinutes(actual)).toBe(30)
     })

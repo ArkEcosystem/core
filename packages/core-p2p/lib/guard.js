@@ -176,12 +176,12 @@ class Guard {
       return createMoment(6, 'hours', 'Invalid Version')
     }
 
-    // // 3. Node is not at height
-    // const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
+    // 3. Node is not at height
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
 
-    // if (heightDifference >= 153) {
-    //   return createMoment(30, 'minutes', 'Node is not at height')
-    // }
+    if (heightDifference >= 153) {
+      return createMoment(10, 'minutes', 'Node is not at height')
+    }
 
     // 4. Faulty Response
     // NOTE: We check this extra because a response can still succeed if
