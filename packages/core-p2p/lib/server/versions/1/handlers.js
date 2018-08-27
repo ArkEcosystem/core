@@ -5,10 +5,8 @@ const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
 const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
-const transactionPool = container.resolvePlugin('transactionPool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-
 const schema = require('./schema')
 
 /**
@@ -22,7 +20,8 @@ exports.getPeers = {
    */
   async handler (request, h) {
     try {
-      const peers = request.server.app.p2p.getPeers()
+      const p2p = container.resolvePlugin('p2p')
+      const peers = p2p.getPeers()
         .map(peer => peer.toBroadcastInfo())
         .sort((a, b) => a.delay - b.delay)
 
@@ -53,7 +52,8 @@ exports.getHeight = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+    const blockchain = container.resolvePlugin('blockchain')
+    const lastBlock = blockchain.getLastBlock()
 
     return {
       success: true,
@@ -85,17 +85,16 @@ exports.getCommonBlock = {
         success: false
       }
     }
-
-    const blockchain = container.resolvePlugin('blockchain')
-
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     try {
-      const commonBlock = await blockchain.database.getCommonBlock(ids)
+      const blockchain = container.resolvePlugin('blockchain')
+      const database = container.resolvePlugin('database')
+      const commonBlocks = await database.getCommonBlock(ids)
 
       return {
         success: true,
-        common: commonBlock.length ? commonBlock[0] : null,
+        common: commonBlocks.length ? commonBlocks[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     } catch (error) {
@@ -123,7 +122,8 @@ exports.getTransactionsFromIds = {
   async handler (request, h) {
     try {
       const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-      const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
+      const database = container.resolvePlugin('database')
+      const rows = await database.getTransactionsFromIds(transactionIds)
 
       // TODO: v1 compatibility patch. Add transformer and refactor later on
       const transactions = await rows.map(row => {
@@ -180,7 +180,8 @@ exports.getStatus = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
+    const blockchain = container.resolvePlugin('blockchain')
+    const lastBlock = blockchain.getLastBlock()
 
     return {
       success: true,
@@ -209,15 +210,14 @@ exports.postBlock = {
    * @return {Hapi.Response}
    */
  async handler (request, h) {
-    const blockchain = container.resolvePlugin('blockchain')
-
     try {
       if (!request.payload || !request.payload.block) {
         return { success: false }
       }
 
+      const blockchain = container.resolvePlugin('blockchain')
+      const p2p = container.resolvePlugin('p2p')
       const block = request.payload.block
-
       if (blockchain.pingBlock(block)) return {success: true}
       // already got it?
       const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
@@ -245,10 +245,10 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-        let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
+        let peer = await p2p.getPeer(requestIp.getClientIp(request))
         // only for test because it can be used for DDOS attack
         if (!peer && process.env.NODE_ENV === 'test_p2p') {
-          peer = await request.server.app.p2p.getRandomPeer()
+          peer = await p2p.getRandomPeer()
         }
 
         if (!peer) {
@@ -297,6 +297,8 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
+    const transactionPool = container.resolvePlugin('transactionPool')
+    const p2p = container.resolvePlugin('p2p')
     if (!request.payload || !request.payload.transactions || !transactionPool) {
       return {
         success: false,
@@ -329,9 +331,7 @@ exports.postTransactions = {
     }
 
     if (!request.payload.isBroadCasted && guard.hasAny('broadcast')) {
-      await container
-        .resolvePlugin('p2p')
-        .broadcastTransactions(guard.broadcast)
+      await p2p.broadcastTransactions(guard.broadcast)
     }
 
     return {
@@ -362,8 +362,8 @@ exports.getBlocks = {
    */
   async handler (request, h) {
     try {
-      const database = container.resolvePlugin('database')
       const blockchain = container.resolvePlugin('blockchain')
+      const database = container.resolvePlugin('database')
       let reqBlockHeight = parseInt(request.query.lastBlockHeight)
       let blocks = []
       if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
