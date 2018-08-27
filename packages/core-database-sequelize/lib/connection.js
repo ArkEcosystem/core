@@ -286,7 +286,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
       await this.__registerListeners()
 
-      return this.walletManager.walletsByAddress || []
+      return this.walletManager.walletsByAddress || {}
     } catch (error) {
       logger.error(error.stack)
     }
@@ -300,7 +300,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     const wallets = await this.query.select('*').from('wallets').all()
     wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
-    return this.walletManager.walletsByAddress || []
+    return this.walletManager.walletsByAddress || {}
   }
 
   /**
