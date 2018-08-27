@@ -190,7 +190,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeFalsy()
     })
   })
 })
