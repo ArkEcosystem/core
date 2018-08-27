@@ -60,4 +60,74 @@ describe('Guard', () => {
       expect(guard.isSuspended(peerMock)).toBe(false)
     })
   })
+
+  describe('__determineSuspensionTime', () => {
+    const convertToMinutes = actual => {
+      return Math.round(moment.duration(actual.diff(moment.now())).asMinutes())
+    }
+
+    it('should be a function', () => {
+      expect(guard.__determineSuspensionTime).toBeFunction()
+    })
+
+    it('should return a 1 day suspension for "Blacklisted"', () => {
+      const actual = guard.__determineSuspensionTime({
+        ip: 'dummy-ip-addr'
+      })
+
+      expect(convertToMinutes(actual)).toBe(1440)
+    })
+
+    it('should return a 6 hours suspension for "Invalid Version"', () => {
+      const actual = guard.__determineSuspensionTime({
+        version: '1.0.0'
+      })
+
+      expect(convertToMinutes(actual)).toBe(360)
+    })
+
+    // it('should return a 30 minutes suspension for "Node is not at height"', () => {
+    //   const actual = guard.__determineSuspensionTime({ })
+
+    //   expect(convertToMinutes(actual)).toBe(30)
+    // })
+
+    it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
+      const actual = guard.__determineSuspensionTime({
+        version: '2.0.0',
+        status: 201
+      })
+
+      expect(convertToMinutes(actual)).toBe(5)
+    })
+
+    it('should return a 2 minutes suspension for "Timeout"', () => {
+      const actual = guard.__determineSuspensionTime({
+        version: '2.0.0',
+        status: 200,
+        delay: -1
+      })
+
+      expect(convertToMinutes(actual)).toBe(2)
+    })
+
+    it('should return a 1 minutes suspension for "High Latency"', () => {
+      const actual = guard.__determineSuspensionTime({
+        version: '2.0.0',
+        status: 200,
+        delay: 3000
+      })
+
+      expect(convertToMinutes(actual)).toBe(1)
+    })
+
+    it('should return a 30 minutes suspension for "Unknown"', () => {
+      const actual = guard.__determineSuspensionTime({
+        version: '2.0.0',
+        status: 200
+      })
+
+      expect(convertToMinutes(actual)).toBe(30)
+    })
+  })
 })
