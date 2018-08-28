@@ -6,7 +6,7 @@ class Slots {
    * Create a new Slot instance.
    */
   constructor () {
-    this.height = 1
+    this.resetHeight()
   }
 
   /**
@@ -24,6 +24,14 @@ class Slots {
    */
   setHeight (height) {
     this.height = height
+  }
+
+  /**
+   * Reset the height to the initial value.
+   * @return {void}
+   */
+  resetHeight () {
+    this.height = 1
   }
 
   /**
