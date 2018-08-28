@@ -3,13 +3,13 @@
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
-const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
-const transactionPool = container.resolvePlugin('transactionPool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-
 const schema = require('./schema')
+
+const transactionPool = container.resolvePlugin('transactionPool')
+const logger = container.resolvePlugin('logger')
 
 /**
  * @type {Object}
@@ -310,6 +310,13 @@ exports.postTransactions = {
         message: error,
         error: error
       }
+    }
+
+    if (request.payload.transactions.length > transactionPool.options.maxTransactionsPerRequest) {
+      return h.response({
+        success: false,
+        error: 'Number of transactions is exceeding max payload size per single request.'
+      }).code(500)
     }
 
     /**
