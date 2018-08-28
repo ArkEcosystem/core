@@ -155,7 +155,7 @@ describe('Guard', () => {
       const peer = { offences: [] }
 
       for (let i = 0; i < 10; i++) {
-        peer.offences.push({ weight: 10 })
+        peer.offences.push({ weight: 10 })
       }
 
       expect(guard.isRepeatOffender(peer)).toBeFalse()
@@ -165,7 +165,7 @@ describe('Guard', () => {
       const peer = { offences: [] }
 
       for (let i = 0; i < 15; i++) {
-        peer.offences.push({ weight: 10 })
+        peer.offences.push({ weight: 10 })
       }
 
       expect(guard.isRepeatOffender(peer)).toBeTrue()
