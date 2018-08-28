@@ -20,7 +20,7 @@ afterAll(async () => {
 
 beforeEach(() => {
   const ForgeManager = require('../lib/manager')
-  defaultConfig.hosts = ['http://127.0.0.1:4000']
+  defaultConfig.hosts = [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`]
   manager = new ForgeManager(defaultConfig)
 })
 
