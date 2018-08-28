@@ -1,11 +1,15 @@
 'use strict'
 
-const moment = require('moment')
-const semver = require('semver')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
-const isMyself = require('./utils/is-myself')
+
+const moment = require('moment')
+const semver = require('semver')
+const { head, sumBy } = require('lodash')
+
+const isMyself = require('../utils/is-myself')
+const offences = require('./offences')
 
 class Guard {
   /**
@@ -50,17 +54,23 @@ class Guard {
       return
     }
 
-    const until = moment().add(this.monitor.config.suspendMinutes, 'minutes')
+    if (peer.offences.length > 0) {
+      if (moment().isAfter(head(peer.offences).until)) {
+        peer.offences = []
+      }
+    }
+
+    const offence = this.__determineOffence(peer)
+
+    peer.offences.push(offence)
 
     this.suspensions[peer.ip] = {
       peer,
-      until,
-      untilHuman: until.format('h [hrs], m [min]')
+      until: offence.until,
+      reason: offence.reason
     }
 
     delete this.monitor.peers[peer.ip]
-
-    logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
   }
 
   /**
@@ -84,6 +94,7 @@ class Guard {
    */
   async resetSuspendedPeers () {
     logger.info('Clearing suspended peers')
+
     for (const ip of Object.keys(this.suspensions)) {
       await this.unsuspend(this.get(ip).peer)
     }
@@ -98,7 +109,9 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${peer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
+
+      logger.debug(`${peer.ip} still suspended for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${suspendedPeer.reason}".`)
 
       return true
     } else if (suspendedPeer) {
@@ -151,6 +164,77 @@ class Guard {
    */
   isMyself (peer) {
     return isMyself(peer.ip)
+  }
+
+  /**
+   * Decide if the given peer is a repeat offender.
+   * @param  {Object}  peer
+   * @return {Boolean}
+   */
+  isRepeatOffender (peer) {
+    return sumBy(peer.offences, 'weight') >= 150
+  }
+
+  /**
+   * Decide for how long the peer should be banned.
+   * @param  {Peer}  peer
+   * @return {moment}
+   */
+  __determineOffence (peer) {
+    if (this.isBlacklisted(peer)) {
+      return this.__determinePunishment(peer, offences.BLACKLISTED)
+    }
+
+    if (!this.isValidVersion(peer)) {
+      return this.__determinePunishment(peer, offences.INVALID_VERSION)
+    }
+
+    // NOTE: Suspending this peer only means that we no longer
+    // will download blocks from him but he can still download blocks from us.
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
+
+    if (heightDifference >= 153) {
+      return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
+    }
+
+    // NOTE: We check this extra because a response can still succeed if
+    // it returns any codes that are not 4xx or 5xx.
+    if (peer.status !== 200) {
+      return this.__determinePunishment(peer, offences.INVALID_STATUS)
+    }
+
+    if (peer.delay === -1) {
+      return this.__determinePunishment(peer, offences.TIMEOUT)
+    }
+
+    if (peer.delay > 2000) {
+      return this.__determinePunishment(peer, offences.HIGH_LATENCY)
+    }
+
+    return this.__determinePunishment(peer, offences.UNKNOWN)
+  }
+
+  /**
+   * Compile the information about the punishment the peer will face.
+   * @param  {Object} peer
+   * @param  {Object} offence
+   * @return {Object}
+   */
+  __determinePunishment (peer, offence) {
+    if (this.isRepeatOffender(peer)) {
+      offence = offences.REPEAT_OFFENDER
+    }
+
+    const until = moment().utc().add(offence.number, offence.period)
+    const untilDiff = moment.duration(until.diff(moment.now()))
+
+    logger.debug(`Suspended ${peer.ip} for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${offence.reason}"`)
+
+    return {
+      until,
+      reason: offence.reason,
+      weight: offence.weight
+    }
   }
 }
 

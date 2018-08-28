@@ -27,14 +27,6 @@ describe('Blockchain machine > Fork', () => {
     it('should execute the `checkNetwork` action when is entered', () => {
       expect(machine).toExecuteOnEntry({ state: 'fork.network', actions: ['checkNetwork'] })
     })
-
-    it('should transition to `blockchain` on `SUCCESS`', () => {
-      expect(machine).toTransition({ from: 'fork.network', on: 'SUCCESS', to: 'fork.blockchain' })
-    })
-
-    it('should transition to `exit` on `FAILURE`', () => {
-      expect(machine).toTransition({ from: 'fork.network', on: 'FAILURE', to: 'fork.reset' })
-    })
   })
 
   describe('state `exit`', () => {

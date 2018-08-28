@@ -22,7 +22,9 @@
       "port": 4002
     }
   ],
-  "blackList": [],
+  "blackList": [
+    "dummy-ip-addr"
+  ],
   "whiteList": [],
   "minimumVersion": ">=2.0.0",
   "sources": [

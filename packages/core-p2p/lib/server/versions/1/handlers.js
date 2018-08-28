@@ -3,13 +3,13 @@
 const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { Block } = require('@arkecosystem/crypto').models
-const logger = container.resolvePlugin('logger')
 const requestIp = require('request-ip')
-const transactionPool = container.resolvePlugin('transactionPool')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-
 const schema = require('./schema')
+
+const transactionPool = container.resolvePlugin('transactionPool')
+const logger = container.resolvePlugin('logger')
 
 /**
  * @type {Object}
@@ -297,11 +297,26 @@ exports.postTransactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.payload || !request.payload.transactions || !transactionPool) {
+    let error
+    if (!request.payload || !request.payload.transactions) {
+      error = 'No transactions received'
+    } else if (!transactionPool) {
+      error = 'Transaction pool not available'
+    }
+
+    if (error) {
       return {
         success: false,
-        transactionIds: []
+        message: error,
+        error: error
       }
+    }
+
+    if (request.payload.transactions.length > transactionPool.options.maxTransactionsPerRequest) {
+      return h.response({
+        success: false,
+        error: 'Number of transactions is exceeding max payload size per single request.'
+      }).code(500)
     }
 
     /**
@@ -315,13 +330,21 @@ exports.postTransactions = {
     guard.invalid = invalid
     await guard.validate(valid)
 
+    if (guard.hasAny('invalid')) {
+      return {
+        success: false,
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform'
+      }
+    }
+
     // TODO: Review throttling of v1
     if (guard.hasAny('accept')) {
       logger.info(`Accepted ${guard.accept.length} transactions from ${request.payload.transactions.length} received`)
 
       logger.verbose(`Accepted transactions: ${guard.accept.map(tx => tx.id)}`)
 
-      await transactionPool.addTransactions(guard.accept)
+      await transactionPool.addTransactions([...guard.accept, ...guard.excess])
 
       transactionPool.memory
         .forget(guard.getIds('accept'))

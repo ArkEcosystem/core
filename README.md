@@ -1,6 +1,9 @@
-![ARK Core](https://i.imgur.com/1aP6F2o.png)
-
 # ARK Core
+
+![ARK Core](./banner.png)
+
+[![Build Status](https://badgen.now.sh/travis/ArkEcosystem/core/master)](https://travis-ci.org/ArkEcosystem/core)
+[![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
 ## Introduction
 
@@ -8,21 +11,19 @@ This repository contains all plugins that make up the ARK Core.
 
 ## Documentation
 
-- Development : https://docs.ark.io/core/development.html
-- Docker : https://docs.ark.io/core/docker.html
+- Development : https://docs.ark.io/guidebook/core/development.html
+- Docker : https://docs.ark.io/guidebook/core/docker.html
 
 ## API Documentation
 
-- API v1 : https://docs.ark.io/developers/api/public/v1/
-- API v2 : https://docs.ark.io/developers/api/public/v2/
+- API v1 : https://docs.ark.io/api/public/v1/
+- API v2 : https://docs.ark.io/api/public/v2/
 
 ## GitHub Development Bounty
 
 - Get involved with ARK development and earn ARK coins : https://bounty.ark.io
 
 ## Core Packages
-
-[![Build Status](https://travis-ci.org/ArkEcosystem/core.svg?branch=master)](https://travis-ci.org/ArkEcosystem/core)
 
 | Package | Version | Description
 |---|---|---|

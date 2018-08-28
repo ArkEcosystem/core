@@ -43,6 +43,8 @@ module.exports = {
     key: 'ark1',
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 100,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
+    allowedSenders: [],
+    maxTransactionsPerRequest: 150,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
       port: process.env.ARK_REDIS_PORT || 6379
@@ -84,7 +86,7 @@ module.exports = {
     graphiql: true
   },
   '@arkecosystem/core-forger': {
-    hosts: ['http://127.0.0.1:4000']
+    hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4000}`]
   },
   '@arkecosystem/core-json-rpc': {
     enabled: process.env.ARK_JSON_RPC_ENABLED,

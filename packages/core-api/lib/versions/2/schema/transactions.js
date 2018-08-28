@@ -3,6 +3,8 @@
 const Joi = require('joi')
 const pagination = require('./pagination')
 
+const container = require('@arkecosystem/core-container')
+
 /**
  * @type {Object}
  */
@@ -15,7 +17,7 @@ exports.index = {
  */
 exports.store = {
   payload: {
-    transactions: Joi.array().items(Joi.object())
+    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest).items(Joi.object())
   }
 }
 
