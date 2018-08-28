@@ -129,7 +129,7 @@ describe('Storage', () => {
       expect(testSubject.createList).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createList('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.List)
@@ -141,7 +141,7 @@ describe('Storage', () => {
       expect(testSubject.createMap).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createMap('dummy', { key: 'value' })
 
       expect(actual).toBeInstanceOf(immutable.Map)
@@ -153,7 +153,7 @@ describe('Storage', () => {
       expect(testSubject.createOrderedMap).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createOrderedMap('dummy', { key: 'value' })
 
       expect(actual).toBeInstanceOf(immutable.OrderedMap)
@@ -165,7 +165,7 @@ describe('Storage', () => {
       expect(testSubject.createSet).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createSet('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Set)
@@ -177,7 +177,7 @@ describe('Storage', () => {
       expect(testSubject.createOrderedSet).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createOrderedSet('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.OrderedSet)
@@ -189,7 +189,7 @@ describe('Storage', () => {
       expect(testSubject.createStack).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createStack('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Stack)
@@ -201,7 +201,7 @@ describe('Storage', () => {
       expect(testSubject.createRange).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createRange('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Range)
@@ -213,7 +213,7 @@ describe('Storage', () => {
       expect(testSubject.createRepeat).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createRepeat('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Repeat)
@@ -225,7 +225,7 @@ describe('Storage', () => {
       expect(testSubject.createRecord).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createRecord('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeFunction()
@@ -237,7 +237,7 @@ describe('Storage', () => {
       expect(testSubject.createSeq).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createSeq('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq)
@@ -249,7 +249,7 @@ describe('Storage', () => {
       expect(testSubject.createSeqKeyed).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createSeqKeyed('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq.Keyed)
@@ -261,7 +261,7 @@ describe('Storage', () => {
       expect(testSubject.createSeqIndexed).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createSeqIndexed('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq.Indexed)
@@ -273,7 +273,7 @@ describe('Storage', () => {
       expect(testSubject.createSeqSet).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createSeqSet('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq.Set)
@@ -285,7 +285,7 @@ describe('Storage', () => {
       expect(testSubject.createCollection).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createCollection('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Collection)
@@ -297,7 +297,7 @@ describe('Storage', () => {
       expect(testSubject.createCollectionKeyed).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createCollectionKeyed('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq)
@@ -309,7 +309,7 @@ describe('Storage', () => {
       expect(testSubject.createCollectionIndexed).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createCollectionIndexed('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq)
@@ -321,7 +321,7 @@ describe('Storage', () => {
       expect(testSubject.createCollectionSet).toBeFunction()
     })
 
-    it('should create a new list', () => {
+    it('should create a new immutable object', () => {
       const actual = testSubject.createCollectionSet('dummy', [1, 2, 3, 4, 5])
 
       expect(actual).toBeInstanceOf(immutable.Seq)
