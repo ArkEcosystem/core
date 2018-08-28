@@ -60,4 +60,89 @@ describe('Guard', () => {
       expect(guard.isSuspended(peerMock)).toBe(false)
     })
   })
+
+  describe('__determineSuspensionTime', () => {
+    const convertToMinutes = actual => {
+      return Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
+    }
+
+    const dummy = {
+      version: '2.0.0',
+      status: 200,
+      state: {}
+    }
+
+    it('should be a function', () => {
+      expect(guard.__determineSuspensionTime).toBeFunction()
+    })
+
+    it('should return a 1 day suspension for "Blacklisted"', () => {
+      const { until, reason } = guard.__determineSuspensionTime({
+        ip: 'dummy-ip-addr'
+      })
+
+      expect(convertToMinutes(until)).toBe(1440)
+      expect(reason).toBe('Blacklisted')
+    })
+
+    it('should return a 6 hours suspension for "Invalid Version"', () => {
+      const { until, reason } = guard.__determineSuspensionTime({
+        version: '1.0.0'
+      })
+
+      expect(convertToMinutes(until)).toBe(360)
+      expect(reason).toBe('Invalid Version')
+    })
+
+    it('should return a 10 minutes suspension for "Node is not at height"', () => {
+      guard.monitor.getNetworkHeight = jest.fn(() => 154)
+
+      const { until, reason } = guard.__determineSuspensionTime({
+        ...dummy,
+        state: {
+          height: 1
+        }
+      })
+
+      expect(convertToMinutes(until)).toBe(10)
+      expect(reason).toBe('Node is not at height')
+    })
+
+    it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
+      const { until, reason } = guard.__determineSuspensionTime({
+        ...dummy,
+        ...{ status: 201 }
+      })
+
+      expect(convertToMinutes(until)).toBe(5)
+      expect(reason).toBe('Invalid Response Status')
+    })
+
+    it('should return a 2 minutes suspension for "Timeout"', () => {
+      const { until, reason } = guard.__determineSuspensionTime({
+        ...dummy,
+        ...{ delay: -1 }
+      })
+
+      expect(convertToMinutes(until)).toBe(2)
+      expect(reason).toBe('Timeout')
+    })
+
+    it('should return a 1 minutes suspension for "High Latency"', () => {
+      const { until, reason } = guard.__determineSuspensionTime({
+        ...dummy,
+        ...{ delay: 3000 }
+      })
+
+      expect(convertToMinutes(until)).toBe(1)
+      expect(reason).toBe('High Latency')
+    })
+
+    it('should return a 30 minutes suspension for "Unknown"', () => {
+      const { until, reason } = guard.__determineSuspensionTime(dummy)
+
+      expect(convertToMinutes(until)).toBe(30)
+      expect(reason).toBe('Unknown')
+    })
+  })
 })

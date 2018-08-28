@@ -50,17 +50,11 @@ class Guard {
       return
     }
 
-    const until = moment().add(this.monitor.config.suspendMinutes, 'minutes')
+    const { until, reason } = this.__determineSuspensionTime(peer)
 
-    this.suspensions[peer.ip] = {
-      peer,
-      until,
-      untilHuman: until.format('h [hrs], m [min]')
-    }
+    this.suspensions[peer.ip] = { peer, until, reason }
 
     delete this.monitor.peers[peer.ip]
-
-    logger.debug(`Suspended ${peer.ip} for ` + this.get(peer.ip).untilHuman)
   }
 
   /**
@@ -84,6 +78,7 @@ class Guard {
    */
   async resetSuspendedPeers () {
     logger.info('Clearing suspended peers')
+
     for (const ip of Object.keys(this.suspensions)) {
       await this.unsuspend(this.get(ip).peer)
     }
@@ -98,7 +93,9 @@ class Guard {
     const suspendedPeer = this.get(peer.ip)
 
     if (suspendedPeer && moment().isBefore(suspendedPeer.until)) {
-      logger.debug(`${peer.ip} still suspended for ` + suspendedPeer.untilHuman)
+      const untilDiff = moment.duration(suspendedPeer.until.diff(moment.now()))
+
+      logger.debug(`${peer.ip} still suspended for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${suspendedPeer.reason}".`)
 
       return true
     } else if (suspendedPeer) {
@@ -151,6 +148,61 @@ class Guard {
    */
   isMyself (peer) {
     return isMyself(peer.ip)
+  }
+
+  /**
+   * Determine for how long the peer should be banned.
+   * @param  {Peer}  peer
+   * @return {moment}
+   */
+  __determineSuspensionTime (peer) {
+    const createMoment = (number, period, reason) => {
+      const until = moment().utc().add(number, period)
+      const untilDiff = moment.duration(until.diff(moment.now()))
+
+      logger.debug(`Suspended ${peer.ip} for ${Math.ceil(untilDiff.asMinutes())} minutes because of "${reason}"`)
+
+      return { until, reason }
+    }
+
+    // 1. Blacklisted
+    if (this.isBlacklisted(peer)) {
+      return createMoment(1, 'day', 'Blacklisted')
+    }
+
+    // 2. Wrong version
+    if (!this.isValidVersion(peer)) {
+      return createMoment(6, 'hours', 'Invalid Version')
+    }
+
+    // 3. Node is not at height
+    // NOTE: Suspending this peer only means that we no longer
+    // will download blocks from him but he can still download blocks from us.
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
+
+    if (heightDifference >= 153) {
+      return createMoment(10, 'minutes', 'Node is not at height')
+    }
+
+    // 4. Faulty Response
+    // NOTE: We check this extra because a response can still succeed if
+    // it returns any codes that are not 4xx or 5xx.
+    if (peer.status !== 200) {
+      return createMoment(5, 'minutes', 'Invalid Response Status')
+    }
+
+    // 5. Timeout or potentially a Request Error
+    if (peer.delay === -1) {
+      return createMoment(2, 'minutes', 'Timeout')
+    }
+
+    // 6. High Latency
+    if (peer.delay > 2000) {
+      return createMoment(1, 'minutes', 'High Latency')
+    }
+
+    // Any cases we are unable to make a decision on
+    return createMoment(30, 'minutes', 'Unknown')
   }
 }
 
