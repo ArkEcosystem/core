@@ -81,7 +81,7 @@ describe('Guard', () => {
         ip: 'dummy-ip-addr'
       })
 
-      expect(convertToMinutes(until)).toBe(1440)
+      expect(convertToMinutes(until)).toBe(720)
       expect(reason).toBe('Blacklisted')
     })
 
