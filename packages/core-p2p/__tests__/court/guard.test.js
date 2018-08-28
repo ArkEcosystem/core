@@ -145,4 +145,30 @@ describe('Guard', () => {
       expect(reason).toBe('Unknown')
     })
   })
+
+  describe('isRepeatOffender', () => {
+    it('should be a function', () => {
+      expect(guard.isRepeatOffender).toBeFunction()
+    })
+
+    it('should be true if the threshold is met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 10; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeFalse()
+    })
+
+    it('should be false if the threshold is not met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 15; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeTrue()
+    })
+  })
 })
