@@ -181,17 +181,14 @@ class Guard {
    * @return {moment}
    */
   __determineOffence (peer) {
-    // 1. Blacklisted
     if (this.isBlacklisted(peer)) {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
 
-    // 2. Wrong version
     if (!this.isValidVersion(peer)) {
       return this.__determinePunishment(peer, offences.INVALID_VERSION)
     }
 
-    // 3. Node is not at height
     // NOTE: Suspending this peer only means that we no longer
     // will download blocks from him but he can still download blocks from us.
     const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
@@ -200,24 +197,20 @@ class Guard {
       return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
     }
 
-    // 4. Faulty Response
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
     if (peer.status !== 200) {
       return this.__determinePunishment(peer, offences.INVALID_STATUS)
     }
 
-    // 5. Timeout or potentially a Request Error
     if (peer.delay === -1) {
       return this.__determinePunishment(peer, offences.TIMEOUT)
     }
 
-    // 6. High Latency
     if (peer.delay > 2000) {
       return this.__determinePunishment(peer, offences.HIGH_LATENCY)
     }
 
-    // Any cases we are unable to make a decision on
     return this.__determinePunishment(peer, offences.UNKNOWN)
   }
 
