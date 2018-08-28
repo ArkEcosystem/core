@@ -5,6 +5,7 @@ const moment = require('moment')
 const ARK_ENV = process.env.ARK_ENV
 
 const defaults = require('../../lib/defaults')
+const offences = require('../../lib/court/offences')
 
 let guard
 let Peer
@@ -58,6 +59,32 @@ describe('Guard', () => {
 
     it('should return false because not suspended', () => {
       expect(guard.isSuspended(peerMock)).toBe(false)
+    })
+  })
+
+  describe('isRepeatOffender', () => {
+    it('should be a function', () => {
+      expect(guard.isRepeatOffender).toBeFunction()
+    })
+
+    it('should be true if the threshold is met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 10; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeFalse()
+    })
+
+    it('should be false if the threshold is not met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 15; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeTrue()
     })
   })
 
@@ -146,29 +173,22 @@ describe('Guard', () => {
     })
   })
 
-  describe('isRepeatOffender', () => {
+  describe('__determinePunishment', () => {
     it('should be a function', () => {
-      expect(guard.isRepeatOffender).toBeFunction()
+      expect(guard.__determinePunishment).toBeFunction()
     })
 
     it('should be true if the threshold is met', () => {
-      const peer = { offences: [] }
+      const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER)
 
-      for (let i = 0; i < 10; i++) {
-        peer.offences.push({ weight: 10 })
-      }
+      expect(actual).toHaveProperty('until')
+      expect(actual.until).toBeInstanceOf(require('moment'))
 
-      expect(guard.isRepeatOffender(peer)).toBeFalse()
-    })
+      expect(actual).toHaveProperty('reason')
+      expect(actual.reason).toBeString()
 
-    it('should be false if the threshold is not met', () => {
-      const peer = { offences: [] }
-
-      for (let i = 0; i < 15; i++) {
-        peer.offences.push({ weight: 10 })
-      }
-
-      expect(guard.isRepeatOffender(peer)).toBeTrue()
+      expect(actual).toHaveProperty('weight')
+      expect(actual.weight).toBeNumber()
     })
   })
 })
