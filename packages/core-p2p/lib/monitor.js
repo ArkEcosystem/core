@@ -12,7 +12,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
-const guard = require('./guard')
+const { guard } = require('./court')
 const networkState = require('./utils/network-state')
 
 const checkDNS = require('./utils/check-dns')

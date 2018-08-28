@@ -13,7 +13,7 @@ let peerMock
 beforeAll(async () => {
   await app.setUp()
 
-  guard = require('../../lib/guard')
+  guard = require('../../lib/court/guard')
   Peer = require('../../lib/peer')
 })
 
