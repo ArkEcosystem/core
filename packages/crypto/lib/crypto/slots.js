@@ -3,6 +3,30 @@ const configManager = require('../managers/config')
 
 class Slots {
   /**
+   * Create a new Slot instance.
+   */
+  constructor () {
+    this.height = 1
+  }
+
+  /**
+   * Get the height we are currently at.
+   * @return {Number}
+   */
+  getHeight () {
+    return this.height
+  }
+
+  /**
+   * Set the height we are currently at.
+   * @param  {Number} height
+   * @return {void}
+   */
+  setHeight (height) {
+    this.height = height
+  }
+
+  /**
    * Get epoch time relative to beginning epoch time.
    * @param  {Number} time
    * @return {Number}
@@ -94,7 +118,7 @@ class Slots {
    * @return {*}
    */
   getConstant (key) {
-    return configManager.getConstants(1)[key]
+    return configManager.getConstants(this.height)[key]
   }
 
   /**
