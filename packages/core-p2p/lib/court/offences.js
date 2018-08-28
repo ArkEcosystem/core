@@ -1,7 +1,7 @@
 module.exports = {
   BLACKLISTED: {
-    amount: 1,
-    period: 'day',
+    amount: 12,
+    period: 'hours',
     reason: 'Blacklisted',
     weight: 10
   },
