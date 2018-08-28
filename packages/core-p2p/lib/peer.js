@@ -17,6 +17,7 @@ module.exports = class Peer {
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
     this.state = {}
+    this.offences = []
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,
@@ -197,11 +198,13 @@ module.exports = class Peer {
       })
 
       this.delay = new Date().getTime() - temp
+      this.status = response.status
 
       this.__parseHeaders(response)
 
       return response.data
     } catch (error) {
+      this.delay = -1
       this.status = error.code
     }
   }

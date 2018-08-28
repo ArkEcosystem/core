@@ -12,7 +12,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
 const Peer = require('./peer')
-const guard = require('./guard')
+const { guard } = require('./court')
 const networkState = require('./utils/network-state')
 
 const checkDNS = require('./utils/check-dns')
@@ -175,15 +175,10 @@ class Monitor {
    * @return {void}
    */
   suspendPeer (ip) {
-    // TODO make a couple of tests on peer to understand the issue with this peer and decide how long to ban it
     const peer = this.peers[ip]
 
-    if (peer) {
-      if (this.guard.isSuspended(peer)) {
-        this.guard.suspensions[ip].until = moment(this.guard.suspensions[ip].until).add(1, 'day')
-      } else {
-        this.guard.suspend(peer)
-      }
+    if (peer && !this.guard.isSuspended(peer)) {
+      this.guard.suspend(peer)
     }
   }
 
