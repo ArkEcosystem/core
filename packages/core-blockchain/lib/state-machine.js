@@ -23,7 +23,7 @@ const state = {
   blockPing: null,
   started: false,
   rebuild: true,
-  fastRebuild: true,
+  fastRebuild: false,
   noBlockCounter: 0
 }
 

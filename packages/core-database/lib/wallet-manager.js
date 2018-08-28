@@ -227,6 +227,8 @@ module.exports = class WalletManager {
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
 
+    } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      data.recipientId = ''
     } else if (config.network.exceptions[data.id]) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
