@@ -22,21 +22,21 @@ module.exports = (transaction) => {
     const calculatedFee = dynamicFeeManager.calculateFee(config.delegates.dynamicFees.feeMultiplier, transaction)
 
     if (transaction.fee < config.delegates.dynamicFees.minAcceptableFee) {
-      logger.debug(`Fee not accepted - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is below the minimum accepted fee of "${config.delegates.dynamicFees.minAcceptableFee}" by this delegate.`)
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is below the minimum accepted fee of "${config.delegates.dynamicFees.minAcceptableFee}" by this delegate.`)
       return false
     }
 
     if (calculatedFee > transaction.fee) {
-      logger.debug(`Fee not accepted - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is below the minimum accepted of "${calculatedFee}" by the network.`)
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is below the calculated fee of "${calculatedFee}".`)
       return false
     }
 
     if (transaction.fee > staticFee) {
-      logger.debug(`Fee not accepted - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is higher than the static fee of "${feeManager.get(transaction.type)}".`)
+      logger.debug(`Fee declined - Received transaction "${transaction.id}" with a fee of "${transaction.fee}" which is higher than the static fee of "${feeManager.get(transaction.type)}".`)
       return false
     }
 
-    logger.debug(`Transaction accepted with fee of '${transaction.fee}' for '${transaction.id}' - calculated fee for transaction is '${calculatedFee}'`)
+    logger.debug(`Transaction "${transaction.id}" accepted with fee of "${transaction.fee}". The calculated fee is "${calculatedFee}".`)
   }
   return true
 }

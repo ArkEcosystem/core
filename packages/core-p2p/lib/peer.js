@@ -17,6 +17,7 @@ module.exports = class Peer {
     this.ban = new Date().getTime()
     this.url = (port % 443 === 0 ? 'https://' : 'http://') + `${ip}:${port}`
     this.state = {}
+    this.offences = []
 
     this.headers = {
       version: container.resolveOptions('blockchain').version,

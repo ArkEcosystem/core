@@ -21,7 +21,6 @@
     "access": "public"
   },
   "dependencies": {
-    "immutable": "4.0.0-rc.9",
-    "lodash": "^4.17.10"
+    "immutable": "4.0.0-rc.9"
   }
 }

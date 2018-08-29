@@ -5,12 +5,12 @@ const container = require('@arkecosystem/core-container')
 
 jest.setTimeout(60000)
 
-beforeAll(async () => {
+exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/mainnet'),
+    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
     token: 'ark',
-    network: 'mainnet'
+    network: 'testnet'
   }, {
     exclude: [
       '@arkecosystem/core-api',
@@ -24,8 +24,8 @@ beforeAll(async () => {
       }
     }
   })
-})
+}
 
-afterAll(async () => {
+exports.tearDown = async () => {
   await container.tearDown()
-})
+}
