@@ -63,7 +63,7 @@ blockchainMachine.actionMap = blockchain => {
 
     checkLastDownloadedBlockSynced () {
       let event = 'NOTSYNCED'
-      logger.debug(`Blocks in rebuild queue: ${blockchain.rebuildQueue.length()} | process queue: ${blockchain.processQueue.length()}`)
+      logger.debug(`Queued blocks for => rebuildQueue:${blockchain.rebuildQueue.length()} | processQueue: ${blockchain.processQueue.length()}`)
 
       if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
         event = 'PAUSED'
