@@ -86,7 +86,7 @@ module.exports = {
     graphiql: true
   },
   '@arkecosystem/core-forger': {
-    hosts: ['http://127.0.0.1:4202']
+    hosts: [`http://127.0.0.1:${process.env.ARK_P2P_PORT || 4202}`]
   },
   '@arkecosystem/core-json-rpc': {
     enabled: process.env.ARK_JSON_RPC_ENABLED,
