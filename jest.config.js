@@ -22,7 +22,8 @@ module.exports = {
     '**/packages/core-forger/**/__tests__/**/*.test.js',
     '**/packages/core-p2p/**/__tests__/**/*.test.js',
     '**/packages/core-blockchain/**/__tests__/**/*.test.js',
-    '**/packages/core-transaction-pool/**/__tests__/**/*.test.js'
+    '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
+    '**/packages/core-json-rpc/**/__tests__/**/*.test.js'
 
     /* These packages have failing tests */
 
@@ -37,7 +38,6 @@ module.exports = {
 
     /* These packages have very long  timeouts or don't end properly */
 
-    // '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
     // '**/packages/crypto/**/__tests__/**/*.test.js'
   ],
   moduleFileExtensions: [
