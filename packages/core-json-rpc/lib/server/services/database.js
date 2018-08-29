@@ -18,12 +18,16 @@ class Database {
     return JSON.parse(value.toString('UTF8'))
   }
 
-  setUTF8 (id, value) {
+  async setUTF8 (id, value) {
     return this.database.put(id, value)
   }
 
-  setObject (id, value) {
+  async setObject (id, value) {
     return this.database.put(id, JSON.stringify(value))
+  }
+
+  async close () {
+    return this.database.close()
   }
 }
 
