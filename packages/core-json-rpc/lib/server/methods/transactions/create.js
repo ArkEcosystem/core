@@ -8,9 +8,9 @@ module.exports = {
     const transaction = ark
       .transactionBuilder
       .transfer()
-      .sign(params.passphrase)
       .recipientId(params.recipientId)
       .amount(params.amount)
+      .sign(params.passphrase)
       .getStruct()
 
     await database.setObject(transaction.id, transaction)
