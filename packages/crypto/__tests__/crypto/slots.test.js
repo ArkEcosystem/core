@@ -10,7 +10,7 @@ describe('Slots', () => {
       expect(slots.getHeight).toBeFunction()
     })
 
-    it('return set height', () => {
+    it('should return the set height', () => {
       expect(slots.getHeight()).toBe(1)
     })
   })
@@ -20,7 +20,7 @@ describe('Slots', () => {
       expect(slots.setHeight).toBeFunction()
     })
 
-    it('return set height', () => {
+    it('should set the height', () => {
       slots.setHeight(123)
 
       expect(slots.getHeight()).toBe(123)
@@ -32,7 +32,7 @@ describe('Slots', () => {
       expect(slots.resetHeight).toBeFunction()
     })
 
-    it('return set height', () => {
+    it('should reset the height', () => {
       slots.setHeight(123)
 
       expect(slots.getHeight()).toBe(123)
