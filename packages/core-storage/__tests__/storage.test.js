@@ -9,6 +9,55 @@ beforeEach(() => {
 })
 
 describe('Storage', () => {
+  describe('all', () => {
+    it('should be a function', () => {
+      expect(testSubject.all).toBeFunction()
+    })
+
+    it('should get the storage', () => {
+      expect(testSubject.all()).toBeInstanceOf(Map)
+    })
+  })
+
+  describe('entries', () => {
+    it('should be a function', () => {
+      expect(testSubject.entries).toBeFunction()
+    })
+
+    it('should get all entries', () => {
+      testSubject.setList('dummy', [1, 2, 3, 4, 5])
+
+      expect(testSubject.entries()).toBeObject()
+      expect(testSubject.entries()).not.toBeEmpty()
+    })
+  })
+
+  describe('keys', () => {
+    it('should be a function', () => {
+      expect(testSubject.keys).toBeFunction()
+    })
+
+    it('should get all keys', () => {
+      testSubject.setList('dummy', [1, 2, 3, 4, 5])
+
+      expect(testSubject.keys()).toBeObject()
+      expect(testSubject.keys()).not.toBeEmpty()
+    })
+  })
+
+  describe('values', () => {
+    it('should be a function', () => {
+      expect(testSubject.values).toBeFunction()
+    })
+
+    it('should get all values', () => {
+      testSubject.setList('dummy', [1, 2, 3, 4, 5])
+
+      expect(testSubject.values()).toBeObject()
+      expect(testSubject.values()).not.toBeEmpty()
+    })
+  })
+
   describe('get', () => {
     it('should be a function', () => {
       expect(testSubject.get).toBeFunction()

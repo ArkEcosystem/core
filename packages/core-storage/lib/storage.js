@@ -11,10 +11,18 @@ module.exports = class Storage {
   }
 
   /**
-   * Get all of the storage entries.
+   * Get the storage map.
    * @return {Object}
    */
   all () {
+    return this.storage
+  }
+
+  /**
+   * Get all of the storage entries.
+   * @return {Object}
+   */
+  entries () {
     return this.storage.entries()
   }
 
