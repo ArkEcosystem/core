@@ -19,15 +19,15 @@ class Database {
   }
 
   async setUTF8 (id, value) {
-    return await this.database.put(id, value)
+    return this.database.put(id, value)
   }
 
   async setObject (id, value) {
-    return await this.database.put(id, JSON.stringify(value))
+    return this.database.put(id, JSON.stringify(value))
   }
 
-  async close() {
-    return await this.database.close()
+  async close () {
+    return this.database.close()
   }
 }
 
