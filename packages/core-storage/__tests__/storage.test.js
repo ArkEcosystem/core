@@ -15,7 +15,7 @@ describe('Storage', () => {
     })
 
     it('should get the storage', () => {
-      expect(testSubject.all()).toBeInstanceOf(Map)
+      expect(testSubject.all()).toBeInstanceOf(immutable.Map)
     })
   })
 

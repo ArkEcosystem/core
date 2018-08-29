@@ -7,7 +7,7 @@ module.exports = class Storage {
    * Create a new Storage instance.
    */
   constructor () {
-    this.storage = new Map()
+    this.storage = immutable.Map()
   }
 
   /**
@@ -66,7 +66,7 @@ module.exports = class Storage {
       throw new Error(`${key} already exists in storage.`)
     }
 
-    this.storage.set(key, value)
+    this.storage = this.storage.set(key, value)
 
     return value
   }
@@ -90,7 +90,7 @@ module.exports = class Storage {
       throw new Error(`${key} doesn't exists in storage.`)
     }
 
-    this.storage.delete(key)
+    this.storage = this.storage.delete(key)
   }
 
   /**
@@ -98,7 +98,7 @@ module.exports = class Storage {
    * @return {void}
    */
   clear () {
-    this.storage.clear()
+    this.storage = this.storage.clear()
   }
 
   /**
