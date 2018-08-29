@@ -1,10 +1,11 @@
 'use strict'
 
-const app = require('./__support__/setup')
+const app = require('../__support__/setup')
 const moment = require('moment')
 const ARK_ENV = process.env.ARK_ENV
 
-const defaults = require('../lib/defaults')
+const defaults = require('../../lib/defaults')
+const offences = require('../../lib/court/offences')
 
 let guard
 let Peer
@@ -13,8 +14,8 @@ let peerMock
 beforeAll(async () => {
   await app.setUp()
 
-  guard = require('../lib/guard')
-  Peer = require('../lib/peer')
+  guard = require('../../lib/court/guard')
+  Peer = require('../../lib/peer')
 })
 
 afterAll(async () => {
@@ -61,7 +62,33 @@ describe('Guard', () => {
     })
   })
 
-  describe('__determineSuspensionTime', () => {
+  describe('isRepeatOffender', () => {
+    it('should be a function', () => {
+      expect(guard.isRepeatOffender).toBeFunction()
+    })
+
+    it('should be true if the threshold is met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 10; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeFalse()
+    })
+
+    it('should be false if the threshold is not met', () => {
+      const peer = { offences: [] }
+
+      for (let i = 0; i < 15; i++) {
+        peer.offences.push({ weight: 10 })
+      }
+
+      expect(guard.isRepeatOffender(peer)).toBeTrue()
+    })
+  })
+
+  describe('__determineOffence', () => {
     const convertToMinutes = actual => {
       return Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
     }
@@ -73,20 +100,20 @@ describe('Guard', () => {
     }
 
     it('should be a function', () => {
-      expect(guard.__determineSuspensionTime).toBeFunction()
+      expect(guard.__determineOffence).toBeFunction()
     })
 
     it('should return a 1 day suspension for "Blacklisted"', () => {
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         ip: 'dummy-ip-addr'
       })
 
-      expect(convertToMinutes(until)).toBe(1440)
+      expect(convertToMinutes(until)).toBe(720)
       expect(reason).toBe('Blacklisted')
     })
 
     it('should return a 6 hours suspension for "Invalid Version"', () => {
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         version: '1.0.0'
       })
 
@@ -97,7 +124,7 @@ describe('Guard', () => {
     it('should return a 10 minutes suspension for "Node is not at height"', () => {
       guard.monitor.getNetworkHeight = jest.fn(() => 154)
 
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         ...dummy,
         state: {
           height: 1
@@ -109,7 +136,7 @@ describe('Guard', () => {
     })
 
     it('should return a 5 minutes suspension for "Invalid Response Status"', () => {
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         ...dummy,
         ...{ status: 201 }
       })
@@ -119,7 +146,7 @@ describe('Guard', () => {
     })
 
     it('should return a 2 minutes suspension for "Timeout"', () => {
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         ...dummy,
         ...{ delay: -1 }
       })
@@ -129,7 +156,7 @@ describe('Guard', () => {
     })
 
     it('should return a 1 minutes suspension for "High Latency"', () => {
-      const { until, reason } = guard.__determineSuspensionTime({
+      const { until, reason } = guard.__determineOffence({
         ...dummy,
         ...{ delay: 3000 }
       })
@@ -139,10 +166,29 @@ describe('Guard', () => {
     })
 
     it('should return a 30 minutes suspension for "Unknown"', () => {
-      const { until, reason } = guard.__determineSuspensionTime(dummy)
+      const { until, reason } = guard.__determineOffence(dummy)
 
       expect(convertToMinutes(until)).toBe(30)
       expect(reason).toBe('Unknown')
+    })
+  })
+
+  describe('__determinePunishment', () => {
+    it('should be a function', () => {
+      expect(guard.__determinePunishment).toBeFunction()
+    })
+
+    it('should be true if the threshold is met', () => {
+      const actual = guard.__determinePunishment({}, offences.REPEAT_OFFENDER)
+
+      expect(actual).toHaveProperty('until')
+      expect(actual.until).toBeInstanceOf(require('moment'))
+
+      expect(actual).toHaveProperty('reason')
+      expect(actual.reason).toBeString()
+
+      expect(actual).toHaveProperty('weight')
+      expect(actual.weight).toBeNumber()
     })
   })
 })
