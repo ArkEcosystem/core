@@ -28,9 +28,9 @@ module.exports = {
     // storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}.sqlite`,
     host: process.env.ARK_DB_HOST || 'localhost',
     dialect: process.env.ARK_DB_DIALECT || 'postgres',
-    username: process.env.ARK_DB_USERNAME || 'ark_development',
-    password: process.env.ARK_DB_PASSWORD || 'ark_development_not_random_password',
-    database: process.env.ARK_DB_DATABASE || 'ark_development',
+    username: process.env.ARK_DB_USERNAME || 'ark',
+    password: process.env.ARK_DB_PASSWORD || 'password',
+    database: process.env.ARK_DB_DATABASE || 'ark_mainnet',
     logging: process.env.ARK_DB_LOGGING,
     redis: {
       host: process.env.ARK_REDIS_HOST || 'localhost',
