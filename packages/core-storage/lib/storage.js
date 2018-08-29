@@ -1,22 +1,37 @@
 'use strict'
 
 const immutable = require('immutable')
-const { get, set, has, omit } = require('lodash')
 
 module.exports = class Storage {
   /**
    * Create a new Storage instance.
    */
   constructor () {
-    this.storage = {}
+    this.storage = new Map()
   }
 
   /**
-   * Get all of the storage data.
-   * @return {[type]}
+   * Get all of the storage entries.
+   * @return {Object}
    */
   all () {
-    return this.storage
+    return this.storage.entries()
+  }
+
+  /**
+   * Get all of the storage keys.
+   * @return {Object}
+   */
+  keys () {
+    return this.storage.keys()
+  }
+
+  /**
+   * Get all of the storage values.
+   * @return {Object}
+   */
+  values () {
+    return this.storage.values()
   }
 
   /**
@@ -29,7 +44,7 @@ module.exports = class Storage {
       throw new Error(`${key} doesn't exists in storage.`)
     }
 
-    return get(this.storage, key)
+    return this.storage.get(key)
   }
 
   /**
@@ -43,7 +58,7 @@ module.exports = class Storage {
       throw new Error(`${key} already exists in storage.`)
     }
 
-    set(this.storage, key, value)
+    this.storage.set(key, value)
 
     return value
   }
@@ -54,7 +69,7 @@ module.exports = class Storage {
    * @return {Boolean}
    */
   has (key) {
-    return has(this.storage, key)
+    return this.storage.has(key)
   }
 
   /**
@@ -67,24 +82,194 @@ module.exports = class Storage {
       throw new Error(`${key} doesn't exists in storage.`)
     }
 
-    this.storage = omit(this.storage, [key])
+    this.storage.delete(key)
   }
 
   /**
    * Remove all items from the storage.
    * @return {void}
    */
-  flush () {
-    this.storage = {}
+  clear () {
+    this.storage.clear()
   }
 
   /**
-   * [size description]
+   * Returns the number of items in the storage.
    * @param  {String} key
    * @return {Number}
    */
   size (key) {
-    return Object.entries(key ? this.get(key) : this.storage).length
+    return key ? this.get(key).length : this.storage.size
+  }
+
+  /**
+   * Set a new List instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.List}
+   */
+  setList (key, value) {
+    return this.set(key, this.createList(value))
+  }
+
+  /**
+   * Set a new Map instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Map}
+   */
+  setMap (key, value) {
+    return this.set(key, this.createMap(value))
+  }
+
+  /**
+   * Set a new OrderedMap instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.OrderedMap}
+   */
+  setOrderedMap (key, value) {
+    return this.set(key, this.createOrderedMap(value))
+  }
+
+  /**
+   * Set a new Set instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Set}
+   */
+  setSet (key, value) {
+    return this.set(key, this.createSet(value))
+  }
+
+  /**
+   * Set a new OrderedSet instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.OrderedSet}
+   */
+  setOrderedSet (key, value) {
+    return this.set(key, this.createOrderedSet(value))
+  }
+
+  /**
+   * Set a new Stack instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Stack}
+   */
+  setStack (key, value) {
+    return this.set(key, this.createStack(value))
+  }
+
+  /**
+   * Set a new Range instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Range}
+   */
+  setRange (key, value) {
+    return this.set(key, this.createRange(value))
+  }
+
+  /**
+   * Set a new Repeat instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Repeat}
+   */
+  setRepeat (key, value) {
+    return this.set(key, this.createRepeat(value))
+  }
+
+  /**
+   * Set a new Record instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Record}
+   */
+  setRecord (key, value) {
+    return this.set(key, this.createRecord(value))
+  }
+
+  /**
+   * Set a new Seq instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Seq}
+   */
+  setSeq (key, value) {
+    return this.set(key, this.createSeq(value))
+  }
+
+  /**
+   * Set a new Seq.Keyed instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Seq.Keyed}
+   */
+  setSeqKeyed (key, value) {
+    return this.set(key, this.createSeqKeyed(value))
+  }
+
+  /**
+   * Set a new Seq.Indexed instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Seq.Indexed}
+   */
+  setSeqIndexed (key, value) {
+    return this.set(key, this.createSeqIndexed(value))
+  }
+
+  /**
+   * Set a new Seq.Set instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Seq.Set}
+   */
+  setSeqSet (key, value) {
+    return this.set(key, this.createSeqSet(value))
+  }
+
+  /**
+   * Set a new Collection instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Collection}
+   */
+  setCollection (key, value) {
+    return this.set(key, this.createCollection(value))
+  }
+
+  /**
+   * Set a new Collection.Keyed instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Collection.Keyed}
+   */
+  setCollectionKeyed (key, value) {
+    return this.set(key, this.createCollectionKeyed(value))
+  }
+
+  /**
+   * Set a new Collection.Indexed instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Collection.Indexed}
+   */
+  setCollectionIndexed (key, value) {
+    return this.set(key, this.createCollectionIndexed(value))
+  }
+
+  /**
+   * Set a new Collection.Set instance.
+   * @param  {String} key
+   * @param  {Array|Object} value
+   * @return {Immutable.Collection.Set}
+   */
+  setCollectionSet (key, value) {
+    return this.set(key, this.createCollectionSet(value))
   }
 
   /**
@@ -93,8 +278,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.List}
    */
-  createList (key, value) {
-    return this.set(key, immutable.List(value))
+  createList (value) {
+    return immutable.List(value)
   }
 
   /**
@@ -103,8 +288,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Map}
    */
-  createMap (key, value) {
-    return this.set(key, immutable.Map(value))
+  createMap (value) {
+    return immutable.Map(value)
   }
 
   /**
@@ -113,8 +298,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.OrderedMap}
    */
-  createOrderedMap (key, value) {
-    return this.set(key, immutable.OrderedMap(value))
+  createOrderedMap (value) {
+    return immutable.OrderedMap(value)
   }
 
   /**
@@ -123,8 +308,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Set}
    */
-  createSet (key, value) {
-    return this.set(key, immutable.Set(value))
+  createSet (value) {
+    return immutable.Set(value)
   }
 
   /**
@@ -133,8 +318,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.OrderedSet}
    */
-  createOrderedSet (key, value) {
-    return this.set(key, immutable.OrderedSet(value))
+  createOrderedSet (value) {
+    return immutable.OrderedSet(value)
   }
 
   /**
@@ -143,8 +328,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Stack}
    */
-  createStack (key, value) {
-    return this.set(key, immutable.Stack(value))
+  createStack (value) {
+    return immutable.Stack(value)
   }
 
   /**
@@ -153,8 +338,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Range}
    */
-  createRange (key, value) {
-    return this.set(key, immutable.Range(value))
+  createRange (value) {
+    return immutable.Range(value)
   }
 
   /**
@@ -163,8 +348,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Repeat}
    */
-  createRepeat (key, value) {
-    return this.set(key, immutable.Repeat(value))
+  createRepeat (value) {
+    return immutable.Repeat(value)
   }
 
   /**
@@ -173,8 +358,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Record}
    */
-  createRecord (key, value) {
-    return this.set(key, immutable.Record(value))
+  createRecord (value) {
+    return immutable.Record(value)
   }
 
   /**
@@ -183,8 +368,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Seq}
    */
-  createSeq (key, value) {
-    return this.set(key, immutable.Seq(value))
+  createSeq (value) {
+    return immutable.Seq(value)
   }
 
   /**
@@ -193,8 +378,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Seq.Keyed}
    */
-  createSeqKeyed (key, value) {
-    return this.set(key, immutable.Seq.Keyed(value))
+  createSeqKeyed (value) {
+    return immutable.Seq.Keyed(value)
   }
 
   /**
@@ -203,8 +388,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Seq.Indexed}
    */
-  createSeqIndexed (key, value) {
-    return this.set(key, immutable.Seq.Indexed(value))
+  createSeqIndexed (value) {
+    return immutable.Seq.Indexed(value)
   }
 
   /**
@@ -213,8 +398,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Seq.Set}
    */
-  createSeqSet (key, value) {
-    return this.set(key, immutable.Seq.Set(value))
+  createSeqSet (value) {
+    return immutable.Seq.Set(value)
   }
 
   /**
@@ -223,8 +408,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Collection}
    */
-  createCollection (key, value) {
-    return this.set(key, immutable.Collection(value))
+  createCollection (value) {
+    return immutable.Collection(value)
   }
 
   /**
@@ -233,8 +418,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Collection.Keyed}
    */
-  createCollectionKeyed (key, value) {
-    return this.set(key, immutable.Collection.Keyed(value))
+  createCollectionKeyed (value) {
+    return immutable.Collection.Keyed(value)
   }
 
   /**
@@ -243,8 +428,8 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Collection.Indexed}
    */
-  createCollectionIndexed (key, value) {
-    return this.set(key, immutable.Collection.Indexed(value))
+  createCollectionIndexed (value) {
+    return immutable.Collection.Indexed(value)
   }
 
   /**
@@ -253,7 +438,7 @@ module.exports = class Storage {
    * @param  {Array|Object} value
    * @return {Immutable.Collection.Set}
    */
-  createCollectionSet (key, value) {
-    return this.set(key, immutable.Collection.Set(value))
+  createCollectionSet (value) {
+    return immutable.Collection.Set(value)
   }
 }
