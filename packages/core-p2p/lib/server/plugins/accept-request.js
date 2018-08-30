@@ -1,7 +1,9 @@
 'use strict'
 
+const Boom = require('boom')
 const requestIp = require('request-ip')
 const isWhitelist = require('../../utils/is-whitelist')
+const monitor = require('../../monitor')
 
 /**
  * The register method used by hapi.js.
@@ -34,12 +36,9 @@ const register = async (server, options) => {
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 
         try {
-          await server.app.p2p.acceptNewPeer(peer)
+          await monitor.acceptNewPeer(peer)
         } catch (error) {
-          return h.response({
-            success: false,
-            message: error.message
-          }).code(500).takeover()
+          return Boom.badImplementation(error.message)
         }
       }
 
@@ -53,7 +52,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-accept-request',
+  name: 'accept-request',
   version: '0.1.0',
   register
 }

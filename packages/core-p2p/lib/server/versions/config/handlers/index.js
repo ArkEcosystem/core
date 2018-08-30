@@ -2,12 +2,12 @@
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const transform = require('./transformers/plugins')
+const transform = require('../transformers/plugins')
 
 /**
  * @type {Object}
  */
-exports.getConfig = {
+exports.config = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h

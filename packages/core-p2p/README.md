@@ -15,7 +15,7 @@ yarn add @arkecosystem/core-p2p
 ```js
 module.exports = {
   port: process.env.ARK_P2P_PORT || 4002,
-  remoteinterface: true,
+  remoteInterface: true,
   dns: [
     // Google
     '8.8.8.8',

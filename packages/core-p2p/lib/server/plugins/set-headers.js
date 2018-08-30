@@ -38,7 +38,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-set-headers',
+  name: 'set-headers',
   version: '0.1.0',
   register
 }
