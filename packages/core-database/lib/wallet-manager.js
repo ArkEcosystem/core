@@ -209,23 +209,19 @@ module.exports = class WalletManager {
     const { type, asset, recipientId, senderPublicKey } = data
 
     const sender = this.getWalletByPublicKey(senderPublicKey)
-    let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
+    
+    const recipient = this.findOrCreate(recipientId)
 
-    if (!recipient && recipientId) { // cold wallet
-      recipient = new Wallet(recipientId)
-      this.walletsByAddress[recipientId] = recipient
-      this.__emitEvent('wallet:cold:created', recipient)
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
-    } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
-
-      logger.error(`Delegate transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken`)
+      logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
 
     // NOTE: We use the vote public key, because vote transactions have the same sender and recipient
-    } else if (type === TRANSACTION_TYPES.VOTE && !this.walletsByPublicKey[asset.votes[0].slice(1)]) {
+    } else if (type === TRANSACTION_TYPES.VOTE && !this.__isDelegate(asset.votes[0].slice(1))) {
 
-      logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
-      throw new Error(`Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
+      logger.error(`Can't apply vote transaction: delegate ${asset.votes[0]} does not exist.`, JSON.stringify(data))
+      throw new Error(`Can't apply transaction ${data.id}: delegate ${asset.votes[0]} does not exist.`)
 
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
@@ -279,6 +275,23 @@ module.exports = class WalletManager {
    this.__emitEvent('transaction.reverted', data)
 
     return data
+  }
+
+  /**
+   * Find or create a wallet for the given address.
+   * @param  {String} address
+   * @return {Wallet}
+   */
+  findOrCreate (address) {
+   let wallet = this.getWalletByAddress(address)
+    
+   if (!wallet) { // cold wallet
+     this.walletsByAddress[address] = new Wallet(address) 
+
+     this.__emitEvent('wallet:cold:created', this.walletsByAddress[address]) 
+   }
+
+   return this.walletsByAddress[address]
   }
 
   /**
@@ -341,6 +354,19 @@ module.exports = class WalletManager {
    */
   getLocalWalletsByPublicKey () { // for init of transaction pool manager
     return Object.values(this.walletsByPublicKey)
+  }
+
+  /**
+   * Checks if a given publicKey is a registered delegate
+   * @param {String} publicKey
+   */
+  __isDelegate (publicKey) {
+    const delegateWallet = this.walletsByPublicKey[publicKey]
+    if (delegateWallet && delegateWallet.username) {
+      return !!this.walletsByUsername[delegateWallet.username]
+    }
+
+    return false
   }
 
   /**
