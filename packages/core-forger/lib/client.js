@@ -67,7 +67,7 @@ module.exports = class Client {
    */
   async getNetworkState () {
     try {
-      const response = await this.__get(`${this.host}/internal/blockchain/network-state`)
+      const response = await this.__get(`${this.host}/internal/network/state`)
 
       return response.data.data
     } catch (e) {

@@ -29,9 +29,9 @@ const sendPOST = async (endpoint, params) => {
 }
 
 describe('API - Version 1', () => {
-  describe('GET /peer/list', () => {
+  describe('GET /peers', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/list')
+      const response = await sendGET('peers')
 
       expect(response.status).toBe(200)
 
@@ -75,9 +75,9 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe('GET /peer/transactionsFromIds', () => {
+  describe('POST /peer/transactions/search', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/transactionsFromIds', {
+      const response = await sendPOST('peer/transactions/search', {
         ids: 'e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8'
       })
 
@@ -93,9 +93,9 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe('GET /peer/height', () => {
+  describe('GET /blockchain/height', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/height')
+      const response = await sendGET('blockchain/height')
 
       expect(response.status).toBe(200)
 
@@ -151,9 +151,9 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe('GET /peer/status', () => {
+  describe('GET /peer/blockchain/status', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/status')
+      const response = await sendGET('peer/blockchain/status')
 
       expect(response.status).toBe(200)
 

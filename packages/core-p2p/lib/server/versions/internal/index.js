@@ -2,6 +2,7 @@
 
 const blockchain = require('./handlers/blockchain')
 const blocks = require('./handlers/blocks')
+const network = require('./handlers/network')
 const rounds = require('./handlers/rounds')
 const transactions = require('./handlers/transactions')
 const utils = require('./handlers/utils')
@@ -14,7 +15,8 @@ const utils = require('./handlers/utils')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/blockchain/network-state', ...blockchain.networkState },
+    { method: 'GET', path: '/network/state', ...network.state },
+
     { method: 'GET', path: '/blockchain/sync', ...blockchain.sync },
 
     { method: 'POST', path: '/blocks', ...blocks.store },

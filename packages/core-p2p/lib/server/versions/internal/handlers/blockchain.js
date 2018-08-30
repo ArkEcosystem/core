@@ -2,23 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const monitor = require('../../../../monitor')
-
-/**
- * @type {Object}
- */
-exports.networkState = {
-  /**
-   * @param  {Hapi.Request} request
-   * @param  {Hapi.Toolkit} h
-   * @return {Hapi.Response}
-   */
-  async handler (request, h) {
-    return {
-      data: await monitor.getNetworkState()
-    }
-  }
-}
 
 /**
  * @type {Object}
