@@ -5,6 +5,7 @@ const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const requestIp = require('request-ip')
 const bucket = require('./bucket')
 const isWhitelist = require('../../../utils/is-whitelist')
+const monitor = require('../../../monitor')
 
 /**
  * The register method used by hapi.js.
@@ -14,9 +15,7 @@ const isWhitelist = require('../../../utils/is-whitelist')
  */
 const register = async (server, options) => {
   const isKnown = value => {
-    return server.app.p2p
-      .getPeers()
-      .find(peer => (peer.ip === value))
+    return monitor.getPeers().find(peer => (peer.ip === value))
   }
 
   server.ext({
