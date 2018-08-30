@@ -24,16 +24,16 @@ exports.index = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    let lastBlockHeight = parseInt(request.query.lastBlockHeight)
+    let height = parseInt(request.query.height)
     let data = []
 
-    if (Number.isNaN(lastBlockHeight)) {
+    if (Number.isNaN(height)) {
       data.push(blockchain.getLastBlock())
     } else {
-      data = await database.getBlocks(parseInt(lastBlockHeight) + 1, 400)
+      data = await database.getBlocks(parseInt(height) + 1, 400)
     }
 
-    logger.info(`${requestIp.getClientIp(request)} has downloaded ${data.length} blocks from height ${request.query.lastBlockHeight}`)
+    logger.info(`${requestIp.getClientIp(request)} has downloaded ${data.length} blocks from height ${request.query.height}`)
 
     return { data }
   },
@@ -130,7 +130,7 @@ exports.common = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    const ids = request.payload.ids.slice(0, 9).filter(id => id.match(/^\d+$/))
+    const ids = request.payload.blocks.slice(0, 9).filter(id => id.match(/^\d+$/))
 
     const commonBlock = await database.getCommonBlock(ids)
 

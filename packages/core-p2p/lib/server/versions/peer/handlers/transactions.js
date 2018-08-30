@@ -93,20 +93,20 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactionIds = request.payload.ids.slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    const transactionIds = request.payload.transactions.slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
     const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
     // TODO: v1 compatibility patch. Add transformer and refactor later on
-    const transactions = await rows.map(row => {
+    const transactions = rows.map(row => {
       let transaction = Transaction.deserialize(row.serialized.toString('hex'))
       transaction.blockId = row.block_id
       transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
       return transaction
     })
 
-    const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+    const data = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
 
-    return { success: true, transactions: returnTrx }
+    return { data }
   },
   options: {
     validate: schema.search

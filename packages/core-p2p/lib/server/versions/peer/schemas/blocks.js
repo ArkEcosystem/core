@@ -7,7 +7,7 @@ const Joi = require('joi')
  */
 exports.index = {
   query: {
-    lastBlockHeight: Joi.number().integer().optional()
+    height: Joi.number().integer().optional()
   }
 }
 
@@ -24,7 +24,7 @@ exports.store = {
  * @type {Object}
  */
 exports.common = {
-  query: {
-    ids: Joi.array(Joi.string())
+  payload: {
+    blocks: Joi.array(Joi.string())
   }
 }

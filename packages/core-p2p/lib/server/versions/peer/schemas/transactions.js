@@ -17,6 +17,6 @@ exports.store = {
  */
 exports.search = {
   query: {
-    ids: Joi.array(Joi.string())
+    transactions: Joi.array(Joi.string())
   }
 }
