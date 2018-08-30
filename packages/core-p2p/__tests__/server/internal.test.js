@@ -47,7 +47,7 @@ describe('API - Internal', () => {
         block: genesisBlock.toBroadcastV1()
       })
 
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(204)
 
       expect(response.data).toBeObject()
 

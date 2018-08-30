@@ -20,7 +20,9 @@ exports.verify = {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
 
     return {
-      data: await container.resolvePlugin('database').verifyTransaction(transaction)
+      data: {
+        valid: await container.resolvePlugin('database').verifyTransaction(transaction)
+      }
     }
   },
   options: {
