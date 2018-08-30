@@ -37,11 +37,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
-      expect(response.data).toHaveProperty('peers')
-      expect(response.data.peers).toBeArray()
+      expect(response.data).toHaveProperty('data')
+      expect(response.data.data).toBeObject()
     })
   })
 
@@ -53,11 +50,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
-      expect(response.data).toHaveProperty('blocks')
-      expect(response.data.blocks).toBeArray()
+      expect(response.data).toHaveProperty('data')
+      expect(response.data.data).toBeObject()
     })
 
     it('should retrieve lastBlock if no "lastBlockHeight" specified', async () => {
@@ -66,12 +60,9 @@ describe('API - Version 1', () => {
       expect(response.status).toBe(200);
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
-      expect(response.data).toHaveProperty('blocks')
-      expect(response.data.blocks).toBeArray()
-      expect(response.data.blocks).toHaveLength(1)
+      expect(response.data).toHaveProperty('data')
+      expect(response.data.data).toBeObject()
+      expect(response.data.data).toHaveLength(1)
     })
   })
 
@@ -85,11 +76,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
-      expect(response.data).toHaveProperty('transactions')
-      expect(response.data.transactions).toBeArray()
+      expect(response.data).toHaveProperty('data')
+      expect(response.data.data).toBeObject()
     })
   })
 
@@ -101,14 +89,13 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
 
-      expect(response.data).toHaveProperty('height')
-      expect(response.data.height).toBeNumber()
+      expect(response.data.data).toHaveProperty('height')
+      expect(response.data.data.height).toBeNumber()
 
-      expect(response.data).toHaveProperty('id')
-      expect(response.data.id).toBeString()
+      expect(response.data.data).toHaveProperty('id')
+      expect(response.data.data.id).toBeString()
     })
   })
 
@@ -120,11 +107,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
-      expect(response.data).toHaveProperty('transactions')
-      expect(response.data.transactions).toBeArray()
+      expect(response.data).toHaveProperty('data')
+      expect(response.data.data).toBeObject()
     })
   })
 
@@ -138,16 +122,15 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
 
-      expect(response.data).toHaveProperty('common')
-      expect(response.data.common).toBeObject()
-      expect(response.data.common.height).toBe(1)
-      expect(response.data.common.id).toBe('13149578060728881902')
+      expect(response.data.data).toHaveProperty('common')
+      expect(response.data.data.common).toBeObject()
+      expect(response.data.data.common.height).toBe(1)
+      expect(response.data.data.common.id).toBe('13149578060728881902')
 
-      expect(response.data).toHaveProperty('lastBlockHeight')
-      expect(response.data.lastBlockHeight).toBeNumber()
+      expect(response.data.data).toHaveProperty('lastBlockHeight')
+      expect(response.data.data.lastBlockHeight).toBeNumber()
     })
   })
 
@@ -159,8 +142,7 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -174,8 +156,7 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -189,8 +170,7 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeFalsy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 })
