@@ -7,6 +7,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const ark = require('@arkecosystem/crypto')
 const { Transaction } = ark.models
+const { TRANSACTION_TYPES } = ark.constants
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -124,7 +125,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       if (transaction.expiration > 0) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
-      } else {
+      } else if (transaction.type !== TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.options.maxTransactionAge, transaction.id)
       }
     } catch (error) {
