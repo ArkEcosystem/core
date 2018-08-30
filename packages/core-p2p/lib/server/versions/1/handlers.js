@@ -6,10 +6,12 @@ const { Block } = require('@arkecosystem/crypto').models
 const requestIp = require('request-ip')
 const { slots, crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-const schema = require('./schema')
 
 const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
+
+const monitor = require('../../../monitor')
+const schema = require('./schema')
 
 /**
  * @type {Object}
@@ -22,7 +24,7 @@ exports.getPeers = {
    */
   async handler (request, h) {
     try {
-      const peers = request.server.app.p2p.getPeers()
+      const peers = monitor.getPeers()
         .map(peer => peer.toBroadcastInfo())
         .sort((a, b) => a.delay - b.delay)
 
@@ -245,10 +247,10 @@ exports.postBlock = {
         //   missingIds = block.transactionIds.slice(0)
         // }
         // if (missingIds.length > 0) {
-        let peer = await request.server.app.p2p.getPeer(requestIp.getClientIp(request))
+        let peer = await monitor.getPeer(requestIp.getClientIp(request))
         // only for test because it can be used for DDOS attack
         if (!peer && process.env.NODE_ENV === 'test_p2p') {
-          peer = await request.server.app.p2p.getRandomPeer()
+          peer = await monitor.getRandomPeer()
         }
 
         if (!peer) {
