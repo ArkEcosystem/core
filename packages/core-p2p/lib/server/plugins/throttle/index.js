@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const requestIp = require('request-ip')
 const bucket = require('./bucket')
@@ -36,10 +37,7 @@ const register = async (server, options) => {
       if (bucket.remaining(remoteAddress) <= 0) {
         logger.debug(`${remoteAddress} has exceeded the maximum number of requests per minute.`)
 
-        return h.response({
-            success: false,
-            message: 'You have exceeded the maximum number of requests per minute.'
-        }).code(500).takeover()
+        return Boom.tooManyRequests()
       }
 
       return h.continue

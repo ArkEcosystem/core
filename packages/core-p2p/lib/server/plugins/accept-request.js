@@ -2,6 +2,7 @@
 
 const requestIp = require('request-ip')
 const isWhitelist = require('../../utils/is-whitelist')
+const monitor = require('../../monitor')
 
 /**
  * The register method used by hapi.js.
@@ -33,14 +34,7 @@ const register = async (server, options) => {
 
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 
-        try {
-          await server.app.p2p.acceptNewPeer(peer)
-        } catch (error) {
-          return h.response({
-            success: false,
-            message: error.message
-          }).code(500).takeover()
-        }
+        await monitor.acceptNewPeer(peer)
       }
 
       return h.continue

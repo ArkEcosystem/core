@@ -14,8 +14,6 @@ module.exports = async (p2p, config) => {
     port: config.port
   })
 
-  server.app.p2p = p2p
-
   await server.register({
     plugin: require('./plugins/accept-request'),
     options: {
