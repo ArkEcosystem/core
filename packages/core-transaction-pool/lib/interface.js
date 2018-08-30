@@ -16,6 +16,8 @@ const helpers = require('./utils/validation-helpers')
 const moment = require('moment')
 const uniq = require('lodash/uniq')
 
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
+
 module.exports = class TransactionPoolInterface {
   /**
    * Create a new transaction pool instance.
@@ -189,21 +191,20 @@ module.exports = class TransactionPoolInterface {
 
   /**
    * Get all transactions that are ready to be forged.
-   * @param  {Number} start
-   * @param  {Number} size
+   * @param  {Number} blockSize
    * @return {(Array|void)}
    */
-  async getTransactionsForForging (start, size) {
+  async getTransactionsForForging (blockSize) {
     try {
-      let transactionIds = await this.getTransactionsIds(start, size)
+      let transactionIds = await this.getTransactionsIds(0, blockSize * 5)
       transactionIds = await this.removeForgedAndGetPending(transactionIds)
       transactionIds = uniq(transactionIds)
 
       let transactions = []
-      for (const id of transactionIds) {
+      for (let id of transactionIds) {
         const transaction = await this.getTransaction(id)
 
-        if (!transaction) {
+        if (!transaction || !dynamicFeeMatch(transaction)) {
           continue
         }
 
@@ -234,8 +235,13 @@ module.exports = class TransactionPoolInterface {
             }
           }
           actions[transaction.timelockType]()
-        } else {
-          transactions.push(transaction.serialized.toString('hex'))
+
+          continue
+        }
+
+        transactions.push(transaction.serialized.toString('hex'))
+        if (transactions.length === (blockSize - 1)) {
+          break
         }
       }
 
