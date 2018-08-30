@@ -124,6 +124,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       if (transaction.expiration > 0) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
+      } else {
+        await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.options.maxTransactionAge, transaction.id)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -140,7 +142,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return
     }
-    
+
     await Promise.all(transactions.map(transaction => this.addTransaction(transaction)))
   }
 
