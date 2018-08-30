@@ -18,7 +18,7 @@ module.exports = () => {
 
     it('should have the essential properties', () => {
       expect(builder).toHaveProperty('data.id', null)
-      expect(builder).toHaveProperty('data.timestamp', slots.getTime())
+      expect(builder).toHaveProperty('data.timestamp')
       expect(builder).toHaveProperty('data.version', 0x01)
       expect(builder).toHaveProperty('data.network', configManager.get('pubKeyHash'))
 
