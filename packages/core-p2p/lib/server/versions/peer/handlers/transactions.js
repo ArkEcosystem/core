@@ -86,14 +86,14 @@ exports.store = {
 /**
  * @type {Object}
  */
-exports.searchByIds = {
+exports.search = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    const transactionIds = request.payload.ids.slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
     const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
     // TODO: v1 compatibility patch. Add transformer and refactor later on
@@ -109,6 +109,6 @@ exports.searchByIds = {
     return { success: true, transactions: returnTrx }
   },
   options: {
-    validate: schema.searchByIds
+    validate: schema.search
   }
 }

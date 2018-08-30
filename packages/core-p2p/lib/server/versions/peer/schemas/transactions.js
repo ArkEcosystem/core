@@ -6,19 +6,6 @@ const container = require('@arkecosystem/core-container')
 /**
  * @type {Object}
  */
-exports.index = {
-  query: {
-    os: Joi.string(),
-    status: Joi.string(),
-    port: Joi.number().integer(),
-    version: Joi.string(),
-    orderBy: Joi.string()
-  }
-}
-
-/**
- * @type {Object}
- */
 exports.store = {
   payload: {
     transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest)
@@ -28,8 +15,8 @@ exports.store = {
 /**
  * @type {Object}
  */
-exports.searchByIds = {
+exports.search = {
   query: {
-    ids: Joi.string()
+    ids: Joi.array(Joi.string())
   }
 }

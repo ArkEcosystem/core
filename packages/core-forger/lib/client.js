@@ -97,7 +97,7 @@ module.exports = class Client {
     await this.__chooseHost()
 
     try {
-      const response = await this.__get(`${this.host}/internal/utisl/usernames`)
+      const response = await this.__get(`${this.host}/internal/utils/usernames`)
 
       return response.data.data
     } catch (e) {
@@ -146,7 +146,7 @@ module.exports = class Client {
     const host = sample(this.hosts)
 
     try {
-      await this.__get(`${host}/blockchain/status`)
+      await this.__get(`${host}/peer/blockchain/status`)
 
       this.host = host
     } catch (error) {

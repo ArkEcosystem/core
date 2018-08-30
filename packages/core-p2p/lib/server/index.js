@@ -66,12 +66,12 @@ module.exports = async (p2p, config) => {
     routes: { prefix: '/internal' }
   })
 
-  if (config.remoteinterface) {
-    await server.register({
-      plugin: require('./versions/remote'),
-      routes: { prefix: '/remote' }
-    })
-  }
+  // if (config.remoteInterface) {
+  //   await server.register({
+  //     plugin: require('./versions/remote'),
+  //     routes: { prefix: '/remote' }
+  //   })
+  // }
 
   try {
     await server.start()
