@@ -297,7 +297,7 @@ module.exports = class ConnectionInterface {
 
         try {
           this.updateDelegateStats(height, this.activedelegates)
-          await this.saveWallets(true) // save only modified wallets during the last round
+          await this.saveWallets(false) // save only modified wallets during the last round
 
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
