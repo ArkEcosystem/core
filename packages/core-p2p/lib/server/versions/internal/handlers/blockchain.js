@@ -6,23 +6,15 @@ const logger = container.resolvePlugin('logger')
 /**
  * @type {Object}
  */
-exports.getNetworkState = {
+exports.networkState = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    try {
-      return {
-        success: true,
-        networkState: await container.resolvePlugin('blockchain').p2p.getNetworkState()
-      }
-    } catch (error) {
-      return h.response({
-        success: false,
-        message: error.message
-      }).code(500).takeover()
+    return {
+      data: await container.resolvePlugin('blockchain').p2p.getNetworkState()
     }
   }
 }
@@ -30,25 +22,17 @@ exports.getNetworkState = {
 /**
  * @type {Object}
  */
-exports.checkBlockchainSynced = {
+exports.synced = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    try {
-      logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
-      container.resolvePlugin('blockchain').dispatch('WAKEUP')
+    logger.debug('Blockchain sync check WAKEUP requested by forger :bed:')
 
-      return {
-        success: true
-      }
-    } catch (error) {
-      return h.response({
-        success: false,
-        message: error.message
-      }).code(500).takeover()
-    }
+    container.resolvePlugin('blockchain').dispatch('WAKEUP')
+
+    return h.response(null).code(204)
   }
 }

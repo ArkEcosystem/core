@@ -14,7 +14,7 @@ const utils = require('./handlers/utils')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/rounds', ...rounds.index },
+    { method: 'GET', path: '/rounds/current', ...rounds.current },
 
     { method: 'POST', path: '/blocks', ...blocks.store },
 

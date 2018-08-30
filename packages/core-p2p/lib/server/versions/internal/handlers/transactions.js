@@ -8,7 +8,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
 /**
  * @type {Object}
  */
-exports.postVerifyTransaction = {
+exports.verify = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -16,16 +16,17 @@ exports.postVerifyTransaction = {
    */
   async handler (request, h) {
     const transaction = new Transaction(Transaction.deserialize(request.payload.transaction))
-    const result = await container.resolvePlugin('database').verifyTransaction(transaction)
 
-    return { success: result }
+    return {
+      data: await container.resolvePlugin('database').verifyTransaction(transaction)
+    }
   }
 }
 
 /**
  * @type {Object}
  */
-exports.getTransactionsForForging = {
+exports.forging = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -35,18 +36,10 @@ exports.getTransactionsForForging = {
     const blockchain = container.resolvePlugin('blockchain')
 
     const height = blockchain.getLastBlock().data.height
-    const blockSize = config.getConstants(height).block.maxTransactions
+    const maxTransactions = config.getConstants(height).block.maxTransactions
 
-    try {
-      return {
-        success: true,
-        data: await blockchain.getUnconfirmedTransactions(blockSize, true)
-      }
-    } catch (error) {
-      return h.response({
-        success: false,
-        message: error.message
-      }).code(500).takeover()
+    return {
+      data: await blockchain.getUnconfirmedTransactions(maxTransactions, true)
     }
   }
 }

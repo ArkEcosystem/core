@@ -6,7 +6,7 @@ const requestIp = require('request-ip')
 /**
  * @type {Object}
  */
-exports.postInternalBlock = {
+exports.store = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -15,8 +15,9 @@ exports.postInternalBlock = {
   handler: (request, h) => {
     const block = request.payload
     block.ip = requestIp.getClientIp(request)
+
     container.resolvePlugin('blockchain').queueBlock(block)
 
-    return { success: true }
+    return h.response(null).code(102)
   }
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-const schema = require('../schema')
+const monitor = require('../../../../monitor')
 
 /**
  * @type {Object}
@@ -12,24 +12,10 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    try {
-      const peers = request.server.app.p2p.getPeers()
-        .map(peer => peer.toBroadcastInfo())
-        .sort((a, b) => a.delay - b.delay)
+    const data = monitor.getPeers()
+      .map(peer => peer.toBroadcastInfo())
+      .sort((a, b) => a.delay - b.delay)
 
-      return {
-        success: true,
-        peers
-      }
-    } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getPeers
-      }
-    }
+    return { data }
   }
 }

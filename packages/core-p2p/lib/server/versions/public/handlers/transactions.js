@@ -4,7 +4,6 @@ const container = require('@arkecosystem/core-container')
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 const { crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
-const schema = require('../schema')
 
 const transactionPool = container.resolvePlugin('transactionPool')
 const logger = container.resolvePlugin('logger')
@@ -19,14 +18,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   handler (request, h) {
-    return { success: true, transactions: [] }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransactions
-      }
-    }
+    return { transactions: [] }
   }
 }
 
@@ -108,11 +100,6 @@ exports.store = {
   config: {
     cors: {
       additionalHeaders: ['nethash', 'port', 'version']
-    },
-    plugins: {
-      'hapi-ajv': {
-        payloadSchema: schema.postTransactions
-      }
     }
   }
 }
@@ -127,30 +114,19 @@ exports.searchByIds = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    try {
-      const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
-      const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
+    const transactionIds = request.query.ids.split(',').slice(0, 100).filter(id => id.match('[0-9a-fA-F]{32}'))
+    const rows = await container.resolvePlugin('database').getTransactionsFromIds(transactionIds)
 
-      // TODO: v1 compatibility patch. Add transformer and refactor later on
-      const transactions = await rows.map(row => {
-        let transaction = Transaction.deserialize(row.serialized.toString('hex'))
-        transaction.blockId = row.block_id
-        transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
-        return transaction
-      })
+    // TODO: v1 compatibility patch. Add transformer and refactor later on
+    const transactions = await rows.map(row => {
+      let transaction = Transaction.deserialize(row.serialized.toString('hex'))
+      transaction.blockId = row.block_id
+      transaction.senderId = crypto.getAddress(transaction.senderPublicKey)
+      return transaction
+    })
 
-      const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
+    const returnTrx = transactionIds.map((transaction, i) => (transactionIds[i] = transactions.find(tx2 => tx2.id === transactionIds[i])))
 
-      return { success: true, transactions: returnTrx }
-    } catch (error) {
-      return h.response({ success: false, message: error.message }).code(500).takeover()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getTransactionsFromIds
-      }
-    }
+    return { success: true, transactions: returnTrx }
   }
 }

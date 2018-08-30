@@ -2,7 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const { slots } = require('@arkecosystem/crypto')
-const schema = require('./schema')
 
 /**
  * @type {Object}
@@ -17,15 +16,9 @@ exports.height = {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
-      success: true,
-      height: lastBlock.data.height,
-      id: lastBlock.data.id
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getHeight
+      data: {
+        id: lastBlock.data.id,
+        height: lastBlock.data.height
       }
     }
   }
@@ -44,17 +37,11 @@ exports.status = {
     const lastBlock = container.resolvePlugin('blockchain').getLastBlock()
 
     return {
-      success: true,
-      height: lastBlock.data.height,
-      forgingAllowed: slots.isForgingAllowed(),
-      currentSlot: slots.getSlotNumber(),
-      header: lastBlock.getHeader()
-    }
-  },
-  config: {
-    plugins: {
-      'hapi-ajv': {
-        querySchema: schema.getStatus
+      data: {
+        height: lastBlock.data.height,
+        forgingAllowed: slots.isForgingAllowed(),
+        currentSlot: slots.getSlotNumber(),
+        header: lastBlock.getHeader()
       }
     }
   }
