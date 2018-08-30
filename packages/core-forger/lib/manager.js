@@ -200,34 +200,29 @@ module.exports = class ForgerManager {
    * @param {Booolean} isAllowedToForge
    */
   __analyseNetworkState (networkState, currentForger) {
-    if (networkState.coldStart) {
-      logger.info('Not allowed to forge during the cold start period. Check peers.json for coldStart setting.')
-      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
+    const badState = (networkState, message) => {
+      logger.info(message)
+      logger.debug(`Network State: ${JSON.stringify(networkState, null, 4)}`)
 
       return false
+    }
+
+    if (networkState.coldStart) {
+      return badState(networkState, 'Not allowed to forge during the cold start period. Check peers.json for coldStart setting.')
     }
 
     if (!networkState.minimumNetworkReach) {
-      logger.info('Network reach is not sufficient to get quorum.')
-      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
-
-      return false
+      return badState(networkState, 'Network reach is not sufficient to get quorum.')
     }
 
     if (networkState.overHeightBlockHeader && networkState.overHeightBlockHeader.generatorPublicKey === currentForger.publicKey) {
-      const username = this.usernames[currentForger.publicKey]
+      const usernames = this.usernames[currentForger.publicKey]
 
-      logger.info(`Possible double forging for delegate: ${username} (${currentForger.publicKey}).`)
-      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
-
-      return false
+      return badState(networkState, `Possible double forging for delegate: ${usernames} (${currentForger.publicKey}).`)
     }
 
     if (networkState.quorum < 0.66) {
-      logger.info('Fork 6 - Not enough quorum to forge next block.')
-      logger.debug(`Network State: ${JSON.stringify(networkState)}`)
-
-      return false
+      return badState(networkState, 'Fork 6 - Not enough quorum to forge next block.')
     }
 
     return true
