@@ -37,8 +37,7 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -52,8 +51,7 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -67,8 +65,7 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -80,8 +77,7 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
@@ -93,8 +89,7 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 })
