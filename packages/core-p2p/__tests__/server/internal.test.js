@@ -44,7 +44,9 @@ describe('API - Internal', () => {
 
   describe('POST /blocks', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('blocks', genesisBlock.toBroadcastV1())
+      const response = await sendPOST('blocks', {
+        block: genesisBlock.toBroadcastV1()
+      })
 
       expect(response.status).toBe(200)
 
