@@ -4,7 +4,6 @@ const blockchain = require('./handlers/blockchain')
 const blocks = require('./handlers/blocks')
 const peers = require('./handlers/peers')
 const transactions = require('./handlers/transactions')
-const utils = require('./handlers/utils')
 
 /**
  * Register v1 routes.
@@ -25,9 +24,7 @@ const register = async (server, options) => {
 
     { method: 'GET', path: '/transactions', ...transactions.index },
     { method: 'POST', path: '/transactions', ...transactions.store },
-    { method: 'GET', path: '/transactionsFromIds', ...transactions.searchByIds },
-
-    { method: 'GET', path: '/config', ...utils.config }
+    { method: 'GET', path: '/transactions/search', ...transactions.search }
   ])
 }
 

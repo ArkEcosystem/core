@@ -7,7 +7,7 @@ const transform = require('../transformers/plugins')
 /**
  * @type {Object}
  */
-exports.getConfig = {
+exports.config = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
