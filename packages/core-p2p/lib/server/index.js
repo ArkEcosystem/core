@@ -57,7 +57,7 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
-    plugin: require('./versions/1'),
+    plugin: require('./versions/peer'),
     routes: { prefix: '/peer' }
   })
 
