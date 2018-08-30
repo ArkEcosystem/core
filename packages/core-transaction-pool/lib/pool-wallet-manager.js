@@ -84,7 +84,7 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  async applyPoolTransaction (transaction) { /* eslint padded-blocks: "off" */
+  applyPoolTransaction (transaction) { /* eslint padded-blocks: "off" */
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 

@@ -275,7 +275,7 @@ module.exports = class TransactionPoolInterface {
         // if wallet in pool we try to apply transaction
         if (senderWallet || this.walletManager.exists(transaction.recipientId)) {
           try {
-            await this.walletManager.applyPoolTransaction(transaction)
+            this.walletManager.applyPoolTransaction(transaction)
           } catch (error) {
             logger.error(`AcceptChainedBlock in pool: ${error}`)
             await this.purgeByPublicKey(transaction.senderPublicKey)
@@ -318,7 +318,7 @@ module.exports = class TransactionPoolInterface {
       }
 
       try {
-        await this.walletManager.applyPoolTransaction(transaction)
+        this.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
         logger.error('BuildWallets from pool:', error)
         await this.purgeByPublicKey(transaction.senderPublicKey)
