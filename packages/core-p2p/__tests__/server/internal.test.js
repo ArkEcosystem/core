@@ -37,21 +37,23 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
   describe('POST /blocks', () => {
     it('should be ok', async () => {
       const response = await sendPOST('blocks', {
-        block: genesisBlock.toBroadcastV1()
+        blocks: genesisBlock.toBroadcastV1()
       })
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -65,7 +67,8 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -77,7 +80,8 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -89,7 +93,8 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 })

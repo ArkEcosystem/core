@@ -29,16 +29,19 @@ const sendPOST = async (endpoint, params) => {
 }
 
 describe('API - Version 1', () => {
-  describe('GET /peers', () => {
+  describe('GET /peer/list', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peers')
+      const response = await sendGET('peer/list')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
-      expect(response.data.data).toBeObject()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('peers')
+      expect(response.data.peers).toBeArray()
     })
   })
 
@@ -50,8 +53,11 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
-      expect(response.data.data).toBeObject()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('blocks')
+      expect(response.data.blocks).toBeArray()
     })
 
     it('should retrieve lastBlock if no "lastBlockHeight" specified', async () => {
@@ -60,15 +66,18 @@ describe('API - Version 1', () => {
       expect(response.status).toBe(200);
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
-      expect(response.data.data).toBeObject()
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('blocks')
+      expect(response.data.blocks).toBeArray()
+      expect(response.data.blocks).toHaveLength(1)
     })
   })
 
-  describe('POST /peer/transactions/search', () => {
+  describe('GET /peer/transactionsFromIds', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('peer/transactions/search', {
+      const response = await sendGET('peer/transactionsFromIds', {
         ids: 'e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8'
       })
 
@@ -76,26 +85,30 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
-      expect(response.data.data).toBeObject()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('transactions')
+      expect(response.data.transactions).toBeArray()
     })
   })
 
-  describe('GET /blockchain/height', () => {
+  describe('GET /peer/height', () => {
     it('should be ok', async () => {
-      const response = await sendGET('blockchain/height')
+      const response = await sendGET('peer/height')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      expect(response.data.data).toHaveProperty('height')
-      expect(response.data.data.height).toBeNumber()
+      expect(response.data).toHaveProperty('height')
+      expect(response.data.height).toBeNumber()
 
-      expect(response.data.data).toHaveProperty('id')
-      expect(response.data.data.id).toBeString()
+      expect(response.data).toHaveProperty('id')
+      expect(response.data.id).toBeString()
     })
   })
 
@@ -107,8 +120,11 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
-      expect(response.data.data).toBeObject()
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
+
+      expect(response.data).toHaveProperty('transactions')
+      expect(response.data.transactions).toBeArray()
     })
   })
 
@@ -122,27 +138,29 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
 
-      expect(response.data.data).toHaveProperty('common')
-      expect(response.data.data.common).toBeObject()
-      expect(response.data.data.common.height).toBe(1)
-      expect(response.data.data.common.id).toBe('13149578060728881902')
+      expect(response.data).toHaveProperty('common')
+      expect(response.data.common).toBeObject()
+      expect(response.data.common.height).toBe(1)
+      expect(response.data.common.id).toBe('13149578060728881902')
 
-      expect(response.data.data).toHaveProperty('lastBlockHeight')
-      expect(response.data.data.lastBlockHeight).toBeNumber()
+      expect(response.data).toHaveProperty('lastBlockHeight')
+      expect(response.data.lastBlockHeight).toBeNumber()
     })
   })
 
-  describe('GET /peer/blockchain/status', () => {
+  describe('GET /peer/status', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/blockchain/status')
+      const response = await sendGET('peer/status')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -156,7 +174,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeTruthy()
     })
   })
 
@@ -170,7 +189,8 @@ describe('API - Version 1', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('data')
+      expect(response.data).toHaveProperty('success')
+      expect(response.data.success).toBeFalsy()
     })
   })
 })

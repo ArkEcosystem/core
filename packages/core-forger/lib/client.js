@@ -146,7 +146,7 @@ module.exports = class Client {
     const host = sample(this.hosts)
 
     try {
-      await this.__get(`${host}/peer/blockchain/status`)
+      await this.__get(`${host}/peer/status`)
 
       this.host = host
     } catch (error) {

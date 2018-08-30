@@ -55,9 +55,15 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
-    plugin: require('./versions/peer'),
+    plugin: require('./versions/1'),
     routes: { prefix: '/peer' }
   })
+
+  // TODO: enable this once v2 mainnet is synced & migrated from v1 nodes
+  // await server.register({
+  //   plugin: require('./versions/peer'),
+  //   routes: { prefix: '/peer' }
+  // })
 
   await server.register({
     plugin: require('./versions/internal'),
