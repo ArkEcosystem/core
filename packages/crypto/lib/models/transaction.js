@@ -343,6 +343,8 @@ module.exports = class Transaction {
     }
 
     if (!transaction.version || transaction.version === 1) {
+      transaction.version = 1
+
       if (transaction.secondSignature) {
         transaction.signSignature = transaction.secondSignature
       }
@@ -359,12 +361,12 @@ module.exports = class Transaction {
         transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
       }
 
-      if (!transaction.id) {
-        transaction.id = crypto.getId(transaction)
-      }
-
       if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE || transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
         transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
+      }
+
+      if (!transaction.id) {
+        transaction.id = crypto.getId(transaction)
       }
     }
 
