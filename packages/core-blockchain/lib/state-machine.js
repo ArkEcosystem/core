@@ -23,7 +23,7 @@ const state = {
   blockPing: null,
   started: false,
   rebuild: true,
-  fastRebuild: true,
+  fastRebuild: false,
   noBlockCounter: 0
 }
 
@@ -63,9 +63,9 @@ blockchainMachine.actionMap = blockchain => {
 
     checkLastDownloadedBlockSynced () {
       let event = 'NOTSYNCED'
-      logger.debug(`Blocks in queue: ${blockchain.rebuildQueue.length()}`)
+      logger.debug(`Queued blocks for => rebuildQueue:${blockchain.rebuildQueue.length()} | processQueue: ${blockchain.processQueue.length()}`)
 
-      if (blockchain.rebuildQueue.length() > 10000) {
+      if (blockchain.rebuildQueue.length() > 10000 || blockchain.processQueue.length() > 10000) {
         event = 'PAUSED'
       }
 
