@@ -240,7 +240,7 @@ module.exports = class TransactionPoolInterface {
         }
 
         transactions.push(transaction.serialized.toString('hex'))
-        if (transactions.length === (blockSize - 1)) {
+        if (transactions.length === blockSize) {
           break
         }
       }
