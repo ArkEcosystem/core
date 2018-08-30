@@ -1,5 +1,6 @@
 'use strict'
 
+const Boom = require('boom')
 const requestIp = require('request-ip')
 const isWhitelist = require('../../utils/is-whitelist')
 const monitor = require('../../monitor')
@@ -34,7 +35,11 @@ const register = async (server, options) => {
 
         requiredHeaders.forEach(key => (peer[key] = request.headers[key]))
 
-        await monitor.acceptNewPeer(peer)
+        try {
+          await monitor.acceptNewPeer(peer)
+        } catch (error) {
+          return Boom.badImplementation(error.message)
+        }
       }
 
       return h.continue
