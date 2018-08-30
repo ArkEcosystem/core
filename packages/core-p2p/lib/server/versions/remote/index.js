@@ -1,6 +1,6 @@
 'use strict'
 
-const handlers = require('./handlers')
+const blockchain = require('./handlers/blockchain')
 
 /**
  * Register remote routes.
@@ -10,7 +10,7 @@ const handlers = require('./handlers')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/blockchain/{event}', ...handlers.sendBlockchainEvent }
+    { method: 'GET', path: '/blockchain/{event}', ...blockchain.emitEvent }
   ])
 }
 
