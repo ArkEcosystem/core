@@ -25,6 +25,6 @@ exports.store = {
  */
 exports.common = {
   payload: {
-    blocks: Joi.array(Joi.string())
+    blocks: Joi.array().items(Joi.string())
   }
 }

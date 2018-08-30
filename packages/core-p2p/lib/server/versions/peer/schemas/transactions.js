@@ -8,7 +8,7 @@ const container = require('@arkecosystem/core-container')
  */
 exports.store = {
   payload: {
-    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest)
+    transactions: Joi.array().max(container.resolveOptions('transactionPool').maxTransactionsPerRequest).items(Joi.object())
   }
 }
 
@@ -17,6 +17,6 @@ exports.store = {
  */
 exports.search = {
   payload: {
-    transactions: Joi.array(Joi.string())
+    transactions: Joi.array().items(Joi.string())
   }
 }
