@@ -1,6 +1,7 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const schema = require('../schemas/blockchain')
 
 /**
  * Respond with a blockchain event.
@@ -13,20 +14,15 @@ exports.emitEvent = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const blockchain = container.resolvePlugin('blockchain')
-
-    if (!blockchain[request.params.event]) {
-      return h.response('No such event').code(500)
-    }
-
-    const event = blockchain[request.params.event]
+    const event = container.resolvePlugin('blockchain').events[request.params.event]
 
     request.query.param
       ? event(request.query.paramrequest.params.param)
       : event()
 
-    return {
-      event: request.params.event
-    }
+    return h.response(null).code(204)
+  },
+  options: {
+    validate: schema.emitEvent
   }
 }

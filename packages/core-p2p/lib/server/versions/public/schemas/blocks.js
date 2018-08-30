@@ -7,7 +7,7 @@ const Joi = require('joi')
  */
 exports.index = {
   query: {
-    lastBlockHeight: Joi.number().integer()
+    lastBlockHeight: Joi.number().integer().optional()
   }
 }
 

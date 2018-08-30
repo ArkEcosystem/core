@@ -19,7 +19,7 @@ exports.store = {
 
     container.resolvePlugin('blockchain').queueBlock(block)
 
-    return h.response(null).code(102)
+    return h.response(null).code(204)
   },
   options: {
     validate: schema.store

@@ -12,10 +12,10 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const data = monitor.getPeers()
-      .map(peer => peer.toBroadcastInfo())
-      .sort((a, b) => a.delay - b.delay)
-
-    return { data }
+    return {
+      data: monitor.getPeers()
+        .map(peer => peer.toBroadcastInfo())
+        .sort((a, b) => a.delay - b.delay)
+    }
   }
 }

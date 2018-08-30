@@ -23,7 +23,7 @@ exports.networkState = {
 /**
  * @type {Object}
  */
-exports.synced = {
+exports.sync = {
   /**
    * @param  {Hapi.Request} request
    * @param  {Hapi.Toolkit} h
@@ -34,6 +34,6 @@ exports.synced = {
 
     container.resolvePlugin('blockchain').dispatch('WAKEUP')
 
-    return h.response(null).code(102)
+    return h.response(null).code(204)
   }
 }

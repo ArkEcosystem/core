@@ -22,13 +22,13 @@ exports.index = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    let reqBlockHeight = parseInt(request.query.lastBlockHeight)
+    let lastBlockHeight = parseInt(request.query.lastBlockHeight)
     let data = []
 
-    if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
+    if (Number.isNaN(lastBlockHeight)) {
       data.push(blockchain.getLastBlock())
     } else {
-      data = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+      data = await database.getBlocks(parseInt(lastBlockHeight) + 1, 400)
     }
 
     logger.info(`${requestIp.getClientIp(request)} has downloaded ${data.length} blocks from height ${request.query.lastBlockHeight}`)
@@ -52,7 +52,7 @@ exports.store = {
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
-    const block = request.payload.block
+    let block = request.payload.block
 
     if (blockchain.pingBlock(block)) {
       return h.response(null).code(202)
@@ -66,28 +66,20 @@ exports.store = {
       return h.response(null).code(202)
     }
 
-    const b = new Block(block)
+    block = new Block(block)
 
-    if (!b.verification.verified) {
+    if (!block.verification.verified) {
       throw new Error('invalid block received')
     }
 
-    blockchain.pushPingBlock(b.data)
+    blockchain.pushPingBlock(block.data)
 
-    if (b.headerOnly) {
-      // let missingIds = []
+    if (block.headerOnly) {
       let transactions = []
-      // if (transactionPool) {
-      //   transactions = block.transactionIds.map(async id => await transactionPool.getTransaction(id) || id)
-      //   missingIds = transactions.filter(tx => !tx.id)
-      // } else {
-      //   missingIds = block.transactionIds.slice(0)
-      // }
-      // if (missingIds.length > 0) {
 
       let peer = await monitor.getPeer(requestIp.getClientIp(request))
 
-      // only for test because it can be used for DDOS attack
+      // NOTE: only for test because it can be used for DDOS attack
       if (!peer && process.env.NODE_ENV === 'test_p2p') {
         peer = await monitor.getRandomPeer()
       }
@@ -98,12 +90,12 @@ exports.store = {
 
       transactions = await peer.getTransactionsFromIds(block.transactionIds)
 
-      // issue on v1, using /api/ instead of /peer/
+      // NOTE: issue on v1, using /api/ instead of /peer/
       if (transactions.length < block.transactionIds.length) {
         transactions = await peer.getTransactionsFromBlock(block.id)
       }
 
-      // reorder them correctly
+      // NOTE: reorder them correctly
       block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
       logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
 
@@ -111,9 +103,9 @@ exports.store = {
         return h.response(null).code(400)
       }
     }
-    // } else return { success: false }
 
     block.ip = requestIp.getClientIp(request)
+
     blockchain.queueBlock(block)
 
     return h.response(null).code(201)
@@ -138,11 +130,9 @@ exports.common = {
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
-    const commonBlock = await database.getCommonBlock(ids)
-
     return {
       data: {
-        common: commonBlock.length ? commonBlock[0] : null,
+        common: await database.getCommonBlock(ids),
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     }

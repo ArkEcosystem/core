@@ -15,15 +15,11 @@ const utils = require('./handlers/utils')
 const register = async (server, options) => {
   server.route([
     { method: 'GET', path: '/rounds/current', ...rounds.current },
-
     { method: 'POST', path: '/blocks', ...blocks.store },
-
     { method: 'POST', path: '/transactions/verify', ...transactions.postVerifyTransaction },
     { method: 'GET', path: '/transactions/forging', ...transactions.getTransactionsForForging },
-
     { method: 'GET', path: '/blockchain/network-state', ...blockchain.networkState },
-    { method: 'GET', path: '/blockchain/synced', ...blockchain.synced },
-
+    { method: 'GET', path: '/blockchain/sync', ...blockchain.sync },
     { method: 'GET', path: '/utils/usernames', ...utils.usernames },
     { method: 'POST', path: '/utils/events', ...utils.emitEvent }
   ])
