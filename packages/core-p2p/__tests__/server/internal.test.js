@@ -48,10 +48,6 @@ describe('API - Internal', () => {
       })
 
       expect(response.status).toBe(204)
-
-      expect(response.data).toBeObject()
-
-      expect(response.data).toHaveProperty('data')
     })
   })
 
