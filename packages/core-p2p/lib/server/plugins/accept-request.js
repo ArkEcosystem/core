@@ -23,6 +23,10 @@ const register = async (server, options) => {
         return h.continue
       }
 
+      if (!monitor.guard) {
+        return Boom.serverUnavailable('Peer Monitor not ready')
+      }
+
       if ((request.path.startsWith('/internal') || request.path.startsWith('/remote')) && !isWhitelist(options.whitelist, remoteAddress)) {
         return h.response({
           code: 'ResourceNotFound',
