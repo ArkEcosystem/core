@@ -1,10 +1,12 @@
 'use strict'
 
+const Boom = require('boom')
+const requestIp = require('request-ip')
+
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 
 const { Block } = require('@arkecosystem/crypto').models
-const requestIp = require('request-ip')
 
 const schema = require('../schemas/blocks')
 const monitor = require('../../../../monitor')
@@ -69,7 +71,7 @@ exports.store = {
     block = new Block(block)
 
     if (!block.verification.verified) {
-      throw new Error('invalid block received')
+      return Boom.badData()
     }
 
     blockchain.pushPingBlock(block.data)
@@ -85,7 +87,7 @@ exports.store = {
       }
 
       if (!peer) {
-        return h.response(null).code(400)
+        return Boom.badRequest()
       }
 
       transactions = await peer.getTransactionsFromIds(block.transactionIds)
@@ -100,7 +102,7 @@ exports.store = {
       logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
 
       if (block.transactions.length !== block.numberOfTransactions) {
-        return h.response(null).code(400)
+        return Boom.badRequest()
       }
     }
 
@@ -128,7 +130,7 @@ exports.common = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
+    const ids = request.payload.ids.slice(0, 9).filter(id => id.match(/^\d+$/))
 
     const commonBlock = await database.getCommonBlock(ids)
 

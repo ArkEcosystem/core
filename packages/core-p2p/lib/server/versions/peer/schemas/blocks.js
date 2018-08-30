@@ -25,6 +25,6 @@ exports.store = {
  */
 exports.common = {
   query: {
-    ids: Joi.string()
+    ids: Joi.array(Joi.string())
   }
 }

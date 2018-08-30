@@ -31,7 +31,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-transaction-pool-ready',
+  name: 'transaction-pool-ready',
   version: '0.1.0',
   register
 }

@@ -50,7 +50,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-throttle',
+  name: 'throttle',
   version: '0.1.0',
   register
 }

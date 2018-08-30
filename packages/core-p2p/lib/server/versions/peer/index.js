@@ -6,7 +6,7 @@ const peers = require('./handlers/peers')
 const transactions = require('./handlers/transactions')
 
 /**
- * Register v1 routes.
+ * Register peer routes.
  * @param  {Hapi.Server} server
  * @param  {Object} options
  * @return {void}
