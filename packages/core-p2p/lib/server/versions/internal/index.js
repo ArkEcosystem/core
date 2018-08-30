@@ -1,6 +1,10 @@
 'use strict'
 
-const handlers = require('./handlers')
+const blockchain = require('./handlers/blockchain')
+const blocks = require('./handlers/blocks')
+const rounds = require('./handlers/rounds')
+const transactions = require('./handlers/transactions')
+const utils = require('./handlers/utils')
 
 /**
  * Register internal routes.
@@ -10,14 +14,18 @@ const handlers = require('./handlers')
  */
 const register = async (server, options) => {
   server.route([
-    { method: 'GET', path: '/round', ...handlers.getRound },
-    { method: 'POST', path: '/block', ...handlers.postInternalBlock },
-    { method: 'POST', path: '/verifyTransaction', ...handlers.postVerifyTransaction },
-    { method: 'GET', path: '/forgingTransactions', ...handlers.getTransactionsForForging },
-    { method: 'GET', path: '/networkState', ...handlers.getNetworkState },
-    { method: 'GET', path: '/syncCheck', ...handlers.checkBlockchainSynced },
-    { method: 'GET', path: '/usernames', ...handlers.getUsernames },
-    { method: 'POST', path: '/events', ...handlers.emitEvent }
+    { method: 'GET', path: '/rounds', ...rounds.index },
+
+    { method: 'POST', path: '/blocks', ...blocks.store },
+
+    { method: 'POST', path: '/transactions/verify', ...transactions.postVerifyTransaction },
+    { method: 'GET', path: '/transactions/forging', ...transactions.getTransactionsForForging },
+
+    { method: 'GET', path: '/blockchain/network-state', ...blockchain.networkState },
+    { method: 'GET', path: '/blockchain/synced', ...blockchain.synced },
+
+    { method: 'GET', path: '/utils/usernames', ...utils.usernames },
+    { method: 'POST', path: '/utils/events', ...utils.emitEvent }
   ])
 }
 
