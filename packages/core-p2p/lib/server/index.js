@@ -49,6 +49,15 @@ module.exports = async (p2p, config) => {
     }
   })
 
+  // await server.register({
+  //   plugin: require('./plugins/transaction-pool-ready'),
+  //   options: {
+  //     routes: [
+  //       '/peer/transactions'
+  //     ]
+  //   }
+  // })
+
   await server.register({
     plugin: require('./versions/config'),
     routes: { prefix: '/config' }
