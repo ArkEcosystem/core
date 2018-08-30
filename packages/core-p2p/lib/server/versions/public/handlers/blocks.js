@@ -1,11 +1,13 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+
 const { Block } = require('@arkecosystem/crypto').models
 const requestIp = require('request-ip')
-const monitor = require('../../../../monitor')
 
-const logger = container.resolvePlugin('logger')
+const schema = require('../schemas/blocks')
+const monitor = require('../../../../monitor')
 
 /**
  * @type {Object}
@@ -21,17 +23,20 @@ exports.index = {
     const blockchain = container.resolvePlugin('blockchain')
 
     let reqBlockHeight = parseInt(request.query.lastBlockHeight)
-    let blocks = []
+    let data = []
 
     if (!request.query.lastBlockHeight || Number.isNaN(reqBlockHeight)) {
-      blocks.push(blockchain.getLastBlock())
+      data.push(blockchain.getLastBlock())
     } else {
-      blocks = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
+      data = await database.getBlocks(parseInt(reqBlockHeight) + 1, 400)
     }
 
-    logger.info(`${requestIp.getClientIp(request)} has downloaded ${blocks.length} blocks from height ${request.query.lastBlockHeight}`)
+    logger.info(`${requestIp.getClientIp(request)} has downloaded ${data.length} blocks from height ${request.query.lastBlockHeight}`)
 
-    return { data: blocks || [] }
+    return { data }
+  },
+  options: {
+    validate: schema.index
   }
 }
 
@@ -47,19 +52,18 @@ exports.store = {
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
-    if (!request.payload || !request.payload.block) {
-      return { success: false }
-    }
-
     const block = request.payload.block
 
-    if (blockchain.pingBlock(block)) return {success: true}
+    if (blockchain.pingBlock(block)) {
+      return h.response(null).code(202)
+    }
+
     // already got it?
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
     // Are we ready to get it?
     if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
-      return { success: true }
+      return h.response(null).code(202)
     }
 
     const b = new Block(block)
@@ -80,26 +84,31 @@ exports.store = {
       //   missingIds = block.transactionIds.slice(0)
       // }
       // if (missingIds.length > 0) {
+
       let peer = await monitor.getPeer(requestIp.getClientIp(request))
+
       // only for test because it can be used for DDOS attack
       if (!peer && process.env.NODE_ENV === 'test_p2p') {
         peer = await monitor.getRandomPeer()
       }
 
       if (!peer) {
-        return {success: false}
+        return h.response(null).code(400)
       }
 
       transactions = await peer.getTransactionsFromIds(block.transactionIds)
+
       // issue on v1, using /api/ instead of /peer/
-      if (transactions.length < block.transactionIds.length) transactions = await peer.getTransactionsFromBlock(block.id)
+      if (transactions.length < block.transactionIds.length) {
+        transactions = await peer.getTransactionsFromBlock(block.id)
+      }
 
       // reorder them correctly
       block.transactions = block.transactionIds.map(id => transactions.find(tx => tx.id === id))
       logger.debug(`Found missing transactions: ${block.transactions.map(tx => tx.id)}`)
 
       if (block.transactions.length !== block.numberOfTransactions) {
-        return {success: false}
+        return h.response(null).code(400)
       }
     }
     // } else return { success: false }
@@ -107,7 +116,10 @@ exports.store = {
     block.ip = requestIp.getClientIp(request)
     blockchain.queueBlock(block)
 
-    return { success: true }
+    return h.response(null).code(201)
+  },
+  options: {
+    validate: schema.store
   }
 }
 
@@ -121,17 +133,12 @@ exports.common = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    if (!request.query.ids) {
-      return {
-        success: false
-      }
-    }
-
+    const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
-    const commonBlock = await blockchain.database.getCommonBlock(ids)
+    const commonBlock = await database.getCommonBlock(ids)
 
     return {
       data: {
@@ -139,5 +146,8 @@ exports.common = {
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     }
+  },
+  options: {
+    validate: schema.index
   }
 }

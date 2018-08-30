@@ -7,10 +7,24 @@ const Joi = require('joi')
  */
 exports.index = {
   query: {
-    os: Joi.string(),
-    status: Joi.string(),
-    port: Joi.number().integer(),
-    version: Joi.string(),
-    orderBy: Joi.string()
+    lastBlockHeight: Joi.number().integer()
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.store = {
+  payload: {
+    block: Joi.object()
+  }
+}
+
+/**
+ * @type {Object}
+ */
+exports.common = {
+  query: {
+    ids: Joi.string()
   }
 }

@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const monitor = require('../../../../monitor')
 
 /**
  * @type {Object}
@@ -14,7 +15,7 @@ exports.networkState = {
    */
   async handler (request, h) {
     return {
-      data: await container.resolvePlugin('blockchain').p2p.getNetworkState()
+      data: await monitor.getNetworkState()
     }
   }
 }
@@ -33,6 +34,6 @@ exports.synced = {
 
     container.resolvePlugin('blockchain').dispatch('WAKEUP')
 
-    return h.response(null).code(204)
+    return h.response(null).code(102)
   }
 }

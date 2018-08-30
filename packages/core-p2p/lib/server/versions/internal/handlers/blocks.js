@@ -2,6 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 const requestIp = require('request-ip')
+const schema = require('../schemas/blocks')
 
 /**
  * @type {Object}
@@ -19,5 +20,8 @@ exports.store = {
     container.resolvePlugin('blockchain').queueBlock(block)
 
     return h.response(null).code(102)
+  },
+  options: {
+    validate: schema.store
   }
 }

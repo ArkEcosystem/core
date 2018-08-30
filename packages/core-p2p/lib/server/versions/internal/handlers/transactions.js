@@ -5,6 +5,8 @@ const config = container.resolvePlugin('config')
 
 const { Transaction } = require('@arkecosystem/crypto').models
 
+const schema = require('../schemas/transactions')
+
 /**
  * @type {Object}
  */
@@ -20,6 +22,9 @@ exports.verify = {
     return {
       data: await container.resolvePlugin('database').verifyTransaction(transaction)
     }
+  },
+  options: {
+    validate: schema.verify
   }
 }
 
