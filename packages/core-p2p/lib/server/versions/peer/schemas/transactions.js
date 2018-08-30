@@ -16,7 +16,7 @@ exports.store = {
  * @type {Object}
  */
 exports.search = {
-  query: {
+  payload: {
     transactions: Joi.array(Joi.string())
   }
 }
