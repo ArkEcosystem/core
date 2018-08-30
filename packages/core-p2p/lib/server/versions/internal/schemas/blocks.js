@@ -6,5 +6,7 @@ const Joi = require('joi')
  * @type {Object}
  */
 exports.store = {
-  payload: Joi.object()
+  payload: {
+    block: Joi.object()
+  }
 }

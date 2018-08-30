@@ -130,9 +130,11 @@ exports.common = {
 
     const ids = request.query.ids.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
+    const commonBlock = await database.getCommonBlock(ids)
+
     return {
       data: {
-        common: await database.getCommonBlock(ids),
+        common: commonBlock.length ? commonBlock[0] : null,
         lastBlockHeight: blockchain.getLastBlock().data.height
       }
     }

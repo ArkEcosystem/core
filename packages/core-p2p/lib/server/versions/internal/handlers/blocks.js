@@ -14,10 +14,9 @@ exports.store = {
    * @return {Hapi.Response}
    */
   handler: (request, h) => {
-    const block = request.payload
-    block.ip = requestIp.getClientIp(request)
+    request.payload.block.ip = requestIp.getClientIp(request)
 
-    container.resolvePlugin('blockchain').queueBlock(block)
+    container.resolvePlugin('blockchain').queueBlock(request.payload.block)
 
     return h.response(null).code(204)
   },
