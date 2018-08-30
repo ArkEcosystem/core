@@ -231,7 +231,7 @@ module.exports = class ConnectionInterface {
    * @param  {Array} delegates
    * @return {void}
    */
-  async updateDelegateStats (height, delegates) {
+  updateDelegateStats (height, delegates) {
     if (!delegates || !this.blocksInCurrentRound) {
       return
     }
@@ -296,13 +296,13 @@ module.exports = class ConnectionInterface {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
-          await this.updateDelegateStats(height, this.activedelegates)
-          await this.saveWallets(false) // save only modified wallets during the last round
+          this.updateDelegateStats(height, this.activedelegates)
+          await this.saveWallets(true) // save only modified wallets during the last round
 
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
-          this.blocksInCurrentRound = []
+          this.blocksInCurrentRound.length = 0
           // TODO: find a betxter place to call this as this
           // currently blocks execution but needs to be updated every round
           if (this.stateStarted) {
@@ -382,7 +382,7 @@ module.exports = class ConnectionInterface {
    */
   async applyBlock (block) {
     await this.validateDelegate(block)
-    await this.walletManager.applyBlock(block)
+    this.walletManager.applyBlock(block)
     if (this.blocksInCurrentRound) {
       this.blocksInCurrentRound.push(block)
     }

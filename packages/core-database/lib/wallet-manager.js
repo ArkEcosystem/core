@@ -115,7 +115,7 @@ module.exports = class WalletManager {
    * @param  {Block} block
    * @return {void}
    */
-  async applyBlock (block) {
+  applyBlock (block) {
     const generatorPublicKey = block.data.generatorPublicKey
 
     let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
@@ -143,7 +143,7 @@ module.exports = class WalletManager {
 
     try {
       for (let i = 0; i < block.transactions.length; i++) {
-        await this.applyTransaction(block.transactions[i])
+        this.applyTransaction(block.transactions[i])
 
         appliedTransactions.push(block.transactions[i])
       }
@@ -154,7 +154,7 @@ module.exports = class WalletManager {
 
       // Revert the applied transactions from last to first
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
-        await this.revertTransaction(appliedTransactions[i])
+        this.revertTransaction(appliedTransactions[i])
       }
 
       // TODO should revert the delegate applyBlock ?
@@ -204,7 +204,7 @@ module.exports = class WalletManager {
    * @param  {Transaction} transaction
    * @return {Transaction}
    */
-  async applyTransaction (transaction) { /* eslint padded-blocks: "off" */
+  applyTransaction (transaction) { /* eslint padded-blocks: "off" */
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 
@@ -227,6 +227,8 @@ module.exports = class WalletManager {
       logger.error(`Vote transaction sent by ${sender.address}`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: voted/unvoted delegate does not exist`)
 
+    } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+      data.recipientId = ''
     } else if (config.network.exceptions[data.id]) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
@@ -259,7 +261,7 @@ module.exports = class WalletManager {
    * @param  {Object} data
    * @return {Transaction}
    */
-  async revertTransaction ({ type, data }) {
+  revertTransaction ({ type, data }) {
     const sender = this.getWalletByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.getWalletByAddress(data.recipientId)
 
