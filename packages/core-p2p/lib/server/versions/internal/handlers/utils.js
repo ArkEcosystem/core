@@ -23,7 +23,7 @@ exports.usernames = {
 
     const data = {}
     for (const delegate of delegates) {
-      data[delegate.publicKey] = walletManager.getWalletByPublicKey(delegate.publicKey).username
+      data[delegate.publicKey] = walletManager.findByPublicKey(delegate.publicKey).username
     }
 
     return { data }

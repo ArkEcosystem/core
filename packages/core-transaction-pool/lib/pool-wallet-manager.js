@@ -27,9 +27,9 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @param  {String} address
    * @return {(Wallet|null)}
    */
-  getWalletByAddress (address) {
+  findByAddress (address) {
     if (!this.walletsByAddress[address]) {
-      const blockchainWallet = database.walletManager.getWalletByAddress(address)
+      const blockchainWallet = database.walletManager.findByAddress(address)
       const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
 
       this.reindex(wallet)
@@ -88,8 +88,8 @@ module.exports = class PoolWalletManager extends WalletManager {
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 
-    const sender = this.getWalletByPublicKey(senderPublicKey)
-    let recipient = recipientId ? this.getWalletByAddress(recipientId) : null
+    const sender = this.findByPublicKey(senderPublicKey)
+    let recipient = recipientId ? this.findByAddress(recipientId) : null
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
@@ -136,7 +136,7 @@ module.exports = class PoolWalletManager extends WalletManager {
   applyPoolBlock (block) {
     // if delegate in poll wallet manager - apply rewards
     if (this.exists(block.data.generatorPublicKey)) {
-      const delegateWallet = this.getWalletByPublicKey(block.data.generatorPublicKey)
+      const delegateWallet = this.findByPublicKey(block.data.generatorPublicKey)
       delegateWallet.applyBlock(block.data)
     }
   }

@@ -9,7 +9,7 @@ const formatTimestamp = require('./utils/format-timestamp')
  * @return {Object}
  */
 module.exports = (model) => {
-  const generator = database.walletManager.getWalletByPublicKey(model.generatorPublicKey)
+  const generator = database.walletManager.findByPublicKey(model.generatorPublicKey)
 
   return {
     id: model.id,

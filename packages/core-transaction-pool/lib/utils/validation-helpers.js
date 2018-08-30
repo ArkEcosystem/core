@@ -14,7 +14,7 @@ module.exports = {
   canApplyToBlockchain: transaction => {
     return database
       .walletManager
-      .getWalletByPublicKey(transaction.senderPublicKey)
+      .findByPublicKey(transaction.senderPublicKey)
       .canApply(transaction)
   },
 
