@@ -86,10 +86,12 @@ class Monitor {
       return
     }
 
+    const newPeer = new Peer(peer.ip, peer.port)
+
     if (this.guard.isBlacklisted(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
 
-      this.guard.suspend(peer)
+      this.guard.suspend(newPeer)
 
       return
     }
@@ -97,7 +99,7 @@ class Monitor {
     if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
       logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${config.peers.minimumVersion} - Received: ${peer.version}`)
 
-      this.guard.suspend(peer)
+      this.guard.suspend(newPeer)
 
       return
     }
@@ -109,8 +111,6 @@ class Monitor {
     if (peer.nethash !== config.network.nethash) {
       throw new Error('Request is made on the wrong network')
     }
-
-    const newPeer = new Peer(peer.ip, peer.port)
 
     try {
       await newPeer.ping(1500)
