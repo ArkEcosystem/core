@@ -89,7 +89,7 @@ describe('Wallet Manager', () => {
 
     beforeEach(() => {
       delegateMock = { applyBlock: jest.fn(), publicKey: delegatePublicKey }
-      walletManager.getWalletByPublicKey = jest.fn(() => delegateMock)
+      walletManager.findByPublicKey = jest.fn(() => delegateMock)
       walletManager.applyTransaction = jest.fn()
       walletManager.revertTransaction = jest.fn()
 
@@ -290,7 +290,7 @@ describe('Wallet Manager', () => {
 
         expect(sender.balance).toBe(balance - transaction.fee)
         expect(sender.username).toBe(username)
-        expect(walletManager.getWalletByUsername(username)).toBe(sender)
+        expect(walletManager.findByUsername(username)).toBe(sender)
       })
 
       it('should fail if the transaction cannot be applied', async () => {
@@ -334,8 +334,8 @@ describe('Wallet Manager', () => {
         senderId: 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
       })
 
-      const sender = walletManager.getWalletByPublicKey(transaction.data.senderPublicKey)
-      const recipient = walletManager.getWalletByAddress(transaction.data.recipientId)
+      const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey)
+      const recipient = walletManager.findByAddress(transaction.data.recipientId)
       recipient.balance = transaction.data.amount
 
       expect(sender.balance).toBe(0)
@@ -348,9 +348,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getWalletByAddress', () => {
+  describe('findByAddress', () => {
     it('should be a function', () => {
-      expect(walletManager.getWalletByAddress).toBeFunction()
+      expect(walletManager.findByAddress).toBeFunction()
     })
 
     it('should index it by address', () => {
@@ -364,13 +364,13 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(walletManager.getWalletByAddress(wallet.address).address).toBe(wallet.address)
+      expect(walletManager.findByAddress(wallet.address).address).toBe(wallet.address)
     })
   })
 
-  describe('getWalletByPublicKey', () => {
+  describe('findByPublicKey', () => {
     it('should be a function', () => {
-      expect(walletManager.getWalletByPublicKey).toBeFunction()
+      expect(walletManager.findByPublicKey).toBeFunction()
     })
 
     it('should index it by publicKey', () => {
@@ -386,13 +386,13 @@ describe('Wallet Manager', () => {
       wallet.publicKey = 'dummy-public-key'
 
       walletManager.reindex(wallet)
-      expect(walletManager.getWalletByPublicKey(wallet.publicKey).publicKey).toBe(wallet.publicKey)
+      expect(walletManager.findByPublicKey(wallet.publicKey).publicKey).toBe(wallet.publicKey)
     })
   })
 
-  describe('getWalletByUsername', () => {
+  describe('findByUsername', () => {
     it('should be a function', () => {
-      expect(walletManager.getWalletByUsername).toBeFunction()
+      expect(walletManager.findByUsername).toBeFunction()
     })
 
     it('should index it by username', () => {
@@ -408,7 +408,7 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
 
       walletManager.reindex(wallet)
-      expect(walletManager.getWalletByUsername(wallet.username).username).toBe(wallet.username)
+      expect(walletManager.findByUsername(wallet.username).username).toBe(wallet.username)
     })
   })
 
