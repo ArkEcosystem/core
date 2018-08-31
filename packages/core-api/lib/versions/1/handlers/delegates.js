@@ -171,7 +171,7 @@ exports.forged = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const wallet = database.walletManager.getWalletByPublicKey(request.query.generatorPublicKey)
+    const wallet = database.walletManager.findByPublicKey(request.query.generatorPublicKey)
 
     return utils.respondWith({
       fees: Number(wallet.forgedFees),

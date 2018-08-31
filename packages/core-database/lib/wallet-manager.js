@@ -118,7 +118,7 @@ module.exports = class WalletManager {
   applyBlock (block) {
     const generatorPublicKey = block.data.generatorPublicKey
 
-    let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
+    let delegate = this.findByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
       const generator = crypto.getAddress(generatorPublicKey, config.network.pubKeyHash)
@@ -169,7 +169,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async revertBlock (block) {
-    let delegate = this.getWalletByPublicKey(block.data.generatorPublicKey)
+    let delegate = this.findByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
@@ -208,9 +208,8 @@ module.exports = class WalletManager {
     const { data } = transaction
     const { type, asset, recipientId, senderPublicKey } = data
 
-    const sender = this.getWalletByPublicKey(senderPublicKey)
-    
-    const recipient = this.findOrCreate(recipientId)
+    const sender = this.findByPublicKey(senderPublicKey)
+    const recipient = this.findByAddress(recipientId)
 
     if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
 
@@ -258,8 +257,8 @@ module.exports = class WalletManager {
    * @return {Transaction}
    */
   revertTransaction ({ type, data }) {
-    const sender = this.getWalletByPublicKey(data.senderPublicKey) // Should exist
-    const recipient = this.getWalletByAddress(data.recipientId)
+    const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
+    const recipient = this.findByAddress(data.recipientId)
 
     sender.revertTransactionForSender(data)
 
@@ -278,45 +277,32 @@ module.exports = class WalletManager {
   }
 
   /**
-   * Find or create a wallet for the given address.
-   * @param  {String} address
-   * @return {Wallet}
-   */
-  findOrCreate (address) {
-   let wallet = this.getWalletByAddress(address)
-    
-   if (!wallet) { // cold wallet
-     this.walletsByAddress[address] = new Wallet(address) 
-
-     this.__emitEvent('wallet:cold:created', this.walletsByAddress[address]) 
-   }
-
-   return this.walletsByAddress[address]
-  }
-
-  /**
-   * Get a wallet by the given address.
+   * Find a wallet by the given address.
    * @param  {String} address
    * @return {(Wallet|null)}
    */
-  getWalletByAddress (address) {
+  findByAddress (address) {
     if (!this.walletsByAddress[address]) {
       this.walletsByAddress[address] = new Wallet(address)
+
+      if (process.env.NODE_ENV !== 'test') {
+        this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
+      }
     }
 
     return this.walletsByAddress[address]
   }
 
   /**
-   * Get a wallet by the given public key.
+   * Find a wallet by the given public key.
    * @param  {String} publicKey
    * @return {Wallet}
    */
-  getWalletByPublicKey (publicKey) {
+  findByPublicKey (publicKey) {
     if (!this.walletsByPublicKey[publicKey]) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
-      this.walletsByPublicKey[publicKey] = this.getWalletByAddress(address)
+      this.walletsByPublicKey[publicKey] = this.findByAddress(address)
       this.walletsByPublicKey[publicKey].publicKey = publicKey
     }
 
@@ -324,11 +310,11 @@ module.exports = class WalletManager {
   }
 
   /**
-   * Get a wallet by the given username.
+   * Find a wallet by the given username.
    * @param  {String} publicKey
    * @return {Wallet}
    */
-  getWalletByUsername (username) {
+  findByUsername (username) {
     return this.walletsByUsername[username]
   }
 

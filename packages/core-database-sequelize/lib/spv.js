@@ -68,7 +68,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByAddress(row.recipientId)
+      const wallet = this.walletManager.findByAddress(row.recipientId)
 
       wallet
         ? wallet.balance = parseInt(row.amount)
@@ -89,7 +89,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+      const wallet = this.walletManager.findByPublicKey(row.generatorPublicKey)
       wallet.balance += parseInt(row.reward)
     })
   }
@@ -107,7 +107,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.generatorPublicKey)
+      const wallet = this.walletManager.findByPublicKey(row.generatorPublicKey)
       wallet.lastBlock = row
     })
   }
@@ -126,7 +126,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      let wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+      let wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
       wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
 
       if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
@@ -147,7 +147,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+      const wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
       wallet.secondPublicKey = Transaction.deserialize(row.serialized.toString('hex')).asset.signature.publicKey
     })
   }
@@ -165,7 +165,7 @@ module.exports = class SPV {
       .all()
 
     for (let i = 0; i < transactions.length; i++) {
-      const wallet = this.walletManager.getWalletByPublicKey(transactions[i].senderPublicKey)
+      const wallet = this.walletManager.findByPublicKey(transactions[i].senderPublicKey)
       wallet.username = Transaction.deserialize(transactions[i].serialized.toString('hex')).asset.delegate.username
 
       this.walletManager.reindex(wallet)
@@ -198,7 +198,7 @@ module.exports = class SPV {
         return block.generatorPublicKey === delegates[i].publicKey
       })[0]
 
-      const wallet = this.walletManager.getWalletByPublicKey(delegates[i].publicKey)
+      const wallet = this.walletManager.findByPublicKey(delegates[i].publicKey)
       wallet.votebalance = delegates[i].votebalance
       wallet.missedBlocks = parseInt(delegates[i].missedBlocks)
 
@@ -225,7 +225,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+      const wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
 
       if (!wallet.voted) {
         const vote = Transaction.deserialize(row.serialized.toString('hex')).asset.votes[0]
@@ -252,7 +252,7 @@ module.exports = class SPV {
       .all()
 
     data.forEach(row => {
-      const wallet = this.walletManager.getWalletByPublicKey(row.senderPublicKey)
+      const wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
 
       if (!wallet.multisignature) {
         wallet.multisignature = Transaction.deserialize(row.serialized.toString('hex')).asset.multisignature

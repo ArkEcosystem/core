@@ -271,7 +271,7 @@ module.exports = class TransactionPoolInterface {
     for (const transaction of block.transactions) {
       const exists = await this.transactionExists(transaction.id)
       if (!exists) {
-        const senderWallet = this.walletManager.exists(transaction.senderPublicKey) ? this.walletManager.getWalletByPublicKey(transaction.senderPublicKey) : false
+        const senderWallet = this.walletManager.exists(transaction.senderPublicKey) ? this.walletManager.findByPublicKey(transaction.senderPublicKey) : false
         // if wallet in pool we try to apply transaction
         if (senderWallet || this.walletManager.exists(transaction.recipientId)) {
           try {

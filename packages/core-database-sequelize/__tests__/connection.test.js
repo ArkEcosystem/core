@@ -297,7 +297,7 @@ describe('Sequelize Connection', () => {
 
       const delegates = await connection.buildDelegates(51, 1)
 
-      const wallet = connection.walletManager.getWalletByPublicKey('03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b')
+      const wallet = connection.walletManager.findByPublicKey('03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b')
       expect(wallet.missedBlocks).toBe(0)
 
       const { height } = genesisBlock.data

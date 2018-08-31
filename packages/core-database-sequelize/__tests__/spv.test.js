@@ -29,11 +29,11 @@ afterEach(async () => {
 })
 
 const getWallet = address => {
-  return spv.walletManager.getWalletByAddress(address)
+  return spv.walletManager.findByAddress(address)
 }
 
-const getWalletByPublicKey = publicKey => {
-  return spv.walletManager.getWalletByPublicKey(publicKey)
+const findByPublicKey = publicKey => {
+  return spv.walletManager.findByPublicKey(publicKey)
 }
 
 describe('SPV', () => {
@@ -74,15 +74,15 @@ describe('SPV', () => {
       const publicKey = '03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068'
 
       spv.__buildBlockRewards = jest.fn(pass => {
-        const wallet = spv.walletManager.getWalletByPublicKey(pass)
+        const wallet = spv.walletManager.findByPublicKey(pass)
         wallet.balance += 10
       })
 
-      expect(getWalletByPublicKey(publicKey).balance).toBe(0)
+      expect(findByPublicKey(publicKey).balance).toBe(0)
 
       await spv.__buildBlockRewards(publicKey)
 
-      expect(getWalletByPublicKey(publicKey).balance).toBe(10)
+      expect(findByPublicKey(publicKey).balance).toBe(10)
     })
   })
 
@@ -98,11 +98,11 @@ describe('SPV', () => {
 
       const publicKey = '03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068'
 
-      expect(getWalletByPublicKey(publicKey).lastBlock).toBeNull()
+      expect(findByPublicKey(publicKey).lastBlock).toBeNull()
 
       await spv.__buildLastForgedBlocks()
 
-      expect(getWalletByPublicKey(publicKey).lastBlock.id).toBe('17184958558311101492')
+      expect(findByPublicKey(publicKey).lastBlock.id).toBe('17184958558311101492')
     })
   })
 
@@ -132,16 +132,16 @@ describe('SPV', () => {
 
       const publicKey = '03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068'
 
-      expect(getWalletByPublicKey(publicKey).secondPublicKey).toBeNull()
+      expect(findByPublicKey(publicKey).secondPublicKey).toBeNull()
 
       spv.__buildSecondSignatures = jest.fn(pass => {
-        const wallet = spv.walletManager.getWalletByPublicKey(pass)
+        const wallet = spv.walletManager.findByPublicKey(pass)
         wallet.secondPublicKey = 'fake-key'
       })
 
       await spv.__buildSecondSignatures(publicKey)
 
-      expect(getWalletByPublicKey(publicKey).secondPublicKey).toBe('fake-key')
+      expect(findByPublicKey(publicKey).secondPublicKey).toBe('fake-key')
     })
   })
 
@@ -187,16 +187,16 @@ describe('SPV', () => {
 
       const publicKey = '03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068'
 
-      expect(getWalletByPublicKey(publicKey).multisignature).toBeNull()
+      expect(findByPublicKey(publicKey).multisignature).toBeNull()
 
       spv.__buildMultisignatures = jest.fn(pass => {
-        const wallet = spv.walletManager.getWalletByPublicKey(pass)
+        const wallet = spv.walletManager.findByPublicKey(pass)
         wallet.multisignature = 'fake-multi-signature'
       })
 
       await spv.__buildMultisignatures(publicKey)
 
-      expect(getWalletByPublicKey(publicKey).multisignature).toBe('fake-multi-signature')
+      expect(findByPublicKey(publicKey).multisignature).toBe('fake-multi-signature')
     })
   })
 })

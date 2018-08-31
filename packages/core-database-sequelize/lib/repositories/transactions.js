@@ -469,7 +469,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {String}
    */
   __publicKeyfromSenderId (senderId) {
-    return this.connection.walletManager.getWalletByAddress(senderId).publicKey
+    return this.connection.walletManager.findByAddress(senderId).publicKey
   }
 
   __orderBy (params) {
