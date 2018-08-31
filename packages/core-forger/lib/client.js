@@ -28,12 +28,81 @@ module.exports = class Client {
   async broadcast (block) {
     logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
-    const response = await axios.post(`${this.host}/internal/block`, block, {
+    return axios.post(`${this.host}/internal/blocks`, { block }, {
       headers: this.headers,
       timeout: 2000
     })
+  }
 
-    return response.data.success
+  /**
+   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
+   */
+  async syncCheck () {
+    await this.__chooseHost()
+
+    logger.debug(`Sending wake-up check to relay node ${this.host}`)
+
+    try {
+      await this.__get(`${this.host}/internal/blockchain/sync`)
+    } catch (error) {
+      logger.error(`Could not sync check: ${error.message}`)
+    }
+  }
+
+  /**
+   * Get the current round.
+   * @return {Object}
+   */
+  async getRound () {
+    await this.__chooseHost()
+
+    const response = await this.__get(`${this.host}/internal/rounds/current`)
+
+    return response.data.data
+  }
+
+  /**
+   * Get the current network quorum.
+   * @return {Object}
+   */
+  async getNetworkState () {
+    try {
+      const response = await this.__get(`${this.host}/internal/network/state`)
+
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
+  }
+
+  /**
+   * Get all transactions that are ready to be forged.
+   * @return {Object}
+   */
+  async getTransactions () {
+    try {
+      const response = await this.__get(`${this.host}/internal/transactions/forging`)
+
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
+  }
+
+  /**
+   * Get a list of all active delegate usernames.
+   * @return {Object}
+   */
+  async getUsernames () {
+    await this.__chooseHost()
+
+    try {
+      const response = await this.__get(`${this.host}/internal/utils/usernames`)
+
+      return response.data.data
+    } catch (e) {
+      return {}
+    }
   }
 
   /**
@@ -58,7 +127,7 @@ module.exports = class Client {
     }
 
     try {
-      await axios.post(`${host}/internal/events`, {
+      await axios.post(`${host}/internal/utils/events`, {
         event, body
       }, {
         headers: this.headers,
@@ -66,77 +135,6 @@ module.exports = class Client {
       })
     } catch (error) {
       logger.error(`Failed to emit "${event}" to "${host}"`)
-    }
-  }
-
-  /**
-   * Sends the WAKEUP signal to the to relay hosts to check if synced and sync if necesarry
-   */
-  async syncCheck () {
-    await this.__chooseHost()
-
-    logger.debug(`Sending wake-up check to relay node ${this.host}`)
-
-    try {
-      await this.__get(`${this.host}/internal/syncCheck`)
-    } catch (error) {
-      logger.error(`Could not sync check: ${error.message}`)
-    }
-  }
-
-  /**
-   * Get the current round.
-   * @return {Object}
-   */
-  async getRound () {
-    await this.__chooseHost()
-
-    const response = await this.__get(`${this.host}/internal/round`)
-
-    return response.data.round
-  }
-
-  /**
-   * Get the current network quorum.
-   * @return {Object}
-   */
-  async getNetworkState () {
-    try {
-      const response = await this.__get(`${this.host}/internal/networkState`)
-
-      return response.data.networkState
-    } catch (e) {
-      return {}
-    }
-  }
-
-  /**
-   * Get all transactions that are ready to be forged.
-   * @return {Object}
-   */
-  async getTransactions () {
-    try {
-      const response = await this.__get(`${this.host}/internal/forgingTransactions`)
-
-      return response.data.data
-    } catch (e) {
-      return {}
-    }
-  }
-
-  /**
-   * Get a list of all active delegate usernames.
-   * @return {Object}
-   */
-  async getUsernames () {
-    await this.__chooseHost()
-
-    try {
-      const response = await this.__get(`${this.host}/internal/usernames`)
-
-      return response.data.data
-    } catch (e) {
-      return {}
     }
   }
 

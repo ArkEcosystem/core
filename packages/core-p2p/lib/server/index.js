@@ -14,8 +14,6 @@ module.exports = async (p2p, config) => {
     port: config.port
   })
 
-  server.app.p2p = p2p
-
   await server.register({
     plugin: require('./plugins/accept-request'),
     options: {
@@ -51,6 +49,15 @@ module.exports = async (p2p, config) => {
     }
   })
 
+  // await server.register({
+  //   plugin: require('./plugins/transaction-pool-ready'),
+  //   options: {
+  //     routes: [
+  //       '/peer/transactions'
+  //     ]
+  //   }
+  // })
+
   await server.register({
     plugin: require('./versions/config'),
     routes: { prefix: '/config' }
@@ -61,17 +68,23 @@ module.exports = async (p2p, config) => {
     routes: { prefix: '/peer' }
   })
 
+  // TODO: enable this once v2 mainnet is synced & migrated from v1 nodes
+  // await server.register({
+  //   plugin: require('./versions/peer'),
+  //   routes: { prefix: '/peer' }
+  // })
+
   await server.register({
     plugin: require('./versions/internal'),
     routes: { prefix: '/internal' }
   })
 
-  if (config.remoteinterface) {
-    await server.register({
-      plugin: require('./versions/remote'),
-      routes: { prefix: '/remote' }
-    })
-  }
+  // if (config.remoteInterface) {
+  //   await server.register({
+  //     plugin: require('./versions/remote'),
+  //     routes: { prefix: '/remote' }
+  //   })
+  // }
 
   try {
     await server.start()

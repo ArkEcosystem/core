@@ -17,8 +17,8 @@ const register = async (server, options) => {
         return h.continue
       }
 
-      if (!container.resolvePlugin('blockchain')) {
-        return Boom.serverUnavailable('Blockchain not ready')
+      if (!container.resolvePlugin('transactionPool')) {
+        return Boom.serverUnavailable('Transaction Pool not ready')
       }
 
       return h.continue
@@ -31,7 +31,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'blockchain-ready',
+  name: 'transaction-pool-ready',
   version: '0.1.0',
   register
 }

@@ -63,16 +63,18 @@ describe('Models - Block', () => {
       expect(serialize(data).readUInt32(8)).toEqual(data.height)
     })
 
-    describe('if `previousBlockHex` exists', () => {
+    describe('if `previousBlock` exists', () => {
       it('is serialized as hexadecimal', () => {
-        const data2 = { ...data, ...{ previousBlockHex: 'a00000000000000a' } }
-        expect(serialize(data2).slice(12, 20).toString('hex')).toEqual(data2.previousBlockHex)
+        const dataWithPreviousBlock = Object.assign({}, data, { previousBlock: '1234' })
+        expect(serialize(dataWithPreviousBlock).slice(12, 20).toString('hex')).toEqual(dataWithPreviousBlock.previousBlockHex)
       })
     })
 
-    describe('if `previousBlockHex` does not exist', () => {
+    describe('if `previousBlock` does not exist', () => {
       it('8 bytes are added, as padding', () => {
-        expect(serialize(data).slice(12, 20).toString('hex')).toEqual('0000000000000000')
+        const dataWithoutPreviousBlock = Object.assign({}, data)
+        delete dataWithoutPreviousBlock.previousBlock
+        expect(serialize(dataWithoutPreviousBlock).slice(12, 20).toString('hex')).toEqual('0000000000000000')
       })
     })
 

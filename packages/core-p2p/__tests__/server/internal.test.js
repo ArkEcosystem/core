@@ -29,35 +29,31 @@ const sendPOST = async (endpoint, params) => {
 }
 
 describe('API - Internal', () => {
-  describe('GET /round', () => {
+  describe('GET /rounds/current', () => {
     it('should be ok', async () => {
-      const response = await sendGET('round')
+      const response = await sendGET('rounds/current')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
-  describe('POST /block', () => {
+  describe('POST /blocks', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('block', genesisBlock.toBroadcastV1())
+      const response = await sendPOST('blocks', {
+        block: genesisBlock.toBroadcastV1()
+      })
 
-      expect(response.status).toBe(200)
-
-      expect(response.data).toBeObject()
-
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.status).toBe(204)
     })
   })
 
-  describe.skip('POST /verifyTransaction', () => {
+  describe.skip('POST /transactions/verify', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('verifyTransaction', {
+      const response = await sendPOST('transactions/verify', {
         transaction: genesisTransaction
       })
 
@@ -65,34 +61,31 @@ describe('API - Internal', () => {
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
-  describe('GET /forgingTransactions', () => {
+  describe('GET /transactions/forging', () => {
     it('should be ok', async () => {
-      const response = await sendGET('forgingTransactions')
+      const response = await sendGET('transactions/forging')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 
-  describe('GET /networkState', () => {
+  describe('GET /network/state', () => {
     it('should be ok', async () => {
-      const response = await sendGET('networkState')
+      const response = await sendGET('network/state')
 
       expect(response.status).toBe(200)
 
       expect(response.data).toBeObject()
 
-      expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data).toHaveProperty('data')
     })
   })
 })

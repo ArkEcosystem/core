@@ -1,9 +1,11 @@
 'use strict'
 
+const Boom = require('boom')
 const logger = require('@arkecosystem/core-container').resolvePlugin('logger')
 const requestIp = require('request-ip')
 const bucket = require('./bucket')
 const isWhitelist = require('../../../utils/is-whitelist')
+const monitor = require('../../../monitor')
 
 /**
  * The register method used by hapi.js.
@@ -13,9 +15,7 @@ const isWhitelist = require('../../../utils/is-whitelist')
  */
 const register = async (server, options) => {
   const isKnown = value => {
-    return server.app.p2p
-      .getPeers()
-      .find(peer => (peer.ip === value))
+    return monitor.getPeers().find(peer => (peer.ip === value))
   }
 
   server.ext({
@@ -36,10 +36,7 @@ const register = async (server, options) => {
       if (bucket.remaining(remoteAddress) <= 0) {
         logger.debug(`${remoteAddress} has exceeded the maximum number of requests per minute.`)
 
-        return h.response({
-            success: false,
-            message: 'You have exceeded the maximum number of requests per minute.'
-        }).code(500).takeover()
+        return Boom.tooManyRequests()
       }
 
       return h.continue
@@ -52,7 +49,7 @@ const register = async (server, options) => {
  * @type {Object}
  */
 exports.plugin = {
-  name: 'core-p2p-throttle',
+  name: 'throttle',
   version: '0.1.0',
   register
 }

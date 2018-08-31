@@ -21,7 +21,7 @@ class ConfigLoader {
 
     this._validateConfig()
 
-    this.buildConstants()
+    this.configureCrypto()
 
     return this
   }
@@ -36,11 +36,11 @@ class ConfigLoader {
   }
 
   /**
-   * Build constants from the config.
+   * Configure the crypto package.
    * @return {void}
    */
-  buildConstants () {
-    configManager.buildConstants()
+  configureCrypto () {
+    configManager.setConfig(this.network)
   }
 
   /**

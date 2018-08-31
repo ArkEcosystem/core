@@ -1,4 +1,5 @@
 module.exports = {
+  '@arkecosystem/core-storage': {},
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
   '@arkecosystem/core-logger': {},
