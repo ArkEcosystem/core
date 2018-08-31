@@ -285,7 +285,9 @@ module.exports = class WalletManager {
     if (!this.walletsByAddress[address]) {
       this.walletsByAddress[address] = new Wallet(address)
 
-      this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
+      if (process.env.NODE_ENV !== 'test') {
+        this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
+      }
     }
 
     return this.walletsByAddress[address]

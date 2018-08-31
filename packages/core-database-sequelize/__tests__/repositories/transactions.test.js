@@ -42,11 +42,6 @@ beforeEach(async () => {
   const cache = {}
   repository.cache.get = jest.fn(key => cache[key])
   repository.cache.set = jest.fn((key, value) => (cache[key] = value))
-
-  // Disable event listeners on 'wallet:cold:created' for these tests
-  const container = require('@arkecosystem/core-container')
-  const emitter = container.resolvePlugin('event-emitter')
-  emitter.off('wallet:cold:created')
 })
 
 afterEach(async () => {
