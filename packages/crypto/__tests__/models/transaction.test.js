@@ -97,35 +97,8 @@ describe('Models - Transaction', () => {
     it('returns a new transaction', () => {
       [0, 1, 2, 3, 4].map(type => createRandomTx(type))
         .map(transaction => {
-          transaction.version = 1
-
-          if (transaction.vendorField) {
-            transaction.vendorFieldHex = Buffer.from(transaction.vendorField, 'utf8').toString('hex')
-            transaction.data.vendorField = transaction.vendorField
-          }
-
-          if (transaction.asset && transaction.asset.delegate) {
-            delete transaction.asset.delegate.publicKey
-          }
-
-          if (transaction.type === 0) {
-            delete transaction.asset
-            transaction.expiration = 0
-            transaction.data.expiration = 0
-          }
-
-          if (transaction.signSignature) {
-            transaction.secondSignature = transaction.signSignature
-          }
-
-          if (!transaction.recipientId) {
-            delete transaction.recipientId
-          }
-
-          return transaction
-        })
-        .map(transaction => {
-          const newTransaction = Transaction.fromBytes(Transaction.serialize(transaction).toString('hex'))
+          const ser = Transaction.serialize(transaction.data).toString('hex')
+          const newTransaction = Transaction.fromBytes(ser)
           expect(newTransaction.data).toEqual(transaction.data)
           expect(newTransaction.verified).toBeTruthy()
         })
@@ -140,10 +113,34 @@ describe('Models - Transaction', () => {
     it('should match transaction id', () => {
       [0, 1, 2, 3, 4].map(type => createRandomTx(type))
         .map(transaction => {
-          const originalId = transaction.id
-          const newTransaction = Transaction.deserialize(Transaction.serialize(transaction).toString('hex'))
+          const originalId = transaction.data.id
+          const newTransaction = new Transaction(transaction.data)
           expect(newTransaction.id).toEqual(originalId)
         })
+    })
+  })
+
+  describe('should deserialize correctly some tests transactions', () => {
+    const tx = {
+      id: '80d75c7b90288246199e4a97ba726bad6639595ef92ad7c2bd14fd31563241ab',
+      network: 0x17,
+      height: 918991,
+      type: 1,
+      timestamp: 7410965,
+      amount: 0,
+      fee: 500000000,
+      recipientId: 'AP4UQ6j9hAHsxudpXh47RNQi7oF1AEfkAG',
+      senderPublicKey: '03ca269b2942104b2ad601ccfbe7bd30b14b99cb55210ef7c1a5e25b6669646b99',
+      signature: '3045022100d01e0cf0813a722ab5ad92aece2d4d1c3a537422e2ea769182f9172417224e890220437e407db51c4c47393db2e5b1258b2e3ecb707738a5ffdc6e96f08aee7e9c74',
+      asset: {
+        signature: {
+          publicKey: '03c0e7e86dadd316275a31d84a1fdccd00cd26cc059982f95a1b24382c6ec2ceb0'
+        }
+      }
+    }
+    it('mainnet-txid: ' + tx.id, () => {
+      const newtx = new Transaction(tx)
+      expect(newtx.id).toEqual(tx.id)
     })
   })
 
