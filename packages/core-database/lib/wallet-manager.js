@@ -111,11 +111,9 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
-    this.getLocalWalletsByPublicKey.forEach(publicKey => {
-      const wallet = this.walletsByPublicKey.get(publicKey)
-
+    this.getLocalWalletsByPublicKey().forEach(wallet => {
       if (this.__canBePurged(wallet)) {
-        this.forgetWalletByPublicKey(publicKey)
+        this.forgetWalletByPublicKey(wallet.publicKey)
         this.forgetWalletByAddress(wallet.address)
       }
     })
