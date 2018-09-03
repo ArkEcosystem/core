@@ -109,6 +109,9 @@ exports.transactionsSent = {
       return Boom.notFound('Wallet not found')
     }
 
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
+
     const transactions = await database.transactions.findAllBySender(
       wallet.publicKey, {
         ...request.params,
@@ -138,6 +141,9 @@ exports.transactionsReceived = {
     if (!wallet) {
       return Boom.notFound('Wallet not found')
     }
+
+    // NOTE: We unset this value because it otherwise will produce a faulty SQL query
+    delete request.params.id
 
     const transactions = await database.transactions.findAllByRecipient(
       wallet.address, {
