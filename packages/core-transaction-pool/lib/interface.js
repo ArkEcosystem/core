@@ -82,7 +82,6 @@ module.exports = class TransactionPoolInterface {
     throw new Error('Method [removeTransactions] not implemented!')
   }
 
-
   /**
    * Removes any transactions in the pool that have already been forged.
    * @param  {Array} transactionIds
