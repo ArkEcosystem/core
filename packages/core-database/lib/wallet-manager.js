@@ -68,6 +68,10 @@ module.exports = class WalletManager {
     }
   }
 
+  cleanAllWallets () {
+    storage.get('walletsByAddress').map(wallet => (wallet.dirty = false))
+  }
+
   /**
    * Update the vote balances and ranks of delegates.
    * @return {void}
