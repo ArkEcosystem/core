@@ -340,7 +340,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API
-    return Object.values(storage.get('walletsByAddress'))
+    return this.walletsByAddress.toArray()
   }
 
   /**
