@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 
-const { map, orderBy, sumBy } = require('lodash')
+const { map, orderBy } = require('lodash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
@@ -204,19 +204,18 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async updateDelegates () {
-    let delegates = this.allByUsername().map(delegate => {
-      const voters = this
+    let delegates = this.allByUsername()
+    delegates.forEach(delegate => {
+      this
         .all()
         .filter(w => w.vote === delegate.publicKey)
-
-      delegate.voteBalance = sumBy(voters, 'balance')
-
-      return delegate
+        .forEach(wallet => {
+          delegate.voteBalance = delegate.voteBalance.add(wallet.balance)
+        })
     })
 
-    delegates = orderBy(delegates, ['voteBalance'], ['desc']).map((delegate, index) => {
+    delegates = orderBy(delegates, [delegate => delegate.voteBalance.toNumber()], ['desc']).map((delegate, index) => {
       delegate.rate = index + 1
-
       return delegate
     })
 
@@ -429,7 +428,7 @@ module.exports = class WalletManager {
    * @return {Boolean}
    */
   __canBePurged (wallet) {
-    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+    return +wallet.balance.toString() === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
   /**
