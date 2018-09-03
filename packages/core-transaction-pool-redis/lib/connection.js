@@ -1,13 +1,19 @@
 'use strict'
 
+const Promise = require('bluebird')
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
+const uniq = require('lodash/uniq')
+
 const ark = require('@arkecosystem/crypto')
+const { slots } = ark
 const { Transaction } = ark.models
 const { TRANSACTION_TYPES } = ark.constants
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
+const database = container.resolvePlugin('database')
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -238,6 +244,85 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     }
 
     return undefined
+  }
+
+  /**
+   * Removes any transactions in the pool that have already been forged.
+   * @param  {Array} transactionIds
+   * @return {Array} IDs of pending transactions that have yet to be forged.
+   */
+  async removeForgedAndGetPending (transactionIds) {
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
+
+    await Promise.each(forgedIdsSet, async (transactionId) => {
+      await this.removeTransactionById(transactionId)
+    })
+
+    return transactionIds.filter(id => !forgedIdsSet.has(id))
+  }
+
+  /**
+   * Get all transactions that are ready to be forged.
+   * @param  {Number} blockSize
+   * @return {(Array|void)}
+   */
+  async getTransactionsForForging (blockSize) {
+    try {
+      let transactionIds = await this.getTransactionsIds(0, blockSize * 5)
+      transactionIds = await this.removeForgedAndGetPending(transactionIds)
+      transactionIds = uniq(transactionIds)
+
+      let transactions = []
+      for (let id of transactionIds) {
+        const transaction = await this.getTransaction(id)
+
+        if (!transaction || !dynamicFeeMatch(transaction)) {
+          continue
+        }
+
+        const database = container.resolvePlugin('database')
+
+        if (!database.walletManager.getWalletByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
+          await this.removeTransaction(transaction)
+
+          logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)
+
+          await this.purgeByPublicKey(transaction.senderPublicKey)
+          this.blockSender(transaction.senderPublicKey)
+
+          continue
+        }
+
+        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
+          const actions = {
+            0: () => { // timestamp lock defined
+              if (transaction.timelock <= slots.getTime()) {
+                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock} :unlock:`)
+                transactions.push(transaction.serialized.toString('hex'))
+              }
+            },
+            1: () => { // block height time lock
+              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock().data.height) {
+                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock} :unlock:`)
+                transactions.push(transaction.serialized.toString('hex'))
+              }
+            }
+          }
+          actions[transaction.timelockType]()
+
+          continue
+        }
+
+        transactions.push(transaction.serialized.toString('hex'))
+        if (transactions.length === blockSize) {
+          break
+        }
+      }
+
+      return transactions
+    } catch (error) {
+      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+    }
   }
 
   /**

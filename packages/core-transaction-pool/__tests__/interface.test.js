@@ -101,6 +101,10 @@ describe('Transaction Pool Interface', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getTransactionsForForging()).rejects.toThrowError('Method [getTransactionsForForging] not implemented!')
+    })
   })
 
   describe('hasExceededMaxTransactions', () => {

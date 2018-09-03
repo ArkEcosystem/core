@@ -338,6 +338,12 @@ describe('Connection', () => {
     })
   })
 
+  describe('removeForgedAndGetPending', () => {
+    it('should be a function', () => {
+      expect(connection.removeForgedAndGetPending).toBeFunction()
+    })
+  })
+
   describe('flush', () => {
     it('should be a function', () => {
       expect(connection.flush).toBeFunction()

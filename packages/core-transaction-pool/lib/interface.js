@@ -4,19 +4,10 @@ const Promise = require('bluebird')
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
-
-const ark = require('@arkecosystem/crypto')
-const { slots } = ark
-const { TRANSACTION_TYPES } = ark.constants
 
 const memory = require('./memory')
 const PoolWalletManager = require('./pool-wallet-manager')
-const helpers = require('./utils/validation-helpers')
 const moment = require('moment')
-const uniq = require('lodash/uniq')
-
-const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -89,6 +80,25 @@ module.exports = class TransactionPoolInterface {
    */
   async removeTransactions (transactions) {
     throw new Error('Method [removeTransactions] not implemented!')
+  }
+
+
+  /**
+   * Removes any transactions in the pool that have already been forged.
+   * @param  {Array} transactionIds
+   * @return {Array} IDs of pending transactions that have yet to be forged.
+   */
+  async removeForgedAndGetPending (transactionIds) {
+    throw new Error('Method [removeForgedAndGetPending] not implemented!')
+  }
+
+  /**
+   * Get all transactions that are ready to be forged.
+   * @param  {Number} blockSize
+   * @return {(Array|void)}
+   */
+  async getTransactionsForForging (blockSize) {
+    throw new Error('Method [getTransactionsForForging] not implemented!')
   }
 
   /**
@@ -187,83 +197,6 @@ module.exports = class TransactionPoolInterface {
     logger.warn(`Sender ${senderPublicKey} blocked until ${this.blockedByPublicKey[senderPublicKey]} :stopwatch:`)
 
     return blockReleaseTime
-  }
-
-  /**
-   * Get all transactions that are ready to be forged.
-   * @param  {Number} blockSize
-   * @return {(Array|void)}
-   */
-  async getTransactionsForForging (blockSize) {
-    try {
-      let transactionIds = await this.getTransactionsIds(0, blockSize * 5)
-      transactionIds = await this.removeForgedAndGetPending(transactionIds)
-      transactionIds = uniq(transactionIds)
-
-      let transactions = []
-      for (let id of transactionIds) {
-        const transaction = await this.getTransaction(id)
-
-        if (!transaction || !dynamicFeeMatch(transaction)) {
-          continue
-        }
-
-        if (!helpers.canApplyToBlockchain(transaction)) {
-          await this.removeTransaction(transaction)
-
-          logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)
-
-          await this.purgeByPublicKey(transaction.senderPublicKey)
-          this.blockSender(transaction.senderPublicKey)
-
-          continue
-        }
-
-        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
-          const actions = {
-            0: () => { // timestamp lock defined
-              if (transaction.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock} :unlock:`)
-                transactions.push(transaction.serialized.toString('hex'))
-              }
-            },
-            1: () => { // block height time lock
-              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock().data.height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock} :unlock:`)
-                transactions.push(transaction.serialized.toString('hex'))
-              }
-            }
-          }
-          actions[transaction.timelockType]()
-
-          continue
-        }
-
-        transactions.push(transaction.serialized.toString('hex'))
-        if (transactions.length === blockSize) {
-          break
-        }
-      }
-
-      return transactions
-    } catch (error) {
-      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
-    }
-  }
-
-  /**
-   * Removes any transactions in the pool that have already been forged.
-   * @param  {Array} transactionIds
-   * @return {Array} IDs of pending transactions that have yet to be forged.
-   */
-  async removeForgedAndGetPending (transactionIds) {
-    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
-
-    await Promise.each(forgedIdsSet, async (transactionId) => {
-      await this.removeTransactionById(transactionId)
-    })
-
-    return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
 
   /**

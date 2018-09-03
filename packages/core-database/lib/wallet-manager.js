@@ -209,7 +209,6 @@ module.exports = class WalletManager {
     const { type, asset, recipientId, senderPublicKey } = data
 
     const sender = this.getWalletByPublicKey(senderPublicKey)
-    
     const recipient = this.findOrCreate(recipientId)
 
     if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
@@ -284,11 +283,10 @@ module.exports = class WalletManager {
    */
   findOrCreate (address) {
    let wallet = this.getWalletByAddress(address)
-    
    if (!wallet) { // cold wallet
-     this.walletsByAddress[address] = new Wallet(address) 
+     this.walletsByAddress[address] = new Wallet(address)
 
-     this.__emitEvent('wallet:cold:created', this.walletsByAddress[address]) 
+     this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
    }
 
    return this.walletsByAddress[address]
