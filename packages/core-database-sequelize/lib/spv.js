@@ -1,3 +1,4 @@
+const Bignum = require('bigi')
 const { Transaction } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
@@ -71,7 +72,7 @@ module.exports = class SPV {
       const wallet = this.walletManager.findByAddress(row.recipientId)
 
       wallet
-        ? wallet.balance = parseInt(row.amount)
+        ? wallet.balance = new Bignum(row.amount)
         : logger.warn(`Lost cold wallet: ${row.recipientId} ${row.amount}`)
     })
   }
@@ -90,7 +91,7 @@ module.exports = class SPV {
 
     data.forEach(row => {
       const wallet = this.walletManager.findByPublicKey(row.generatorPublicKey)
-      wallet.balance += parseInt(row.reward)
+      wallet.balance = wallet.balance.add(new Bignum(row.reward))
     })
   }
 
@@ -127,9 +128,11 @@ module.exports = class SPV {
 
     data.forEach(row => {
       let wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
-      wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
+      wallet.balance = wallet.balance
+        .subtract(new Bignum(row.amount))
+        .subtract(new Bignum(row.fee))
 
-      if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
+      if (+wallet.balance.toString() < 0 && !this.walletManager.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`)
       }
     })
@@ -193,18 +196,18 @@ module.exports = class SPV {
       .groupBy('generator_public_key')
       .all()
 
-    for (let i = 0; i < delegates.length; i++) {
+    for (let delegate of delegates) {
       const forgedBlock = forgedBlocks.filter(block => {
-        return block.generatorPublicKey === delegates[i].publicKey
+        return block.generatorPublicKey === delegate.publicKey
       })[0]
 
-      const wallet = this.walletManager.findByPublicKey(delegates[i].publicKey)
-      wallet.voteBalance = delegates[i].voteBalance
-      wallet.missedBlocks = parseInt(delegates[i].missedBlocks)
+      const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
+      wallet.voteBalance = new Bignum(delegate.voteBalance)
+      wallet.missedBlocks = +delegate.missedBlocks
 
       if (forgedBlock) {
-        wallet.forgedFees = +forgedBlock.totalFees
-        wallet.forgedRewards = +forgedBlock.totalRewards
+        wallet.forgedFees = wallet.forgedFees.add(new Bignum(forgedBlock.totalFees))
+        wallet.forgedRewards = wallet.forgedRewards.add(new Bignum(forgedBlock.totalRewards))
         wallet.producedBlocks = +forgedBlock.totalProduced
       }
 
