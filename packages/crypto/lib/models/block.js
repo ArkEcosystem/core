@@ -19,9 +19,15 @@ const toBytesHex = (buffer) => {
   */
 const applyV1Fix = (data) => {
   // START Fix for v1 api
-  data.totalAmount = parseInt(data.totalAmount)
-  data.totalFee = parseInt(data.totalFee)
-  data.reward = parseInt(data.reward)
+
+  // applyV1Fix is entered multiple times, but we only need to convert
+  // the first time to Bignum.
+  if (!(data.totalAmount instanceof Bignum)) {
+    data.totalAmount = new Bignum(data.totalAmount)
+    data.totalFee = new Bignum(data.totalFee)
+    data.reward = new Bignum(data.reward)
+  }
+
   data.previousBlockHex = data.previousBlock ? toBytesHex(new Bignum(data.previousBlock).toBuffer()) : '0000000000000000'
   data.idHex = toBytesHex(new Bignum(data.id).toBuffer())
   // END Fix for v1 api
@@ -241,7 +247,8 @@ module.exports = class Block {
         }
       }
 
-      if (constants.reward !== block.reward) {
+      const reward = new Bignum(constants.reward.toString())
+      if (!reward.equals(block.reward)) {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
 
@@ -312,8 +319,8 @@ module.exports = class Block {
 
         // Checking if transactions of the block adds up to block values.
         let appliedTransactions = {}
-        let totalAmount = 0
-        let totalFee = 0
+        let totalAmount = Bignum.ZERO
+        let totalFee = Bignum.ZERO
         this.transactions.forEach(transaction => {
           const bytes = Buffer.from(transaction.data.id, 'hex')
 
@@ -323,18 +330,18 @@ module.exports = class Block {
 
           appliedTransactions[transaction.data.id] = transaction.data
 
-          totalAmount += transaction.data.amount
-          totalFee += transaction.data.fee
+          totalAmount = totalAmount.add(transaction.data.amount)
+          totalFee = totalFee.add(transaction.data.fee)
           size += bytes.length
 
           payloadHash.update(bytes)
         })
 
-        if (totalAmount !== block.totalAmount) {
+        if (!totalAmount.equals(block.totalAmount)) {
           result.errors.push('Invalid total amount')
         }
 
-        if (totalFee !== block.totalFee) {
+        if (!totalFee.equals(block.totalFee)) {
           result.errors.push('Invalid total fee')
         }
       }
@@ -370,9 +377,9 @@ module.exports = class Block {
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
     block.previousBlock = Bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
-    block.totalAmount = buf.readUInt64(24).toNumber()
-    block.totalFee = buf.readUInt64(32).toNumber()
-    block.reward = buf.readUInt64(40).toNumber()
+    block.totalAmount = new Bignum(buf.readUInt64(24).toString())
+    block.totalFee = new Bignum(buf.readUInt64(32).toString())
+    block.reward = new Bignum(buf.readUInt64(40).toString())
     block.payloadLength = buf.readUInt32(48)
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
@@ -439,9 +446,9 @@ module.exports = class Block {
     }
 
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(block.totalAmount)
-    bb.writeUInt64(block.totalFee)
-    bb.writeUInt64(block.reward)
+    bb.writeUInt64(+block.totalAmount.toString())
+    bb.writeUInt64(+block.totalFee.toString())
+    bb.writeUInt64(+block.reward.toString())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -490,9 +497,9 @@ module.exports = class Block {
       }
 
       bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(block.totalAmount)
-      bb.writeLong(block.totalFee)
-      bb.writeLong(block.reward)
+      bb.writeLong(+block.totalAmount.toString())
+      bb.writeLong(+block.totalFee.toString())
+      bb.writeLong(+block.reward.toString())
 
       bb.writeInt(block.payloadLength)
 
