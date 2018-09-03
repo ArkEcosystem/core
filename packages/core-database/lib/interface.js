@@ -418,7 +418,7 @@ module.exports = class ConnectionInterface {
   async verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
 
-    let sender = this.walletManager.findByAddress[senderId] // should exist
+    let sender = this.walletManager.findByAddress(senderId) // should exist
 
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
