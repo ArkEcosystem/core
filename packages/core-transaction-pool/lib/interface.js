@@ -8,6 +8,7 @@ const logger = container.resolvePlugin('logger')
 const memory = require('./memory')
 const PoolWalletManager = require('./pool-wallet-manager')
 const moment = require('moment')
+const database = container.resolvePlugin('database')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -269,5 +270,20 @@ module.exports = class TransactionPoolInterface {
     await this.removeTransactionsForSender(senderPublicKey)
 
     this.walletManager.deleteWallet(senderPublicKey)
+  }
+
+  async checkApplyToBlockchain (transaction) {
+    if (!database.walletManager.findByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
+      await this.removeTransaction(transaction)
+
+      logger.debug(`CanApply transaction test failed from transaction pool for transaction ${transaction.id}. Possible double spending attack :bomb:`)
+
+      await this.purgeByPublicKey(transaction.senderPublicKey)
+      this.blockSender(transaction.senderPublicKey)
+
+      return false
+    }
+
+    return true
   }
 }

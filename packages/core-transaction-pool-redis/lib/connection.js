@@ -270,27 +270,18 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       let transactionsIds = await this.getTransactionIdsForForging(0, 0)
 
       let transactions = []
-      while (transactionsIds.length || transactions.length === blockSize) {
+      while (transactionsIds.length) {
         const id = transactionsIds.shift()
         const transaction = await this.getTransaction(id)
 
-        if (!transaction || !dynamicFeeMatch(transaction)) {
-          logger.verbose('dynamic fee mismatch')
-          continue
-        }
-
-        if (!database.walletManager.findByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
-          await this.removeTransaction(transaction)
-
-          logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)
-
-          await this.purgeByPublicKey(transaction.senderPublicKey)
-          this.blockSender(transaction.senderPublicKey)
-
+        if (!transaction || !dynamicFeeMatch(transaction) || !this.checkApplyToBlockchain(transaction)) {
           continue
         }
 
         transactions.push(transaction.serialized.toString('hex'))
+        if (transactions.length === blockSize) {
+          break
+        }
       }
 
       return transactions
