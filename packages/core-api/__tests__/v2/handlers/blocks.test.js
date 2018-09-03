@@ -273,7 +273,7 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the exact specified totalFee', async () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id,
-        totalFee: { from: 1 }
+        totalFee: { from: 0 }
       })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
@@ -289,7 +289,7 @@ describe('API 2.0 - Blocks', () => {
     it('should POST a search for blocks with the specified totalFee range', async () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id,
-        totalFee: { from: 1 }
+        totalFee: { from: 0 }
       })
       utils.expectSuccessful(response)
       utils.expectCollection(response)

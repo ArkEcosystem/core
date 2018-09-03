@@ -4,14 +4,26 @@ const axios = require('axios')
 const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
 
 class Helpers {
-  request (method, path, params = {}) {
+  async request (method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
     const headers = { 'API-Version': 1 }
-    const request = axios[method.toLowerCase()]
 
-    return ['GET', 'DELETE'].includes(method)
-      ? request(url, { params, headers })
-      : request(url, params, { headers })
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    // Build URL params from _params_ object for GET / DELETE requests
+    const getParams = Object.entries(params).map(([key, val]) => `${key}=${val}`).join('&')
+
+    // Injecting the request into Hapi server instead of using axios
+    const injectOptions = {
+      method,
+      url: ['GET', 'DELETE'].includes(method) ? `${url}?${getParams}` : url,
+      headers,
+      payload: ['GET', 'DELETE'].includes(method) ? {} : params
+    }
+
+    const response = await server.inject(injectOptions)
+    Object.assign(response, { data: response.result, status: response.statusCode })
+    return response
   }
 
   expectJson (response) {
@@ -35,14 +47,14 @@ class Helpers {
     this.expectStatus(response, 200)
     this.expectJson(response)
     this.expectState(response, true)
-    this.assertVersion(response, '1')
+    this.assertVersion(response, 1)
   }
 
   expectError (response) {
     this.expectStatus(response, 200)
     this.expectJson(response)
     this.expectState(response, false)
-    this.assertVersion(response, '1')
+    this.assertVersion(response, 1)
   }
 
   expectDelegate (delegate, expected) {
@@ -50,12 +62,12 @@ class Helpers {
     expect(delegate.username).toBeString()
     expect(delegate.address).toBeString()
     expect(delegate.publicKey).toBeString()
-    expect(delegate.votes).toBeNumber()
+    expect(delegate.vote).toBeString()
     expect(delegate.rate).toBeNumber()
     expect(delegate.missedblocks).toBeNumber()
     expect(delegate.producedblocks).toBeNumber()
-    expect(delegate.approval).toBeString()
-    expect(delegate.productivity).toBeString()
+    expect(delegate.approval).toBeNumber()
+    expect(delegate.productivity).toBeNumber()
 
     Object.keys(expected || {}).forEach(attr => {
       expect(delegate[attr]).toBe(expected[attr])
