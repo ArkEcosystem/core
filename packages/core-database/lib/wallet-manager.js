@@ -32,11 +32,12 @@ module.exports = class WalletManager {
   reset () {
     storage.forget([
       'walletsByAddress',
-      'walletsByPublicKey'
+      'walletsByPublicKey',
+      'walletsByUsername'
     ])
     this.walletsByAddress = storage.setMap('walletsByAddress')
     this.walletsByPublicKey = storage.setMap('walletsByPublicKey')
-    this.walletsByUsername = {}
+    this.walletsByUsername = storage.setMap('walletsByUsername')
   }
 
   /**
@@ -63,7 +64,7 @@ module.exports = class WalletManager {
     }
 
     if (wallet.username) {
-      this.walletsByUsername[wallet.username] = wallet
+      this.setWalletByUsername(wallet.username, wallet)
     }
   }
 
@@ -219,7 +220,7 @@ module.exports = class WalletManager {
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
@@ -272,7 +273,7 @@ module.exports = class WalletManager {
 
     // removing the wallet from the delegates index
     if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      this.walletsByUsername[data.asset.delegate.username] = null
+      this.forgetWalletByUsername(data.asset.delegate.username)
     }
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
@@ -303,6 +304,15 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Set wallet by username.
+   * @param {String} username
+   * @param {Object} wallet
+   */
+  setWalletByUsername (username, wallet) {
+    this.walletsByUsername = this.walletsByUsername.set(username, wallet)
+  }
+
+  /**
    * Remove wallet by address.
    * @param {String} address
    * @param {Object} wallet
@@ -318,6 +328,15 @@ module.exports = class WalletManager {
    */
   forgetWalletByPublicKey (publicKey) {
     this.walletsByPublicKey = this.walletsByPublicKey.delete(publicKey)
+  }
+
+  /**
+   * Remove wallet by username.
+   * @param {String} username
+   * @param {Object} wallet
+   */
+  forgetWalletByUsername (username) {
+    this.walletsByUsername = this.walletsByUsername.delete(username)
   }
 
   /**
@@ -360,15 +379,15 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByUsername (username) {
-    return this.walletsByUsername[username]
+    return this.walletsByUsername.get(username)
   }
 
   /**
-   * Getter for "walletsByUsername" for clear intent.
-   * @return {Wallet}
+   * Get all wallets by username.
+   * @return {Array}
    */
   getDelegates () {
-    return Object.values(this.walletsByUsername)
+    return this.walletsByUsername.toArray()
   }
 
   /**
@@ -394,7 +413,7 @@ module.exports = class WalletManager {
   __isDelegate (publicKey) {
     const delegateWallet = this.walletsByPublicKey.get(publicKey)
     if (delegateWallet && delegateWallet.username) {
-      return !!this.walletsByUsername[delegateWallet.username]
+      return !!this.walletsByUsername.get(delegateWallet.username)
     }
 
     return false
