@@ -1,4 +1,5 @@
 const bs58check = require('bs58check')
+const Bignum = require('bigi')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
 const crypto = require('../crypto/crypto')
@@ -141,6 +142,11 @@ module.exports = class Transaction {
 
     // TODO use else if
 
+    if (transaction.amount instanceof Bignum) {
+      console.log("aaa")
+    }
+
+
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
       bb.writeUInt64(transaction.amount)
       bb.writeUInt32(transaction.expiration || 0)
@@ -231,7 +237,7 @@ module.exports = class Transaction {
     transaction.type = buf.readInt8(3)
     transaction.timestamp = buf.readUInt32(4)
     transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2)
-    transaction.fee = buf.readUInt64(41).toNumber()
+    transaction.fee = new Bignum(buf.readUInt64(41).toString())
 
     const vflength = buf.readInt8(41 + 8)
     if (vflength > 0) {
@@ -241,7 +247,7 @@ module.exports = class Transaction {
     const assetOffset = (41 + 8 + 1) * 2 + vflength * 2
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      transaction.amount = buf.readUInt64(assetOffset / 2).toNumber()
+      transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2).toString())
       transaction.expiration = buf.readUInt32(assetOffset / 2 + 8)
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21))
 
@@ -307,7 +313,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      transaction.amount = buf.readUInt64(assetOffset / 2).toNumber()
+      transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2).toString())
       transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
       transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
@@ -323,13 +329,13 @@ module.exports = class Transaction {
 
       for (let j = 0; j < total; j++) {
         const payment = {}
-        payment.amount = buf.readUInt64(offset).toNumber()
+        payment.amount = new Bignum(buf.readUInt64(offset).toString())
         payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21))
         transaction.asset.payments.push(payment)
         offset += 22
       }
 
-      transaction.amount = transaction.asset.payments.reduce((a, p) => (a += p.amount), 0)
+      transaction.amount = transaction.asset.payments.reduce((a, p) => (a.add(p.amount)), Bignum.ZERO)
 
       Transaction.parseSignatures(hexString, transaction, offset * 2)
     }
@@ -339,7 +345,7 @@ module.exports = class Transaction {
     }
 
     if (!transaction.amount) { // this is needed for computation over the blockchain
-      transaction.amount = 0
+      transaction.amount = Bignum.ZERO
     }
 
     if (!transaction.version || transaction.version === 1) {
