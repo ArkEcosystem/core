@@ -9,7 +9,6 @@ const emitter = container.resolvePlugin('event-emitter')
 const uniq = require('lodash/uniq')
 
 const ark = require('@arkecosystem/crypto')
-const { slots } = ark
 const { Transaction } = ark.models
 const { TRANSACTION_TYPES } = ark.constants
 const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
@@ -286,26 +285,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
           await this.purgeByPublicKey(transaction.senderPublicKey)
           this.blockSender(transaction.senderPublicKey)
-
-          continue
-        }
-
-        if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) { // timelock is defined
-          const actions = {
-            0: () => { // timestamp lock defined
-              if (transaction.timelock <= slots.getTime()) {
-                logger.debug(`Timelock for ${id} released - timestamp: ${transaction.timelock} :unlock:`)
-                transactions.push(transaction.serialized.toString('hex'))
-              }
-            },
-            1: () => { // block height time lock
-              if (transaction.timelock <= container.resolvePlugin('blockchain').getLastBlock().data.height) {
-                logger.debug(`Timelock for ${id} released - block height: ${transaction.timelock} :unlock:`)
-                transactions.push(transaction.serialized.toString('hex'))
-              }
-            }
-          }
-          actions[transaction.timelockType]()
 
           continue
         }
