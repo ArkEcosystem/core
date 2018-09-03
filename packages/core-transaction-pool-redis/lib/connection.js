@@ -282,7 +282,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
         const database = container.resolvePlugin('database')
 
-        if (!database.walletManager.getWalletByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
+        if (!database.walletManager.findByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
           await this.removeTransaction(transaction)
 
           logger.debug(`Unsufficient funds for transaction ${id}. Possible double spending attack :bomb:`)

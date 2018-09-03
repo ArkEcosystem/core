@@ -241,7 +241,7 @@ module.exports = class ConnectionInterface {
     try {
       delegates.forEach(delegate => {
         let producedBlocks = this.blocksInCurrentRound.filter(blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey)
-        let wallet = this.walletManager.getWalletByPublicKey(delegate.publicKey)
+        let wallet = this.walletManager.findByPublicKey(delegate.publicKey)
 
         if (producedBlocks.length === 0) {
           wallet.missedBlocks++
@@ -351,12 +351,12 @@ module.exports = class ConnectionInterface {
     const slot = slots.getSlotNumber(block.data.timestamp)
     const forgingDelegate = delegates[slot % delegates.length]
 
-    const generatorUsername = this.walletManager.getWalletByPublicKey(block.data.generatorPublicKey).username
+    const generatorUsername = this.walletManager.findByPublicKey(block.data.generatorPublicKey).username
 
     if (!forgingDelegate) {
       logger.debug(`Could not decide if delegate ${generatorUsername} (${block.data.generatorPublicKey}) is allowed to forge block ${block.data.height.toLocaleString()} :grey_question:`)
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-      const forgingUsername = this.walletManager.getWalletByPublicKey(forgingDelegate.publicKey).username
+      const forgingUsername = this.walletManager.findByPublicKey(forgingDelegate.publicKey).username
 
       throw new Error(`Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey}) :-1:`)
     } else {
@@ -418,7 +418,7 @@ module.exports = class ConnectionInterface {
   async verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
 
-    let sender = this.walletManager.getWalletByAddress[senderId] // should exist
+    let sender = this.walletManager.findByAddress[senderId] // should exist
 
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
