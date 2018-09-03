@@ -281,6 +281,10 @@ module.exports = class WalletManager {
     return data
   }
 
+  setWalletByAddress (address, wallet) {
+    this.walletsByAddress = this.walletsByAddress.set(address, wallet)
+  }
+
   /**
    * Find a wallet by the given address.
    * @param  {String} address
