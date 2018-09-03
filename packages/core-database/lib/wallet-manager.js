@@ -52,7 +52,7 @@ module.exports = class WalletManager {
    */
   reindex (wallet) {
     if (wallet.address) {
-      storage.get('walletsByAddress')[wallet.address] = wallet
+      this.setWalletByAddress(wallet.address, wallet)
     }
 
     if (wallet.publicKey) {
@@ -65,7 +65,7 @@ module.exports = class WalletManager {
   }
 
   cleanAllWallets () {
-    storage.get('walletsByAddress').map(wallet => (wallet.dirty = false))
+    this.walletsByAddress.map(wallet => (wallet.dirty = false))
   }
 
   /**
@@ -110,7 +110,7 @@ module.exports = class WalletManager {
 
       if (this.__canBePurged(wallet)) {
         delete this.walletsByPublicKey[publicKey]
-        delete storage.get('walletsByAddress')[wallet.address]
+        delete this.walletsByAddress.get(wallet.address)
       }
     })
   }
@@ -134,9 +134,9 @@ module.exports = class WalletManager {
 
         this.reindex(delegate)
       } else {
-        logger.debug(`Delegate by address: ${storage.get('walletsByAddress')[generator]}`)
+        logger.debug(`Delegate by address: ${this.walletsByAddress.get(generator)}`)
 
-        if (storage.get('walletsByAddress')[generator]) {
+        if (this.walletsByAddress(generator)) {
           logger.info('This look like a bug, please report :bug:')
         }
 
@@ -291,15 +291,15 @@ module.exports = class WalletManager {
    * @return {(Wallet|null)}
    */
   findByAddress (address) {
-    if (!storage.get('walletsByAddress').get(address)) {
-      storage.get('walletsByAddress').set(address, new Wallet(address))
+    if (!this.walletsByAddress.get(address)) {
+      this.setWalletByAddress(address, new Wallet(address))
 
       if (process.env.NODE_ENV !== 'test') {
-        this.__emitEvent('wallet:cold:created', storage.get('walletsByAddress').get(address))
+        this.__emitEvent('wallet:cold:created', this.walletsByAddress.get(address))
       }
     }
 
-    return storage.get('walletsByAddress').get(address)
+    return this.walletsByAddress.get(address)
   }
 
   /**
