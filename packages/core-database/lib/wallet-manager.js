@@ -389,7 +389,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getDelegates () {
-    return this.walletsByUsername.toArray()
+    return this.walletsByUsername.valueSeq().toArray()
   }
 
   /**
@@ -397,7 +397,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API
-    return this.walletsByAddress.toArray()
+    return this.walletsByAddress.valueSeq().toArray()
   }
 
   /**
@@ -405,7 +405,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getLocalWalletsByPublicKey () {
-    return this.walletsByPublicKey.toArray()
+    return this.walletsByPublicKey.valueSeq().toArray()
   }
 
   /**
