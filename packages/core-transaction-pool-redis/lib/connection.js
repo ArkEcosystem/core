@@ -268,19 +268,16 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   async getTransactionsForForging (blockSize) {
     try {
-      let transactionIds = await this.getTransactionsIds(0, blockSize * 5)
-      transactionIds = await this.removeForgedAndGetPending(transactionIds)
-      transactionIds = uniq(transactionIds)
+      let transactionsIds = await this.getTransactionIdsForForging(0, 0)
 
       let transactions = []
-      for (let id of transactionIds) {
+      while (!transactionsIds.length || transactions.length === blockSize) {
+        const id = transactionsIds.shift()
         const transaction = await this.getTransaction(id)
 
         if (!transaction || !dynamicFeeMatch(transaction)) {
           continue
         }
-
-        const database = container.resolvePlugin('database')
 
         if (!database.walletManager.findByPublicKey(transaction.senderPublicKey).canApply(transaction)) {
           await this.removeTransaction(transaction)
@@ -314,9 +311,6 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         }
 
         transactions.push(transaction.serialized.toString('hex'))
-        if (transactions.length === blockSize) {
-          break
-        }
       }
 
       return transactions
@@ -352,20 +346,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions within the specified range.
+   * Get all transactions within the specified range, removes already forged ones and possible duplicates
    * @param  {Number} start
    * @param  {Number} size
    * @return {(Array|void)} array of transactions IDs in specified range
    */
-  async getTransactionsIds (start, size) {
+  async getTransactionIdsForForging (start, size) {
     if (!this.__isReady()) {
       return
     }
 
     try {
-      const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      let transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      transactionIds = await this.removeForgedAndGetPending(transactionIds)
 
-      return transactionIds
+      return uniq(transactionIds)
     } catch (error) {
       logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
     }
