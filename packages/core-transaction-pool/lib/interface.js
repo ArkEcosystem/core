@@ -120,13 +120,13 @@ module.exports = class TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions IDs within the specified range.
+   * Get all cleans transactions IDs within the specified range from transaction pool.
    * @param  {Number} start
    * @param  {Number} size
    * @return {Array}
    */
-  async getTransactionsIds (start, size) {
-    throw new Error('Method [getTransactionsIds] not implemented!')
+  async getTransactionIdsForForging (start, size) {
+    throw new Error('Method [getTransactionIdsForForging] not implemented!')
   }
 
   /**
@@ -244,11 +244,9 @@ module.exports = class TransactionPoolInterface {
    */
   async buildWallets () {
     this.walletManager.purgeAll()
-    const poolTransactions = await this.getTransactionsIds(0, 0)
+    const poolTransactions = await this.getTransactionsIdsForForging(0, 0)
 
-    const unconfirmedTransactions = await this.removeForgedAndGetPending(poolTransactions)
-
-    await Promise.each(unconfirmedTransactions, async (transactionId) => {
+    await Promise.each(poolTransactions, async (transactionId) => {
       const transaction = await this.getTransaction(transactionId)
 
       if (!transaction) {
