@@ -14,7 +14,15 @@ module.exports = {
   transactionBuilder: require('./builder'),
 
   // Crypto...
-  ...require('./crypto'),
+  crypto: {
+    crypto: require('./crypto/crypto'),
+    ecdsa: require('./crypto/ecdsa'),
+    ECPair: require('./crypto/ecpair'),
+    ECSignature: require('./crypto/ecsignature'),
+    HDNode: require('./crypto/hdnode'),
+    slots: require('./crypto/slots'),
+    utils: require('./crypto/utils')
+  },
 
   // Managers...
   configManager: require('./managers/config'),
