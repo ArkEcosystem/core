@@ -30,11 +30,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
-    try {
-      storage.forget('walletsByAddress')
-    } catch (error) {
-      //
-    }
+    storage.forget('walletsByAddress')
     this.walletsByAddress = storage.setMap('walletsByAddress')
     this.walletsByPublicKey = {}
     this.walletsByUsername = {}

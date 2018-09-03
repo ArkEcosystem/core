@@ -86,10 +86,6 @@ module.exports = class Storage {
    * @return {void}
    */
   forget (key) {
-    if (!this.has(key)) {
-      throw new Error(`${key} doesn't exists in storage.`)
-    }
-
     this.storage = this.storage.delete(key)
   }
 
