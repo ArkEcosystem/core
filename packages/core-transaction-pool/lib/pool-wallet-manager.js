@@ -55,24 +55,6 @@ module.exports = class PoolWalletManager extends WalletManager {
     return false
   }
 
-  /**
-   * Empty the pool manager wallets
-   * @return {void}
-   */
-  purgeAll () {
-    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      delete this.walletsByPublicKey[publicKey]
-    })
-
-    Object.keys(this.walletsByAddress).forEach(address => {
-      delete this.walletsByAddress[address]
-    })
-
-    Object.keys(this.walletsByUsername).forEach(username => {
-      delete this.walletsByUsername[username]
-    })
-  }
-
   deleteWallet (publicKey) {
     delete this.walletsByPublicKey[publicKey]
 

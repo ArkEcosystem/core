@@ -305,7 +305,7 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   async buildWallets () {
-    this.walletManager.purgeAll()
+    this.walletManager.reset()
     const poolTransactions = await this.getTransactionsIds(0, 0)
 
     const unconfirmedTransactions = await this.removeForgedAndGetPending(poolTransactions)
