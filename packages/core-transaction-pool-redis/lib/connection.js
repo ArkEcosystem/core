@@ -270,11 +270,12 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       let transactionsIds = await this.getTransactionIdsForForging(0, 0)
 
       let transactions = []
-      while (!transactionsIds.length || transactions.length === blockSize) {
+      while (transactionsIds.length || transactions.length === blockSize) {
         const id = transactionsIds.shift()
         const transaction = await this.getTransaction(id)
 
         if (!transaction || !dynamicFeeMatch(transaction)) {
+          logger.verbose('dynamic fee mismatch')
           continue
         }
 

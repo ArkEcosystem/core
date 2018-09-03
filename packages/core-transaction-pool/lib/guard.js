@@ -151,7 +151,7 @@ module.exports = class TransactionGuard {
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-        if (isRecipientOnActiveNetwork(transaction)) {
+        if (!isRecipientOnActiveNetwork(transaction)) {
           this.invalid.push(transaction)
 
           return
