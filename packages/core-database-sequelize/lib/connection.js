@@ -2,6 +2,7 @@
 
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
+const Bignum = require('bigi')
 const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
@@ -752,7 +753,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
               return
             }
 
-            coldWallet[key] = wallet[key]
+            coldWallet[key] = key !== 'votebalance' ? wallet[key] : new Bignum(wallet[key])
           })
         }
       } catch (err) {
