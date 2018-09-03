@@ -25,10 +25,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
-    balance: DataTypes.BIGINT,
+    balance: {
+      type: DataTypes.BIGINT,
+      set (bignum) {
+        this.setDataValue('balance', +bignum.toString());
+      }
+    },
     voteBalance: {
         type: DataTypes.BIGINT,
-        field: 'vote_balance'
+        field: 'vote_balance',
+        set (bignum) {
+          this.setDataValue('voteBalance', +bignum.toString());
+        }
     },
     producedBlocks: {
         type: DataTypes.BIGINT,

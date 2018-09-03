@@ -18,7 +18,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(66),
       field: 'public_key'
     },
-    balance: DataTypes.BIGINT,
+    balance: {
+      type: DataTypes.BIGINT,
+      set (bignum) {
+        this.setDataValue('balance', +bignum.toString());
+      }
+    },
     round: DataTypes.BIGINT,
     createdAt: {
         type: DataTypes.DATE,

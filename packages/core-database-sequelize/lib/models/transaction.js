@@ -37,8 +37,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BLOB,
         field: 'vendor_field_hex'
     },
-    amount: DataTypes.BIGINT,
-    fee: DataTypes.BIGINT,
+    amount: {
+      type: DataTypes.BIGINT,
+      set (bignum) {
+        this.setDataValue('amount', +bignum.toString());
+      }
+    },
+    fee: {
+      type: DataTypes.BIGINT,
+      set (bignum) {
+        this.setDataValue('fee', +bignum.toString());
+      }
+    },
     serialized: DataTypes.BLOB,
     createdAt: {
         type: DataTypes.DATE,

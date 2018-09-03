@@ -33,13 +33,24 @@ module.exports = (sequelize, DataTypes) => {
     },
     totalAmount: {
         type: DataTypes.BIGINT,
-        field: 'total_amount'
+        field: 'total_amount',
+        set (bignum) {
+          this.setDataValue('totalAmount', +bignum.toString());
+        }
     },
     totalFee: {
         type: DataTypes.BIGINT,
-        field: 'total_fee'
+        field: 'total_fee',
+        set (bignum) {
+          this.setDataValue('totalFee', +bignum.toString());
+        }
     },
-    reward: DataTypes.BIGINT,
+    reward: {
+        type: DataTypes.BIGINT,
+        set (bignum) {
+          this.setDataValue('reward', +bignum.toString());
+        }
+    },
     payloadLength: {
         type: DataTypes.INTEGER,
         field: 'payload_length'
