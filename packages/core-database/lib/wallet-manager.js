@@ -30,9 +30,12 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
-    storage.forget('walletsByAddress')
+    storage.forget([
+      'walletsByAddress',
+      'walletsByPublicKey'
+    ])
     this.walletsByAddress = storage.setMap('walletsByAddress')
-    this.walletsByPublicKey = {}
+    this.walletsByPublicKey = storage.setMap('walletsByPublicKey')
     this.walletsByUsername = {}
   }
 
@@ -56,7 +59,7 @@ module.exports = class WalletManager {
     }
 
     if (wallet.publicKey) {
-      this.walletsByPublicKey[wallet.publicKey] = wallet
+      this.setWalletByPublicKey(wallet.publicKey, wallet)
     }
 
     if (wallet.username) {
@@ -105,12 +108,12 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
-    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      const wallet = this.walletsByPublicKey[publicKey]
+    this.getLocalWalletsByPublicKey.forEach(publicKey => {
+      const wallet = this.walletsByPublicKey.get(publicKey)
 
       if (this.__canBePurged(wallet)) {
-        delete this.walletsByPublicKey[publicKey]
-        delete this.walletsByAddress.get(wallet.address)
+        this.forgetWalletByPublicKey(publicKey)
+        this.forgetWalletByAddress(wallet.address)
       }
     })
   }
@@ -281,8 +284,40 @@ module.exports = class WalletManager {
     return data
   }
 
+  /**
+   * Set wallet by address.
+   * @param {String} address
+   * @param {Object} wallet
+   */
   setWalletByAddress (address, wallet) {
     this.walletsByAddress = this.walletsByAddress.set(address, wallet)
+  }
+
+  /**
+   * Set wallet by publicKey.
+   * @param {String} publicKey
+   * @param {Object} wallet
+   */
+  setWalletByPublicKey (publicKey, wallet) {
+    this.walletsByPublicKey = this.walletsByPublicKey.set(publicKey, wallet)
+  }
+
+  /**
+   * Remove wallet by address.
+   * @param {String} address
+   * @param {Object} wallet
+   */
+  forgetWalletByAddress (address) {
+    this.walletsByAddress = this.walletsByAddress.delete(address)
+  }
+
+  /**
+   * Remove wallet by publicKey.
+   * @param {String} publicKey
+   * @param {Object} wallet
+   */
+  forgetWalletByPublicKey (publicKey) {
+    this.walletsByPublicKey = this.walletsByPublicKey.delete(publicKey)
   }
 
   /**
@@ -308,14 +343,15 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByPublicKey (publicKey) {
-    if (!this.walletsByPublicKey[publicKey]) {
+    if (!this.walletsByPublicKey.get(publicKey)) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
-      this.walletsByPublicKey[publicKey] = this.findByAddress(address)
-      this.walletsByPublicKey[publicKey].publicKey = publicKey
+      const wallet = this.findByAddress(address)
+      wallet.publicKey = publicKey
+      this.setWalletByPublicKey(publicKey, wallet)
     }
 
-    return this.walletsByPublicKey[publicKey]
+    return this.walletsByPublicKey.get(publicKey)
   }
 
   /**
@@ -347,8 +383,8 @@ module.exports = class WalletManager {
    * Get all wallets by publicKey.
    * @return {Array}
    */
-  getLocalWalletsByPublicKey () { // for init of transaction pool manager
-    return Object.values(this.walletsByPublicKey)
+  getLocalWalletsByPublicKey () {
+    return this.walletsByPublicKey.toArray()
   }
 
   /**
@@ -356,7 +392,7 @@ module.exports = class WalletManager {
    * @param {String} publicKey
    */
   __isDelegate (publicKey) {
-    const delegateWallet = this.walletsByPublicKey[publicKey]
+    const delegateWallet = this.walletsByPublicKey.get(publicKey)
     if (delegateWallet && delegateWallet.username) {
       return !!this.walletsByUsername[delegateWallet.username]
     }

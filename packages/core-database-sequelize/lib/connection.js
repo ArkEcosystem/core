@@ -309,7 +309,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
    * @return {void}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => {
+    const wallets = this.walletManager.getLocalWalletsByPublicKey().filter(wallet => {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
