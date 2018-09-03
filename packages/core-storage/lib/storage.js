@@ -82,11 +82,14 @@ module.exports = class Storage {
 
   /**
    * Remove an item from the storage.
-   * @param  {String} key
+   * @param  {(String|Array)} keys
    * @return {void}
    */
-  forget (key) {
-    this.storage = this.storage.delete(key)
+  forget (keys) {
+    keys = !Array.isArray(keys) ? [keys] : keys
+    for (const key of keys) {
+      this.storage = this.storage.delete(key)
+    }
   }
 
   /**
