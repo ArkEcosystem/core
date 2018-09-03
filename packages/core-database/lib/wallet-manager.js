@@ -10,6 +10,7 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
+const storage = container.resolvePlugin('storage')
 
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
 
@@ -29,8 +30,12 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
-    // TODO rename to by...
-    this.walletsByAddress = {}
+    try {
+      storage.forget('walletsByAddress')
+    } catch (error) {
+      //
+    }
+    this.walletsByAddress = storage.setMap('walletsByAddress')
     this.walletsByPublicKey = {}
     this.walletsByUsername = {}
   }
@@ -51,7 +56,7 @@ module.exports = class WalletManager {
    */
   reindex (wallet) {
     if (wallet.address) {
-      this.walletsByAddress[wallet.address] = wallet
+      storage.get('walletsByAddress')[wallet.address] = wallet
     }
 
     if (wallet.publicKey) {
@@ -105,7 +110,7 @@ module.exports = class WalletManager {
 
       if (this.__canBePurged(wallet)) {
         delete this.walletsByPublicKey[publicKey]
-        delete this.walletsByAddress[wallet.address]
+        delete storage.get('walletsByAddress')[wallet.address]
       }
     })
   }
@@ -129,9 +134,9 @@ module.exports = class WalletManager {
 
         this.reindex(delegate)
       } else {
-        logger.debug(`Delegate by address: ${this.walletsByAddress[generator]}`)
+        logger.debug(`Delegate by address: ${storage.get('walletsByAddress')[generator]}`)
 
-        if (this.walletsByAddress[generator]) {
+        if (storage.get('walletsByAddress')[generator]) {
           logger.info('This look like a bug, please report :bug:')
         }
 
@@ -282,15 +287,15 @@ module.exports = class WalletManager {
    * @return {(Wallet|null)}
    */
   findByAddress (address) {
-    if (!this.walletsByAddress[address]) {
-      this.walletsByAddress[address] = new Wallet(address)
+    if (!storage.get('walletsByAddress').get(address)) {
+      storage.get('walletsByAddress').set(address, new Wallet(address))
 
       if (process.env.NODE_ENV !== 'test') {
-        this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
+        this.__emitEvent('wallet:cold:created', storage.get('walletsByAddress').get(address))
       }
     }
 
-    return this.walletsByAddress[address]
+    return storage.get('walletsByAddress').get(address)
   }
 
   /**
@@ -331,7 +336,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API
-    return Object.values(this.walletsByAddress)
+    return Object.values(storage.get('walletsByAddress'))
   }
 
   /**
