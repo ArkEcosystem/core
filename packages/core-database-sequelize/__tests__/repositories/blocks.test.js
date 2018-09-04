@@ -213,8 +213,8 @@ describe('Block Repository', () => {
     it('should search blocks by the specified totalAmount', async () => {
       await expectSearch({
         totalAmount: {
-          from: genesisBlock.data.totalAmount,
-          to: genesisBlock.data.totalAmount
+          from: genesisBlock.data.totalAmount.toNumber(),
+          to: genesisBlock.data.totalAmount.toNumber()
         }
       })
     })
@@ -222,8 +222,8 @@ describe('Block Repository', () => {
     it('should search blocks by the specified totalFee', async () => {
       await expectSearch({
         totalFee: {
-          from: genesisBlock.data.totalFee,
-          to: genesisBlock.data.totalFee
+          from: genesisBlock.data.totalFee.toNumber(),
+          to: genesisBlock.data.totalFee.toNumber()
         }
       })
     })
@@ -231,8 +231,8 @@ describe('Block Repository', () => {
     it('should search blocks by the specified reward', async () => {
       await expectSearch({
         reward: {
-          from: genesisBlock.data.reward,
-          to: genesisBlock.data.reward
+          from: genesisBlock.data.reward.toNumber(),
+          to: genesisBlock.data.reward.toNumber()
         }
       })
     })

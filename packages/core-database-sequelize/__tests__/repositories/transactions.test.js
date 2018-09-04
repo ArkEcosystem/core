@@ -589,8 +589,8 @@ describe('Transaction Repository', () => {
     it('should search transactions by the specified `amount`', async () => {
       await expectSearch({
         amount: {
-          from: genesisTransaction.amount,
-          to: genesisTransaction.amount
+          from: genesisTransaction.amount.toNumber(),
+          to: genesisTransaction.amount.toNumber()
         }
       }, 50)
     })
@@ -598,8 +598,8 @@ describe('Transaction Repository', () => {
     it('should search transactions by the specified `fee`', async () => {
       await expectSearch({
         fee: {
-          from: genesisTransaction.fee,
-          to: genesisTransaction.fee
+          from: genesisTransaction.fee.toNumber(),
+          to: genesisTransaction.fee.toNumber()
         }
       }, 153)
     })

@@ -2,6 +2,7 @@
 
 const app = require('./__support__/setup')
 const createConnection = require('./__support__/utils/create-connection')
+const { Bignum } = require('@arkecosystem/crypto')
 
 let genesisBlock
 let connection
@@ -55,11 +56,11 @@ describe('SPV', () => {
     it('should apply the transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
-      expect(getWallet('AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof').balance).toBe(0)
+      expect(getWallet('AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof').balance).toEqual(Bignum.ZERO)
 
       await spv.__buildReceivedTransactions()
 
-      expect(getWallet('AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof').balance).toBe(245098000000000)
+      expect(getWallet('AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof').balance).toEqual(Bignum.from(245098000000000))
     })
   })
 
@@ -75,14 +76,14 @@ describe('SPV', () => {
 
       spv.__buildBlockRewards = jest.fn(pass => {
         const wallet = spv.walletManager.findByPublicKey(pass)
-        wallet.balance += 10
+        wallet.balance = wallet.balance.add(Bignum.from(10))
       })
 
-      expect(findByPublicKey(publicKey).balance).toBe(0)
+      expect(findByPublicKey(publicKey).balance).toEqual(Bignum.ZERO)
 
       await spv.__buildBlockRewards(publicKey)
 
-      expect(findByPublicKey(publicKey).balance).toBe(10)
+      expect(findByPublicKey(publicKey).balance).toEqual(Bignum.from(10))
     })
   })
 
@@ -114,11 +115,11 @@ describe('SPV', () => {
     it('should apply the transactions', async () => {
       await connection.saveBlock(genesisBlock)
 
-      expect(getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn').balance).toBe(0)
+      expect(getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn').balance).toEqual(Bignum.ZERO)
 
       await spv.__buildSentTransactions()
 
-      expect(getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn').balance).toBe(-12500000000000000)
+      expect(getWallet('APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn').balance).toEqual(Bignum.from(-12500000000000000))
     })
   })
 
