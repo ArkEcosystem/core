@@ -6,7 +6,7 @@ const utils = require('../utils')
 const address = 'AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo'
 
 beforeAll(async () => {
-  await app.setUp()
+  await app.setUp({})
 })
 
 afterAll(async () => {

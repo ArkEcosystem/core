@@ -50,8 +50,8 @@ module.exports = class SPV {
     await this.__buildMultisignatures()
 
     logger.stopTracker('SPV Building', 8, 8)
-    logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.walletsByAddress).length}`)
-    logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.walletsByUsername).length}`)
+    logger.info(`SPV rebuild finished, wallets in memory: ${Object.keys(this.walletManager.byAddress).length}`)
+    logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.byUsername).length}`)
   }
 
   /**

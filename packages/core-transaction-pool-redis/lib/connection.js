@@ -140,7 +140,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return
     }
-    
+
     await Promise.all(transactions.map(transaction => this.addTransaction(transaction)))
   }
 

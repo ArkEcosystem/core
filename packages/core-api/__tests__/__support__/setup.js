@@ -7,7 +7,9 @@ const generateRound = require('./utils/generate-round')
 const activeDelegates = require('../__fixtures__/delegates.json')
 const round = generateRound(activeDelegates, 1)
 
-exports.setUp = async () => {
+exports.setUp = async (options = {
+    exclude: [ '@arkecosystem/core-forger' ]
+  }) => {
   jest.setTimeout(60000)
 
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
@@ -15,9 +17,7 @@ exports.setUp = async () => {
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, './config')
-  }, {
-    exit: '@arkecosystem/core-api'
-  })
+  }, options)
 
   // seed
   const connection = container.resolvePlugin('database')

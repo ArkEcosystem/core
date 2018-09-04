@@ -121,21 +121,21 @@ describe('API 2.0 - Transactions', () => {
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(100)
+      expect(response.data.meta.totalCount).toBe(153)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
       expect(transaction.blockId).toBe(blockId)
     })
-
     // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified type', async () => {
       const response = await utils.request('POST', 'transactions/search', { type })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(51)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
@@ -143,54 +143,45 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.type).toBe(type)
     })
 
-    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified version', async () => {
       const response = await utils.request('POST', 'transactions/search', { version })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(100)
+      expect(response.data.meta.totalCount).toBe(153)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
       expect(transaction.id).toBe(transactionId)
     })
 
-    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
       const response = await utils.request('POST', 'transactions/search', { senderPublicKey })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(51)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-      expect(transaction.sender).toBe(senderAddress)
+      // TODO rework and check the 51 transactions match the genesis transactions
     })
 
-    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified senderId', async () => {
       const response = await utils.request('POST', 'transactions/search', { senderId: senderAddress })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(51)
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.id).toBe(transactionId)
-      expect(transaction.sender).toBe(senderAddress)
+      // TODO rework and check the 51 transactions match the genesis transactions
     })
 
-    // TODO remove the search by id, to be sure that is OK
     it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
       const response = await utils.request('POST', 'transactions/search', { recipientId: recipientAddress })
       utils.expectSuccessful(response)
       utils.expectCollection(response)
 
-      expect(response.data.data).toHaveLength(1)
+      expect(response.data.data).toHaveLength(2)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)

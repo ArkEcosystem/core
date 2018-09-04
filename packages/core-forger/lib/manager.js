@@ -65,6 +65,15 @@ module.exports = class ForgerManager {
 
     return this.__monitor(null)
   }
+
+  /**
+   * Stop forging on the given node.
+   * @return {void}
+   */
+  async stop () {
+    this.isStopped = true
+  }
+
   /**
    * Monitor the node for any actions that trigger forging.
    * @param  {Object} round
@@ -72,6 +81,10 @@ module.exports = class ForgerManager {
    */
   async __monitor (round) {
     try {
+      if (this.isStopped) {
+        return
+      }
+
       this.__loadUsernames()
 
       round = await this.client.getRound()

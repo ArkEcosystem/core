@@ -20,5 +20,10 @@ exports.plugin = {
     forgerManager.startForging()
 
     return forgerManager
+  },
+  async deregister (container, options) {
+    container.resolvePlugin('logger').info('Stopping Forger Manager')
+
+    await container.resolvePlugin('forger').stop()
   }
 }
