@@ -1,4 +1,4 @@
-const Bignum = require('bigi')
+const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
@@ -26,7 +26,7 @@ class MultiSignatureBuilder extends TransactionBuilder {
    */
   multiSignatureAsset (multiSignature) {
     this.data.asset.multisignature = multiSignature
-    this.data.fee = (multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE)
+    this.data.fee = Bignum.fromBuffer((multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE))
 
     return this
   }
@@ -37,7 +37,7 @@ class MultiSignatureBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = +this.data.amount.toString()
+    struct.amount = this.data.amount.toNumber()
     struct.recipientId = this.data.recipientId
     struct.asset = this.data.asset
 

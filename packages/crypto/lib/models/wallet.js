@@ -1,6 +1,6 @@
 const configManager = require('../managers/config')
 const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
-const Bignum = require('bigi')
+const Bignum = require('../utils/bignum')
 const ECPair = require('../crypto/ecpair')
 const ECSignature = require('../crypto/ecsignature')
 const crypto = require('../crypto/crypto')
@@ -279,7 +279,7 @@ module.exports = class Wallet {
    * @return {String}
    */
   toString () {
-    return `${this.address} (${this.balance.divide(new Bignum(ARKTOSHI.toString())).toString()} Ѧ)`
+    return `${this.address} (${this.balance.divide(Bignum.from(ARKTOSHI)).toString()} Ѧ)`
   }
 
   /**

@@ -2,7 +2,6 @@
 
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const Bignum = require('bigi')
 const crypto = require('crypto')
 const Umzug = require('umzug')
 const glob = require('tiny-glob')
@@ -16,6 +15,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
+const { Bignum } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const SPV = require('./spv')
@@ -753,7 +753,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
               return
             }
 
-            coldWallet[key] = key !== 'votebalance' ? wallet[key] : new Bignum(wallet[key])
+            coldWallet[key] = key !== 'votebalance' ? wallet[key] : Bignum.from(wallet[key])
           })
         }
       } catch (err) {

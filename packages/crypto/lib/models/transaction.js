@@ -1,5 +1,5 @@
 const bs58check = require('bs58check')
-const Bignum = require('bigi')
+const Bignum = require('../utils/bignum')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
 const crypto = require('../crypto/crypto')
@@ -122,8 +122,8 @@ module.exports = class Transaction {
   static serialize (transaction) {
     // If Transaction.serialize is called from Block.serializeFull, the transaction data has no Bignums...
     if (!(transaction.amount instanceof Bignum)) {
-      transaction.amount = new Bignum(transaction.amount.toString())
-      transaction.fee = new Bignum(transaction.fee.toString())
+      transaction.amount = Bignum.from(transaction.amount)
+      transaction.fee = Bignum.from(transaction.fee)
     }
 
     const bb = new ByteBuffer(512, true)
@@ -133,7 +133,7 @@ module.exports = class Transaction {
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
-    bb.writeUInt64(+transaction.fee.toString())
+    bb.writeUInt64(transaction.fee.toNumber())
 
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
@@ -148,7 +148,7 @@ module.exports = class Transaction {
 
     // TODO use else if
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      bb.writeUInt64(+transaction.amount.toString())
+      bb.writeUInt64(transaction.amount.toNumber())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
     }
@@ -191,7 +191,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      bb.writeUInt64(+transaction.amount.toString())
+      bb.writeUInt64(transaction.amount.toNumbe())
       bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
@@ -237,7 +237,7 @@ module.exports = class Transaction {
     transaction.type = buf.readInt8(3)
     transaction.timestamp = buf.readUInt32(4)
     transaction.senderPublicKey = hexString.substring(16, 16 + 33 * 2)
-    transaction.fee = new Bignum(buf.readUInt64(41).toString())
+    transaction.fee = Bignum.from(buf.readUInt64(41))
 
     const vflength = buf.readInt8(41 + 8)
     if (vflength > 0) {
@@ -247,7 +247,7 @@ module.exports = class Transaction {
     const assetOffset = (41 + 8 + 1) * 2 + vflength * 2
 
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2).toString())
+      transaction.amount = Bignum.from(buf.readUInt64(assetOffset / 2))
       transaction.expiration = buf.readUInt32(assetOffset / 2 + 8)
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 12, assetOffset / 2 + 12 + 21))
 
@@ -313,7 +313,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      transaction.amount = new Bignum(buf.readUInt64(assetOffset / 2).toString())
+      transaction.amount = Bignum.from(buf.readUInt64(assetOffset / 2))
       transaction.timelockType = buf.readInt8(assetOffset / 2 + 8) & 0xff
       transaction.timelock = buf.readUInt64(assetOffset / 2 + 9).toNumber()
       transaction.recipientId = bs58check.encode(buf.buffer.slice(assetOffset / 2 + 13, assetOffset / 2 + 13 + 21))
@@ -329,7 +329,7 @@ module.exports = class Transaction {
 
       for (let j = 0; j < total; j++) {
         const payment = {}
-        payment.amount = new Bignum(buf.readUInt64(offset).toString())
+        payment.amount = Bignum.from(buf.readUInt64(offset))
         payment.recipientId = bs58check.encode(buf.buffer.slice(offset + 1, offset + 1 + 21))
         transaction.asset.payments.push(payment)
         offset += 22

@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const Bignum = require('bigi')
+const Bignum = require('../utils/bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
@@ -20,13 +20,9 @@ const toBytesHex = (buffer) => {
 const applyV1Fix = (data) => {
   // START Fix for v1 api
 
-  // applyV1Fix is entered multiple times, but we only need to convert
-  // the first time to Bignum.
-  if (!(data.totalAmount instanceof Bignum)) {
-    data.totalAmount = new Bignum(data.totalAmount)
-    data.totalFee = new Bignum(data.totalFee)
-    data.reward = new Bignum(data.reward)
-  }
+  data.totalAmount = Bignum.from(data.totalAmount)
+  data.totalFee = Bignum.from(data.totalFee)
+  data.reward = Bignum.from(data.reward)
 
   data.previousBlockHex = data.previousBlock ? toBytesHex(new Bignum(data.previousBlock).toBuffer()) : '0000000000000000'
   data.idHex = toBytesHex(new Bignum(data.id).toBuffer())
@@ -247,7 +243,7 @@ module.exports = class Block {
         }
       }
 
-      const reward = new Bignum(constants.reward.toString())
+      const reward = Bignum.from(constants.reward)
       if (!reward.equals(block.reward)) {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
@@ -377,9 +373,9 @@ module.exports = class Block {
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
     block.previousBlock = Bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
-    block.totalAmount = new Bignum(buf.readUInt64(24).toString())
-    block.totalFee = new Bignum(buf.readUInt64(32).toString())
-    block.reward = new Bignum(buf.readUInt64(40).toString())
+    block.totalAmount = Bignum.from(buf.readUInt64(24))
+    block.totalFee = Bignum.from(buf.readUInt64(32))
+    block.reward = Bignum.from(buf.readUInt64(40))
     block.payloadLength = buf.readUInt32(48)
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
@@ -446,9 +442,9 @@ module.exports = class Block {
     }
 
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(+block.totalAmount.toString())
-    bb.writeUInt64(+block.totalFee.toString())
-    bb.writeUInt64(+block.reward.toString())
+    bb.writeUInt64(block.totalAmount.toNumber())
+    bb.writeUInt64(block.totalFee.toNumber())
+    bb.writeUInt64(block.reward.toNumber())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -497,9 +493,9 @@ module.exports = class Block {
       }
 
       bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(+block.totalAmount.toString())
-      bb.writeLong(+block.totalFee.toString())
-      bb.writeLong(+block.reward.toString())
+      bb.writeLong(block.totalAmount.toNumber())
+      bb.writeLong(block.totalFee.toNumber())
+      bb.writeLong(block.reward.toNumber())
 
       bb.writeInt(block.payloadLength)
 

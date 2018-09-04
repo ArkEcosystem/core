@@ -1,4 +1,4 @@
-const Bignum = require('bigi')
+const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
@@ -12,7 +12,7 @@ class MultiPaymentBuilder extends TransactionBuilder {
     super()
 
     this.data.type = TRANSACTION_TYPES.MULTI_PAYMENT
-    this.data.fee = new Bignum(feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT).toString())
+    this.data.fee = Bignum.from(feeManager.get(TRANSACTION_TYPES.MULTI_PAYMENT))
     this.data.payments = {}
     this.data.vendorFieldHex = null
   }

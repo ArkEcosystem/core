@@ -1,4 +1,4 @@
-const Bignum = require('bigi')
+const { Bignum } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
@@ -72,7 +72,7 @@ module.exports = class SPV {
       const wallet = this.walletManager.findByAddress(row.recipientId)
 
       wallet
-        ? wallet.balance = new Bignum(row.amount)
+        ? wallet.balance = Bignum.from(row.amount)
         : logger.warn(`Lost cold wallet: ${row.recipientId} ${row.amount}`)
     })
   }
@@ -91,7 +91,7 @@ module.exports = class SPV {
 
     data.forEach(row => {
       const wallet = this.walletManager.findByPublicKey(row.generatorPublicKey)
-      wallet.balance = wallet.balance.add(new Bignum(row.reward))
+      wallet.balance = wallet.balance.add(Bignum.from(row.reward))
     })
   }
 
@@ -129,10 +129,10 @@ module.exports = class SPV {
     data.forEach(row => {
       let wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
       wallet.balance = wallet.balance
-        .subtract(new Bignum(row.amount))
-        .subtract(new Bignum(row.fee))
+        .subtract(Bignum.from(row.amount))
+        .subtract(Bignum.from(row.fee))
 
-      if (+wallet.balance.toString() < 0 && !this.walletManager.isGenesis(wallet)) {
+      if (wallet.balance.toNumber() < 0 && !this.walletManager.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`)
       }
     })
@@ -202,12 +202,12 @@ module.exports = class SPV {
       })[0]
 
       const wallet = this.walletManager.findByPublicKey(delegate.publicKey)
-      wallet.voteBalance = new Bignum(delegate.voteBalance)
+      wallet.voteBalance = Bignum.from(delegate.voteBalance)
       wallet.missedBlocks = +delegate.missedBlocks
 
       if (forgedBlock) {
-        wallet.forgedFees = wallet.forgedFees.add(new Bignum(forgedBlock.totalFees))
-        wallet.forgedRewards = wallet.forgedRewards.add(new Bignum(forgedBlock.totalRewards))
+        wallet.forgedFees = wallet.forgedFees.add(Bignum.from(forgedBlock.totalFees))
+        wallet.forgedRewards = wallet.forgedRewards.add(Bignum.from(forgedBlock.totalRewards))
         wallet.producedBlocks = +forgedBlock.totalProduced
       }
 
