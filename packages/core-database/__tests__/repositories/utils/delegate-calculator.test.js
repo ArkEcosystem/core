@@ -1,6 +1,7 @@
 'use strict'
 
 const app = require('../../__support__/setup')
+const { Bignum } = require('@arkecosystem/crypto')
 
 let calculatorModule
 
@@ -19,7 +20,7 @@ afterAll(async (done) => {
 })
 
 const delegate = {
- balance: 10000000 * Math.pow(10, 8),
+ balance: Bignum.from(10000000 * Math.pow(10, 8)),
  producedBlocks: 100,
  missedBlocks: 10
 }
