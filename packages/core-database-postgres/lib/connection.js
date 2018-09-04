@@ -15,8 +15,9 @@ const emitter = container.resolvePlugin('event-emitter')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 const SPV = require('./spv')
-const QueryBuilder = require('./query-builder')
 const Cache = require('./cache')
+
+const QueryBuilder = require('./sql/query-builder')
 const queries = require('./sql/queries')
 
 module.exports = class PostgresConnection extends ConnectionInterface {
