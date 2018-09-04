@@ -22,6 +22,7 @@
     "@arkecosystem/core-database": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "fs-extra": "^6.0.1",
+    "humps": "^2.0.1",
     "ioredis": "^3.2.2",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
