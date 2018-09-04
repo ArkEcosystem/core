@@ -78,7 +78,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     logger.verbose('Disconnecting from database')
 
-    return this.connection.disconnect()
+    return this.pgp.end()
   }
 
   /**
