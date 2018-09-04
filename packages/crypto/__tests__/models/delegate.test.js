@@ -1,6 +1,7 @@
 const Bignum = require('../../lib/utils/bignum')
 const Wallet = require('../../lib/models/wallet')
 const sortTransactions = require('../../lib/utils/sort-transactions')
+const configManager = require('../../lib/managers/config')
 
 describe('Models - Delegate', () => {
   describe('static sortTransactions', () => {
@@ -22,7 +23,7 @@ describe('Models - Delegate', () => {
         const wallet = new Wallet(address)
         wallet.balance = Bignum.from(10 ** 8)
 
-        expect(wallet.toString()).toBe(`${address} (1 Ѧ)`)
+        expect(wallet.toString()).toBe(`${address} (1 ${configManager.config.client.symbol})`)
       })
 
       // TODO probably useful for debugging

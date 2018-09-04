@@ -3,7 +3,7 @@
 const app = require('./__support__/setup')
 
 const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
-const { crypto, transactionBuilder } = require('@arkecosystem/crypto')
+const { Bignum, crypto, transactionBuilder } = require('@arkecosystem/crypto')
 const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 const block = new Block(require('./__fixtures__/block.json'))
@@ -196,7 +196,7 @@ describe('Wallet Manager', () => {
     })
 
     describe('when the transaction is a transfer', () => {
-      const amount = 96579
+      const amount = Bignum.from(96579)
 
       let sender
       let recipient
@@ -225,24 +225,24 @@ describe('Wallet Manager', () => {
       })
 
       it('should apply the transaction to the sender & recipient', async () => {
-        const balance = 100000000
+        const balance = Bignum.from(100000000)
         sender.balance = balance
 
-        expect(sender.balance).toBe(balance)
-        expect(recipient.balance).toBe(0)
+        expect(sender.balance.toNumber()).toBe(100000000)
+        expect(recipient.balance.toNumber()).toBe(0)
 
         await walletManager.applyTransaction(transaction)
 
-        expect(sender.balance).toBe(balance - amount - transaction.fee)
-        expect(recipient.balance).toBe(amount)
+        expect(sender.balance).toEqual(balance.subtract(amount).subtract(transaction.fee))
+        expect(recipient.balance).toEqual(amount)
       })
 
       it('should fail if the transaction cannot be applied', async () => {
-        const balance = 1
+        const balance = Bignum.from(1)
         sender.balance = balance
 
-        expect(sender.balance).toBe(balance)
-        expect(recipient.balance).toBe(0)
+        expect(sender.balance.toNumber()).toBe(1)
+        expect(recipient.balance.toNumber()).toBe(0)
 
         try {
           expect(async () => {
@@ -251,8 +251,8 @@ describe('Wallet Manager', () => {
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
-          expect(sender.balance).toBe(balance)
-          expect(recipient.balance).toBe(0)
+          expect(sender.balance.toNumber()).toBe(1)
+          expect(recipient.balance.toNumber()).toBe(0)
         }
       })
     })
@@ -281,20 +281,20 @@ describe('Wallet Manager', () => {
       })
 
       it('should apply the transaction to the sender', async () => {
-        const balance = 30 * Math.pow(10, 8)
+        const balance = Bignum.from(30 * Math.pow(10, 8))
         sender.balance = balance
 
-        expect(sender.balance).toBe(balance)
+        expect(sender.balance.toNumber()).toBe(30 * Math.pow(10, 8))
 
         await walletManager.applyTransaction(transaction)
 
-        expect(sender.balance).toBe(balance - transaction.fee)
+        expect(sender.balance).toEqual(balance.subtract(transaction.fee))
         expect(sender.username).toBe(username)
         expect(walletManager.findByUsername(username)).toBe(sender)
       })
 
       it('should fail if the transaction cannot be applied', async () => {
-        const balance = 1
+        const balance = Bignum.from(1)
         sender.balance = balance
 
         expect(sender.balance).toBe(balance)
@@ -306,7 +306,7 @@ describe('Wallet Manager', () => {
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {
-          expect(sender.balance).toBe(balance)
+          expect(sender.balance).toEqual(balance)
         }
       })
     })
@@ -323,8 +323,8 @@ describe('Wallet Manager', () => {
     it('should revert the transaction from the sender & recipient', async () => {
       const transaction = new Transaction({
         type: TRANSACTION_TYPES.TRANSFER,
-        amount: 245098000000000,
-        fee: 0,
+        amount: Bignum.from(245098000000000),
+        fee: Bignum.ZERO,
         recipientId: 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri',
         timestamp: 0,
         asset: {},
@@ -338,13 +338,13 @@ describe('Wallet Manager', () => {
       const recipient = walletManager.findByAddress(transaction.data.recipientId)
       recipient.balance = transaction.data.amount
 
-      expect(sender.balance).toBe(0)
-      expect(recipient.balance).toBe(transaction.data.amount)
+      expect(sender.balance).toEqual(Bignum.ZERO)
+      expect(recipient.balance).toEqual(transaction.data.amount)
 
       await walletManager.revertTransaction(transaction)
 
-      expect(sender.balance).toBe(transaction.data.amount)
-      expect(recipient.balance).toBe(0)
+      expect(sender.balance.toNumber()).toBe(transaction.data.amount.toNumber())
+      expect(recipient.balance.toNumber()).toEqual(0)
     })
   })
 

@@ -15,7 +15,7 @@ describe('Models - Wallet', () => {
       const wallet = new Wallet(address)
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
       wallet.balance = Bignum.from(balance * 10 ** 8)
-      expect(wallet.toString()).toBe(`${address} (${balance} Ѧ)`)
+      expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`)
     })
   })
 
