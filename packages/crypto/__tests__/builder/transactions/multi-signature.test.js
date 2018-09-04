@@ -1,4 +1,5 @@
 const ark = require('../../../lib/client')
+const Bignum = require('../../../lib/utils/bignum')
 const crypto = require('../../../lib/crypto/crypto')
 const feeManager = require('../../../lib/managers/fee')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
@@ -17,8 +18,8 @@ describe('Multi Signature Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.MULTI_SIGNATURE)
-    expect(builder).toHaveProperty('data.fee', 0)
-    expect(builder).toHaveProperty('data.amount', 0)
+    expect(builder).toHaveProperty('data.fee', Bignum.ZERO)
+    expect(builder).toHaveProperty('data.amount', Bignum.ZERO)
     expect(builder).toHaveProperty('data.recipientId', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)
     expect(builder).toHaveProperty('data.asset')
@@ -40,7 +41,7 @@ describe('Multi Signature Transaction', () => {
 
     it('calculates and establish the fee', () => {
       builder.multiSignatureAsset(multisignature)
-      expect(builder.data.fee).toEqual(4 * multiSignatureFee)
+      expect(builder.data.fee).toEqual(Bignum.from(4 * multiSignatureFee))
     })
   })
 
