@@ -18,4 +18,4 @@ CREATE TABLE IF NOT EXISTS ${schema~}.transactions (
 );
 
 -- Constraints
-CREATE UNIQUE INDEX IF NOT EXISTS "transactions_unique" ON votes ("senderPublicKey", "recipientId", "vendorFieldHex", "timestamp");
+CREATE INDEX IF NOT EXISTS "transactions_unique" ON transactions ("sender_public_key", "recipient_id", "vendor_field_hex", "timestamp");

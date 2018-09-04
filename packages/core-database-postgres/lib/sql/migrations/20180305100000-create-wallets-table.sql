@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS ${schema~}.wallets (
 );
 
 -- Constraints
-CREATE UNIQUE INDEX IF NOT EXISTS "wallets_unique" ON votes ("address", "publicKey", "vote", "username");
+CREATE UNIQUE INDEX IF NOT EXISTS "wallets_unique" ON wallets ("address", "public_key", "vote", "username");

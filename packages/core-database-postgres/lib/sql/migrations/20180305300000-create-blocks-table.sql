@@ -19,4 +19,4 @@ CREATE TABLE IF NOT EXISTS ${schema~}.blocks (
 );
 
 -- Constraints
-CREATE UNIQUE INDEX IF NOT EXISTS "blocks_unique" ON votes ("height", "generatorPublicKey");
+CREATE UNIQUE INDEX IF NOT EXISTS "blocks_unique" ON blocks ("height", "generator_public_key");
