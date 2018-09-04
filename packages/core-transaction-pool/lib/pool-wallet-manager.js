@@ -77,7 +77,7 @@ module.exports = class PoolWalletManager extends WalletManager {
       this.setByAddress(recipientId, recipient)
     }
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.walletsByUsername.get(asset.delegate.username.toLowerCase())) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.byUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`)

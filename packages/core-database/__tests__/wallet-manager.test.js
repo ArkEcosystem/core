@@ -357,7 +357,7 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(walletManager.walletsByAddress.get(wallet.address)).toBe(wallet)
+      expect(walletManager.byAddress.get(wallet.address)).toBe(wallet)
     })
 
     it('should return it by address', () => {
@@ -378,7 +378,7 @@ describe('Wallet Manager', () => {
       wallet.publicKey = walletData1.publicKey
 
       walletManager.reindex(wallet)
-      expect(walletManager.walletsByPublicKey.get(wallet.publicKey)).toBe(wallet)
+      expect(walletManager.byPublicKey.get(wallet.publicKey)).toBe(wallet)
     })
 
     it('should return it by publicKey', () => {
@@ -400,7 +400,7 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
 
       walletManager.reindex(wallet)
-      expect(walletManager.walletsByUsername.get(wallet.username)).toBe(wallet)
+      expect(walletManager.byUsername.get(wallet.username)).toBe(wallet)
     })
 
     it('should return it by username', () => {
