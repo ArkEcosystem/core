@@ -341,7 +341,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     // commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
 
-    this.walletManager.cleanse()
+    this.walletManager.clear()
   }
 
   /**

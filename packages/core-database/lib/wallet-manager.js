@@ -68,7 +68,7 @@ module.exports = class WalletManager {
   /**
    * Find a wallet by the given address.
    * @param  {String} address
-   * @return {(Wallet|null)}
+   * @return {Wallet}
    */
   findByAddress (address) {
     if (!this.byAddress.get(address)) {
@@ -101,7 +101,7 @@ module.exports = class WalletManager {
 
   /**
    * Find a wallet by the given username.
-   * @param  {String} publicKey
+   * @param  {String} username
    * @return {Wallet}
    */
   findByUsername (username) {
@@ -112,6 +112,7 @@ module.exports = class WalletManager {
    * Set wallet by address.
    * @param {String} address
    * @param {Object} wallet
+   * @param {void}
    */
   setByAddress (address, wallet) {
     this.byAddress = this.byAddress.set(address, wallet)
@@ -121,6 +122,7 @@ module.exports = class WalletManager {
    * Set wallet by publicKey.
    * @param {String} publicKey
    * @param {Object} wallet
+   * @param {void}
    */
   setByPublicKey (publicKey, wallet) {
     this.byPublicKey = this.byPublicKey.set(publicKey, wallet)
@@ -130,6 +132,7 @@ module.exports = class WalletManager {
    * Set wallet by username.
    * @param {String} username
    * @param {Object} wallet
+   * @param {void}
    */
   setByUsername (username, wallet) {
     this.byUsername = this.byUsername.set(username, wallet)
@@ -138,7 +141,7 @@ module.exports = class WalletManager {
   /**
    * Remove wallet by address.
    * @param {String} address
-   * @param {Object} wallet
+   * @param {void}
    */
   forgetByAddress (address) {
     this.byAddress = this.byAddress.delete(address)
@@ -147,7 +150,7 @@ module.exports = class WalletManager {
   /**
    * Remove wallet by publicKey.
    * @param {String} publicKey
-   * @param {Object} wallet
+   * @param {void}
    */
   forgetByPublicKey (publicKey) {
     this.byPublicKey = this.byPublicKey.delete(publicKey)
@@ -156,7 +159,7 @@ module.exports = class WalletManager {
   /**
    * Remove wallet by username.
    * @param {String} username
-   * @param {Object} wallet
+   * @param {void}
    */
   forgetByUsername (username) {
     this.byUsername = this.byUsername.delete(username)
@@ -192,7 +195,7 @@ module.exports = class WalletManager {
     }
   }
 
-  cleanse () {
+  clear () {
     this.byAddress.map(wallet => (wallet.dirty = false))
   }
 
