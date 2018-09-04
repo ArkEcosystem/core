@@ -10,6 +10,7 @@ const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
+const storage = container.resolvePlugin('storage')
 
 const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
 
@@ -29,10 +30,14 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
-    // TODO rename to by...
-    this.walletsByAddress = {}
-    this.walletsByPublicKey = {}
-    this.walletsByUsername = {}
+    storage.forget([
+      'walletsByAddress',
+      'walletsByPublicKey',
+      'walletsByUsername'
+    ])
+    this.walletsByAddress = storage.setMap('walletsByAddress')
+    this.walletsByPublicKey = storage.setMap('walletsByPublicKey')
+    this.walletsByUsername = storage.setMap('walletsByUsername')
   }
 
   /**
@@ -41,7 +46,9 @@ module.exports = class WalletManager {
    * @return {void}
    */
   index (wallets) {
-    wallets.forEach(wallet => this.reindex(wallet))
+    for (const wallet of wallets) {
+      this.reindex(wallet)
+    }
   }
 
   /**
@@ -51,16 +58,20 @@ module.exports = class WalletManager {
    */
   reindex (wallet) {
     if (wallet.address) {
-      this.walletsByAddress[wallet.address] = wallet
+      this.setWalletByAddress(wallet.address, wallet)
     }
 
     if (wallet.publicKey) {
-      this.walletsByPublicKey[wallet.publicKey] = wallet
+      this.setWalletByPublicKey(wallet.publicKey, wallet)
     }
 
     if (wallet.username) {
-      this.walletsByUsername[wallet.username] = wallet
+      this.setWalletByUsername(wallet.username, wallet)
     }
+  }
+
+  cleanAllWallets () {
+    this.walletsByAddress.map(wallet => (wallet.dirty = false))
   }
 
   /**
@@ -100,12 +111,10 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
-    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      const wallet = this.walletsByPublicKey[publicKey]
-
+    this.getLocalWalletsByPublicKey().forEach(wallet => {
       if (this.__canBePurged(wallet)) {
-        delete this.walletsByPublicKey[publicKey]
-        delete this.walletsByAddress[wallet.address]
+        this.forgetWalletByPublicKey(wallet.publicKey)
+        this.forgetWalletByAddress(wallet.address)
       }
     })
   }
@@ -129,9 +138,9 @@ module.exports = class WalletManager {
 
         this.reindex(delegate)
       } else {
-        logger.debug(`Delegate by address: ${this.walletsByAddress[generator]}`)
+        logger.debug(`Delegate by address: ${this.walletsByAddress.get(generator)}`)
 
-        if (this.walletsByAddress[generator]) {
+        if (this.walletsByAddress(generator)) {
           logger.info('This look like a bug, please report :bug:')
         }
 
@@ -211,7 +220,7 @@ module.exports = class WalletManager {
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
@@ -264,7 +273,7 @@ module.exports = class WalletManager {
 
     // removing the wallet from the delegates index
     if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      this.walletsByUsername[data.asset.delegate.username] = null
+      this.forgetWalletByUsername(data.asset.delegate.username)
     }
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
@@ -277,20 +286,74 @@ module.exports = class WalletManager {
   }
 
   /**
+   * Set wallet by address.
+   * @param {String} address
+   * @param {Object} wallet
+   */
+  setWalletByAddress (address, wallet) {
+    this.walletsByAddress = this.walletsByAddress.set(address, wallet)
+  }
+
+  /**
+   * Set wallet by publicKey.
+   * @param {String} publicKey
+   * @param {Object} wallet
+   */
+  setWalletByPublicKey (publicKey, wallet) {
+    this.walletsByPublicKey = this.walletsByPublicKey.set(publicKey, wallet)
+  }
+
+  /**
+   * Set wallet by username.
+   * @param {String} username
+   * @param {Object} wallet
+   */
+  setWalletByUsername (username, wallet) {
+    this.walletsByUsername = this.walletsByUsername.set(username, wallet)
+  }
+
+  /**
+   * Remove wallet by address.
+   * @param {String} address
+   * @param {Object} wallet
+   */
+  forgetWalletByAddress (address) {
+    this.walletsByAddress = this.walletsByAddress.delete(address)
+  }
+
+  /**
+   * Remove wallet by publicKey.
+   * @param {String} publicKey
+   * @param {Object} wallet
+   */
+  forgetWalletByPublicKey (publicKey) {
+    this.walletsByPublicKey = this.walletsByPublicKey.delete(publicKey)
+  }
+
+  /**
+   * Remove wallet by username.
+   * @param {String} username
+   * @param {Object} wallet
+   */
+  forgetWalletByUsername (username) {
+    this.walletsByUsername = this.walletsByUsername.delete(username)
+  }
+
+  /**
    * Find a wallet by the given address.
    * @param  {String} address
    * @return {(Wallet|null)}
    */
   findByAddress (address) {
-    if (!this.walletsByAddress[address]) {
-      this.walletsByAddress[address] = new Wallet(address)
+    if (!this.walletsByAddress.get(address)) {
+      this.setWalletByAddress(address, new Wallet(address))
 
       if (process.env.NODE_ENV !== 'test') {
-        this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
+        this.__emitEvent('wallet:cold:created', this.walletsByAddress.get(address))
       }
     }
 
-    return this.walletsByAddress[address]
+    return this.walletsByAddress.get(address)
   }
 
   /**
@@ -299,14 +362,15 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByPublicKey (publicKey) {
-    if (!this.walletsByPublicKey[publicKey]) {
+    if (!this.walletsByPublicKey.get(publicKey)) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
-      this.walletsByPublicKey[publicKey] = this.findByAddress(address)
-      this.walletsByPublicKey[publicKey].publicKey = publicKey
+      const wallet = this.findByAddress(address)
+      wallet.publicKey = publicKey
+      this.setWalletByPublicKey(publicKey, wallet)
     }
 
-    return this.walletsByPublicKey[publicKey]
+    return this.walletsByPublicKey.get(publicKey)
   }
 
   /**
@@ -315,15 +379,15 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByUsername (username) {
-    return this.walletsByUsername[username]
+    return this.walletsByUsername.get(username)
   }
 
   /**
-   * Getter for "walletsByUsername" for clear intent.
-   * @return {Wallet}
+   * Get all wallets by username.
+   * @return {Array}
    */
   getDelegates () {
-    return Object.values(this.walletsByUsername)
+    return this.walletsByUsername.valueSeq().toArray()
   }
 
   /**
@@ -331,15 +395,15 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   getLocalWallets () { // for compatibility with API
-    return Object.values(this.walletsByAddress)
+    return this.walletsByAddress.valueSeq().toArray()
   }
 
   /**
    * Get all wallets by publicKey.
    * @return {Array}
    */
-  getLocalWalletsByPublicKey () { // for init of transaction pool manager
-    return Object.values(this.walletsByPublicKey)
+  getLocalWalletsByPublicKey () {
+    return this.walletsByPublicKey.valueSeq().toArray()
   }
 
   /**
@@ -347,9 +411,9 @@ module.exports = class WalletManager {
    * @param {String} publicKey
    */
   __isDelegate (publicKey) {
-    const delegateWallet = this.walletsByPublicKey[publicKey]
+    const delegateWallet = this.walletsByPublicKey.get(publicKey)
     if (delegateWallet && delegateWallet.username) {
-      return !!this.walletsByUsername[delegateWallet.username]
+      return !!this.walletsByUsername.get(delegateWallet.username)
     }
 
     return false

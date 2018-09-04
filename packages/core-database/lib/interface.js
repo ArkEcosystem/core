@@ -303,7 +303,7 @@ module.exports = class ConnectionInterface {
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
           this.blocksInCurrentRound.length = 0
-          // TODO: find a betxter place to call this as this
+          // TODO: find a better place to call this as this
           // currently blocks execution but needs to be updated every round
           if (this.stateStarted) {
             this.walletManager.updateDelegates()
@@ -418,7 +418,7 @@ module.exports = class ConnectionInterface {
   async verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
 
-    let sender = this.walletManager.findByAddress[senderId] // should exist
+    let sender = this.walletManager.findByAddress(senderId) // should exist
 
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
