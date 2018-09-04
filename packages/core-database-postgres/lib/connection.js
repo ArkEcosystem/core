@@ -281,14 +281,40 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
-    if (force) { // all wallets to be updated, performance is better without upsert
-      await this.models.wallet.destroy({truncate: true})
+    force = true
+
+    if (force) {
+      await this.query.none('wallets/truncate')
+
       const chunk = 5000
-      // breaking into chunks of 5k wallets, to prevent from loading RAM with GB of SQL data
+
       for (let i = 0, j = wallets.length; i < j; i += chunk) {
-        await this.connection.transaction(async dbtransaction =>
-          this.models.wallet.bulkCreate(wallets.slice(i, i + chunk), { transaction: dbtransaction })
-        )
+        try {
+          // TODO: refactor this mapping block
+          const test = wallets.slice(i, i + chunk)
+          for (let i = 0; i < test.length; i++) {
+            test[i].address = test[i].address
+            test[i].public_key = test[i].publicKey
+            test[i].second_public_key = test[i].secondPublicKey
+            test[i].vote = test[i].vote
+            test[i].username = test[i].username
+            test[i].balance = test[i].balance
+            test[i].vote_balance = test[i].voteBalance
+            test[i].produced_blocks = test[i].producedBlocks
+            test[i].missed_blocks = test[i].missedBlocks
+            test[i].created_at = test[i].createdAt
+            test[i].updated_at = test[i].updatedAt
+          }
+
+          const query = this.pgp.helpers.insert(test, [
+            'address', 'public_key', 'second_public_key', 'vote', 'username',
+            'balance', 'vote_balance', 'produced_blocks', 'missed_blocks'
+          ], 'wallets')
+
+          await this.connection.none(query)
+        } catch(e) {
+          logger.verbose(e)
+        }
       }
     } else {
       // NOTE: UPSERT is far from optimal. It can takes several seconds here
@@ -300,6 +326,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       //
       // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
       // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
+
+      // TODO: remove the upsert
       await this.connection.transaction(async dbtransaction =>
         Promise.all(wallets.map(wallet => this.models.wallet.upsert(wallet, {transaction: dbtransaction})))
       )
