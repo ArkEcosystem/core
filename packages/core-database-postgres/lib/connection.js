@@ -312,7 +312,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
           ], 'wallets')
 
           await this.connection.none(query)
-        } catch(e) {
+        } catch (e) {
           logger.verbose(e)
         }
       }

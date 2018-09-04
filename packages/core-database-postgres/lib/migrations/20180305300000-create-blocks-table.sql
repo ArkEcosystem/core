@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "blocks" (
     "payload_hash" varchar(64),
     "generator_public_key" varchar(66),
     "block_signature" varchar(256),
-    "created_at" timestamptz,
-    "updated_at" timestamptz,
+    "created_at" timestamptz DEFAULT now(),
+    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );

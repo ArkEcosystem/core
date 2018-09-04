@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "transactions" (
     "amount" int8,
     "fee" int8,
     "serialized" bytea,
-    "created_at" timestamptz,
-    "updated_at" timestamptz,
+    "created_at" timestamptz DEFAULT now(),
+    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );
