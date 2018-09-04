@@ -5,14 +5,14 @@ module.exports = {
   models: {
     block: require('./models/block'),
     transaction: require('./models/transaction'),
-    wallet: require('./models/wallet'),
+    wallet: require('./models/wallet')
   },
   migrations: [
     sql('migrations/20180305100000-create-wallets-table.sql'),
     sql('migrations/20180305200000-create-rounds-table.sql'),
     sql('migrations/20180305300000-create-blocks-table.sql'),
     sql('migrations/20180305400000-create-transactions-table.sql'),
-    sql('migrations/20180305500000-create-count_estimate-function.sql'),
+    sql('migrations/20180305500000-create-count_estimate-function.sql')
   ],
   queries: {
     blocks: {
@@ -22,7 +22,7 @@ module.exports = {
       heightRange: sql('queries/blocks/height-range.sql'),
       latest: sql('queries/blocks/latest.sql'),
       recent: sql('queries/blocks/recent.sql'),
-      statistics: sql('queries/blocks/statistics.sql'),
+      statistics: sql('queries/blocks/statistics.sql')
     },
     rounds: {
       delete: sql('queries/rounds/delete.sql'),

@@ -11,6 +11,6 @@ module.exports = {
     'vendor_field_hex',
     'amount',
     'fee',
-    'serialized',
+    'serialized'
   ]
 }

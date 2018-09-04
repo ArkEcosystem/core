@@ -12,6 +12,6 @@ module.exports = {
     'payload_length',
     'payload_hash',
     'generator_public_key',
-    'block_signature',
+    'block_signature'
   ]
 }

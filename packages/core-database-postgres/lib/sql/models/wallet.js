@@ -8,6 +8,6 @@ module.exports = {
     'balance',
     'vote_balance',
     'produced_blocks',
-    'missed_blocks',
+    'missed_blocks'
   ]
 }
