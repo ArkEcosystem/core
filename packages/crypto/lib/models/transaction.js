@@ -120,6 +120,12 @@ module.exports = class Transaction {
 
   // AIP11 serialization
   static serialize (transaction) {
+    // If Transaction.serialize is called from Block.serializeFull, the transaction data has no Bignums...
+    if (!(transaction.amount instanceof Bignum)) {
+      transaction.amount = new Bignum(transaction.amount.toString())
+      transaction.fee = new Bignum(transaction.fee.toString())
+    }
+
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1
     bb.writeByte(transaction.version || 0x01) // version
@@ -127,7 +133,7 @@ module.exports = class Transaction {
     bb.writeByte(transaction.type)
     bb.writeUInt32(transaction.timestamp)
     bb.append(transaction.senderPublicKey, 'hex')
-    bb.writeUInt64(transaction.fee)
+    bb.writeUInt64(+transaction.fee.toString())
 
     if (transaction.vendorField) {
       let vf = Buffer.from(transaction.vendorField, 'utf8')
@@ -141,14 +147,8 @@ module.exports = class Transaction {
     }
 
     // TODO use else if
-
-    if (transaction.amount instanceof Bignum) {
-      console.log("aaa")
-    }
-
-
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-      bb.writeUInt64(transaction.amount)
+      bb.writeUInt64(+transaction.amount.toString())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
     }
@@ -191,7 +191,7 @@ module.exports = class Transaction {
     }
 
     if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
-      bb.writeUInt64(transaction.amount)
+      bb.writeUInt64(+transaction.amount.toString())
       bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
