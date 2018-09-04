@@ -1,1 +1,2 @@
-SELECT * FROM wallets
+SELECT *
+FROM wallets

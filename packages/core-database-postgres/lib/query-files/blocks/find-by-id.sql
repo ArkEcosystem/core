@@ -1,1 +1,3 @@
-SELECT * FROM blocks WHERE id = $1
+SELECT *
+FROM blocks
+WHERE id = $1

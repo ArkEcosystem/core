@@ -1,1 +1,3 @@
-SELECT serialized FROM transactions WHERE block_id = $1
+SELECT serialized
+FROM transactions
+WHERE block_id = $1

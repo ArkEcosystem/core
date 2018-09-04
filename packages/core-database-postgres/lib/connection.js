@@ -203,26 +203,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       throw new Error('Trying to build delegates outside of round change')
     }
 
-    let data = await this.query.many('wallets/delegates')
+    let data = await this.query.many('wallets/round-delegates')
 
-    // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
+    // NOTE: At the launch of the blockchain we may have not enough voted delegates.
+    // In order to have enough forging delegates we complete the list in a
+    // deterministic way (alphabetical order of publicKey).
     if (data.length < maxDelegates) {
       const chosen = data.map(delegate => delegate.publicKey)
 
-      let query = this.query
-        .select('public_key', '0 as balance')
-        .from('wallets')
-        .whereNotNull('username')
+      const fillerWallets = chosen.length
+        ? await this.query.many('wallets/round-fillers-except', [maxDelegates - data.length, chosen])
+        : await this.query.many('wallets/round-fillers', [maxDelegates - data.length])
 
-        if (chosen.length) {
-          query = query.whereNotIn('public_key', chosen)
-        }
-
-        const data2 = await query.orderBy('public_key', 'ASC')
-          .limit(maxDelegates - data.length)
-          .all()
-
-      data = data.concat(data2)
+      data = data.concat(fillerWallets)
     }
 
     // logger.info(`got ${data.length} voted delegates`)
