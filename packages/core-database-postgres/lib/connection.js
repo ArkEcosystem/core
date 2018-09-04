@@ -17,7 +17,7 @@ const { Block, Transaction } = require('@arkecosystem/crypto').models
 const SPV = require('./spv')
 const Cache = require('./cache')
 
-const QueryBuilder = require('./sql/query-builder')
+const QueryBuilder = require('./sql/builder')
 const queries = require('./sql/queries')
 
 module.exports = class PostgresConnection extends ConnectionInterface {
