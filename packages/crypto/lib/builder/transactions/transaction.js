@@ -1,3 +1,4 @@
+const Bignum = require('bigi')
 const Transaction = require('../../models/transaction')
 const { crypto, slots } = require('../../crypto')
 const configManager = require('../../managers/config')
@@ -50,7 +51,7 @@ module.exports = class TransactionBuilder {
    */
   fee (fee) {
     if (fee != null) {
-      this.data.fee = fee
+      this.data.fee = new Bignum(fee.toString())
     }
 
     return this
@@ -62,7 +63,7 @@ module.exports = class TransactionBuilder {
    * @return {TransactionBuilder}
    */
   amount (amount) {
-    this.data.amount = amount
+    this.data.amount = new Bignum(amount.toString())
     return this
   }
 
@@ -176,7 +177,7 @@ module.exports = class TransactionBuilder {
       timestamp: this.data.timestamp,
 
       type: this.data.type,
-      fee: this.data.fee,
+      fee: +this.data.fee.toString(),
       senderPublicKey: this.data.senderPublicKey
     }
 
