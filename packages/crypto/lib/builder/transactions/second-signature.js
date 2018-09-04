@@ -1,7 +1,8 @@
+const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
-const { Bignum, crypto } = require('../../crypto')
+const { crypto } = require('../../crypto')
 
 module.exports = class SecondSignatureBuilder extends TransactionBuilder {
   /**

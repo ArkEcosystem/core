@@ -1,5 +1,6 @@
+const Bignum = require('../../utils/bignum')
 const Transaction = require('../../models/transaction')
-const { Bignum, crypto, slots } = require('../../crypto')
+const { crypto, slots } = require('../../crypto')
 const configManager = require('../../managers/config')
 
 module.exports = class TransactionBuilder {

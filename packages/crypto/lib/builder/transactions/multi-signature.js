@@ -26,7 +26,7 @@ class MultiSignatureBuilder extends TransactionBuilder {
    */
   multiSignatureAsset (multiSignature) {
     this.data.asset.multisignature = multiSignature
-    this.data.fee = Bignum.fromBuffer((multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE))
+    this.data.fee = Bignum.from((multiSignature.keysgroup.length + 1) * feeManager.get(TRANSACTION_TYPES.MULTI_SIGNATURE))
 
     return this
   }

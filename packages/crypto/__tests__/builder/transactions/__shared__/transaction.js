@@ -1,6 +1,5 @@
 const TransactionBuilder = require('../../../../lib/builder/transactions/transaction')
-const crypto = require('../../../../lib/crypto/crypto')
-const { slots } = require('../../../../lib/crypto')
+const { Bignum, crypto, slots } = require('../../../../lib/crypto')
 const configManager = require('../../../../lib/managers/config')
 const Transaction = require('../../../../lib/models/transaction')
 
@@ -35,8 +34,8 @@ module.exports = () => {
 
         data = {
           id: 'fake-id',
-          amount: 1,
-          fee: 1,
+          amount: Bignum.ONE,
+          fee: Bignum.ONE,
           recipientId: 'DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42',
           senderPublicKey: '035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c',
           timestamp,
@@ -51,8 +50,8 @@ module.exports = () => {
         const transaction = builder.build()
 
         expect(transaction).toBeInstanceOf(Transaction)
-        expect(transaction.amount).toBe(1)
-        expect(transaction.fee).toBe(1)
+        expect(transaction.amount).toBe(Bignum.ONE)
+        expect(transaction.fee).toBe(Bignum.ONE)
         expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
         expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
         expect(transaction.timestamp).toBe(timestamp)
@@ -69,8 +68,8 @@ module.exports = () => {
         })
 
         expect(transaction).toBeInstanceOf(Transaction)
-        expect(transaction.amount).toBe(33)
-        expect(transaction.fee).toBe(1000)
+        expect(transaction.amount).toBe(Bignum.from(33))
+        expect(transaction.fee).toBe(Bignum.from(1000))
         expect(transaction.recipientId).toBe('DK2v39r3hD9Lw8R5fFFHjUyCtXm1VETi42')
         expect(transaction.senderPublicKey).toBe('035440a82cb44faef75c3d7d881696530aac4d50da314b91795740cdbeaba9113c')
         expect(transaction.timestamp).toBe(timestamp)
@@ -80,15 +79,15 @@ module.exports = () => {
 
     describe('fee', () => {
       it('should set the fee', () => {
-        builder.fee('fake')
-        expect(builder.data.fee).toBe('fake')
+        builder.fee(255)
+        expect(builder.data.fee).toBe(Bignum.from(255))
       })
     })
 
     describe('amount', () => {
       it('should set the amount', () => {
-        builder.amount('fake')
-        expect(builder.data.amount).toBe('fake')
+        builder.amount(255)
+        expect(builder.data.amount).toBe(Bignum.from(255))
       })
     })
 
