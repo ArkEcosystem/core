@@ -28,6 +28,8 @@ module.exports = (model) => {
     senderPublicKey: data.senderPublicKey,
     vendorField: data.vendorField,
     signature: data.signature,
+    signSignature: data.signSignature,
+    signatures: data.signatures,
     asset: data.asset || {},
     confirmations: model.block
       ? blockchain.getLastBlock().data.height - model.block.height
