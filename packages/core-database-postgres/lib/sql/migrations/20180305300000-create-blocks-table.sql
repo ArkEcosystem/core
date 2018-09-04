@@ -1,19 +1,22 @@
 -- Table Definition
 CREATE TABLE IF NOT EXISTS ${schema~}.blocks (
-    "id" varchar(64),
-    "version" int2,
-    "timestamp" int4,
-    "previous_block" varchar(64),
-    "height" int4,
-    "number_of_transactions" int4,
-    "total_amount" int8,
-    "total_fee" int8,
-    "reward" int8,
-    "payload_length" int4,
-    "payload_hash" varchar(64),
-    "generator_public_key" varchar(66),
-    "block_signature" varchar(256),
+    "id" VARCHAR(64) UNIQUE,
+    "version" SMALLINT,
+    "timestamp" INTEGER,
+    "previous_block" VARCHAR(64),
+    "height" INTEGER,
+    "number_of_transactions" INTEGER,
+    "total_amount" BIGINT,
+    "total_fee" BIGINT,
+    "reward" BIGINT,
+    "payload_length" INTEGER,
+    "payload_hash" VARCHAR(64),
+    "generator_public_key" VARCHAR(66),
+    "block_signature" VARCHAR(256),
     "created_at" timestamptz DEFAULT now(),
     "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );
+
+-- Constraints
+CREATE UNIQUE INDEX IF NOT EXISTS "blocks_unique" ON votes ("height", "generatorPublicKey");
