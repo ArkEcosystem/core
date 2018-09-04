@@ -205,7 +205,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     let data = await this.query.many('wallets/round-delegates')
 
-    // NOTE: At the launch of the blockchain we may have not enough voted delegates.
+    // NOTE: At the launch of the blockchain we may not have enough delegates.
     // In order to have enough forging delegates we complete the list in a
     // deterministic way (alphabetical order of publicKey).
     if (data.length < maxDelegates) {
