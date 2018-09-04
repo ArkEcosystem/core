@@ -1,7 +1,6 @@
 module.exports = {
   toBeArkAddress: require('./fields/address'),
   toBeArkPublicKey: require('./fields/public-key'),
-  toBeBignum: require('./fields/bignum'),
 
   toBeApiTransaction: require('./api/transaction'),
   toBeSuccessfulResponse: require('./api/response').toBeSuccessfulResponse,
