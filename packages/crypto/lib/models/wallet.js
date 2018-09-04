@@ -279,7 +279,8 @@ module.exports = class Wallet {
    * @return {String}
    */
   toString () {
-    return `${this.address} (${this.balance.divide(Bignum.from(ARKTOSHI)).toString()} Ѧ)`
+    // this.balance.divide(Bignum.from(ARKTOSHI)).toString() doesn't show decimals :joy:
+    return `${this.address} (${this.balance.toNumber() / ARKTOSHI} Ѧ)`
   }
 
   /**
