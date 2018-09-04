@@ -2,8 +2,7 @@
 
 const pgp = require('pg-promise')
 const crypto = require('crypto')
-// const glob = require('tiny-glob')
-// const path = require('path')
+const glob = require('tiny-glob')
 const fs = require('fs-extra')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
@@ -35,12 +34,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       await fs.ensureFile(this.config.storage)
     }
 
-    const config = Object.assign({}, this.config) // shallow copy of this.config to safely delete config.redis below
-    delete config.redis
-
-    this.pgp = pgp(config.initialization)
-    this.connection = this.pgp(config.connection)
-
     this.asyncTransaction = null
 
     try {
@@ -62,10 +55,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
   /**
    * Connect to the database.
-   * @return {Boolean}
+   * @return {void}
    */
   async connect () {
-    return this.connection.authenticate()
+    this.pgp = pgp(this.config.initialization)
+    this.connection = this.pgp(this.config.connection)
   }
 
   /**
@@ -522,7 +516,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       .orderBy('sequence', 'ASC')
       .all()
 
-    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
+    block.transactions = transactions.map(({ serialized }) => { Transaction.deserialize(serialized.toString('hex')) })
 
     return new Block(block)
   }
@@ -592,6 +586,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         .whereIn('block_id', ids)
         .orderBy('sequence', 'ASC')
         .all()
+
       transactions = transactions.map(tx => {
         const data = Transaction.deserialize(tx.serialized.toString('hex'))
         data.blockId = tx.blockId
@@ -654,6 +649,15 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
+   * Execute the given sql file.
+   * @param  {String} file
+   * @return {Promise}
+   */
+  executeSqlFile (file) {
+    return new this.pgp.QueryFile(file, { minify: true })
+  }
+
+  /**
    * Register the query builder.
    * @return {void}
    */
@@ -663,25 +667,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
   /**
    * Run all migrations.
-   * @return {Boolean}
+   * @return {void}
    */
-  __runMigrations () {
-    // const umzug = new Umzug({
-    //   storage: 'sequelize',
-    //   storageOptions: {
-    //     sequelize: this.connection
-    //   },
-    //   migrations: {
-    //     params: [
-    //       this.connection.getQueryInterface(),
-    //       Sequelize,
-    //       this
-    //     ],
-    //     path: path.join(__dirname, 'migrations')
-    //   }
-    // })
+  async __runMigrations () {
+    const entries = await glob('migrations/*.sql', {
+      cwd: __dirname, absolute: true, filesOnly: true
+    })
 
-    // return umzug.up()
+    entries.forEach(file => this.executeSqlFile(file))
   }
 
   /**
@@ -707,6 +700,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   __registerListeners () {
     super.__registerListeners()
+
     emitter.on('wallet:cold:created', async coldWallet => {
       try {
         const wallet = await this.query

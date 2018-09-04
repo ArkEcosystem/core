@@ -1,8 +1,8 @@
 -- Sequence
-CREATE SEQUENCE IF NOT EXISTS "public"."rounds_id_seq";
+CREATE SEQUENCE IF NOT EXISTS "rounds_id_seq";
 
 -- Table Definition
-CREATE TABLE "public"."rounds" (
+CREATE TABLE IF NOT EXISTS "rounds" (
     "id" int4 DEFAULT nextval('rounds_id_seq'::regclass),
     "public_key" varchar(66),
     "balance" int8,

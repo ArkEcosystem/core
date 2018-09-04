@@ -1,5 +1,5 @@
 -- Table Definition
-CREATE TABLE "public"."blocks" (
+CREATE TABLE IF NOT EXISTS "blocks" (
     "id" varchar(64),
     "version" int2,
     "timestamp" int4,

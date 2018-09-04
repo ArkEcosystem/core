@@ -1,5 +1,5 @@
 -- Table Definition
-CREATE TABLE "public"."transactions" (
+CREATE TABLE IF NOT EXISTS "transactions" (
     "id" varchar(64),
     "version" int2,
     "block_id" varchar(64),

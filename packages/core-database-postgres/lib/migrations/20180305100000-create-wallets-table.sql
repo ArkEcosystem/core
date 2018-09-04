@@ -1,5 +1,5 @@
 -- Table Definition
-CREATE TABLE "public"."wallets" (
+CREATE TABLE IF NOT EXISTS "wallets" (
     "address" varchar(36),
     "public_key" varchar(66),
     "second_public_key" varchar(66),

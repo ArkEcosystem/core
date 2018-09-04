@@ -1,5 +1,5 @@
 -- Function Definition
-CREATE FUNCTION count_estimate(query text) RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION count_estimate(query text) RETURNS integer AS $$
 DECLARE
   rec   record;
   rows  integer;
