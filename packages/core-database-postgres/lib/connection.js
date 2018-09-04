@@ -24,10 +24,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {PostgresConnection}
    */
   async make () {
-    logger.verbose(`Connecting to Postgres database (${this.config.dialect})`)
+    logger.verbose(`Connecting to database`)
 
     if (this.connection) {
-      throw new Error('Postgres connection already initialised')
+      throw new Error('Database connection already initialised')
     }
 
     if (this.config.dialect === 'sqlite' && this.config.storage !== ':memory:') {
@@ -180,6 +180,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   saveRound (activeDelegates) {
     logger.info(`Saving round ${activeDelegates[0].round}`)
 
+    // TODO: replace with raw query
     return this.models.round.bulkCreate(activeDelegates)
   }
 
@@ -189,6 +190,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Boolean}
    */
   deleteRound (round) {
+    // TODO: replace with raw query
     return this.models.round.destroy({ where: {round} })
   }
 
@@ -327,11 +329,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
       // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
 
-      // TODO: remove the upsert
+      // TODO: replace with raw query
       await this.connection.transaction(async dbtransaction =>
         Promise.all(wallets.map(wallet => this.models.wallet.upsert(wallet, {transaction: dbtransaction})))
       )
     }
+
     logger.info(`${wallets.length} modified wallets committed to database`)
 
     // commented out as more use cases to be taken care of
@@ -351,10 +354,15 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
+
+      // TODO: replace with raw query
       await this.models.block.create(block.data, { transaction })
+
+      // TODO: replace with raw query
       if (block.transactions.length > 0) {
         await this.models.transaction.bulkCreate(block.transactions, { transaction })
       }
+
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
@@ -378,8 +386,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       this.asyncTransaction = await this.connection.transaction()
     }
 
+    // TODO: replace with raw query
     await this.models.block.create(block.data, { transaction: this.asyncTransaction })
+
     if (block.transactions.length > 0) {
+      // TODO: replace with raw query
       await this.models.transaction.bulkCreate(block.transactions, { transaction: this.asyncTransaction })
     }
   }
@@ -421,8 +432,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     try {
       transaction = await this.connection.transaction()
+
+      // TODO: replace with raw query
       await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction })
+
+      // TODO: replace with raw query
       await this.models.block.destroy({ where: { id: block.data.id } }, { transaction })
+
       await transaction.commit()
     } catch (error) {
       logger.error(error.stack)
@@ -444,7 +460,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (!this.asyncTransaction) {
       this.asyncTransaction = await this.connection.transaction()
     }
+
+    // TODO: replace with raw query
     await this.models.transaction.destroy({ where: { blockId: block.data.id } }, { transaction: this.asyncTransaction })
+
+    // TODO: replace with raw query
     await this.models.block.destroy({ where: { id: block.data.id } }, { transaction: this.asyncTransaction })
   }
 
