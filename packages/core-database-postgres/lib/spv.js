@@ -2,7 +2,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const queries = require('./sql/queries')
+const { queries } = require('./sql')
 
 module.exports = class SPV {
   /**
@@ -174,7 +174,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildVotes () {
-    const transactions = await this.query.many(queries.spv.votes)
+    const transactions = await this.query.manyOrNone(queries.spv.votes)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)

@@ -1,7 +1,13 @@
 'use strict'
 
+// const humps = require('humps')
+
 module.exports = {
-  initialization: {},
+  initialization: {
+    // receive: function (data) {
+    //   camelizeColumnNames(data)
+    // }
+  },
   connection: {
     host: process.env.ARK_DB_HOST || 'localhost',
     port: process.env.ARK_DB_PORT || 5432,
@@ -14,3 +20,19 @@ module.exports = {
     port: process.env.ARK_REDIS_PORT || 6379
   }
 }
+
+// function camelizeColumnNames (data) {
+//   const template = data[0]
+
+//   for (const prop in template) {
+//     const camel = humps.camelize(prop)
+
+//     if (!(camel in template)) {
+//       for (let i = 0; i < data.length; i++) {
+//         const d = data[i]
+//         d[camel] = d[prop]
+//         delete d[prop]
+//       }
+//     }
+//   }
+// }

@@ -2,7 +2,6 @@
 
 const pgp = require('pg-promise')
 const crypto = require('crypto')
-const glob = require('tiny-glob')
 const fs = require('fs-extra')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
@@ -18,7 +17,7 @@ const SPV = require('./spv')
 const Cache = require('./cache')
 
 const QueryBuilder = require('./sql/builder')
-const queries = require('./sql/queries')
+const { migrations, models, queries } = require('./sql')
 
 module.exports = class PostgresConnection extends ConnectionInterface {
   /**
@@ -154,7 +153,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return this.activedelegates
     }
 
-    const data = await this.query.many(queries.rounds.find, [round])
+    const data = await this.query.manyOrNone(queries.rounds.find, [round])
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
@@ -192,7 +191,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Promise}
    */
   async deleteRound (round) {
-    return this.query.many(queries.rounds.delete, [round])
+    return this.query.none(queries.rounds.delete, [round])
   }
 
   /**
@@ -296,12 +295,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
           // TODO: refactor this mapping block
           const test = wallets.slice(i, i + chunk)
           for (let i = 0; i < test.length; i++) {
-            test[i].address = test[i].address
             test[i].public_key = test[i].publicKey
             test[i].second_public_key = test[i].secondPublicKey
-            test[i].vote = test[i].vote
-            test[i].username = test[i].username
-            test[i].balance = test[i].balance
             test[i].vote_balance = test[i].voteBalance
             test[i].produced_blocks = test[i].producedBlocks
             test[i].missed_blocks = test[i].missedBlocks
@@ -309,11 +304,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
             test[i].updated_at = test[i].updatedAt
           }
 
-          const query = this.pgp.helpers.insert(test, [
-            'address', 'public_key', 'second_public_key', 'vote', 'username',
-            'balance', 'vote_balance', 'produced_blocks', 'missed_blocks'
-          ], 'wallets')
+          const query = this.pgp.helpers.insert(test, models.wallet.columns, 'wallets')
+          console.log(query)
 
+          // TODO: use database transaction
           await this.connection.none(query)
         } catch (e) {
           logger.verbose(e)
@@ -348,31 +342,41 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * Commit the given block.
    * NOTE: to be used when node is in sync and committing newly received blocks
    * @param  {Block} block
-   * @return {Object}
+   * @return {void}
    */
   async saveBlock (block) {
-    let transaction
-
     try {
-      transaction = await this.connection.transaction()
+      const queries = []
 
-      // TODO: replace with raw query
-      await this.models.block.create(block.data, { transaction })
+      // TODO: replace this mapping
+      block.data.previous_block = block.data.previousBlock
+      block.data.number_of_transactions = block.data.numberOfTransactions
+      block.data.total_amount = block.data.totalAmount
+      block.data.total_fee = block.data.totalFee
+      block.data.payload_length = block.data.payloadLength
+      block.data.payload_hash = block.data.payloadHash
+      block.data.generator_public_key = block.data.generatorPublicKey
+      block.data.block_signature = block.data.blockSignature
 
-      // TODO: replace with raw query
+      queries.push(this.connection.none(this.pgp.helpers.insert(block.data, models.block.columns, 'blocks')))
+
+      // TODO: replace this mapping
       if (block.transactions.length > 0) {
-        await this.models.transaction.bulkCreate(block.transactions, { transaction })
+        for (const transaction of block.transactions) {
+          transaction.block_id = transaction.blockId
+          transaction.sender_public_key = transaction.senderPublicKey
+          transaction.recipient_id = transaction.recipientId
+          transaction.vendor_field_hex = transaction.vendorFieldHex
+        }
+
+        queries.push(this.connection.none(this.pgp.helpers.insert(block.transactions, models.transaction.columns, 'transactions')))
       }
 
-      await transaction.commit()
-    } catch (error) {
-      logger.error(error.stack)
-      if (error.sql) {
-        logger.info('Function saveBlock')
-        logger.info(error.sql)
-      }
-      await transaction.rollback()
-      throw error
+      const data = await this.connection.tx(t => t.batch(queries))
+
+      logger.verbose(data)
+    } catch (err) {
+      logger.error(err.message)
     }
   }
 
@@ -523,7 +527,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {(Block|null)}
    */
   async getLastBlock () {
-    const block = await this.query.one(queries.blocks.latest)
+    const block = await this.query.oneOrNone(queries.blocks.latest)
 
     if (!block) {
       return null
@@ -613,12 +617,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {[]String}
    */
   async getRecentBlockIds () {
-    const blocks = await this.query
-      .select('id')
-      .from('blocks')
-      .orderBy({ timestamp: 'DESC' })
-      .limit(10)
-      .all()
+    const blocks = await this.query.many(queries.blocks.recent)
 
     return blocks.map(block => block.id)
   }
@@ -630,36 +629,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getBlockHeaders (offset, limit) {
-    let blocks = await this.query
-      .select('*')
-      .from('blocks')
-      .whereBetween('height', offset, offset + limit)
-      .all()
+    const blocks = await this.query.many(queries.blocks.headers, [offset, offset + limit])
 
     return blocks.map(block => Block.serialize(block))
-  }
-
-  /**
-   * Create an OR or AND condition.
-   * @param  {String} type
-   * @param  {Object} params
-   * @return {}
-   */
-  createCondition (type, params) {
-    // if (!Object.keys(Sequelize.Op).includes(type)) {
-    //   return {}
-    // }
-
-    // return { [Sequelize.Op[type]]: params }
-  }
-
-  /**
-   * Execute the given sql file.
-   * @param  {String} file
-   * @return {Promise}
-   */
-  prepareSqlFile (file) {
-    return new this.pgp.QueryFile(file, { minify: true })
   }
 
   /**
@@ -675,11 +647,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {void}
    */
   async __runMigrations () {
-    const entries = await glob('sql/migrations/*.sql', {
-      cwd: __dirname, absolute: true, filesOnly: true
-    })
-
-    entries.forEach(file => this.prepareSqlFile(file))
+    for (const migration of migrations) {
+      await this.query.none(migration)
+    }
   }
 
   /**
@@ -743,11 +713,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Number}
    */
   async __numberOfBlocks () {
-    const { count } = await this.query
-      .select()
-      .countDistinct('height', 'count')
-      .from('blocks')
-      .first()
+    const { count } = await this.query.one(queries.blocks.count)
 
     return count
   }
@@ -755,30 +721,18 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * This auxiliary method returns some stats about the blocks that are
    * used to verify the blockchain
-   * @return {Object}
+   * @return {Promise}
    */
   async __blockStats () {
-    return this.query
-      .select()
-      .sum('number_of_transactions', 'numberOfTransactions')
-      .sum('total_fee', 'totalFee')
-      .sum('total_amount', 'totalAmount')
-      .from('blocks')
-      .first()
+    return this.query.one(queries.blocks.statistics)
   }
 
   /**
    * This auxiliary method returns some stats about the transactions that are
    * used to verify the blockchain
-   * @return {Object}
+   * @return {Promise}
    */
   async __transactionStats () {
-    return this.query
-      .select()
-      .countDistinct('id', 'count')
-      .sum('fee', 'totalFee')
-      .sum('amount', 'totalAmount')
-      .from('transactions')
-      .first()
+    return this.query.one(queries.transactions.statistics)
   }
 }
