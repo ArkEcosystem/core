@@ -76,9 +76,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       logger.warn(error.message)
     }
 
-    logger.verbose(`Disconnecting from database (${this.config.dialect})`)
+    logger.verbose('Disconnecting from database')
 
-    return this.connection.close()
+    return this.connection.disconnect()
   }
 
   /**
@@ -152,15 +152,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return this.activedelegates
     }
 
-    const data = await this.query
-      .select('*')
-      .from('rounds')
-      .where('round', round)
-      .orderBy({
-        'balance': 'DESC',
-        'public_key': 'ASC'
-      })
-      .all()
+    const data = await this.query.many('rounds/get', [round])
 
     const seedSource = round.toString()
     let currentSeed = crypto.createHash('sha256').update(seedSource, 'utf8').digest()
@@ -211,13 +203,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       throw new Error('Trying to build delegates outside of round change')
     }
 
-    let data = await this.query
-      .select('"vote" AS "publicKey"')
-      .sum('balance', 'balance')
-      .from('wallets')
-      .whereNotNull('vote')
-      .groupBy('vote')
-      .all()
+    let data = await this.query.many('wallets/delegates')
 
     // at the launch of blockchain, we may have not enough voted delegates, completing in a deterministic way (alphabetical order of publicKey)
     if (data.length < maxDelegates) {
@@ -260,9 +246,12 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     this.walletManager.reset()
 
     const spvPath = `${process.env.ARK_PATH_DATA}/spv.json`
+
     if (fs.existsSync(spvPath)) {
       fs.removeSync(spvPath)
+
       logger.info('ARK Core ended unexpectedly - resuming from where we left off :runner:')
+
       return this.loadWallets()
     }
 
@@ -283,7 +272,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async loadWallets () {
-    const wallets = await this.query.select('*').from('wallets').all()
+    const wallets = await this.query.many('wallets/all')
     wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
     return this.walletManager.all()
@@ -472,21 +461,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async getBlock (id) {
     // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-    const block = await this.query
-      .select('*')
-      .from('blocks')
-      .where('id', id)
-      .first()
+    const block = await this.query.many('blocks/find-by-id', [id])
 
     if (!block) {
       return null
     }
 
-    const transactions = await this.query
-      .select('serialized')
-      .from('transactions')
-      .where('block_id', block.id)
-      .all()
+    const transactions = await this.query.many('transactions/find-by-block', [block.id])
 
     block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
@@ -504,12 +485,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return null
     }
 
-    const transactions = await this.query
-      .select('serialized')
-      .from('transactions')
-      .where('block_id', block.id)
-      .orderBy('sequence', 'ASC')
-      .all()
+    const transactions = await this.query.manyOrNone('transactions/latest-by-block', [block.id])
 
     block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
@@ -563,24 +539,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getBlocks (offset, limit) {
-    let blocks = await this.query
-      .select('*')
-      .from('blocks')
-      .whereBetween('height', offset, offset + limit)
-      .orderBy('height', 'ASC')
-      .all()
+    const blocks = await this.query.many('blocks/height-range', [offset, offset + limit])
 
     let transactions = []
 
     const ids = blocks.map(block => block.id)
 
     if (ids.length) {
-      transactions = await this.query
-        .select('block_id', 'serialized')
-        .from('transactions')
-        .whereIn('block_id', ids)
-        .orderBy('sequence', 'ASC')
-        .all()
+      transactions = await this.query.manyOrNone('transactions/latest-by-blocks', [ids.join(',')])
 
       transactions = transactions.map(tx => {
         const data = Transaction.deserialize(tx.serialized.toString('hex'))
@@ -589,7 +555,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       })
     }
 
-    for (let block of blocks) {
+    for (const block of blocks) {
       if (block.numberOfTransactions > 0) {
         block.transactions = transactions.filter(transaction => transaction.blockId === block.id)
       }

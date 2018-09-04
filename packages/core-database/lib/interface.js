@@ -1,6 +1,5 @@
 'use strict'
 
-const async = require('async')
 const { crypto, slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -333,6 +332,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
+
       this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
@@ -428,42 +428,6 @@ module.exports = class ConnectionInterface {
     const dbTransaction = await this.getTransaction(transaction.data.id)
 
     return sender.canApply(transaction.data) && !dbTransaction
-  }
-
-  /**
-   * Write blocks to file as a snapshot.
-   * @return {void}
-   */
-  async snapshot () {
-    const expandHomeDir = require('expand-home-dir')
-    const path = expandHomeDir(container.config('databaseManager').snapshots)
-
-    const fs = require('fs-extra')
-    await fs.ensureFile(`${path}/blocks.dat`)
-
-    const wstream = fs.createWriteStream(`${path}/blocks.dat`)
-
-    let max = 100000 // eslint-disable-line no-unused-vars
-    let offset = 0
-    const writeQueue = async.queue((block, qcallback) => {
-      wstream.write(block)
-      qcallback()
-    }, 1)
-
-    let blocks = await this.getBlockHeaders(offset, offset + 100000)
-    writeQueue.push(blocks)
-    max = blocks.length
-    offset += 100000
-    console.log(offset)
-
-    writeQueue.drain = async () => {
-      console.log('drain')
-      blocks = await this.getBlockHeaders(offset, offset + 100000)
-      writeQueue.push(blocks)
-      max = blocks.length
-      offset += 100000
-      console.log(offset)
-    }
   }
 
   /**
