@@ -28,14 +28,14 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {(Wallet|null)}
    */
   findByAddress (address) {
-    if (!this.walletsByAddress[address]) {
+    if (!this.byAddress.get(address)) {
       const blockchainWallet = database.walletManager.findByAddress(address)
       const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
 
       this.reindex(wallet)
     }
 
-    return this.walletsByAddress[address]
+    return this.byAddress.get(address)
   }
 
   /**
@@ -45,38 +45,19 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean} true if exists
    */
   exists (key) {
-    if (this.walletsByPublicKey[key]) {
+    if (this.byPublicKey.get(key)) {
       return true
     }
 
-    if (this.walletsByAddress[key]) {
+    if (this.byAddress.get(key)) {
       return true
     }
     return false
   }
 
-  /**
-   * Empty the pool manager wallets
-   * @return {void}
-   */
-  purgeAll () {
-    Object.keys(this.walletsByPublicKey).forEach(publicKey => {
-      delete this.walletsByPublicKey[publicKey]
-    })
-
-    Object.keys(this.walletsByAddress).forEach(address => {
-      delete this.walletsByAddress[address]
-    })
-
-    Object.keys(this.walletsByUsername).forEach(username => {
-      delete this.walletsByUsername[username]
-    })
-  }
-
   deleteWallet (publicKey) {
-    delete this.walletsByPublicKey[publicKey]
-
-    delete this.walletsByAddress[crypto.getAddress(publicKey, config.network.pubKeyHash)]
+    this.forgetByPublicKey(publicKey)
+    this.forgetByAddress(crypto.getAddress(publicKey, config.network.pubKeyHash))
   }
 
   /**
@@ -93,10 +74,10 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
-      this.walletsByAddress[recipientId] = recipient
+      this.setByAddress(recipientId, recipient)
     }
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.walletsByUsername[asset.delegate.username.toLowerCase()]) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.byUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`)

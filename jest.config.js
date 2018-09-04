@@ -24,7 +24,8 @@ module.exports = {
     '**/packages/core-blockchain/**/__tests__/**/*.test.js',
     '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
     '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
-    '**/packages/crypto/**/__tests__/**/*.test.js'
+    '**/packages/crypto/**/__tests__/**/*.test.js',
+    '**/packages/core-api/**/__tests__/**/*.test.js'
 
     /* These packages have failing tests */
 
@@ -32,10 +33,6 @@ module.exports = {
 
     // '**/packages/core-graphql/**/__tests__/**/*.test.js',
     // '**/packages/core/**/__tests__/**/*.test.js',
-
-    /* These packages `runInBand` */
-
-    // '**/packages/core-api/**/__tests__/**/*.test.js',
 
     /* These packages have very long  timeouts or don't end properly */
 

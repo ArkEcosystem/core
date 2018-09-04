@@ -67,15 +67,15 @@ describe('Wallet Repository', () => {
     expect(repository).toBeObject()
   })
 
-  describe('getLocalWallets', () => {
+  describe('all', () => {
     it('should be a function', () => {
-      expect(repository.getLocalWallets).toBeFunction()
+      expect(repository.all).toBeFunction()
     })
 
     it('should return the local wallets of the connection', () => {
-      repository.connection.walletManager.getLocalWallets = jest.fn()
-      repository.getLocalWallets()
-      expect(repository.connection.walletManager.getLocalWallets).toHaveBeenCalled()
+      repository.connection.walletManager.all = jest.fn()
+      repository.all()
+      expect(repository.connection.walletManager.all).toHaveBeenCalled()
     })
   })
 

@@ -18,7 +18,7 @@ module.exports = class DelegatesRepository {
    * @return {Array}
    */
   getLocalDelegates () {
-    return this.connection.walletManager.getLocalWallets().filter(wallet => !!wallet.username)
+    return this.connection.walletManager.all().filter(wallet => !!wallet.username)
   }
 
   /**

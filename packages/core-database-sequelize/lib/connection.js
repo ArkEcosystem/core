@@ -286,7 +286,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
       await this.__registerListeners()
 
-      return this.walletManager.walletsByAddress || {}
+      return this.walletManager.all()
     } catch (error) {
       logger.error(error.stack)
     }
@@ -294,22 +294,22 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
 
   /**
    * Load all wallets from database.
-   * @return {void}
+   * @return {Array}
    */
   async loadWallets () {
     const wallets = await this.query.select('*').from('wallets').all()
     wallets.forEach(wallet => this.walletManager.reindex(wallet))
 
-    return this.walletManager.walletsByAddress || {}
+    return this.walletManager.all()
   }
 
   /**
    * Commit wallets from the memory.
    * @param  {Boolean} force
-   * @return {Object}
+   * @return {void}
    */
   async saveWallets (force) {
-    const wallets = Object.values(this.walletManager.walletsByPublicKey || {}).filter(wallet => {
+    const wallets = this.walletManager.allByPublicKey().filter(wallet => {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
@@ -341,7 +341,7 @@ module.exports = class SequelizeConnection extends ConnectionInterface {
     // commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
 
-    return Object.values(this.walletManager.walletsByAddress).forEach(wallet => (wallet.dirty = false))
+    this.walletManager.clear()
   }
 
   /**

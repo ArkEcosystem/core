@@ -544,7 +544,7 @@ describe('Transaction Repository', () => {
     })
 
     it('should search transactions by the specified `type`', async () => {
-      await expectSearch({ type: genesisTransaction.type }, 153)
+      await expectSearch({ type: genesisTransaction.type }, 51)
     })
 
     it('should search transactions by the specified `version`', async () => {

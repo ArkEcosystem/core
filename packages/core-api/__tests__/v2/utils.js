@@ -4,14 +4,23 @@ const axios = require('axios')
 const { client, transactionBuilder, NetworkManager } = require('@arkecosystem/crypto')
 
 class Helpers {
-  request (method, path, params = {}) {
+  async request (method, path, params = {}) {
     const url = `http://localhost:4003/api/${path}`
     const headers = { 'API-Version': 2 }
-    const request = axios[method.toLowerCase()]
 
-    return ['GET', 'DELETE'].includes(method)
-      ? request(url, { params, headers })
-      : request(url, params, { headers })
+    const server = require('@arkecosystem/core-container').resolvePlugin('api')
+
+    // Injecting the request into Hapi server instead of using axios
+    const injectOptions = {
+      method,
+      url,
+      headers,
+      payload: params
+    }
+
+    const response = await server.inject(injectOptions)
+    Object.assign(response, { data: response.result, status: response.statusCode })
+    return response
   }
 
   expectJson (response) {
@@ -50,7 +59,7 @@ class Helpers {
   expectSuccessful (response, statusCode = 200) {
     this.expectStatus(response, statusCode)
     this.expectJson(response)
-    this.assertVersion(response, '2')
+    this.assertVersion(response, 2)
   }
 
   expectError (response, statusCode = 404) {
@@ -107,8 +116,8 @@ class Helpers {
     expect(delegate.blocks.missed).toBeNumber()
     expect(delegate.blocks.produced).toBeNumber()
     expect(delegate.production).toBeObject()
-    expect(delegate.production.approval).toBeString()
-    expect(delegate.production.productivity).toBeString()
+    expect(delegate.production.approval).toBeNumber()
+    expect(delegate.production.productivity).toBeNumber()
 
     Object.keys(expected || {}).forEach(attr => {
       expect(delegate[attr]).toBe(expected[attr])

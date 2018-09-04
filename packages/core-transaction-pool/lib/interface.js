@@ -244,7 +244,7 @@ module.exports = class TransactionPoolInterface {
    * @return {void}
    */
   async buildWallets () {
-    this.walletManager.purgeAll()
+    this.walletManager.reset()
     const poolTransactions = await this.getTransactionIdsForForging(0, 0)
 
     await Promise.each(poolTransactions, async (transactionId) => {

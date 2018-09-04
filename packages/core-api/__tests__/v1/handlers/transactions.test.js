@@ -181,11 +181,10 @@ describe('API 1.0 - Transactions', () => {
     })
   })
 
-  describe('GET /transactions/get?id=3fd7fa4fda1ae97055996040b482efa81f420516fadf50cff508da2025e9b8b9', () => {
+  describe('GET /transactions/get?id=', () => {
     it('should be ok using valid id', async () => {
       const transactionInCheck = transactionList[0]
-      const params = `id=${transactionInCheck.id}`
-      const response = await utils.request('GET', `transactions/get?${params}`)
+      const response = await utils.request('GET', 'transactions/get', { id: transactionInCheck.id })
 
       utils.expectSuccessful(response)
 
@@ -200,8 +199,7 @@ describe('API 1.0 - Transactions', () => {
     })
 
     it('should fail using invalid id', async () => {
-      const params = 'id=invalid'
-      const response = await utils.request('GET', `transactions/get?${params}`)
+      const response = await utils.request('GET', 'transactions/get', { id: 'invalid' })
 
       utils.expectError(response)
 
@@ -213,7 +211,7 @@ describe('API 1.0 - Transactions', () => {
     it('should be ok using valid id', async () => {
       const transaction = await utils.createTransaction()
 
-      const response = await utils.request('GET', `transactions/unconfirmed/get?id=${transaction.id}`)
+      const response = await utils.request('GET', 'transactions/unconfirmed/get', { id: transaction.id })
       utils.expectSuccessful(response)
 
       if (response.data.success && response.data.transaction != null) {

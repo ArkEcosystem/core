@@ -11,7 +11,7 @@ module.exports = (params, filters) => {
 
   if (filters.hasOwnProperty('exact')) {
     for (const elem of filters['exact']) {
-      if (params[elem]) {
+      if (typeof params[elem] !== 'undefined') {
         where.push({
           column: elem,
           operator: '=',
