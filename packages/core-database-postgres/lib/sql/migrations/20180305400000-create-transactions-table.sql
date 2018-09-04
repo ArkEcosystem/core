@@ -1,5 +1,5 @@
 -- Table Definition
-CREATE TABLE IF NOT EXISTS "transactions" (
+CREATE TABLE IF NOT EXISTS ${schema~}.transactions (
     "id" varchar(64),
     "version" int2,
     "block_id" varchar(64),

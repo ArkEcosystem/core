@@ -1,6 +1,5 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const path = require('path')
 const { get, set } = require('lodash')
 
 const clauses = require('./clauses')
@@ -291,8 +290,8 @@ module.exports = class QueryBuiler {
     // const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
 
     try {
-      logger.debug(`QUERY: ${sql}`)
-      logger.debug(`PARAM: ${JSON.stringify(replacements)}`)
+      // logger.debug(`QUERY: ${sql}`)
+      // logger.debug(`PARAM: ${JSON.stringify(replacements)}`)
       return this.connection.connection.any(sql, replacements)
     } catch (e) {
       logger.error(e)
@@ -311,7 +310,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect no results.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -321,7 +320,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect one result.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -331,7 +330,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect one or no results.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -341,7 +340,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect many results.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -351,7 +350,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect many or no results.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -361,7 +360,7 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query and expect any results.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @return {Promise}
    */
@@ -371,17 +370,13 @@ module.exports = class QueryBuiler {
 
   /**
    * Execute the given query using the given method and parameters.
-   * @param  {String} file
+   * @param  {QueryFile} file
    * @param  {Array} parameters
    * @param  {String} method
    * @return {QueryBuilder}
    */
   async __executeQueryFile (file, parameters, method) {
-    file = path.resolve(__dirname, `../query-files/${file}.sql`)
-
-    const query = this.connection.prepareSqlFile(`${file}`)
-
-    return this.connection.connection[method](query, parameters)
+    return this.connection.connection[method](file, parameters)
   }
 
   /**

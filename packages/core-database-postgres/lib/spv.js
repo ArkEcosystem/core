@@ -2,6 +2,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
+const queries = require('./sql/queries')
 
 module.exports = class SPV {
   /**
@@ -58,7 +59,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildReceivedTransactions () {
-    const transactions = await this.query.many('spv/received-transactions')
+    const transactions = await this.query.many(queries.spv.receivedTransactions)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByAddress(transaction.recipient_id)
@@ -74,7 +75,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildBlockRewards () {
-    const transactions = await this.query.many('spv/block-rewards')
+    const transactions = await this.query.many(queries.spv.blockRewards)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.generator_public_key)
@@ -87,7 +88,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildLastForgedBlocks () {
-    const transactions = await this.query.many('spv/last-forged-blocks', [this.activeDelegates])
+    const transactions = await this.query.many(queries.spv.lastForgedBlocks, [this.activeDelegates])
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.generator_public_key)
@@ -100,7 +101,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildSentTransactions () {
-    const transactions = await this.query.many('spv/sent-transactions')
+    const transactions = await this.query.many(queries.spv.sentTransactions)
 
     for (const transaction of transactions) {
       let wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
@@ -117,7 +118,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildSecondSignatures () {
-    const transactions = await this.query.manyOrNone('spv/second-signatures')
+    const transactions = await this.query.manyOrNone(queries.spv.secondSignatures)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
@@ -131,7 +132,7 @@ module.exports = class SPV {
    */
   async __buildDelegates () {
     // Register...
-    const transactions = await this.query.manyOrNone('spv/delegates')
+    const transactions = await this.query.manyOrNone(queries.spv.delegates)
 
     for (let i = 0; i < transactions.length; i++) {
       const wallet = this.walletManager.findByPublicKey(transactions[i].sender_public_key)
@@ -144,10 +145,10 @@ module.exports = class SPV {
     const publicKeys = transactions.map(transaction => transaction.sender_public_key).join(',')
 
     // Forged Blocks...
-    const forgedBlocks = await this.query.manyOrNone('spv/delegates-forged-blocks', [publicKeys])
+    const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, [publicKeys])
 
     // Ranks...
-    const delegates = await this.query.manyOrNone('spv/delegates-ranks', [publicKeys])
+    const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks, [publicKeys])
 
     for (let i = 0; i < delegates.length; i++) {
       const forgedBlock = forgedBlocks.filter(block => {
@@ -173,7 +174,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildVotes () {
-    const transactions = await this.query.many('spv/votes')
+    const transactions = await this.query.many(queries.spv.votes)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
@@ -197,7 +198,7 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildMultisignatures () {
-    const transactions = await this.query.manyOrNone('spv/multi-signatures')
+    const transactions = await this.query.manyOrNone(queries.spv.multiSignatures)
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)

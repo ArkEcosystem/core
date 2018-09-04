@@ -1,5 +1,5 @@
 -- Table Definition
-CREATE TABLE IF NOT EXISTS "blocks" (
+CREATE TABLE IF NOT EXISTS ${schema~}.blocks (
     "id" varchar(64),
     "version" int2,
     "timestamp" int4,
