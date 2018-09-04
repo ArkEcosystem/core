@@ -1,5 +1,6 @@
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const path = require('path')
 const { get, set } = require('lodash')
 
 const clauses = require('./clauses')
@@ -11,9 +12,8 @@ module.exports = class QueryBuiler {
    * @param  {[type]} connection
    * @return {QueryBuilder}
    */
-  constructor (connection, models) {
+  constructor (connection) {
     this.connection = connection
-    this.models = models ? Object.keys(models).map(k => models[k]) : []
   }
 
   /**
@@ -293,7 +293,7 @@ module.exports = class QueryBuiler {
     try {
       logger.debug(`QUERY: ${sql}`)
       logger.debug(`PARAM: ${JSON.stringify(replacements)}`)
-      return this.connection.any(sql, replacements)
+      return this.connection.connection.any(sql, replacements)
     } catch (e) {
       logger.error(e)
     }
@@ -310,7 +310,82 @@ module.exports = class QueryBuiler {
   }
 
   /**
-   * [__reset description]
+   * Execute the given query and expect no results.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async none (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'none')
+  }
+
+  /**
+   * Execute the given query and expect one result.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async one (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'one')
+  }
+
+  /**
+   * Execute the given query and expect one or no results.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async oneOrNone (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'oneOrNone')
+  }
+
+  /**
+   * Execute the given query and expect many results.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async many (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'many')
+  }
+
+  /**
+   * Execute the given query and expect many or no results.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async manyOrNone (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'manyOrNone')
+  }
+
+  /**
+   * Execute the given query and expect any results.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @return {Promise}
+   */
+  async any (file, parameters) {
+    return this.__executeQueryFile(file, parameters, 'any')
+  }
+
+  /**
+   * Execute the given query using the given method and parameters.
+   * @param  {String} file
+   * @param  {Array} parameters
+   * @param  {String} method
+   * @return {QueryBuilder}
+   */
+  async __executeQueryFile (file, parameters, method) {
+    file = path.resolve(__dirname, `../query-files/${file}.sql`)
+
+    const query = this.connection.prepareSqlFile(`${file}`)
+
+    return this.connection.connection[method](query, parameters)
+  }
+
+  /**
+   * Reset the clauses.
    * @return {void}
    */
   __reset () {
@@ -326,6 +401,12 @@ module.exports = class QueryBuiler {
     }
   }
 
+  /**
+   * Push the given clause to the given collection.
+   * @param  {String} collection
+   * @param  {Object} clause
+   * @return {void}
+   */
   __pushClause (collection, clause) {
     set(this, collection, get(this, collection).concat(clause))
   }

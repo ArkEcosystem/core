@@ -498,12 +498,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {(Block|null)}
    */
   async getLastBlock () {
-    const block = await this.query
-      .select('*')
-      .from('blocks')
-      .orderBy('height', 'DESC')
-      .limit(1)
-      .first()
+    const block = await this.query.one('blocks/latest')
 
     if (!block) {
       return null
@@ -516,7 +511,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       .orderBy('sequence', 'ASC')
       .all()
 
-    block.transactions = transactions.map(({ serialized }) => { Transaction.deserialize(serialized.toString('hex')) })
+    block.transactions = transactions.map(({ serialized }) => Transaction.deserialize(serialized.toString('hex')))
 
     return new Block(block)
   }
@@ -653,7 +648,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {String} file
    * @return {Promise}
    */
-  executeSqlFile (file) {
+  prepareSqlFile (file) {
     return new this.pgp.QueryFile(file, { minify: true })
   }
 
@@ -662,7 +657,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {void}
    */
   __registerQueryBuilder () {
-    this.query = new QueryBuilder(this.connection, this.models)
+    this.query = new QueryBuilder(this)
   }
 
   /**
@@ -674,7 +669,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       cwd: __dirname, absolute: true, filesOnly: true
     })
 
-    entries.forEach(file => this.executeSqlFile(file))
+    entries.forEach(file => this.prepareSqlFile(file))
   }
 
   /**
@@ -743,6 +738,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       .countDistinct('height', 'count')
       .from('blocks')
       .first()
+
     return count
   }
 

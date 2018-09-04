@@ -24,20 +24,7 @@ module.exports = {
   '@arkecosystem/core-database': {
     snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
-  '@arkecosystem/core-database-sequelize': {
-    // dialect: 'sqlite',
-    // storage: process.env.ARK_DB_STORAGE || `${process.env.ARK_PATH_DATA}/database/${process.env.ARK_NETWORK_NAME}10.sqlite`,
-    host: process.env.ARK_DB_HOST || 'localhost',
-    dialect: process.env.ARK_DB_DIALECT || 'postgres',
-    username: process.env.ARK_DB_USERNAME || 'ark',
-    password: process.env.ARK_DB_PASSWORD || 'password',
-    database: process.env.ARK_DB_DATABASE || 'ark_devnet',
-    logging: process.env.ARK_DB_LOGGING,
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
-  },
+  '@arkecosystem/core-database-postgres': {},
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
