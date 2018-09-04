@@ -111,7 +111,7 @@ module.exports = class WalletManager {
   /**
    * Set wallet by address.
    * @param {String} address
-   * @param {Object} wallet
+   * @param {Wallet} wallet
    * @param {void}
    */
   setByAddress (address, wallet) {
@@ -121,7 +121,7 @@ module.exports = class WalletManager {
   /**
    * Set wallet by publicKey.
    * @param {String} publicKey
-   * @param {Object} wallet
+   * @param {Wallet} wallet
    * @param {void}
    */
   setByPublicKey (publicKey, wallet) {
@@ -131,7 +131,7 @@ module.exports = class WalletManager {
   /**
    * Set wallet by username.
    * @param {String} username
-   * @param {Object} wallet
+   * @param {Wallet} wallet
    * @param {void}
    */
   setByUsername (username, wallet) {
