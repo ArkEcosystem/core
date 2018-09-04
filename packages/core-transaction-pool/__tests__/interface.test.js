@@ -177,7 +177,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-
   describe('getTransactionsForForging', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()

@@ -11,7 +11,6 @@ const uniq = require('lodash/uniq')
 const ark = require('@arkecosystem/crypto')
 const { Transaction } = ark.models
 const { TRANSACTION_TYPES } = ark.constants
-const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 const database = container.resolvePlugin('database')
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
@@ -274,7 +273,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
         const id = transactionsIds.shift()
         const transaction = await this.getTransaction(id)
 
-        if (!transaction || !dynamicFeeMatch(transaction) || !this.checkApplyToBlockchain(transaction)) {
+        if (!transaction || !this.checkDynamicFeeMatch(transaction) || !this.checkApplyToBlockchain(transaction)) {
           continue
         }
 

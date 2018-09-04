@@ -9,6 +9,7 @@ const memory = require('./memory')
 const PoolWalletManager = require('./pool-wallet-manager')
 const moment = require('moment')
 const database = container.resolvePlugin('database')
+const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
 
 module.exports = class TransactionPoolInterface {
   /**
@@ -285,5 +286,9 @@ module.exports = class TransactionPoolInterface {
     }
 
     return true
+  }
+
+  checkDynamicFeeMatch (transaction) {
+    return dynamicFeeMatch(transaction)
   }
 }
