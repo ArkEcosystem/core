@@ -1,3 +1,4 @@
+const Bignum = require('../../lib/utils/bignum')
 const Wallet = require('../../lib/models/wallet')
 const sortTransactions = require('../../lib/utils/sort-transactions')
 
@@ -19,9 +20,9 @@ describe('Models - Delegate', () => {
       it('doesn\'t sort the transactions', () => {
         const address = 'Abcde'
         const wallet = new Wallet(address)
-        wallet.balance = 10 ** 8
+        wallet.balance = Bignum.from(10 ** 8)
 
-        expect(wallet.toString()).toBe(`${address}=1`)
+        expect(wallet.toString()).toBe(`${address} (1 Ѧ)`)
       })
 
       // TODO probably useful for debugging
