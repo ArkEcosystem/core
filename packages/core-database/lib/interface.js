@@ -485,7 +485,9 @@ module.exports = class ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     height = (round * maxDelegates) + 1
 
-    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates)
+
+    return blocks.map(b => new Block(b))
   }
 
   /**

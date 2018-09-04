@@ -7,14 +7,6 @@ const blocksTableColumns = ['id', 'version', 'timestamp', 'previous_block', 'hei
 
 module.exports = class BlocksRepository extends Repository {
   /**
-   * Create a new block repository instance.
-   * @param  {ConnectionInterface} connection
-   */
-  constructor (connection) {
-    super(connection, 'block')
-  }
-
-  /**
    * Get all blocks for the given parameters.
    * TODO throw an Error if the params aren't the available filters
    * @param  {Object}  params

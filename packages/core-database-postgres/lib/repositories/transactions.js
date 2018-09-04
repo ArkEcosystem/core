@@ -13,7 +13,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @param  {ConnectionInterface} connection
    */
   constructor (connection) {
-    super(connection, 'transaction')
+    super(connection)
 
     // Used to store the height of the block
     this.cache = connection.cache

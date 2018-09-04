@@ -1,7 +1,9 @@
-const { QueryTypes } = require('sequelize')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const { get, set } = require('lodash')
+
 const clauses = require('./clauses')
 const SqlBuilder = require('./sql-builder')
-const { get, set } = require('lodash')
 
 module.exports = class QueryBuiler {
   /**
@@ -285,16 +287,16 @@ module.exports = class QueryBuiler {
    * @return {QueryBuilder}
    */
   async all () {
-    const { sql, replacements } = SqlBuilder.build(this.clauses)
-    const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
+    let { sql, replacements } = SqlBuilder.build(this.clauses)
+    // const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
 
-    // logger.verbose(`SQL: ${sql}`)
-
-    return this.connection.query(sql, {
-        type: QueryTypes.SELECT,
-        fieldMap: fieldAttributeMap,
-        replacements
-    })
+    try {
+      logger.debug(`QUERY: ${sql}`)
+      logger.debug(`PARAM: ${JSON.stringify(replacements)}`)
+      return this.connection.any(sql, replacements)
+    } catch (e) {
+      logger.error(e)
+    }
   }
 
   /**

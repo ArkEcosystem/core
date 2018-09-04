@@ -12,14 +12,9 @@ module.exports = class Repository {
    * Create a new repository instance.
    * @param  {ConnectionInterface} connection
    */
-  constructor (connection, model) {
+  constructor (connection) {
     this.connection = connection
     this.query = connection.query
-
-    this.model = connection.models[model]
-    if (!this.model) {
-        throw new Error(`${model} model not found.`)
-    }
 }
 
   /**

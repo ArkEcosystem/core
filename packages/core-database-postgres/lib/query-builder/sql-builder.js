@@ -58,12 +58,14 @@ class SqlBuilder {
       if (item.hasOwnProperty('from') && item.hasOwnProperty('to')) {
         this.__replacements.push(item.from)
         this.__replacements.push(item.to)
-        return `${item.column} ${item.operator} ? AND ?`
+        // TODO: adjust this to pg schema
+        return `${item.column} ${item.operator} $1 AND $2`
       }
 
       if (['IN', 'NOT IN'].includes(item.operator)) {
-        this.__replacements.push(item.value)
-        return `${item.column} ${item.operator} (?)`
+        this.__replacements.push(item.value.join(','))
+        // TODO: adjust this to pg schema
+        return `${item.column} ${item.operator} ($1)`
       }
 
       if (['IS NULL', 'IS NOT NULL'].includes(item.operator)) {
@@ -71,7 +73,9 @@ class SqlBuilder {
       }
 
       this.__replacements.push(item.value)
-      return `${item.column} ${item.operator} ?`
+
+      // TODO: adjust this to pg schema
+      return `${item.column} ${item.operator} $1`
     }
 
     const andQuery = Object
