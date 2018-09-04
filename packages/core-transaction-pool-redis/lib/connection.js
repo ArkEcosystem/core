@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const { TransactionPoolInterface } = require('@arkecosystem/core-transaction-pool')
 const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
@@ -252,7 +251,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async removeForgedAndGetPending (transactionIds) {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.each(forgedIdsSet, async (transactionId) => {
+    await Promise.all(forgedIdsSet, async (transactionId) => {
       await this.removeTransactionById(transactionId)
     })
 
