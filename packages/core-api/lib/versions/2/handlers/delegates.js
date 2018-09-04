@@ -138,7 +138,7 @@ exports.voterBalances = {
     }
 
     const wallets = await database.wallets
-      .getLocalWallets()
+      .all()
       .filter(wallet => wallet.vote === delegate.publicKey)
 
     const voters = {}

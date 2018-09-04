@@ -50,10 +50,10 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(walletManager.getLocalWallets()).toEqual([wallet])
+      expect(walletManager.all()).toEqual([wallet])
 
       walletManager.reset()
-      expect(walletManager.getLocalWallets()).toEqual([])
+      expect(walletManager.all()).toEqual([])
     })
   })
 
@@ -65,10 +65,10 @@ describe('Wallet Manager', () => {
     it('should index the wallets', () => {
       const wallet = new Wallet(walletData1.address)
 
-      expect(walletManager.getLocalWallets()).toEqual([])
+      expect(walletManager.all()).toEqual([])
 
       walletManager.reindex(wallet)
-      expect(walletManager.getLocalWallets()).toEqual([wallet])
+      expect(walletManager.all()).toEqual([wallet])
     })
   })
 
@@ -412,9 +412,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getLocalWallets', () => {
+  describe('all', () => {
     it('should be a function', () => {
-      expect(walletManager.getLocalWallets).toBeFunction()
+      expect(walletManager.all).toBeFunction()
     })
 
     it('should return indexed', () => {
@@ -424,7 +424,7 @@ describe('Wallet Manager', () => {
       const wallet2 = new Wallet(walletData2.address)
       walletManager.reindex(wallet2)
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
   })
 
@@ -477,7 +477,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet2])
+      expect(walletManager.all()).toEqual([wallet2])
     })
 
     it('should not be purged if wallet.secondPublicKey is set', async () => {
@@ -493,7 +493,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.multisignature is set', async () => {
@@ -509,7 +509,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.username is set', async () => {
@@ -525,7 +525,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
   })
 
