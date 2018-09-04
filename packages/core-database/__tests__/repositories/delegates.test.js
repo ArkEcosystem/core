@@ -77,10 +77,10 @@ describe('Delegate Repository', () => {
     })
 
     it('should return the local wallets of the connection that are delegates', () => {
-      repository.connection.walletManager.getLocalWallets = jest.fn(() => wallets)
+      repository.connection.walletManager.all = jest.fn(() => wallets)
 
       expect(repository.getLocalDelegates()).toEqual(expect.arrayContaining(delegates))
-      expect(repository.connection.walletManager.getLocalWallets).toHaveBeenCalled()
+      expect(repository.connection.walletManager.all).toHaveBeenCalled()
     })
   })
 

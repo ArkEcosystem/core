@@ -28,14 +28,14 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {(Wallet|null)}
    */
   findByAddress (address) {
-    if (!this.walletsByAddress.get(address)) {
+    if (!this.byAddress.get(address)) {
       const blockchainWallet = database.walletManager.findByAddress(address)
       const wallet = Object.assign(new Wallet(address), blockchainWallet) // do not modify
 
       this.reindex(wallet)
     }
 
-    return this.walletsByAddress.get(address)
+    return this.byAddress.get(address)
   }
 
   /**
@@ -45,19 +45,19 @@ module.exports = class PoolWalletManager extends WalletManager {
    * @return {Boolean} true if exists
    */
   exists (key) {
-    if (this.walletsByPublicKey.get(key)) {
+    if (this.byPublicKey.get(key)) {
       return true
     }
 
-    if (this.walletsByAddress.get(key)) {
+    if (this.byAddress.get(key)) {
       return true
     }
     return false
   }
 
   deleteWallet (publicKey) {
-    this.forgetWalletByPublicKey(publicKey)
-    this.forgetWalletByAddress(crypto.getAddress(publicKey, config.network.pubKeyHash))
+    this.forgetByPublicKey(publicKey)
+    this.forgetByAddress(crypto.getAddress(publicKey, config.network.pubKeyHash))
   }
 
   /**
@@ -74,10 +74,10 @@ module.exports = class PoolWalletManager extends WalletManager {
 
     if (!recipient && recipientId) { // cold wallet
       recipient = new Wallet(recipientId)
-      this.setWalletByAddress(recipientId, recipient)
+      this.setByAddress(recipientId, recipient)
     }
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.walletsByUsername.get(asset.delegate.username.toLowerCase())) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && database.walletManager.byUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`PoolWalletManager: Can't apply transaction ${data.id}: delegate name already taken.`)

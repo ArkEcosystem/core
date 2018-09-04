@@ -35,9 +35,134 @@ module.exports = class WalletManager {
       'walletsByPublicKey',
       'walletsByUsername'
     ])
-    this.walletsByAddress = storage.setMap('walletsByAddress')
-    this.walletsByPublicKey = storage.setMap('walletsByPublicKey')
-    this.walletsByUsername = storage.setMap('walletsByUsername')
+
+    this.byAddress = storage.setMap('walletsByAddress')
+    this.byPublicKey = storage.setMap('walletsByPublicKey')
+    this.byUsername = storage.setMap('walletsByUsername')
+  }
+
+  /**
+   * Get all wallets by address.
+   * @return {Array}
+   */
+  all () {
+    return this.byAddress.valueSeq().toArray()
+  }
+
+  /**
+   * Get all wallets by publicKey.
+   * @return {Array}
+   */
+  allByPublicKey () {
+    return this.byPublicKey.valueSeq().toArray()
+  }
+
+  /**
+   * Get all wallets by username.
+   * @return {Array}
+   */
+  allByUsername () {
+    return this.byUsername.valueSeq().toArray()
+  }
+
+  /**
+   * Find a wallet by the given address.
+   * @param  {String} address
+   * @return {Wallet}
+   */
+  findByAddress (address) {
+    if (!this.byAddress.get(address)) {
+      this.setByAddress(address, new Wallet(address))
+
+      if (process.env.NODE_ENV !== 'test') {
+        this.__emitEvent('wallet:cold:created', this.byAddress.get(address))
+      }
+    }
+
+    return this.byAddress.get(address)
+  }
+
+  /**
+   * Find a wallet by the given public key.
+   * @param  {String} publicKey
+   * @return {Wallet}
+   */
+  findByPublicKey (publicKey) {
+    if (!this.byPublicKey.get(publicKey)) {
+      const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
+
+      const wallet = this.findByAddress(address)
+      wallet.publicKey = publicKey
+      this.setByPublicKey(publicKey, wallet)
+    }
+
+    return this.byPublicKey.get(publicKey)
+  }
+
+  /**
+   * Find a wallet by the given username.
+   * @param  {String} username
+   * @return {Wallet}
+   */
+  findByUsername (username) {
+    return this.byUsername.get(username)
+  }
+
+  /**
+   * Set wallet by address.
+   * @param {String} address
+   * @param {Wallet} wallet
+   * @param {void}
+   */
+  setByAddress (address, wallet) {
+    this.byAddress = this.byAddress.set(address, wallet)
+  }
+
+  /**
+   * Set wallet by publicKey.
+   * @param {String} publicKey
+   * @param {Wallet} wallet
+   * @param {void}
+   */
+  setByPublicKey (publicKey, wallet) {
+    this.byPublicKey = this.byPublicKey.set(publicKey, wallet)
+  }
+
+  /**
+   * Set wallet by username.
+   * @param {String} username
+   * @param {Wallet} wallet
+   * @param {void}
+   */
+  setByUsername (username, wallet) {
+    this.byUsername = this.byUsername.set(username, wallet)
+  }
+
+  /**
+   * Remove wallet by address.
+   * @param {String} address
+   * @param {void}
+   */
+  forgetByAddress (address) {
+    this.byAddress = this.byAddress.delete(address)
+  }
+
+  /**
+   * Remove wallet by publicKey.
+   * @param {String} publicKey
+   * @param {void}
+   */
+  forgetByPublicKey (publicKey) {
+    this.byPublicKey = this.byPublicKey.delete(publicKey)
+  }
+
+  /**
+   * Remove wallet by username.
+   * @param {String} username
+   * @param {void}
+   */
+  forgetByUsername (username) {
+    this.byUsername = this.byUsername.delete(username)
   }
 
   /**
@@ -58,20 +183,20 @@ module.exports = class WalletManager {
    */
   reindex (wallet) {
     if (wallet.address) {
-      this.setWalletByAddress(wallet.address, wallet)
+      this.setByAddress(wallet.address, wallet)
     }
 
     if (wallet.publicKey) {
-      this.setWalletByPublicKey(wallet.publicKey, wallet)
+      this.setByPublicKey(wallet.publicKey, wallet)
     }
 
     if (wallet.username) {
-      this.setWalletByUsername(wallet.username, wallet)
+      this.setByUsername(wallet.username, wallet)
     }
   }
 
-  cleanAllWallets () {
-    this.walletsByAddress.map(wallet => (wallet.dirty = false))
+  clear () {
+    this.byAddress.map(wallet => (wallet.dirty = false))
   }
 
   /**
@@ -79,9 +204,9 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async updateDelegates () {
-    let delegates = this.getDelegates().map(delegate => {
+    let delegates = this.allByUsername().map(delegate => {
       const voters = this
-        .getLocalWallets()
+        .all()
         .filter(w => w.vote === delegate.publicKey)
 
       delegate.votebalance = sumBy(voters, 'balance')
@@ -111,10 +236,10 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
-    this.getLocalWalletsByPublicKey().forEach(wallet => {
+    this.allByPublicKey().forEach(wallet => {
       if (this.__canBePurged(wallet)) {
-        this.forgetWalletByPublicKey(wallet.publicKey)
-        this.forgetWalletByAddress(wallet.address)
+        this.forgetByPublicKey(wallet.publicKey)
+        this.forgetByAddress(wallet.address)
       }
     })
   }
@@ -138,9 +263,9 @@ module.exports = class WalletManager {
 
         this.reindex(delegate)
       } else {
-        logger.debug(`Delegate by address: ${this.walletsByAddress.get(generator)}`)
+        logger.debug(`Delegate by address: ${this.byAddress.get(generator)}`)
 
-        if (this.walletsByAddress(generator)) {
+        if (this.byAddress(generator)) {
           logger.info('This look like a bug, please report :bug:')
         }
 
@@ -220,7 +345,7 @@ module.exports = class WalletManager {
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.walletsByUsername.get(asset.delegate.username.toLowerCase())) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.byUsername.get(asset.delegate.username.toLowerCase())) {
 
       logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
@@ -273,7 +398,7 @@ module.exports = class WalletManager {
 
     // removing the wallet from the delegates index
     if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      this.forgetWalletByUsername(data.asset.delegate.username)
+      this.forgetByUsername(data.asset.delegate.username)
     }
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
@@ -286,134 +411,13 @@ module.exports = class WalletManager {
   }
 
   /**
-   * Set wallet by address.
-   * @param {String} address
-   * @param {Object} wallet
-   */
-  setWalletByAddress (address, wallet) {
-    this.walletsByAddress = this.walletsByAddress.set(address, wallet)
-  }
-
-  /**
-   * Set wallet by publicKey.
-   * @param {String} publicKey
-   * @param {Object} wallet
-   */
-  setWalletByPublicKey (publicKey, wallet) {
-    this.walletsByPublicKey = this.walletsByPublicKey.set(publicKey, wallet)
-  }
-
-  /**
-   * Set wallet by username.
-   * @param {String} username
-   * @param {Object} wallet
-   */
-  setWalletByUsername (username, wallet) {
-    this.walletsByUsername = this.walletsByUsername.set(username, wallet)
-  }
-
-  /**
-   * Remove wallet by address.
-   * @param {String} address
-   * @param {Object} wallet
-   */
-  forgetWalletByAddress (address) {
-    this.walletsByAddress = this.walletsByAddress.delete(address)
-  }
-
-  /**
-   * Remove wallet by publicKey.
-   * @param {String} publicKey
-   * @param {Object} wallet
-   */
-  forgetWalletByPublicKey (publicKey) {
-    this.walletsByPublicKey = this.walletsByPublicKey.delete(publicKey)
-  }
-
-  /**
-   * Remove wallet by username.
-   * @param {String} username
-   * @param {Object} wallet
-   */
-  forgetWalletByUsername (username) {
-    this.walletsByUsername = this.walletsByUsername.delete(username)
-  }
-
-  /**
-   * Find a wallet by the given address.
-   * @param  {String} address
-   * @return {(Wallet|null)}
-   */
-  findByAddress (address) {
-    if (!this.walletsByAddress.get(address)) {
-      this.setWalletByAddress(address, new Wallet(address))
-
-      if (process.env.NODE_ENV !== 'test') {
-        this.__emitEvent('wallet:cold:created', this.walletsByAddress.get(address))
-      }
-    }
-
-    return this.walletsByAddress.get(address)
-  }
-
-  /**
-   * Find a wallet by the given public key.
-   * @param  {String} publicKey
-   * @return {Wallet}
-   */
-  findByPublicKey (publicKey) {
-    if (!this.walletsByPublicKey.get(publicKey)) {
-      const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
-
-      const wallet = this.findByAddress(address)
-      wallet.publicKey = publicKey
-      this.setWalletByPublicKey(publicKey, wallet)
-    }
-
-    return this.walletsByPublicKey.get(publicKey)
-  }
-
-  /**
-   * Find a wallet by the given username.
-   * @param  {String} publicKey
-   * @return {Wallet}
-   */
-  findByUsername (username) {
-    return this.walletsByUsername.get(username)
-  }
-
-  /**
-   * Get all wallets by username.
-   * @return {Array}
-   */
-  getDelegates () {
-    return this.walletsByUsername.valueSeq().toArray()
-  }
-
-  /**
-   * Get all wallets by address.
-   * @return {Array}
-   */
-  getLocalWallets () { // for compatibility with API
-    return this.walletsByAddress.valueSeq().toArray()
-  }
-
-  /**
-   * Get all wallets by publicKey.
-   * @return {Array}
-   */
-  getLocalWalletsByPublicKey () {
-    return this.walletsByPublicKey.valueSeq().toArray()
-  }
-
-  /**
    * Checks if a given publicKey is a registered delegate
    * @param {String} publicKey
    */
   __isDelegate (publicKey) {
-    const delegateWallet = this.walletsByPublicKey.get(publicKey)
+    const delegateWallet = this.byPublicKey.get(publicKey)
     if (delegateWallet && delegateWallet.username) {
-      return !!this.walletsByUsername.get(delegateWallet.username)
+      return !!this.byUsername.get(delegateWallet.username)
     }
 
     return false

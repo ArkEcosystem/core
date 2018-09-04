@@ -17,8 +17,8 @@ module.exports = class WalletsRepository {
    * Get all local wallets.
    * @return {Array}
    */
-  getLocalWallets () {
-    return this.connection.walletManager.getLocalWallets()
+  all () {
+    return this.connection.walletManager.all()
   }
 
   /**
@@ -27,7 +27,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findAll (params = {}) {
-    const wallets = this.getLocalWallets()
+    const wallets = this.all()
 
     let [iteratee, order] = params.orderBy
       ? params.orderBy.split(':')
@@ -47,7 +47,7 @@ module.exports = class WalletsRepository {
    */
   findAllByVote (publicKey, params = {}) {
     const wallets = this
-      .getLocalWallets()
+      .all()
       .filter(wallet => wallet.vote === publicKey)
 
     return {
@@ -62,7 +62,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   findById (id) {
-    return this.getLocalWallets().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
+    return this.all().find(wallet => (wallet.address === id || wallet.publicKey === id || wallet.username === id))
   }
 
   /**
@@ -70,7 +70,7 @@ module.exports = class WalletsRepository {
    * @return {Number}
    */
   count () {
-    return this.getLocalWallets().length
+    return this.all().length
   }
 
   /**
@@ -79,7 +79,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   top (params = {}) {
-    const wallets = orderBy(this.getLocalWallets(), ['balance'], ['desc'])
+    const wallets = orderBy(this.all(), ['balance'], ['desc'])
 
     return {
       rows: limitRows(wallets, params),
@@ -107,7 +107,7 @@ module.exports = class WalletsRepository {
    * @return {Object}
    */
   search (params) {
-    const wallets = filterRows(this.getLocalWallets(), params, {
+    const wallets = filterRows(this.all(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
       between: ['balance', 'votebalance']
     })
