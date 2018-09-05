@@ -24,7 +24,19 @@ module.exports = {
   '@arkecosystem/core-database': {
     snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
-  '@arkecosystem/core-database-postgres': {},
+  '@arkecosystem/core-database-postgres': {
+    connection: {
+      host: process.env.ARK_DB_HOST || 'localhost',
+      port: process.env.ARK_DB_PORT || 5432,
+      database: process.env.ARK_DB_USERNAME || `ark_${process.env.ARK_NETWORK_NAME}`,
+      user: process.env.ARK_DB_PASSWORD || 'ark',
+      password: process.env.ARK_DB_DATABASE || 'password'
+    },
+    redis: {
+      host: process.env.ARK_REDIS_HOST || 'localhost',
+      port: process.env.ARK_REDIS_PORT || 6379
+    }
+  },
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {
     enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
