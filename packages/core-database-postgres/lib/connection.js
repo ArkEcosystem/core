@@ -3,7 +3,7 @@
 const pgp = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
-const fs = require('fs-extra')
+const fs = require('fs')
 
 const { ConnectionInterface } = require('@arkecosystem/core-database')
 
