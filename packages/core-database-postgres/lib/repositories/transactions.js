@@ -5,11 +5,11 @@ const { transactions: sql } = require('../queries')
 module.exports = class TransactionsRepository extends Repository {
   /**
    * Find a transactions by its ID.
-   * @param  {Array} ids
+   * @param  {String} id
    * @return {Promise}
    */
-  async findById (ids) {
-    return this.db.one(sql.findById, [ids.join(',')])
+  async findById (id) {
+    return this.db.one(sql.findById, [id])
   }
 
   /**

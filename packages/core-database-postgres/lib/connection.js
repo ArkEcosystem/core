@@ -221,7 +221,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey)
 
       const fillerWallets = chosen.length
-        ? await this.db.rounds.placeholdersExcluding(maxDelegates - data.length, chosen)
+        ? await this.db.rounds.placeholdersWithout(maxDelegates - data.length, chosen)
         : await this.db.rounds.placeholders(maxDelegates - data.length)
 
       data = data.concat(fillerWallets)
