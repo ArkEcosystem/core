@@ -2,8 +2,7 @@ const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
 const { Transaction } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const dynamicFeeMatch = require('./utils/dynamicfee-matcher')
-const helpers = require('./utils/validation-helpers')
+const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
 
@@ -33,8 +32,6 @@ module.exports = class TransactionGuard {
     await this.__determineValidTransactions()
 
     await this.__determineExcessTransactions()
-
-    this.__determineFeeMatchingTransactions()
   }
 
   /**
@@ -154,7 +151,7 @@ module.exports = class TransactionGuard {
   async __determineValidTransactions () {
     await Promise.each(this.transactions, async (transaction) => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
-        if (!helpers.isRecipientOnActiveNetwork(transaction)) {
+        if (!isRecipientOnActiveNetwork(transaction)) {
           this.invalid.push(transaction)
 
           return
@@ -196,15 +193,6 @@ module.exports = class TransactionGuard {
         }
       }
     }
-  }
-
-  /**
-   * Determine any transactions that do not match the accepted fee by delegate or max fee set by sender
-   * Matched transactions stay in this.transaction, fee not accepted by node/delegate are still broadcasted.
-   * @return {void}
-   */
-  __determineFeeMatchingTransactions () {
-    this.accept = this.accept.filter(transaction => dynamicFeeMatch(transaction))
   }
 
   /**

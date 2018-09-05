@@ -387,7 +387,7 @@ module.exports = class Blockchain {
    */
   async getUnconfirmedTransactions (blockSize, forForging = false) {
     const transactions = forForging
-      ? await this.transactionPool.getTransactionsForForging(0, blockSize)
+      ? await this.transactionPool.getTransactionsForForging(blockSize)
       : await this.transactionPool.getTransactions(0, blockSize)
 
     return {
