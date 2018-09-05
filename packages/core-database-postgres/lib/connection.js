@@ -59,10 +59,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   async connect () {
     const initialization = {
       extend (obj, dc) {
-          obj.blocks = new repositories.Blocks(obj, pgp)
-          obj.rounds = new repositories.Rounds(obj, pgp)
-          obj.transactions = new repositories.Transactions(obj, pgp)
-          obj.wallets = new repositories.Wallets(obj, pgp)
+        obj.blocks = new repositories.Blocks(obj, pgp)
+        obj.rounds = new repositories.Rounds(obj, pgp)
+        obj.transactions = new repositories.Transactions(obj, pgp)
+        obj.wallets = new repositories.Wallets(obj, pgp)
       }
     }
 

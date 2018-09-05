@@ -29,7 +29,7 @@ module.exports = class Round extends Model {
     return {
       publicKey: 'public_key',
       balance: 'balance',
-      round: 'round',
+      round: 'round'
     }
   }
 }

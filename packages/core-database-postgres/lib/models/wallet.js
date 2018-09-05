@@ -41,7 +41,7 @@ module.exports = class WalletModel extends Model {
       balance: 'balance',
       vote_balance: 'voteBalance',
       produced_blocks: 'producedBlocks',
-      missed_blocks: 'missedBlocks',
+      missed_blocks: 'missedBlocks'
     }
   }
 }

@@ -1,11 +1,9 @@
 'use strict'
 
-// const humps = require('humps')
-
 module.exports = {
   initialization: {
-    // receive: function (data) {
-    //   camelizeColumnNames(data)
+    // receive(data, result, e) {
+    //   camelizeColumns(data)
     // }
   },
   connection: {
@@ -21,18 +19,16 @@ module.exports = {
   }
 }
 
-// function camelizeColumnNames (data) {
-//   const template = data[0]
-
-//   for (const prop in template) {
-//     const camel = humps.camelize(prop)
-
-//     if (!(camel in template)) {
-//       for (let i = 0; i < data.length; i++) {
-//         const d = data[i]
-//         d[camel] = d[prop]
-//         delete d[prop]
-//       }
+// function camelizeColumns(data) {
+//     const tmp = data[0]
+//     for (const prop in tmp) {
+//         const camel = pgp.utils.camelize(prop)
+//         if (!(camel in tmp)) {
+//             for (let i = 0; i < data.length; i++) {
+//                 const d = data[i]
+//                 d[camel] = d[prop]
+//                 delete d[prop]
+//             }
+//         }
 //     }
-//   }
 // }

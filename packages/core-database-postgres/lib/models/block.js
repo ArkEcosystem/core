@@ -49,7 +49,7 @@ module.exports = class Block extends Model {
       payloadLength: 'payload_length',
       payloadHash: 'payload_hash',
       generatorPublicKey: 'generator_public_key',
-      blockSignature: 'block_signature',
+      blockSignature: 'block_signature'
     }
   }
 }

@@ -150,8 +150,6 @@ blockchainMachine.actionMap = blockchain => {
     },
 
     async init () {
-      // p2p = container.resolvePlugin('p2p')
-
       try {
         let block = await blockchain.database.getLastBlock()
 

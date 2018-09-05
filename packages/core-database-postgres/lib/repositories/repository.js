@@ -18,51 +18,21 @@ module.exports = class Repository {
   }
 
   /**
-   * Create a new instance of the related model.
-   * @param  {Object} item
+   * Create one or many new instances of the related models.
+   * @param  {Array|Object} item
    * @return {Promise}
    */
   async create (item) {
-    item = this.model.transform(item)
-
     return this.db.none(this.__insert(item))
   }
 
   /**
-   * Create many  new instances of the related models.
-   * @param  {Array} items
-   * @return {Promise}
-   */
-  async createMany (items) {
-    for (let item of items) {
-      item = this.model.transform(item)
-    }
-
-    return this.db.none(this.__insert(items))
-  }
-
-  /**
-   * Create or update a related record matching the attributes.
-   * @param  {Object} item
+   * Create or update one or many related records matching the attributes.
+   * @param  {Array|Object} item
    * @return {Promise}
    */
   async updateOrCreate (item) {
-    item = this.model.transform(item)
-
     return this.db.none(this.__insert(item) + ' ON CONFLICT DO UPDATE')
-  }
-
-  /**
-   * Create or update many related records matching the attributes.
-   * @param  {Array} items
-   * @return {Promise}
-   */
-  async updateOrCreateMany (items) {
-    for (let item of items) {
-      item = this.model.transform(item)
-    }
-
-    return this.db.none(this.__insert(items) + ' ON CONFLICT DO UPDATE')
   }
 
   /**
@@ -70,7 +40,26 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  async __insert (data) {
-    return this.pgp.helpers.insert(data, this.model.getColumns(), this.model.getTable())
+  __insert (data) {
+    data = this.__transform(data)
+
+    return this.db.$config.pgp.helpers.insert(
+      data, this.model.getColumns(), this.model.getTable()
+    )
+  }
+
+  /**
+   * Transform the given data to match the database schema.
+   * @param  {Array|Object} data
+   * @return {String}
+   */
+  __transform (item) {
+    let items = Array.isArray(item) ? item : [item]
+
+    for (let i = 0; i < items.length; i++) {
+      items[i] = this.model.transform(items[i])
+    }
+
+    return items.length === 1 ? items[0] : items
   }
 }
