@@ -59,7 +59,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async connect () {
     const initialization = {
-      receive(data, result, e) {
+      receive (data, result, e) {
         camelizeColumns(pgp, data)
       },
       extend (obj, dc) {
