@@ -1,3 +1,5 @@
+const { Bignum } = require('@arkecosystem/crypto')
+
 module.exports = (delegates, round) => {
   const roundForgers = []
 
@@ -5,7 +7,7 @@ module.exports = (delegates, round) => {
     roundForgers.push({
       round: round,
       publicKey: delegates[i],
-      balance: '245098000000000'
+      balance: Bignum.from('245098000000000')
     })
   }
 
