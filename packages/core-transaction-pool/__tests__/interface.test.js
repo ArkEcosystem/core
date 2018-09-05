@@ -101,6 +101,20 @@ describe('Transaction Pool Interface', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()
     })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getTransactionsForForging()).rejects.toThrowError('Method [getTransactionsForForging] not implemented!')
+    })
+  })
+
+  describe('getTransactionIdsForForging', () => {
+    it('should be a function', () => {
+      expect(poolInterface.getTransactionIdsForForging).toBeFunction()
+    })
+
+    it('should throw an exception', async () => {
+      await expect(poolInterface.getTransactionIdsForForging()).rejects.toThrowError('Method [getTransactionIdsForForging] not implemented!')
+    })
   })
 
   describe('hasExceededMaxTransactions', () => {
@@ -163,16 +177,6 @@ describe('Transaction Pool Interface', () => {
     })
   })
 
-  describe('getTransactionsIds', () => {
-    it('should be a function', () => {
-      expect(poolInterface.getTransactionsIds).toBeFunction()
-    })
-
-    it('should throw an exception', async () => {
-      await expect(poolInterface.getTransactionsIds()).rejects.toThrowError('Method [getTransactionsIds] not implemented!')
-    })
-  })
-
   describe('getTransactionsForForging', () => {
     it('should be a function', () => {
       expect(poolInterface.getTransactionsForForging).toBeFunction()
@@ -200,6 +204,18 @@ describe('Transaction Pool Interface', () => {
   describe('purgeByPublicKey', () => {
     it('should be a function', () => {
       expect(poolInterface.purgeByPublicKey).toBeFunction()
+    })
+  })
+
+  describe('checkApplyToBlockchain', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkApplyToBlockchain).toBeFunction()
+    })
+  })
+
+  describe('checkDynamicFeeMatch', () => {
+    it('should be a function', () => {
+      expect(poolInterface.checkDynamicFeeMatch).toBeFunction()
     })
   })
 })
