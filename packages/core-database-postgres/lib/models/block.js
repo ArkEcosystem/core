@@ -28,27 +28,27 @@ module.exports = class Block extends Model {
       name: 'height'
     }, {
       name: 'number_of_transactions',
-      prop: 'numberOfTransactions',
+      prop: 'numberOfTransactions'
     }, {
       name: 'total_amount',
-      prop: 'totalAmount',
+      prop: 'totalAmount'
     }, {
       name: 'total_fee',
-      prop: 'totalFee',
+      prop: 'totalFee'
     }, {
       name: 'reward'
     }, {
       name: 'payload_length',
-      prop: 'payloadLength',
+      prop: 'payloadLength'
     }, {
       name: 'payload_hash',
-      prop: 'payloadHash',
+      prop: 'payloadHash'
     }, {
       name: 'generator_public_key',
-      prop: 'generatorPublicKey',
+      prop: 'generatorPublicKey'
     }, {
       name: 'block_signature',
-      prop: 'blockSignature',
+      prop: 'blockSignature'
     }])
   }
 }

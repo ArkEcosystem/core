@@ -19,10 +19,10 @@ module.exports = class WalletModel extends Model {
     },
     {
       name: 'public_key',
-      prop: 'publicKey',
+      prop: 'publicKey'
     }, {
       name: 'second_public_key',
-      prop: 'secondPublicKey',
+      prop: 'secondPublicKey'
     }, {
       name: 'vote'
     }, {
@@ -35,10 +35,10 @@ module.exports = class WalletModel extends Model {
       def: null
     }, {
       name: 'produced_blocks',
-      prop: 'producedBlocks',
+      prop: 'producedBlocks'
     }, {
       name: 'missed_blocks',
-      prop: 'missedBlocks',
+      prop: 'missedBlocks'
     }])
   }
 }

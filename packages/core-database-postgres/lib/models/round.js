@@ -16,7 +16,7 @@ module.exports = class Round extends Model {
   getColumnSet () {
     return this.createColumnSet([{
       name: 'public_key',
-      prop: 'publicKey',
+      prop: 'publicKey'
     }, {
       name: 'balance'
     }, {

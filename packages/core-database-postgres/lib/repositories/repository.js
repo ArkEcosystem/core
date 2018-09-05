@@ -55,13 +55,13 @@ module.exports = class Repository {
    * @param  {Array|Object} data
    * @return {String}
    */
-  __upsertQuery(data) {
+  __upsertQuery (data) {
     const conflictColumns = this.model.getColumnSet()
       .columns.map(column => column.name).join(',')
 
-    return this.__insertQuery(data)
-      + ` ON CONFLICT(${conflictColumns}) DO UPDATE SET `
-      + this.model.getColumnSet().assignColumns()
+    return this.__insertQuery(data) +
+      ` ON CONFLICT(${conflictColumns}) DO UPDATE SET ` +
+      this.model.getColumnSet().assignColumns()
   }
 
   /**

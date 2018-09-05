@@ -20,22 +20,22 @@ module.exports = class Transaction extends Model {
       name: 'version'
     }, {
       name: 'block_id',
-      prop: 'blockId',
+      prop: 'blockId'
     }, {
       name: 'sequence'
     }, {
       name: 'timestamp'
     }, {
       name: 'sender_public_key',
-      prop: 'senderPublicKey',
+      prop: 'senderPublicKey'
     }, {
       name: 'recipient_id',
-      prop: 'recipientId',
+      prop: 'recipientId'
     }, {
       name: 'type'
     }, {
       name: 'vendor_field_hex',
-      prop: 'vendorFieldHex',
+      prop: 'vendorFieldHex'
     }, {
       name: 'amount'
     }, {
