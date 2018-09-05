@@ -11,6 +11,7 @@ addons:
 
 services:
   - redis-server
+  - postgresql
 
 env:
   ARK_CI_TEST: true
@@ -36,6 +37,8 @@ before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
   # To avoid a problem when starting the Redis service
   - sudo redis-server /etc/redis/redis.conf --port 6379
+  - psql -c 'create user ark with encrypted password 'password';' -U postgres
+  - psql -c 'create database ark_testnet;' -U postgres
 
 script:
   # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
