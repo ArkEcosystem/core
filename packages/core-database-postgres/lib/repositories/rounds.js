@@ -9,7 +9,7 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Promise}
    */
   async findById (id) {
-    return this.db.one(sql.find, [id])
+    return this.db.manyOrNone(sql.find, [id])
   }
 
   /**
@@ -17,7 +17,7 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Promise}
    */
   async delegates () {
-    return this.db.many(sql.delegates)
+    return this.db.manyOrNone(sql.delegates)
   }
 
   /**
@@ -46,7 +46,7 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Promise}
    */
   async delete (id) {
-    return this.db.one(sql.delete, [id])
+    return this.db.none(sql.delete, [id])
   }
 
   /**

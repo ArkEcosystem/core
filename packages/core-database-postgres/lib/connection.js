@@ -17,9 +17,10 @@ const { Block, Transaction } = require('@arkecosystem/crypto').models
 const SPV = require('./spv')
 const Cache = require('./cache')
 
-const QueryBuilder = require('./builder')
 const migrations = require('./migrations')
+const QueryBuilder = require('./builder')
 const repositories = require('./repositories')
+const { camelizeColumns } = require('./utils')
 
 module.exports = class PostgresConnection extends ConnectionInterface {
   /**
@@ -58,6 +59,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    */
   async connect () {
     const initialization = {
+      receive(data, result, e) {
+        camelizeColumns(pgp, data)
+      },
       extend (obj, dc) {
         obj.blocks = new repositories.Blocks(obj, pgp)
         obj.rounds = new repositories.Rounds(obj, pgp)
@@ -182,14 +186,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
   /**
    * Store the given round.
-   * @param  {Array} activeDelegates
+   * @param  {Array} delegates
    * @return {Array}
    */
-  saveRound (activeDelegates) {
-    logger.info(`Saving round ${activeDelegates[0].round}`)
+  saveRound (delegates) {
+    logger.info(`Saving round ${delegates[0].round}`)
 
-    // TODO: replace with raw query
-    return this.models.round.bulkCreate(activeDelegates)
+    return this.db.rounds.create(delegates)
   }
 
   /**
@@ -296,7 +299,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
       for (const items of chunk(wallets, 5000)) {
         try {
-          await this.db.wallets.createMany(items)
+          await this.db.wallets.create(items)
         } catch (error) {
           logger.error(error)
         }
@@ -497,7 +500,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Promise}
    */
   async getTransaction (id) {
-    return this.db.blocks.findById(id)
+    return this.db.transactions.findById(id)
   }
 
   /**
@@ -515,7 +518,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getTransactionsFromIds (ids) {
-    return this.db.blocks.findManyById(ids)
+    return this.db.transactions.findManyById(ids)
   }
 
   /**
@@ -524,7 +527,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getForgedTransactionsIds (ids) {
-    const transactions = await this.db.blocks.forged(ids)
+    const transactions = await this.db.transactions.forged(ids)
 
     return transactions.map(transaction => transaction.id)
   }

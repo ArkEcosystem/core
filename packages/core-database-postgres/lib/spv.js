@@ -62,11 +62,11 @@ module.exports = class SPV {
     const transactions = await this.query.many(queries.spv.receivedTransactions)
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByAddress(transaction.recipient_id)
+      const wallet = this.walletManager.findByAddress(transaction.recipientId)
 
       wallet
         ? wallet.balance = parseInt(transaction.amount)
-        : logger.warn(`Lost cold wallet: ${transaction.recipient_id} ${transaction.amount}`)
+        : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`)
     }
   }
 
@@ -78,7 +78,7 @@ module.exports = class SPV {
     const transactions = await this.query.many(queries.spv.blockRewards)
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.generator_public_key)
+      const wallet = this.walletManager.findByPublicKey(transaction.generatorPublicKey)
       wallet.balance += parseInt(transaction.reward)
     }
   }
@@ -91,7 +91,7 @@ module.exports = class SPV {
     const transactions = await this.query.many(queries.spv.lastForgedBlocks, [this.activeDelegates])
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.generator_public_key)
+      const wallet = this.walletManager.findByPublicKey(transaction.generatorPublicKey)
       wallet.lastBlock = transaction
     }
   }
@@ -104,7 +104,7 @@ module.exports = class SPV {
     const transactions = await this.query.many(queries.spv.sentTransactions)
 
     for (const transaction of transactions) {
-      let wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
+      let wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
       wallet.balance -= parseInt(transaction.amount) + parseInt(transaction.fee)
 
       if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
@@ -121,7 +121,7 @@ module.exports = class SPV {
     const transactions = await this.query.manyOrNone(queries.spv.secondSignatures)
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
       wallet.secondPublicKey = Transaction.deserialize(transaction.serialized.toString('hex')).asset.signature.publicKey
     }
   }
@@ -135,14 +135,14 @@ module.exports = class SPV {
     const transactions = await this.query.manyOrNone(queries.spv.delegates)
 
     for (let i = 0; i < transactions.length; i++) {
-      const wallet = this.walletManager.findByPublicKey(transactions[i].sender_public_key)
+      const wallet = this.walletManager.findByPublicKey(transactions[i].senderPublicKey)
       wallet.username = Transaction.deserialize(transactions[i].serialized.toString('hex')).asset.delegate.username
 
       this.walletManager.reindex(wallet)
     }
 
     // Map public keys
-    const publicKeys = transactions.map(transaction => transaction.sender_public_key).join(',')
+    const publicKeys = transactions.map(transaction => transaction.senderPublicKey).join(',')
 
     // Forged Blocks...
     const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, [publicKeys])
@@ -160,9 +160,9 @@ module.exports = class SPV {
       wallet.missedBlocks = parseInt(delegates[i].missed_blocks)
 
       if (forgedBlock) {
-        wallet.forgedFees = +forgedBlock.total_fees
-        wallet.forgedRewards = +forgedBlock.total_rewards
-        wallet.producedBlocks = +forgedBlock.total_produced
+        wallet.forgedFees = +forgedBlock.totalFees
+        wallet.forgedRewards = +forgedBlock.totalRewards
+        wallet.producedBlocks = +forgedBlock.totalProduced
       }
 
       this.walletManager.reindex(wallet)
@@ -177,7 +177,7 @@ module.exports = class SPV {
     const transactions = await this.query.manyOrNone(queries.spv.votes)
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
 
       if (!wallet.voted) {
         const vote = Transaction.deserialize(transaction.serialized.toString('hex')).asset.votes[0]
@@ -201,7 +201,7 @@ module.exports = class SPV {
     const transactions = await this.query.manyOrNone(queries.spv.multiSignatures)
 
     for (const transaction of transactions) {
-      const wallet = this.walletManager.findByPublicKey(transaction.sender_public_key)
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
 
       if (!wallet.multisignature) {
         wallet.multisignature = Transaction.deserialize(transaction.serialized.toString('hex')).asset.multisignature

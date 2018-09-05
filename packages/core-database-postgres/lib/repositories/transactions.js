@@ -54,7 +54,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async forged (ids) {
-    return this.db.many(sql.forged, [ids.join(',')])
+    return this.db.manyOrNone(sql.forged, [ids.join(',')])
   }
 
   /**

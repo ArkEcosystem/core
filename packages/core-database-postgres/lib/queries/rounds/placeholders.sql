@@ -2,4 +2,4 @@ SELECT public_key,
        0 AS balance
 FROM wallets
 WHERE username IS NOT NULL
-ORDER BY public_key ASC LIMIT $2
+ORDER BY public_key ASC LIMIT $1

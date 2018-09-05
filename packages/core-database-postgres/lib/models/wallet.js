@@ -34,14 +34,14 @@ module.exports = class WalletModel extends Model {
   getMappings () {
     return {
       address: 'address',
-      public_key: 'publicKey',
-      second_public_key: 'secondPublicKey',
+      publicKey: 'public_key',
+      secondPublicKey: 'second_public_key',
       vote: 'vote',
       username: 'username',
       balance: 'balance',
-      vote_balance: 'voteBalance',
-      produced_blocks: 'producedBlocks',
-      missed_blocks: 'missedBlocks'
+      voteBalance: 'vote_balance',
+      producedBlocks: 'produced_blocks',
+      missedBlocks: 'missed_blocks'
     }
   }
 }

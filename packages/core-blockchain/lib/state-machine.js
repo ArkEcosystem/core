@@ -236,7 +236,7 @@ blockchainMachine.actionMap = blockchain => {
         await blockchain.database.buildWallets(block.data.height)
         await blockchain.database.saveWallets(true)
 
-        // Edge case: if the node is shutdown between round, the round has already been applied
+        // NOTE: if the node is shutdown between round, the round has already been applied
         if (blockchain.database.isNewRound(block.data.height + 1)) {
           const round = blockchain.database.getRound(block.data.height + 1)
 
