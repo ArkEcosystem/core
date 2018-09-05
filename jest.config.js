@@ -24,7 +24,7 @@ module.exports = {
     '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/crypto/**/__tests__/**/*.test.js',
-    '**/packages/validation/**/__tests__/**/*.test.js',
+    '**/packages/validation/**/__tests__/**/*.test.js'
     /* These packages don't have any test yet */
     // '**/packages/core-graphql/**/__tests__/**/*.test.js',
     // '**/packages/core/**/__tests__/**/*.test.js',
