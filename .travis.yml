@@ -1,30 +1,35 @@
+dist: trusty
+
 language: node_js
 
 node_js:
-  - node
+  - 10
   - 9
-
-addons:
-  postgresql: "10"
-  apt:
-    packages:
-      - xsel
-      - postgresql-10
-      - postgresql-client-10
 
 services:
   - redis-server
   - postgresql
 
+addons:
+  postgresql: "9.6"
+  apt:
+    packages:
+      - xsel
+
 env:
   ARK_CI_TEST: true
-  global:
-  - PGPORT=5433
 
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
   - yarn config set cache-folder $HOME/.cache/yarn
+  - sudo service postgresql stop
+  - sudo apt-get remove -q 'postgresql-*'
+  - sudo apt-get update -q
+  - sudo apt-get install -q postgresql-10 postgresql-client-10
+  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+  - sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/10/main/postgresql.conf
+  - sudo service postgresql restart
 
 install: yarn
 
@@ -38,7 +43,7 @@ before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
   - sudo redis-server /etc/redis/redis.conf --port 6379
   - psql -c "create user ark with password 'password';" -U postgres
-  - psql -c "create database ark_testnet;" -U postgres
+  - psql -c "create database ark_testnet with owner 'ark';" -U postgres
 
 script:
   # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
