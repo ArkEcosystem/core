@@ -79,6 +79,6 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   get model () {
-    return new Transaction()
+    return new Transaction(this.db.$config.pgp)
   }
 }

@@ -10,46 +10,45 @@ module.exports = class Block extends Model {
   }
 
   /**
-   * The attributes that are mass assignable.
-   * @return {Array}
-   */
-  getColumns () {
-    return [
-      'id',
-      'version',
-      'timestamp',
-      'previous_block',
-      'height',
-      'number_of_transactions',
-      'total_amount',
-      'total_fee',
-      'reward',
-      'payload_length',
-      'payload_hash',
-      'generator_public_key',
-      'block_signature'
-    ]
-  }
-
-  /**
-   * The attribute mappings for the transformer.
+   * The read-only structure with query-formatting columns.
    * @return {Object}
    */
-  getMappings () {
-    return {
-      id: 'id',
-      version: 'version',
-      timestamp: 'timestamp',
-      previousBlock: 'previous_block',
-      height: 'height',
-      numberOfTransactions: 'number_of_transactions',
-      totalAmount: 'total_amount',
-      totalFee: 'total_fee',
-      reward: 'reward',
-      payloadLength: 'payload_length',
-      payloadHash: 'payload_hash',
-      generatorPublicKey: 'generator_public_key',
-      blockSignature: 'block_signature'
-    }
+  getColumnSet () {
+    return this.createColumnSet([{
+      name: 'id'
+    }, {
+      name: 'version'
+    }, {
+      name: 'timestamp'
+    }, {
+      name: 'previous_block',
+      prop: 'previousBlock',
+      def: null
+    }, {
+      name: 'height'
+    }, {
+      name: 'number_of_transactions',
+      prop: 'numberOfTransactions',
+    }, {
+      name: 'total_amount',
+      prop: 'totalAmount',
+    }, {
+      name: 'total_fee',
+      prop: 'totalFee',
+    }, {
+      name: 'reward'
+    }, {
+      name: 'payload_length',
+      prop: 'payloadLength',
+    }, {
+      name: 'payload_hash',
+      prop: 'payloadHash',
+    }, {
+      name: 'generator_public_key',
+      prop: 'generatorPublicKey',
+    }, {
+      name: 'block_signature',
+      prop: 'blockSignature',
+    }])
   }
 }

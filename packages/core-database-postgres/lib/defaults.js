@@ -1,7 +1,9 @@
 'use strict'
 
 module.exports = {
-  initialization: {},
+  initialization: {
+    capSQL: true
+  },
   connection: {
     host: process.env.ARK_DB_HOST || 'localhost',
     port: process.env.ARK_DB_PORT || 5432,

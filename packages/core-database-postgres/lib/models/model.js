@@ -1,5 +1,13 @@
 module.exports = class Transaction {
   /**
+   * Create a new model instance.
+   * @param {Object} pgp
+   */
+  constructor (pgp) {
+    this.pgp = pgp
+  }
+
+  /**
    * Convert the "camelCase" keys to "snake_case".
    * @return {Object}
    */
@@ -13,5 +21,19 @@ module.exports = class Transaction {
     }
 
     return transformed
+  }
+
+  /**
+   * Convert the "camelCase" keys to "snake_case".
+   * @param  {Array} v
+   * @return {ColumnSet}
+   */
+  createColumnSet (columns) {
+    return new this.pgp.helpers.ColumnSet(columns, {
+      table: {
+        table: this.getTable(),
+        schema: 'public'
+      }
+    })
   }
 }

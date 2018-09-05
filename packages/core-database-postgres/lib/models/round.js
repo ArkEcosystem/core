@@ -10,26 +10,17 @@ module.exports = class Round extends Model {
   }
 
   /**
-   * The attributes that are mass assignable.
-   * @return {Array}
-   */
-  getColumns () {
-    return [
-      'public_key',
-      'balance',
-      'round'
-    ]
-  }
-
-  /**
-   * The attribute mappings for the transformer.
+   * The read-only structure with query-formatting columns.
    * @return {Object}
    */
-  getMappings () {
-    return {
-      publicKey: 'public_key',
-      balance: 'balance',
-      round: 'round'
-    }
+  getColumnSet () {
+    return this.createColumnSet([{
+      name: 'public_key',
+      prop: 'publicKey',
+    }, {
+      name: 'balance'
+    }, {
+      name: 'round'
+    }])
   }
 }

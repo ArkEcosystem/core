@@ -2,11 +2,9 @@ module.exports = class Repository {
   /**
    * Create a new repository instance.
    * @param  {Object} db
-   * @param  {Object} pgp
    */
-  constructor (db, pgp) {
+  constructor (db) {
     this.db = db
-    this.pgp = pgp
   }
 
   /**
@@ -31,7 +29,7 @@ module.exports = class Repository {
    * @return {Promise}
    */
   async create (item) {
-    return this.db.none(this.__insert(item))
+    return this.db.none(this.__insertQuery(item))
   }
 
   /**
@@ -40,34 +38,37 @@ module.exports = class Repository {
    * @return {Promise}
    */
   async updateOrCreate (item) {
-    return this.db.none(this.__insert(item) + ' ON CONFLICT DO UPDATE')
+    return this.db.none(this.__upsertQuery(item))
   }
 
   /**
-   * Generate an INSERT query for the given data.
+   * Generate an "INSERT" query for the given data.
    * @param  {Array|Object} data
    * @return {String}
    */
-  __insert (data) {
-    data = this.__transform(data)
-
-    return this.db.$config.pgp.helpers.insert(
-      data, this.model.getColumns(), this.model.getTable()
-    )
+  __insertQuery (data) {
+    return this.pgp.helpers.insert(data, this.model.getColumnSet())
   }
 
   /**
-   * Transform the given data to match the database schema.
+   * Generate an "INSERT OR UPDATE" query for the given data.
    * @param  {Array|Object} data
    * @return {String}
    */
-  __transform (item) {
-    let items = Array.isArray(item) ? item : [item]
+  __upsertQuery(data) {
+    const conflictColumns = this.model.getColumnSet()
+      .columns.map(column => column.name).join(',')
 
-    for (let i = 0; i < items.length; i++) {
-      items[i] = this.model.transform(items[i])
-    }
+    return this.__insertQuery(data)
+      + ` ON CONFLICT(${conflictColumns}) DO UPDATE SET `
+      + this.model.getColumnSet().assignColumns()
+  }
 
-    return items.length === 1 ? items[0] : items
+  /**
+   * Get the PGP instance of the database connection.
+   * @return {Object}
+   */
+  get pgp () {
+    return this.db.$config.pgp
   }
 }

@@ -10,44 +10,38 @@ module.exports = class Transaction extends Model {
   }
 
   /**
-   * The attributes that are mass assignable.
-   * @return {Array}
-   */
-  getColumns () {
-    return [
-      'id',
-      'version',
-      'block_id',
-      'sequence',
-      'timestamp',
-      'sender_public_key',
-      'recipient_id',
-      'type',
-      'vendor_field_hex',
-      'amount',
-      'fee',
-      'serialized'
-    ]
-  }
-
-  /**
-   * The attribute mappings for the transformer.
+   * The read-only structure with query-formatting columns.
    * @return {Object}
    */
-  getMappings () {
-    return {
-      id: 'id',
-      version: 'version',
-      blockId: 'block_id',
-      sequence: 'sequence',
-      timestamp: 'timestamp',
-      senderPublicKey: 'sender_public_key',
-      recipientId: 'recipient_id',
-      type: 'type',
-      vendorFieldHex: 'vendor_field_hex',
-      amount: 'amount',
-      fee: 'fee',
-      serialized: 'serialized'
-    }
+  getColumnSet () {
+    return this.createColumnSet([{
+      name: 'id'
+    }, {
+      name: 'version'
+    }, {
+      name: 'block_id',
+      prop: 'blockId',
+    }, {
+      name: 'sequence'
+    }, {
+      name: 'timestamp'
+    }, {
+      name: 'sender_public_key',
+      prop: 'senderPublicKey',
+    }, {
+      name: 'recipient_id',
+      prop: 'recipientId',
+    }, {
+      name: 'type'
+    }, {
+      name: 'vendor_field_hex',
+      prop: 'vendorFieldHex',
+    }, {
+      name: 'amount'
+    }, {
+      name: 'fee'
+    }, {
+      name: 'serialized'
+    }])
   }
 }

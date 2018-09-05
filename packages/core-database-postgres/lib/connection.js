@@ -63,10 +63,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
         camelizeColumns(pgp, data)
       },
       extend (obj, dc) {
-        obj.blocks = new repositories.Blocks(obj, pgp)
-        obj.rounds = new repositories.Rounds(obj, pgp)
-        obj.transactions = new repositories.Transactions(obj, pgp)
-        obj.wallets = new repositories.Wallets(obj, pgp)
+        obj.blocks = new repositories.Blocks(obj)
+        obj.rounds = new repositories.Rounds(obj)
+        obj.transactions = new repositories.Transactions(obj)
+        obj.wallets = new repositories.Wallets(obj)
       }
     }
 
@@ -314,19 +314,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       //
       // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
       // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
-
       try {
         const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallets))
 
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
         logger.error(error)
+        process.exit()
       }
     }
 
     logger.info(`${wallets.length} modified wallets committed to database`)
 
-    // commented out as more use cases to be taken care of
+    // NOTE: commented out as more use cases to be taken care of
     // this.walletManager.purgeEmptyNonDelegates()
 
     this.walletManager.clear()

@@ -10,38 +10,35 @@ module.exports = class WalletModel extends Model {
   }
 
   /**
-   * The attributes that are mass assignable.
-   * @return {Array}
-   */
-  getColumns () {
-    return [
-      'address',
-      'public_key',
-      'second_public_key',
-      'vote',
-      'username',
-      'balance',
-      'vote_balance',
-      'produced_blocks',
-      'missed_blocks'
-    ]
-  }
-
-  /**
-   * The attribute mappings for the transformer.
+   * The read-only structure with query-formatting columns.
    * @return {Object}
    */
-  getMappings () {
-    return {
-      address: 'address',
-      publicKey: 'public_key',
-      secondPublicKey: 'second_public_key',
-      vote: 'vote',
-      username: 'username',
-      balance: 'balance',
-      voteBalance: 'vote_balance',
-      producedBlocks: 'produced_blocks',
-      missedBlocks: 'missed_blocks'
-    }
+  getColumnSet () {
+    return this.createColumnSet([{
+      name: 'address'
+    },
+    {
+      name: 'public_key',
+      prop: 'publicKey',
+    }, {
+      name: 'second_public_key',
+      prop: 'secondPublicKey',
+    }, {
+      name: 'vote'
+    }, {
+      name: 'username'
+    }, {
+      name: 'balance'
+    }, {
+      name: 'vote_balance',
+      prop: 'voteBalance',
+      def: null
+    }, {
+      name: 'produced_blocks',
+      prop: 'producedBlocks',
+    }, {
+      name: 'missed_blocks',
+      prop: 'missedBlocks',
+    }])
   }
 }
