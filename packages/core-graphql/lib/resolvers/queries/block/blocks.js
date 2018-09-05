@@ -7,10 +7,12 @@ const { formatOrderBy } = require('../../../helpers')
  * Get multiple blocks from the database
  * @return {Block[]}
  */
-module.exports = (_, args) => {
+module.exports = async (_, args) => {
   const { orderBy, filter, ...params } = args
 
   const order = formatOrderBy(orderBy, 'height:DESC')
 
-  return database.blocks.findAll({ ...filter, orderBy: order, ...params }, false)
+  const result = await database.blocks.findAll({ ...filter, orderBy: order, ...params }, false)
+
+  return result ? result.rows : []
 }
