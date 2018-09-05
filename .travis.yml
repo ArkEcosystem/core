@@ -18,6 +18,8 @@ services:
 
 env:
   ARK_CI_TEST: true
+  global:
+  - PGPORT=5433
 
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
