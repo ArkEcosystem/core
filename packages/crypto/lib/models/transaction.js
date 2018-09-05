@@ -1,4 +1,5 @@
 const bs58check = require('bs58check')
+const { cloneDeepWith } = require('lodash')
 const Bignum = require('../utils/bignum')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
@@ -101,7 +102,7 @@ module.exports = class Transaction {
         id: this.id,
         type: this.type,
         amount: 0,
-        fee: this.fee,
+        fee: this.fee.toNumber(),
         recipientId: null,
         senderPublicKey: this.senderPublicKey,
         timestamp: this.timestamp,
@@ -115,16 +116,18 @@ module.exports = class Transaction {
       }
     }
 
-    return this.data
+    // Convert Bignums
+    return cloneDeepWith(this.data, (value, key) => {
+      if (['amount', 'fee'].indexOf(key) !== -1) {
+        return value.toNumber()
+      }
+    })
   }
 
   // AIP11 serialization
   static serialize (transaction) {
-    // If Transaction.serialize is called from Block.serializeFull, the transaction data has no Bignums...
-    if (!(transaction.amount instanceof Bignum)) {
-      transaction.amount = Bignum.from(transaction.amount)
-      transaction.fee = Bignum.from(transaction.fee)
-    }
+    transaction.amount = Bignum.from(transaction.amount)
+    transaction.fee = Bignum.from(transaction.fee)
 
     const bb = new ByteBuffer(512, true)
     bb.writeByte(0xff) // fill, to disambiguate from v1

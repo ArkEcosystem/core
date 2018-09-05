@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const { cloneDeepWith } = require('lodash')
 const Bignum = require('../utils/bignum')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
@@ -525,8 +526,16 @@ module.exports = class Block {
   }
 
   toRawJson () {
-    return Object.assign(this.data, {
-      transactions: this.transactions.map(transaction => transaction.data)
+    // Convert Bignums
+    let blockData = cloneDeepWith(this.data, (value, key) => {
+      if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
+        return value.toNumber()
+      }
+    })
+
+    // TODO: seems sensible, is it ok to call toBroadcastV1?
+    return Object.assign(blockData, {
+      transactions: this.transactions.map(transaction => transaction.toBroadcastV1())
     })
   }
 }
