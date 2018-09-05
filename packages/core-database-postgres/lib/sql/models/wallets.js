@@ -1,4 +1,9 @@
 class WalletModel {
+  /**
+   * Convert the "camel_case" keys to "snake_case".
+   *
+   * @return array
+   */
   transform (wallet) {
     wallet.public_key = wallet.publicKey
     wallet.second_public_key = wallet.secondPublicKey
@@ -9,10 +14,18 @@ class WalletModel {
     return wallet
   }
 
+  /**
+   * The table associated with the model.
+   * @return {String}
+   */
   getTable () {
     return 'wallets'
   }
 
+  /**
+   * The attributes that are mass assignable.
+   * @return {Array}
+   */
   getColumns () {
     return [
       'address',

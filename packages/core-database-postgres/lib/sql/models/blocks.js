@@ -1,4 +1,8 @@
 module.exports = class Block {
+  /**
+   * Convert the "camel_case" keys to "snake_case".
+   * @return {Object}
+   */
   transform (block) {
     block.previous_block = block.previousBlock
     block.number_of_transactions = block.numberOfTransactions
@@ -12,10 +16,18 @@ module.exports = class Block {
     return block
   }
 
+  /**
+   * The table associated with the model.
+   * @return {String}
+   */
   getTable () {
     return 'blocks'
   }
 
+  /**
+   * The attributes that are mass assignable.
+   * @return {Array}
+   */
   getColumns () {
     return [
       'id',

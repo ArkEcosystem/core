@@ -211,7 +211,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       throw new Error('Trying to build delegates outside of round change')
     }
 
-    let data = await this.db.wallets.roundDelegates()
+    let data = await this.db.rounds.delegates()
 
     // NOTE: At the launch of the blockchain we may not have enough delegates.
     // In order to have enough forging delegates we complete the list in a
@@ -220,8 +220,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       const chosen = data.map(delegate => delegate.publicKey)
 
       const fillerWallets = chosen.length
-        ? await this.db.wallets.roundFillersExcept(maxDelegates - data.length, chosen)
-        : await this.db.wallets.roundFillers(maxDelegates - data.length)
+        ? await this.db.rounds.placeholdersExcluding(maxDelegates - data.length, chosen)
+        : await this.db.rounds.placeholders(maxDelegates - data.length)
 
       data = data.concat(fillerWallets)
     }

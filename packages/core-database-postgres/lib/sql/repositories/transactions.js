@@ -3,38 +3,81 @@ const { Transaction } = require('../models')
 const { transactions: sql } = require('../queries')
 
 module.exports = class TransactionsRepository extends Repository {
-  async findByBlock (id) {
-    return this.db.manyOrNone(sql.findByBlock, [id])
-  }
-
-  async latestByBlock (id) {
-    return this.db.manyOrNone(sql.latestByBlock, [id])
-  }
-
-  async latestByBlocks (ids) {
-    return this.db.manyOrNone(sql.latestByBlocks, [ids.join(',')])
-  }
-
-  async statistics () {
-    return this.db.one(sql.statistics)
-  }
-
-  async deleteByBlock (id) {
-    return this.db.none(sql.deleteByBlock, [id])
-  }
-
-  async forged (id) {
-    return this.db.many(sql.forged)
-  }
-
+  /**
+   * Find a transactions by its ID.
+   * @param  {Array} ids
+   * @return {Promise}
+   */
   async findById (ids) {
     return this.db.one(sql.findById, [ids.join(',')])
   }
 
+  /**
+   * Find multiple transactionss by their IDs.
+   * @param  {Array} ids
+   * @return {Promise}
+   */
   async findManyById (ids) {
     return this.db.many(sql.findManyById, [ids.join(',')])
   }
 
+  /**
+   * Find multiple transactionss by their block ID.
+   * @param  {String} id
+   * @return {Promise}
+   */
+  async findByBlock (id) {
+    return this.db.manyOrNone(sql.findByBlock, [id])
+  }
+
+  /**
+   * Find multiple transactionss by their block ID and order them by sequence.
+   * @param  {Number} id
+   * @return {Promise}
+   */
+  async latestByBlock (id) {
+    return this.db.manyOrNone(sql.latestByBlock, [id])
+  }
+
+  /**
+   * Find multiple transactionss by their block IDs and order them by sequence.
+   * @param  {Array} ids
+   * @return {Promise}
+   */
+  async latestByBlocks (ids) {
+    return this.db.manyOrNone(sql.latestByBlocks, [ids.join(',')])
+  }
+
+  /**
+   * Get all of the forged transactions from the database.
+   * @param  {Array} ids
+   * @return {Promise}
+   */
+  async forged (ids) {
+    return this.db.many(sql.forged, [ids.join(',')])
+  }
+
+  /**
+   * Get statistics about all transactions from the database.
+   * @return {Promise}
+   */
+  async statistics () {
+    return this.db.one(sql.statistics)
+  }
+
+  /**
+   * Delete the transactions from the database.
+   * @param  {Number} id
+   * @return {Promise}
+   */
+  async deleteByBlock (id) {
+    return this.db.none(sql.deleteByBlock, [id])
+  }
+
+  /**
+   * Get the model related to this repository.
+   * @return {Object}
+   */
   get model () {
     return Transaction
   }

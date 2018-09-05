@@ -1,4 +1,8 @@
 module.exports = class Transaction {
+  /**
+   * Convert the "camel_case" keys to "snake_case".
+   * @return {Object}
+   */
   transform (transaction) {
     transaction.block_id = transaction.blockId
     transaction.sender_public_key = transaction.senderPublicKey
@@ -8,10 +12,18 @@ module.exports = class Transaction {
     return transaction
   }
 
+  /**
+   * The table associated with the model.
+   * @return {String}
+   */
   getTable () {
     return 'transactions'
   }
 
+  /**
+   * The attributes that are mass assignable.
+   * @return {Array}
+   */
   getColumns () {
     return [
       'id',
