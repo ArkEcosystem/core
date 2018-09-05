@@ -25,6 +25,6 @@ module.exports = class WalletsRepository extends Repository {
    * @return {Object}
    */
   get model () {
-    return Wallet
+    return new Wallet()
   }
 }

@@ -15,7 +15,7 @@ module.exports = {
   rounds: {
     delegates: loadQueryFile(__dirname, './rounds/delegates.sql'),
     placeholders: loadQueryFile(__dirname, './rounds/placeholders.sql'),
-    placeholdersExcluding: loadQueryFile(__dirname, './rounds/placeholders-excluding.sql'),
+    placeholdersWithout: loadQueryFile(__dirname, './rounds/placeholders-without.sql'),
     delete: loadQueryFile(__dirname, './rounds/delete.sql'),
     find: loadQueryFile(__dirname, './rounds/find.sql')
   },

@@ -54,6 +54,6 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Object}
    */
   get model () {
-    return Round
+    return new Round()
   }
 }

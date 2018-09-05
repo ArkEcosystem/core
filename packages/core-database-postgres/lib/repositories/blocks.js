@@ -87,6 +87,6 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Object}
    */
   get model () {
-    return Block
+    return new Block()
   }
 }

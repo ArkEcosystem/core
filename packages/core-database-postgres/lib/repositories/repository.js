@@ -23,6 +23,8 @@ module.exports = class Repository {
    * @return {Promise}
    */
   async create (item) {
+    item = this.model.transform(item)
+
     return this.db.none(this.__insert(item))
   }
 
@@ -45,6 +47,8 @@ module.exports = class Repository {
    * @return {Promise}
    */
   async updateOrCreate (item) {
+    item = this.model.transform(item)
+
     return this.db.none(this.__insert(item) + ' ON CONFLICT DO UPDATE')
   }
 

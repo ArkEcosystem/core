@@ -79,6 +79,6 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Object}
    */
   get model () {
-    return Transaction
+    return new Transaction()
   }
 }
