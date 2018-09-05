@@ -45,3 +45,14 @@ exports.peer1 = peer1
 exports.peer2 = peer2
 exports.peer3 = peer3
 exports.peer4 = peer4
+
+exports.peersOverride = [
+  {
+    ip: '1.2.3.4',
+    port: 4003
+  },
+  {
+    ip: '5.6.7.8',
+    port: 4003
+  }
+]
