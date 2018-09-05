@@ -10,6 +10,14 @@ module.exports = class Repository {
   }
 
   /**
+   * Estimate the number of records in the table.
+   * @return {Promise}
+   */
+  async estimate () {
+    return this.db.one(`SELECT count_estimate('SELECT * FROM ${this.model.getTable()})`)
+  }
+
+  /**
    * Run a truncate statement on the table.
    * @return {Promise}
    */
