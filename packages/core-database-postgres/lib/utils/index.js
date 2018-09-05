@@ -1,3 +1,4 @@
 module.exports = {
-  loadQueryFile: require('./load-query-file')
+  camelizeColumns: require('./camelize-columns'),
+  loadQueryFile: require('./load-query-file'),
 }
