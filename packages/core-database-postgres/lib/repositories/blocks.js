@@ -79,7 +79,7 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Promise}
    */
   async delete (id) {
-    return this.db.none(sql.transactions.delete, [id])
+    return this.db.none(sql.delete, [id])
   }
 
   /**
