@@ -1,14 +1,6 @@
-module.exports = class Round {
-  /**
-   * Convert the "camel_case" keys to "snake_case".
-   * @return {Object}
-   */
-  transform (round) {
-    round.public_key = round.publicKey
+const Model = require('./model')
 
-    return round
-  }
-
+module.exports = class Round extends Model {
   /**
    * The table associated with the model.
    * @return {String}
@@ -27,5 +19,17 @@ module.exports = class Round {
       'balance',
       'round'
     ]
+  }
+
+  /**
+   * The attribute mappings for the transformer.
+   * @return {Object}
+   */
+  getMappings () {
+    return {
+      publicKey: 'public_key',
+      balance: 'balance',
+      round: 'round',
+    }
   }
 }
