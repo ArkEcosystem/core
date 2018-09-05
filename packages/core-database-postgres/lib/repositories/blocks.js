@@ -26,7 +26,7 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Promise}
    */
   async common (ids) {
-    return this.db.one(sql.common, [ids.join(',')])
+    return this.db.manyOrNone(sql.common, [ids.join(',')])
   }
 
   /**
