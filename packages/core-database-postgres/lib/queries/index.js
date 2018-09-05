@@ -17,7 +17,7 @@ module.exports = {
     placeholders: loadQueryFile(__dirname, './rounds/placeholders.sql'),
     placeholdersExcluding: loadQueryFile(__dirname, './rounds/placeholders-excluding.sql'),
     delete: loadQueryFile(__dirname, './rounds/delete.sql'),
-    find: loadQueryFile(__dirname, './rounds/find.sql'),
+    find: loadQueryFile(__dirname, './rounds/find.sql')
   },
   spv: {
     blockRewards: loadQueryFile(__dirname, './spv/block-rewards.sql'),

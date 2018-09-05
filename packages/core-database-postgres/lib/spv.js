@@ -2,7 +2,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
-const { queries } = require('./sql')
+const queries = require('./queries')
 
 module.exports = class SPV {
   /**

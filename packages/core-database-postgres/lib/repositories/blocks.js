@@ -1,136 +1,92 @@
-'use strict'
-
-const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
-
-const blocksTableColumns = ['id', 'version', 'timestamp', 'previous_block', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length', 'payload_hash', 'generator_public_key', 'block_signature']
+const { Block } = require('../models')
+const { blocks: sql } = require('../queries')
 
 module.exports = class BlocksRepository extends Repository {
   /**
-   * Get all blocks for the given parameters.
-   * TODO throw an Error if the params aren't the available filters
-   * @param  {Object}  params
-   * @return {Object}
-   */
-  async findAll (params = {}) {
-    const { conditions } = this.__formatConditions(params)
-
-    const orderBy = params.orderBy
-      ? params.orderBy.split(':')
-      : ['height', 'DESC']
-
-    const buildQuery = query => {
-      query = query.from('blocks')
-
-      for (let [key, value] of Object.entries(conditions)) {
-        query = query.where(key, value)
-      }
-
-      return query
-    }
-
-    let rows = []
-
-    // NOTE: The real count is avoided because it degrades the performance of the node
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    // if (count) {
-      const selectQuery = buildQuery(this.query.select(...blocksTableColumns))
-      rows = await this.__runQuery(selectQuery, {
-        limit: params.limit,
-        offset: params.offset,
-        orderBy
-      })
-    // }
-
-    return { rows, count: rows.length }
-  }
-
-  /**
-   * Get all blocks for the given generator.
-   * @param  {String} generatorPublicKey
-   * @param  {Object} paginator
-   * @return {Object}
-   */
-  async findAllByGenerator (generatorPublicKey, paginator) {
-    return this.findAll({...{generatorPublicKey}, ...paginator})
-  }
-
-  /**
-   * Get a block.
+   * Find a block by its ID.
    * @param  {Number} id
-   * @return {Object}
+   * @return {Promise}
    */
   async findById (id) {
-    return this.query
-      .select(...blocksTableColumns)
-      .from('blocks')
-      .where('id', id)
-      .first()
+    return this.db.one(sql.findById, [id])
   }
 
   /**
-   * Get the last block for the given generator.
-   * TODO is this right?
-   * @param  {String} generatorPublicKey
-   * @return {Object}
-   */
-  async findLastByPublicKey (generatorPublicKey) {
-    return this.query
-      .select('id', 'timestamp')
-      .from('blocks')
-      .where('generator_public_key', generatorPublicKey)
-      .orderBy('created_at', 'DESC')
-      .limit(1)
-      .first()
-  }
-
-  /**
-   * Search all blocks.
-   * @param  {Object} params
-   * @return {Object}
-   */
-  async search (params) {
-    let { conditions } = this.__formatConditions(params)
-    conditions = buildFilterQuery(conditions, {
-      exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
-      between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
-    })
-
-    const orderBy = params.orderBy
-      ? params.orderBy.split(':')
-      : ['height', 'DESC']
-
-    const buildQuery = query => {
-      query = query.from('blocks')
-
-      conditions.forEach(condition => {
-        query = query.where(condition.column, condition.operator, condition.value)
-      })
-
-      return query
-    }
-
-    let rows = []
-    const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    if (count) {
-      const selectQuery = buildQuery(this.query.select(...blocksTableColumns))
-      rows = await this.__runQuery(selectQuery, {
-        limit: params.limit,
-        offset: params.offset,
-        orderBy
-      })
-    }
-
-    return { rows, count }
-  }
-
-  /**
-   * Count all blocks.
-   * @return {Number}
+   * Count the number of records in the database.
+   * @return {Promise}
    */
   async count () {
-    return super.__count('blocks')
+    return this.db.one(sql.count)
+  }
+
+  /**
+   * Get all of the common blocks from the database.
+   * @param  {Array} ids
+   * @return {Promise}
+   */
+  async common (ids) {
+    return this.db.one(sql.common, [ids.join(',')])
+  }
+
+  /**
+   * Get all of the blocks within the given height range.
+   * @param  {Number} start
+   * @param  {Number} end
+   * @return {Promise}
+   */
+  async headers (start, end) {
+    return this.db.many(sql.headers, [start, end])
+  }
+
+  /**
+   * Get all of the blocks within the given height range and order them by height.
+   * @param  {Number} start
+   * @param  {Number} end
+   * @return {Promise}
+   */
+  async heightRange (start, end) {
+    return this.db.many(sql.heightRange, [start, end])
+  }
+
+  /**
+   * Get the last created block from the database.
+   * @return {Promise}
+   */
+  async latest () {
+    return this.db.oneOrNone(sql.latest)
+  }
+
+  /**
+   * Get the 10 most recently created blocks from the database.
+   * @return {Promise}
+   */
+  async recent () {
+    return this.db.many(sql.recent)
+  }
+
+  /**
+   * Get statistics about all blocks from the database.
+   * @return {Promise}
+   */
+  async statistics () {
+    return this.db.one(sql.statistics)
+  }
+
+  /**
+   * Delete the block from the database.
+   * @param  {Number} id
+   * @return {Promise}
+   */
+  async delete (id) {
+    return this.db.none(sql.transactions.delete, [id])
+  }
+
+  /**
+   * Get the model related to this repository.
+   * @return {Object}
+   */
+  get model () {
+    return Block
   }
 }
