@@ -294,7 +294,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       return wallet.publicKey && (force || wallet.dirty)
     })
 
-    if (force) {
+    if (force) { // all wallets to be updated, performance is better without upsert
       await this.db.wallets.truncate()
 
       for (const items of chunk(wallets, 5000)) {
@@ -315,12 +315,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       // Other solution is to calculate the list of delegates against WalletManager so we can get rid off
       // calling this function in sync manner i.e. 'await saveWallets()' -> 'saveWallets()'
       try {
-        const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallets))
+        const queries = wallets.map(wallet => this.db.wallets.updateOrCreate(wallet))
 
         await this.db.tx(t => t.batch(queries))
       } catch (error) {
         logger.error(error)
-        process.exit()
       }
     }
 

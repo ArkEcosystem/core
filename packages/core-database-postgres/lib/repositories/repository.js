@@ -24,7 +24,7 @@ module.exports = class Repository {
   }
 
   /**
-   * Create one or many new instances of the related models.
+   * Create one or many instances of the related models.
    * @param  {Array|Object} item
    * @return {Promise}
    */
@@ -33,12 +33,12 @@ module.exports = class Repository {
   }
 
   /**
-   * Create or update one or many related records matching the attributes.
+   * Update one or many instances of the related models.
    * @param  {Array|Object} item
    * @return {Promise}
    */
-  async updateOrCreate (item) {
-    return this.db.none(this.__upsertQuery(item))
+  async update (item) {
+    return this.db.none(this.__updateQuery(item))
   }
 
   /**
@@ -51,17 +51,12 @@ module.exports = class Repository {
   }
 
   /**
-   * Generate an "INSERT OR UPDATE" query for the given data.
+   * Generate an "UPDATE" query for the given data.
    * @param  {Array|Object} data
    * @return {String}
    */
-  __upsertQuery (data) {
-    const conflictColumns = this.model.getColumnSet()
-      .columns.map(column => column.name).join(',')
-
-    return this.__insertQuery(data) +
-      ` ON CONFLICT(${conflictColumns}) DO UPDATE SET ` +
-      this.model.getColumnSet().assignColumns()
+  __updateQuery (data) {
+    return this.pgp.helpers.update(data, this.model.getColumnSet())
   }
 
   /**

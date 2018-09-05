@@ -21,6 +21,19 @@ module.exports = class WalletsRepository extends Repository {
   }
 
   /**
+   * Create or update a record matching the attributes, and fill it with values.
+   * @param  {Object} wallet
+   * @return {Promise}
+   */
+  async updateOrCreate (wallet) {
+    const query = this.__insertQuery(wallet) +
+      ` ON CONFLICT(address) DO UPDATE SET ` +
+      this.pgp.helpers.sets(wallet, this.model.getColumnSet())
+
+    return this.db.none(query)
+  }
+
+  /**
    * Get the model related to this repository.
    * @return {Object}
    */
