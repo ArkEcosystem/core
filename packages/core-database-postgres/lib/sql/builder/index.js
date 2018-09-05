@@ -290,9 +290,9 @@ module.exports = class QueryBuiler {
     // const { fieldAttributeMap } = this.models.find(m => m.tableName === this.clauses.from) || {}
 
     try {
-      // logger.debug(`QUERY: ${sql}`)
+      logger.debug(`QUERY: ${sql}`)
       // logger.debug(`PARAM: ${JSON.stringify(replacements)}`)
-      return this.connection.connection.any(sql, replacements)
+      return this.connection.db.any(sql, replacements)
     } catch (e) {
       logger.error(e)
     }
@@ -376,7 +376,7 @@ module.exports = class QueryBuiler {
    * @return {QueryBuilder}
    */
   async __executeQueryFile (file, parameters, method) {
-    return this.connection.connection[method](file, parameters)
+    return this.connection.db[method](file, parameters)
   }
 
   /**
