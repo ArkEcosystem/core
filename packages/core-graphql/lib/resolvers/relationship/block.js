@@ -22,8 +22,9 @@ module.exports = {
       orderBy: formatOrderBy(orderBy, 'timestamp:DESC'),
       ...params
     }, false)
+    const rows = result ? result.rows : []
 
-    return unserializeTransactions(result)
+    return unserializeTransactions(rows)
   },
 
   /**
