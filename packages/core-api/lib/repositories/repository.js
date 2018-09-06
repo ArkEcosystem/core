@@ -52,14 +52,12 @@ module.exports = class Repository {
       return columnNames.includes(arg) || columnProps.includes(arg)
     })
 
-    const conditions = filter(Object.keys(parameters)).reduce((items, item) => {
+    return filter(Object.keys(parameters)).reduce((items, item) => {
       const columnName = columns.find(column => (column.prop === item)).name
 
       items[columnName] = parameters[item]
 
       return items
     }, {})
-
-    return Object.entries(conditions)
   }
 }

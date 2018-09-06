@@ -32,7 +32,7 @@ class TransactionsRepository extends Repository {
       parameters.senderPublicKey = senderPublicKey
     }
 
-    const conditions = super.__formatConditions(parameters)
+    const conditions = Object.entries(this.__formatConditions(parameters))
 
     if (conditions.length) {
       const first = conditions.shift()
@@ -65,7 +65,7 @@ class TransactionsRepository extends Repository {
       parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
     }
 
-    const conditions = super.__formatConditions(parameters)
+    const conditions = Object.entries(this.__formatConditions(parameters))
 
     if (conditions.length) {
       const first = conditions.shift()

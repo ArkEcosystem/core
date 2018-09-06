@@ -19,7 +19,7 @@ class BlocksRepository extends Repository {
   async findAll (parameters = {}) {
     const query = this.query.select().from(this.query)
 
-    const conditions = super.__formatConditions(parameters)
+    const conditions = Object.entries(this.__formatConditions(parameters))
 
     if (conditions.length) {
       const first = conditions.shift()
