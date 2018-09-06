@@ -7,12 +7,12 @@ const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
-const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schema/transactions')
+const { transactions: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -24,7 +24,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.findAll({...request.query, ...utils.paginate(request)})
+    const transactions = await repository.findAll({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, transactions, 'transaction')
   }
@@ -100,7 +100,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transaction = await database.transactions.findById(request.params.id)
+    const transaction = await repository.findById(request.params.id)
 
     if (!transaction) {
       return Boom.notFound('Transaction not found')
@@ -175,7 +175,7 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.search({
+    const transactions = await repository.search({
       ...request.query,
       ...request.payload,
       ...utils.paginate(request)
