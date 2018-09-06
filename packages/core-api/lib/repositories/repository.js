@@ -20,7 +20,7 @@ module.exports = class Repository {
 
   async __findManyWithCount (query, { limit, offset, orderBy }) {
     // FIX: estimate query issue with WHERE conditions
-    const count = 0 // await this.__estimate(query)
+    const count = await this.__estimate(query)
 
     query
       .order(this.query[orderBy[0]][orderBy[1]])
@@ -34,7 +34,10 @@ module.exports = class Repository {
   }
 
   async __estimate (query) {
-    const { countEstimate } = await database.query.one(`SELECT count_estimate ('${query.toQuery().text}');`)
+    const { countEstimate } = await database.query.one(
+      `SELECT count_estimate ('${query.toQuery().text}');`,
+      query.toQuery().values
+    )
 
     return countEstimate
   }

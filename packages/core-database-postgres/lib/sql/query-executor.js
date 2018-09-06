@@ -10,72 +10,72 @@ module.exports = class QueryExecutor {
 
   /**
    * Execute the given query and expect no results.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async none (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'none')
+  async none (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'none')
   }
 
   /**
    * Execute the given query and expect one result.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async one (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'one')
+  async one (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'one')
   }
 
   /**
    * Execute the given query and expect one or no results.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async oneOrNone (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'oneOrNone')
+  async oneOrNone (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'oneOrNone')
   }
 
   /**
    * Execute the given query and expect many results.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async many (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'many')
+  async many (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'many')
   }
 
   /**
    * Execute the given query and expect many or no results.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async manyOrNone (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'manyOrNone')
+  async manyOrNone (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'manyOrNone')
   }
 
   /**
    * Execute the given query and expect any results.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @return {Promise}
    */
-  async any (file, parameters) {
-    return this.__executeQueryFile(file, parameters, 'any')
+  async any (query, parameters) {
+    return this.__executeQueryFile(query, parameters, 'any')
   }
 
   /**
    * Execute the given query using the given method and parameters.
-   * @param  {QueryFile} file
+   * @param  {QueryFile} query
    * @param  {Array} parameters
    * @param  {String} method
    * @return {QueryBuilder}
    */
-  async __executeQueryFile (file, parameters, method) {
-    return this.connection.db[method](file, parameters)
+  async __executeQueryFile (query, parameters, method) {
+    return this.connection.db[method](query, parameters)
   }
 }
