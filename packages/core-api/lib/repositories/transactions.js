@@ -1,10 +1,11 @@
 'use strict'
 
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
+const container = require('@arkecosystem/core-container')
+const database = container.resolvePlugin('database')
 
 // const moment = require('moment')
 // const { slots } = require('@arkecosystem/crypto')
-// const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 // const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
@@ -12,7 +13,8 @@ class TransactionsRepository extends Repository {
   constructor () {
     super()
 
-    this.model = database.models.transaction.query()
+    this.model = database.models.transaction
+    this.query = this.model.query()
   }
 
   /**
@@ -20,46 +22,30 @@ class TransactionsRepository extends Repository {
    * @param  {Object}  params
    * @return {Object}
    */
-  async findAll (params = {}) {
-    // if (params.senderId) {
-    //   const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+  async findAll (parameters = {}) {
+    const query = this.query
+      .select()
+      .from(this.query)
 
-    //   if (!senderPublicKey) {
-    //     return { rows: [], count: 0 }
-    //   }
-    //   params.senderPublicKey = senderPublicKey
-    // }
+    if (parameters.senderId) {
+      const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
 
-    // const { conditions } = this.__formatConditions(params)
+      if (!senderPublicKey) {
+        return { rows: [], count: 0 }
+      }
 
-    // const orderBy = this.__orderBy(params)
+      parameters.senderPublicKey = senderPublicKey
+    }
 
-    // const buildQuery = query => {
-    //   query = query.from('transactions')
+    for (let [key, value] of super.__formatConditions(parameters)) {
+      query.where(this.query[key].equals(value))
+    }
 
-    //   for (let [key, value] of Object.entries(conditions)) {
-    //     query = query.where(key, value)
-    //   }
-
-    //   return query
-    // }
-
-    // let rows = []
-
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    // if (count) {
-    //   const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
-    //   const transactions = await this.__runQuery(selectQuery, {
-    //     limit: params.limit,
-    //     offset: params.offset,
-    //     orderBy
-    //   })
-
-    //   rows = await this.__mapBlocksToTransactions(transactions)
-    // }
-
-    // return { rows, count: rows.length }
+    return this.__findManyWithCount(query, {
+      limit: parameters.limit,
+      offset: parameters.offset,
+      orderBy: this.__orderBy(parameters)
+    })
   }
 
   /**
@@ -67,19 +53,19 @@ class TransactionsRepository extends Repository {
    * @param  {Object}  params
    * @return {Object}
    */
-  async findAllLegacy (params = {}) {
-    // if (params.senderId) {
-    //   params.senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+  async findAllLegacy (parameters = {}) {
+    // if (parameters.senderId) {
+    //   parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
     // }
 
-    // const conditions = this.__formatConditionsV1(params)
+    // const conditions = super.__formatConditions(parameters)
 
-    // const orderBy = this.__orderBy(params)
+    // const orderBy = this.__orderBy(parameters)
 
     // const buildQuery = query => {
     //   query = query.from('transactions')
 
-    //   const parts = Object.entries(conditions)
+    //   const parts = super.__formatConditions(parameters)
     //   if (parts.length) {
     //     const first = parts.shift()
     //     query = query.where(first[0], first[1])
@@ -149,7 +135,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllBySender (senderPublicKey, params = {}) {
-    // return this.findAll({...{senderPublicKey}, ...params})
+    return this.findAll({...{senderPublicKey}, ...params})
   }
 
   /**
@@ -159,7 +145,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByRecipient (recipientId, params = {}) {
-    // return this.findAll({...{recipientId}, ...params})
+    return this.findAll({...{recipientId}, ...params})
   }
 
   /**
@@ -170,7 +156,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async allVotesBySender (senderPublicKey, params = {}) {
-    // return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
+    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
   }
 
   /**
@@ -180,7 +166,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByBlock (blockId, params = {}) {
-    // return this.findAll({...{blockId}, ...params})
+    return this.findAll({...{blockId}, ...params})
   }
 
   /**
@@ -190,7 +176,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllByType (type, params = {}) {
-    // return this.findAll({...{type}, ...params})
+    return this.findAll({...{type}, ...params})
   }
 
   /**
@@ -199,6 +185,13 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findOne (conditions) {
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(conditions)
+
+    return this.__find(query)
+
     // conditions = this.__formatConditions(conditions).conditions
     // const transaction = await this.query
     //   .select('block_id', 'serialized')
@@ -215,7 +208,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findById (id) {
-    // return this.findOne({ id })
+    return this.findOne(this.query.id.equals(id))
   }
 
   /**
@@ -225,7 +218,9 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findByTypeAndId (type, id) {
-    // return this.findOne({ id, type })
+    return this.findOne([
+      this.query.id.equals(id), this.query.type.equals(type)
+    ])
   }
 
   /**
@@ -253,7 +248,7 @@ class TransactionsRepository extends Repository {
     // const orderBy = this.__orderBy(params)
 
     // if (params.senderId) {
-    //   const senderPublicKey = this.__publicKeyfromSenderId(params.senderId)
+    //   const senderPublicKey = this.__publicKeyFromSenderId(params.senderId)
 
     //   if (senderPublicKey) {
     //     params.senderPublicKey = senderPublicKey
@@ -309,14 +304,6 @@ class TransactionsRepository extends Repository {
   }
 
   /**
-   * Count all transactions.
-   * @return {Number}
-   */
-  async count () {
-    // return super.__count('transactions')
-  }
-
-  /**
    * Calculates min, max and average fee statistics based on transactions table
    * @return {Object}
    */
@@ -334,41 +321,6 @@ class TransactionsRepository extends Repository {
     //   .groupBy('type')
     //   .orderBy('timestamp', 'DESC')
     //   .all()
-  }
-
-  /**
-   * Format any raw conditions.
-   * TODO if condition is invalid, raise an Error
-   * @param  {Object} params
-   * @return {Object}
-   */
-  __formatConditions (params) {
-    // const { conditions, filter } = super.__formatConditions(params)
-
-    // // NOTE: This could be used to produce complex queries, but currently isn't used
-    // ;[Op.or, Op.and].map(elem => {
-    //   if (!params[elem]) {
-    //     return
-    //   }
-
-    //   const fields = Object.assign({}, ...params[elem])
-
-    //   conditions[elem] = filter(Object.keys(fields)).reduce((all, value) => {
-    //     return all.concat({ [value]: fields[value] })
-    //   }, [])
-    // })
-
-    // return { conditions, filter }
-  }
-
-  /**
-   * Format any raw conditions.
-   * TODO if condition is invalid, raise an Error
-   * @param  {Object} params
-   * @return {Object}
-   */
-  __formatConditionsV1 (params) {
-    // return super.__formatConditions(params).conditions
   }
 
   /**
@@ -462,14 +414,14 @@ class TransactionsRepository extends Repository {
    * @param {String} senderId
    * @return {String}
    */
-  __publicKeyfromSenderId (senderId) {
-    // return this.connection.walletManager.findByAddress(senderId).publicKey
+  __publicKeyFromSenderId (senderId) {
+    return database.walletManager.findByAddress(senderId).publicKey
   }
 
-  __orderBy (params) {
-    // return params.orderBy
-    //   ? params.orderBy.split(':')
-    //   : ['timestamp', 'DESC']
+  __orderBy (parameters) {
+    return parameters.orderBy
+      ? parameters.orderBy.split(':')
+      : ['timestamp', 'desc']
   }
 }
 

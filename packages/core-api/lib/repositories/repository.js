@@ -3,13 +3,6 @@
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
-// const invertBy = require('lodash/invertBy')
-
-// const defaults = {
-//   limit: 100,
-//   offset: 0
-// }
-
 module.exports = class Repository {
   async __find (query) {
     return database.query.oneOrNone(query.toQuery())
@@ -19,68 +12,46 @@ module.exports = class Repository {
     return database.query.manyOrNone(query.toQuery())
   }
 
-  /**
-   * Finds many related records and estimates their count.
-   *
-   * @param {QueryBuilder} query
-   * @param {Object} params
-   * @param {Number} params.limit
-   * @param {Number} params.offset
-   * @param {Array} params.orderBy
-   */
   async __findManyWithCount (query, { limit, offset, orderBy }) {
-    const selectQuery = query
-      .order(this.model[orderBy[0]][orderBy[1]])
-      .limit(limit)
+    const count = await this.__estimate(query)
+
+    query
+      .order(this.query[orderBy[0]][orderBy[1]])
       .offset(offset)
+      .limit(limit)
 
     return {
-      rows: await this.__findMany(selectQuery),
-      count: await this.__estimate(query)
+      rows: await this.__findMany(query), count
     }
   }
 
-  /**
-   * Estimate the count of all the records of a table.
-   * @return {Number}
-   */
   async __estimate (query) {
     const { countEstimate } = await database.query.one(`SELECT count_estimate ('${query.toQuery().text}');`)
 
     return countEstimate
   }
-  /**
-   * Count all the records of a table.
-   * @return {Number}
-   */
-  async __count (table) {
-    // return this
-    //   .query
-    //   .select()
-    //   .countDistinct('id', 'count')
-    //   .from(table)
-    //   .first()
-  }
 
   __formatConditions (params) {
-    // const { fieldAttributeMap, tableAttributes } = this.model
+    const columns = database.models.transaction.getColumnSet().columns.map(column => ({
+      name: column.name,
+      prop: column.prop || column.name
+    }))
 
-    // const validParams = Object.keys(tableAttributes)
-    // const filter = args => {
-    //   return args.filter(elem => validParams.includes(elem))
-    // }
+    const columnNames = columns.map(column => column.name)
+    const columnProps = columns.map(column => column.prop)
 
-    // // invert direction of mapping, camelCase => snake_case
-    // // the mapping is necessary if a param is camelCase otherwise
-    // // the param can be directly used.
-    // // e.g. recipientId => recipient_id, but type => type
-    // const fieldMappings = invertBy(fieldAttributeMap)
-    // const conditions = filter(Object.keys(params)).reduce((all, column) => {
-    //   const columnName = fieldMappings[column] || column
-    //   all[columnName] = params[column]
-    //   return all
-    // }, {})
+    const filter = args => args.filter(arg => {
+      return columnNames.includes(arg) || columnProps.includes(arg)
+    })
 
-    // return { conditions, filter }
+    const conditions = filter(Object.keys(params)).reduce((items, item) => {
+      const columnName = columns.find(column => (column.prop === item)).name
+
+      items[columnName] = params[item]
+
+      return items
+    }, {})
+
+    return Object.entries(conditions)
   }
 }

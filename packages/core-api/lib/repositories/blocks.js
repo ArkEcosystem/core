@@ -10,7 +10,8 @@ class BlocksRepository extends Repository {
   constructor () {
     super()
 
-    this.model = database.models.block.query()
+    this.model = database.models.block
+    this.query = this.model.query()
   }
 
   /**
@@ -19,23 +20,17 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findAll (parameters = {}) {
-    const query = this.model
+    const query = this.query
       .select()
-      .from(this.model)
+      .from(this.query)
 
     const orderBy = parameters.orderBy
       ? parameters.orderBy.split(':')
       : ['height', 'desc']
 
-    // const buildQuery = query => {
-    //   query = query.from('blocks')
-
-    //   for (let [key, value] of Object.entries(conditions)) {
-    //     query = query.where(key, value)
-    //   }
-
-    //   return query
-    // }
+    for (let [key, value] of super.__formatConditions(parameters)) {
+      query.where(this.query[key].equals(value))
+    }
 
     return this.__findManyWithCount(query, {
       limit: parameters.limit,
@@ -51,7 +46,7 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findAllByGenerator (generatorPublicKey, paginator) {
-    // return this.findAll({...{generatorPublicKey}, ...paginator})
+    return this.findAll({...{generatorPublicKey}, ...paginator})
   }
 
   /**
@@ -60,17 +55,12 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findById (id) {
-    const query = this.model
+    const query = this.query
       .select()
-      .from(this.model)
-      .where(this.model.id.equals(id))
+      .from(this.query)
+      .where(this.query.id.equals(id))
 
     return this.__find(query)
-    // return this.query
-    //   .select(...blocksTableColumns)
-    //   .from('blocks')
-    //   .where('id', id)
-    //   .first()
   }
 
   /**
@@ -80,13 +70,13 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findLastByPublicKey (generatorPublicKey) {
-    // return this.query
-    //   .select('id', 'timestamp')
-    //   .from('blocks')
-    //   .where('generator_public_key', generatorPublicKey)
-    //   .orderBy('created_at', 'DESC')
-    //   .limit(1)
-    //   .first()
+    const query = this.query
+      .select(this.query.id, this.query.timestamp)
+      .from(this.query)
+      .where(this.query.generator_public_key.equals(generatorPublicKey))
+      .order(this.query.created_at.desc)
+
+    return this.__find(query)
   }
 
   /**
@@ -128,14 +118,6 @@ class BlocksRepository extends Repository {
     // }
 
     // return { rows, count }
-  }
-
-  /**
-   * Count all blocks.
-   * @return {Number}
-   */
-  async count () {
-    // return super.__count('blocks')
   }
 }
 
