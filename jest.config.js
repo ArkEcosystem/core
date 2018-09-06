@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: [
     '**/packages/client/**/__tests__/**/*.test.js',
-    // '**/packages/core-api/**/__tests__/**/*.test.js'
+    '**/packages/core-api/**/__tests__/**/*.test.js',
     '**/packages/core-blockchain/**/__tests__/**/*.test.js',
     '**/packages/core-config/**/__tests__/**/*.test.js',
     '**/packages/core-container/**/__tests__/**/*.test.js',

@@ -24,7 +24,7 @@ class BlocksRepository extends Repository {
     if (conditions.length) {
       const first = conditions.shift()
 
-      query.where(this.query[0].equals(first[1]))
+      query.where(this.query[first[0]].equals(first[1]))
 
       for (const condition of conditions) {
         query.and(this.query[condition[0]].equals(condition[1]))
