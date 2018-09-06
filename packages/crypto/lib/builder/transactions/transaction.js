@@ -34,6 +34,16 @@ module.exports = class TransactionBuilder {
   }
 
   /**
+   * Set transaction network.
+   * @param {Number} network
+   * @return {TransactionBuilder}
+   */
+  network (network) {
+    this.data.network = network
+    return this
+  }
+
+  /**
    * Set transaction fee.
    * @param {Number} fee
    * @return {TransactionBuilder}
