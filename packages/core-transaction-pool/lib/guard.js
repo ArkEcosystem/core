@@ -118,7 +118,7 @@ module.exports = class TransactionGuard {
         const trx = new Transaction(transaction)
 
         if (trx.verified) {
-          this.transactions.push(new Transaction(transaction))
+          this.transactions.push(trx)
         }
       }
     })
