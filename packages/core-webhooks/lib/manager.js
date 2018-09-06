@@ -1,7 +1,6 @@
 'use strict'
 
 const axios = require('axios')
-const map = require('lodash/map')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = require('./database')
@@ -16,7 +15,7 @@ class WebhookManager {
   async setUp (config) {
     this.config = config
 
-    map(this.config.events, 'name').forEach(event => {
+    for (const event of container.resolvePlugin('blockchain').getEvents()) {
       emitter.on(event, async payload => {
         const webhooks = await database.findByEvent(event)
 
@@ -38,7 +37,7 @@ class WebhookManager {
           }
         }
       })
-    })
+    }
   }
 
   /**

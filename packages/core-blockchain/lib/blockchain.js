@@ -480,6 +480,31 @@ module.exports = class Blockchain {
   }
 
   /**
+   * Get the list of events that are available.
+   * @return {Array}
+   */
+  getEvents () {
+    return [
+      'block.applied',
+      'block.forged',
+      'block.reverted',
+      'delegate.registered',
+      'delegate.resigned',
+      'forger.failed',
+      'forger.missing',
+      'forger.started',
+      'peer.added',
+      'peer.removed',
+      'state:started',
+      'transaction.applied',
+      'transaction.expired',
+      'transaction.forged',
+      'transaction.reverted',
+      'wallet:cold:created'
+    ]
+  }
+
+  /**
    * Get the state of the blockchain.
    * @return {Object}
    */
