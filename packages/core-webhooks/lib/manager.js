@@ -1,7 +1,6 @@
 'use strict'
 
 const axios = require('axios')
-const map = require('lodash/map')
 const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const logger = container.resolvePlugin('logger')

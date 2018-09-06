@@ -500,7 +500,7 @@ module.exports = class Blockchain {
       'transaction.expired',
       'transaction.forged',
       'transaction.reverted',
-      'wallet:cold:created',
+      'wallet:cold:created'
     ]
   }
 
