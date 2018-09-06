@@ -230,7 +230,7 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.timestamp.gte(slots.getTime(moment().subtract(30, 'days'))))
       .group(this.query.type)
-      .order(this.query.timestamp.desc)
+      .order('"timestamp" DESC')
 
     return this.__findMany(query)
   }
