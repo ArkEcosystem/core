@@ -1,6 +1,6 @@
 'use strict'
 
-const ark = require('arkjs')
+const { client } = require('@arkecosystem/crypto')
 const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
@@ -15,15 +15,15 @@ module.exports = async (options) => {
 
   logger.info(`Sending ${options.number} second signature transactions`)
 
+  const builder = client.getBuilder().secondSignature()
   const transactions = []
   wallets.forEach((wallet, i) => {
     wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
-
-    const transaction = ark.signature.createSignature(
-      wallet.passphrase,
-      wallet.secondPassphrase,
-      utils.parseFee(options.signatureFee)
-    )
+    const transaction = builder
+      .fee(utils.parseFee(options.signatureFee))
+      .signatureAsset(wallet.secondPassphrase)
+      .sign(wallet.passphrase)
+      .build()
 
     wallet.publicKey = transaction.senderPublicKey
     wallet.secondPublicKey = transaction.asset.signature.publicKey
