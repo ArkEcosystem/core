@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@arkecosystem/validation": "^0.1.1",
-    "arkjsv1": "arkecosystem/ark-js#master",
     "bigi": "^1.4.2",
     "bip38": "^2.0.2",
     "bip66": "^1.1.5",
