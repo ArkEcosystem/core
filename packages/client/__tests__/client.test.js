@@ -12,7 +12,7 @@ const initialPeers = require('../lib/peers')
 const errorCapturer = fn => fn.then(res => () => res).catch(err => () => { throw err })
 
 const host = 'https://example.net:4003'
-const { peers } = require('./fixtures/peers')
+const { peers, peersOverride } = require('./fixtures/peers')
 
 let client
 
@@ -160,6 +160,12 @@ describe('API - Client', () => {
         expect(foundPeers).not.toEqual(arrayContaining(peers))
         expect(foundPeers).toEqual(arrayContaining(initialPeers.devnet))
       })
+
+      it('should return the list of provided peers', async () => {
+        const foundPeers = await Client.findPeers('devnet', 2, peersOverride)
+        expect(foundPeers).not.toEqual(arrayContaining(peers))
+        expect(foundPeers).toEqual(arrayContaining(peersOverride))
+      })
     })
   })
 
@@ -170,6 +176,13 @@ describe('API - Client', () => {
         expect().fail('Should fail on the previous line')
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
+      }
+    })
+    it('should not throw an Error if the network does not exist but peers overridden', async () => {
+      try {
+        await Client.connect('wrong', 2, peersOverride)
+      } catch (error) {
+        expect().fail('Should not have failed on the previous line')
       }
     })
 
