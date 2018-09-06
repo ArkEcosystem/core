@@ -14,7 +14,7 @@ module.exports = (params, filters) => {
       if (typeof params[elem] !== 'undefined') {
         where.push({
           column: elem,
-          operator: '=',
+          method: 'equals',
           value: params[elem]
         })
       }
@@ -30,7 +30,7 @@ module.exports = (params, filters) => {
       if (!params[elem].hasOwnProperty('from') && !params[elem].hasOwnProperty('to')) {
         where.push({
           column: elem,
-          operator: '=',
+          method: 'equals',
           value: params[elem]
         })
       }
@@ -41,7 +41,7 @@ module.exports = (params, filters) => {
         if (params[elem].hasOwnProperty('from')) {
           where.push({
             column: elem,
-            operator: '>=',
+            method: 'gte',
             value: params[elem].from
           })
         }
@@ -49,7 +49,7 @@ module.exports = (params, filters) => {
         if (params[elem].hasOwnProperty('to')) {
           where.push({
             column: elem,
-            operator: '<=',
+            method: 'lte',
             value: params[elem].to
           })
         }
@@ -62,7 +62,7 @@ module.exports = (params, filters) => {
       if (params[elem]) {
         where.push({
           column: elem,
-          operator: 'LIKE',
+          method: 'like',
           value: `%${params[elem]}%`
         })
       }

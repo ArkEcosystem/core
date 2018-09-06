@@ -3,10 +3,10 @@
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
-// const moment = require('moment')
-// const { slots } = require('@arkecosystem/crypto')
+const moment = require('moment')
+const { slots } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-// const buildFilterQuery = require('./utils/filter-query')
+const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class TransactionsRepository extends Repository {
@@ -23,9 +23,7 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAll (parameters = {}) {
-    const query = this.query
-      .select()
-      .from(this.query)
+    const query = this.query.select().from(this.query)
 
     if (parameters.senderId) {
       const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
@@ -229,64 +227,12 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findByIds (ids) {
-    // return this
-    //   .connection
-    //   .query
-    //   .select('block_id', 'serialized')
-    //   .from('transactions')
-    //   .whereIn('id', ids)
-    //   .all()
-  }
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(this.query.id.in(ids))
 
-  /**
-   * Search all transactions.
-   *
-   * @param  {Object} params
-   * @return {Object}
-   */
-  async search (params) {
-    // const orderBy = this.__orderBy(params)
-
-    // if (params.senderId) {
-    //   const senderPublicKey = this.__publicKeyFromSenderId(params.senderId)
-
-    //   if (senderPublicKey) {
-    //     params.senderPublicKey = senderPublicKey
-    //   }
-    // }
-
-    // let { conditions } = this.__formatConditions(params)
-    // conditions = buildFilterQuery(conditions, {
-    //   exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
-    //   between: ['timestamp', 'amount', 'fee'],
-    //   wildcard: ['vendor_field_hex']
-    // })
-
-    // const buildQuery = query => {
-    //   query = query.from('transactions')
-
-    //   conditions.forEach(condition => {
-    //     query = query.where(condition.column, condition.operator, condition.value)
-    //   })
-
-    //   return query
-    // }
-
-    // let rows = []
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    // if (count) {
-    //   const query = await buildQuery(this.query.select('block_id', 'serialized'))
-    //   const transactions = await this.__runQuery(query, {
-    //     limit: params.limit,
-    //     offset: params.offset,
-    //     orderBy
-    //   })
-
-    //   rows = await this.__mapBlocksToTransactions(transactions)
-    // }
-
-    // return { rows, count }
+    return this.__findMany(query)
   }
 
   /**
@@ -308,19 +254,56 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async getFeeStatistics () {
-    // return this
-    //   .connection
-    //   .query
-    //   .select('type')
-    //   .min('fee', 'minFee')
-    //   .max('fee', 'maxFee')
-    //   .avg('fee', 'avgFee')
-    //   .max('timestamp', 'timestamp')
-    //   .from('transactions')
-    //   .where('timestamp', '>=', slots.getTime(moment().subtract(30, 'days')))
-    //   .groupBy('type')
-    //   .orderBy('timestamp', 'DESC')
-    //   .all()
+    const query = this.query
+      .select(
+        this.query.type,
+        this.query.fee.min('minFee'),
+        this.query.fee.max('maxFee'),
+        this.query.fee.avg('avgFee'),
+        this.query.timestamp.max('timestamp')
+      )
+      .from(this.query)
+      .where(this.query.timestamp.gte(slots.getTime(moment().subtract(30, 'days'))))
+      .group(this.query.type)
+      .order(this.query.timestamp.desc)
+
+    return this.__findMany(query)
+  }
+
+  /**
+   * Search all transactions.
+   *
+   * @param  {Object} params
+   * @return {Object}
+   */
+  async search (parameters) {
+    const query = this.query.select().from(this.query)
+
+    if (parameters.senderId) {
+      const senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
+
+      if (senderPublicKey) {
+        parameters.senderPublicKey = senderPublicKey
+      }
+    }
+
+    const conditions = buildFilterQuery(this.__formatConditions(parameters), {
+      exact: ['id', 'block_id', 'type', 'version', 'sender_public_key', 'recipient_id'],
+      between: ['timestamp', 'amount', 'fee'],
+      wildcard: ['vendor_field_hex']
+    })
+
+    for (let condition of conditions) {
+      query.where(this.query[condition.column][condition.method](condition.value))
+    }
+
+    // rows = await this.__mapBlocksToTransactions(transactions)
+
+    return this.__findManyWithCount(query, {
+      limit: parameters.limit,
+      offset: parameters.offset,
+      orderBy: this.__orderBy(parameters)
+    })
   }
 
   /**

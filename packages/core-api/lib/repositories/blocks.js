@@ -3,7 +3,7 @@
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
-// const buildFilterQuery = require('./utils/filter-query')
+const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class BlocksRepository extends Repository {
@@ -20,13 +20,7 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findAll (parameters = {}) {
-    const query = this.query
-      .select()
-      .from(this.query)
-
-    const orderBy = parameters.orderBy
-      ? parameters.orderBy.split(':')
-      : ['height', 'desc']
+    const query = this.query.select().from(this.query)
 
     for (let [key, value] of super.__formatConditions(parameters)) {
       query.where(this.query[key].equals(value))
@@ -35,7 +29,7 @@ class BlocksRepository extends Repository {
     return this.__findManyWithCount(query, {
       limit: parameters.limit,
       offset: parameters.offset,
-      orderBy
+      orderBy: this.__orderBy(parameters)
     })
   }
 
@@ -81,43 +75,32 @@ class BlocksRepository extends Repository {
 
   /**
    * Search all blocks.
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async search (params) {
-    // let { conditions } = this.__formatConditions(params)
-    // conditions = buildFilterQuery(conditions, {
-    //   exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
-    //   between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
-    // })
+  async search (parameters) {
+    const query = this.query.select().from(this.query)
 
-    // const orderBy = params.orderBy
-    //   ? params.orderBy.split(':')
-    //   : ['height', 'DESC']
+    const conditions = buildFilterQuery(this.__formatConditions(parameters), {
+      exact: ['id', 'version', 'previous_block', 'payload_hash', 'generator_public_key', 'block_signature'],
+      between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
+    })
 
-    // const buildQuery = query => {
-    //   query = query.from('blocks')
+    for (let condition of conditions) {
+      query.where(this.query[condition.column][condition.method](condition.value))
+    }
 
-    //   conditions.forEach(condition => {
-    //     query = query.where(condition.column, condition.operator, condition.value)
-    //   })
+    return this.__findManyWithCount(query, {
+      limit: parameters.limit,
+      offset: parameters.offset,
+      orderBy: this.__orderBy(parameters)
+    })
+  }
 
-    //   return query
-    // }
-
-    // let rows = []
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    // if (count) {
-    //   const selectQuery = buildQuery(this.query.select(...blocksTableColumns))
-    //   rows = await this.__runQuery(selectQuery, {
-    //     limit: params.limit,
-    //     offset: params.offset,
-    //     orderBy
-    //   })
-    // }
-
-    // return { rows, count }
+  __orderBy (parameters) {
+    return parameters.orderBy
+      ? parameters.orderBy.split(':')
+      : ['height', 'desc']
   }
 }
 
