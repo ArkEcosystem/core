@@ -4,6 +4,10 @@ const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 
 module.exports = class Repository {
+  constructor () {
+    this.cache = database.getCache()
+  }
+
   async __find (query) {
     return database.query.oneOrNone(query.toQuery())
   }

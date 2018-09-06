@@ -52,129 +52,113 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findAllLegacy (parameters = {}) {
-    // if (parameters.senderId) {
-    //   parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
-    // }
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
 
-    // const conditions = super.__formatConditions(parameters)
+    if (parameters.senderId) {
+      parameters.senderPublicKey = this.__publicKeyFromSenderId(parameters.senderId)
+    }
 
-    // const orderBy = this.__orderBy(parameters)
+    const conditions = super.__formatConditions(parameters)
 
-    // const buildQuery = query => {
-    //   query = query.from('transactions')
+    if (conditions.length) {
+      const first = conditions.shift()
+      let where = this.query[first[0]].equals(first[0])
 
-    //   const parts = super.__formatConditions(parameters)
-    //   if (parts.length) {
-    //     const first = parts.shift()
-    //     query = query.where(first[0], first[1])
+      for (let [key, value] of conditions) {
+        where = where.or(this.query[key].equals(value))
+      }
 
-    //     for (let [key, value] of parts) {
-    //       query = query.orWhere(key, value)
-    //     }
-    //   }
+      query.where(where)
+    }
 
-    //   return query
-    // }
+    // rows = await this.__mapBlocksToTransactions(transactions)
 
-    // let rows = []
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
-
-    // if (count) {
-    //   const selectQuery = buildQuery(this.query.select('block_id', 'serialized'))
-    //   const transactions = await this.__runQuery(selectQuery, {
-    //     limit: params.limit,
-    //     offset: params.offset,
-    //     orderBy
-    //   })
-
-    //   rows = await this.__mapBlocksToTransactions(transactions)
-    // }
-
-    // return { rows, count: rows.length }
+    return this.__findManyWithCount(query, {
+      limit: parameters.limit,
+      offset: parameters.offset,
+      orderBy: this.__orderBy(parameters)
+    })
   }
 
   /**
    * Get all transactions for the given Wallet object.
    * @param  {Wallet} wallet
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByWallet (wallet, params = {}) {
-    // const orderBy = this.__orderBy(params)
+  async findAllByWallet (wallet, parameters = {}) {
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(
+        this.query.sender_public_key.equals(wallet.publicKey)
+        .or(this.query.recipient_id.equals(wallet.address))
+      )
 
-    // const buildQuery = query => {
-    //   return query
-    //     .from('transactions')
-    //     .where('sender_public_key', wallet.publicKey)
-    //     .orWhere('recipient_id', wallet.address)
-    // }
+    for (let [key, value] of super.__formatConditions(parameters)) {
+      query.where(this.query[key].equals(value))
+    }
 
-    // let rows = []
-    // const { count } = await buildQuery(this.query.select().countDistinct('id', 'count')).first()
+    // rows = await this.__mapBlocksToTransactions(transactions)
 
-    // if (count) {
-    //   const query = buildQuery(this.query.select('block_id', 'serialized'))
-    //   const transactions = await this.__runQuery(query, {
-    //     limit: params.limit,
-    //     offset: params.offset,
-    //     orderBy
-    //   })
-
-    //   rows = await this.__mapBlocksToTransactions(transactions)
-    // }
-
-    // return { rows, count }
+    return this.__findManyWithCount(query, {
+      limit: parameters.limit,
+      offset: parameters.offset,
+      orderBy: this.__orderBy(parameters)
+    })
   }
 
   /**
    * Get all transactions for the given sender public key.
    * @param  {String} senderPublicKey
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllBySender (senderPublicKey, params = {}) {
-    return this.findAll({...{senderPublicKey}, ...params})
+  async findAllBySender (senderPublicKey, parameters = {}) {
+    return this.findAll({...{senderPublicKey}, ...parameters})
   }
 
   /**
    * Get all transactions for the given recipient address.
    * @param  {String} recipientId
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByRecipient (recipientId, params = {}) {
-    return this.findAll({...{recipientId}, ...params})
+  async findAllByRecipient (recipientId, parameters = {}) {
+    return this.findAll({...{recipientId}, ...parameters})
   }
 
   /**
    * Get all vote transactions for the given sender public key.
    * TODO rename to findAllVotesBySender or not?
    * @param  {String} senderPublicKey
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async allVotesBySender (senderPublicKey, params = {}) {
-    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...params})
+  async allVotesBySender (senderPublicKey, parameters = {}) {
+    return this.findAll({...{senderPublicKey, type: TRANSACTION_TYPES.VOTE}, ...parameters})
   }
 
   /**
    * Get all transactions for the given block.
    * @param  {Number} blockId
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByBlock (blockId, params = {}) {
-    return this.findAll({...{blockId}, ...params})
+  async findAllByBlock (blockId, parameters = {}) {
+    return this.findAll({...{blockId}, ...parameters})
   }
 
   /**
    * Get all transactions for the given type.
    * @param  {Number} type
-   * @param  {Object} params
+   * @param  {Object} parameters
    * @return {Object}
    */
-  async findAllByType (type, params = {}) {
-    return this.findAll({...{type}, ...params})
+  async findAllByType (type, parameters = {}) {
+    return this.findAll({...{type}, ...parameters})
   }
 
   /**
@@ -312,64 +296,64 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async __mapBlocksToTransactions (data) {
-    // // Array...
-    // if (Array.isArray(data)) {
-    //   // 1. get heights from cache
-    //   const missingFromCache = []
+    // Array...
+    if (Array.isArray(data)) {
+      // 1. get heights from cache
+      const missingFromCache = []
 
-    //   for (let i = 0; i < data.length; i++) {
-    //     const cachedBlock = await this.__getBlockCache(data[i].blockId)
+      for (let i = 0; i < data.length; i++) {
+        const cachedBlock = await this.__getBlockCache(data[i].blockId)
 
-    //     if (cachedBlock) {
-    //       data[i].block = cachedBlock
-    //     } else {
-    //       missingFromCache.push({
-    //         index: i,
-    //         blockId: data[i].blockId
-    //       })
-    //     }
-    //   }
+        if (cachedBlock) {
+          data[i].block = cachedBlock
+        } else {
+          missingFromCache.push({
+            index: i,
+            blockId: data[i].blockId
+          })
+        }
+      }
 
-    //   // 2. get missing heights from database
-    //   if (missingFromCache.length) {
-    //     const blocks = await this.query
-    //       .select('id', 'height')
-    //       .from('blocks')
-    //       .whereIn('id', missingFromCache.map(d => d.blockId))
-    //       .groupBy('id')
-    //       .all()
+      // 2. get missing heights from database
+      if (missingFromCache.length) {
+        const blocks = await this.query
+          .select('id', 'height')
+          .from('blocks')
+          .whereIn('id', missingFromCache.map(d => d.blockId))
+          .groupBy('id')
+          .all()
 
-    //     for (let i = 0; i < missingFromCache.length; i++) {
-    //       const missing = missingFromCache[i]
-    //       const block = blocks.find(block => (block.id === missing.blockId))
-    //       if (block) {
-    //         data[missing.index].block = block
-    //         this.__setBlockCache(block)
-    //       }
-    //     }
-    //   }
+        for (let i = 0; i < missingFromCache.length; i++) {
+          const missing = missingFromCache[i]
+          const block = blocks.find(block => (block.id === missing.blockId))
+          if (block) {
+            data[missing.index].block = block
+            this.__setBlockCache(block)
+          }
+        }
+      }
 
-    //   return data
-    // }
+      return data
+    }
 
-    // // Object...
-    // if (data) {
-    //   const cachedBlock = await this.__getBlockCache(data.blockId)
+    // Object...
+    if (data) {
+      const cachedBlock = await this.__getBlockCache(data.blockId)
 
-    //   if (cachedBlock) {
-    //     data.block = cachedBlock
-    //   } else {
-    //     data.block = await this.query
-    //       .select('id', 'height')
-    //       .from('blocks')
-    //       .where('id', data.blockId)
-    //       .first()
+      if (cachedBlock) {
+        data.block = cachedBlock
+      } else {
+        data.block = await this.query
+          .select('id', 'height')
+          .from('blocks')
+          .where('id', data.blockId)
+          .first()
 
-    //     this.__setBlockCache(data.block)
-    //   }
-    // }
+        this.__setBlockCache(data.block)
+      }
+    }
 
-    // return data
+    return data
   }
 
   /**
@@ -378,8 +362,9 @@ class TransactionsRepository extends Repository {
    * @return {Object|null}
    */
   async __getBlockCache (blockId) {
-    // const height = await this.cache.get(`heights:${blockId}`)
-    // return height ? ({ height, id: blockId }) : null
+    const height = await this.cache.get(`heights:${blockId}`)
+
+    return height ? ({ height, id: blockId }) : null
   }
 
   /**
@@ -389,7 +374,7 @@ class TransactionsRepository extends Repository {
    * @param  {Number} block.height
    */
   __setBlockCache ({ id, height }) {
-    // this.cache.set(`heights:${id}`, height)
+    this.cache.set(`heights:${id}`, height)
   }
 
   /**

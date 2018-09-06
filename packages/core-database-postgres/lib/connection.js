@@ -28,17 +28,17 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {PostgresConnection}
    */
   async make () {
-    logger.verbose('Connecting to database')
-
     if (this.db) {
       throw new Error('Database connection already initialised')
     }
+
+    logger.debug('Connecting to database')
 
     this.asyncTransaction = null
 
     try {
       await this.connect()
-      await this.__registerQuery()
+      await this.__registerQueryExecutor()
       await this.__registerCache()
       await this.__runMigrations()
       await this.__registerModels()
@@ -89,17 +89,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       logger.warn(error.message)
     }
 
-    logger.verbose('Disconnecting from database')
+    logger.debug('Disconnecting from database')
 
     return this.pgp.end()
-  }
-
-  /**
-   * Get the cache object
-   * @return {Cache}
-   */
-  getCache () {
-    return this.cache
   }
 
   /**
@@ -587,11 +579,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Register the query builder.
-   * @return {void}
+   * Get the cache object
+   * @return {Cache}
    */
-  __registerQuery () {
-    this.query = new QueryExecutor(this)
+  getCache () {
+    return this.cache
   }
 
   /**
@@ -614,6 +606,14 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     for (const [key, Value] of Object.entries(require('./models'))) {
       this.models[key.toLowerCase()] = new Value(this.pgp)
     }
+  }
+
+  /**
+   * Register the query builder.
+   * @return {void}
+   */
+  __registerQueryExecutor () {
+    this.query = new QueryExecutor(this)
   }
 
   /**
