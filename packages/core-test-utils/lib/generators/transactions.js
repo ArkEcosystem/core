@@ -27,7 +27,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
     let builder
     if (type === TRANSACTION_TYPES.TRANSFER) {
       builder = client.getBuilder().transfer()
-        .recipient(address)
+        .recipientId(address)
         .amount(amount)
         .vendorField(`Test Transaction ${i + 1}`)
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
@@ -40,7 +40,7 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
     } else if (type === TRANSACTION_TYPES.VOTE) {
       const publicKey = crypto.getKeys(config.passphrase).publicKey
       builder = client.getBuilder().vote()
-        .votesAsset([publicKey])
+        .votesAsset([`+${publicKey}`])
     } else {
       continue
     }

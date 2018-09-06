@@ -49,7 +49,7 @@ module.exports = class TransactionBuilder {
    * @return {TransactionBuilder}
    */
   fee (fee) {
-    if (fee) {
+    if (fee != null) {
       this.data.fee = fee
     }
 
