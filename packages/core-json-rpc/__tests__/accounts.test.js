@@ -1,5 +1,5 @@
 const request = require('./__support__/request')
-const phantomjs = require('phantomjs')
+const phantomjs = require('phantomjscore')
 
 require('./__support__/setup')
 

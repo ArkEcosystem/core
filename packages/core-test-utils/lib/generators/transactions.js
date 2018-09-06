@@ -1,4 +1,4 @@
-const phantom = require('phantomjs')
+const phantom = require('phantomjscore')
 const assert = require('assert')
 const { client, crypto } = require('@phantomcore/crypto')
 const { TRANSACTION_TYPES } = require('@phantomcore/crypto').constants

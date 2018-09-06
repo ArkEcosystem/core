@@ -1,5 +1,5 @@
 const bip39 = require('bip39')
-const { crypto } = require('phantomjs')
+const { crypto } = require('phantomjscore')
 
 module.exports = (quantity = 1) => {
   let wallets = []

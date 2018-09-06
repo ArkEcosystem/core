@@ -1,7 +1,7 @@
 'use strict'
 
 const generateWallets = require('../../lib/utils/generate-wallets')
-const phantomjs = require('phantomjs')
+const phantomjs = require('phantomjscore')
 
 describe('Utils - Generate Wallets', () => {
   it('should be a function', () => {
