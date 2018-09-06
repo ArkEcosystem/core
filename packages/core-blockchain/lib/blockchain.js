@@ -485,12 +485,22 @@ module.exports = class Blockchain {
    */
   getEvents () {
     return [
-      'forger.missing',
       'block.applied',
+      'block.forged',
       'block.reverted',
+      'delegate.registered',
+      'delegate.resigned',
+      'forger.failed',
+      'forger.missing',
+      'forger.started',
       'peer.added',
       'peer.removed',
+      'state:started',
+      'transaction.applied',
       'transaction.expired',
+      'transaction.forged',
+      'transaction.reverted',
+      'wallet:cold:created',
     ]
   }
 
