@@ -1,10 +1,23 @@
-module.exports = class Transaction {
+const sql = require('sql')
+
+module.exports = class Model {
   /**
    * Create a new model instance.
    * @param {Object} pgp
    */
   constructor (pgp) {
     this.pgp = pgp
+  }
+
+  /**
+   * Return the model & table definition.
+   * @return {Object}
+   */
+  query () {
+    return sql.define({
+      name: this.getTable(),
+      columns: this.getColumnSet().columns.map(column => column.name)
+    })
   }
 
   /**

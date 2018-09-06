@@ -18,7 +18,7 @@ const SPV = require('./spv')
 const Cache = require('./cache')
 
 const migrations = require('./migrations')
-const QueryBuilder = require('./builder')
+const QueryExecutor = require('./sql/query-executor')
 const repositories = require('./repositories')
 const { camelizeColumns } = require('./utils')
 
@@ -38,10 +38,11 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     try {
       await this.connect()
-      await this.__registerQueryBuilder()
+      await this.__registerQuery()
       await this.__registerCache()
       await this.__runMigrations()
-      await this.__registerRepositories()
+      await this.__registerModels()
+      await super._registerRepositories()
       await super._registerWalletManager()
 
       this.blocksInCurrentRound = await this.__getBlocksForRound()
@@ -589,8 +590,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * Register the query builder.
    * @return {void}
    */
-  __registerQueryBuilder () {
-    this.query = new QueryBuilder(this)
+  __registerQuery () {
+    this.query = new QueryExecutor(this)
   }
 
   /**
@@ -604,20 +605,15 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Register all repositories.
+   * Register all models.
    * @return {void}
    */
-  async __registerRepositories () {
-    const repositories = {
-      blocks: require('./repositories/blocks'),
-      transactions: require('./repositories/transactions')
-    }
+  async __registerModels () {
+    this.models = {}
 
-    for (const [key, Value] of Object.entries(repositories)) {
-      this[key] = new Value(this) // eslint-disable-line new-cap
+    for (const [key, Value] of Object.entries(require('./models'))) {
+      this.models[key.toLowerCase()] = new Value(this.pgp)
     }
-
-    await super._registerRepositories()
   }
 
   /**
@@ -629,11 +625,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
 
     emitter.on('wallet:cold:created', async coldWallet => {
       try {
-        const wallet = await this.query
-          .select('*')
-          .from('wallets')
-          .where('address', coldWallet.address)
-          .first()
+        const wallet = await this.db.wallets.findByAddress(coldWallet.address)
 
         if (wallet) {
           Object.keys(wallet).forEach(key => {

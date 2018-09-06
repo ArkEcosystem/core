@@ -23,7 +23,8 @@
     "@arkecosystem/crypto": "^0.1.1",
     "ioredis": "^3.2.2",
     "lodash": "^4.17.10",
-    "pg-promise": "^8.4.6"
+    "pg-promise": "^8.4.6",
+    "sql": "^0.78.0"
   },
   "publishConfig": {
     "access": "public"
