@@ -1,5 +1,5 @@
 const bip38 = require('bip38')
-const { Bignum } = require('@arkecosystem/crypto')
+const Bignum = require('../utils/bignum')
 const wif = require('wif')
 const { createHash } = require('crypto')
 const otplib = require('otplib')

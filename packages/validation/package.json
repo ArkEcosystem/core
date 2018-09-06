@@ -19,6 +19,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "bigi": "^1.4.2",
     "joi": "^13.3.0"
   },
   "publishConfig": {
