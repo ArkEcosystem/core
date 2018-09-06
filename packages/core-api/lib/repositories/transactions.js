@@ -61,13 +61,12 @@ class TransactionsRepository extends Repository {
 
     if (conditions.length) {
       const first = conditions.shift()
-      let where = this.query[first[0]].equals(first[0])
+
+      this.query[first[0]].equals(first[0])
 
       for (const [key, value] of conditions) {
-        where = where.or(this.query[key].equals(value))
+        query.or(this.query[key].equals(value))
       }
-
-      query.where(where)
     }
 
     // rows = await this.__mapBlocksToTransactions(transactions)
