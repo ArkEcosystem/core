@@ -19,8 +19,16 @@ class BlocksRepository extends Repository {
   async findAll (parameters = {}) {
     const query = this.query.select().from(this.query)
 
-    for (const [key, value] of super.__formatConditions(parameters)) {
-      query.where(this.query[key].equals(value))
+    const conditions = super.__formatConditions(parameters)
+
+    if (conditions.length) {
+      const first = conditions.shift()
+
+      query.where(this.query[0].equals(first[1]))
+
+      for (const condition of conditions) {
+        query.and(this.query[condition[0]].equals(condition[1]))
+      }
     }
 
     return this.__findManyWithCount(query, {
@@ -83,8 +91,14 @@ class BlocksRepository extends Repository {
       between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
     })
 
-    for (const condition of conditions) {
-      query.where(this.query[condition.column][condition.method](condition.value))
+    if (conditions.length) {
+      const first = conditions.shift()
+
+      query.where(this.query[first.column][first.method](first.value))
+
+      for (const condition of conditions) {
+        query.and(this.query[condition.column][condition.method](condition.value))
+      }
     }
 
     return this.__findManyWithCount(query, {
