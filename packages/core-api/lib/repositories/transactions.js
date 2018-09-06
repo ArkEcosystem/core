@@ -163,34 +163,18 @@ class TransactionsRepository extends Repository {
 
   /**
    * Get a transaction.
-   * @param  {Object} conditions
-   * @return {Object}
-   */
-  async findOne (conditions) {
-    const query = this.query
-      .select(this.query.block_id, this.query.serialized)
-      .from(this.query)
-      .where(conditions)
-
-    return this.__find(query)
-
-    // conditions = this.__formatConditions(conditions).conditions
-    // const transaction = await this.query
-    //   .select('block_id', 'serialized')
-    //   .from('transactions')
-    //   .where(conditions)
-    //   .first()
-
-    // return this.__mapBlocksToTransactions(transaction)
-  }
-
-  /**
-   * Get a transaction.
    * @param  {Number} id
    * @return {Object}
    */
   async findById (id) {
-    return this.findOne(this.query.id.equals(id))
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(this.query.id.equals(id))
+
+    // return this.__mapBlocksToTransactions(transaction)
+
+    return this.__find(query)
   }
 
   /**
@@ -200,9 +184,14 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findByTypeAndId (type, id) {
-    return this.findOne([
-      this.query.id.equals(id), this.query.type.equals(type)
-    ])
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(this.query.id.equals(id).and(this.query.type.equals(type)))
+
+    // return this.__mapBlocksToTransactions(transaction)
+
+    return this.__find(query)
   }
 
   /**
@@ -224,13 +213,14 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async findWithVendorField () {
-    // const transactions = await this.query
-    //   .select('block_id', 'serialized')
-    //   .from('transactions')
-    //   .whereNotNull('vendor_field_hex')
-    //   .all()
+    const query = this.query
+      .select(this.query.block_id, this.query.serialized)
+      .from(this.query)
+      .where(this.query.vendor_field_hex.isNotNull())
 
-    // return this.__mapBlocksToTransactions(transactions)
+    // return this.__mapBlocksToTransactions(transaction)
+
+    return this.__findMany(query)
   }
 
   /**
