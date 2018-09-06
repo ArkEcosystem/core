@@ -25,7 +25,6 @@
     "hapi": "^17.5.0",
     "hapi-pagination": "^2.0.0",
     "joi": "^13.3.0",
-    "lodash": "^4.17.10",
     "micromatch": "^3.1.10",
     "request-ip": "^2.0.2",
     "sequelize": "^4.37.8",
