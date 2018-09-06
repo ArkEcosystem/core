@@ -6,6 +6,8 @@ const database = container.resolvePlugin('database')
 module.exports = class Repository {
   constructor () {
     this.cache = database.getCache()
+    this.model = this.getModel()
+    this.query = this.model.query()
   }
 
   async __find (query) {
@@ -17,7 +19,8 @@ module.exports = class Repository {
   }
 
   async __findManyWithCount (query, { limit, offset, orderBy }) {
-    const count = await this.__estimate(query)
+    // FIX: estimate query issue with WHERE conditions
+    const count = 0 // await this.__estimate(query)
 
     query
       .order(this.query[orderBy[0]][orderBy[1]])
@@ -25,7 +28,8 @@ module.exports = class Repository {
       .limit(limit)
 
     return {
-      rows: await this.__findMany(query), count
+      rows: await this.__findMany(query),
+      count
     }
   }
 

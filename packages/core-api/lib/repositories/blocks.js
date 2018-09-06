@@ -7,11 +7,8 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class BlocksRepository extends Repository {
-  constructor () {
-    super()
-
-    this.model = database.models.block
-    this.query = this.model.query()
+  getModel () {
+    return database.models.block
   }
 
   /**
@@ -22,7 +19,7 @@ class BlocksRepository extends Repository {
   async findAll (parameters = {}) {
     const query = this.query.select().from(this.query)
 
-    for (let [key, value] of super.__formatConditions(parameters)) {
+    for (const [key, value] of super.__formatConditions(parameters)) {
       query.where(this.query[key].equals(value))
     }
 
@@ -40,7 +37,7 @@ class BlocksRepository extends Repository {
    * @return {Object}
    */
   async findAllByGenerator (generatorPublicKey, paginator) {
-    return this.findAll({...{generatorPublicKey}, ...paginator})
+    return this.findAll({...{ generatorPublicKey }, ...paginator})
   }
 
   /**
@@ -86,7 +83,7 @@ class BlocksRepository extends Repository {
       between: ['timestamp', 'height', 'number_of_transactions', 'total_amount', 'total_fee', 'reward', 'payload_length']
     })
 
-    for (let condition of conditions) {
+    for (const condition of conditions) {
       query.where(this.query[condition.column][condition.method](condition.value))
     }
 

@@ -103,7 +103,7 @@ describe('API 2.0 - Transactions', () => {
     })
   })
 
-  describe('POST /transactions/search', () => {
+  describe.skip('POST /transactions/search', () => {
     it('should POST a search for transactions with the exact specified transactionId', async () => {
       const response = await utils.request('POST', 'transactions/search', { id: transactionId })
       utils.expectSuccessful(response)

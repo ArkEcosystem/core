@@ -10,11 +10,8 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class TransactionsRepository extends Repository {
-  constructor () {
-    super()
-
-    this.model = database.models.transaction
-    this.query = this.model.query()
+  getModel () {
+    return database.models.transaction
   }
 
   /**
@@ -35,7 +32,7 @@ class TransactionsRepository extends Repository {
       parameters.senderPublicKey = senderPublicKey
     }
 
-    for (let [key, value] of super.__formatConditions(parameters)) {
+    for (const [key, value] of super.__formatConditions(parameters)) {
       query.where(this.query[key].equals(value))
     }
 
@@ -66,7 +63,7 @@ class TransactionsRepository extends Repository {
       const first = conditions.shift()
       let where = this.query[first[0]].equals(first[0])
 
-      for (let [key, value] of conditions) {
+      for (const [key, value] of conditions) {
         where = where.or(this.query[key].equals(value))
       }
 
@@ -92,14 +89,8 @@ class TransactionsRepository extends Repository {
     const query = this.query
       .select(this.query.block_id, this.query.serialized)
       .from(this.query)
-      .where(
-        this.query.sender_public_key.equals(wallet.publicKey)
-        .or(this.query.recipient_id.equals(wallet.address))
-      )
-
-    for (let [key, value] of super.__formatConditions(parameters)) {
-      query.where(this.query[key].equals(value))
-    }
+      .where(this.query.sender_public_key.equals(wallet.publicKey))
+      .or(this.query.recipient_id.equals(wallet.address))
 
     // rows = await this.__mapBlocksToTransactions(transactions)
 
@@ -267,7 +258,7 @@ class TransactionsRepository extends Repository {
       wildcard: ['vendor_field_hex']
     })
 
-    for (let condition of conditions) {
+    for (const condition of conditions) {
       query.where(this.query[condition.column][condition.method](condition.value))
     }
 

@@ -2,9 +2,9 @@
 
 const Boom = require('boom')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/votes')
+const { transactions: transactionsRepository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -16,7 +16,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transactions = await database.transactions.findAllByType(TRANSACTION_TYPES.VOTE, {
+    const transactions = await transactionsRepository.findAllByType(TRANSACTION_TYPES.VOTE, {
       ...request.query,
       ...utils.paginate(request)
     })
@@ -38,7 +38,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const transaction = await database.transactions.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id)
+    const transaction = await transactionsRepository.findByTypeAndId(TRANSACTION_TYPES.VOTE, request.params.id)
 
     if (!transaction) {
       return Boom.notFound('Vote not found')
