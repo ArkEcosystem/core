@@ -2,7 +2,6 @@
 
 const axios = require('axios')
 const container = require('@arkecosystem/core-container')
-const blockchain = container.resolvePlugin('blockchain')
 const logger = container.resolvePlugin('logger')
 const database = require('./database')
 const emitter = container.resolvePlugin('event-emitter')
@@ -16,7 +15,7 @@ class WebhookManager {
   async setUp (config) {
     this.config = config
 
-    for (const event of blockchain.getEvents()) {
+    for (const event of container.resolvePlugin('blockchain').getEvents()) {
       emitter.on(event, async payload => {
         const webhooks = await database.findByEvent(event)
 
