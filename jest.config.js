@@ -24,7 +24,7 @@ module.exports = {
     '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
     '**/packages/core-webhooks/**/__tests__/**/*.test.js',
     '**/packages/crypto/**/__tests__/**/*.test.js',
-    '**/packages/validation/**/__tests__/**/*.test.js',
+    '**/packages/validation/**/__tests__/**/*.test.js'
   ],
   moduleFileExtensions: [
     'js',

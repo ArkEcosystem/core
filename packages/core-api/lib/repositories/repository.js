@@ -10,39 +10,41 @@ module.exports = class Repository {
     this.query = this.model.query()
   }
 
-  async __find (query) {
+  async _find (query) {
     return database.query.oneOrNone(query.toQuery())
   }
 
-  async __findMany (query) {
+  async _findMany (query) {
     return database.query.manyOrNone(query.toQuery())
   }
 
-  async __findManyWithCount (query, { limit, offset, orderBy }) {
-    // FIX: estimate query issue with WHERE conditions
-    const count = await this.__estimate(query)
+  async _findManyWithCount (selectQuery, countQuery, { limit, offset, orderBy }) {
+    const { count } = await this._find(countQuery)
 
-    query
+    selectQuery
       .order(this.query[orderBy[0]][orderBy[1]])
       .offset(offset)
       .limit(limit)
 
     return {
-      rows: await this.__findMany(query),
-      count
+      rows: await this._findMany(selectQuery),
+      count: +count
     }
   }
 
-  async __estimate (query) {
-    const { countEstimate } = await database.query.one(
-      `SELECT count_estimate ('${query.toQuery().text}');`,
-      query.toQuery().values
-    )
-
-    return countEstimate
+  _makeCountQuery () {
+    return this.query
+      .select('count(*) AS count')
+      .from(this.query)
   }
 
-  __formatConditions (parameters) {
+  _makeEstimateQuery () {
+    return this.query
+      .select('count(*) AS count')
+      .from(`${this.model.getTable()} TABLESAMPLE SYSTEM (100)`)
+  }
+
+  _formatConditions (parameters) {
     const columns = database.models.transaction.getColumnSet().columns.map(column => ({
       name: column.name,
       prop: column.prop || column.name
