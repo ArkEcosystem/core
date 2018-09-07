@@ -11,7 +11,9 @@ module.exports = async (_, args) => {
   const { orderBy, filter, ...params } = args
 
   const order = formatOrderBy(orderBy, 'height:DESC')
-  const result = await database.wallets.findAll({ ...filter, orderBy: order, ...params })
+  const result = filter && filter.vote
+    ? await database.wallets.findAllByVote(filter.vote, { orderBy: order, ...params })
+    : await database.wallets.findAll({ orderBy: order, ...params })
 
   return result ? result.rows : []
 }
