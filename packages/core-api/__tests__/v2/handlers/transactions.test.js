@@ -122,8 +122,7 @@ describe('API 2.0 - Transactions', () => {
       utils.expectCollection(response)
 
       expect(response.data.data).toHaveLength(100)
-      // FIX: estimate query issue with WHERE conditions
-      // expect(response.data.meta.totalCount).toBe(153)
+      expect(response.data.meta.totalCount).toBe(153)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
@@ -150,8 +149,7 @@ describe('API 2.0 - Transactions', () => {
       utils.expectCollection(response)
 
       expect(response.data.data).toHaveLength(100)
-      // FIX: estimate query issue with WHERE conditions
-      // expect(response.data.meta.totalCount).toBe(153)
+      expect(response.data.meta.totalCount).toBe(153)
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
