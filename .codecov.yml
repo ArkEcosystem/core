@@ -1,0 +1,2 @@
+ignore:
+  - "packages/core-tester-cli/**/*"
