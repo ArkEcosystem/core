@@ -6,6 +6,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const { TransactionGuard } = require('@arkecosystem/core-transaction-pool')
 
 const container = require('@arkecosystem/core-container')
+const blockchain = container.resolvePlugin('blockchain')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const transactionPool = container.resolvePlugin('transactionPool')
@@ -215,7 +216,7 @@ exports.fees = {
    */
   async handler (request, h) {
     return {
-      data: config.getConstants().fees
+      data: config.getConstants(blockchain.getLastBlock().data.height).fees
     }
   }
 }
