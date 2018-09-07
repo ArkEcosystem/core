@@ -25,13 +25,13 @@ module.exports = {
     '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
     '**/packages/core-json-rpc/**/__tests__/**/*.test.js',
     '**/packages/crypto/**/__tests__/**/*.test.js',
-    '**/packages/core-api/**/__tests__/**/*.test.js'
+    '**/packages/core-api/**/__tests__/**/*.test.js',
+    '**/packages/core-graphql/**/__tests__/**/*.test.js'
 
     /* These packages have failing tests */
 
     /* These packages don't have any test yet */
 
-    // '**/packages/core-graphql/**/__tests__/**/*.test.js',
     // '**/packages/core/**/__tests__/**/*.test.js',
 
     /* These packages have very long  timeouts or don't end properly */
