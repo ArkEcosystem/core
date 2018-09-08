@@ -99,7 +99,7 @@ class Database {
    */
   async destroy (id) {
     try {
-      const webhook = this.model.findById(id)
+      const webhook = await this.model.findById(id)
 
       webhook.destroy()
 
