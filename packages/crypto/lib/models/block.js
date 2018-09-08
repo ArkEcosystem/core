@@ -68,20 +68,6 @@ module.exports = class Block {
    * @param {Object} data - The data of the block
    */
   constructor (data) {
-    // TODO: remove this once we fixed pg mappings
-    if (data.hasOwnProperty('number_of_transactions')) {
-      data.previousBlock = data.previous_block
-      data.numberOfTransactions = data.number_of_transactions
-      data.totalAmount = data.total_amount
-      data.totalFee = data.total_fee
-      data.payloadLength = data.payload_length
-      data.payloadHash = data.payload_hash
-      data.generatorPublicKey = data.generator_public_key
-      data.blockSignature = data.block_signature
-      data.createdAt = data.created_at
-      data.updatedAt = data.updated_at
-    }
-
     if (!data.transactions) {
       data.transactions = []
     }

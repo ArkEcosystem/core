@@ -18,7 +18,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findManyById (ids) {
-    return this.db.many(sql.findManyById, [ids.join(',')])
+    return this.db.many(sql.findManyById, [ids])
   }
 
   /**
@@ -45,7 +45,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async latestByBlocks (ids) {
-    return this.db.manyOrNone(sql.latestByBlocks, [ids.join(',')])
+    return this.db.manyOrNone(sql.latestByBlocks, [ids])
   }
 
   /**
@@ -54,7 +54,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async forged (ids) {
-    return this.db.manyOrNone(sql.forged, [ids.join(',')])
+    return this.db.manyOrNone(sql.forged, [ids])
   }
 
   /**

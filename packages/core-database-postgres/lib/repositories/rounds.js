@@ -37,7 +37,7 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Promise}
    */
   async placeholdersWithout (amount, delegates) {
-    return this.db.many(sql.placeholdersWithout, [amount, delegates.join(',')])
+    return this.db.many(sql.placeholdersWithout, [amount, delegates])
   }
 
   /**

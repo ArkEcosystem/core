@@ -3,6 +3,6 @@ SELECT MAX("height") AS "height",
        "previous_block",
        "timestamp"
 FROM blocks
-WHERE "id" IN ($1)
+WHERE "id" IN ($1:list)
 GROUP BY "id"
 ORDER BY "height" DESC

@@ -13,10 +13,10 @@ exports.plugin = {
   async register (container, options) {
     container.resolvePlugin('logger').info('Establishing Database Connection')
 
-    const sequelize = new PostgresConnection(options)
+    const postgres = new PostgresConnection(options)
 
     const databaseManager = container.resolvePlugin('databaseManager')
-    await databaseManager.makeConnection(sequelize)
+    await databaseManager.makeConnection(postgres)
 
     return databaseManager.connection()
   },

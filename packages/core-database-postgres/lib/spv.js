@@ -142,7 +142,7 @@ module.exports = class SPV {
     }
 
     // Map public keys
-    const publicKeys = transactions.map(transaction => transaction.senderPublicKey).join(',')
+    const publicKeys = transactions.map(transaction => transaction.senderPublicKey)
 
     // Forged Blocks...
     const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, [publicKeys])
@@ -157,7 +157,7 @@ module.exports = class SPV {
 
       const wallet = this.walletManager.findByPublicKey(delegates[i].publicKey)
       wallet.votebalance = delegates[i].votebalance
-      wallet.missedBlocks = parseInt(delegates[i].missed_blocks)
+      wallet.missedBlocks = parseInt(delegates[i].missedBlocks)
 
       if (forgedBlock) {
         wallet.forgedFees = +forgedBlock.totalFees
