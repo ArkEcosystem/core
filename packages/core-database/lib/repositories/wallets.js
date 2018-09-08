@@ -101,15 +101,15 @@ module.exports = class WalletsRepository {
    * @param  {Object} [params.balance] - Search by balance
    * @param  {Number} [params.balance.from] - Search by balance (minimum)
    * @param  {Number} [params.balance.to] - Search by balance (maximum)
-   * @param  {Object} [params.votebalance] - Search by votebalance
-   * @param  {Number} [params.votebalance.from] - Search by votebalance (minimum)
-   * @param  {Number} [params.votebalance.to] - Search by votebalance (maximum)
+   * @param  {Object} [params.voteBalance] - Search by voteBalance
+   * @param  {Number} [params.voteBalance.from] - Search by voteBalance (minimum)
+   * @param  {Number} [params.voteBalance.to] - Search by voteBalance (maximum)
    * @return {Object}
    */
   search (params) {
     const wallets = filterRows(this.all(), params, {
       exact: ['address', 'publicKey', 'secondPublicKey', 'username', 'vote'],
-      between: ['balance', 'votebalance']
+      between: ['balance', 'voteBalance']
     })
 
     return {

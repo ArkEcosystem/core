@@ -57,7 +57,7 @@ function generateFullWallets () {
       vote: `vote-${address}`,
       username: `username-${address}`,
       balance: 100,
-      votebalance: 200
+      voteBalance: 200
     }
   })
 }
@@ -362,19 +362,19 @@ describe('Wallet Repository', () => {
       }, 36, 36)
     })
 
-    it('should search wallets by the specified closed interval (included) of votebalance', () => {
+    it('should search wallets by the specified closed interval (included) of voteBalance', () => {
       const wallets = generateFullWallets()
       wallets.forEach((wallet, i) => {
         if (i < 17) {
-          wallet.votebalance = 12
+          wallet.voteBalance = 12
         } else if (i < 29) {
-          wallet.votebalance = 17
+          wallet.voteBalance = 17
         }
       })
       walletManager.index(wallets)
 
       expectSearch({
-        votebalance: {
+        voteBalance: {
           from: 11,
           to: 18
         }

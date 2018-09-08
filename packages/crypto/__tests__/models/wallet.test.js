@@ -27,7 +27,7 @@ describe('Models - Wallet', () => {
       balance: 109390000000,
       vote: null,
       username: null,
-      votebalance: 0,
+      voteBalance: 0,
       multisignature: null,
       dirty: false,
       producedBlocks: 0,

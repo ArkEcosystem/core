@@ -10,7 +10,7 @@ beforeEach(() => {
   delegate = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   Object.entries({
     balance: 109390000000,
-    votebalance: 0,
+    voteBalance: 0,
     producedBlocks: 0,
     missedBlocks: 0
   }).forEach((key, value) => (delegate[key] = value))
@@ -23,7 +23,7 @@ describe('Delegate Calculator', () => {
     })
 
     it.skip('should calculate correctly', () => {
-      delegate.votebalance = 100000 * Math.pow(10, 8)
+      delegate.voteBalance = 100000 * Math.pow(10, 8)
       container.resolvePlugin = jest.fn(plugin => {
         if (plugin === 'blockchain') {
           return {

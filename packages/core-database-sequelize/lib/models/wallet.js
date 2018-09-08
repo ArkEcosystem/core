@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     vote: DataTypes.STRING(66),
     username: DataTypes.STRING(64),
     balance: DataTypes.BIGINT,
-    votebalance: {
+    voteBalance: {
         type: DataTypes.BIGINT,
         field: 'vote_balance'
     },
