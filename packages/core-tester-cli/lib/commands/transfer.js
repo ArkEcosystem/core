@@ -1,13 +1,13 @@
 'use strict'
 
-const ark = require('arkjs')
+const { client, crypto } = require('@arkecosystem/crypto')
 const config = require('../config')
 const delay = require('delay')
 const unique = require('lodash/uniq')
 const utils = require('../utils')
 const logger = utils.logger
 
-const primaryAddress = ark.crypto.getAddress(ark.crypto.getKeys(config.passphrase).publicKey)
+const primaryAddress = crypto.getAddress(crypto.getKeys(config.passphrase).publicKey)
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options, isSubsequentRun) => {
   let successfulTest = true
 
@@ -99,6 +99,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     logger.info(`Sender starting balance: ${walletBalance}`)
   }
 
+  const builder = client.getBuilder().transfer()
   const transactions = []
   let totalDeductions = 0
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
@@ -109,15 +110,16 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   for (const id in wallets) {
     const wallet = wallets[id]
-    const transaction = ark.transaction.createTransaction(
-      options.recipient || wallet.address,
-      transactionAmount,
-      `TID: ${id}`,
-      config.passphrase,
-      wallet.secondPassphrase || config.secondPassphrase,
-      config.publicKeyHash,
-      utils.parseFee(options.transferFee)
-    )
+    const transaction = builder
+      .fee(utils.parseFee(options.transferFee))
+      .recipientId(options.recipient || wallet.address)
+      .network(config.publicKeyHash)
+      .amount(transactionAmount)
+      .vendorField(`TID: ${id}`)
+      .sign(config.passphrase)
+      .secondSign(wallet.secondPassphrase || config.secondPassphrase)
+      .build()
+
     transactions.push(transaction)
     totalDeductions += transactionAmount + transaction.fee
 

@@ -21,17 +21,17 @@ class WebhookManager {
 
         for (const webhook of this.getMatchingWebhooks(webhooks, payload)) {
           try {
-            const response = await axios.post(webhook.data.webhook.target, {
+            const response = await axios.post(webhook.target, {
               timestamp: +new Date(),
-              data: webhook.data.payload,
-              event: webhook.data.webhook.event
+              data: payload,
+              event: webhook.event
             }, {
               headers: {
-                Authorization: webhook.data.webhook.token
+                Authorization: webhook.token
               }
             })
 
-            logger.debug(`Webhooks Job ${webhook.id} completed! Event [${webhook.data.webhook.event}] has been transmitted to [${webhook.data.webhook.target}] with a status of [${response.status}].`)
+            logger.debug(`Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${response.status}].`)
           } catch (error) {
             logger.error(`Webhooks Job ${webhook.id} failed: ${error.message}`)
           }
