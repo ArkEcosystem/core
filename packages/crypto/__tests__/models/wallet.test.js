@@ -86,7 +86,7 @@ describe('Models - Wallet', () => {
     })
 
     it('should not apply incorrect block', () => {
-      block.generatorPublicKey = 'wrong'
+      block.generatorPublicKey = 'a'.repeat(66)
       const originalWallet = Object.assign({}, testWallet)
       testWallet.applyBlock(block)
       expect(testWallet.balance).toBe(originalWallet.balance)

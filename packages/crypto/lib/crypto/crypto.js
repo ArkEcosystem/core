@@ -308,6 +308,11 @@ class Crypto {
    * @return {String}
    */
   getAddress (publicKey, networkVersion) {
+    var pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
+    if (!pubKeyRegex.test(publicKey)) {
+      throw new Error(`publicKey '${publicKey}' is invalid`)
+    }
+
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }
