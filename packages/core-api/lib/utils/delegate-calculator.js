@@ -14,7 +14,7 @@ exports.calculateApproval = (delegate) => {
   const constants = config.getConstants(lastBlock.data.height)
   const totalSupply = config.genesisBlock.totalAmount + (lastBlock.data.height - constants.height) * constants.reward
 
-  return +((delegate.votebalance / totalSupply) * 100).toFixed(2)
+  return +((delegate.voteBalance / totalSupply) * 100).toFixed(2)
 }
 
 /**
