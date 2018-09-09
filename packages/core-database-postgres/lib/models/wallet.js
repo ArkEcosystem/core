@@ -31,7 +31,7 @@ module.exports = class WalletModel extends Model {
       name: 'balance'
     }, {
       name: 'vote_balance',
-      prop: 'votebalance',
+      prop: 'voteBalance',
       def: null
     }, {
       name: 'produced_blocks',
