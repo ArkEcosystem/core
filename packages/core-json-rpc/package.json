@@ -21,7 +21,6 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
-    "arkjs": "https://github.com/ArkEcosystem/ark-js#master",
     "axios": "^0.18.0",
     "bigi": "^1.4.2",
     "bip38": "^2.0.2",

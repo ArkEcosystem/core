@@ -1,6 +1,6 @@
 'use strict'
 
-const ark = require('arkjs')
+const { client } = require('@arkecosystem/crypto')
 const delay = require('delay')
 const utils = require('../utils')
 const config = require('../config')
@@ -21,6 +21,7 @@ module.exports = async (options) => {
     logger.info(`Starting delegate count: ${delegates.length}`)
   }
 
+  const builder = client.getBuilder().delegateRegistration()
   const transactions = []
   const usedDelegateNames = delegates.map(delegate => delegate.username)
   wallets.forEach((wallet, i) => {
@@ -33,12 +34,12 @@ module.exports = async (options) => {
     wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
     usedDelegateNames.push(wallet.username)
 
-    const transaction = ark.delegate.createDelegate(
-      wallet.passphrase,
-      wallet.username,
-      config.secondPassphrase,
-      utils.parseFee(options.delegateFee)
-    )
+    const transaction = builder
+      .fee(utils.parseFee(options.delegateFee))
+      .usernameAsset(wallet.username)
+      .sign(wallet.passphrase)
+      .secondSign(config.secondPassphrase)
+      .build()
 
     transactions.push(transaction)
 
