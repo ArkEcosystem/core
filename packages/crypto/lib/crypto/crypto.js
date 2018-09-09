@@ -47,7 +47,7 @@ class Crypto {
 
         bb.flip()
 
-        assetBytes = new Uint8Array(bb.toArrayBuffer()).length
+        assetBytes = new Uint8Array(bb.toArrayBuffer())
         assetSize = assetBytes.length
         break
       }
