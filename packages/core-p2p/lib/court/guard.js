@@ -185,18 +185,6 @@ class Guard {
       return this.__determinePunishment(peer, offences.BLACKLISTED)
     }
 
-    if (!this.isValidVersion(peer)) {
-      return this.__determinePunishment(peer, offences.INVALID_VERSION)
-    }
-
-    // NOTE: Suspending this peer only means that we no longer
-    // will download blocks from him but he can still download blocks from us.
-    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
-
-    if (heightDifference >= 153) {
-      return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
-    }
-
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
     if (peer.status !== 200) {
@@ -209,6 +197,18 @@ class Guard {
 
     if (peer.delay > 2000) {
       return this.__determinePunishment(peer, offences.HIGH_LATENCY)
+    }
+
+    if (!this.isValidVersion(peer)) {
+      return this.__determinePunishment(peer, offences.INVALID_VERSION)
+    }
+
+    // NOTE: Suspending this peer only means that we no longer
+    // will download blocks from him but he can still download blocks from us.
+    const heightDifference = Math.abs(this.monitor.getNetworkHeight() - peer.state.height)
+
+    if (heightDifference >= 153) {
+      return this.__determinePunishment(peer, offences.INVALID_HEIGHT)
     }
 
     return this.__determinePunishment(peer, offences.UNKNOWN)
