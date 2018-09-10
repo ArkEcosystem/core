@@ -519,7 +519,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getForgedTransactionsIds (ids) {
-    if (!ids) {
+    if (!ids.length) {
       return []
     }
 
