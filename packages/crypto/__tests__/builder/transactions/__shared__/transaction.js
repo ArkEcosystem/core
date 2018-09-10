@@ -109,11 +109,8 @@ module.exports = () => {
 
   describe('sign', () => {
     it('signs this transaction with the keys of the passphrase', () => {
-      let keys
-      crypto.getKeys = jest.fn(pass => {
-        keys = { publicKey: `${pass} public key` }
-        return keys
-      })
+      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       const signingObject = builder.__getSigningObject()
 
@@ -124,10 +121,11 @@ module.exports = () => {
     })
 
     it('establishes the public key of the sender', () => {
-      crypto.getKeys = jest.fn(pass => ({ publicKey: `${pass} public key` }))
+      let keys = { publicKey: '02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af' }
+      crypto.getKeys = jest.fn(() => keys)
       crypto.sign = jest.fn()
       builder.sign('my real pass')
-      expect(builder.data.senderPublicKey).toBe('my real pass public key')
+      expect(builder.data.senderPublicKey).toBe(keys.publicKey)
     })
   })
 

@@ -45,7 +45,7 @@ describe('Handler', () => {
     })
 
     it('should be falsy', () => {
-      transaction.senderPublicKey = 'p'.repeat(66)
+      transaction.senderPublicKey = 'a'.repeat(66)
 
       expect(handler.canApply(wallet, transaction)).toBeFalsy()
     })
@@ -70,7 +70,7 @@ describe('Handler', () => {
     it('should not be ok', () => {
       handler.apply = jest.fn()
 
-      transaction.senderPublicKey = 'p'.repeat(66)
+      transaction.senderPublicKey = 'a'.repeat(66)
 
       const initialBalance = 1000 * ARKTOSHI
       wallet.balance = initialBalance
@@ -100,7 +100,7 @@ describe('Handler', () => {
     it('should not be ok', () => {
       handler.revert = jest.fn()
 
-      transaction.senderPublicKey = 'p'.repeat(66)
+      transaction.senderPublicKey = 'a'.repeat(66)
 
       const initialBalance = 1000 * ARKTOSHI
       wallet.balance = initialBalance
