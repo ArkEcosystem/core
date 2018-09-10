@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS ${schema~}.wallets (
     "produced_blocks" BIGINT,
     "missed_blocks" BIGINT,
     "created_at" timestamptz DEFAULT now(),
-    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("address")
 );
 

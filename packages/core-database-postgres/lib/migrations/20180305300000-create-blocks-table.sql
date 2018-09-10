@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS ${schema~}.blocks (
     "generator_public_key" VARCHAR(66),
     "block_signature" VARCHAR(256),
     "created_at" timestamptz DEFAULT now(),
-    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );
 

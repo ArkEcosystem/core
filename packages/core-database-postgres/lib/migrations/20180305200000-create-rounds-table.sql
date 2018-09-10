@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS ${schema~}.rounds (
     "balance" BIGINT,
     "round" BIGINT,
     "created_at" timestamptz DEFAULT now(),
-    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );
 

@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS ${schema~}.transactions (
     "fee" BIGINT,
     "serialized" bytea,
     "created_at" timestamptz DEFAULT now(),
-    "updated_at" timestamptz DEFAULT now(),
     PRIMARY KEY ("id")
 );
 
