@@ -130,7 +130,7 @@ exports.common = {
     const database = container.resolvePlugin('database')
     const blockchain = container.resolvePlugin('blockchain')
 
-    const ids = request.payload.blocks.slice(0, 9).filter(id => id.match(/^\d+$/))
+    const ids = request.query.blocks.split(',').slice(0, 9).filter(id => id.match(/^\d+$/))
 
     const commonBlock = await database.getCommonBlock(ids)
 
@@ -142,6 +142,6 @@ exports.common = {
     }
   },
   options: {
-    validate: schema.index
+    validate: schema.common
   }
 }
