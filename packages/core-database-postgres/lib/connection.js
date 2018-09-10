@@ -519,6 +519,10 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @return {Array}
    */
   async getForgedTransactionsIds (ids) {
+    if (!ids) {
+      return []
+    }
+
     const transactions = await this.db.transactions.forged(ids)
 
     return transactions.map(transaction => transaction.id)

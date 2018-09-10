@@ -5,11 +5,11 @@ const { rounds: sql } = require('../queries')
 module.exports = class RoundsRepository extends Repository {
   /**
    * Find a round by its ID.
-   * @param  {Number} id
+   * @param  {Number} round
    * @return {Promise}
    */
-  async findById (id) {
-    return this.db.manyOrNone(sql.find, [id])
+  async findById (round) {
+    return this.db.manyOrNone(sql.find, { round })
   }
 
   /**
@@ -22,31 +22,31 @@ module.exports = class RoundsRepository extends Repository {
 
   /**
    * Get all of the delegate placeholders for the current round.
-   * @param  {Number} amount
+   * @param  {Number} limit
    * @return {Promise}
    */
-  async placeholders (amount) {
-    return this.db.many(sql.placeholders, [amount])
+  async placeholders (limit) {
+    return this.db.many(sql.placeholders, { limit })
   }
 
   /**
    * Get all of the delegate placeholders for the current round. This excludes
    * already selected delegates from the initial pick & choose.
-   * @param  {Number} amount
-   * @param  {Array} delegates
+   * @param  {Number} limit
+   * @param  {Array} publicKeys
    * @return {Promise}
    */
-  async placeholdersWithout (amount, delegates) {
-    return this.db.many(sql.placeholdersWithout, [amount, delegates])
+  async placeholdersWithout (limit, publicKeys) {
+    return this.db.many(sql.placeholdersWithout, { limit, publicKeys })
   }
 
   /**
    * Delete the round from the database.
-   * @param  {Number} id
+   * @param  {Number} round
    * @return {Promise}
    */
-  async delete (id) {
-    return this.db.none(sql.delete, [id])
+  async delete (round) {
+    return this.db.none(sql.delete, { round })
   }
 
   /**

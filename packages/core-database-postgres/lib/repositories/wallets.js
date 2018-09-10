@@ -17,7 +17,7 @@ module.exports = class WalletsRepository extends Repository {
    * @return {Promise}
    */
   async findByAddress (address) {
-    return this.db.oneOrNone(sql.findByAddress, [address])
+    return this.db.oneOrNone(sql.findByAddress, { address })
   }
 
   /**

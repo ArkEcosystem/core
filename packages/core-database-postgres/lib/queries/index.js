@@ -43,7 +43,6 @@ module.exports = {
   },
   wallets: {
     all: loadQueryFile(__dirname, './wallets/all.sql'),
-    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql'),
-    truncate: loadQueryFile(__dirname, './wallets/truncate.sql')
+    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql')
   }
 }

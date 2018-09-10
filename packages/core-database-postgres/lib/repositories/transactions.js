@@ -9,7 +9,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findById (id) {
-    return this.db.one(sql.findById, [id])
+    return this.db.one(sql.findById, { id })
   }
 
   /**
@@ -18,7 +18,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findManyById (ids) {
-    return this.db.many(sql.findManyById, [ids])
+    return this.db.many(sql.findManyById, { ids })
   }
 
   /**
@@ -27,7 +27,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findByBlock (id) {
-    return this.db.manyOrNone(sql.findByBlock, [id])
+    return this.db.manyOrNone(sql.findByBlock, { id })
   }
 
   /**
@@ -36,7 +36,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async latestByBlock (id) {
-    return this.db.manyOrNone(sql.latestByBlock, [id])
+    return this.db.manyOrNone(sql.latestByBlock, { id })
   }
 
   /**
@@ -45,7 +45,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async latestByBlocks (ids) {
-    return this.db.manyOrNone(sql.latestByBlocks, [ids])
+    return this.db.manyOrNone(sql.latestByBlocks, { ids })
   }
 
   /**
@@ -54,7 +54,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async forged (ids) {
-    return this.db.manyOrNone(sql.forged, [ids])
+    return this.db.manyOrNone(sql.forged, { ids })
   }
 
   /**
@@ -71,7 +71,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async deleteByBlock (id) {
-    return this.db.none(sql.deleteByBlock, [id])
+    return this.db.none(sql.deleteByBlock, { id })
   }
 
   /**

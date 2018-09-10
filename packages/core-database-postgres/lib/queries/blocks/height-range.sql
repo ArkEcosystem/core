@@ -1,4 +1,4 @@
 SELECT *
 FROM blocks
-WHERE height BETWEEN $1 AND $2
+WHERE height BETWEEN ${start} AND ${end}
 ORDER BY height ASC

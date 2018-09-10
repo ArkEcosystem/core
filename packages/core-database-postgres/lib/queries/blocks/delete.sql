@@ -1,3 +1,3 @@
 DELETE
 FROM blocks
-WHERE id = $1
+WHERE id = ${id}

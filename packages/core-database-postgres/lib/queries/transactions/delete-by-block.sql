@@ -1,3 +1,3 @@
 DELETE
 FROM transactions
-WHERE block_id = $1
+WHERE block_id = ${id}

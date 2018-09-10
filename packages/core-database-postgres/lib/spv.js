@@ -88,7 +88,9 @@ module.exports = class SPV {
    * @return {void}
    */
   async __buildLastForgedBlocks () {
-    const transactions = await this.query.many(queries.spv.lastForgedBlocks, [this.activeDelegates])
+    const transactions = await this.query.many(queries.spv.lastForgedBlocks, {
+      limit: this.activeDelegates
+    })
 
     for (const transaction of transactions) {
       const wallet = this.walletManager.findByPublicKey(transaction.generatorPublicKey)
@@ -145,10 +147,10 @@ module.exports = class SPV {
     const publicKeys = transactions.map(transaction => transaction.senderPublicKey)
 
     // Forged Blocks...
-    const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, [publicKeys])
+    const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, { publicKeys })
 
     // Ranks...
-    const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks, [publicKeys])
+    const delegates = await this.query.manyOrNone(queries.spv.delegatesRanks, { publicKeys })
 
     for (let i = 0; i < delegates.length; i++) {
       const forgedBlock = forgedBlocks.filter(block => {

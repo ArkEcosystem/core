@@ -1,3 +1,3 @@
 SELECT *
 FROM transactions
-WHERE id = $1
+WHERE id = ${id}
