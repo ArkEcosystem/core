@@ -47,7 +47,7 @@ class Crypto {
 
         bb.flip()
 
-        assetBytes = new Uint8Array(bb.toArrayBuffer()).length
+        assetBytes = new Uint8Array(bb.toArrayBuffer())
         assetSize = assetBytes.length
         break
       }
@@ -237,7 +237,7 @@ class Crypto {
   /**
    * Verify transaction on the network.
    * @param  {Transaction}        transaction
-   * @param  {(Number|undefined)} network
+   * @param  {(Object|undefined)} network
    * @return {Boolean}
    */
   verify (transaction, network) {
@@ -263,7 +263,7 @@ class Crypto {
    * Verify second signature for transaction.
    * @param  {Transaction}        transaction
    * @param  {String}             publicKey
-   * @param  {(Number|undefined)} networkVersion
+   * @param  {(Object|undefined)} network
    * @return {Boolean}
    */
   verifySecondSignature (transaction, publicKey, network) {
@@ -271,14 +271,20 @@ class Crypto {
       network = configManager.config
     }
 
+    let hash
     let secondSignature
     if (transaction.version && transaction.version !== 1) {
+      hash = this.getHash(transaction)
       secondSignature = transaction.secondSignature
     } else {
+      hash = this.getHash(transaction, false, true)
       secondSignature = transaction.signSignature
     }
 
-    const hash = this.getHash(transaction, false, true)
+    if (!secondSignature) {
+      return false
+    }
+
     const secondSignatureBuffer = Buffer.from(secondSignature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
     const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
@@ -308,6 +314,11 @@ class Crypto {
    * @return {String}
    */
   getAddress (publicKey, networkVersion) {
+    var pubKeyRegex = /^[0-9A-Fa-f]{66}$/;
+    if (!pubKeyRegex.test(publicKey)) {
+      throw new Error(`publicKey '${publicKey}' is invalid`)
+    }
+
     if (!networkVersion) {
       networkVersion = configManager.get('pubKeyHash')
     }
