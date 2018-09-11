@@ -5,10 +5,9 @@ expect.extend({ toBeMinimalTransactionFields })
 
 const { crypto, models } = require('@arkecosystem/crypto')
 const { Transaction } = models
-const SPV = require('../../lib/spv')
-
 const app = require('../__support__/setup')
 const createConnection = require('../__support__/utils/create-connection')
+let SPV
 
 let genesisBlock
 let genesisTransaction
@@ -22,6 +21,7 @@ const getWallet = address => {
 
 beforeAll(async () => {
   await app.setUp()
+  SPV = require('../../lib/spv')
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
