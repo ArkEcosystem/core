@@ -37,7 +37,7 @@ module.exports = class WalletsRepository extends Repository {
    * Get the model related to this repository.
    * @return {Object}
    */
-  get model () {
+  getModel () {
     return new Wallet(this.db.$config.pgp)
   }
 }

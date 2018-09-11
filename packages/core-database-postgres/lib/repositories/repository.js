@@ -5,6 +5,7 @@ module.exports = class Repository {
    */
   constructor (db) {
     this.db = db
+    this.model = this.getModel()
   }
 
   /**
@@ -39,6 +40,14 @@ module.exports = class Repository {
    */
   async update (item) {
     return this.db.none(this.__updateQuery(item))
+  }
+
+  /**
+   * Get the model related to this repository.
+   * @return {Object}
+   */
+  getModel () {
+    throw new Error('Method [getModel] not implemented!')
   }
 
   /**
