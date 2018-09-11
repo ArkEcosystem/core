@@ -83,7 +83,7 @@ module.exports = class WalletManager {
 
     this.index(delegates)
   }
-  
+
   /**
    * Remove non-delegate wallets that have zero (0) balance from memory.
    * @return {void}
