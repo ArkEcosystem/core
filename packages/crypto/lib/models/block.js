@@ -20,11 +20,6 @@ const toBytesHex = (buffer) => {
   */
 const applyV1Fix = (data) => {
   // START Fix for v1 api
-
-  data.totalAmount = Bignum.from(data.totalAmount)
-  data.totalFee = Bignum.from(data.totalFee)
-  data.reward = Bignum.from(data.reward)
-
   data.previousBlockHex = data.previousBlock ? toBytesHex(new Bignum(data.previousBlock).toBuffer()) : '0000000000000000'
   data.idHex = toBytesHex(new Bignum(data.id).toBuffer())
   // END Fix for v1 api
@@ -430,6 +425,11 @@ module.exports = class Block {
    */
   static serialize (block, includeSignature = true) {
     applyV1Fix(block)
+
+    block.totalAmount = Bignum.from(block.totalAmount)
+    block.totalFee = Bignum.from(block.totalFee)
+    block.reward = Bignum.from(block.reward)
+
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
