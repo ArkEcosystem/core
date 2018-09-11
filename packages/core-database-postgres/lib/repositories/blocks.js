@@ -87,6 +87,6 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Object}
    */
   getModel () {
-    return new Block(this.db.$config.pgp)
+    return new Block(this.pgp)
   }
 }

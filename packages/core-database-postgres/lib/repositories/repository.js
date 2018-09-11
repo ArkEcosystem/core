@@ -2,9 +2,11 @@ module.exports = class Repository {
   /**
    * Create a new repository instance.
    * @param  {Object} db
+   * @param  {Object} pgp
    */
-  constructor (db) {
+  constructor (db, pgp) {
     this.db = db
+    this.pgp = pgp
     this.model = this.getModel()
   }
 
@@ -66,13 +68,5 @@ module.exports = class Repository {
    */
   __updateQuery (data) {
     return this.pgp.helpers.update(data, this.model.getColumnSet())
-  }
-
-  /**
-   * Get the PGP instance of the database connection.
-   * @return {Object}
-   */
-  get pgp () {
-    return this.db.$config.pgp
   }
 }

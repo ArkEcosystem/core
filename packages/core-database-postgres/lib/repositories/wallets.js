@@ -38,6 +38,6 @@ module.exports = class WalletsRepository extends Repository {
    * @return {Object}
    */
   getModel () {
-    return new Wallet(this.db.$config.pgp)
+    return new Wallet(this.pgp)
   }
 }

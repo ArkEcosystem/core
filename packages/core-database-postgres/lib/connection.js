@@ -1,6 +1,6 @@
 'use strict'
 
-const pgp = require('pg-promise')
+const pgPromise = require('pg-promise')
 const crypto = require('crypto')
 const chunk = require('lodash/chunk')
 const fs = require('fs')
@@ -63,15 +63,16 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       receive (data, result, e) {
         camelizeColumns(pgp, data)
       },
-      extend (obj, dc) {
-        obj.blocks = new repositories.Blocks(obj)
-        obj.rounds = new repositories.Rounds(obj)
-        obj.transactions = new repositories.Transactions(obj)
-        obj.wallets = new repositories.Wallets(obj)
+      extend (object) {
+        for (const repository of Object.keys(repositories)) {
+          object[repository] = new repositories[repository](object, pgp)
+        }
       }
     }
 
-    this.pgp = pgp({...this.config.initialization, ...initialization})
+    const pgp = pgPromise({...this.config.initialization, ...initialization})
+
+    this.pgp = pgp
     this.db = this.pgp(this.config.connection)
   }
 

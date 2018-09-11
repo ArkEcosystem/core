@@ -54,6 +54,6 @@ module.exports = class RoundsRepository extends Repository {
    * @return {Object}
    */
   getModel () {
-    return new Round(this.db.$config.pgp)
+    return new Round(this.pgp)
   }
 }

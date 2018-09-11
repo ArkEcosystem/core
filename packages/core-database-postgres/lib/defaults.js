@@ -2,7 +2,9 @@
 
 module.exports = {
   initialization: {
-    capSQL: true
+    capSQL: true,
+    promiseLib: require('bluebird'),
+    noLocking: process.env.NODE_ENV === 'test'
   },
   connection: {
     host: process.env.ARK_DB_HOST || 'localhost',

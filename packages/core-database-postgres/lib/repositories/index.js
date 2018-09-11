@@ -1,6 +1,6 @@
 module.exports = {
-    Blocks: require('./blocks'),
-    Rounds: require('./rounds'),
-    Transactions: require('./transactions'),
-    Wallets: require('./wallets')
+    blocks: require('./blocks'),
+    rounds: require('./rounds'),
+    transactions: require('./transactions'),
+    wallets: require('./wallets')
 }
