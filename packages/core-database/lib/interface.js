@@ -8,6 +8,7 @@ const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 const WalletManager = require('./wallet-manager')
 const { Block } = require('@arkecosystem/crypto').models
+const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
 module.exports = class ConnectionInterface {
   /**
@@ -387,8 +388,35 @@ module.exports = class ConnectionInterface {
       this.blocksInCurrentRound.push(block)
     }
     await this.applyRound(block.data.height)
+    block.transactions.forEach(tx => this.__emitTransactionEvents(tx))
     emitter.emit('block.applied', block.data)
   }
+
+  /**
+   * Emit events for the specified transaction.
+   * @param  {Object} transaction
+   * @return {void}
+   */
+  __emitTransactionEvents (transaction) {
+    emitter.emit('transaction.applied', transaction.data)
+
+     if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+      emitter.emit('delegate.registered', transaction.data)
+     }
+
+     if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+      emitter.emit('delegate.resigned', transaction.data)
+     }
+
+     if (transaction.type === TRANSACTION_TYPES.VOTE) {
+       const vote = transaction.asset.votes[0]
+
+       emitter.emit(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
+         delegate: vote,
+         transaction: transaction.data
+       })
+     }
+   }
 
   /**
    * Remove the given block.

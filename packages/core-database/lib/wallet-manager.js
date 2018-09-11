@@ -2,16 +2,13 @@
 
 const Promise = require('bluebird')
 
-const { map, orderBy, sumBy } = require('lodash')
+const { orderBy, sumBy } = require('lodash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
-const emitter = container.resolvePlugin('event-emitter')
-
-const genesisWallets = map(config.genesisBlock.transactions, 'senderId')
 
 module.exports = class WalletManager {
   /**
@@ -19,9 +16,9 @@ module.exports = class WalletManager {
    * @constructor
    */
   constructor () {
+    this.exceptions = config ? config.network.exceptions : {}
+    this.networkId = config ? config.network.pubKeyHash : 0x17
     this.reset()
-
-    this.emitEvents = true
   }
 
   /**
@@ -86,15 +83,7 @@ module.exports = class WalletManager {
 
     this.index(delegates)
   }
-
-  /**
-   * Used to determine if a wallet is a Genesis wallet.
-   * @return {Boolean}
-   */
-  isGenesis (wallet) {
-    return genesisWallets.includes(wallet.address)
-  }
-
+  
   /**
    * Remove non-delegate wallets that have zero (0) balance from memory.
    * @return {void}
@@ -121,7 +110,7 @@ module.exports = class WalletManager {
     let delegate = this.findByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
-      const generator = crypto.getAddress(generatorPublicKey, config.network.pubKeyHash)
+      const generator = crypto.getAddress(generatorPublicKey, this.networkId)
 
       if (block.data.height === 1) {
         delegate = new Wallet(generator)
@@ -151,13 +140,13 @@ module.exports = class WalletManager {
       delegate.applyBlock(block.data)
     } catch (error) {
       logger.error('Failed to apply all transactions in block - reverting previous transactions')
-
       // Revert the applied transactions from last to first
       for (let i = appliedTransactions.length - 1; i >= 0; i--) {
         this.revertTransaction(appliedTransactions[i])
       }
 
-      // TODO should revert the delegate applyBlock ?
+      // TODO: should revert the delegate applyBlock ?
+      // TBC: whatever situation `delegate.applyBlock(block.data)` is never applied
 
       throw error
     }
@@ -172,7 +161,7 @@ module.exports = class WalletManager {
     let delegate = this.findByPublicKey(block.data.generatorPublicKey)
 
     if (!delegate) {
-      const generator = crypto.getAddress(block.data.generatorPublicKey, config.network.pubKeyHash)
+      const generator = crypto.getAddress(block.data.generatorPublicKey, this.networkId)
 
       delegate = new Wallet(generator)
       delegate.publicKey = block.data.generatorPublicKey
@@ -224,7 +213,7 @@ module.exports = class WalletManager {
 
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       data.recipientId = ''
-    } else if (config.network.exceptions[data.id]) {
+    } else if (this.exceptions[data.id]) {
 
       logger.warn('Transaction forcibly applied because it has been added as an exception:', data)
 
@@ -244,8 +233,6 @@ module.exports = class WalletManager {
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
       recipient.applyTransactionToRecipient(data)
     }
-
-    this.__emitTransactionEvents(transaction)
 
     return transaction
   }
@@ -271,8 +258,6 @@ module.exports = class WalletManager {
       recipient.revertTransactionForRecipient(data)
     }
 
-   this.__emitEvent('transaction.reverted', data)
-
     return data
   }
 
@@ -284,10 +269,6 @@ module.exports = class WalletManager {
   findByAddress (address) {
     if (!this.walletsByAddress[address]) {
       this.walletsByAddress[address] = new Wallet(address)
-
-      if (process.env.NODE_ENV !== 'test') {
-        this.__emitEvent('wallet:cold:created', this.walletsByAddress[address])
-      }
     }
 
     return this.walletsByAddress[address]
@@ -300,7 +281,7 @@ module.exports = class WalletManager {
    */
   findByPublicKey (publicKey) {
     if (!this.walletsByPublicKey[publicKey]) {
-      const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
+      const address = crypto.getAddress(publicKey, this.networkId)
 
       this.walletsByPublicKey[publicKey] = this.findByAddress(address)
       this.walletsByPublicKey[publicKey].publicKey = publicKey
@@ -364,41 +345,4 @@ module.exports = class WalletManager {
     return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
-  /**
-   * Emit events to the emmiter
-   * @param  {String} event
-   * @param {Object} date
-   * @return {void}
-   */
-  __emitEvent (event, data) {
-    if (this.emitEvents) {
-      emitter.emit(event, data)
-    }
-  }
-
-  /**
-   * Emit events for the specified transaction.
-   * @param  {Object} transaction
-   * @return {void}
-   */
-  __emitTransactionEvents (transaction) {
-   this.__emitEvent('transaction.applied', transaction.data)
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-     this.__emitEvent('delegate.registered', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-     this.__emitEvent('delegate.resigned', transaction.data)
-    }
-
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
-      const vote = transaction.asset.votes[0]
-
-     this.__emitEvent(vote.startsWith('+') ? 'wallet.vote' : 'wallet.unvote', {
-        delegate: vote,
-        transaction: transaction.data
-      })
-    }
-  }
 }
