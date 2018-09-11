@@ -129,7 +129,7 @@ describe('API 2.0 - Transactions', () => {
       expect(transaction.id).toBe(transactionId)
       expect(transaction.blockId).toBe(blockId)
     })
-    // TODO remove the search by id, to be sure that is OK
+
     it('should POST a search for transactions with the exact specified type', async () => {
       const response = await utils.request('POST', 'transactions/search', { type })
       utils.expectSuccessful(response)

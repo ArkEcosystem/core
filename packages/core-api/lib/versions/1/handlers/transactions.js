@@ -1,11 +1,11 @@
 'use strict'
 
 const container = require('@arkecosystem/core-container')
-const database = container.resolvePlugin('database')
 const transactionPool = container.resolvePlugin('transactionPool')
 
 const utils = require('../utils')
 const schema = require('../schemas/transactions')
+const { transactions: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -17,7 +17,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { count, rows } = await database.transactions.findAllLegacy({
+    const { count, rows } = await repository.findAllLegacy({
       ...request.query, ...utils.paginate(request)
     })
 
@@ -49,7 +49,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const result = await database.transactions.findById(request.query.id)
+    const result = await repository.findById(request.query.id)
 
     if (!result) {
       return utils.respondWith('No transactions found', true)
