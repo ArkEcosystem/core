@@ -36,7 +36,7 @@ describe('API - Version 1', () => {
     })
   })
 
-  describe('GET /peer/blocks', () => {
+  describe.skip('GET /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await utils.GET('peer/blocks', { lastBlockHeight: 1 })
 
