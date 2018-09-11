@@ -558,12 +558,13 @@ describe('Wallet Manager', () => {
         const delegate = {
           address: crypto.getAddress(delegateKey),
           publicKey: delegateKey,
-          username: `delegate${i}`
+          username: `delegate${i}`,
+          voteBalance: Bignum.ZERO
         }
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
-          balance: (i + 1) * 1000 * ARKTOSHI,
+          balance: Bignum.from((i + 1) * 1000 * ARKTOSHI),
           vote: delegateKey
         }
 
@@ -576,7 +577,7 @@ describe('Wallet Manager', () => {
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i]
         expect(delegate.rate).toBe(i + 1)
-        expect(delegate.voteBalance).toBe((5 - i) * 1000 * ARKTOSHI)
+        expect(delegate.voteBalance).toEqual(Bignum.from((5 - i) * 1000 * ARKTOSHI))
       }
     })
   })
