@@ -1,6 +1,7 @@
 'use strict'
 
 const axios = require('axios')
+const util = require('util')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
@@ -121,7 +122,7 @@ module.exports = class Peer {
 
       return data.blocks
     } catch (error) {
-      logger.debug(`Cannot download blocks from peer ${this.url} - ${JSON.stringify(error)}`)
+      logger.debug(`Cannot download blocks from peer ${this.url} - ${util.inspect(error, { depth: 1 })}`)
 
       this.ban = new Date().getTime() + (Math.floor(Math.random() * 40) + 20) * 60000
 
