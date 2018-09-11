@@ -181,13 +181,12 @@ plugins['@arkecosystem/core-api'] = {
   port: options.apiPort,
   whitelist: ['*']
 }
-plugins['@arkecosystem/core-database-sequelize'] = {
+plugins['@arkecosystem/core-database-postgres'] = {
   host: options.dbHost,
   port: options.dbPort,
   username: options.dbUsername,
   password: options.dbPassword,
-  database: options.dbDatabase,
-  dialect: 'postgres'
+  database: options.dbDatabase
 }
 plugins['@arkecosystem/core-blockchain'] = {
   fastRebuild: false
