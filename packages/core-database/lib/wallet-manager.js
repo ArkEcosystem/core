@@ -209,12 +209,12 @@ module.exports = class WalletManager {
         .all()
         .filter(w => w.vote === delegate.publicKey)
 
-      delegate.votebalance = sumBy(voters, 'balance')
+      delegate.voteBalance = sumBy(voters, 'balance')
 
       return delegate
     })
 
-    delegates = orderBy(delegates, ['votebalance'], ['desc']).map((delegate, index) => {
+    delegates = orderBy(delegates, ['voteBalance'], ['desc']).map((delegate, index) => {
       delegate.rate = index + 1
 
       return delegate
