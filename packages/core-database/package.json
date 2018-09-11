@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-database",
-  "description": "Database Interface for ARK Core",
+  "description": "Database Interface for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",

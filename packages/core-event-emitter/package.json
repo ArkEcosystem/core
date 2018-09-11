@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-event-emitter",
-  "description": "Event Manager for ARK Core",
+  "description": "Event Manager for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"

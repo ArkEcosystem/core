@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-transaction-pool-redis",
-  "description": "Transaction Pool - Redis Implementation for ARK Core",
+  "description": "Transaction Pool - Redis Implementation for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Kristjan Košič <kristjan@ark.io>",

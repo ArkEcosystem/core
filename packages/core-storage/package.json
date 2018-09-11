@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-storage",
-  "description": "Immutable in-memory storage for ARK Core",
+  "description": "Immutable in-memory storage for Ark Core",
   "version": "0.1.0",
   "contributors": [
     "Brian Faust <brian@ark.io>"

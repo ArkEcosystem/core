@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-deployer",
-  "description": "Deployer for ARK Core",
+  "description": "Deployer for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>",

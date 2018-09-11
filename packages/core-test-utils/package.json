@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-test-utils",
-  "description": "Test Utilities for ARK Core",
+  "description": "Test Utilities for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "Brian Faust <brian@ark.io>"

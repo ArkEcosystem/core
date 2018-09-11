@@ -1,6 +1,6 @@
 {
   "name": "@arkecosystem/core-database-sequelize",
-  "description": "Sequelize ORM for ARK Core",
+  "description": "Sequelize ORM for Ark Core",
   "version": "0.1.1",
   "contributors": [
     "François-Xavier Thoorens <fx@ark.io>",
