@@ -3,6 +3,7 @@ const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const config = container.resolvePlugin('config')
+const genesisWallets = config.genesisBlock.transactions.map(tx => tx.senderId)
 
 module.exports = class SPV {
   /**
@@ -129,10 +130,18 @@ module.exports = class SPV {
       let wallet = this.walletManager.findByPublicKey(row.senderPublicKey)
       wallet.balance -= parseInt(row.amount) + parseInt(row.fee)
 
-      if (wallet.balance < 0 && !this.walletManager.isGenesis(wallet)) {
+      if (wallet.balance < 0 && !this.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`)
       }
     })
+  }
+
+  /**
+   * Used to determine if a wallet is a Genesis wallet.
+   * @return {Boolean}
+   */
+  isGenesis (wallet) {
+    return genesisWallets.includes(wallet.address)
   }
 
   /**
