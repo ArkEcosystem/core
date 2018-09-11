@@ -19,8 +19,8 @@ exports.setUp = async (options = {
     config: path.resolve(__dirname, './config')
   }, options)
 
-  // seed
   const connection = container.resolvePlugin('database')
+  await connection.db.rounds.truncate()
   await connection.buildWallets(1)
   await connection.saveWallets(true)
   await connection.saveRound(round)

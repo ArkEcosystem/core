@@ -22,10 +22,7 @@
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
-    "async": "^2.6.1",
     "bluebird": "^3.5.1",
-    "expand-home-dir": "^0.0.3",
-    "fs-extra": "^6.0.1",
     "lodash": "^4.17.10"
   },
   "publishConfig": {

@@ -13,8 +13,8 @@ module.exports = (model) => {
 
   return {
     id: model.id,
-    version: model.version,
-    height: model.height,
+    version: +model.version,
+    height: +model.height,
     previous: model.previousBlock,
     forged: {
       reward: +model.reward.toString(),

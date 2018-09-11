@@ -3,11 +3,11 @@
 const container = require('@arkecosystem/core-container')
 const { Bignum } = require('@arkecosystem/crypto')
 const config = container.resolvePlugin('config')
-const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
 
 const utils = require('../utils')
 const schema = require('../schemas/blocks')
+const { blocks: repository } = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -19,7 +19,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const { count, rows } = await database.blocks.findAll({
+    const { count, rows } = await repository.findAll({
       ...request.query, ...utils.paginate(request)
     })
 
@@ -51,7 +51,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const block = await database.blocks.findById(request.query.id)
+    const block = await repository.findById(request.query.id)
 
     if (!block) {
       return utils.respondWith(`Block with id ${request.query.id} not found`, true)
