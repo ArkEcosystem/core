@@ -16,7 +16,7 @@ module.exports = {
 
     await queryInterface.renameColumn('wallets', 'publicKey', 'public_key')
     await queryInterface.renameColumn('wallets', 'secondPublicKey', 'second_public_key')
-    await queryInterface.renameColumn('wallets', 'votebalance', 'vote_balance')
+    await queryInterface.renameColumn('wallets', 'voteBalance', 'vote_balance')
     await queryInterface.renameColumn('wallets', 'producedBlocks', 'produced_blocks')
     await queryInterface.renameColumn('wallets', 'missedBlocks', 'missed_blocks')
     await queryInterface.renameColumn('wallets', 'createdAt', 'created_at')
@@ -38,7 +38,7 @@ module.exports = {
     await queryInterface.renameColumn('wallets', 'created_at', 'createdAt')
     await queryInterface.renameColumn('wallets', 'missed_blocks', 'missedBlocks')
     await queryInterface.renameColumn('wallets', 'produced_blocks', 'producedBlocks')
-    await queryInterface.renameColumn('wallets', 'vote_balance', 'votebalance')
+    await queryInterface.renameColumn('wallets', 'vote_balance', 'voteBalance')
     await queryInterface.renameColumn('wallets', 'second_public_key', 'secondPublicKey')
     await queryInterface.renameColumn('wallets', 'public_key', 'publicKey')
 

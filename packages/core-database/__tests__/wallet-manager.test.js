@@ -3,10 +3,10 @@
 const app = require('./__support__/setup')
 
 const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
-const { transactionBuilder } = require('@arkecosystem/crypto')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { crypto, transactionBuilder } = require('@arkecosystem/crypto')
+const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
-const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
+const block = new Block(require('./__fixtures__/block.json'))
 const walletData1 = require('./__fixtures__/wallets.json')[0]
 const walletData2 = require('./__fixtures__/wallets.json')[1]
 const walletDataFake = require('./__fixtures__/wallets.json')[2]
@@ -544,6 +544,40 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletDataFake.address)
 
       expect(walletManager.isGenesis(wallet)).toBeFalsy()
+    })
+  })
+
+  describe('updateDelegates', () => {
+    it('should be a function', () => {
+      expect(walletManager.updateDelegates).toBeFunction()
+    })
+
+    it('should update vote balance and rank of delegates', async () => {
+      for (let i = 0; i < 5; i++) {
+        const delegateKey = i.toString().repeat(66)
+        const delegate = {
+          address: crypto.getAddress(delegateKey),
+          publicKey: delegateKey,
+          username: `delegate${i}`
+        }
+
+        const voter = {
+          address: crypto.getAddress((i + 5).toString().repeat(66)),
+          balance: (i + 1) * 1000 * ARKTOSHI,
+          vote: delegateKey
+        }
+
+        walletManager.index([delegate, voter])
+      }
+
+      walletManager.updateDelegates()
+
+      const delegates = walletManager.allByUsername()
+      for (let i = 0; i < 5; i++) {
+        const delegate = delegates[4 - i]
+        expect(delegate.rate).toBe(i + 1)
+        expect(delegate.voteBalance).toBe((5 - i) * 1000 * ARKTOSHI)
+      }
     })
   })
 })
