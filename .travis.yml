@@ -1,41 +1,49 @@
+dist: trusty
+
 language: node_js
 
 node_js:
-  - node
+  - 10
   - 9
-
-addons:
-  apt:
-    packages:
-      - xsel
 
 services:
   - redis-server
+  - postgresql
+
+addons:
+  postgresql: "9.6"
+  apt:
+    packages:
+      - xsel
 
 env:
   ARK_CI_TEST: true
 
 before_install:
-  # - npm install yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
   - yarn config set cache-folder $HOME/.cache/yarn
+  - sudo service postgresql stop
+  - sudo apt-get remove -q 'postgresql-*'
+  - sudo apt-get update -q
+  - sudo apt-get install -q postgresql-10 postgresql-client-10
+  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+  - sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/10/main/postgresql.conf
+  - sudo service postgresql restart
 
 install: yarn
-#   - yarn bootstrap
 
 stages:
   - lint
   - depcheck
   - test
-  # TODO
-  # - browser_test
 
 before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi'
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; sleep 3; fi'
-  # To avoid a problem when starting the Redis service
   - sudo redis-server /etc/redis/redis.conf --port 6379
+  - psql -c "create user ark with password 'password';" -U postgres
+  - psql -c "create database ark_testnet with owner 'ark';" -U postgres
 
 script:
   # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
@@ -46,24 +54,15 @@ jobs:
   include:
     - stage: lint
       script: yarn lint
-    # To lint the version 9 too
     - stage: lint
       node_js: 9
       script: yarn lint
 
     - stage: depcheck
       script: yarn depcheck
-    # To lint the version 9 too
     - stage: depcheck
       node_js: 9
       script: yarn depcheck
-
-    # TODO
-    # - stage: browser_test
-    #   script: yarn test:coverage
-    # - stage: browser_test
-    #   node_js: 9
-    #   script: yarn test:coverage
 
 cache:
   yarn: true # This wouldn't do anything because it needs a yarn.lock
@@ -74,5 +73,4 @@ cache:
     - packages/**/node_modules
 
 git:
-  # It's not necessary to get more than the last commit (and this branch alone)
   depth: 1
