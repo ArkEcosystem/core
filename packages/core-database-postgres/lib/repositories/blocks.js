@@ -46,7 +46,7 @@ module.exports = class BlocksRepository extends Repository {
    * @return {Promise}
    */
   async heightRange (start, end) {
-    return this.db.many(sql.heightRange, { start, end })
+    return this.db.manyOrNone(sql.heightRange, { start, end })
   }
 
   /**
