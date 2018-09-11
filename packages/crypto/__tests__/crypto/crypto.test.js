@@ -230,6 +230,24 @@ describe('crypto.js', () => {
 
       expect(address).toBe(keyPair.getAddress())
     })
+
+    it('should not throw an error if the publicKey is valid', () => {
+      try {
+        const validKeys = ['02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af', 'a'.repeat(66)]
+        for (const validKey of validKeys) {
+          crypto.getAddress(validKey)
+        }
+      } catch (error) {
+        expect().fail('Should not have failed to call getAddress with a valid publicKey')
+      }
+    })
+
+    it('should throw an error if the publicKey is invalid', () => {
+      const invalidKeys = ['invalid', 'a'.repeat(65), 'a'.repeat(67), 'z'.repeat(66)]
+      for (const invalidKey of invalidKeys) {
+        expect(() => crypto.getAddress(invalidKey)).toThrowError(new Error(`publicKey '${invalidKey}' is invalid`))
+      }
+    })
   })
 
   describe('verify', () => {

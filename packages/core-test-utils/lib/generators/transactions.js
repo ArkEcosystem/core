@@ -1,4 +1,3 @@
-const ark = require('arkjs')
 const assert = require('assert')
 const { client, crypto } = require('@arkecosystem/crypto')
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
@@ -19,32 +18,36 @@ module.exports = (network, type, testWallet, testAddress, amount = 2, quantity =
   ].includes(type), 'Invalid transaction type')
 
   client.getConfigManager().setFromPreset('ark', network)
-  ark.crypto.setNetworkVersion(client.getConfigManager().config.pubKeyHash)
 
   const transactions = []
   for (let i = 0; i < quantity; i++) {
     const passphrase = testWallet ? testWallet.passphrase : config.passphrase
     const address = testAddress || crypto.getAddress(crypto.getKeys(passphrase).publicKey)
 
-    let transaction
+    let builder
     if (type === TRANSACTION_TYPES.TRANSFER) {
-      transaction = ark.transaction.createTransaction(
-        address,
-        amount,
-        `Test Transaction ${i + 1}`,
-        passphrase
-      )
+      builder = client.getBuilder().transfer()
+        .recipientId(address)
+        .amount(amount)
+        .vendorField(`Test Transaction ${i + 1}`)
     } else if (type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
-      transaction = ark.signature.createSignature(passphrase, passphrase)
+      builder = client.getBuilder().secondSignature()
+        .signatureAsset(passphrase)
     } else if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const username = superheroes.random().toLowerCase().replace(/[^a-z0-9]/g, '_')
-      transaction = ark.delegate.createDelegate(passphrase, username)
+      builder = client.getBuilder().delegateRegistration()
+        .usernameAsset(username)
     } else if (type === TRANSACTION_TYPES.VOTE) {
       const publicKey = crypto.getKeys(config.passphrase).publicKey
-      transaction = ark.vote.createVote(passphrase, [publicKey])
+      builder = client.getBuilder().vote()
+        .votesAsset([`+${publicKey}`])
     } else {
-      break
+      continue
     }
+
+    const transaction = builder
+      .sign(passphrase)
+      .build()
 
     transactions.push(transaction)
   }

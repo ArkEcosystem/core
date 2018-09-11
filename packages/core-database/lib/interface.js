@@ -1,6 +1,5 @@
 'use strict'
 
-const async = require('async')
 const { crypto, slots } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
@@ -299,13 +298,12 @@ module.exports = class ConnectionInterface {
         try {
           this.updateDelegateStats(height, this.activedelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
-
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
           await this.saveRound(delegates) // save next round delegate list
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
+
           this.blocksInCurrentRound.length = 0
-          // TODO: find a betxter place to call this as this
-          // currently blocks execution but needs to be updated every round
+
           if (this.stateStarted) {
             this.walletManager.updateDelegates()
           }
@@ -334,6 +332,7 @@ module.exports = class ConnectionInterface {
 
     if (nextRound === round + 1 && height > maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
+
       this.blocksInCurrentRound = await this.__getBlocksForRound(round)
 
       this.activedelegates = await this.getActiveDelegates(height)
@@ -384,9 +383,11 @@ module.exports = class ConnectionInterface {
   async applyBlock (block) {
     await this.validateDelegate(block)
     this.walletManager.applyBlock(block)
+
     if (this.blocksInCurrentRound) {
       this.blocksInCurrentRound.push(block)
     }
+
     await this.applyRound(block.data.height)
     block.transactions.forEach(tx => this.__emitTransactionEvents(tx))
     emitter.emit('block.applied', block.data)
@@ -426,6 +427,7 @@ module.exports = class ConnectionInterface {
   async revertBlock (block) {
     await this.revertRound(block.data.height)
     await this.walletManager.revertBlock(block)
+
     if (this.blocksInCurrentRound) {
       this.blocksInCurrentRound.pop()
       // COMMENTED OUT: needs to be sure is properly synced
@@ -435,6 +437,7 @@ module.exports = class ConnectionInterface {
       //   throw new Error('Reverted wrong block. Restart is needed 💣')
       // }
     }
+
     emitter.emit('block.reverted', block.data)
   }
 
@@ -446,7 +449,7 @@ module.exports = class ConnectionInterface {
   async verifyTransaction (transaction) {
     const senderId = crypto.getAddress(transaction.data.senderPublicKey, config.network.pubKeyHash)
 
-    let sender = this.walletManager.findByAddress[senderId] // should exist
+    let sender = this.walletManager.findByAddress(senderId) // should exist
 
     if (!sender.publicKey) {
       sender.publicKey = transaction.data.senderPublicKey
@@ -456,42 +459,6 @@ module.exports = class ConnectionInterface {
     const dbTransaction = await this.getTransaction(transaction.data.id)
 
     return sender.canApply(transaction.data) && !dbTransaction
-  }
-
-  /**
-   * Write blocks to file as a snapshot.
-   * @return {void}
-   */
-  async snapshot () {
-    const expandHomeDir = require('expand-home-dir')
-    const path = expandHomeDir(container.config('databaseManager').snapshots)
-
-    const fs = require('fs-extra')
-    await fs.ensureFile(`${path}/blocks.dat`)
-
-    const wstream = fs.createWriteStream(`${path}/blocks.dat`)
-
-    let max = 100000 // eslint-disable-line no-unused-vars
-    let offset = 0
-    const writeQueue = async.queue((block, qcallback) => {
-      wstream.write(block)
-      qcallback()
-    }, 1)
-
-    let blocks = await this.getBlockHeaders(offset, offset + 100000)
-    writeQueue.push(blocks)
-    max = blocks.length
-    offset += 100000
-    console.log(offset)
-
-    writeQueue.drain = async () => {
-      console.log('drain')
-      blocks = await this.getBlockHeaders(offset, offset + 100000)
-      writeQueue.push(blocks)
-      max = blocks.length
-      offset += 100000
-      console.log(offset)
-    }
   }
 
   /**
@@ -513,7 +480,9 @@ module.exports = class ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     height = (round * maxDelegates) + 1
 
-    return (await this.getBlocks(height - maxDelegates, maxDelegates)).map(b => new Block(b))
+    const blocks = await this.getBlocks(height - maxDelegates, maxDelegates)
+
+    return blocks.map(b => new Block(b))
   }
 
   /**

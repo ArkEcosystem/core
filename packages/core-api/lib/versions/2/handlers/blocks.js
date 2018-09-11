@@ -1,9 +1,13 @@
 'use strict'
 
 const Boom = require('boom')
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
 const utils = require('../utils')
 const schema = require('../schema/blocks')
+
+const {
+  blocks: blocksRepository,
+  transactions: transactionsRepository
+} = require('../../../repositories')
 
 /**
  * @type {Object}
@@ -15,7 +19,7 @@ exports.index = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blocks = await database.blocks.findAll({...request.query, ...utils.paginate(request)})
+    const blocks = await blocksRepository.findAll({...request.query, ...utils.paginate(request)})
 
     return utils.toPagination(request, blocks, 'block')
   },
@@ -34,7 +38,7 @@ exports.show = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const block = await database.blocks.findById(request.params.id)
+    const block = await blocksRepository.findById(request.params.id)
 
     if (!block) {
       return Boom.notFound('Block not found')
@@ -57,13 +61,13 @@ exports.transactions = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const block = await database.blocks.findById(request.params.id)
+    const block = await blocksRepository.findById(request.params.id)
 
     if (!block) {
       return Boom.notFound('Block not found')
     }
 
-    const transactions = await database.transactions.findAllByBlock(block.id, utils.paginate(request))
+    const transactions = await transactionsRepository.findAllByBlock(block.id, utils.paginate(request))
 
     return utils.toPagination(request, transactions, 'transaction')
   },
@@ -82,7 +86,7 @@ exports.search = {
    * @return {Hapi.Response}
    */
   async handler (request, h) {
-    const blocks = await database.blocks.search({
+    const blocks = await blocksRepository.search({
       ...request.payload,
       ...request.query,
       ...utils.paginate(request)

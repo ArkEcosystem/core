@@ -312,6 +312,31 @@ describe('Connection', () => {
     })
   })
 
+  describe('getTransactionIdsForForging', () => {
+    it('should be a function', () => {
+      expect(connection.getTransactionIdsForForging).toBeFunction()
+    })
+
+    it('should return an array of transactions ids', async () => {
+      await connection.addTransaction(mockData.dummy1)
+      await connection.addTransaction(mockData.dummy2)
+      await connection.addTransaction(mockData.dummy3)
+      await connection.addTransaction(mockData.dummy4)
+      await connection.addTransaction(mockData.dummy5)
+      await connection.addTransaction(mockData.dummy6)
+
+      let transactionIds = await connection.getTransactionIdsForForging(0, 6)
+
+      await expect(transactionIds).toBeArray()
+      await expect(transactionIds[0]).toBe(mockData.dummy1.id)
+      await expect(transactionIds[1]).toBe(mockData.dummy2.id)
+      await expect(transactionIds[2]).toBe(mockData.dummy3.id)
+      await expect(transactionIds[3]).toBe(mockData.dummy4.id)
+      await expect(transactionIds[4]).toBe(mockData.dummy5.id)
+      await expect(transactionIds[5]).toBe(mockData.dummy6.id)
+    })
+  })
+
   describe('getTransactionsForForging', () => {
     it('should be a function', () => {
       expect(connection.getTransactionsForForging).toBeFunction()
@@ -335,6 +360,12 @@ describe('Connection', () => {
       await expect(transactions[3].id).toBe(mockData.dummy4.id)
       await expect(transactions[4].id).toBe(mockData.dummy5.id)
       await expect(transactions[5].id).toBe(mockData.dummy6.id)
+    })
+  })
+
+  describe('removeForgedAndGetPending', () => {
+    it('should be a function', () => {
+      expect(connection.removeForgedAndGetPending).toBeFunction()
     })
   })
 

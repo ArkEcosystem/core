@@ -14,6 +14,4 @@ const config = {
   transactionWaitDelay: 15
 }
 
-require('arkjs').crypto.setNetworkVersion(config.publicKeyHash)
-
 module.exports = config

@@ -3,6 +3,11 @@ module.exports = {
   toBeArkPublicKey: require('./fields/public-key'),
 
   toBeApiTransaction: require('./api/transaction'),
+  toBeSuccessfulResponse: require('./api/response').toBeSuccessfulResponse,
+  toBeValidPeer: require('./api/peer').toBeValidPeer,
+  toBeValidArrayOfPeers: require('./api/peer').toBeValidArrayOfPeers,
+  toBeValidBlock: require('./api/block').toBeValidBlock,
+  toBeValidArrayOfBlocks: require('./api/block').toBeValidArrayOfBlocks,
 
   toBeDelegate: require('./models/delegate'),
   toBeTransaction: require('./models/transaction'),

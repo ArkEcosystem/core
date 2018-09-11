@@ -27,6 +27,8 @@ module.exports = (model) => {
     sender: crypto.getAddress(data.senderPublicKey, config.network.pubKeyHash),
     recipient: data.recipientId,
     signature: data.signature,
+    signSignature: data.signSignature,
+    signatures: data.signatures,
     vendorField: data.vendorField,
     asset: data.asset,
     confirmations: model.block ? lastBlock.data.height - model.block.height : 0,

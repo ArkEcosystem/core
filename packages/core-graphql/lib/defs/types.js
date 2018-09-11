@@ -51,7 +51,7 @@ module.exports = `
     vote: String
     username: String
     balance: Float
-    votebalance: Float
+    voteBalance: Float
     producedBlocks: Float
     missedBlocks: Float
     transactions(limit: Limit, offset: Offset, orderBy: OrderByInput): [Transaction]

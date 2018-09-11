@@ -1,13 +1,11 @@
 module.exports = {
+  '@arkecosystem/core-storage': {},
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
   '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {},
   '@arkecosystem/core-database': {},
-  '@arkecosystem/core-database-sequelize': {
-    dialect: 'sqlite',
-    storage: ':memory:'
-  },
+  '@arkecosystem/core-database-postgres': {},
   '@arkecosystem/core-transaction-pool': {},
   '@arkecosystem/core-transaction-pool-redis': {},
   '@arkecosystem/core-p2p': {},

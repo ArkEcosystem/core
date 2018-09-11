@@ -1,8 +1,7 @@
 'use strict'
 
-const axios = require('axios')
-
 const app = require('../__support__/setup')
+const utils = require('../__support__/utils')
 
 let genesisBlock
 let genesisTransaction
@@ -20,18 +19,10 @@ afterAll(async () => {
   await app.tearDown()
 })
 
-const sendGET = async (endpoint, params = {}) => {
-  return axios.get(`http://127.0.0.1:4002/${endpoint}`, { params })
-}
-
-const sendPOST = async (endpoint, params) => {
-  return axios.post(`http://127.0.0.1:4002/${endpoint}`, params)
-}
-
 describe('API - Version 1', () => {
   describe('GET /peer/list', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/list')
+      const response = await utils.GET('peer/list')
 
       expect(response.status).toBe(200)
 
@@ -47,7 +38,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/blocks', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/blocks', { lastBlockHeight: 1 })
+      const response = await utils.GET('peer/blocks', { lastBlockHeight: 1 })
 
       expect(response.status).toBe(200)
 
@@ -61,7 +52,7 @@ describe('API - Version 1', () => {
     })
 
     it('should retrieve lastBlock if no "lastBlockHeight" specified', async () => {
-      const response = await sendGET('peer/blocks');
+      const response = await utils.GET('peer/blocks');
 
       expect(response.status).toBe(200);
       expect(response.data).toBeObject()
@@ -77,7 +68,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/transactionsFromIds', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/transactionsFromIds', {
+      const response = await utils.GET('peer/transactionsFromIds', {
         ids: 'e40ce11cab82736da1cc91191716f3c1f446ca7b6a9f4f93b7120ef105ba06e8'
       })
 
@@ -95,7 +86,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/height', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/height')
+      const response = await utils.GET('peer/height')
 
       expect(response.status).toBe(200)
 
@@ -114,7 +105,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/transactions', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/transactions')
+      const response = await utils.GET('peer/transactions')
 
       expect(response.status).toBe(200)
 
@@ -130,7 +121,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/blocks/common', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/blocks/common', {
+      const response = await utils.GET('peer/blocks/common', {
         ids: '13149578060728881902'
       })
 
@@ -153,7 +144,7 @@ describe('API - Version 1', () => {
 
   describe('GET /peer/status', () => {
     it('should be ok', async () => {
-      const response = await sendGET('peer/status')
+      const response = await utils.GET('peer/status')
 
       expect(response.status).toBe(200)
 
@@ -166,7 +157,7 @@ describe('API - Version 1', () => {
 
   describe('POST /peer/blocks', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('peer/blocks', {
+      const response = await utils.POST('peer/blocks', {
         block: genesisBlock.toBroadcastV1()
       })
 
@@ -181,7 +172,7 @@ describe('API - Version 1', () => {
 
   describe('POST /peer/transactions', () => {
     it('should be ok', async () => {
-      const response = await sendPOST('peer/transactions', {
+      const response = await utils.POST('peer/transactions', {
         transactions: [genesisTransaction.toBroadcastV1()]
       })
 

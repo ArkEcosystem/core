@@ -23,7 +23,7 @@ describe('TransferHandler', () => {
     })
 
     it('should not be ok', () => {
-      transaction.senderPublicKey = 'p'.repeat(66)
+      transaction.senderPublicKey = 'a'.repeat(66)
 
       expect(handler.canApply(wallet, transaction)).toBeFalsy()
     })

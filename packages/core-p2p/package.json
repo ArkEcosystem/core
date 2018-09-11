@@ -42,6 +42,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.15.0"
+    "axios-mock-adapter": "^1.15.0",
+    "@arkecosystem/core-test-utils": "^0.1.1"
   }
 }

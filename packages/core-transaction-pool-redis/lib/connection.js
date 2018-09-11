@@ -5,8 +5,12 @@ const Redis = require('ioredis')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
+const uniq = require('lodash/uniq')
+
 const ark = require('@arkecosystem/crypto')
 const { Transaction } = ark.models
+const { TRANSACTION_TYPES } = ark.constants
+const database = container.resolvePlugin('database')
 
 module.exports = class TransactionPool extends TransactionPoolInterface {
   /**
@@ -124,6 +128,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
 
       if (transaction.expiration > 0) {
         await this.pool.setex(this.__getRedisExpirationKey(transaction.id), transaction.expiration - transaction.timestamp, transaction.id)
+      } else if (transaction.type !== TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+        await this.pool.setex(this.__getRedisExpirationKey(transaction.id), this.options.maxTransactionAge, transaction.id)
       }
     } catch (error) {
       logger.error('Could not add transaction to Redis', error, error.stack)
@@ -140,7 +146,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
     if (!this.__isReady()) {
       return
     }
-    
+
     await Promise.all(transactions.map(transaction => this.addTransaction(transaction)))
   }
 
@@ -238,6 +244,51 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
+   * Removes any transactions in the pool that have already been forged.
+   * @param  {Array} transactionIds
+   * @return {Array} IDs of pending transactions that have yet to be forged.
+   */
+  async removeForgedAndGetPending (transactionIds) {
+    const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
+
+    await Promise.all(forgedIdsSet, async (transactionId) => {
+      await this.removeTransactionById(transactionId)
+    })
+
+    return transactionIds.filter(id => !forgedIdsSet.has(id))
+  }
+
+  /**
+   * Get all transactions that are ready to be forged.
+   * @param  {Number} blockSize
+   * @return {(Array|void)}
+   */
+  async getTransactionsForForging (blockSize) {
+    try {
+      let transactionsIds = await this.getTransactionIdsForForging(0, 0)
+
+      let transactions = []
+      while (transactionsIds.length) {
+        const id = transactionsIds.shift()
+        const transaction = await this.getTransaction(id)
+
+        if (!transaction || !this.checkDynamicFeeMatch(transaction) || !this.checkApplyToBlockchain(transaction)) {
+          continue
+        }
+
+        transactions.push(transaction.serialized.toString('hex'))
+        if (transactions.length === blockSize) {
+          break
+        }
+      }
+
+      return transactions
+    } catch (error) {
+      logger.error('Could not get transactions for forging from Redis: ', error, error.stack)
+    }
+  }
+
+  /**
    * Get all transactions within the specified range.
    * @param  {Number} start
    * @param  {Number} size
@@ -264,20 +315,21 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   }
 
   /**
-   * Get all transactions within the specified range.
+   * Get all transactions within the specified range, removes already forged ones and possible duplicates
    * @param  {Number} start
    * @param  {Number} size
    * @return {(Array|void)} array of transactions IDs in specified range
    */
-  async getTransactionsIds (start, size) {
+  async getTransactionIdsForForging (start, size) {
     if (!this.__isReady()) {
       return
     }
 
     try {
-      const transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      let transactionIds = await this.pool.lrange(this.__getRedisOrderKey(), start, start + size - 1)
+      transactionIds = await this.removeForgedAndGetPending(transactionIds)
 
-      return transactionIds
+      return uniq(transactionIds)
     } catch (error) {
       logger.error('Could not get transactions IDs from Redis: ', error, error.stack)
     }

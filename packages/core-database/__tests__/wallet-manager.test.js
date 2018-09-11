@@ -3,10 +3,10 @@
 const app = require('./__support__/setup')
 
 const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
-const { transactionBuilder } = require('@arkecosystem/crypto')
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const { crypto, transactionBuilder } = require('@arkecosystem/crypto')
+const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
-const block = new Block(require('./__fixtures__/block.json')) // eslint-disable-line no-unused-vars
+const block = new Block(require('./__fixtures__/block.json'))
 const walletData1 = require('./__fixtures__/wallets.json')[0]
 const walletData2 = require('./__fixtures__/wallets.json')[1]
 const walletDataFake = require('./__fixtures__/wallets.json')[2]
@@ -50,10 +50,10 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(walletManager.getLocalWallets()).toEqual([wallet])
+      expect(walletManager.all()).toEqual([wallet])
 
       walletManager.reset()
-      expect(walletManager.getLocalWallets()).toEqual([])
+      expect(walletManager.all()).toEqual([])
     })
   })
 
@@ -65,10 +65,10 @@ describe('Wallet Manager', () => {
     it('should index the wallets', () => {
       const wallet = new Wallet(walletData1.address)
 
-      expect(walletManager.getLocalWallets()).toEqual([])
+      expect(walletManager.all()).toEqual([])
 
       walletManager.reindex(wallet)
-      expect(walletManager.getLocalWallets()).toEqual([wallet])
+      expect(walletManager.all()).toEqual([wallet])
     })
   })
 
@@ -357,7 +357,7 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(Object.keys(walletManager.walletsByAddress)[0]).toBe(wallet.address)
+      expect(walletManager.byAddress.get(wallet.address)).toBe(wallet)
     })
 
     it('should return it by address', () => {
@@ -378,7 +378,7 @@ describe('Wallet Manager', () => {
       wallet.publicKey = walletData1.publicKey
 
       walletManager.reindex(wallet)
-      expect(Object.keys(walletManager.walletsByPublicKey)[0]).toBe(wallet.publicKey)
+      expect(walletManager.byPublicKey.get(wallet.publicKey)).toBe(wallet)
     })
 
     it('should return it by publicKey', () => {
@@ -400,7 +400,7 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
 
       walletManager.reindex(wallet)
-      expect(Object.keys(walletManager.walletsByUsername)[0]).toBe(wallet.username)
+      expect(walletManager.byUsername.get(wallet.username)).toBe(wallet)
     })
 
     it('should return it by username', () => {
@@ -412,9 +412,9 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('getLocalWallets', () => {
+  describe('all', () => {
     it('should be a function', () => {
-      expect(walletManager.getLocalWallets).toBeFunction()
+      expect(walletManager.all).toBeFunction()
     })
 
     it('should return indexed', () => {
@@ -424,7 +424,7 @@ describe('Wallet Manager', () => {
       const wallet2 = new Wallet(walletData2.address)
       walletManager.reindex(wallet2)
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
   })
 
@@ -477,7 +477,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet2])
+      expect(walletManager.all()).toEqual([wallet2])
     })
 
     it('should not be purged if wallet.secondPublicKey is set', async () => {
@@ -493,7 +493,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.multisignature is set', async () => {
@@ -509,7 +509,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
 
     it('should not be purged if wallet.username is set', async () => {
@@ -525,7 +525,7 @@ describe('Wallet Manager', () => {
 
       walletManager.purgeEmptyNonDelegates()
 
-      expect(walletManager.getLocalWallets()).toEqual([wallet1, wallet2])
+      expect(walletManager.all()).toEqual([wallet1, wallet2])
     })
   })
 
@@ -544,6 +544,40 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletDataFake.address)
 
       expect(walletManager.isGenesis(wallet)).toBeFalsy()
+    })
+  })
+
+  describe('updateDelegates', () => {
+    it('should be a function', () => {
+      expect(walletManager.updateDelegates).toBeFunction()
+    })
+
+    it('should update vote balance and rank of delegates', async () => {
+      for (let i = 0; i < 5; i++) {
+        const delegateKey = i.toString().repeat(66)
+        const delegate = {
+          address: crypto.getAddress(delegateKey),
+          publicKey: delegateKey,
+          username: `delegate${i}`
+        }
+
+        const voter = {
+          address: crypto.getAddress((i + 5).toString().repeat(66)),
+          balance: (i + 1) * 1000 * ARKTOSHI,
+          vote: delegateKey
+        }
+
+        walletManager.index([delegate, voter])
+      }
+
+      walletManager.updateDelegates()
+
+      const delegates = walletManager.allByUsername()
+      for (let i = 0; i < 5; i++) {
+        const delegate = delegates[4 - i]
+        expect(delegate.rate).toBe(i + 1)
+        expect(delegate.voteBalance).toBe((5 - i) * 1000 * ARKTOSHI)
+      }
     })
   })
 })

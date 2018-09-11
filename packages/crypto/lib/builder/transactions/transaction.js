@@ -34,12 +34,25 @@ module.exports = class TransactionBuilder {
   }
 
   /**
+   * Set transaction network.
+   * @param {Number} network
+   * @return {TransactionBuilder}
+   */
+  network (network) {
+    this.data.network = network
+    return this
+  }
+
+  /**
    * Set transaction fee.
    * @param {Number} fee
    * @return {TransactionBuilder}
    */
   fee (fee) {
-    this.data.fee = fee
+    if (fee != null) {
+      this.data.fee = fee
+    }
+
     return this
   }
 
@@ -70,6 +83,19 @@ module.exports = class TransactionBuilder {
    */
   senderPublicKey (publicKey) {
     this.data.senderPublicKey = publicKey
+    return this
+  }
+
+  /**
+   * Set vendor field.
+   * @param  {String} vendorField
+   * @return {TransactionBuilder}
+   */
+  vendorField (vendorField) {
+    if (vendorField && vendorField.length <= 64) {
+      this.data.vendorField = vendorField
+    }
+
     return this
   }
 
@@ -109,9 +135,11 @@ module.exports = class TransactionBuilder {
    * @return {TransactionBuilder}
    */
   secondSign (secondPassphrase) {
-    const keys = crypto.getKeys(secondPassphrase)
-    // TODO sign or second?
-    this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    if (secondPassphrase) {
+      const keys = crypto.getKeys(secondPassphrase)
+      // TODO sign or second?
+      this.data.signSignature = crypto.secondSign(this.__getSigningObject(), keys)
+    }
 
     return this
   }
