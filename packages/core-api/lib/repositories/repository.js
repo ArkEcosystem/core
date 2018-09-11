@@ -45,7 +45,7 @@ module.exports = class Repository {
   }
 
   _formatConditions (parameters) {
-    const columns = database.models.transaction.getColumnSet().columns.map(column => ({
+    const columns = this.model.getColumnSet().columns.map(column => ({
       name: column.name,
       prop: column.prop || column.name
     }))
