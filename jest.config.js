@@ -8,7 +8,6 @@ module.exports = {
     '**/packages/core-blockchain/**/__tests__/**/*.test.js',
     '**/packages/core-config/**/__tests__/**/*.test.js',
     '**/packages/core-container/**/__tests__/**/*.test.js',
-    // '**/packages/core-database-sequelize/**/__tests__/**/*.test.js',
     '**/packages/core-database/**/__tests__/**/*.test.js',
     '**/packages/core-deployer/**/__tests__/**/*.test.js',
     '**/packages/core-event-emitter/**/__tests__/**/*.test.js',
