@@ -122,7 +122,7 @@ describe('API - Version 1', () => {
   describe('GET /peer/blocks/common', () => {
     it('should be ok', async () => {
       const response = await utils.GET('peer/blocks/common', {
-        ids: '13149578060728881902'
+        ids: '17184958558311101492'
       })
 
       expect(response.status).toBe(200)
@@ -131,11 +131,10 @@ describe('API - Version 1', () => {
 
       expect(response.data).toHaveProperty('success')
       expect(response.data.success).toBeTrue()
-
       expect(response.data).toHaveProperty('common')
       expect(response.data.common).toBeObject()
       expect(response.data.common.height).toBe(1)
-      expect(response.data.common.id).toBe('13149578060728881902')
+      expect(response.data.common.id).toBe('17184958558311101492')
 
       expect(response.data).toHaveProperty('lastBlockHeight')
       expect(response.data.lastBlockHeight).toBeNumber()
