@@ -58,7 +58,7 @@ describe('API P2P - Version 2', () => {
 
   describe('GET /peer/blocks/common', () => {
     it('should be ok', async () => {
-      const blockId = '13149578060728881902'
+      const blockId = '17184958558311101492'
       const response = await utils.GET('peer/blocks/common', {
         blocks: blockId
       })
@@ -136,7 +136,7 @@ describe('API P2P - Version 2', () => {
     })
   })
 
-  describe('POST /peer/transactions', () => {
+  describe.skip('POST /peer/transactions', () => {
     it('should fail with status code 406 when posting existing transaction', async () => {
       const response = await utils.POST('peer/transactions', {
         transactions: [genesisTransaction.toBroadcastV1()]

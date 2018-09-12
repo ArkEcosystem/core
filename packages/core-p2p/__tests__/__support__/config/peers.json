@@ -1,33 +1,12 @@
 {
-  "minimumNetworkReach": 3,
-  "list": [
-    {
-      "ip": "167.114.29.51",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.52",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.53",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.54",
-      "port": 4002
-    },
-    {
-      "ip": "167.114.29.55",
-      "port": 4002
-    }
-  ],
-  "blackList": [
-    "dummy-ip-addr"
-  ],
-  "whiteList": [],
-  "minimumVersion": ">=2.0.0",
-  "sources": [
-    "https://raw.githubusercontent.com/ArkEcosystem/ARK-Peers/master/devnet.json"
-  ]
+  "minimumVersion": ">=1.1.1",
+  "minimumNetworkReach": 5,
+  "globalTimeout": 5000,
+  "coldStart": 30,
+  "whiteList":[],
+  "blackList": ["dummy-ip-addr"],
+  "list": [{
+    "ip": "127.0.0.1",
+    "port": 4000
+  }]
 }
