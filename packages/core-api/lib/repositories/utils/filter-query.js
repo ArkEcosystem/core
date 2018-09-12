@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * Create a "where" object for a sequelize query.
+ * Create a "where" object for a sql query.
  * @param  {Object} parameters
  * @param  {Object} filters
  * @return {Object}

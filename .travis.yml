@@ -44,6 +44,8 @@ before_script:
   - sudo redis-server /etc/redis/redis.conf --port 6379
   - psql -c "create user ark with password 'password';" -U postgres
   - psql -c "create database ark_testnet with owner 'ark';" -U postgres
+  # needed for core-p2p at the moment
+  - psql -c "create database ark_devnet with owner 'ark';" -U postgres
 
 script:
   # See https://jestjs.io/docs/en/troubleshooting.html#tests-are-extremely-slow-on-docker-and-or-continuous-integration-ci-server
