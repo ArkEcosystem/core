@@ -154,8 +154,8 @@ module.exports = class SPV {
 
     // Map public keys
     const publicKeys = transactions.map(transaction => {
-      const wallet = this.walletManager.findByPublicKey(transactions.senderPublicKey)
-      wallet.username = Transaction.deserialize(transactions.serialized.toString('hex')).asset.delegate.username
+      const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
+      wallet.username = Transaction.deserialize(transaction.serialized.toString('hex')).asset.delegate.username
       this.walletManager.reindex(wallet)
       return transaction.senderPublicKey
     })
