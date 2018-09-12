@@ -2,14 +2,12 @@
 
 const Promise = require('bluebird')
 
-const { orderBy, sumBy } = require('lodash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
 const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
-const storage = container.resolvePlugin('storage')
 
 module.exports = class WalletManager {
   /**
@@ -27,15 +25,9 @@ module.exports = class WalletManager {
    * @return {void}
    */
   reset () {
-    storage.forget([
-      'walletsByAddress',
-      'walletsByPublicKey',
-      'walletsByUsername'
-    ])
-
-    this.byAddress = storage.setMap('walletsByAddress')
-    this.byPublicKey = storage.setMap('walletsByPublicKey')
-    this.byUsername = storage.setMap('walletsByUsername')
+    this.byAddress = {}
+    this.byPublicKey = {}
+    this.byUsername = {}
   }
 
   /**
@@ -43,7 +35,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   all () {
-    return this.byAddress.valueSeq().toArray()
+    return Object.values(this.byAddress)
   }
 
   /**
@@ -51,7 +43,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   allByPublicKey () {
-    return this.byPublicKey.valueSeq().toArray()
+    return Object.values(this.byPublicKey)
   }
 
   /**
@@ -59,7 +51,7 @@ module.exports = class WalletManager {
    * @return {Array}
    */
   allByUsername () {
-    return this.byUsername.valueSeq().toArray()
+    return Object.values(this.byUsername)
   }
 
   /**
@@ -68,11 +60,11 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByAddress (address) {
-    if (!this.byAddress.get(address)) {
-      this.setByAddress(address, new Wallet(address))
+    if (!this.byAddress[address]) {
+      this.byAddress[address] = new Wallet(address)
     }
 
-    return this.byAddress.get(address)
+    return this.byAddress[address]
   }
 
   /**
@@ -81,15 +73,15 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByPublicKey (publicKey) {
-    if (!this.byPublicKey.get(publicKey)) {
+    if (!this.byPublicKey[publicKey]) {
       const address = crypto.getAddress(publicKey, config.network.pubKeyHash)
 
       const wallet = this.findByAddress(address)
       wallet.publicKey = publicKey
-      this.setByPublicKey(publicKey, wallet)
+      this.byPublicKey[publicKey] = wallet
     }
 
-    return this.byPublicKey.get(publicKey)
+    return this.byPublicKey[publicKey]
   }
 
   /**
@@ -98,7 +90,7 @@ module.exports = class WalletManager {
    * @return {Wallet}
    */
   findByUsername (username) {
-    return this.byUsername.get(username)
+    return this.byUsername[username]
   }
 
   /**
@@ -108,7 +100,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByAddress (address, wallet) {
-    this.byAddress = this.byAddress.set(address, wallet)
+    this.byAddress = this.byAddress[address] = wallet
   }
 
   /**
@@ -118,7 +110,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByPublicKey (publicKey, wallet) {
-    this.byPublicKey = this.byPublicKey.set(publicKey, wallet)
+    this.byPublicKey = this.byPublicKey[publicKey] = wallet
   }
 
   /**
@@ -128,7 +120,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByUsername (username, wallet) {
-    this.byUsername = this.byUsername.set(username, wallet)
+    this.byUsername = this.byUsername[username] = wallet
   }
 
   /**
@@ -137,7 +129,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   forgetByAddress (address) {
-    this.byAddress = this.byAddress.delete(address)
+    delete this.byAddress[address]
   }
 
   /**
@@ -146,7 +138,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   forgetByPublicKey (publicKey) {
-    this.byPublicKey = this.byPublicKey.delete(publicKey)
+    delete this.byPublicKey[publicKey]
   }
 
   /**
@@ -155,7 +147,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   forgetByUsername (username) {
-    this.byUsername = this.byUsername.delete(username)
+    delete this.byUsername[username]
   }
 
   /**
@@ -176,44 +168,31 @@ module.exports = class WalletManager {
    */
   reindex (wallet) {
     if (wallet.address) {
-      this.setByAddress(wallet.address, wallet)
+      this.byAddress[wallet.address] = wallet
     }
 
     if (wallet.publicKey) {
-      this.setByPublicKey(wallet.publicKey, wallet)
+      this.byPublicKey[wallet.publicKey] = wallet
     }
 
     if (wallet.username) {
-      this.setByUsername(wallet.username, wallet)
+      this.byUsername[wallet.username] = wallet
     }
   }
 
   clear () {
-    this.byAddress.map(wallet => (wallet.dirty = false))
+    Object.values(this.byAddress).map(wallet => (wallet.dirty = false))
   }
 
   /**
-   * Update the vote balances and ranks of delegates.
+   * Update the vote balances of delegates.
    * @return {void}
    */
   async updateDelegates () {
-    let delegates = this.allByUsername().map(delegate => {
-      const voters = this
-        .all()
-        .filter(w => w.vote === delegate.publicKey)
-
-      delegate.voteBalance = sumBy(voters, 'balance')
-
-      return delegate
-    })
-
-    delegates = orderBy(delegates, ['voteBalance'], ['desc']).map((delegate, index) => {
-      delegate.rate = index + 1
-
-      return delegate
-    })
-
-    this.index(delegates)
+    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = 0))
+    Object.values(this.byPublicKey)
+      .filter(voter => !!voter.vote)
+      .forEach(voter => (this.byPublicKey[voter.vote].voteBalance += voter.balance))
   }
 
   /**
@@ -221,10 +200,10 @@ module.exports = class WalletManager {
    * @return {void}
    */
   purgeEmptyNonDelegates () {
-    this.allByPublicKey().forEach(wallet => {
+    Object.values(this.byPublicKey).forEach(wallet => {
       if (this.__canBePurged(wallet)) {
-        this.forgetByPublicKey(wallet.publicKey)
-        this.forgetByAddress(wallet.address)
+        delete this.byPublicKey[wallet.publicKey]
+        delete this.byAddress[wallet.address]
       }
     })
   }
@@ -237,7 +216,7 @@ module.exports = class WalletManager {
   applyBlock (block) {
     const generatorPublicKey = block.data.generatorPublicKey
 
-    let delegate = this.findByPublicKey(block.data.generatorPublicKey)
+    let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
       const generator = crypto.getAddress(generatorPublicKey, this.networkId)
@@ -248,9 +227,9 @@ module.exports = class WalletManager {
 
         this.reindex(delegate)
       } else {
-        logger.debug(`Delegate by address: ${this.byAddress.get(generator)}`)
+        logger.debug(`Delegate by address: ${this.byAddress[generator]}`)
 
-        if (this.byAddress(generator)) {
+        if (this.byAddress[generator]) {
           logger.info('This look like a bug, please report :bug:')
         }
 
@@ -288,7 +267,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   async revertBlock (block) {
-    let delegate = this.findByPublicKey(block.data.generatorPublicKey)
+    let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
       const generator = crypto.getAddress(block.data.generatorPublicKey, this.networkId)
@@ -330,7 +309,7 @@ module.exports = class WalletManager {
     const sender = this.findByPublicKey(senderPublicKey)
     const recipient = this.findByAddress(recipientId)
 
-    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.byUsername.get(asset.delegate.username.toLowerCase())) {
+    if (type === TRANSACTION_TYPES.DELEGATE_REGISTRATION && this.byUsername[asset.delegate.username.toLowerCase()]) {
 
       logger.error(`Can't apply transaction ${data.id}: delegate name already taken.`, JSON.stringify(data))
       throw new Error(`Can't apply transaction ${data.id}: delegate name already taken.`)
@@ -374,14 +353,14 @@ module.exports = class WalletManager {
    * @return {Transaction}
    */
   revertTransaction ({ type, data }) {
-    const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
-    const recipient = this.findByAddress(data.recipientId)
+    const sender = this.byPublicKey[data.senderPublicKey] // Should exist
+    const recipient = this.byAddress[data.recipientId]
 
     sender.revertTransactionForSender(data)
 
     // removing the wallet from the delegates index
     if (data.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      this.forgetByUsername(data.asset.delegate.username)
+      delete this.byUsername[data.asset.delegate.username]
     }
 
     if (recipient && type === TRANSACTION_TYPES.TRANSFER) {
@@ -396,9 +375,9 @@ module.exports = class WalletManager {
    * @param {String} publicKey
    */
   __isDelegate (publicKey) {
-    const delegateWallet = this.byPublicKey.get(publicKey)
+    const delegateWallet = this.byPublicKey[publicKey]
     if (delegateWallet && delegateWallet.username) {
-      return !!this.byUsername.get(delegateWallet.username)
+      return !!this.byUsername[delegateWallet.username]
     }
 
     return false
