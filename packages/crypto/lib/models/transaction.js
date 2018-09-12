@@ -117,6 +117,10 @@ module.exports = class Transaction {
         deserialized.id = crypto.getId(deserialized)
       }
     }
+
+    if (deserialized.type > 4) {
+      deserialized.verified = false
+    }
   }
 
   /*
