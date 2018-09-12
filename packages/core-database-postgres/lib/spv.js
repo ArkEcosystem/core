@@ -153,7 +153,12 @@ module.exports = class SPV {
     }
 
     // Map public keys
-    const publicKeys = transactions.map(transaction => transaction.senderPublicKey)
+    const publicKeys = transactions.map(transaction => {
+      const wallet = this.walletManager.findByPublicKey(transactions.senderPublicKey)
+      wallet.username = Transaction.deserialize(transactions.serialized.toString('hex')).asset.delegate.username
+      this.walletManager.reindex(wallet)
+      return transaction.senderPublicKey
+    })
 
     // Forged Blocks...
     const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks, { publicKeys })
