@@ -94,6 +94,7 @@ describe('Guard', () => {
     }
 
     const dummy = {
+      nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
       version: '2.0.0',
       status: 200,
       state: {}
@@ -105,6 +106,7 @@ describe('Guard', () => {
 
     it('should return a 1 day suspension for "Blacklisted"', () => {
       const { until, reason } = guard.__determineOffence({
+        nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
         ip: 'dummy-ip-addr'
       })
 
@@ -114,6 +116,7 @@ describe('Guard', () => {
 
     it('should return a 6 hours suspension for "Invalid Version"', () => {
       const { until, reason } = guard.__determineOffence({
+        nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
         version: '1.0.0',
         status: 200,
         delay: 1000

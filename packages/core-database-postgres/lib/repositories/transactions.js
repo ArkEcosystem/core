@@ -18,7 +18,7 @@ module.exports = class TransactionsRepository extends Repository {
    * @return {Promise}
    */
   async findManyById (ids) {
-    return this.db.many(sql.findManyById, { ids })
+    return this.db.manyOrNone(sql.findManyById, { ids })
   }
 
   /**
