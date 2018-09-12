@@ -168,24 +168,6 @@ module.exports = class SPV {
       wallet.missedBlocks = parseInt(delegate.missedBlocks)
       this.walletManager.reindex(wallet)
     })
-
-    // for (let i = 0; i < delegates.length; i++) {
-    //   const forgedBlock = forgedBlocks.filter(block => {
-    //     return block.generatorPublicKey === delegates[i].publicKey
-    //   })[0]
-
-    //   const wallet = this.walletManager.findByPublicKey(delegates[i].publicKey)
-    //   wallet.voteBalance = delegates[i].voteBalance
-    //   wallet.missedBlocks = parseInt(delegates[i].missedBlocks)
-
-    //   if (forgedBlock) {
-    //     wallet.forgedFees = +forgedBlock.totalFees
-    //     wallet.forgedRewards = +forgedBlock.totalRewards
-    //     wallet.producedBlocks = +forgedBlock.totalProduced
-    //   }
-
-    //   this.walletManager.reindex(wallet)
-    // }
   }
 
   /**
