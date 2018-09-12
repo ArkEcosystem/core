@@ -296,6 +296,7 @@ module.exports = class ConnectionInterface {
         logger.info(`Starting Round ${round} :dove_of_peace:`)
 
         try {
+          this.walletManager.updateDelegates()
           this.updateDelegateStats(height, this.activedelegates)
           await this.saveWallets(false) // save only modified wallets during the last round
           const delegates = await this.buildDelegates(maxDelegates, nextHeight) // active build delegate list from database state
@@ -303,10 +304,6 @@ module.exports = class ConnectionInterface {
           await this.getActiveDelegates(nextHeight) // generate the new active delegates list
 
           this.blocksInCurrentRound.length = 0
-
-          if (this.stateStarted) {
-            this.walletManager.updateDelegates()
-          }
         } catch (error) {
           // trying to leave database state has it was
           this.deleteRound(round)
