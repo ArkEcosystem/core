@@ -121,9 +121,6 @@ class Monitor {
       logger.debug(`Could not accept new peer '${newPeer.ip}:${newPeer.port}' - ${error}`)
 
       this.guard.suspend(newPeer)
-      // we don't throw since we answer unreacheable peer
-      // TODO: in next version, only accept to answer to sound peers that have properly registered
-      // hence we will throw an error
     }
   }
 
