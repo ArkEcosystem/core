@@ -136,7 +136,7 @@ describe('API P2P - Version 2', () => {
     })
   })
 
-  describe('POST /peer/transactions', () => {
+  describe.skip('POST /peer/transactions', () => {
     it('should fail with status code 406 when posting existing transaction', async () => {
       const response = await utils.POST('peer/transactions', {
         transactions: [genesisTransaction.toBroadcastV1()]

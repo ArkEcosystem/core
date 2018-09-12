@@ -91,25 +91,23 @@ class Monitor {
     if (this.guard.isBlacklisted(peer.ip)) {
       logger.debug(`Rejected peer ${peer.ip} as it is blacklisted`)
 
-      this.guard.suspend(newPeer)
-
-      return
+      return this.guard.suspend(newPeer)
     }
 
     if (!this.guard.isValidVersion(peer) && !this.guard.isWhitelisted(peer)) {
       logger.debug(`Rejected peer ${peer.ip} as it doesn't meet the minimum version requirements. Expected: ${config.peers.minimumVersion} - Received: ${peer.version}`)
 
-      this.guard.suspend(newPeer)
+      return this.guard.suspend(newPeer)
+    }
 
-      return
+    if (!this.guard.isValidNetwork(peer)) {
+      logger.debug(`Rejected peer ${peer.ip} as it isn't on the same network. Expected: ${config.network.nethash} - Received: ${peer.nethash}`)
+
+      return this.guard.suspend(newPeer)
     }
 
     if (this.getPeer(peer.ip)) {
       return
-    }
-
-    if (peer.nethash !== config.network.nethash) {
-      throw new Error('Request is made on the wrong network')
     }
 
     try {

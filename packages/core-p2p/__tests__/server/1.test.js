@@ -29,7 +29,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('peers')
       expect(response.data.peers).toBeArray()
@@ -45,7 +45,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('blocks')
       expect(response.data.blocks).toBeArray()
@@ -58,7 +58,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('blocks')
       expect(response.data.blocks).toBeArray()
@@ -77,7 +77,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('transactions')
       expect(response.data.transactions).toBeArray()
@@ -93,7 +93,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('height')
       expect(response.data.height).toBeNumber()
@@ -112,7 +112,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('transactions')
       expect(response.data.transactions).toBeArray()
@@ -130,7 +130,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('common')
       expect(response.data.common).toBeObject()
@@ -151,7 +151,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
     })
   })
 
@@ -166,7 +166,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
     })
   })
 
@@ -181,7 +181,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeFalsy()
+      expect(response.data.success).toBeTrue()
     })
   })
 })
