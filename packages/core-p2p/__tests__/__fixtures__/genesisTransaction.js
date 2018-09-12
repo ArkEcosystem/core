@@ -1,16 +1,14 @@
 const { Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = new Transaction({
-  id: 'd766f3161566df6e9303fc537c70f08649499b52847b7294526e0cd915d7d890',
-  blockid: '11761354193382453590',
-  type: 0,
-  timestamp: 35811986,
-  amount: 30990000000,
-  fee: 10000000,
-  senderId: 'DHFZisf6kosVsZec3UKyFj2mMdz2HxMjMK',
-  recipientId: 'DQ4GxpAfYT7fR2mPk8CqSE9as3CPDtFLF8',
-  senderPublicKey: '03982fac21d5f53a5b2740d46983676ad1702c597019b58b9ca9710b6f96fead0a',
-  signature: '3044022036405925de530cd83899984905aad3acfc322433e6c632e782c19381e80e0325022064af6f1c5d403d184858c1c6292704445cc284394b26be05a653346313ae1019',
-  asset: {},
-  confirmations: 4179
+  'type': 0,
+  'amount': 245098000000000,
+  'fee': 0,
+  'recipientId': 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri',
+  'timestamp': 0,
+  'asset': {},
+  'senderPublicKey': '035b63b4668ee261c16ca91443f3371e2fe349e131cb7bf5f8a3e93a3ddfdfc788',
+  'signature': '304402205fcb0677e06bde7aac3dc776665615f4b93ef8c3ed0fddecef9900e74fcb00f302206958a0c9868ea1b1f3d151bdfa92da1ce24de0b1fcd91933e64fb7971e92f48d',
+  'id': 'db1aa687737858cc9199bfa336f9b1c035915c30aaee60b1e0f8afadfdb946bd',
+  'senderId': 'APnhwwyTbMiykJwYbGhYjNgtHiVJDSEhSn'
 })

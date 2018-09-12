@@ -17,6 +17,12 @@ module.exports = {
     reason: 'Node is not at height',
     weight: 5
   },
+  INVALID_NETWORK: {
+    number: 5,
+    period: 'minutes',
+    reason: 'Invalid Network',
+    weight: 5
+  },
   INVALID_STATUS: {
     number: 5,
     period: 'minutes',

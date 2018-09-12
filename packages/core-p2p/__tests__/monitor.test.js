@@ -28,12 +28,12 @@ beforeEach(async () => {
 
   const initialPeersMock = {};
   ['0.0.0.0', '0.0.0.1', '0.0.0.2', '0.0.0.3', '0.0.0.4'].forEach(ip => {
-    const initialPeer = new Peer(ip, 4002)
+    const initialPeer = new Peer(ip, 4000)
     initialPeersMock[ip] = Object.assign(initialPeer, initialPeer.headers, { ban: 0 })
   });
   monitor.peers = initialPeersMock
 
-  peerMock = new Peer('0.0.0.99', 4002) // this peer is just here to be picked up by tests below (not added to initial peers)
+  peerMock = new Peer('0.0.0.99', 4000) // this peer is just here to be picked up by tests below (not added to initial peers)
   Object.assign(peerMock, peerMock.headers, { status: 'OK' })
 
   axiosMock.reset() // important: resets any existing mocking behavior
