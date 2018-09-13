@@ -34,9 +34,9 @@ before_install:
 install: yarn
 
 stages:
+  - test
   - lint
   - depcheck
-  - test
 
 before_script:
   - 'if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi'
