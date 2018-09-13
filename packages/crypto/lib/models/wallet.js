@@ -1,7 +1,6 @@
+const secp256k1 = require('secp256k1')
 const configManager = require('../managers/config')
 const { ARKTOSHI, TRANSACTION_TYPES } = require('../constants')
-const ECPair = require('../crypto/ecpair')
-const ECSignature = require('../crypto/ecsignature')
 const crypto = require('../crypto/crypto')
 const transactionHandler = require('../handlers/transactions')
 
@@ -156,12 +155,15 @@ module.exports = class Wallet {
    */
   verify (transaction, signature, publicKey) {
     const hash = crypto.getHash(transaction, true, true)
-    const signSignatureBuffer = Buffer.from(signature, 'hex')
+    const signatureBuffer = Buffer.from(signature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, configManager.config)
-    const ecsignature = ECSignature.fromDER(signSignatureBuffer)
 
-    return ecpair.verify(hash, ecsignature)
+    try {
+      signature = secp256k1.signatureImport(signatureBuffer)
+      return secp256k1.verify(hash, signature, publicKeyBuffer)
+    } catch (ex) {
+      return false
+    }
   }
 
   /**
