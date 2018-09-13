@@ -216,8 +216,6 @@ module.exports = class WalletManager {
   applyBlock (block) {
     const generatorPublicKey = block.data.generatorPublicKey
 
-    console.log(this.byPublicKey)
-
     let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
     if (!delegate) {
