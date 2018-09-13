@@ -384,7 +384,7 @@ class TransactionsRepository extends Repository {
           .from(blockQuery)
           .where(blockQuery.id.equals(data.blockId))
 
-        data.block = await this._findOne(query)
+        data.block = await this._find(query)
 
         this.__setBlockCache(data.block)
       }
