@@ -193,6 +193,38 @@ describe('crypto.js', () => {
       expect(keys.privateKey).toBeString()
       expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, 'hex').toString('hex'))
     })
+
+    it('should return address', () => {
+      const keys = crypto.getKeys('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+      const address = crypto.getAddress(keys.publicKey.toString('hex'))
+      expect(address).toBe('DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub')
+    })
+  })
+
+  describe('getKeysFromWIF', () => {
+    it('should be a function', () => {
+      expect(crypto.getKeysFromWIF).toBeFunction()
+    })
+
+    it('should return two keys in hex', () => {
+      const keys = crypto.getKeysFromWIF('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+
+      expect(keys.publicKey).toBeString()
+      expect(keys.publicKey).toMatch(Buffer.from(keys.publicKey, 'hex').toString('hex'))
+
+      expect(keys.privateKey).toBeString()
+      expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, 'hex').toString('hex'))
+    })
+
+    it('should return address', () => {
+      const keys = crypto.getKeysFromWIF('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+      const address = crypto.getAddress(keys.publicKey.toString('hex'))
+      expect(address).toBe('DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8')
+    })
   })
 
   describe('getAddress', () => {

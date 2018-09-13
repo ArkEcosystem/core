@@ -2,6 +2,7 @@ const bs58check = require('bs58check')
 const crypto = require('crypto')
 const ByteBuffer = require('bytebuffer');
 const secp256k1 = require('secp256k1')
+const wif = require('wif')
 
 const configManager = require('../managers/config')
 const utils = require('./utils')
@@ -321,12 +322,64 @@ class Crypto {
     return keyPair
   }
 
+    /**
+   * Get keys from WIF key.
+   * @param  {String} wifKey
+   * @param  {Object} network
+   * @return {Object}
+   */
+  getKeysFromWIF (wifKey, network) {
+    const decoded = wif.decode(wifKey)
+    const version = decoded.version
+
+    if (!network) {
+      network = configManager.all()
+    }
+
+    if (version !== network.wif) {
+      throw new Error('Invalid network version')
+    }
+
+    const privateKey = decoded.privateKey
+    const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed)
+
+    const keyPair = {
+      publicKey: publicKey.toString('hex'),
+      privateKey: privateKey.toString('hex')
+    }
+
+    return keyPair
+  }
+
   /**
    * Get the private key from secret
    * @param {String} secret
    */
   secretToPrivateKey (secret) {
     return utils.sha256(Buffer.from(secret, 'utf8'))
+  }
+
+  /**
+   * Get the WIF key from secret
+   * @param {String} secret
+   * @param {Object|undefined} network
+   */
+  secretToWIF (secret, network) {
+    const privateKey = this.secretToPrivateKey(secret)
+    return this.privateKeyToWIF(privateKey, network)
+  }
+
+  /**
+   * Get the WIF key from private key
+   * @param {Buffer} privateKey
+   * @param {Object|undefined} network
+   */
+  privateKeyToWIF (privateKey, network) {
+    if (!network) {
+      network = configManager.all()
+    }
+
+    return wif.encode(network.wif, privateKey)
   }
 
   /**

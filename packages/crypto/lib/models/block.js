@@ -134,7 +134,7 @@ module.exports = class Block {
   /*
    * Create block from data.
    * @param  {Object} data
-   * @param  {ECPair}} keys
+   * @param  {Object} keys
    * @return {Block}
    * @static
    */
