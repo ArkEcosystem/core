@@ -278,7 +278,7 @@ describe('Models - Block', () => {
     })
   })
 
-  describe('should order correctly transactions in deserialization', () => {
+  describe('should reorder correctly transactions in deserialization', () => {
     const issue = {
       version: 0,
       timestamp: 25029544,
@@ -328,7 +328,7 @@ describe('Models - Block', () => {
 
     const block = new Block(issue)
     expect(block.data.id).toBe(issue.id)
-    expect(block.transactions[0].id).toBe(issue.transactions[0].id)
+    expect(block.transactions[0].id).toBe(issue.transactions[1].id)
   })
 
   describe('v1 fix', () => {
