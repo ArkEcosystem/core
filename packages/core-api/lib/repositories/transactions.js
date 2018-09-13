@@ -91,13 +91,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
@@ -122,13 +124,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
@@ -193,9 +197,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(id))
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transaction = await this._find(query)
 
-    return this._find(query)
+    return this.__mapBlocksToTransactions(transaction)
   }
 
   /**
@@ -210,9 +214,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(id).and(this.query.type.equals(type)))
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transaction = await this._find(query)
 
-    return this._find(query)
+    return this.__mapBlocksToTransactions(transaction)
   }
 
   /**
@@ -239,9 +243,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.vendor_field_hex.isNotNull())
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transactions = await this._findMany(query)
 
-    return this._findMany(query)
+    return this.__mapBlocksToTransactions(transactions)
   }
 
   /**
@@ -305,13 +309,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
