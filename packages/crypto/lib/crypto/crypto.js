@@ -1,13 +1,11 @@
-// const createHash = require('create-hash')
 const bs58check = require('bs58check')
 const crypto = require('crypto')
-// const { Buffer } = require('buffer/')
-var ByteBuffer = require('bytebuffer');
+const ByteBuffer = require('bytebuffer');
+const secp256k1 = require('secp256k1')
 
 const configManager = require('../managers/config')
 const utils = require('./utils')
 const ECPair = require('./ecpair')
-const ECSignature = require('./ecsignature')
 const feeManager = require('../managers/fee')
 
 class Crypto {
@@ -209,12 +207,14 @@ class Crypto {
       hash = this.getHash(transaction, false, false)
     }
 
-    const signature = keys.sign(hash).toDER().toString('hex')
+    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
+    const derSignature = secp256k1.signatureExport(signature).toString('hex')
+
     if (!transaction.signature) {
-      transaction.signature = signature
+      transaction.signature = derSignature
     }
 
-    return signature
+    return derSignature
   }
 
   /**
@@ -225,13 +225,15 @@ class Crypto {
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
-    const signature = keys.sign(hash).toDER().toString('hex')
+
+    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
+    const derSignature = secp256k1.signatureExport(signature).toString('hex')
 
     if (!transaction.secondSignature) {
-      transaction.secondSignature = signature
+      transaction.secondSignature = derSignature
     }
 
-    return signature
+    return derSignature
   }
 
   /**
@@ -246,6 +248,10 @@ class Crypto {
       return false
     }
 
+    if (!transaction.signature) {
+      return false
+    }
+
     if (!network) {
       network = configManager.config
     }
@@ -253,10 +259,13 @@ class Crypto {
     const hash = this.getHash(transaction, true, true)
     const signatureBuffer = Buffer.from(transaction.signature, 'hex')
     const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, network)
-    const ecsignature = ECSignature.fromDER(signatureBuffer)
 
-    return ecpair.verify(hash, ecsignature)
+    try {
+      const signature = secp256k1.signatureImport(signatureBuffer)
+      return secp256k1.verify(hash, signature, senderPublicKeyBuffer)
+    } catch (ex) {
+      return false
+    }
   }
 
   /**
@@ -287,10 +296,12 @@ class Crypto {
 
     const secondSignatureBuffer = Buffer.from(secondSignature, 'hex')
     const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    const ecpair = ECPair.fromPublicKeyBuffer(publicKeyBuffer, network)
-    const ecsignature = ECSignature.fromDER(secondSignatureBuffer)
-
-    return ecpair.verify(hash, ecsignature)
+    try {
+      const signature = secp256k1.signatureImport(secondSignatureBuffer)
+      return secp256k1.verify(hash, signature, publicKeyBuffer)
+    } catch (ex) {
+      return false
+    }
   }
 
   /**
