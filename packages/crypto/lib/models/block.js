@@ -144,7 +144,7 @@ module.exports = class Block {
     const payloadHash = Block.serialize(data, false)
     const hash = crypto.createHash('sha256').update(payloadHash).digest()
 
-    data.blockSignature = keys.sign(hash).toDER().toString('hex')
+    data.blockSignature = crypto.signHash(hash, keys)
     data.id = Block.getId(data)
 
     return new Block(data)

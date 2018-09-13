@@ -207,14 +207,13 @@ class Crypto {
       hash = this.getHash(transaction, false, false)
     }
 
-    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
-    const derSignature = secp256k1.signatureExport(signature).toString('hex')
+    const signature = this.signHash(hash, keys)
 
     if (!transaction.signature) {
-      transaction.signature = derSignature
+      transaction.signature = signature
     }
 
-    return derSignature
+    return signature
   }
 
   /**
@@ -225,15 +224,24 @@ class Crypto {
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
-
-    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
-    const derSignature = secp256k1.signatureExport(signature).toString('hex')
+    const signature = this.signHash(hash, keys)
 
     if (!transaction.secondSignature) {
-      transaction.secondSignature = derSignature
+      transaction.secondSignature = signature
     }
 
-    return derSignature
+    return signature
+  }
+
+  /**
+   * Sign a hash
+   * @param  {Buffer} hash
+   * @param  {Object} keys
+   * @return {String}
+   */
+  signHash (hash, keys) {
+    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
+    return secp256k1.signatureExport(signature).toString('hex')
   }
 
   /**

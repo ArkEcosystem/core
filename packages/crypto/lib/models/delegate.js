@@ -37,7 +37,7 @@ module.exports = class Delegate {
     if (bip38.verify(passphrase)) {
       try {
         this.keys = Delegate.decryptPassphrase(passphrase, network, password)
-        this.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
+        this.publicKey = this.keys.publicKey
         this.address = this.keys.getAddress(network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
         this.bip38 = true
