@@ -188,7 +188,7 @@ module.exports = class WalletManager {
    * Update the vote balances of delegates.
    * @return {void}
    */
-  async updateDelegates () {
+  updateDelegates () {
     Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = 0))
     Object.values(this.byPublicKey)
       .filter(voter => !!voter.vote)
@@ -215,6 +215,8 @@ module.exports = class WalletManager {
    */
   applyBlock (block) {
     const generatorPublicKey = block.data.generatorPublicKey
+
+    console.log(this.byPublicKey)
 
     let delegate = this.byPublicKey[block.data.generatorPublicKey]
 
@@ -353,7 +355,7 @@ module.exports = class WalletManager {
    * @return {Transaction}
    */
   revertTransaction ({ type, data }) {
-    const sender = this.byPublicKey[data.senderPublicKey] // Should exist
+    const sender = this.findByPublicKey(data.senderPublicKey) // Should exist
     const recipient = this.byAddress[data.recipientId]
 
     sender.revertTransactionForSender(data)
