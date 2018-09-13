@@ -1,7 +1,6 @@
 const BigInteger = require('bigi')
 
 const configManager = require('../../../lib/managers/config')
-const ecdsa = require('../../../lib/crypto/ecdsa')
 const HDNode = require('../../../lib/crypto/hdnode')
 const { NETWORKS } = require('../../utils/network-list')
 
@@ -37,17 +36,6 @@ describe('HDNode', () => {
       expect(() => {
         HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
       }).toThrowError(/Private key must be greater than 0/)
-
-      expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(1)
-    })
-
-    it('throws if IL is not within interval [1, n - 1] | IL === n', () => {
-      BigInteger.fromBuffer = jest.fn()
-      BigInteger.fromBuffer.mockReturnValue(ecdsa.__curve.n)
-
-      expect(() => {
-        HDNode.fromSeedHex('ffffffffffffffffffffffffffffffff')
-      }).toThrowError(/Private key must be less than the curve order/)
 
       expect(BigInteger.fromBuffer).toHaveBeenCalledTimes(1)
     })
