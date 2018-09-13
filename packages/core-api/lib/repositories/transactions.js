@@ -10,10 +10,6 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class TransactionsRepository extends Repository {
-  getModel () {
-    return database.models.transaction
-  }
-
   /**
    * Get all transactions.
    * @param  {Object}  params
@@ -51,11 +47,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
@@ -91,13 +91,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
@@ -122,13 +124,15 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
   }
 
   /**
@@ -193,9 +197,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(id))
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transaction = await this._find(query)
 
-    return this._find(query)
+    return this.__mapBlocksToTransactions(transaction)
   }
 
   /**
@@ -210,9 +214,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.id.equals(id).and(this.query.type.equals(type)))
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transaction = await this._find(query)
 
-    return this._find(query)
+    return this.__mapBlocksToTransactions(transaction)
   }
 
   /**
@@ -239,9 +243,9 @@ class TransactionsRepository extends Repository {
       .from(this.query)
       .where(this.query.vendor_field_hex.isNotNull())
 
-    // return this.__mapBlocksToTransactions(transaction)
+    const transactions = await this._findMany(query)
 
-    return this._findMany(query)
+    return this.__mapBlocksToTransactions(transactions)
   }
 
   /**
@@ -305,13 +309,19 @@ class TransactionsRepository extends Repository {
 
     applyConditions([selectQuery, countQuery])
 
-    // rows = await this.__mapBlocksToTransactions(transactions)
-
-    return this._findManyWithCount(selectQuery, countQuery, {
+    const results = await this._findManyWithCount(selectQuery, countQuery, {
       limit: parameters.limit,
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+
+    results.rows = await this.__mapBlocksToTransactions(results.rows)
+
+    return results
+  }
+
+  getModel () {
+    return database.models.transaction
   }
 
   /**
@@ -320,6 +330,8 @@ class TransactionsRepository extends Repository {
    * @return {Object}
    */
   async __mapBlocksToTransactions (data) {
+    const blockQuery = database.models.block.query()
+
     // Array...
     if (Array.isArray(data)) {
       // 1. get heights from cache
@@ -340,15 +352,15 @@ class TransactionsRepository extends Repository {
 
       // 2. get missing heights from database
       if (missingFromCache.length) {
-        const blocks = await this.query
-          .select('id', 'height')
-          .from('blocks')
-          .whereIn('id', missingFromCache.map(d => d.blockId))
-          .groupBy('id')
-          .all()
+        const query = blockQuery
+          .select(blockQuery.id, blockQuery.height)
+          .from(blockQuery)
+          .where(blockQuery.id.in(missingFromCache.map(d => d.blockId)))
+          .group(blockQuery.id)
 
-        for (let i = 0; i < missingFromCache.length; i++) {
-          const missing = missingFromCache[i]
+        const blocks = await this._findMany(query)
+
+        for (const missing of missingFromCache) {
           const block = blocks.find(block => (block.id === missing.blockId))
           if (block) {
             data[missing.index].block = block
@@ -367,11 +379,12 @@ class TransactionsRepository extends Repository {
       if (cachedBlock) {
         data.block = cachedBlock
       } else {
-        data.block = await this.query
-          .select('id', 'height')
-          .from('blocks')
-          .where('id', data.blockId)
-          .first()
+        const query = blockQuery
+          .select(blockQuery.id, blockQuery.height)
+          .from(blockQuery)
+          .where(blockQuery.id.equals(data.blockId))
+
+        data.block = await this._find(query)
 
         this.__setBlockCache(data.block)
       }
