@@ -5,7 +5,7 @@ const { crypto } = require('@arkecosystem/crypto')
 
 describe('Wallet Manager', () => {
   describe('apply block on mainnet', () => {
-    const manager = new (require('@arkecosystem/core-database/lib/wallet-manager'))()
+    const manager = new (require('../lib/wallet-manager'))()
     const testWallet = new Wallet('ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38')
     testWallet.publicKey = '02aadc3e0993c1d3447db27741745eb9c2c6522cccf02fc8efe3bf2d49708243dd'
     testWallet.balance = 109390000000
