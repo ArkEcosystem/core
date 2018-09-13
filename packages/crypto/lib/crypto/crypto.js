@@ -5,7 +5,6 @@ const secp256k1 = require('secp256k1')
 
 const configManager = require('../managers/config')
 const utils = require('./utils')
-const ECPair = require('./ecpair')
 const feeManager = require('../managers/fee')
 
 class Crypto {
@@ -207,7 +206,7 @@ class Crypto {
       hash = this.getHash(transaction, false, false)
     }
 
-    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
+    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
     const derSignature = secp256k1.signatureExport(signature).toString('hex')
 
     if (!transaction.signature) {
@@ -226,7 +225,7 @@ class Crypto {
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
 
-    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
+    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
     const derSignature = secp256k1.signatureExport(signature).toString('hex')
 
     if (!transaction.secondSignature) {
@@ -302,20 +301,32 @@ class Crypto {
     } catch (ex) {
       return false
     }
-  }
+ }
 
   /**
    * Get keys from secret.
    * @param  {String} secret
-   * @param  {Object} options
-   * @return {ECPair}
+   * @param  {boolean|undefined} uncompressed
+   * @return {Object}
    */
-  getKeys (secret, options) {
-    const ecpair = ECPair.fromSeed(secret, options)
-    ecpair.publicKey = ecpair.getPublicKeyBuffer().toString('hex')
-    ecpair.privateKey = ''
+  getKeys (secret, uncompressed) {
+    const privateKey = this.secretToPrivateKey(secret)
+    const publicKey = secp256k1.publicKeyCreate(privateKey, !uncompressed)
 
-    return ecpair
+    const keyPair = {
+      publicKey: publicKey.toString('hex'),
+      privateKey: privateKey.toString('hex')
+    }
+
+    return keyPair
+  }
+
+  /**
+   * Get the private key from secret
+   * @param {String} secret
+   */
+  secretToPrivateKey (secret) {
+    return utils.sha256(Buffer.from(secret, 'utf8'))
   }
 
   /**
