@@ -87,7 +87,8 @@ module.exports = class Delegate {
    */
   encryptKeysWithOtp () {
     this.otp = otplib.authenticator.generate(this.otpSecret)
-    const wifKey = crypto.privateKeyToWIF(Buffer.from(this.keys.privateKey, 'hex'))
+    const privateKeyBuffer = Buffer.from(this.keys.privateKey, 'hex')
+    const wifKey = crypto.privateKeyToWIF(privateKeyBuffer, this.keys.compressed)
     this.encryptedKeys = this.__encryptData(wifKey, this.otp)
     this.keys = null
   }

@@ -307,16 +307,17 @@ class Crypto {
   /**
    * Get keys from secret.
    * @param  {String} secret
-   * @param  {boolean|undefined} uncompressed
+   * @param  {boolean} compressed
    * @return {Object}
    */
-  getKeys (secret, uncompressed) {
+  getKeys (secret, compressed = true) {
     const privateKey = this.secretToPrivateKey(secret)
-    const publicKey = secp256k1.publicKeyCreate(privateKey, !uncompressed)
+    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
 
     const keyPair = {
       publicKey: publicKey.toString('hex'),
-      privateKey: privateKey.toString('hex')
+      privateKey: privateKey.toString('hex'),
+      compressed
     }
 
     return keyPair
@@ -345,7 +346,8 @@ class Crypto {
 
     const keyPair = {
       publicKey: publicKey.toString('hex'),
-      privateKey: privateKey.toString('hex')
+      privateKey: privateKey.toString('hex'),
+      compressed: decoded.compressed
     }
 
     return keyPair
@@ -365,21 +367,22 @@ class Crypto {
    * @param {Object|undefined} network
    */
   secretToWIF (secret, network) {
-    const privateKey = this.secretToPrivateKey(secret)
-    return this.privateKeyToWIF(privateKey, network)
+    const keys = this.getKeys(secret)
+    return this.privateKeyToWIF(keys.privateKey, keys.compressed, network)
   }
 
   /**
    * Get the WIF key from private key
    * @param {Buffer} privateKey
+   * @param {boolean|undefined} compressed
    * @param {Object|undefined} network
    */
-  privateKeyToWIF (privateKey, network) {
+  privateKeyToWIF (privateKey, compressed, network) {
     if (!network) {
       network = configManager.all()
     }
 
-    return wif.encode(network.wif, privateKey)
+    return wif.encode(network.wif, privateKey, compressed)
   }
 
   /**
