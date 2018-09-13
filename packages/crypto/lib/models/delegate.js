@@ -38,7 +38,7 @@ module.exports = class Delegate {
       try {
         this.keys = Delegate.decryptPassphrase(passphrase, network, password)
         this.publicKey = this.keys.publicKey
-        this.address = this.keys.getAddress(network.pubKeyHash)
+        this.address = crypto.getAddress(this.keys.publicKey, network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
         this.bip38 = true
         this.encryptKeysWithOtp()
@@ -50,7 +50,7 @@ module.exports = class Delegate {
     } else {
       this.keys = crypto.getKeys(passphrase)
       this.publicKey = this.keys.publicKey
-      this.address = this.keys.getAddress(network.pubKeyHash)
+      this.address = crypto.getAddress(this.publicKey, network.pubKeyHash)
     }
   }
 
