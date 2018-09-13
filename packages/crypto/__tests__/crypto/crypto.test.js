@@ -1,8 +1,3 @@
-const { Buffer } = require('buffer/')
-const ecurve = require('ecurve')
-
-const ECPair = require('../../lib/crypto/ecpair')
-const ecdsa = require('../../lib/crypto/ecdsa')
 const crypto = require('../../lib/crypto/crypto')
 const configManager = require('../../lib/managers/config')
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../../lib/constants')
@@ -123,7 +118,7 @@ describe('crypto.js', () => {
       expect(crypto.getId).toBeFunction()
     })
 
-    xit('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
+    it('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
       const transaction = {
         type: 0,
         amount: 1000,
@@ -167,7 +162,7 @@ describe('crypto.js', () => {
         recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
         timestamp: 141738,
         asset: {},
-        senderPublicKey: keys.getPublicKeyBuffer().toString('hex')
+        senderPublicKey: keys.publicKey
       }
       const signature = crypto.sign(transaction, keys)
       expect(signature.toString('hex')).toBe('3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe')
@@ -219,16 +214,6 @@ describe('crypto.js', () => {
 
       expect(address).toBeString()
       expect(address).toBe('DDp4SYpnuzFPuN4W79PYY762d7FtW3DFFN')
-    })
-
-    it('should generate the same address as ECPair.getAddress()', () => {
-      const keys = crypto.getKeys('secret second test to be sure it works correctly')
-      const address = crypto.getAddress(keys.publicKey)
-
-      const Q = ecurve.Point.decodeFrom(ecdsa.__curve, Buffer.from(keys.publicKey, 'hex'))
-      const keyPair = new ECPair(null, Q)
-
-      expect(address).toBe(keyPair.getAddress())
     })
 
     it('should not throw an error if the publicKey is valid', () => {
