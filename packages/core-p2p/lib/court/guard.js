@@ -149,6 +149,15 @@ class Guard {
   }
 
   /**
+   * Determine if the peer is on the right network.
+   * @param  {Peer}  peer
+   * @return {Boolean}
+   */
+  isValidNetwork (peer) {
+    return peer.nethash === config.network.nethash
+  }
+
+  /**
    * Determine if the peer has a valid port.
    * @param  {Peer}  peer
    * @return {Boolean}
@@ -197,6 +206,10 @@ class Guard {
 
     if (peer.delay > 2000) {
       return this.__determinePunishment(peer, offences.HIGH_LATENCY)
+    }
+
+    if (!this.isValidNetwork(peer)) {
+      return this.__determinePunishment(peer, offences.INVALID_NETWORK)
     }
 
     if (!this.isValidVersion(peer)) {

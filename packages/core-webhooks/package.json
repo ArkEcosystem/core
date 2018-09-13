@@ -15,7 +15,7 @@
     "test:watch": "cross-env ARK_ENV=test jest --runInBand --watch",
     "test:watch:all": "cross-env ARK_ENV=test jest --runInBand --watchAll",
     "lint": "eslint ./ --fix",
-    "depcheck": "depcheck ./"
+    "depcheck": "depcheck ./ --ignores sqlite3"
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
@@ -28,6 +28,7 @@
     "micromatch": "^3.1.10",
     "request-ip": "^2.0.2",
     "sequelize": "^4.37.8",
+    "sqlite3": "^4.0.2",
     "umzug": "^2.1.0"
   },
   "publishConfig": {

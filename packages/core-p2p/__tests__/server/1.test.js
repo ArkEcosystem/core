@@ -29,14 +29,14 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('peers')
       expect(response.data.peers).toBeArray()
     })
   })
 
-  describe('GET /peer/blocks', () => {
+  describe.skip('GET /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await utils.GET('peer/blocks', { lastBlockHeight: 1 })
 
@@ -45,7 +45,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('blocks')
       expect(response.data.blocks).toBeArray()
@@ -58,7 +58,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('blocks')
       expect(response.data.blocks).toBeArray()
@@ -77,7 +77,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('transactions')
       expect(response.data.transactions).toBeArray()
@@ -93,7 +93,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('height')
       expect(response.data.height).toBeNumber()
@@ -112,7 +112,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
 
       expect(response.data).toHaveProperty('transactions')
       expect(response.data.transactions).toBeArray()
@@ -122,7 +122,7 @@ describe('API - Version 1', () => {
   describe('GET /peer/blocks/common', () => {
     it('should be ok', async () => {
       const response = await utils.GET('peer/blocks/common', {
-        ids: '13149578060728881902'
+        ids: '17184958558311101492'
       })
 
       expect(response.status).toBe(200)
@@ -130,12 +130,11 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
-
+      expect(response.data.success).toBeTrue()
       expect(response.data).toHaveProperty('common')
       expect(response.data.common).toBeObject()
       expect(response.data.common.height).toBe(1)
-      expect(response.data.common.id).toBe('13149578060728881902')
+      expect(response.data.common.id).toBe('17184958558311101492')
 
       expect(response.data).toHaveProperty('lastBlockHeight')
       expect(response.data.lastBlockHeight).toBeNumber()
@@ -151,7 +150,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
     })
   })
 
@@ -166,7 +165,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeTruthy()
+      expect(response.data.success).toBeTrue()
     })
   })
 
@@ -181,7 +180,7 @@ describe('API - Version 1', () => {
       expect(response.data).toBeObject()
 
       expect(response.data).toHaveProperty('success')
-      expect(response.data.success).toBeFalsy()
+      expect(response.data.success).toBeTrue()
     })
   })
 })

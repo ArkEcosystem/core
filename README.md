@@ -34,7 +34,6 @@ This repository contains all plugins that make up the ARK Core.
 | [core-config](/packages/core-config) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-config.svg)](https://www.npmjs.com/package/@arkecosystem/core-config) | Configuration Loader |
 | [core-container](/packages/core-container) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-container.svg)](https://www.npmjs.com/package/@arkecosystem/core-container) | Container Management |
 | [core-database](/packages/core-database) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-database.svg)](https://www.npmjs.com/package/@arkecosystem/core-database) | Database Interface |
-| [core-database-sequelize](/packages/core-database-sequelize) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-database-sequelize.svg)](https://www.npmjs.com/package/@arkecosystem/core-database-sequelize) | Sequelize Database Provider |
 | [core-deployer](/packages/core-deployer) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-deployer.svg)](https://www.npmjs.com/package/@arkecosystem/core-deployer) | Deployer CLI |
 | [core-event-emitter](/packages/core-event-emitter) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-event-emitter.svg)](https://www.npmjs.com/package/@arkecosystem/core-event-emitter) | Event Manager |
 | [core-forger](/packages/core-forger) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-forger.svg)](https://www.npmjs.com/package/@arkecosystem/core-forger) | Forger Manager |
