@@ -63,7 +63,8 @@ module.exports = class Delegate {
    * @static
    */
   static encryptPassphrase (passphrase, network, password) {
-    const decoded = wif.decode(crypto.secretToWIF(passphrase, network))
+    const keys = crypto.getKeys(passphrase)
+    const decoded = wif.decode(crypto.keysToWIF(keys, network))
 
     return bip38.encrypt(decoded.privateKey, decoded.compressed, password)
   }
@@ -87,8 +88,7 @@ module.exports = class Delegate {
    */
   encryptKeysWithOtp () {
     this.otp = otplib.authenticator.generate(this.otpSecret)
-    const privateKeyBuffer = Buffer.from(this.keys.privateKey, 'hex')
-    const wifKey = crypto.privateKeyToWIF(privateKeyBuffer, this.keys.compressed)
+    const wifKey = crypto.keysToWIF(this.keys, this.network)
     this.encryptedKeys = this.__encryptData(wifKey, this.otp)
     this.keys = null
   }

@@ -85,7 +85,8 @@ app
     const { configManager, crypto } = require('@arkecosystem/crypto')
     configManager.setFromPreset(options.token, options.network)
 
-    const decoded = wif.decode(crypto.secretToWIF(options.secret))
+    const keys = crypto.getKeys(options.secret)
+    const decoded = wif.decode(crypto.keysToWIF(keys))
 
     const delegates = require(delegatesConfig)
     delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password)

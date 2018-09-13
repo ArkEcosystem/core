@@ -225,6 +225,53 @@ describe('crypto.js', () => {
       const address = crypto.getAddress(keys.publicKey.toString('hex'))
       expect(address).toBe('DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8')
     })
+
+    it('should get keys from compressed WIF', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+      expect(keys).toHaveProperty('compressed', true)
+    })
+
+    it('should get keys from uncompressed WIF', () => {
+      const keys = crypto.getKeysFromWIF('6hgnAG19GiMUf75C43XteG2mC8esKTiX9PYbKTh4Gca9MELRWmg')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+      expect(keys).toHaveProperty('compressed', false)
+    })
+  })
+
+  describe('keysToWIF', () => {
+    it('should be a function', () => {
+      expect(crypto.keysToWIF).toBeFunction()
+    })
+
+    it('should get keys from WIF', () => {
+      const wifKey = 'SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4'
+      const keys = crypto.getKeysFromWIF(wifKey)
+      const actual = crypto.keysToWIF(keys)
+
+      expect(keys.compressed).toBeTruthy()
+      expect(actual).toBe(wifKey)
+    })
+
+    it('should get address from compressed WIF (mainnet)', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4', CONFIGURATIONS.ARK.MAINNET)
+      const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.MAINNET.pubKeyHash)
+      expect(keys.compressed).toBeTruthy()
+      expect(address).toBe('APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez')
+    })
+
+    it('should get address from compressed WIF (devnet)', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4', CONFIGURATIONS.ARK.DEVNET)
+      const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.DEVNET.pubKeyHash)
+      expect(keys.compressed).toBeTruthy()
+      expect(address).toBe('DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS')
+    })
   })
 
   describe('getAddress', () => {

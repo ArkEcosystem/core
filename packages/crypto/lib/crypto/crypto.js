@@ -311,7 +311,7 @@ class Crypto {
    * @return {Object}
    */
   getKeys (secret, compressed = true) {
-    const privateKey = this.secretToPrivateKey(secret)
+    const privateKey = utils.sha256(Buffer.from(secret, 'utf8'))
     const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
 
     const keyPair = {
@@ -354,35 +354,17 @@ class Crypto {
   }
 
   /**
-   * Get the private key from secret
-   * @param {String} secret
+   * Get WIF key from keys
+   * @param {Object} keys
+   * @param {(Object|undefined)} network
+   * @returns {String}
    */
-  secretToPrivateKey (secret) {
-    return utils.sha256(Buffer.from(secret, 'utf8'))
-  }
-
-  /**
-   * Get the WIF key from secret
-   * @param {String} secret
-   * @param {Object|undefined} network
-   */
-  secretToWIF (secret, network) {
-    const keys = this.getKeys(secret)
-    return this.privateKeyToWIF(keys.privateKey, keys.compressed, network)
-  }
-
-  /**
-   * Get the WIF key from private key
-   * @param {Buffer} privateKey
-   * @param {boolean|undefined} compressed
-   * @param {Object|undefined} network
-   */
-  privateKeyToWIF (privateKey, compressed, network) {
+  keysToWIF (keys, network) {
     if (!network) {
       network = configManager.all()
     }
 
-    return wif.encode(network.wif, privateKey, compressed)
+    return wif.encode(network.wif, Buffer.from(keys.privateKey, 'hex'), keys.compressed)
   }
 
   /**
