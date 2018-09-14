@@ -1,33 +1,24 @@
-const levelup = require('levelup')
-const leveldown = require('leveldown')
+const Keyv = require('keyv')
 
 class Database {
-  constructor () {
-    this.database = levelup(leveldown(`${process.env.ARK_PATH_DATA}/database/json-rpc`))
+  init (options) {
+    this.database = new Keyv(options)
   }
 
-  async getUTF8 (id) {
-    const value = await this.database.get(id)
-
-    return value.toString('UTF8')
+  async get (id) {
+    return this.database.get(id)
   }
 
-  async getObject (id) {
-    const value = await this.database.get(id)
-
-    return JSON.parse(value.toString('UTF8'))
+  async set (id, value) {
+    return this.database.set(id, value)
   }
 
-  async setUTF8 (id, value) {
-    return this.database.put(id, value)
+  async delete (id) {
+    return this.database.delete(id)
   }
 
-  async setObject (id, value) {
-    return this.database.put(id, JSON.stringify(value))
-  }
-
-  async close () {
-    return this.database.close()
+  async clear () {
+    return this.database.clear()
   }
 }
 

@@ -5,7 +5,7 @@ const database = require('../services/database')
 
 module.exports = async (userId, bip38password) => {
   try {
-    const encryptedWif = await database.getUTF8(utils.sha256(Buffer.from(userId)).toString('hex'))
+    const encryptedWif = await database.get(utils.sha256(Buffer.from(userId)).toString('hex'))
 
     if (encryptedWif) {
       const decrypted = bip38.decrypt(encryptedWif.toString('hex'), bip38password + userId)

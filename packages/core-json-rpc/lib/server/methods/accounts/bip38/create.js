@@ -20,7 +20,7 @@ module.exports = {
       const keys = crypto.getKeys(bip39.generateMnemonic())
 
       const encryptedWif = bip38.encrypt(Buffer.from(keys.privateKey, 'hex'), true, params.bip38 + params.userId)
-      await database.setUTF8(utils.sha256(Buffer.from(params.userId)).toString('hex'), encryptedWif)
+      await database.set(utils.sha256(Buffer.from(params.userId)).toString('hex'), encryptedWif)
 
       return {
         publicKey: keys.publicKey,

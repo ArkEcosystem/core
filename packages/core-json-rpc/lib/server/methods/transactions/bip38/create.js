@@ -20,7 +20,7 @@ module.exports = {
     crypto.sign(transaction, account.keys)
     transaction.id = crypto.getId(transaction)
 
-    await database.setObject(transaction.id, transaction)
+    await database.set(transaction.id, transaction)
 
     return transaction
   },
