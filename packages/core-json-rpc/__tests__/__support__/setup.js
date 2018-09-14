@@ -20,7 +20,8 @@ exports.setUp = async () => {
     ],
     options: {
       '@arkecosystem/core-json-rpc': {
-        enabled: true
+        enabled: true,
+        database: { uri: null }
       }
     }
   })
