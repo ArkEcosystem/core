@@ -95,8 +95,6 @@ module.exports = {
     port: process.env.ARK_JSON_RPC_PORT || 8080,
     allowRemote: true,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
-    database: {
-      store: new Map()
-    }
+    database: {}
   }
 }
