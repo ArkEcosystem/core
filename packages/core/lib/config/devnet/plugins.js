@@ -96,7 +96,7 @@ module.exports = {
     allowRemote: true,
     whitelist: ['127.0.0.1', '::ffff:127.0.0.1', '192.168.*'],
     database: {
-      uri: `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
+      uri: process.env.ARK_JSON_RPC_DATABASE || `sqlite://${process.env.ARK_PATH_DATA}/database/json-rpc.sqlite`,
       options: {}
     }
   }

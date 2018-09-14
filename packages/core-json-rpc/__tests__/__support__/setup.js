@@ -6,6 +6,9 @@ const container = require('@arkecosystem/core-container')
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
+  process.env.ARK_JSON_RPC_ENABLED = true
+  process.env.ARK_JSON_RPC_DATABASE = ''
+
   await container.setUp({
     data: '~/.ark',
     config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
@@ -17,13 +20,7 @@ exports.setUp = async () => {
       '@arkecosystem/core-webhooks',
       '@arkecosystem/core-graphql',
       '@arkecosystem/core-forger'
-    ],
-    options: {
-      '@arkecosystem/core-json-rpc': {
-        enabled: true,
-        database: { uri: null }
-      }
-    }
+    ]
   })
 }
 
