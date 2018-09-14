@@ -14,7 +14,7 @@ module.exports = {
       return params.transactions
     }
 
-    let transaction = await database.getObject(params.id)
+    let transaction = await database.get(params.id)
     transaction = transaction || params
 
     if (!ark.crypto.verify(transaction)) {
