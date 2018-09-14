@@ -29,10 +29,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await app.tearDown()
-
-  // close the database to release the lock for other tests
-  const database = require('../lib/server/services/database')
-  await database.close()
 })
 
 beforeEach(async () => {

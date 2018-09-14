@@ -1,5 +1,7 @@
 'use strict'
 
+const database = require('./server/services/database')
+
 /**
  * The struct used by the plugin container.
  * @type {Object}
@@ -16,6 +18,8 @@ exports.plugin = {
 
       return
     }
+
+    database.init(options.database)
 
     return require('./server')(options)
   },
