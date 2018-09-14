@@ -10,7 +10,7 @@ exports.setUp = async () => {
 
   await container.setUp({
     data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
+    config: path.resolve(__dirname, './config'),
     token: 'ark',
     network: 'testnet'
   }, {
