@@ -7,10 +7,6 @@ const buildFilterQuery = require('./utils/filter-query')
 const Repository = require('./repository')
 
 class BlocksRepository extends Repository {
-  getModel () {
-    return database.models.block
-  }
-
   /**
    * Get all blocks for the given parameters.
    * @param  {Object}  parameters
@@ -120,6 +116,10 @@ class BlocksRepository extends Repository {
       offset: parameters.offset,
       orderBy: this.__orderBy(parameters)
     })
+  }
+
+  getModel () {
+    return database.models.block
   }
 
   __orderBy (parameters) {
