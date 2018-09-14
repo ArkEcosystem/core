@@ -2,10 +2,10 @@ const bs58check = require('bs58check')
 const crypto = require('crypto')
 const ByteBuffer = require('bytebuffer');
 const secp256k1 = require('secp256k1')
+const wif = require('wif')
 
 const configManager = require('../managers/config')
 const utils = require('./utils')
-const ECPair = require('./ecpair')
 const feeManager = require('../managers/fee')
 
 class Crypto {
@@ -207,14 +207,13 @@ class Crypto {
       hash = this.getHash(transaction, false, false)
     }
 
-    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
-    const derSignature = secp256k1.signatureExport(signature).toString('hex')
+    const signature = this.signHash(hash, keys)
 
     if (!transaction.signature) {
-      transaction.signature = derSignature
+      transaction.signature = signature
     }
 
-    return derSignature
+    return signature
   }
 
   /**
@@ -225,15 +224,24 @@ class Crypto {
    */
   secondSign (transaction, keys) {
     const hash = this.getHash(transaction, false, true)
-
-    const { signature } = secp256k1.sign(hash, keys.d.toBuffer(32))
-    const derSignature = secp256k1.signatureExport(signature).toString('hex')
+    const signature = this.signHash(hash, keys)
 
     if (!transaction.secondSignature) {
-      transaction.secondSignature = derSignature
+      transaction.secondSignature = signature
     }
 
-    return derSignature
+    return signature
+  }
+
+  /**
+   * Sign a hash
+   * @param  {Buffer} hash
+   * @param  {Object} keys
+   * @return {String}
+   */
+  signHash (hash, keys) {
+    const { signature } = secp256k1.sign(hash, Buffer.from(keys.privateKey, 'hex'))
+    return secp256k1.signatureExport(signature).toString('hex')
   }
 
   /**
@@ -257,15 +265,7 @@ class Crypto {
     }
 
     const hash = this.getHash(transaction, true, true)
-    const signatureBuffer = Buffer.from(transaction.signature, 'hex')
-    const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-
-    try {
-      const signature = secp256k1.signatureImport(signatureBuffer)
-      return secp256k1.verify(hash, signature, senderPublicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return this.verifyHash(hash, transaction.signature, transaction.senderPublicKey)
   }
 
   /**
@@ -294,28 +294,83 @@ class Crypto {
       return false
     }
 
-    const secondSignatureBuffer = Buffer.from(secondSignature, 'hex')
-    const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    try {
-      const signature = secp256k1.signatureImport(secondSignatureBuffer)
-      return secp256k1.verify(hash, signature, publicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return this.verifyHash(hash, secondSignature, publicKey)
+ }
+
+  /**
+   * Verify the hash.
+   * @param  {Buffer} hash
+   * @param  {(Buffer|String)} signature
+   * @param  {(Buffer|String)} publicKey
+   * @return {Boolean}
+   */
+  verifyHash (hash, signature, publicKey) {
+    signature = signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
+    publicKey = publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
+    return secp256k1.verify(hash, secp256k1.signatureImport(signature), publicKey)
   }
 
   /**
    * Get keys from secret.
    * @param  {String} secret
-   * @param  {Object} options
-   * @return {ECPair}
+   * @param  {boolean} compressed
+   * @return {Object}
    */
-  getKeys (secret, options) {
-    const ecpair = ECPair.fromSeed(secret, options)
-    ecpair.publicKey = ecpair.getPublicKeyBuffer().toString('hex')
-    ecpair.privateKey = ''
+  getKeys (secret, compressed = true) {
+    const privateKey = utils.sha256(Buffer.from(secret, 'utf8'))
+    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
 
-    return ecpair
+    const keyPair = {
+      publicKey: publicKey.toString('hex'),
+      privateKey: privateKey.toString('hex'),
+      compressed
+    }
+
+    return keyPair
+  }
+
+    /**
+   * Get keys from WIF key.
+   * @param  {String} wifKey
+   * @param  {Object} network
+   * @return {Object}
+   */
+  getKeysFromWIF (wifKey, network) {
+    const decoded = wif.decode(wifKey)
+    const version = decoded.version
+
+    if (!network) {
+      network = configManager.all()
+    }
+
+    if (version !== network.wif) {
+      throw new Error('Invalid network version')
+    }
+
+    const privateKey = decoded.privateKey
+    const publicKey = secp256k1.publicKeyCreate(privateKey, decoded.compressed)
+
+    const keyPair = {
+      publicKey: publicKey.toString('hex'),
+      privateKey: privateKey.toString('hex'),
+      compressed: decoded.compressed
+    }
+
+    return keyPair
+  }
+
+  /**
+   * Get WIF key from keys
+   * @param {Object} keys
+   * @param {(Object|undefined)} network
+   * @returns {String}
+   */
+  keysToWIF (keys, network) {
+    if (!network) {
+      network = configManager.all()
+    }
+
+    return wif.encode(network.wif, Buffer.from(keys.privateKey, 'hex'), keys.compressed)
   }
 
   /**
