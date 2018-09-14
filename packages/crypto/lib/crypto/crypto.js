@@ -265,15 +265,7 @@ class Crypto {
     }
 
     const hash = this.getHash(transaction, true, true)
-    const signatureBuffer = Buffer.from(transaction.signature, 'hex')
-    const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-
-    try {
-      const signature = secp256k1.signatureImport(signatureBuffer)
-      return secp256k1.verify(hash, signature, senderPublicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return this.verifyHash(hash, transaction.signature, transaction.senderPublicKey)
   }
 
   /**
@@ -302,15 +294,21 @@ class Crypto {
       return false
     }
 
-    const secondSignatureBuffer = Buffer.from(secondSignature, 'hex')
-    const publicKeyBuffer = Buffer.from(publicKey, 'hex')
-    try {
-      const signature = secp256k1.signatureImport(secondSignatureBuffer)
-      return secp256k1.verify(hash, signature, publicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return this.verifyHash(hash, secondSignature, publicKey)
  }
+
+  /**
+   * Verify the hash.
+   * @param  {Buffer} hash
+   * @param  {(Buffer|String)} signature
+   * @param  {(Buffer|String)} publicKey
+   * @return {Boolean}
+   */
+  verifyHash (hash, signature, publicKey) {
+    signature = signature instanceof Buffer ? signature : Buffer.from(signature, 'hex')
+    publicKey = publicKey instanceof Buffer ? publicKey : Buffer.from(publicKey, 'hex')
+    return secp256k1.verify(hash, secp256k1.signatureImport(signature), publicKey)
+  }
 
   /**
    * Get keys from secret.

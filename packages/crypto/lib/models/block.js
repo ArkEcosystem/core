@@ -1,10 +1,9 @@
 const crypto = require('crypto')
 const Bignum = require('bigi')
 const ByteBuffer = require('bytebuffer')
-const secp256k1 = require('secp256k1')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
-const slots = require('../crypto/slots')
+const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (buffer) => {
@@ -209,17 +208,9 @@ module.exports = class Block {
    */
   verifySignature () {
     const bytes = Block.serialize(this.data, false)
-    const hash = crypto.createHash('sha256').update(bytes).digest()
+    const hash = createHash('sha256').update(bytes).digest()
 
-    const blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
-    const generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
-
-    try {
-      const signature = secp256k1.signatureImport(blockSignatureBuffer)
-      return secp256k1.verify(hash, signature, generatorPublicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey)
   }
 
   /*
