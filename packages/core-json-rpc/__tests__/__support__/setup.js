@@ -7,7 +7,6 @@ jest.setTimeout(60000)
 
 exports.setUp = async () => {
   process.env.ARK_JSON_RPC_ENABLED = true
-  process.env.ARK_JSON_RPC_DATABASE = ''
 
   await container.setUp({
     data: '~/.ark',

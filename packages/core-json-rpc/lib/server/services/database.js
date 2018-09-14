@@ -1,7 +1,12 @@
 const Keyv = require('keyv')
+const fs = require('fs-extra')
 
 class Database {
   init ({ uri, options }) {
+    if (uri.startsWith('sqlite://')) {
+      fs.ensureFileSync(uri.replace('sqlite://'))
+    }
+
     this.database = new Keyv(uri, options)
   }
 
