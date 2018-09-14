@@ -48,7 +48,6 @@ This repository contains all plugins that make up the ARK Core.
 | [core-transaction-pool-redis](/packages/core-transaction-pool-redis) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-transaction-pool-redis.svg)](https://www.npmjs.com/package/@arkecosystem/core-transaction-pool-redis) | Transaction Pool - Redis Implementation |
 | [core-webhooks](/packages/core-webhooks) | [![npm](https://img.shields.io/npm/v/@arkecosystem/core-webhooks.svg)](https://www.npmjs.com/package/@arkecosystem/core-webhooks) | Webhooks Manager |
 | [crypto](/packages/crypto) | [![npm](https://img.shields.io/npm/v/@arkecosystem/crypto.svg)](https://www.npmjs.com/package/@arkecosystem/crypto) | Crypto Utilities |
-| [validation](/packages/validation) | [![npm](https://img.shields.io/npm/v/@arkecosystem/validation.svg)](https://www.npmjs.com/package/@arkecosystem/validation) | Validation Manager |
 
 ## Security
 
