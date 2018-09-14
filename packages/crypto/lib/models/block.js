@@ -1,4 +1,4 @@
-const crypto = require('crypto')
+const { createHash } = require('crypto')
 const Bignum = require('bigi')
 const ByteBuffer = require('bytebuffer')
 const Transaction = require('./transaction')
@@ -141,7 +141,7 @@ module.exports = class Block {
     data.generatorPublicKey = keys.publicKey
 
     const payloadHash = Block.serialize(data, false)
-    const hash = crypto.createHash('sha256').update(payloadHash).digest()
+    const hash = createHash('sha256').update(payloadHash).digest()
 
     data.blockSignature = crypto.signHash(hash, keys)
     data.id = Block.getId(data)
@@ -173,7 +173,7 @@ module.exports = class Block {
    * @static
    */
   static getIdHex (data) {
-    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
+    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -183,7 +183,7 @@ module.exports = class Block {
   }
 
   static getId (data) {
-    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
+    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -266,7 +266,7 @@ module.exports = class Block {
       }
 
       let size = 0
-      let payloadHash = crypto.createHash('sha256')
+      let payloadHash = createHash('sha256')
 
       if (this.headerOnly) {
         if (this.transactionIds.length !== block.numberOfTransactions) {
