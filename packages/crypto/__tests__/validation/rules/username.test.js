@@ -1,6 +1,6 @@
 'use strict'
 
-const rule = require('../../lib/rules/username')
+const rule = require('../../../lib/validation/rules/username')
 
 describe('Username Rule', () => {
   it('should be a function', () => {

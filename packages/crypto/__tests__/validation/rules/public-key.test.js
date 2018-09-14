@@ -1,6 +1,6 @@
 'use strict'
 
-const rule = require('../../lib/rules/public-key')
+const rule = require('../../../lib/validation/rules/public-key')
 
 describe('Public Key Rule', () => {
   it('should be a function', () => {

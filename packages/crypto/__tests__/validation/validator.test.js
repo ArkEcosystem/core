@@ -5,7 +5,7 @@ const Joi = require('joi')
 let validator
 
 beforeEach(() => {
-  validator = require('../lib/validator')
+  validator = require('../../lib/validation').validator
 })
 
 describe('Validator', () => {

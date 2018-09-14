@@ -1,6 +1,6 @@
 'use strict'
 
-const rule = require('../../lib/rules/address')
+const rule = require('../../../lib/validation/rules/address')
 
 describe('Address Rule', () => {
   it('should be a function', () => {
