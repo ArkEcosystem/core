@@ -1,11 +1,11 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
+const { TRANSACTION_TYPES } = require('../../../../constants')
 const engine = require('../../../engine')
 
 module.exports = (transaction) => {
   const { error, value } = engine.validate(transaction, engine.joi.object({
     id: engine.joi.string().alphanum().required(),
     blockid: engine.joi.number(),
-    type: engine.joi.number().valid(TRANSACTION_TYPES.TIMELOCK_TRANSFER),
+    type: engine.joi.number().valid(TRANSACTION_TYPES.DELEGATE_RESIGNATION),
     timestamp: engine.joi.number().min(0).required(),
     amount: engine.joi.number().required(),
     fee: engine.joi.number().required(),

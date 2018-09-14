@@ -1,4 +1,4 @@
-const { TRANSACTION_TYPES } = require('../../../constants')
+const { TRANSACTION_TYPES } = require('../../../../constants')
 const engine = require('../../../engine')
 
 module.exports = (transaction) => {

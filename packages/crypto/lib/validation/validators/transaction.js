@@ -1,6 +1,4 @@
-'use strict'
-
-const { TRANSACTION_TYPES } = require('../constants')
+const { TRANSACTION_TYPES } = require('../../constants')
 
 class TransactionValidator {
   constructor () {
