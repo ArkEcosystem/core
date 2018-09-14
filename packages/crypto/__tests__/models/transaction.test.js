@@ -1,8 +1,6 @@
 const Transaction = require('../../lib/models/transaction')
 const builder = require('../../lib/builder')
 const crypto = require('../../lib/crypto/crypto')
-const ECPair = require('../../lib/crypto/ecpair')
-const ECSignature = require('../../lib/crypto/ecsignature')
 const transactionData = require('./fixtures/transaction')
 
 const configManager = require('../../lib/managers/config')
@@ -73,23 +71,6 @@ const createRandomTx = type => {
   return transaction
 }
 
-const verifyEcdsaNonMalleability = (transaction) => {
-  const ecurve = require('ecurve')
-  const secp256k1 = ecurve.getCurveByName('secp256k1')
-  const n = secp256k1.n
-  const hash = crypto.getHash(transaction, true, true)
-
-  const signatureBuffer = Buffer.from(transaction.signature, 'hex')
-  const senderPublicKeyBuffer = Buffer.from(transaction.senderPublicKey, 'hex')
-  const ecpair = ECPair.fromPublicKeyBuffer(senderPublicKeyBuffer, transaction.network)
-  const ecsignature = ECSignature.fromDER(signatureBuffer)
-  const ecs2 = ECSignature.fromDER(signatureBuffer)
-  ecs2.s = n.subtract(ecs2.s)
-  const result1 = ecpair.verify(hash, ecsignature)
-  const result2 = ecpair.verify(hash, ecs2)
-  return result1 === true && result2 === false
-}
-
 describe('Models - Transaction', () => {
   beforeEach(() => configManager.setConfig(network))
 
@@ -149,9 +130,9 @@ describe('Models - Transaction', () => {
 
   describe('static serialize', () => {})
 
-  it('Signatures are not malleable', () => {
+  it('Signatures are verified', () => {
     [0, 1, 2, 3, 4]
       .map(type => createRandomTx(type))
-      .forEach(transaction => expect(verifyEcdsaNonMalleability(transaction)).toBeTruthy())
+      .forEach(transaction => expect(crypto.verify(transaction)).toBeTruthy())
   })
 })

@@ -1,10 +1,9 @@
-const crypto = require('crypto')
+const { createHash } = require('crypto')
 const Bignum = require('bigi')
 const ByteBuffer = require('bytebuffer')
-const secp256k1 = require('secp256k1')
 const Transaction = require('./transaction')
 const configManager = require('../managers/config')
-const slots = require('../crypto/slots')
+const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (buffer) => {
@@ -134,7 +133,7 @@ module.exports = class Block {
   /*
    * Create block from data.
    * @param  {Object} data
-   * @param  {ECPair}} keys
+   * @param  {Object} keys
    * @return {Block}
    * @static
    */
@@ -142,9 +141,9 @@ module.exports = class Block {
     data.generatorPublicKey = keys.publicKey
 
     const payloadHash = Block.serialize(data, false)
-    const hash = crypto.createHash('sha256').update(payloadHash).digest()
+    const hash = createHash('sha256').update(payloadHash).digest()
 
-    data.blockSignature = keys.sign(hash).toDER().toString('hex')
+    data.blockSignature = crypto.signHash(hash, keys)
     data.id = Block.getId(data)
 
     return new Block(data)
@@ -174,7 +173,7 @@ module.exports = class Block {
    * @static
    */
   static getIdHex (data) {
-    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
+    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -184,7 +183,7 @@ module.exports = class Block {
   }
 
   static getId (data) {
-    const hash = crypto.createHash('sha256').update(Block.serialize(data, true)).digest()
+    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
     const temp = Buffer.alloc(8)
 
     for (let i = 0; i < 8; i++) {
@@ -209,17 +208,9 @@ module.exports = class Block {
    */
   verifySignature () {
     const bytes = Block.serialize(this.data, false)
-    const hash = crypto.createHash('sha256').update(bytes).digest()
+    const hash = createHash('sha256').update(bytes).digest()
 
-    const blockSignatureBuffer = Buffer.from(this.data.blockSignature, 'hex')
-    const generatorPublicKeyBuffer = Buffer.from(this.data.generatorPublicKey, 'hex')
-
-    try {
-      const signature = secp256k1.signatureImport(blockSignatureBuffer)
-      return secp256k1.verify(hash, signature, generatorPublicKeyBuffer)
-    } catch (ex) {
-      return false
-    }
+    return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey)
   }
 
   /*
@@ -275,7 +266,7 @@ module.exports = class Block {
       }
 
       let size = 0
-      let payloadHash = crypto.createHash('sha256')
+      let payloadHash = createHash('sha256')
 
       if (this.headerOnly) {
         if (this.transactionIds.length !== block.numberOfTransactions) {

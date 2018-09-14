@@ -48,7 +48,7 @@ module.exports = class GenesisBlockBuilder {
    */
   __createWallet () {
     const passphrase = bip39.generateMnemonic()
-    const keys = crypto.getKeys(passphrase, this.network)
+    const keys = crypto.getKeys(passphrase)
 
     return {
       address: crypto.getAddress(keys.publicKey, this.prefixHash),
@@ -214,13 +214,12 @@ module.exports = class GenesisBlockBuilder {
   /**
    * Sign block with keys.
    * @param  {Object} block
-   * @param  {ECPair]} keys
+   * @param  {Object]} keys
    * @return {String}
    */
   __signBlock (block, keys) {
     var hash = this.__getHash(block)
-
-    return keys.sign(hash).toDER().toString('hex')
+    return crypto.signHash(hash, keys)
   }
 
   /**

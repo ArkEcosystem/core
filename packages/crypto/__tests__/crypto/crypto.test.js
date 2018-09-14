@@ -1,8 +1,3 @@
-const { Buffer } = require('buffer/')
-const ecurve = require('ecurve')
-
-const ECPair = require('../../lib/crypto/ecpair')
-const ecdsa = require('../../lib/crypto/ecdsa')
 const crypto = require('../../lib/crypto/crypto')
 const configManager = require('../../lib/managers/config')
 const { TRANSACTION_TYPES, CONFIGURATIONS } = require('../../lib/constants')
@@ -123,7 +118,7 @@ describe('crypto.js', () => {
       expect(crypto.getId).toBeFunction()
     })
 
-    xit('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
+    it('should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea', () => {
       const transaction = {
         type: 0,
         amount: 1000,
@@ -167,7 +162,7 @@ describe('crypto.js', () => {
         recipientId: 'AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff',
         timestamp: 141738,
         asset: {},
-        senderPublicKey: keys.getPublicKeyBuffer().toString('hex')
+        senderPublicKey: keys.publicKey
       }
       const signature = crypto.sign(transaction, keys)
       expect(signature.toString('hex')).toBe('3045022100f5c4ec7b3f9a2cb2e785166c7ae185abbff0aa741cbdfe322cf03b914002efee02206261cd419ea9074b5d4a007f1e2fffe17a38338358f2ac5fcc65d810dbe773fe')
@@ -198,6 +193,85 @@ describe('crypto.js', () => {
       expect(keys.privateKey).toBeString()
       expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, 'hex').toString('hex'))
     })
+
+    it('should return address', () => {
+      const keys = crypto.getKeys('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+      const address = crypto.getAddress(keys.publicKey.toString('hex'))
+      expect(address).toBe('DUMjDrT8mgqGLWZtkCqzvy7yxWr55mBEub')
+    })
+  })
+
+  describe('getKeysFromWIF', () => {
+    it('should be a function', () => {
+      expect(crypto.getKeysFromWIF).toBeFunction()
+    })
+
+    it('should return two keys in hex', () => {
+      const keys = crypto.getKeysFromWIF('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+
+      expect(keys.publicKey).toBeString()
+      expect(keys.publicKey).toMatch(Buffer.from(keys.publicKey, 'hex').toString('hex'))
+
+      expect(keys.privateKey).toBeString()
+      expect(keys.privateKey).toMatch(Buffer.from(keys.privateKey, 'hex').toString('hex'))
+    })
+
+    it('should return address', () => {
+      const keys = crypto.getKeysFromWIF('SDgGxWHHQHnpm5sth7MBUoeSw7V7nbimJ1RBU587xkryTh4qe9ov')
+      const address = crypto.getAddress(keys.publicKey.toString('hex'))
+      expect(address).toBe('DCAaPzPAhhsMkHfQs7fZvXFW2EskDi92m8')
+    })
+
+    it('should get keys from compressed WIF', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+      expect(keys).toHaveProperty('compressed', true)
+    })
+
+    it('should get keys from uncompressed WIF', () => {
+      const keys = crypto.getKeysFromWIF('6hgnAG19GiMUf75C43XteG2mC8esKTiX9PYbKTh4Gca9MELRWmg')
+
+      expect(keys).toBeObject()
+      expect(keys).toHaveProperty('publicKey')
+      expect(keys).toHaveProperty('privateKey')
+      expect(keys).toHaveProperty('compressed', false)
+    })
+  })
+
+  describe('keysToWIF', () => {
+    it('should be a function', () => {
+      expect(crypto.keysToWIF).toBeFunction()
+    })
+
+    it('should get keys from WIF', () => {
+      const wifKey = 'SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4'
+      const keys = crypto.getKeysFromWIF(wifKey)
+      const actual = crypto.keysToWIF(keys)
+
+      expect(keys.compressed).toBeTruthy()
+      expect(actual).toBe(wifKey)
+    })
+
+    it('should get address from compressed WIF (mainnet)', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4', CONFIGURATIONS.ARK.MAINNET)
+      const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.MAINNET.pubKeyHash)
+      expect(keys.compressed).toBeTruthy()
+      expect(address).toBe('APnrtb2JGa6WjrRik9W3Hjt6h71mD6Zgez')
+    })
+
+    it('should get address from compressed WIF (devnet)', () => {
+      const keys = crypto.getKeysFromWIF('SAaaKsDdWMXP5BoVnSBLwTLn48n96UvG42WSUUooRv1HrEHmaSd4', CONFIGURATIONS.ARK.DEVNET)
+      const address = crypto.getAddress(keys.publicKey, CONFIGURATIONS.ARK.DEVNET.pubKeyHash)
+      expect(keys.compressed).toBeTruthy()
+      expect(address).toBe('DDA5nM7KEqLeTtQKv5qGgcnc6dpNBKJNTS')
+    })
   })
 
   describe('getAddress', () => {
@@ -219,16 +293,6 @@ describe('crypto.js', () => {
 
       expect(address).toBeString()
       expect(address).toBe('DDp4SYpnuzFPuN4W79PYY762d7FtW3DFFN')
-    })
-
-    it('should generate the same address as ECPair.getAddress()', () => {
-      const keys = crypto.getKeys('secret second test to be sure it works correctly')
-      const address = crypto.getAddress(keys.publicKey)
-
-      const Q = ecurve.Point.decodeFrom(ecdsa.__curve, Buffer.from(keys.publicKey, 'hex'))
-      const keyPair = new ECPair(null, Q)
-
-      expect(address).toBe(keyPair.getAddress())
     })
 
     it('should not throw an error if the publicKey is valid', () => {
