@@ -13,7 +13,7 @@ module.exports = {
       .sign(params.passphrase)
       .getStruct()
 
-    await database.setObject(transaction.id, transaction)
+    await database.set(transaction.id, transaction)
 
     return transaction
   },
