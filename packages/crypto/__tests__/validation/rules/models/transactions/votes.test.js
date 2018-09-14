@@ -1,7 +1,7 @@
 'use strict'
 
-const rule = require('../../../../lib/rules/models/transactions/vote')
-const { constants, transactionBuilder } = require('@arkecosystem/crypto')
+const rule = require('../../../../../lib/validation/rules/models/transactions/vote')
+const { constants, transactionBuilder } = require('../../../../../lib')
 const vote = '+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9'
 const unvote = '-0326580718fc86ba609799ac95fcd2721af259beb5afa81bfce0ab7d9fe95de991'
 const votes = [

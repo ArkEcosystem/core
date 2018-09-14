@@ -1,7 +1,7 @@
 'use strict'
 
-const rule = require('../../../../lib/rules/models/transactions/second-signature')
-const { constants, transactionBuilder } = require('@arkecosystem/crypto')
+const rule = require('../../../../../lib/validation/rules/models/transactions/second-signature')
+const { constants, transactionBuilder } = require('../../../../../lib')
 
 let transaction
 beforeEach(() => {
