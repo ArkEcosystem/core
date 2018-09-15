@@ -1,4 +1,3 @@
-const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
@@ -11,8 +10,8 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
     super()
 
     this.data.type = TRANSACTION_TYPES.IPFS
-    this.data.fee = Bignum.from(feeManager.get(TRANSACTION_TYPES.IPFS))
-    this.data.amount = Bignum.ZERO
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.IPFS)
+    this.data.amount = 0
     this.data.vendorFieldHex = null
     this.data.senderPublicKey = null
     this.data.asset = {}
@@ -53,7 +52,7 @@ module.exports = class IPFSBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.data.amount.toNumber()
+    struct.amount = this.data.amount
     struct.vendorFieldHex = this.data.vendorFieldHex
     struct.asset = this.data.asset
     return struct

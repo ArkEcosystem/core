@@ -1,4 +1,3 @@
-const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
@@ -12,8 +11,8 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
     super()
 
     this.data.type = TRANSACTION_TYPES.DELEGATE_REGISTRATION
-    this.data.fee = Bignum.from(feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION))
-    this.data.amount = Bignum.ZERO
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.DELEGATE_REGISTRATION)
+    this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
     this.data.asset = { delegate: {} }
@@ -47,7 +46,7 @@ module.exports = class DelegateRegistrationBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.data.amount.toNumber()
+    struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId
     struct.asset = this.data.asset
     return struct

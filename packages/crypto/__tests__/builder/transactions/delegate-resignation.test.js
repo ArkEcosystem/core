@@ -1,5 +1,4 @@
 const ark = require('../../../lib/client')
-const Bignum = require('../../../lib/utils/bignum')
 const { TRANSACTION_TYPES } = require('../../../lib/constants')
 const feeManager = require('../../../lib/managers/fee')
 const transactionBuilderTests = require('./__shared__/transaction')
@@ -17,6 +16,6 @@ describe('Delegate Resignation Transaction', () => {
 
   it('should have its specific properties', () => {
     expect(builder).toHaveProperty('data.type', TRANSACTION_TYPES.DELEGATE_RESIGNATION)
-    expect(builder).toHaveProperty('data.fee', Bignum.from(feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION)))
+    expect(builder).toHaveProperty('data.fee', feeManager.get(TRANSACTION_TYPES.DELEGATE_RESIGNATION))
   })
 })

@@ -1,4 +1,3 @@
-const Bignum = require('../../utils/bignum')
 const feeManager = require('../../managers/fee')
 const { TRANSACTION_TYPES } = require('../../constants')
 const TransactionBuilder = require('./transaction')
@@ -12,8 +11,8 @@ class TimelockTransferBuilder extends TransactionBuilder {
     super()
 
     this.data.type = TRANSACTION_TYPES.TIMELOCK_TRANSFER
-    this.data.fee = Bignum.from(feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER))
-    this.data.amount = Bignum.ZERO
+    this.data.fee = feeManager.get(TRANSACTION_TYPES.TIMELOCK_TRANSFER)
+    this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
     this.data.timelockType = 0x00
@@ -38,7 +37,7 @@ class TimelockTransferBuilder extends TransactionBuilder {
    */
   getStruct () {
     const struct = super.getStruct()
-    struct.amount = this.data.amount.toNumber()
+    struct.amount = this.data.amount
     struct.recipientId = this.data.recipientId
     struct.vendorFieldHex = this.data.vendorFieldHex
     struct.asset = this.data.asset
