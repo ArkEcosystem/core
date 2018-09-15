@@ -15,7 +15,7 @@ const formatTimestamp = require('./utils/format-timestamp')
  * @return {Object}
  */
 module.exports = (model) => {
-  const data = Transaction.deserialize(model.serialized.toString('hex'))
+  const data = new Transaction(model.serialized.toString('hex'))
   const lastBlock = blockchain.getLastBlock()
 
   return {

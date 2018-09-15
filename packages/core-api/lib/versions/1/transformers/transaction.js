@@ -14,7 +14,7 @@ const { Transaction } = require('@arkecosystem/crypto').models
  * @return {Object}
  */
 module.exports = (model) => {
-  const data = Transaction.deserialize(model.serialized.toString('hex'))
+  const data = new Transaction(model.serialized.toString('hex'))
 
   return {
     id: data.id,
