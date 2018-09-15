@@ -638,7 +638,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
               return
             }
 
-            coldWallet[key] = key !== 'voteBalance' ? wallet[key] : Bignum.from(wallet[key])
+            coldWallet[key] = key !== 'voteBalance' ? wallet[key] : new Bignum(wallet[key])
           })
         }
       } catch (err) {

@@ -66,7 +66,7 @@ module.exports = class SPV {
       const wallet = this.walletManager.findByAddress(transaction.recipientId)
 
       wallet
-        ? wallet.balance = Bignum.from(transaction.amount)
+        ? wallet.balance = new Bignum(transaction.amount)
         : logger.warn(`Lost cold wallet: ${transaction.recipientId} ${transaction.amount}`)
     }
   }
@@ -80,7 +80,7 @@ module.exports = class SPV {
 
     for (const block of blocks) {
       const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey)
-      wallet.balance = wallet.balance.add(Bignum.from(block.reward))
+      wallet.balance = wallet.balance.plus(block.reward)
     }
   }
 
@@ -108,9 +108,7 @@ module.exports = class SPV {
 
     for (const transaction of transactions) {
       let wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
-      wallet.balance = wallet.balance
-        .subtract(Bignum.from(transaction.amount))
-        .subtract(Bignum.from(transaction.fee))
+      wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee)
 
       if (wallet.balance.toNumber() < 0 && !this.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`)
@@ -157,8 +155,8 @@ module.exports = class SPV {
     const forgedBlocks = await this.query.manyOrNone(queries.spv.delegatesForgedBlocks)
     forgedBlocks.forEach(block => {
       const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey)
-      wallet.forgedFees = wallet.forgedFees.add(Bignum.from(block.totalFees))
-      wallet.forgedRewards = wallet.forgedRewards.add(Bignum.from(block.totalRewards))
+      wallet.forgedFees = wallet.forgedFees.plus(block.totalFees)
+      wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards)
       wallet.producedBlocks = +block.totalProduced
     })
 
