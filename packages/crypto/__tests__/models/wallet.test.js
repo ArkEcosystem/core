@@ -1,7 +1,7 @@
 const Bignum = require('../../lib/utils/bignum')
 const Wallet = require('../../lib/models/wallet')
 const multiTx = require('./fixtures/multi-transaction')
-
+const { ARKTOSHI } = require('../../lib/constants')
 const configManager = require('../../lib/managers/config')
 const network = require('../../lib/networks/ark/devnet.json')
 
@@ -14,7 +14,7 @@ describe('Models - Wallet', () => {
       const address = 'Abcde'
       const wallet = new Wallet(address)
       const balance = parseFloat((Math.random() * 1000).toFixed(8))
-      wallet.balance = Bignum.from(balance * 10 ** 8)
+      wallet.balance = new Bignum(balance * ARKTOSHI)
       expect(wallet.toString()).toBe(`${address} (${balance} ${configManager.config.client.symbol})`)
     })
   })
@@ -24,7 +24,7 @@ describe('Models - Wallet', () => {
     const data = {
       publicKey: '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece',
       secondPublicKey: '020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03',
-      balance: Bignum.from(109390000000),
+      balance: new Bignum(109390000000),
       vote: null,
       username: null,
       voteBalance: Bignum.ZERO,
@@ -56,14 +56,14 @@ describe('Models - Wallet', () => {
       block = {
         id: 1,
         generatorPublicKey: testWallet.publicKey,
-        reward: Bignum.from(1000000000),
-        totalFee: Bignum.from(1000000000)
+        reward: new Bignum(1000000000),
+        totalFee: new Bignum(1000000000)
       }
     })
 
     it('should apply correct block', () => {
       testWallet.applyBlock(block)
-      expect(testWallet.balance).toEqual(block.reward.add(block.totalFee))
+      expect(testWallet.balance).toEqual(block.reward.plus(block.totalFee))
       expect(testWallet.producedBlocks).toBe(1)
       expect(testWallet.forgedFees).toEqual(block.totalFee)
       expect(testWallet.forgedRewards).toEqual(block.totalFee)

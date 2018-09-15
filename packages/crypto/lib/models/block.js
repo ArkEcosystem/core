@@ -7,7 +7,8 @@ const configManager = require('../managers/config')
 const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
-const toBytesHex = (buffer) => {
+const toBytesHex = (data) => {
+  const buffer = Buffer.from(new Bignum(data).toString(16), 'hex')
   let temp = buffer.toString('hex')
   return '0'.repeat(16 - temp.length) + temp
 }
@@ -18,8 +19,8 @@ const toBytesHex = (buffer) => {
   */
 const applyV1Fix = (data) => {
   // START Fix for v1 api
-  data.previousBlockHex = data.previousBlock ? toBytesHex(new Bignum(data.previousBlock).toBuffer()) : '0000000000000000'
-  data.idHex = toBytesHex(new Bignum(data.id).toBuffer())
+  data.previousBlockHex = data.previousBlock ? toBytesHex(data.previousBlock) : '0000000000000000'
+  data.idHex = toBytesHex(data.id)
   // END Fix for v1 api
 }
 
@@ -77,7 +78,7 @@ module.exports = class Block {
 
     if (outlookTable[this.data.id]) {
       this.data.id = outlookTable[this.data.id]
-      this.data.idHex = toBytesHex(new Bignum(this.data.id).toBuffer())
+      this.data.idHex = toBytesHex(this.data.id)
     }
     if (data.id !== this.data.id) {
       console.log(`'${this.data.id}': '${data.id}',`)
@@ -87,7 +88,7 @@ module.exports = class Block {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
       this.data.id = data.id
-      this.data.idHex = toBytesHex(new Bignum(this.data.id).toBuffer())
+      this.data.idHex = toBytesHex(this.data.id)
       delete this.data.previousBlock
     }
 
@@ -161,7 +162,6 @@ module.exports = class Block {
 
   /*
    * Get block id
-   * TODO rename to getIdHex ?
    * @param  {Object} data
    * @return {String}
    * @static
@@ -177,13 +177,8 @@ module.exports = class Block {
   }
 
   static getId (data) {
-    const hash = createHash('sha256').update(Block.serialize(data, true)).digest()
-    const temp = Buffer.alloc(8)
-
-    for (let i = 0; i < 8; i++) {
-      temp[i] = hash[7 - i]
-    }
-    return Bignum.fromBuffer(temp).toString()
+    const idHex = Block.getIdHex(data)
+    return new Bignum(idHex, 16).toString()
   }
 
   /*
@@ -229,8 +224,7 @@ module.exports = class Block {
         }
       }
 
-      const reward = Bignum.from(constants.reward)
-      if (!reward.equals(block.reward)) {
+      if (!constants.reward === block.reward.toNumber()) {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
 
@@ -312,18 +306,18 @@ module.exports = class Block {
 
           appliedTransactions[transaction.data.id] = transaction.data
 
-          totalAmount = totalAmount.add(transaction.data.amount)
-          totalFee = totalFee.add(transaction.data.fee)
+          totalAmount = totalAmount.plus(transaction.data.amount)
+          totalFee = totalFee.plus(transaction.data.fee)
           size += bytes.length
 
           payloadHash.update(bytes)
         })
 
-        if (!totalAmount.equals(block.totalAmount)) {
+        if (!totalAmount.isEqualTo(block.totalAmount)) {
           result.errors.push('Invalid total amount')
         }
 
-        if (!totalFee.equals(block.totalFee)) {
+        if (!totalFee.isEqualTo(block.totalFee)) {
           result.errors.push('Invalid total fee')
         }
       }
@@ -359,9 +353,9 @@ module.exports = class Block {
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
     block.previousBlock = Bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
-    block.totalAmount = Bignum.from(buf.readUInt64(24))
-    block.totalFee = Bignum.from(buf.readUInt64(32))
-    block.reward = Bignum.from(buf.readUInt64(40))
+    block.totalAmount = new Bignum(buf.readUInt64(24))
+    block.totalFee = new Bignum(buf.readUInt64(32))
+    block.reward = new Bignum(buf.readUInt64(40))
     block.payloadLength = buf.readUInt32(48)
     block.payloadHash = hexString.substring(104, 104 + 64)
     block.generatorPublicKey = hexString.substring(104 + 64, 104 + 64 + 33 * 2)
@@ -416,10 +410,6 @@ module.exports = class Block {
   static serialize (block, includeSignature = true) {
     applyV1Fix(block)
 
-    block.totalAmount = Bignum.from(block.totalAmount)
-    block.totalFee = Bignum.from(block.totalFee)
-    block.reward = Bignum.from(block.reward)
-
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
@@ -433,9 +423,9 @@ module.exports = class Block {
     }
 
     bb.writeUInt32(block.numberOfTransactions)
-    bb.writeUInt64(block.totalAmount.toNumber())
-    bb.writeUInt64(block.totalFee.toNumber())
-    bb.writeUInt64(block.reward.toNumber())
+    bb.writeUInt64(+block.totalAmount.toString())
+    bb.writeUInt64(+block.totalFee.toString())
+    bb.writeUInt64(+block.reward.toString())
     bb.writeUInt32(block.payloadLength)
     bb.append(block.payloadHash, 'hex')
     bb.append(block.generatorPublicKey, 'hex')
@@ -472,7 +462,7 @@ module.exports = class Block {
       let i
 
       if (block.previousBlock) {
-        const pb = Bignum(block.previousBlock).toBuffer({size: '8'})
+        const pb = Buffer.from(new Bignum(block.previousBlock).toString(16), 'hex')
 
         for (i = 0; i < 8; i++) {
           bb.writeByte(pb[i])
@@ -484,9 +474,9 @@ module.exports = class Block {
       }
 
       bb.writeInt(block.numberOfTransactions)
-      bb.writeLong(block.totalAmount.toNumber())
-      bb.writeLong(block.totalFee.toNumber())
-      bb.writeLong(block.reward.toNumber())
+      bb.writeLong(+block.totalAmount.toString())
+      bb.writeLong(+block.totalFee.toString())
+      bb.writeLong(+block.reward.toString())
 
       bb.writeInt(block.payloadLength)
 
@@ -523,7 +513,6 @@ module.exports = class Block {
       }
     })
 
-    // TODO: seems sensible, is it ok to call toBroadcastV1?
     return Object.assign(blockData, {
       transactions: this.transactions.map(transaction => transaction.toBroadcastV1())
     })

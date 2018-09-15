@@ -29,7 +29,7 @@ const multisignatureTest = {
 
 beforeEach(() => {
   wallet = new WalletModel('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
-  wallet.balance = Bignum.from(100390000000)
+  wallet.balance = new Bignum(100390000000)
   wallet.publicKey = '02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece'
   wallet.secondPublicKey = '020d3c837d0a47ee7de1082cd48885003c5e92964e58bb34af3b58c6e42208ae03'
   wallet.multisignature = multisignatureTest
@@ -41,7 +41,7 @@ beforeEach(() => {
     type: 4,
     timestamp: 25921690,
     amount: Bignum.ZERO,
-    fee: Bignum.from(9000000000),
+    fee: new Bignum(9000000000),
     vendorField: 'wl8lwts8je',
     senderId: 'D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7',
     recipientId: 'D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7',

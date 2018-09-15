@@ -113,12 +113,12 @@ module.exports = class Wallet {
    */
   applyBlock (block) {
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
-      this.balance = this.balance.add(block.reward).add(block.totalFee)
+      this.balance = this.balance.plus(block.reward).plus(block.totalFee)
 
       // update stats
       this.producedBlocks++
-      this.forgedFees = this.forgedFees.add(block.totalFee)
-      this.forgedRewards = this.forgedRewards.add(block.reward)
+      this.forgedFees = this.forgedFees.plus(block.totalFee)
+      this.forgedRewards = this.forgedRewards.plus(block.reward)
       this.lastBlock = block
     }
 
@@ -131,11 +131,11 @@ module.exports = class Wallet {
    */
   revertBlock (block) {
     if (block.generatorPublicKey === this.publicKey || crypto.getAddress(block.generatorPublicKey) === this.address) {
-      this.balance = this.balance.subtract(block.reward).subtract(block.totalFee)
+      this.balance = this.balance.minus(block.reward).minus(block.totalFee)
 
       // update stats
-      this.forgedFees = this.forgedFees.subtract(block.totalFee)
-      this.forgedRewards = this.forgedRewards.subtract(block.reward)
+      this.forgedFees = this.forgedFees.minus(block.totalFee)
+      this.forgedRewards = this.forgedRewards.minus(block.reward)
       this.lastBlock = block
       this.producedBlocks--
 

@@ -86,7 +86,10 @@ describe('Models - Transaction', () => {
       const hex = Transaction.serialize(transactionData).toString('hex')
       const transaction = Transaction.fromBytes(hex)
       expect(transaction).toBeInstanceOf(Transaction)
-      expect(transaction.data).toEqual(transactionData)
+
+      // We can't compare the data directly, since the created instance uses Bignums.
+      // ... call toBroadcastV1() which casts the Bignums to numbers beforehand.
+      expect(transaction.toBroadcastV1()).toEqual(transactionData)
     })
   })
 

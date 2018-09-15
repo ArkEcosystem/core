@@ -19,7 +19,7 @@ module.exports = class Handler {
     if (wallet.multisignature) {
       applicable = wallet.verifySignatures(transaction, wallet.multisignature)
     } else {
-      const balance = wallet.balance.subtract(transaction.amount).subtract(transaction.fee).toNumber()
+      const balance = wallet.balance.minus(transaction.amount).minus(transaction.fee).toNumber()
       const enoughBalance = balance >= 0
       applicable = (transaction.senderPublicKey === wallet.publicKey) && enoughBalance
 
@@ -38,7 +38,7 @@ module.exports = class Handler {
    */
   applyTransactionToSender (wallet, transaction) {
     if (transaction.senderPublicKey === wallet.publicKey || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
-      wallet.balance = wallet.balance.subtract(transaction.amount).subtract(transaction.fee)
+      wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee)
 
       this.apply(wallet, transaction)
 
@@ -54,7 +54,7 @@ module.exports = class Handler {
    */
   revertTransactionForSender (wallet, transaction) {
     if (transaction.senderPublicKey === wallet.publicKey || crypto.getAddress(transaction.senderPublicKey) === wallet.address) {
-      wallet.balance = wallet.balance.add(transaction.amount).add(transaction.fee)
+      wallet.balance = wallet.balance.plus(transaction.amount).plus(transaction.fee)
 
       this.revert(wallet, transaction)
 
@@ -70,7 +70,7 @@ module.exports = class Handler {
    */
   applyTransactionToRecipient (wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
-      wallet.balance = wallet.balance.add(transaction.amount)
+      wallet.balance = wallet.balance.plus(transaction.amount)
       wallet.dirty = true
     }
   }
@@ -83,7 +83,7 @@ module.exports = class Handler {
    */
   revertTransactionForRecipient (wallet, transaction) {
     if (transaction.recipientId === wallet.address) {
-      wallet.balance = wallet.balance.subtract(transaction.amount)
+      wallet.balance = wallet.balance.minus(transaction.amount)
       wallet.dirty = true
     }
   }
