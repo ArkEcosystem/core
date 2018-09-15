@@ -1,6 +1,5 @@
 'use strict'
 
-const { Bignum } = require('@arkecosystem/crypto')
 const GenesisBlockBuilder = require('../../lib/builder/genesis-block')
 const network = require('../../../crypto/lib/networks/ark/testnet')
 
@@ -165,7 +164,7 @@ describe('Genesis Block Builder', () => {
 
       expect(transferTransaction).toContainEntries([
         ['type', 0],
-        ['amount', Bignum.from(10)],
+        ['amount', 10],
         ['fee', 0],
         ['recipientId', wallet.address]
       ])
@@ -190,7 +189,7 @@ describe('Genesis Block Builder', () => {
 
       expect(delegateTransaction).toContainEntries([
         ['type', 2],
-        ['amount', Bignum.ZERO],
+        ['amount', 0],
         ['fee', 0],
         ['senderId', delegateWallet.address]
       ])

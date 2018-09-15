@@ -1,5 +1,4 @@
-const { client, crypto } = require('@arkecosystem/crypto')
-const bignum = require('bigi')
+const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const ByteBuffer = require('bytebuffer')
 const { createHash } = require('crypto')
@@ -208,7 +207,7 @@ module.exports = class GenesisBlockBuilder {
       blockBuffer[i] = hash[7 - i]
     }
 
-    return bignum.fromBuffer(blockBuffer).toString()
+    return new Bignum(blockBuffer.toString('hex'), 16).toString()
   }
 
   /**
@@ -246,7 +245,7 @@ module.exports = class GenesisBlockBuilder {
       byteBuffer.writeInt(block.height)
 
       if (block.previousBlock) {
-        var previousBlock = bignum(block.previousBlock).toBuffer({size: '8'})
+        var previousBlock = Buffer.from(new Bignum(block.previousBlock).toString(16), 'hex')
 
         for (let i = 0; i < 8; i++) {
           byteBuffer.writeByte(previousBlock[i])
