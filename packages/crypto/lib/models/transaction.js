@@ -32,30 +32,23 @@ const { TRANSACTION_TYPES } = require('../constants')
  */
 module.exports = class Transaction {
   constructor (data) {
-    this.serialized = Transaction.serialize(data)
-    this.data = Transaction.deserialize(this.serialized.toString('hex'))
-
-    if (this.data.version === 1) {
-      this.verified = crypto.verify(this.data)
-
-      if (!this.verified) {
-        // fix on issue of non homogeneus transaction type 1 payload
-        if (this.data.type === TRANSACTION_TYPES.SECOND_SIGNATURE || this.data.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-          if (this.data.recipientId) {
-            delete this.data.recipientId
-          } else {
-            this.data.recipientId = crypto.getAddress(this.data.senderPublicKey, this.data.network)
-          }
-
-          this.verified = crypto.verify(this.data)
-          this.data.id = crypto.getId(this.data)
-        }
-      }
+    if (typeof data === 'string') {
+      this.serialized = Buffer.from(data, 'hex')
     } else {
+      this.serialized = Transaction.serialize(data)
+    }
+    const deserialized = Transaction.deserialize(this.serialized.toString('hex'))
+
+    if (deserialized.version === 1) {
+      Transaction.applyV1Compatibility(deserialized)
+      this.verified = deserialized.verified
+      delete deserialized.verified
+    } else if (deserialized.version === 2) {
+      deserialized.id = createHash('sha256').update(this.serialized).digest().toString('hex')
+
       // TODO: enable AIP11 when network ready
       this.verified = false
     }
-
     // if (this.data.amount !== transaction.amount) console.error('bang', transaction, this.data);
     [
       'id',
@@ -78,12 +71,66 @@ module.exports = class Transaction {
       'timelock',
       'timelockType'
     ].forEach((key) => {
-      this[key] = this.data[key]
+      this[key] = deserialized[key]
     }, this)
+
+    this.data = deserialized
   }
 
+  static applyV1Compatibility (deserialized) {
+    if (deserialized.secondSignature) {
+      deserialized.signSignature = deserialized.secondSignature
+    }
+
+    if (deserialized.type === TRANSACTION_TYPES.VOTE) {
+      deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network)
+    }
+
+    if (deserialized.vendorFieldHex) {
+      deserialized.vendorField = Buffer.from(deserialized.vendorFieldHex, 'hex').toString('utf8')
+    }
+
+    if (deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      deserialized.asset.multisignature.keysgroup = deserialized.asset.multisignature.keysgroup.map(k => '+' + k)
+    }
+
+    if (deserialized.type === TRANSACTION_TYPES.SECOND_SIGNATURE || deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+      deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network)
+    }
+
+    if (!deserialized.id) {
+      deserialized.id = crypto.getId(deserialized)
+    }
+
+    deserialized.verified = crypto.verify(deserialized)
+
+    if (!deserialized.verified) {
+      // fix on issue of non homogeneus transaction type 1 payload
+      if (deserialized.type === TRANSACTION_TYPES.SECOND_SIGNATURE || deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+        if (deserialized.recipientId) {
+          delete deserialized.recipientId
+        } else {
+          deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network)
+        }
+
+        deserialized.verified = crypto.verify(deserialized)
+        deserialized.id = crypto.getId(deserialized)
+      }
+    }
+
+    if (deserialized.type > 4) {
+      deserialized.verified = false
+    }
+  }
+
+  /*
+   * Return a clean transaction data from the serialized form.
+   * @return {Object}
+   */
   static fromBytes (hexString) {
-    return new Transaction(Transaction.deserialize(hexString))
+    const deserialized = Transaction.deserialize(hexString)
+    Transaction.applyV1Compatibility(deserialized)
+    return new Transaction(deserialized)
   }
 
   verify () {
@@ -340,36 +387,6 @@ module.exports = class Transaction {
 
     if (!transaction.amount) { // this is needed for computation over the blockchain
       transaction.amount = 0
-    }
-
-    if (!transaction.version || transaction.version === 1) {
-      if (transaction.secondSignature) {
-        transaction.signSignature = transaction.secondSignature
-      }
-
-      if (transaction.type === TRANSACTION_TYPES.VOTE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
-      }
-
-      if (transaction.vendorFieldHex) {
-        transaction.vendorField = Buffer.from(transaction.vendorFieldHex, 'hex').toString('utf8')
-      }
-
-      if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.asset.multisignature.keysgroup = transaction.asset.multisignature.keysgroup.map(k => '+' + k)
-      }
-
-      if (!transaction.id) {
-        transaction.id = crypto.getId(transaction)
-      }
-
-      if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE || transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        transaction.recipientId = crypto.getAddress(transaction.senderPublicKey, transaction.network)
-      }
-    }
-
-    if (transaction.version === 2) {
-      transaction.id = createHash('sha256').update(Buffer.from(hexString, 'hex')).digest().toString('hex')
     }
 
     return transaction

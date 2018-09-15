@@ -9,7 +9,6 @@ const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constant
 const block = new Block(require('./__fixtures__/block.json'))
 const walletData1 = require('./__fixtures__/wallets.json')[0]
 const walletData2 = require('./__fixtures__/wallets.json')[1]
-const walletDataFake = require('./__fixtures__/wallets.json')[2]
 
 let genesisBlock // eslint-disable-line no-unused-vars
 let walletManager
@@ -76,7 +75,7 @@ describe('Wallet Manager', () => {
     let delegateMock
     let block2
 
-    const delegatePublicKey = '036a520acf24036ff691a4f8ba19514828e9b5aa36ca4ba0452e9012023caccfef'
+    const delegatePublicKey = '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
     const txs = []
     for (let i = 0; i < 3; i++) {
@@ -357,7 +356,7 @@ describe('Wallet Manager', () => {
       const wallet = new Wallet(walletData1.address)
 
       walletManager.reindex(wallet)
-      expect(walletManager.byAddress.get(wallet.address)).toBe(wallet)
+      expect(walletManager.byAddress[wallet.address]).toBe(wallet)
     })
 
     it('should return it by address', () => {
@@ -378,7 +377,7 @@ describe('Wallet Manager', () => {
       wallet.publicKey = walletData1.publicKey
 
       walletManager.reindex(wallet)
-      expect(walletManager.byPublicKey.get(wallet.publicKey)).toBe(wallet)
+      expect(walletManager.byPublicKey[wallet.publicKey]).toBe(wallet)
     })
 
     it('should return it by publicKey', () => {
@@ -400,7 +399,7 @@ describe('Wallet Manager', () => {
       wallet.username = 'dummy-username'
 
       walletManager.reindex(wallet)
-      expect(walletManager.byUsername.get(wallet.username)).toBe(wallet)
+      expect(walletManager.byUsername[wallet.username]).toBe(wallet)
     })
 
     it('should return it by username', () => {
@@ -529,24 +528,6 @@ describe('Wallet Manager', () => {
     })
   })
 
-  describe('isGenesis', () => {
-    it('should be a function', () => {
-      expect(walletManager.isGenesis).toBeFunction()
-    })
-
-    it('should be truthy', async () => {
-      const wallet = new Wallet(walletData1.address)
-
-      expect(walletManager.isGenesis(wallet)).toBeTruthy()
-    })
-
-    it('should be falsy', async () => {
-      const wallet = new Wallet(walletDataFake.address)
-
-      expect(walletManager.isGenesis(wallet)).toBeFalsy()
-    })
-  })
-
   describe('updateDelegates', () => {
     it('should be a function', () => {
       expect(walletManager.updateDelegates).toBeFunction()
@@ -563,6 +544,7 @@ describe('Wallet Manager', () => {
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
+          publicKey: 'v' + delegateKey,
           balance: (i + 1) * 1000 * ARKTOSHI,
           vote: delegateKey
         }
@@ -575,7 +557,6 @@ describe('Wallet Manager', () => {
       const delegates = walletManager.allByUsername()
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i]
-        expect(delegate.rate).toBe(i + 1)
         expect(delegate.voteBalance).toBe((5 - i) * 1000 * ARKTOSHI)
       }
     })

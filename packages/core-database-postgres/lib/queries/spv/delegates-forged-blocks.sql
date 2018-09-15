@@ -3,5 +3,4 @@ SELECT generator_public_key,
        SUM ("reward") AS "total_rewards",
        COUNT ("total_amount") AS "total_produced"
 FROM blocks
-WHERE generator_public_key IN (${publicKeys:list})
 GROUP BY "generator_public_key"
