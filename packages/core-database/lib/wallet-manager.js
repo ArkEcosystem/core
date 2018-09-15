@@ -189,7 +189,7 @@ module.exports = class WalletManager {
    * @return {void}
    */
   updateDelegates () {
-    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = 0))
+    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
     Object.values(this.byPublicKey)
       .filter(voter => !!voter.vote)
       .forEach(voter => {
