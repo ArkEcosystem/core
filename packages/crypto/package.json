@@ -30,7 +30,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "bigi": "^1.4.2",
+    "bignumber.js": "^7.2.1",
     "bip32": "^1.0.2",
     "bip38": "^2.0.2",
     "bs58check": "^2.1.1",
