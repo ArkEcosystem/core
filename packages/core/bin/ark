@@ -64,7 +64,7 @@ app
     const delegates = require(delegatesConfig)
     delegates.secrets = [options.secret]
     delete delegates.bip38
-  
+
     fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, null, 2))
   })
 
@@ -86,7 +86,7 @@ app
     configManager.setFromPreset(options.token, options.network)
 
     const keys = crypto.getKeys(options.secret)
-    const decoded = wif.decode(keys.toWIF())
+    const decoded = wif.decode(crypto.keysToWIF(keys))
 
     const delegates = require(delegatesConfig)
     delegates.bip38 = bip38.encrypt(decoded.privateKey, decoded.compressed, options.password)
