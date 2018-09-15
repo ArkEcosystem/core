@@ -5,7 +5,6 @@ const otplib = require('otplib')
 const forge = require('node-forge')
 
 const Block = require('./block')
-const ECPair = require('../crypto/ecpair')
 const crypto = require('../crypto/crypto')
 const sortTransactions = require('../utils/sort-transactions')
 
@@ -38,8 +37,8 @@ module.exports = class Delegate {
     if (bip38.verify(passphrase)) {
       try {
         this.keys = Delegate.decryptPassphrase(passphrase, network, password)
-        this.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
-        this.address = this.keys.getAddress(network.pubKeyHash)
+        this.publicKey = this.keys.publicKey
+        this.address = crypto.getAddress(this.keys.publicKey, network.pubKeyHash)
         this.otpSecret = otplib.authenticator.generateSecret()
         this.bip38 = true
         this.encryptKeysWithOtp()
@@ -51,7 +50,7 @@ module.exports = class Delegate {
     } else {
       this.keys = crypto.getKeys(passphrase)
       this.publicKey = this.keys.publicKey
-      this.address = this.keys.getAddress(network.pubKeyHash)
+      this.address = crypto.getAddress(this.publicKey, network.pubKeyHash)
     }
   }
 
@@ -64,9 +63,8 @@ module.exports = class Delegate {
    * @static
    */
   static encryptPassphrase (passphrase, network, password) {
-    const keys = crypto.getKeys(passphrase, network)
-    const wifKey = keys.toWIF()
-    const decoded = wif.decode(wifKey)
+    const keys = crypto.getKeys(passphrase)
+    const decoded = wif.decode(crypto.keysToWIF(keys, network))
 
     return bip38.encrypt(decoded.privateKey, decoded.compressed, password)
   }
@@ -76,17 +74,13 @@ module.exports = class Delegate {
    * @param  {String} passphrase
    * @param  {Number} network
    * @param  {String} password
-   * @return {ECPair}
+   * @return {Object}
    * @static
    */
   static decryptPassphrase (passphrase, network, password) {
     const decryptedWif = bip38.decrypt(passphrase, password)
     const wifKey = wif.encode(network.wif, decryptedWif.privateKey, decryptedWif.compressed)
-
-    let keys = ECPair.fromWIF(wifKey, network)
-    keys.publicKey = keys.getPublicKeyBuffer().toString('hex')
-
-    return keys
+    return crypto.getKeysFromWIF(wifKey, network)
   }
 
   /**
@@ -94,7 +88,8 @@ module.exports = class Delegate {
    */
   encryptKeysWithOtp () {
     this.otp = otplib.authenticator.generate(this.otpSecret)
-    this.encryptedKeys = this.__encryptData(this.keys.toWIF(), this.otp)
+    const wifKey = crypto.keysToWIF(this.keys, this.network)
+    this.encryptedKeys = this.__encryptData(wifKey, this.otp)
     this.keys = null
   }
 
@@ -103,8 +98,7 @@ module.exports = class Delegate {
    */
   decryptKeysWithOtp () {
     let wifKey = this.__decryptData(this.encryptedKeys, this.otp)
-    this.keys = ECPair.fromWIF(wifKey, this.network)
-    this.keys.publicKey = this.keys.getPublicKeyBuffer().toString('hex')
+    this.keys = crypto.getKeysFromWIF(wifKey, this.network)
     this.otp = null
     this.encryptedKeys = null
   }
