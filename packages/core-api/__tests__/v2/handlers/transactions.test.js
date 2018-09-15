@@ -232,8 +232,8 @@ describe('API 2.0 - Transactions', () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         amount: {
-          from: amount.toNumber(),
-          to: amount.toNumber()
+          from: amount,
+          to: amount
         }
       })
       utils.expectSuccessful(response)
@@ -251,8 +251,8 @@ describe('API 2.0 - Transactions', () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         amount: {
-          from: amountFrom.toNumber(),
-          to: amountTo.toNumber()
+          from: amountFrom,
+          to: amountTo
         }
       })
       utils.expectSuccessful(response)
@@ -270,8 +270,8 @@ describe('API 2.0 - Transactions', () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         fee: {
-          from: fee.toNumber(),
-          to: fee.toNumber()
+          from: fee,
+          to: fee
         }
       })
       utils.expectSuccessful(response)
@@ -289,8 +289,8 @@ describe('API 2.0 - Transactions', () => {
       const response = await utils.request('POST', 'transactions/search', {
         id: transactionId,
         fee: {
-          from: feeFrom.toNumber(),
-          to: feeTo.toNumber()
+          from: feeFrom,
+          to: feeTo
         }
       })
       utils.expectSuccessful(response)

@@ -10,7 +10,7 @@ let delegate
 beforeEach(() => {
   delegate = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   Object.entries({
-    balance: Bignum.from(109390000000),
+    balance: new Bignum(109390000000),
     voteBalance: Bignum.ZERO,
     producedBlocks: 0,
     missedBlocks: 0

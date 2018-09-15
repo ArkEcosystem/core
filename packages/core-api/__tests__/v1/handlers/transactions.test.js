@@ -191,8 +191,8 @@ describe('API 1.0 - Transactions', () => {
       expect(response.data.transaction).toBeApiTransaction()
 
       expect(response.data.transaction).toHaveProperty('id', transactionInCheck.id)
-      expect(response.data.transaction).toHaveProperty('amount', transactionInCheck.amount.toNumber())
-      expect(response.data.transaction).toHaveProperty('fee', transactionInCheck.fee.toNumber())
+      expect(response.data.transaction).toHaveProperty('amount', transactionInCheck.amount)
+      expect(response.data.transaction).toHaveProperty('fee', transactionInCheck.fee)
       expect(response.data.transaction).toHaveProperty('recipientId', transactionInCheck.recipientId)
       expect(response.data.transaction).toHaveProperty('senderId', transactionInCheck.senderId)
       expect(response.data.transaction).toHaveProperty('type', transactionInCheck.type)

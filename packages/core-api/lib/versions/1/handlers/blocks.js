@@ -198,9 +198,10 @@ exports.supply = {
   handler (request, h) {
     const lastBlock = blockchain.getLastBlock()
     const constants = config.getConstants(lastBlock.data.height)
+    const rewards = new Bignum(constants.reward).times(lastBlock.data.height - constants.height)
 
     return utils.respondWith({
-      supply: config.genesisBlock.totalAmount.add(Bignum.from(lastBlock.data.height - constants.height) * constants.reward).toNumber()
+      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toNumber()
     })
   }
 }
@@ -217,6 +218,7 @@ exports.status = {
   handler (request, h) {
     const lastBlock = blockchain.getLastBlock()
     const constants = config.getConstants(lastBlock.data.height)
+    const rewards = new Bignum(constants.reward).times(lastBlock.data.height - constants.height)
 
     return utils.respondWith({
       epoch: constants.epoch,
@@ -225,7 +227,7 @@ exports.status = {
       milestone: ~~(lastBlock.data.height / 3000000),
       nethash: config.network.nethash,
       reward: constants.reward,
-      supply: config.genesisBlock.totalAmount.add(Bignum.from(lastBlock.data.height - constants.height) * constants.reward).toNumber()
+      supply: new Bignum(config.genesisBlock.totalAmount).plus(rewards).toNumber()
     })
   }
 }

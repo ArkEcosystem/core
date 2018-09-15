@@ -283,7 +283,7 @@ describe('API 2.0 - Blocks', () => {
       const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
-      expect(+block.forged.fee).toBe(genesisBlock.totalFee.toNumber())
+      expect(+block.forged.fee).toBe(genesisBlock.totalFee)
     })
 
     it('should POST a search for blocks with the specified totalFee range', async () => {
@@ -299,15 +299,15 @@ describe('API 2.0 - Blocks', () => {
       const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
-      expect(+block.forged.fee).toBe(genesisBlock.totalFee.toNumber())
+      expect(+block.forged.fee).toBe(genesisBlock.totalFee)
     })
 
     it('should POST a search for blocks with the exact specified reward', async () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id,
         reward: {
-          from: genesisBlock.reward.toNumber(),
-          to: genesisBlock.reward.toNumber()
+          from: genesisBlock.reward,
+          to: genesisBlock.reward
         }
       })
       utils.expectSuccessful(response)
@@ -318,15 +318,15 @@ describe('API 2.0 - Blocks', () => {
       const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
-      expect(+block.forged.reward).toBe(genesisBlock.reward.toNumber())
+      expect(+block.forged.reward).toBe(genesisBlock.reward)
     })
 
     it('should POST a search for blocks with the specified reward range', async () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id,
         reward: {
-          from: genesisBlock.reward.toNumber(),
-          to: genesisBlock.reward.toNumber()
+          from: genesisBlock.reward,
+          to: genesisBlock.reward
         }
       })
       utils.expectSuccessful(response)
@@ -337,7 +337,7 @@ describe('API 2.0 - Blocks', () => {
       const block = response.data.data[0]
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
-      expect(+block.forged.reward).toBe(genesisBlock.reward.toNumber())
+      expect(+block.forged.reward).toBe(genesisBlock.reward)
     })
 
     it('should POST a search for blocks with the exact specified payloadLength', async () => {
