@@ -1,14 +1,10 @@
 const prettyMs = require('pretty-ms')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
-
 let tracker = null
 
-module.exports = async blockCount => {
+module.exports = async (blockCount, count) => {
   if (!tracker) {
-    const { count } = await database.blocks.count()
-
     tracker = {
       start: new Date().getTime(),
       networkHeight: container.resolvePlugin('p2p').getNetworkHeight(),

@@ -23,13 +23,6 @@ const applyV1Fix = (data) => {
   data.previousBlockHex = data.previousBlock ? toBytesHex(new Bignum(data.previousBlock).toBuffer()) : '0000000000000000'
   data.idHex = toBytesHex(new Bignum(data.id).toBuffer())
   // END Fix for v1 api
-
-  // order of transactions messed up in mainnet V1
-  // if (block.data.transactions.length === 2 && (block.data.height === 3084276 || block.data.height === 34420)) {
-  //   const temp = block.data.transactions[0]
-  //   block.data.transactions[0] = block.data.transactions[1]
-  //   block.data.transactions[1] = temp
-  // }
 }
 
 /**
@@ -92,11 +85,6 @@ module.exports = class Block {
       console.log(`'${this.data.id}': '${data.id}',`)
     }
 
-    // if (data.height === 1622706) {
-    //   console.log(data)
-    //   console.log(this.data)
-    // }
-
     if (data.height === 1) {
       this.genesis = true
       // TODO genesis block calculated id is wrong for some reason
@@ -122,6 +110,14 @@ module.exports = class Block {
     }
 
     this.verification = this.verify()
+
+    // order of transactions messed up in mainnet V1
+    // TODO: move this to network constants exception using block ids
+    if (this.transactions && this.data.numberOfTransactions === 2 && (this.data.height === 3084276 || this.data.height === 34420)) {
+      const temp = this.transactions[0]
+      this.transactions[0] = this.transactions[1]
+      this.transactions[1] = temp
+    }
 
     if (!this.verification.verified && this.data.height !== 1) {
       // console.log(JSON.stringify(data, null, 2))
