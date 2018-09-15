@@ -8,8 +8,7 @@ const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (data) => {
-  const buffer = Buffer.from(new Bignum(data).toString(16), 'hex')
-  let temp = buffer.toString('hex')
+  const temp = new Bignum(data).toString(16)
   return '0'.repeat(16 - temp.length) + temp
 }
 
