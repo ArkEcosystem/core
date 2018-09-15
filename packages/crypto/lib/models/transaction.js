@@ -382,7 +382,7 @@ module.exports = class Transaction {
         offset += 22
       }
 
-      transaction.amount = transaction.asset.payments.reduce((a, p) => (a.add(p.amount)), Bignum.ZERO)
+      transaction.amount = transaction.asset.payments.reduce((a, p) => (a.plus(p.amount)), Bignum.ZERO)
 
       Transaction.parseSignatures(hexString, transaction, offset * 2)
     }

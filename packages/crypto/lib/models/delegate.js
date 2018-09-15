@@ -120,8 +120,8 @@ module.exports = class Delegate {
 
       const sortedTransactions = sortTransactions(transactions)
       sortedTransactions.forEach(transaction => {
-        transactionData.amount = transactionData.amount.add(transaction.amount)
-        transactionData.fee = transactionData.fee.add(transaction.fee)
+        transactionData.amount = transactionData.amount.plus(transaction.amount)
+        transactionData.fee = transactionData.fee.plus(transaction.fee)
         transactionData.sha256.update(Buffer.from(transaction.id, 'hex'))
       })
 
