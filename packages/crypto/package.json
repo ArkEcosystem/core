@@ -30,7 +30,6 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/validation": "^0.1.1",
     "bigi": "^1.4.2",
     "bip32": "^1.0.2",
     "bip38": "^2.0.2",
@@ -38,6 +37,7 @@
     "bytebuffer": "^5.0.1",
     "create-hash": "^1.2.0",
     "deepmerge": "^2.1.0",
+    "joi": "^13.3.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "node-forge": "^0.7.5",
