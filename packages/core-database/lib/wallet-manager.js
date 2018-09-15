@@ -194,7 +194,7 @@ module.exports = class WalletManager {
       .filter(voter => !!voter.vote)
       .forEach(voter => {
         const delegate = this.byPublicKey[voter.vote]
-        delegate.voteBalance = delegate.voteBalance.add(Bignum.from(voter.balance))
+        delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       })
   }
 

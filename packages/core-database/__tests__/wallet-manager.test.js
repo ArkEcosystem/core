@@ -195,7 +195,7 @@ describe('Wallet Manager', () => {
     })
 
     describe('when the transaction is a transfer', () => {
-      const amount = Bignum.from(96579)
+      const amount = new Bignum(96579)
 
       let sender
       let recipient
@@ -224,7 +224,7 @@ describe('Wallet Manager', () => {
       })
 
       it('should apply the transaction to the sender & recipient', async () => {
-        const balance = Bignum.from(100000000)
+        const balance = new Bignum(100000000)
         sender.balance = balance
 
         expect(sender.balance.toNumber()).toBe(100000000)
@@ -232,12 +232,12 @@ describe('Wallet Manager', () => {
 
         await walletManager.applyTransaction(transaction)
 
-        expect(sender.balance).toEqual(balance.subtract(amount).subtract(transaction.fee))
+        expect(sender.balance).toEqual(balance.minus(amount).minus(transaction.fee))
         expect(recipient.balance).toEqual(amount)
       })
 
       it('should fail if the transaction cannot be applied', async () => {
-        const balance = Bignum.from(1)
+        const balance = Bignum.ONE
         sender.balance = balance
 
         expect(sender.balance.toNumber()).toBe(1)
@@ -280,20 +280,20 @@ describe('Wallet Manager', () => {
       })
 
       it('should apply the transaction to the sender', async () => {
-        const balance = Bignum.from(30 * Math.pow(10, 8))
+        const balance = new Bignum(30 * ARKTOSHI)
         sender.balance = balance
 
-        expect(sender.balance.toNumber()).toBe(30 * Math.pow(10, 8))
+        expect(sender.balance.toNumber()).toBe(30 * ARKTOSHI)
 
         await walletManager.applyTransaction(transaction)
 
-        expect(sender.balance).toEqual(balance.subtract(transaction.fee))
+        expect(sender.balance).toEqual(balance.minus(transaction.fee))
         expect(sender.username).toBe(username)
         expect(walletManager.findByUsername(username)).toBe(sender)
       })
 
       it('should fail if the transaction cannot be applied', async () => {
-        const balance = Bignum.from(1)
+        const balance = Bignum.ONE
         sender.balance = balance
 
         expect(sender.balance).toBe(balance)
@@ -322,8 +322,8 @@ describe('Wallet Manager', () => {
     it('should revert the transaction from the sender & recipient', async () => {
       const transaction = new Transaction({
         type: TRANSACTION_TYPES.TRANSFER,
-        amount: Bignum.from(245098000000000),
-        fee: Bignum.ZERO,
+        amount: 245098000000000,
+        fee: 0,
         recipientId: 'AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri',
         timestamp: 0,
         asset: {},
@@ -342,8 +342,8 @@ describe('Wallet Manager', () => {
 
       await walletManager.revertTransaction(transaction)
 
-      expect(sender.balance.toNumber()).toBe(transaction.data.amount.toNumber())
-      expect(recipient.balance.toNumber()).toEqual(0)
+      expect(sender.balance).toEqual(transaction.data.amount)
+      expect(recipient.balance).toEqual(Bignum.ZERO)
     })
   })
 
@@ -545,7 +545,7 @@ describe('Wallet Manager', () => {
 
         const voter = {
           address: crypto.getAddress((i + 5).toString().repeat(66)),
-          balance: Bignum.from((i + 1) * 1000 * ARKTOSHI),
+          balance: new Bignum((i + 1) * 1000 * ARKTOSHI),
           publicKey: 'v' + delegateKey,
           vote: delegateKey
         }
@@ -558,7 +558,7 @@ describe('Wallet Manager', () => {
       const delegates = walletManager.allByUsername()
       for (let i = 0; i < 5; i++) {
         const delegate = delegates[4 - i]
-        expect(delegate.voteBalance).toEqual(Bignum.from((5 - i) * 1000 * ARKTOSHI))
+        expect(delegate.voteBalance).toEqual(new Bignum((5 - i) * 1000 * ARKTOSHI))
       }
     })
   })
