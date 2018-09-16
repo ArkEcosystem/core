@@ -11,6 +11,7 @@ const { Block } = require('@arkecosystem/crypto').models
 module.exports = (options) => {
   const sourceStream = fs.createReadStream(`${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${options.filename}`)
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
+  logger.debug('Starting to test snapshot validation')
   progressBbar.start(parseInt(options.filename.split('.')[1]), 0) // getting last height from filename
 
   const pipeline = sourceStream
@@ -22,20 +23,27 @@ module.exports = (options) => {
   pipeline
     .on('data', (data) => {
       const blockDb = Block.deserialize(data.value.blockBuffer)
-      blockDb.id = Block.getId(blockDb)
-      const block = new Block(blockDb)
-      progressBbar.update(block.data.height)
+      try {
+        blockDb.id = Block.getId(blockDb)
+        const block = new Block(blockDb)
 
-      if (data.value.height - lastProcessedBlock !== 1) {
-        logger.error(`Snapshot ${options.filename} is corrupted, reason missing blocks ${block.data.height}.`)
-        process.exit(0)
-      }
+        progressBbar.update(block.data.height)
 
-      if (!block.verification.verified) {
-        logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block)}`)
-        process.exit(0)
+        if (data.value.height - lastProcessedBlock !== 1) {
+          logger.error(`Snapshot ${options.filename} is corrupted, reason missing blocks before block: ${block.data.height}.`)
+          process.exit(0)
+        }
+
+        if (!block.verification.verified) {
+          logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block)}`)
+          process.exit(0)
+        }
+        lastProcessedBlock = block.data.height
+      } catch (error) {
+        logger.error(error)
+        logger.error(error.stack)
+        logger.error(`Block: ${JSON.stringify(blockDb)}`)
       }
-      lastProcessedBlock = block.data.height
     })
     .on('end', () => {
       progressBbar.stop()

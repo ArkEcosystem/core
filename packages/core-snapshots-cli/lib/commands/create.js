@@ -29,7 +29,7 @@ module.exports = async (options) => {
   const writeQueue = async.queue((block, qcallback) => {
     block.transactions = !block.transactions ? [] : block.transactions
     if (block.height - lastSavedHeight !== 1) {
-      logger.error(`Export database is corrupted. Missing blocks on previos block of ${block.height}`)
+      logger.error(`Export database is corrupted. Missing blocks on previous block of ${block.height}`)
       process.exit(0)
     }
 
@@ -43,7 +43,7 @@ module.exports = async (options) => {
       .pipe(zlib.createGzip())
       .pipe(fs.createWriteStream(`${storageLocation}/snapshot.${height}.gz`))
       .on('finish', () => {
-        fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
+        // fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
         logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
 
         init.tearDown(options)
