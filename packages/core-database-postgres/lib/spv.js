@@ -110,7 +110,7 @@ module.exports = class SPV {
       let wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey)
       wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee)
 
-      if (wallet.balance.toNumber() < 0 && !this.isGenesis(wallet)) {
+      if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
         logger.warn(`Negative balance: ${wallet}`)
       }
     }

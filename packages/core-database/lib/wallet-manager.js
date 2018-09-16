@@ -392,7 +392,7 @@ module.exports = class WalletManager {
    * @return {Boolean}
    */
   __canBePurged (wallet) {
-    return wallet.balance.toNumber() === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+    return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
 }
