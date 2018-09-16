@@ -27,8 +27,6 @@ module.exports = async (options) => {
     const block = new Block(blockDb)
     progressBbar.update(block.data.height)
 
-    // console.log(`entering ${data.value.height}:${block.data.height}`)
-
     if (data.value.height - lastProcessedBlock !== 1) {
       logger.error(`Snapshot ${options.filename} is corrupted, reason missing blocks ${block.data.height}.`)
       process.exit(0)
@@ -42,7 +40,6 @@ module.exports = async (options) => {
     database.saveBlockAsync(block)
      // committing to db every 10,000 blocks
     if (block.data.height % writeInterval === 0) {
-      logger.debug('commiting')
       await database.saveBlockCommit()
       pipeline.resume()
     }
