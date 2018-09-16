@@ -40,9 +40,9 @@ module.exports = (options) => {
         }
         lastProcessedBlock = block.data.height
       } catch (error) {
+        logger.error(`Block: ${JSON.stringify(blockDb, null, 2)}`)
         logger.error(error)
         logger.error(error.stack)
-        logger.error(`Block: ${JSON.stringify(blockDb)}`)
       }
     })
     .on('end', () => {
