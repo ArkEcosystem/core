@@ -2,7 +2,7 @@
 
 /* eslint-disable */
 
-const BigNumber = require('bignumber.js')
+const { Bignum } = require('@arkecosystem/crypto')
 
 /**
  * Check if the given value is a boolean.
@@ -53,7 +53,7 @@ const register = async (server, options) => {
         else if (isNumber(query[key])) {
           query[key] = (query[key] == Number(query[key]))
             ? Number(query[key])
-            : BigNumber(query[key]).toString()
+            : Bignum(query[key]).toString()
         }
         // Strings
         else {

@@ -12,7 +12,7 @@ const config = container.resolvePlugin('config')
 const logger = container.resolvePlugin('logger')
 const emitter = container.resolvePlugin('event-emitter')
 
-const { Block, Transaction } = require('@arkecosystem/crypto').models
+const { Bignum, models: { Block, Transaction } } = require('@arkecosystem/crypto')
 
 const SPV = require('./spv')
 const Cache = require('./cache')
@@ -638,7 +638,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
               return
             }
 
-            coldWallet[key] = wallet[key]
+            coldWallet[key] = key !== 'voteBalance' ? wallet[key] : new Bignum(wallet[key])
           })
         }
       } catch (err) {

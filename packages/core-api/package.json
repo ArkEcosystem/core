@@ -23,7 +23,6 @@
     "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.1.1",
     "ajv": "^6.5.0",
-    "bignumber.js": "^7.1.0",
     "boom": "^7.2.0",
     "bs58check": "^2.1.1",
     "catbox-redis": "^4.1.0",

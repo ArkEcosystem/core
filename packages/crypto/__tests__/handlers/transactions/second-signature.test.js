@@ -1,3 +1,4 @@
+const Bignum = require('../../../lib/utils/bignum')
 const handler = require('../../../lib/handlers/transactions/second-signature')
 
 let wallet
@@ -6,7 +7,7 @@ let transaction
 beforeEach(() => {
   wallet = {
     address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-    balance: '6453530000000',
+    balance: new Bignum('6453530000000'),
     publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
     secondPublicKey: '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1'
   }
@@ -17,8 +18,8 @@ beforeEach(() => {
     blockid: '18049953523739571613',
     type: 0,
     timestamp: 36350726,
-    amount: 5000000000,
-    fee: 10000000,
+    amount: new Bignum(5000000000),
+    fee: new Bignum(10000000),
     senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     recipientId: 'D92qxqLRYwTannfANNGFm138WTrhsq9RVi',
     senderPublicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',

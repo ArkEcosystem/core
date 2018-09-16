@@ -1,7 +1,7 @@
 'use strict'
 
+const { Bignum, constants: { ARKTOSHI, TRANSACTION_TYPES } } = require('@arkecosystem/crypto')
 const createTransfer = require('../../../lib/generators/transactions/transfer')
-const { TRANSACTION_TYPES } = require('../../../../crypto/lib/constants')
 
 describe('Transfer transaction', () => {
   it('should be a function', () => {
@@ -30,7 +30,7 @@ describe('Transfer transaction', () => {
 
   it('should return an array sending 20 ark', () => {
     for (let i = 0; i < transactions.length; i++) {
-      expect(transactions[i]).toMatchObject({ amount: amount * Math.pow(10, 8) })
+      expect(transactions[i]).toMatchObject({ amount: new Bignum(amount * ARKTOSHI) })
     }
   })
 })

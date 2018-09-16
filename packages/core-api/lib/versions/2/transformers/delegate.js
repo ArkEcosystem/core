@@ -13,7 +13,7 @@ module.exports = (delegate) => {
     username: delegate.username,
     address: delegate.address,
     publicKey: delegate.publicKey,
-    votes: delegate.voteBalance,
+    votes: +delegate.voteBalance.toString(),
     rank: delegate.rate || 0, // forcing to 0 if undefined  as it is not yet reliable
     blocks: {
       produced: delegate.producedBlocks,
