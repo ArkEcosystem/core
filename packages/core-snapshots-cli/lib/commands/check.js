@@ -35,7 +35,7 @@ module.exports = (options) => {
         }
 
         if (!block.verification.verified) {
-          logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block)}`)
+          logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block, null, 2)}`)
           process.exit(0)
         }
         lastProcessedBlock = block.data.height
