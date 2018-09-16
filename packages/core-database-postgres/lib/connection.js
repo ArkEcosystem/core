@@ -351,7 +351,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async saveBlockAsync (block) {
+  saveBlockAsync (block) {
     if (!this.asyncTransaction) {
       this.asyncTransaction = []
     }
@@ -361,8 +361,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (block.transactions.length > 0) {
       this.asyncTransaction.push(this.db.transactions.create(block.transactions))
     }
-
-    await this.db.tx(t => t.batch(this.asyncTransaction))
   }
 
   /**
