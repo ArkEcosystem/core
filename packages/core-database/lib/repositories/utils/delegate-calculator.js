@@ -1,5 +1,5 @@
 'use strict'
-
+const { Bignum } = require('@arkecosystem/crypto')
 const config = require('@arkecosystem/core-container').resolvePlugin('config')
 
 /**
@@ -10,9 +10,9 @@ const config = require('@arkecosystem/core-container').resolvePlugin('config')
  */
 exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
-  const totalSupply = config.genesisBlock.totalAmount + (height - constants.height) * constants.reward
+  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
 
-  return ((delegate.balance / totalSupply) * 100).toFixed(2)
+  return delegate.balance.times(100).dividedBy(totalSupply).toNumber().toFixed(2)
 }
 
 /**

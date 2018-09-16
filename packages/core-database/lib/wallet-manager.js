@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird')
 
-const { crypto } = require('@arkecosystem/crypto')
+const { Bignum, crypto } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 const container = require('@arkecosystem/core-container')
@@ -100,7 +100,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByAddress (address, wallet) {
-    this.byAddress = this.byAddress[address] = wallet
+    this.byAddress[address] = wallet
   }
 
   /**
@@ -110,7 +110,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByPublicKey (publicKey, wallet) {
-    this.byPublicKey = this.byPublicKey[publicKey] = wallet
+    this.byPublicKey[publicKey] = wallet
   }
 
   /**
@@ -120,7 +120,7 @@ module.exports = class WalletManager {
    * @param {void}
    */
   setByUsername (username, wallet) {
-    this.byUsername = this.byUsername[username] = wallet
+    this.byUsername[username] = wallet
   }
 
   /**
@@ -189,10 +189,13 @@ module.exports = class WalletManager {
    * @return {void}
    */
   updateDelegates () {
-    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = 0))
+    Object.values(this.byUsername).forEach(delegate => (delegate.voteBalance = Bignum.ZERO))
     Object.values(this.byPublicKey)
       .filter(voter => !!voter.vote)
-      .forEach(voter => (this.byPublicKey[voter.vote].voteBalance += voter.balance))
+      .forEach(voter => {
+        const delegate = this.byPublicKey[voter.vote]
+        delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
+      })
   }
 
   /**
@@ -389,7 +392,7 @@ module.exports = class WalletManager {
    * @return {Boolean}
    */
   __canBePurged (wallet) {
-    return wallet.balance === 0 && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
+    return wallet.balance.isZero() && !wallet.secondPublicKey && !wallet.multisignature && !wallet.username
   }
 
 }

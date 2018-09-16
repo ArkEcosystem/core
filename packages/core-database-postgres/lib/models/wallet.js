@@ -28,11 +28,16 @@ module.exports = class WalletModel extends Model {
     }, {
       name: 'username'
     }, {
-      name: 'balance'
+      name: 'balance',
+      init: col => {
+        return +col.value.toString()
+      }
     }, {
       name: 'vote_balance',
       prop: 'voteBalance',
-      def: null
+      init: col => {
+        return col.value ? +col.value.toString() : null
+      }
     }, {
       name: 'produced_blocks',
       prop: 'producedBlocks'

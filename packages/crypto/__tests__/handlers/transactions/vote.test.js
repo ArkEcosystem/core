@@ -1,3 +1,4 @@
+const Bignum = require('../../../lib/utils/bignum')
 const handler = require('../../../lib/handlers/transactions/vote')
 
 let wallet
@@ -6,7 +7,7 @@ let transaction
 beforeEach(() => {
   wallet = {
     address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
-    balance: '6453530000000',
+    balance: new Bignum('6453530000000'),
     publicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',
     secondPublicKey: '03791c7d0229966ee41af0e5362f3bb2534ef8c706d7151fec70aead607227fce1',
     vote: null
@@ -18,8 +19,8 @@ beforeEach(() => {
     blockid: '5273958469976113749',
     type: 3,
     timestamp: 36345270,
-    amount: 0,
-    fee: 100000000,
+    amount: Bignum.ZERO,
+    fee: new Bignum(100000000),
     senderId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     recipientId: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
     senderPublicKey: '0310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0',

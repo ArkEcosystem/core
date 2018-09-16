@@ -40,7 +40,7 @@ describe('Multi Signature Transaction', () => {
 
     it('calculates and establish the fee', () => {
       builder.multiSignatureAsset(multisignature)
-      expect(builder.data.fee).toEqual(4 * multiSignatureFee)
+      expect(builder.data.fee).toBe(4 * multiSignatureFee)
     })
   })
 

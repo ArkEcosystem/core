@@ -1,5 +1,6 @@
 const ByteBuffer = require('bytebuffer')
 const Block = require('../../lib/models/block')
+const Bignum = require('../../lib/utils/bignum')
 
 describe('Models - Block', () => {
   const data = {
@@ -31,10 +32,15 @@ describe('Models - Block', () => {
 
       const data2 = { ...data }
       const header = (new Block(data2)).getHeader()
+      const bignumProperties = ['reward', 'totalAmount', 'totalFee']
 
       Object.keys(data).forEach(key => {
         if (key !== 'transactions') {
-          expect(header[key]).toEqual(data2[key])
+          if (bignumProperties.includes(key)) {
+            expect(header[key]).toEqual(new Bignum(data2[key]))
+          } else {
+            expect(header[key]).toEqual(data2[key])
+          }
         }
       })
 

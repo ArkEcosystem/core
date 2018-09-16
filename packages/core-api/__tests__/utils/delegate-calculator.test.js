@@ -1,5 +1,6 @@
 'use strict'
 
+const { Bignum } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
 const delegateCalculator = require('../../lib/utils/delegate-calculator')
@@ -9,8 +10,8 @@ let delegate
 beforeEach(() => {
   delegate = new Wallet('D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7')
   Object.entries({
-    balance: 109390000000,
-    voteBalance: 0,
+    balance: new Bignum(109390000000),
+    voteBalance: Bignum.ZERO,
     producedBlocks: 0,
     missedBlocks: 0
   }).forEach((key, value) => (delegate[key] = value))

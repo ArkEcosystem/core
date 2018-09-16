@@ -27,6 +27,7 @@ module.exports = {
 
   // Utils...
   sortTransactions: require('./utils/sort-transactions'),
+  Bignum: require('./utils/bignum'),
 
   // Validations
   ...require('./validation')
