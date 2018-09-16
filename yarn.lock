@@ -1916,13 +1916,13 @@ big.js@^3.1.3:
   version "3.2.0"
   resolved "https://registry.npmjs.org/big.js/-/big.js-3.2.0.tgz#a5fc298b81b9e0dca2e458824784b65c52ba588e"
 
-bigi@^1.1.0, bigi@^1.2.0, bigi@^1.4.2:
+bigi@^1.1.0, bigi@^1.2.0:
   version "1.4.2"
   resolved "https://registry.npmjs.org/bigi/-/bigi-1.4.2.tgz#9c665a95f88b8b08fc05cfd731f561859d725825"
 
-bignumber.js@^7.1.0:
+bignumber.js@^7.2.1:
   version "7.2.1"
-  resolved "https://registry.npmjs.org/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
 
 binary-extensions@^1.0.0:
   version "1.11.0"
@@ -1974,6 +1974,10 @@ bip66@^1.1.3:
   resolved "https://registry.npmjs.org/bip66/-/bip66-1.1.5.tgz#01fa8748785ca70955d5011217d1b3139969ca22"
   dependencies:
     safe-buffer "^5.0.1"
+
+bluebird@^2.10.2:
+  version "2.11.0"
+  resolved "http://registry.npmjs.org/bluebird/-/bluebird-2.11.0.tgz#534b9033c022c9579c56ba3b3e5a5caafbb650e1"
 
 bluebird@^3.3.4, bluebird@^3.4.1, bluebird@^3.4.6, bluebird@^3.5.0, bluebird@^3.5.1, bluebird@^3.5.2, bluebird@~3.5.0:
   version "3.5.2"
@@ -2479,6 +2483,13 @@ cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
+cli-progress@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/cli-progress/-/cli-progress-2.1.0.tgz#a212e7e6b685687644ca703904ea49c34ee302c8"
+  dependencies:
+    colors "^1.1.2"
+    string-width "^2.1.1"
+
 cli-table@^0.3.1:
   version "0.3.1"
   resolved "https://registry.npmjs.org/cli-table/-/cli-table-0.3.1.tgz#f53b05266a8b1a0b934b3d0821e6e2dc5914ae23"
@@ -2631,7 +2642,7 @@ command-join@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/command-join/-/command-join-2.0.0.tgz#52e8b984f4872d952ff1bdc8b98397d27c7144cf"
 
-commander@^2.14.1, commander@^2.15.1, commander@^2.9.0:
+commander@^2.14.1, commander@^2.15.1, commander@^2.18.0, commander@^2.9.0:
   version "2.18.0"
   resolved "https://registry.npmjs.org/commander/-/commander-2.18.0.tgz#2bf063ddee7c7891176981a2cc798e5754bc6970"
 
@@ -3561,7 +3572,7 @@ eslint-plugin-node@^6.0.1, eslint-plugin-node@~6.0.0:
     resolve "^1.3.3"
     semver "^5.4.1"
 
-eslint-plugin-promise@^3.7.0:
+eslint-plugin-promise@^3.7.0, eslint-plugin-promise@^3.8.0:
   version "3.8.0"
   resolved "https://registry.npmjs.org/eslint-plugin-promise/-/eslint-plugin-promise-3.8.0.tgz#65ebf27a845e3c1e9d6f6a5622ddd3801694b621"
 
@@ -5789,7 +5800,7 @@ jest-worker@^23.2.0:
   dependencies:
     merge-stream "^1.0.1"
 
-jest@^23.3.0:
+jest@^23.1.0, jest@^23.3.0:
   version "23.6.0"
   resolved "https://registry.npmjs.org/jest/-/jest-23.6.0.tgz#ad5835e923ebf6e19e7a1d7529a432edfee7813d"
   dependencies:
@@ -7603,6 +7614,12 @@ promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
 
+promise-streams@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/promise-streams/-/promise-streams-2.1.1.tgz#7309f1d3698330ea7fadab1922f13989229ac85a"
+  dependencies:
+    bluebird "^2.10.2"
+
 prompts@^0.1.9:
   version "0.1.14"
   resolved "https://registry.npmjs.org/prompts/-/prompts-0.1.14.tgz#a8e15c612c5c9ec8f8111847df3337c9cbd443b2"
@@ -8777,6 +8794,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+stream-chain@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/stream-chain/-/stream-chain-2.0.3.tgz#9155237a719c8bb2de883c2d1af66d1546f910c9"
+
 stream-each@^1.1.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/stream-each/-/stream-each-1.2.3.tgz#ebe27a0c389b04fbcc233642952e10731afa9bae"
@@ -8793,6 +8814,12 @@ stream-http@^2.7.2:
     readable-stream "^2.3.6"
     to-arraybuffer "^1.0.0"
     xtend "^4.0.0"
+
+stream-json@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/stream-json/-/stream-json-1.1.1.tgz#9f3536daa894521cd65967c6c6b087c2be75cc43"
+  dependencies:
+    stream-chain "^2.0.3"
 
 stream-shift@^1.0.0:
   version "1.0.0"
