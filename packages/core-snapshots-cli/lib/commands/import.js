@@ -27,7 +27,7 @@ module.exports = async (options) => {
     const block = new Block(blockDb)
     progressBbar.update(block.data.height)
 
-    console.log(`entering ${data.value.height}:${block.data.height}`)
+    // console.log(`entering ${data.value.height}:${block.data.height}`)
 
     if (data.value.height - lastProcessedBlock !== 1) {
       logger.error(`Snapshot ${options.filename} is corrupted, reason missing blocks ${block.data.height}.`)
@@ -36,6 +36,7 @@ module.exports = async (options) => {
 
     if (!block.verification.verified) {
       logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block)}`)
+      process.exit(0)
     }
 
     database.saveBlockAsync(block)
