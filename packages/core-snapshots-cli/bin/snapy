@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+
+const app = require('commander')
+const init = require('../lib/init')
+
+app.version(require('../package.json').version)
+
+app
+  .command('create')
+  .description('create a full snapshot of the database')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .action(async (options) => {
+    await init.setUp(options)
+    require('../lib/commands/create')(options)
+  })
+
+  app
+  .command('rollback')
+  .description('truncate existing snapshot to lower height and return a new snapshot')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .option('-h, --height <filename>', 'create new truncated snapshot from existing one')
+  .action(async (options) => {
+    await init.setUp(options)
+    require('../lib/commands/rollback')(options)
+  })
+
+  app
+  .command('append')
+  .description('append data to existing snapshot (append the block difference)')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .action(async (options) => {
+    await init.setUp(options)
+    require('../lib/commands/append')(options)
+  })
+
+  app
+  .command('import')
+  .description('import data from specified snapshot')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .action(async (options) => {
+    await init.setUp(options)
+    require('../lib/commands/import')(options)
+  })
+
+app
+  .command('*')
+  .action(env => {
+    app.help()
+    process.exit(0)
+  })
+
+app.parse(process.argv)
