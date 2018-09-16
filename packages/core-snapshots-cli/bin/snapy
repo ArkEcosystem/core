@@ -57,6 +57,19 @@ app
     require('../lib/commands/import')(options)
   })
 
+  app
+  .command('check')
+  .description('check validity of specified snapshot')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .action(async (options) => {
+    await init.setUp(options)
+    require('../lib/commands/check')(options)
+  })
+
 app
   .command('*')
   .action(env => {

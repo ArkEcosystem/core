@@ -17,6 +17,7 @@
     "rollback:devnet": "./bin/snapy rollback --config ../core/lib/config/devnet --network devnet",
     "append:devnet": "./bin/snapy append --config ../core/lib/config/devnet --network devnet",
     "import:devnet": "./bin/snapy import --config ../core/lib/config/devnet --network devnet",
+    "check:devnet": "./bin/snapy import --config ../core/lib/config/devnet --network devnet",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --forceExit",
     "test:coverage": "ARK_ENV=test jest --coverage --forceExit",
