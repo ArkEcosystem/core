@@ -2,22 +2,22 @@
   "private": true,
   "name": "@arkecosystem/core-snapshots",
   "description": "Provides live local streamed snapshots functionality for ARK Core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "contributors": [
     "Kristjan Košič <chris@ark.io>"
   ],
   "license": "MIT",
   "main": "lib/index.js",
   "bin": {
-    "ark:snapy": "./bin/snapy"
+    "ark:snapy": "./bin/snapshot"
   },
   "scripts": {
-    "start": "./bin/snapy",
-    "create:devnet": "./bin/snapy create --config ../core/lib/config/devnet --network devnet",
-    "rollback:devnet": "./bin/snapy rollback --config ../core/lib/config/devnet --network devnet",
-    "append:devnet": "./bin/snapy append --config ../core/lib/config/devnet --network devnet",
-    "import:devnet": "./bin/snapy import --config ../core/lib/config/devnet --network devnet",
-    "check:devnet": "./bin/snapy check --config ../core/lib/config/devnet --network devnet",
+    "start": "./bin/snapshot",
+    "create:devnet": "./bin/snapshot create --config ../core/lib/config/devnet --network devnet",
+    "rollback:devnet": "./bin/snapshot rollback --config ../core/lib/config/devnet --network devnet",
+    "append:devnet": "./bin/snapshot append --config ../core/lib/config/devnet --network devnet",
+    "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
+    "check:devnet": "./bin/snapshot check --config ../core/lib/config/devnet --network devnet",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --forceExit",
     "test:coverage": "ARK_ENV=test jest --coverage --forceExit",
