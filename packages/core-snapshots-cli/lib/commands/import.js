@@ -8,51 +8,48 @@ const zlib = require('zlib')
 const async = require('async')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
-const { Block } = require('@arkecosystem/crypto').models
+const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = async (options) => {
   const sourceStream = fs.createReadStream(`${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${options.filename}`)
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   progressBbar.start(parseInt(options.filename.split('.')[1]), 0) // getting last height from filename
-  const writeInterval = 10000
+  const writeInterval = 50000
 
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
-  let lastProcessedBlock = 0
   const writeQueue = async.queue(async (data, qcallback) => {
-    const blockDb = Block.deserialize(data.value.blockBuffer)
-    blockDb.id = Block.getId(blockDb)
-    const block = new Block(blockDb)
-    progressBbar.update(block.data.height)
+    progressBbar.update(data.value.height)
 
-    if (data.value.height - lastProcessedBlock !== 1) {
-      logger.error(`Snapshot ${options.filename} is corrupted, reason missing blocks ${block.data.height}.`)
-      process.exit(0)
-    }
+    let block = {}
+    block.data = Block.deserialize(data.value.blockBuffer)
+    block.data.id = Block.getId(block.data)
+    block.transactions = []
 
-    if (!block.verification.verified) {
-      logger.error(`Block verification failed during snapshot import. Block: ${JSON.stringify(block)}`)
-      process.exit(0)
+    if (block.data.transactions) {
+      let sequence = 0
+      block.transactions = block.data.transactions.map(transaction => {
+      const stampedTransaction = new Transaction(transaction)
+      stampedTransaction.blockId = block.data.id
+      stampedTransaction.timestamp = block.data.timestamp
+      stampedTransaction.sequence = sequence++
+      return stampedTransaction
+      })
     }
 
     database.saveBlockAsync(block)
-     // committing to db every 10,000 blocks
+    // committing to db every writeInterval number of blocks
     if (block.data.height % writeInterval === 0) {
       await database.saveBlockCommit()
       pipeline.resume()
     }
 
-    lastProcessedBlock = block.data.height
     qcallback()
   }, 1)
 
-  writeQueue.drain = async () => {
-    // await database.saveBlockCommit()
-  }
-
-  pipeline
+   pipeline
     .on('data', (data) => {
       if (data.value.height % writeInterval === 0) {
         pipeline.pause()
