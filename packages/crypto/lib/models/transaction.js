@@ -220,7 +220,7 @@ module.exports = class Transaction {
       let joined = null
 
       if (!transaction.version || transaction.version === 1) {
-        joined = transaction.asset.multisignature.keysgroup.map(k => k.slice(1)).join('') // eslint-disable-line max-len
+        joined = transaction.asset.multisignature.keysgroup.map(k => k[0] === '+' ? k.slice(1) : k).join('') // eslint-disable-line max-len
       } else {
         joined = transaction.asset.multisignature.keysgroup.join('')
       }
