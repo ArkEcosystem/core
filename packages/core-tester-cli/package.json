@@ -22,7 +22,7 @@
     "depcheck": "depcheck ./ --ignores=commander"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.0",
     "axios": "^0.18.0",
     "bip39": "^2.5.0",
     "clipboardy": "^1.2.3",

@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.0",
     "apollo-server-hapi": "^2.0.0-rc.10",
     "graphql-tools-types": "^1.1.21",
     "hapi": "^17.5.0",
