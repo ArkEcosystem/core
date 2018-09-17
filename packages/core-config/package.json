@@ -19,7 +19,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.0",
     "axios": "^0.18.0",
     "directory-tree": "^2.1.0",
     "fs-extra": "^6.0.1",
