@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.0",
     "@keyv/sqlite": "^2.0.0",
     "axios": "^0.18.0",
     "bip38": "^2.0.2",
