@@ -18,7 +18,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
-    "@arkecosystem/crypto": "^0.1.1",
+    "@arkecosystem/crypto": "^0.2.0",
     "awilix": "^3.0.8",
     "envfile": "^2.3.0",
     "expand-home-dir": "^0.0.3",
