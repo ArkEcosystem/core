@@ -42,9 +42,12 @@
     "standard": "^11.0.1"
   },
   "dependencies": {
+    "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.0",
+    "async": "^2.6.1",
     "cli-progress": "^2.1.0",
     "commander": "^2.18.0",
+    "fs-extra": "^7.0.0",
     "stream-json": "^1.1.1"
   },
   "publishConfig": {
