@@ -42,9 +42,9 @@
     "standard": "^11.0.1"
   },
   "dependencies": {
+    "@arkecosystem/crypto": "^0.2.0",
     "cli-progress": "^2.1.0",
     "commander": "^2.18.0",
-    "promise-streams": "^2.1.1",
     "stream-json": "^1.1.1"
   },
   "publishConfig": {
