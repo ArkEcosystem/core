@@ -1,5 +1,4 @@
 'use strict'
-const init = require('../init')
 const zlib = require('zlib')
 
 const StreamValues = require('stream-json/streamers/StreamValues')
