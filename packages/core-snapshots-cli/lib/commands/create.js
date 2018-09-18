@@ -27,7 +27,7 @@ module.exports = async (options) => {
   await fs.ensureFile(`${storageLocation}/snapshot.dat`)
   const snapshotWriteStream = fs.createWriteStream(`${storageLocation}/snapshot.dat`, options.filename ? {flags: 'a'} : {})
 
-  let lastSavedHeight = 0
+  let lastSavedHeight = startHeight
   const writeQueue = async.queue((block, qcallback) => {
     block.transactions = !block.transactions ? [] : block.transactions
     if (block.height - lastSavedHeight !== 1) {
