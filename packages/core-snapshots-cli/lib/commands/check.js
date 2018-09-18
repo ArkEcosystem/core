@@ -45,10 +45,10 @@ module.exports = (options) => {
         logger.error(error.stack)
       }
     })
-    .on('end', () => {
+    .on('end', async () => {
       progressBbar.stop()
 
       logger.info(`Checking of snapshot file: [${options.filename}] succesfully completed.`)
-      init.tearDown()
+      await init.tearDown()
     })
 }

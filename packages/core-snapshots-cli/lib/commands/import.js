@@ -3,6 +3,7 @@ const init = require('../init')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 const StreamValues = require('stream-json/streamers/StreamValues')
 const zlib = require('zlib')
 const async = require('async')
@@ -15,6 +16,7 @@ module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   progressBbar.start(parseInt(options.filename.split('.')[1]), 0) // getting last height from filename
   const writeInterval = 50000
+  let block = {}
 
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
@@ -23,7 +25,6 @@ module.exports = async (options) => {
   const writeQueue = async.queue(async (data, qcallback) => {
     progressBbar.update(data.value.height)
 
-    let block = {}
     block.data = Block.deserialize(data.value.blockBuffer)
     block.data.id = Block.getId(block.data)
     block.transactions = []
@@ -40,6 +41,7 @@ module.exports = async (options) => {
     }
 
     database.saveBlockAsync(block)
+
     // committing to db every writeInterval number of blocks
     if (block.data.height % writeInterval === 0) {
       await database.saveBlockCommit()
@@ -60,7 +62,15 @@ module.exports = async (options) => {
       progressBbar.stop()
       await database.saveBlockCommit()
 
+      blockchain.stateMachine.state.lastBlock = block
+
+      await blockchain.rollbackCurrentRound()
+      await blockchain.database.buildWallets(blockchain.state.lastBlock.data.height)
+      await blockchain.database.saveWallets(true)
+
+      await blockchain.database.applyRound(blockchain.stateMachine.state.lastBlock.data.height)
+
       logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
-      init.tearDown()
+      await init.tearDown()
     })
 }

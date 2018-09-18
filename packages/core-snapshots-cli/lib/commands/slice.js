@@ -1,6 +1,6 @@
 'use strict'
 const zlib = require('zlib')
-
+const init = require('../init')
 const StreamValues = require('stream-json/streamers/StreamValues')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
@@ -44,11 +44,11 @@ module.exports = async (options) => {
     fs.createReadStream(`${storageLocation}/${sourceFileName}`)
       .pipe(zlib.createGzip())
       .pipe(fs.createWriteStream(`${storageLocation}/snapshot.${height}.gz`))
-      .on('finish', () => {
+      .on('finish', async () => {
         fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
         logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
 
-        process.exit(0)
+        await init.tearDown()
       })
   }
 

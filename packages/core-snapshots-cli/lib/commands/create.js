@@ -13,6 +13,8 @@ const logger = container.resolvePlugin('logger')
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   const lastBlock = await database.getLastBlock()
+  const readInterval = 50000
+
   if (!lastBlock) {
     logger.info('Database is empty. Exiting!')
     process.exit(1)
@@ -42,16 +44,16 @@ module.exports = async (options) => {
     fs.createReadStream(`${storageLocation}/${sourceFileName}`)
       .pipe(zlib.createGzip())
       .pipe(fs.createWriteStream(`${storageLocation}/snapshot.${height}.gz`))
-      .on('finish', () => {
+      .on('finish', async () => {
         // fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
         logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
 
-        init.tearDown(options)
+        await init.tearDown(options)
       })
   }
 
   const __readDatabase = async (offset) => {
-    let blocks = await database.getBlocks(offset + 1, 20000)
+    let blocks = await database.getBlocks(offset + 1, readInterval)
     if (blocks.length > 0) {
       writeQueue.push(blocks)
 
