@@ -18,17 +18,18 @@ app
   })
 
   app
-  .command('rollback')
-  .description('truncate existing snapshot to lower height and return a new snapshot')
+  .command('slice')
+  .description('slice existing snapshot to new start and endd height and return a new snapshot')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
-  .option('-h, --height <filename>', 'create new truncated snapshot from existing one')
+  .option('-s, --start <number>', 'new start height of snapshot', 0)
+  .option('-e, --end <number>', 'new end height of snapshot', 0)
   .action(async (options) => {
     await init.setUp(options)
-    require('../lib/commands/rollback')(options)
+    require('../lib/commands/slice')(options)
   })
 
   app

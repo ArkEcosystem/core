@@ -6,8 +6,8 @@ The purpose of this plugin is to provide local snapshot functionality, so in cas
 The plugin provides a cli interface, with the following available commands:
 
 - create
-- rollback
 - append
+- slice
 - import
 - check
 
@@ -33,11 +33,26 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 yarn import:devnet -a import -f snapshot.220359.gz
 ```
 
-### Rolling back an existing snapshot
-It is possible to rollback an existing snapshot and create a new one with lower height. The command bellow creates a new snapshot file, that includes only the heights up to the specified height (1500). Think of this action as truncating and existing snapshot and creating a new one.
+### Slicing an an existing snapshot
+It is possible to slice an existing snapshot and create a new one. There are a few parameters available `--start` for new start heigh of snapshot and `--end` for new end height of snapshot.
+If no start is specified, it defaults to 0.
+if no end is specified, it defaults to current input snapshot file height.
+
+>The command below slices the existing snapshot to heights from 0 to 1500
 ```bash
-yarn rollback:devnet -f snapshot.218610.gz -h 1500
+yarn rollback:devnet -f snapshot.218610.gz -end 1500
 ```
+
+>The command below slices the existing snapshot to heights from 2 to 1000
+```bash
+yarn rollback:devnet -f snapshot.218610.gz --start 2 -end 1000
+```
+
+>The command below slices the existing snapshot from height 130000 to endheight of snapshost file 218610.
+```bash
+yarn rollback:devnet -f snapshot.218610.gz --start 130000
+```
+
 
 ### Appending data to an existing snapshot
 To enable rolling snapshost and their faster execution, it is possible to append blocks to the snapshot from the last specified one.

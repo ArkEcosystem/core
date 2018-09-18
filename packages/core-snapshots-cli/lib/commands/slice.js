@@ -10,27 +10,35 @@ const logger = container.resolvePlugin('logger')
 
 module.exports = async (options) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  await fs.ensureFile(`${storageLocation}/rollback.dat`)
-  const rollbackStream = fs.createWriteStream(`${storageLocation}/rollback.dat`)
+  const snapshotHeight = options.filename ? parseInt(options.filename.split('.')[1]) : 0
+
+  await fs.ensureFile(`${storageLocation}/slice.dat`)
+  const rollbackStream = fs.createWriteStream(`${storageLocation}/slice.dat`)
   const sourceStream = fs.createReadStream(`${storageLocation}/${options.filename}`)
 
+  if (options.end === 0) {
+    options.end = snapshotHeight
+  }
+
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
-  progressBbar.start(options.height, 0)
+  progressBbar.start(options.end, 0)
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
-  pipeline.on('data', (data) => {
-    if (data.value.height <= options.height) {
-      rollbackStream.write(`{"height":${data.value.height}, "blockBuffer":"${data.value.blockBuffer}"}`)
+    pipeline.on('data', (data) => {
+      if (data.value.height >= options.start && data.value.height <= options.end) {
+        rollbackStream.write(`{"height":${data.value.height}, "blockBuffer":"${data.value.blockBuffer}"}`)
 
-      progressBbar.update(data.value.height)
-    } else {
-      sourceStream.close()
-      rollbackStream.close()
+        progressBbar.update(data.value.height)
+      }
 
-      progressBbar.stop()
-    }
+      if (data.value.height > options.end) {
+        sourceStream.close()
+        rollbackStream.close()
+
+        progressBbar.stop()
+      }
   })
 
   const __gzip = (sourceFileName, height) => {
@@ -41,11 +49,11 @@ module.exports = async (options) => {
         fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
         logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
 
-        init.tearDown(options)
+        process.exit(0)
       })
   }
 
   sourceStream.on('close', async () => {
-    __gzip('rollback.dat', options.height)
+    __gzip('slice.dat', options.end)
   })
 }
