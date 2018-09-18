@@ -2,7 +2,7 @@
 
 const container = require('@arkecosystem/core-container')
 
-exports.setUp = async (options) => {
+exports.setUpNormal = async (options) => {
   process.env.ARK_SKIP_BLOCKCHAIN = true
   await container.setUp(options, {
     include: [
@@ -22,7 +22,18 @@ exports.setUp = async (options) => {
     }
   })
 
-  // container.resolvePlugin('core-blockchain').dispatch('PAUSED')
+  return container
+}
+
+exports.setUpConfigOnly = async (options) => {
+  process.env.ARK_SKIP_BLOCKCHAIN = true
+  await container.setUp(options, {
+    include: [
+      '@arkecosystem/core-config',
+      '@arkecosystem/core-logger',
+      '@arkecosystem/core-logger-winston'
+    ]
+  })
 
   return container
 }

@@ -1,6 +1,5 @@
 'use strict'
-const init = require('../init')
-const zlib = require('zlib')
+const gzip = require('../utils/gzip')
 const { Block } = require('@arkecosystem/crypto').models
 const async = require('async')
 const fs = require('fs-extra')
@@ -40,18 +39,6 @@ module.exports = async (options) => {
     qcallback()
   }, 1)
 
-  const __gzip = (sourceFileName, height) => {
-    fs.createReadStream(`${storageLocation}/${sourceFileName}`)
-      .pipe(zlib.createGzip())
-      .pipe(fs.createWriteStream(`${storageLocation}/snapshot.${height}.gz`))
-      .on('finish', async () => {
-        // fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
-        logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
-
-        await init.tearDown(options)
-      })
-  }
-
   const __readDatabase = async (offset) => {
     let blocks = await database.getBlocks(offset + 1, readInterval)
     if (blocks.length > 0) {
@@ -62,7 +49,7 @@ module.exports = async (options) => {
       progressBbar.stop()
       snapshotWriteStream.end()
 
-      __gzip('snapshot.dat', lastSavedHeight)
+      gzip('snapshot.dat', lastSavedHeight)
     }
     return blocks.length
   }

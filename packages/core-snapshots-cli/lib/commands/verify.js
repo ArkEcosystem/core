@@ -11,7 +11,7 @@ const { Block } = require('@arkecosystem/crypto').models
 module.exports = (options) => {
   const sourceStream = fs.createReadStream(`${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${options.filename}`)
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
-  logger.debug('Starting to test snapshot validation')
+  logger.debug(`Starting verification of snapshot ${options.filename}`)
   progressBbar.start(parseInt(options.filename.split('.')[1]), 0) // getting last height from filename
 
   const pipeline = sourceStream
@@ -48,7 +48,7 @@ module.exports = (options) => {
     .on('end', async () => {
       progressBbar.stop()
 
-      logger.info(`Checking of snapshot file: [${options.filename}] succesfully completed.`)
+      logger.info(`Verification of snapshot file: [${options.filename}] succesfully completed.`)
       await init.tearDown()
     })
 }

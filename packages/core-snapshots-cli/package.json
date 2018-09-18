@@ -17,7 +17,7 @@
     "slice:devnet": "./bin/snapshot slice --config ../core/lib/config/devnet --network devnet",
     "append:devnet": "./bin/snapshot append --config ../core/lib/config/devnet --network devnet",
     "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
-    "check:devnet": "./bin/snapshot check --config ../core/lib/config/devnet --network devnet",
+    "verify:devnet": "./bin/snapshot verify --config ../core/lib/config/devnet --network devnet",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "ARK_ENV=test jest --forceExit",
     "test:coverage": "ARK_ENV=test jest --coverage --forceExit",

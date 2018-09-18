@@ -13,7 +13,7 @@ app
   .option('-t, --token <token>', 'token name', 'ark')
   .option('-n, --network <network>', 'token network')
   .action(async (options) => {
-    await init.setUp(options)
+    await init.setUpNormal(options)
     require('../lib/commands/create')(options)
   })
 
@@ -28,7 +28,7 @@ app
   .option('-s, --start <number>', 'new start height of snapshot', 0)
   .option('-e, --end <number>', 'new end height of snapshot', 0)
   .action(async (options) => {
-    await init.setUp(options)
+    await init.setUpConfigOnly(options)
     require('../lib/commands/slice')(options)
   })
 
@@ -41,7 +41,7 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .action(async (options) => {
-    await init.setUp(options)
+    await init.setUpNormal(options)
     require('../lib/commands/append')(options)
   })
 
@@ -54,12 +54,12 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .action(async (options) => {
-    await init.setUp(options)
+    await init.setUpNormal(options)
     require('../lib/commands/import')(options)
   })
 
   app
-  .command('check')
+  .command('verify')
   .description('check validity of specified snapshot')
   .option('-d, --data <data>', 'data directory', '~/.ark')
   .option('-c, --config <config>', 'network config', '~/.ark/config')
@@ -67,8 +67,8 @@ app
   .option('-n, --network <network>', 'token network')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .action(async (options) => {
-    await init.setUp(options)
-    require('../lib/commands/check')(options)
+    await init.setUpConfigOnly(options)
+    require('../lib/commands/verify')(options)
   })
 
 app
