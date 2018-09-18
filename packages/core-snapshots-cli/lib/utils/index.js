@@ -5,7 +5,8 @@ const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 
-module.exports = (sourceFileName, height) => {
+module.exports = {
+  gzip: (sourceFileName, height) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
 
   fs.createReadStream(`${storageLocation}/${sourceFileName}`)
@@ -17,4 +18,13 @@ module.exports = (sourceFileName, height) => {
 
       await init.tearDown()
     })
+  },
+
+  getStoragePath: () => {
+    return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
+  },
+
+  getSnapshotHeight: (filename) => {
+    return filename ? parseInt(filename.split('.')[1]) : 0
+  }
 }

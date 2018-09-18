@@ -3,7 +3,7 @@ const zlib = require('zlib')
 const StreamValues = require('stream-json/streamers/StreamValues')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
-const gzip = require('../utils/gzip')
+const utils = require('../utils')
 
 module.exports = async (options) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
@@ -39,6 +39,6 @@ module.exports = async (options) => {
   })
 
   sourceStream.on('close', async () => {
-    gzip('slice.dat', options.end)
+    utils.gzip('slice.dat', options.end)
   })
 }

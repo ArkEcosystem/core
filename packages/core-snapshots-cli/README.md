@@ -9,7 +9,7 @@ The plugin provides a cli interface, with the following available commands:
 - append
 - slice
 - import
-- check
+- verify
 
 The commands and their usage is described below.
 
@@ -33,7 +33,7 @@ The following action imports a snapshot from .ark/snapshots/devnet/ folder. Snap
 yarn import:devnet -a import -f snapshot.220359.gz
 ```
 
-### Slicing an an existing snapshot
+### Slicing snapshot
 It is possible to slice an existing snapshot and create a new one. There are a few parameters available `--start` for new start heigh of snapshot and `--end` for new end height of snapshot.
 If no start is specified, it defaults to 0.
 if no end is specified, it defaults to current input snapshot file height.
@@ -54,14 +54,14 @@ yarn rollback:devnet -f snapshot.218610.gz --start 130000
 ```
 
 
-### Appending data to an existing snapshot
+### Append data to an existing snapshot
 To enable rolling snapshost and their faster execution, it is possible to append blocks to the snapshot from the last specified one.
 The command below opens the snapshost, reads the missing blocks from the blockchain and appends it to a new snapshot file.
 ```bash
 yarn append:devnet -f snapshot.15000.gz
 ```
 
-### Validate an existing snapshot
+### Verify existing snapshot
 If is wise to validate a snapshot. Functionality is simillar to import, just that there is no db and pipe interaction - so is basic chain validation with crypto. To check your snapshot run the following command.
 ```bash
 yarn append:devnet -f snapshot.15000.gz

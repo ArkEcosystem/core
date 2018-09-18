@@ -10,16 +10,17 @@ const async = require('async')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
+const utils = require('../utils')
 
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   const writeInterval = 50000
   const lastDbBlockHeight = !await database.getLastBlock() ? 0 : (await database.getLastBlock()).data.height
   logger.debug(`Last block in database ${lastDbBlockHeight}.`)
-  progressBbar.start(parseInt(options.filename.split('.')[1]), 0) // getting last height from filename
+  progressBbar.start(utils.getSnapshotHeight(options.filename), 0) // getting last height from filename
 
   let block = {}
-  const sourceStream = fs.createReadStream(`${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}/${options.filename}`)
+  const sourceStream = fs.createReadStream(`${utils.getStoragePath()}/${options.filename}`)
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())

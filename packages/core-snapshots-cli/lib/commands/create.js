@@ -1,5 +1,5 @@
 'use strict'
-const gzip = require('../utils/gzip')
+const utils = require('../utils')
 const { Block } = require('@arkecosystem/crypto').models
 const async = require('async')
 const fs = require('fs-extra')
@@ -19,12 +19,11 @@ module.exports = async (options) => {
     process.exit(1)
   }
 
-  const startHeight = options.filename ? parseInt(options.filename.split('.')[1]) : 0
+  const startHeight = utils.getSnapshotHeight(options.filename)
   progressBbar.start(lastBlock.data.height, startHeight)
 
-  const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  await fs.ensureFile(`${storageLocation}/snapshot.dat`)
-  const snapshotWriteStream = fs.createWriteStream(`${storageLocation}/snapshot.dat`, options.filename ? {flags: 'a'} : {})
+  await fs.ensureFile(`${utils.getStoragePath()}/snapshot.dat`)
+  const snapshotWriteStream = fs.createWriteStream(`${utils.getStoragePath()}/snapshot.dat`, options.filename ? {flags: 'a'} : {})
 
   let lastSavedHeight = startHeight
   const writeQueue = async.queue((block, qcallback) => {
@@ -49,7 +48,7 @@ module.exports = async (options) => {
       progressBbar.stop()
       snapshotWriteStream.end()
 
-      gzip('snapshot.dat', lastSavedHeight)
+      utils.gzip('snapshot.dat', lastSavedHeight)
     }
     return blocks.length
   }
