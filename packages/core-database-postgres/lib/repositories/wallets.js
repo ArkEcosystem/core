@@ -34,6 +34,14 @@ module.exports = class WalletsRepository extends Repository {
   }
 
   /**
+   * Delete all the records in table WALLETS.
+   * @return {Promise}
+   */
+  async truncate () {
+    return this.db.none(sql.truncate)
+  }
+
+  /**
    * Get the model related to this repository.
    * @return {Object}
    */

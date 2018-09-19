@@ -560,6 +560,19 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
+   * WARNING: use only if you know why.
+   * Function rollbacks the whole chain to a specific height
+   * @return {void}
+   */
+  async rollbackChain (height) {
+    const block = await this.db.blocks.findByHeight(height + 1)
+    await this.db.blocks.deleteByHeight(height + 1)
+    await this.db.transactions.deleteByTimestamp(block.timestamp)
+    await this.db.wallets.truncate()
+    await this.db.rounds.truncate()
+  }
+
+  /**
    * Get recent block ids.
    * @return {[]String}
    */
