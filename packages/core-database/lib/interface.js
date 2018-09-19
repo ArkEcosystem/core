@@ -327,7 +327,7 @@ module.exports = class ConnectionInterface {
     const round = Math.floor((height - 1) / maxDelegates) + 1
     const nextRound = Math.floor((nextHeight - 1) / config.getConstants(nextHeight).activeDelegates) + 1
 
-    if (nextRound === round + 1 && height > maxDelegates) {
+    if (nextRound === round + 1 && height >= maxDelegates) {
       logger.info(`Back to previous round: ${round} :back:`)
 
       this.blocksInCurrentRound = await this.__getBlocksForRound(round)
