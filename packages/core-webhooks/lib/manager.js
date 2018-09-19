@@ -56,7 +56,7 @@ class WebhookManager {
 
       if (!webhook.conditions) {
         matches.push(webhook)
-        
+
         continue
       }
 
@@ -66,11 +66,11 @@ class WebhookManager {
         if (!satisfies(payload[condition.key], condition.value)) {
           continue
         }
-        
+
         matches.push(webhook)
       }
     }
-    
+
     return matches
   }
 }
