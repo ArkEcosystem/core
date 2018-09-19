@@ -53,7 +53,7 @@ class WebhookManager {
       if(!webhook.enabled) {
         continue
       }
-                
+
       if (!webhook.conditions) {
         matches.push(webhook)
         continue
