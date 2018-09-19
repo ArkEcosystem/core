@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS ${schema~}.rounds (
 );
 
 -- Constraints
-CREATE UNIQUE INDEX IF NOT EXISTS "rounds_unique" ON rounds ("public_key", "round");
+CREATE UNIQUE INDEX IF NOT EXISTS "rounds_unique" ON rounds ("round", "public_key");
