@@ -61,7 +61,7 @@ module.exports = async (options) => {
       progressBbar.stop()
       await database.saveBlockCommit()
 
-      await database.rollbackChain(parseInt(block.height))
+      await database.rollbackChain(parseInt(block.data.height))
       await utils.rollbackCurrentRound(block)
 
       logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
