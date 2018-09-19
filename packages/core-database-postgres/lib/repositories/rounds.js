@@ -50,14 +50,6 @@ module.exports = class RoundsRepository extends Repository {
   }
 
   /**
-   * Delete all the records in table rounds.
-   * @return {Promise}
-   */
-  async truncate () {
-    return this.db.none(sql.truncate)
-  }
-
-  /**
    * Get the model related to this repository.
    * @return {Object}
    */

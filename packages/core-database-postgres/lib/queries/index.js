@@ -19,8 +19,7 @@ module.exports = {
     placeholders: loadQueryFile(__dirname, './rounds/placeholders.sql'),
     placeholdersWithout: loadQueryFile(__dirname, './rounds/placeholders-without.sql'),
     delete: loadQueryFile(__dirname, './rounds/delete.sql'),
-    find: loadQueryFile(__dirname, './rounds/find.sql'),
-    truncate: loadQueryFile(__dirname, './rounds/truncate.sql')
+    find: loadQueryFile(__dirname, './rounds/find.sql')
   },
   spv: {
     blockRewards: loadQueryFile(__dirname, './spv/block-rewards.sql'),
@@ -47,7 +46,6 @@ module.exports = {
   },
   wallets: {
     all: loadQueryFile(__dirname, './wallets/all.sql'),
-    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql'),
-    truncate: loadQueryFile(__dirname, './wallets/truncate.sql')
+    findByAddress: loadQueryFile(__dirname, './wallets/find-by-address.sql')
   }
 }
