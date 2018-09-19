@@ -1,6 +1,6 @@
 'use strict'
 const zlib = require('zlib')
-const env = require('../init')
+const env = require('../env')
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -38,6 +38,8 @@ module.exports = {
     await blockchain.database.buildWallets(blockchain.state.lastBlock.data.height)
     await blockchain.database.saveWallets(true)
 
-    await blockchain.database.applyRound(database.getLastBlock().height)
+    await blockchain.database.applyRound(blockchain.state.lastBlock.data.height)
+
+    return blockchain.state.lastBlock.data.height
   }
 }

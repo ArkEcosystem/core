@@ -562,12 +562,13 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   /**
    * WARNING: use only if you know why.
    * Function rollbacks the whole chain to a specific height
+   * Call to rollbackCurrentRound is needed after this
    * @return {void}
    */
   async rollbackChain (height) {
-    const block = await this.db.blocks.findByHeight(height + 1)
-    await this.db.blocks.deleteByHeight(height + 1)
-    await this.db.transactions.deleteByTimestamp(block.timestamp)
+    const block = await this.db.blocks.findByHeight(height)
+    await this.db.blocks.deleteGtHeight(height)
+    await this.db.transactions.deleteGtTimestamp(block.timestamp)
     await this.db.wallets.truncate()
     await this.db.rounds.truncate()
   }
