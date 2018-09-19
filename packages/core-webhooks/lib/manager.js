@@ -50,23 +50,24 @@ class WebhookManager {
     const matches = []
 
     for (const webhook of webhooks) {
-      if (!webhook.conditions) {
-        matches.push(webhook)
+      if (webhook.enabled == 1) {
+        if (!webhook.conditions) {
+          matches.push(webhook)
 
-        continue
-      }
-
-      for (const condition of webhook.conditions) {
-        const satisfies = require(`./conditions/${condition.condition}`)
-
-        if (!satisfies(payload[condition.key], condition.value)) {
           continue
         }
 
-        matches.push(webhook)
+        for (const condition of webhook.conditions) {
+          const satisfies = require(`./conditions/${condition.condition}`)
+
+          if (!satisfies(payload[condition.key], condition.value)) {
+            continue
+          }
+
+          matches.push(webhook)
+        }
       }
     }
-
     return matches
   }
 }
