@@ -40,17 +40,17 @@ if no end is specified, it defaults to current input snapshot file height.
 
 >The command below slices the existing snapshot to heights from 0 to 1500
 ```bash
-yarn rollback:devnet -f snapshot.218610.gz -end 1500
+yarn slice:devnet -f snapshot.218610.gz -end 1500
 ```
 
 >The command below slices the existing snapshot to heights from 2 to 1000
 ```bash
-yarn rollback:devnet -f snapshot.218610.gz --start 2 -end 1000
+yarn slice:devnet -f snapshot.218610.gz --start 2 -end 1000
 ```
 
 >The command below slices the existing snapshot from height 130000 to endheight of snapshost file 218610.
 ```bash
-yarn rollback:devnet -f snapshot.218610.gz --start 130000
+yarn slice:devnet -f snapshot.218610.gz --start 130000
 ```
 
 
@@ -64,7 +64,7 @@ yarn append:devnet -f snapshot.15000.gz
 ### Verify existing snapshot
 If is wise to validate a snapshot. Functionality is simillar to import, just that there is no db and pipe interaction - so is basic chain validation with crypto. To check your snapshot run the following command.
 ```bash
-yarn append:devnet -f snapshot.15000.gz
+yarn verify:devnet -f snapshot.15000.gz
 ```
 
 
