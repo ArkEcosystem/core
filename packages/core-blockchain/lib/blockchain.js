@@ -362,7 +362,7 @@ module.exports = class Blockchain {
    */
   async manageUnchainedBlock (block) {
     if (block.data.height > this.getLastBlock().data.height + 1) {
-      // logger.debug(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${this.getLastBlock().data.height.toLocaleString()} :warning:`)
+      logger.debug(`Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${this.getLastBlock().data.height.toLocaleString()} :warning:`)
       stateMachine.state.lastDownloadedBlock = stateMachine.state.lastBlock
     } else if (block.data.height < this.getLastBlock().data.height) {
       logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain :warning:`)
@@ -409,7 +409,7 @@ module.exports = class Blockchain {
 
     block = block || this.getLastBlock()
 
-    return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.height).blocktime
+    return slots.getTime() - block.data.timestamp < 3 * config.getConstants(block.data.height).blocktime
   }
 
   /**
