@@ -15,8 +15,8 @@ module.exports = async (options) => {
   const readInterval = 50000
 
   if (!lastBlock) {
-    logger.info('Database is empty. Exiting!')
-    process.exit(1)
+    logger.info('Database is empty or not accessible. Exiting!')
+    process.exit(0)
   }
 
   const snapshotHeights = utils.getSnapshotHeights(options.filename)

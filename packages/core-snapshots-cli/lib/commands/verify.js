@@ -13,13 +13,13 @@ module.exports = (options) => {
   const sourceStream = fs.createReadStream(`${utils.getStoragePath()}/${options.filename}`)
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   logger.debug(`Starting verification of snapshot ${options.filename}`)
-  progressBbar.start(utils.getSnapshotHeight(options.filename), 0) // getting last height from filename
+  progressBbar.start(utils.getSnapshotHeights(options.filename).end, utils.getSnapshotHeights(options.filename).start) // getting last height from filename
 
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
-  let lastProcessedBlock = 0
+  let lastProcessedBlock = utils.getSnapshotHeights(options.filename).start - 1
 
   pipeline
     .on('data', (data) => {
