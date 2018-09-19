@@ -18,6 +18,7 @@
     "append:devnet": "./bin/snapshot append --config ../core/lib/config/devnet --network devnet",
     "import:devnet": "./bin/snapshot import --config ../core/lib/config/devnet --network devnet",
     "verify:devnet": "./bin/snapshot verify --config ../core/lib/config/devnet --network devnet",
+    "rollback:chain:devnet": "./bin/snapshot rollback --config ../core/lib/config/devnet --network devnet",
     "build:docs": "../../node_modules/.bin/jsdoc -c jsdoc.json",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles",

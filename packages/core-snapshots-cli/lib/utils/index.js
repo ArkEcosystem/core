@@ -4,6 +4,8 @@ const init = require('../init')
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
+const database = container.resolvePlugin('database')
+const blockchain = container.resolvePlugin('blockchain')
 
 module.exports = {
   gzip: (sourceFileName, height) => {
@@ -26,5 +28,16 @@ module.exports = {
 
   getSnapshotHeight: (filename) => {
     return filename ? parseInt(filename.split('.')[1]) : 0
+  },
+
+  rollbackCurrentRound: async (block) => {
+    blockchain.stateMachine.state.lastBlock = block
+
+    await blockchain.rollbackCurrentRound()
+    await database.saveBlockCommit()
+    await blockchain.database.buildWallets(blockchain.state.lastBlock.data.height)
+    await blockchain.database.saveWallets(true)
+
+    await blockchain.database.applyRound(database.getLastBlock().height)
   }
 }

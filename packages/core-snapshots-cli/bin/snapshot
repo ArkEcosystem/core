@@ -71,6 +71,19 @@ app
     require('../lib/commands/verify')(options)
   })
 
+  app
+  .command('rollback')
+  .description('Action rolls back the specified chain database')
+  .option('-d, --data <data>', 'data directory', '~/.ark')
+  .option('-c, --config <config>', 'network config', '~/.ark/config')
+  .option('-t, --token <token>', 'token name', 'ark')
+  .option('-n, --network <network>', 'token network')
+  .option('-h, --height <number>', 'network height')
+  .action(async (options) => {
+    await init.setUpNormal(options)
+    require('../lib/commands/rollback')(options)
+  })
+
 app
   .command('*')
   .action(env => {

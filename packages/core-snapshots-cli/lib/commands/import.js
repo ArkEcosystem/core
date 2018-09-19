@@ -3,7 +3,6 @@ const init = require('../init')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
-const blockchain = container.resolvePlugin('blockchain')
 const StreamValues = require('stream-json/streamers/StreamValues')
 const zlib = require('zlib')
 const async = require('async')
@@ -62,15 +61,7 @@ module.exports = async (options) => {
       progressBbar.stop()
       await database.saveBlockCommit()
 
-      // rolling back current round and saving wallets for last state.
-      blockchain.stateMachine.state.lastBlock = block
-
-      await blockchain.rollbackCurrentRound()
-      await database.saveBlockCommit()
-      await blockchain.database.buildWallets(blockchain.state.lastBlock.data.height)
-      await blockchain.database.saveWallets(true)
-
-      await blockchain.database.applyRound(database.getLastBlock().height)
+      await utils.rollbackCurrentRound(block)
 
       logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
       await init.tearDown()
