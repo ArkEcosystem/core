@@ -7,7 +7,7 @@ const utils = require('../utils')
 
 module.exports = async (options) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  const snapshotHeight = options.filename ? parseInt(options.filename.split('.')[1]) : 0
+  const snapshotHeight = options.filename ? utils.getSnapshotHeights(options.filename).end : 0
 
   await fs.ensureFile(`${storageLocation}/slice.dat`)
   const sliceStrem = fs.createWriteStream(`${storageLocation}/slice.dat`)
@@ -33,12 +33,13 @@ module.exports = async (options) => {
       if (data.value.height > options.end) {
         sourceStream.close()
         sliceStrem.close()
+        pipeline.close()
 
         progressBbar.stop()
       }
   })
 
   sourceStream.on('close', async () => {
-    utils.gzip('slice.dat', options.end)
+    utils.gzip('slice.dat', options.start, options.end)
   })
 }

@@ -16,7 +16,7 @@ module.exports = async (options) => {
   const writeInterval = 50000
   const lastDbBlockHeight = !await database.getLastBlock() ? 0 : (await database.getLastBlock()).data.height
   logger.debug(`Last block in database ${lastDbBlockHeight}.`)
-  progressBbar.start(utils.getSnapshotHeight(options.filename), 0) // getting last height from filename
+  progressBbar.start(utils.getSnapshotHeights(options.filename).end, 0) // getting last height from filename
 
   let block = {}
   const sourceStream = fs.createReadStream(`${utils.getStoragePath()}/${options.filename}`)
@@ -47,14 +47,14 @@ module.exports = async (options) => {
 
   pipeline
     .on('data', async (data) => {
+      if (data.value.height > lastDbBlockHeight) {
+          writeQueue.push(data)
+      }
       // committing to db every writeInterval number of blocks
       if (data.value.height % writeInterval === 0) {
         pipeline.pause()
         await database.saveBlockCommit()
         pipeline.resume()
-      }
-      if (data.value.height > lastDbBlockHeight) {
-          writeQueue.push(data)
       }
       })
     .on('end', async () => {

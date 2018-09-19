@@ -1,6 +1,5 @@
 'use strict'
 const zlib = require('zlib')
-const env = require('../env')
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -8,17 +7,19 @@ const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
 
 module.exports = {
-  gzip: (sourceFileName, height) => {
+  gzip: (sourceFileName, startHeight, endHeight) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
+  const fileName = `snapshot.${startHeight}.${endHeight}.gz`
 
   fs.createReadStream(`${storageLocation}/${sourceFileName}`)
     .pipe(zlib.createGzip())
-    .pipe(fs.createWriteStream(`${storageLocation}/snapshot.${height}.gz`))
+    .pipe(fs.createWriteStream(`${storageLocation}/${fileName}`))
     .on('finish', async () => {
       fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
-      logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
+      logger.info(`New snapshot was succesfully created. File: [${fileName}]`)
 
-      await env.tearDown()
+      // await env.tearDown()
+      process.exit(0)
     })
   },
 
@@ -26,12 +27,19 @@ module.exports = {
     return `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
 
-  getSnapshotHeight: (filename) => {
-    return filename ? parseInt(filename.split('.')[1]) : 0
+  getSnapshotHeights: (filename) => {
+    let response = {start: 0, end: 0}
+
+    if (filename) {
+      response.start = parseInt(filename.split('.')[1])
+      response.end = parseInt(filename.split('.')[2])
+    }
+
+    return response
   },
 
-  rollbackCurrentRound: async (block) => {
-    blockchain.stateMachine.state.lastBlock = block
+  rollbackCurrentRound: async () => {
+    blockchain.stateMachine.state.lastBlock = await database.getLastBlock()
 
     await blockchain.rollbackCurrentRound()
     await database.saveBlockCommit()

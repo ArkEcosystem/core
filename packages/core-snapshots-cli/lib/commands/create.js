@@ -19,13 +19,13 @@ module.exports = async (options) => {
     process.exit(1)
   }
 
-  const startHeight = utils.getSnapshotHeight(options.filename)
-  progressBbar.start(lastBlock.data.height, startHeight)
+  const snapshotHeights = utils.getSnapshotHeights(options.filename)
+  progressBbar.start(lastBlock.data.height, snapshotHeights.end)
 
   await fs.ensureFile(`${utils.getStoragePath()}/snapshot.dat`)
   const snapshotWriteStream = fs.createWriteStream(`${utils.getStoragePath()}/snapshot.dat`, options.filename ? {flags: 'a'} : {})
 
-  let lastSavedHeight = startHeight
+  let lastSavedHeight = snapshotHeights.end
   const writeQueue = async.queue((block, qcallback) => {
     block.transactions = !block.transactions ? [] : block.transactions
     if (block.height - lastSavedHeight !== 1) {
@@ -48,12 +48,12 @@ module.exports = async (options) => {
       progressBbar.stop()
       snapshotWriteStream.end()
 
-      utils.gzip('snapshot.dat', lastSavedHeight)
+      utils.gzip('snapshot.dat', snapshotHeights.start, lastSavedHeight)
     }
     return blocks.length
   }
 
-  let offset = await __readDatabase(startHeight) + startHeight
+  let offset = await __readDatabase(snapshotHeights.end) + snapshotHeights.end
 
   writeQueue.drain = async () => {
     offset += await __readDatabase(offset)
