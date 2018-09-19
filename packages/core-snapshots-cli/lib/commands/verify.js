@@ -1,5 +1,5 @@
 'use strict'
-const init = require('../init')
+const env = require('../env')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const StreamValues = require('stream-json/streamers/StreamValues')
@@ -50,6 +50,6 @@ module.exports = (options) => {
       progressBbar.stop()
 
       logger.info(`Verification of snapshot file: [${options.filename}] succesfully completed.`)
-      await init.tearDown()
+      await env.tearDown()
     })
 }

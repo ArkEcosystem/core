@@ -1,6 +1,7 @@
 'use strict'
 
 const utils = require('../utils')
+const env = require('../env')
 
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
@@ -18,5 +19,5 @@ module.exports = async (options) => {
 
   logger.info(`Chain rollback complete to height ${options.height}`)
 
-  utils.tearDown()
+  await env.tearDown()
 }

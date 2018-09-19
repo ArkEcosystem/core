@@ -1,5 +1,5 @@
 'use strict'
-const init = require('../init')
+const env = require('../env')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
@@ -64,6 +64,6 @@ module.exports = async (options) => {
       await utils.rollbackCurrentRound(block)
 
       logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
-      await init.tearDown()
+      await env.tearDown()
     })
 }

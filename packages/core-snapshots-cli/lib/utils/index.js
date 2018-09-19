@@ -1,6 +1,6 @@
 'use strict'
 const zlib = require('zlib')
-const init = require('../init')
+const env = require('../init')
 const fs = require('fs-extra')
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -18,7 +18,7 @@ module.exports = {
       fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
       logger.info(`New snapshot was succesfully created. File: [snapshot.${height}.gz]`)
 
-      await init.tearDown()
+      await env.tearDown()
     })
   },
 
