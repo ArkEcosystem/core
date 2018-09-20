@@ -1,18 +1,19 @@
 'use strict'
-const env = require('../env')
-const container = require('@arkecosystem/core-container')
-const logger = container.resolvePlugin('logger')
-const database = container.resolvePlugin('database')
-const StreamValues = require('stream-json/streamers/StreamValues')
 const zlib = require('zlib')
 const async = require('async')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
-const { Block, Transaction } = require('@arkecosystem/crypto').models
+const env = require('../env')
 const helpers = require('../helpers')
 const util = require('util')
+const StreamValues = require('stream-json/streamers/StreamValues')
 const stream = require('stream')
 const finished = util.promisify(stream.finished)
+
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
+const database = container.resolvePlugin('database')
+const { Block, Transaction } = require('@arkecosystem/crypto').models
 
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)

@@ -1,6 +1,4 @@
 'use strict'
-const helpers = require('../helpers')
-const { Block } = require('@arkecosystem/crypto').models
 const async = require('async')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
@@ -8,6 +6,8 @@ const cliProgress = require('cli-progress')
 const container = require('@arkecosystem/core-container')
 const database = container.resolvePlugin('database')
 const logger = container.resolvePlugin('logger')
+const { Block } = require('@arkecosystem/crypto').models
+const helpers = require('../helpers')
 
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
