@@ -35,7 +35,9 @@
     "cli-progress": "^2.1.0",
     "commander": "^2.18.0",
     "fs-extra": "^7.0.0",
-    "stream-json": "^1.1.1"
+    "stream": "^0.0.2",
+    "stream-json": "^1.1.1",
+    "util": "^0.11.0"
   },
   "publishConfig": {
     "access": "public"

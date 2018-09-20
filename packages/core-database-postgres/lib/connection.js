@@ -574,6 +574,17 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
+   * Truncate all tables and reset identities
+   * @return {void}
+   */
+  async truncateChain (height) {
+    await this.db.wallets.truncate()
+    await this.db.rounds.truncate()
+    await this.db.transactions.truncate()
+    await this.db.blocks.truncate()
+  }
+
+  /**
    * Get recent block ids.
    * @return {[]String}
    */
