@@ -2,9 +2,6 @@ const axios = require('axios')
 const MockAdapter = require('axios-mock-adapter')
 const mock = new MockAdapter(axios)
 
-const toHaveAtLeastHeaders = require('./matchers/http/headers')
-expect.extend({ toHaveAtLeastHeaders })
-
 const HttpClient = require('../lib/http')
 
 const host = 'http://example.net'
@@ -15,14 +12,6 @@ beforeEach(() => {
 })
 
 describe('API - HTTP Client', () => {
-  let headers
-
-  beforeEach(() => {
-    headers = {
-      'API-Version': client.version
-    }
-  })
-
   describe('constructor', () => {
     it('should be instantiated', () => {
       expect(client).toBeInstanceOf(HttpClient)
@@ -77,9 +66,25 @@ describe('API - HTTP Client', () => {
     })
   })
 
+  describe('sendRequest', () => {
+    it('should infer the API URL from the version', async () => {
+      client.setVersion(1)
+      mock.onGet(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+
+      let response = await client.sendRequest('get', 'ENDPOINT')
+      expect(response.status).toBe(200)
+
+      client.setVersion(2)
+      mock.onGet(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
+
+      response = await client.sendRequest('get', 'ENDPOINT')
+      expect(response.status).toBe(200)
+    })
+  })
+
   describe('get', () => {
     beforeEach(() => {
-      mock.onGet(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+      mock.onGet(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
     })
 
     it('should send GET requests to the API', async () => {
@@ -88,17 +93,11 @@ describe('API - HTTP Client', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should use the necessary request headers', async () => {
-      const response = await client.get('ENDPOINT')
-
-      expect(response.config).toHaveAtLeastHeaders(headers)
-    })
-
     it('should send the request params', async () => {
       const params = { param1: 'value1', param2: 'value2' }
 
       mock.reset()
-      mock.onGet(`${host}/api/ENDPOINT`, { params }).reply(200, { data: [] })
+      mock.onGet(`${host}/api/v2/ENDPOINT`, { params }).reply(200, { data: [] })
 
       const response = await client.get('ENDPOINT', params)
 
@@ -108,7 +107,7 @@ describe('API - HTTP Client', () => {
 
   describe('post', () => {
     beforeEach(() => {
-      mock.onPost(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+      mock.onPost(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
     })
 
     it('should send POST requests to the API', async () => {
@@ -116,17 +115,11 @@ describe('API - HTTP Client', () => {
 
       expect(response.status).toBe(200)
     })
-
-    it('should use the necessary request headers', async () => {
-      const response = await client.post('ENDPOINT')
-
-      expect(response.config).toHaveAtLeastHeaders(headers)
-    })
   })
 
   describe('put', () => {
     beforeEach(() => {
-      mock.onPut(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+      mock.onPut(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
     })
 
     it('should send PUT requests to the API', async () => {
@@ -134,17 +127,11 @@ describe('API - HTTP Client', () => {
 
       expect(response.status).toBe(200)
     })
-
-    it('should use the necessary request headers', async () => {
-      const response = await client.put('ENDPOINT')
-
-      expect(response.config).toHaveAtLeastHeaders(headers)
-    })
   })
 
   describe('patch', () => {
     beforeEach(() => {
-      mock.onPatch(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+      mock.onPatch(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
     })
 
     it('should send PATCH requests to the API', async () => {
@@ -152,17 +139,11 @@ describe('API - HTTP Client', () => {
 
       expect(response.status).toBe(200)
     })
-
-    it('should use the necessary request headers', async () => {
-      const response = await client.patch('ENDPOINT')
-
-      expect(response.config).toHaveAtLeastHeaders(headers)
-    })
   })
 
   describe('delete', () => {
     beforeEach(() => {
-      mock.onDelete(`${host}/api/ENDPOINT`).reply(200, { data: [] })
+      mock.onDelete(`${host}/api/v2/ENDPOINT`).reply(200, { data: [] })
     })
 
     it('should send DELETE requests to the API', async () => {
@@ -171,17 +152,11 @@ describe('API - HTTP Client', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should use the necessary request headers', async () => {
-      const response = await client.delete('ENDPOINT')
-
-      expect(response.config).toHaveAtLeastHeaders(headers)
-    })
-
     it('should send the request params', async () => {
       const params = { param1: 'value1', param2: 'value2' }
 
       mock.reset()
-      mock.onDelete(`${host}/api/ENDPOINT`, { params }).reply(200, { data: [] })
+      mock.onDelete(`${host}/api/v2/ENDPOINT`, { params }).reply(200, { data: [] })
 
       const response = await client.delete('ENDPOINT', params)
 
