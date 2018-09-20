@@ -151,6 +151,7 @@ module.exports = class Client {
   async __get (url) {
     return axios.get(url, { headers: this.headers, timeout: 2000 })
   }
+
   async __post (url, body) {
     return axios.post(url, body, { headers: this.headers, timeout: 2000 })
   }
