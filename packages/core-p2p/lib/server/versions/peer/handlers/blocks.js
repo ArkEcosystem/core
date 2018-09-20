@@ -54,9 +54,7 @@ exports.store = {
  async handler (request, h) {
     const blockchain = container.resolvePlugin('blockchain')
 
-    let block = request.payload.block
-
-    if (blockchain.pingBlock(block)) {
+    if (blockchain.pingBlock(request.payload.block)) {
       return h.response(null).code(202)
     }
 
@@ -64,11 +62,11 @@ exports.store = {
     const lastDownloadedBlock = blockchain.getLastDownloadedBlock()
 
     // Are we ready to get it?
-    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== block.height) {
+    if (lastDownloadedBlock && lastDownloadedBlock.data.height + 1 !== request.payload.block.height) {
       return h.response(null).code(202)
     }
 
-    block = new Block(block)
+    const block = new Block(request.payload.block)
 
     if (!block.verification.verified) {
       return Boom.badData()
@@ -108,7 +106,7 @@ exports.store = {
 
     block.ip = requestIp.getClientIp(request)
 
-    blockchain.queueBlock(block)
+    blockchain.queueBlock(request.payload.block)
 
     return h.response(null).code(201)
   },

@@ -26,12 +26,9 @@ module.exports = class Client {
    * @return {Object}
    */
   async broadcast (block) {
-    logger.info(`INTERNAL: Sending forged block ${block.id} at height ${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
+    logger.debug(`Broadcasting forged block id:${block.id} at height:${block.height.toLocaleString()} with ${block.numberOfTransactions} transactions to ${this.host} :package:`)
 
-    return axios.post(`${this.host}/internal/blocks`, { block }, {
-      headers: this.headers,
-      timeout: 2000
-    })
+    return this.__post(`${this.host}/internal/blocks`, { block })
   }
 
   /**
@@ -127,12 +124,7 @@ module.exports = class Client {
     }
 
     try {
-      await axios.post(`${host}/internal/utils/events`, {
-        event, body
-      }, {
-        headers: this.headers,
-        timeout: 2000
-      })
+      await this.__post(`${host}/internal/utils/events`, {event, data: body})
     } catch (error) {
       logger.error(`Failed to emit "${event}" to "${host}"`)
     }
@@ -158,5 +150,9 @@ module.exports = class Client {
 
   async __get (url) {
     return axios.get(url, { headers: this.headers, timeout: 2000 })
+  }
+
+  async __post (url, body) {
+    return axios.post(url, body, { headers: this.headers, timeout: 2000 })
   }
 }
