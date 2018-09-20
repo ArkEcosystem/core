@@ -5,12 +5,14 @@ module.exports = {
     common: loadQueryFile(__dirname, './blocks/common.sql'),
     count: loadQueryFile(__dirname, './blocks/count.sql'),
     findById: loadQueryFile(__dirname, './blocks/find-by-id.sql'),
+    findByHeight: loadQueryFile(__dirname, './blocks/find-by-height.sql'),
     headers: loadQueryFile(__dirname, './blocks/headers.sql'),
     heightRange: loadQueryFile(__dirname, './blocks/height-range.sql'),
     latest: loadQueryFile(__dirname, './blocks/latest.sql'),
     recent: loadQueryFile(__dirname, './blocks/recent.sql'),
     statistics: loadQueryFile(__dirname, './blocks/statistics.sql'),
-    delete: loadQueryFile(__dirname, './blocks/delete.sql')
+    delete: loadQueryFile(__dirname, './blocks/delete.sql'),
+    deleteGtHeight: loadQueryFile(__dirname, './blocks/delete-gt-height.sql')
   },
   rounds: {
     delegates: loadQueryFile(__dirname, './rounds/delegates.sql'),
@@ -39,7 +41,8 @@ module.exports = {
     forged: loadQueryFile(__dirname, './transactions/forged.sql'),
     findById: loadQueryFile(__dirname, './transactions/find-by-id.sql'),
     findManyById: loadQueryFile(__dirname, './transactions/find-many-by-id.sql'),
-    deleteByBlock: loadQueryFile(__dirname, './transactions/delete-by-block.sql')
+    deleteByBlock: loadQueryFile(__dirname, './transactions/delete-by-block.sql'),
+    deleteGtTimestamp: loadQueryFile(__dirname, './transactions/delete-gt-timestamp.sql')
   },
   wallets: {
     all: loadQueryFile(__dirname, './wallets/all.sql'),

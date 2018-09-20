@@ -351,7 +351,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
    * @param  {Block} block
    * @return {void}
    */
-  async saveBlockAsync (block) {
+  saveBlockAsync (block) {
     if (!this.asyncTransaction) {
       this.asyncTransaction = []
     }
@@ -361,8 +361,6 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     if (block.transactions.length > 0) {
       this.asyncTransaction.push(this.db.transactions.create(block.transactions))
     }
-
-    await this.db.tx(t => t.batch(this.asyncTransaction))
   }
 
   /**
@@ -559,6 +557,31 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     }
 
     return blocks
+  }
+
+  /**
+   * WARNING: use only if you know why.
+   * Function rollbacks the whole chain to a specific height
+   * Call to rollbackCurrentRound is needed after this
+   * @return {void}
+   */
+  async rollbackChain (height) {
+    const block = await this.db.blocks.findByHeight(height)
+    await this.db.blocks.deleteGtHeight(height)
+    await this.db.transactions.deleteGtTimestamp(block.timestamp)
+    await this.db.wallets.truncate()
+    await this.db.rounds.truncate()
+  }
+
+  /**
+   * Truncate all tables and reset identities
+   * @return {void}
+   */
+  async truncateChain (height) {
+    await this.db.wallets.truncate()
+    await this.db.rounds.truncate()
+    await this.db.transactions.truncate()
+    await this.db.blocks.truncate()
   }
 
   /**

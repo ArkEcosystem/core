@@ -13,6 +13,15 @@ module.exports = class BlocksRepository extends Repository {
   }
 
   /**
+   * Find a block by its height.
+   * @param  {Number} height
+   * @return {Promise}
+   */
+  async findByHeight (height) {
+    return this.db.one(sql.findByHeight, { height })
+  }
+
+  /**
    * Count the number of records in the database.
    * @return {Promise}
    */
@@ -80,6 +89,15 @@ module.exports = class BlocksRepository extends Repository {
    */
   async delete (id) {
     return this.db.none(sql.delete, { id })
+  }
+
+  /**
+   * Delete the blocks from the database where height >
+   * @param  {Number} height
+   * @return {Promise}
+   */
+  async deleteGtHeight (height) {
+    return this.db.none(sql.deleteGtHeight, { height })
   }
 
   /**

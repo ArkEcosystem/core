@@ -75,6 +75,15 @@ module.exports = class TransactionsRepository extends Repository {
   }
 
   /**
+   * Delete the transactions from the database.
+   * @param  {Number} timestamp
+   * @return {Promise}
+   */
+  async deleteGtTimestamp (timestamp) {
+    return this.db.none(sql.deleteGtTimestamp, { timestamp })
+  }
+
+  /**
    * Get the model related to this repository.
    * @return {Object}
    */
