@@ -1,23 +1,18 @@
 'use strict';
 
-const database = require('@arkecosystem/core-container').resolvePlugin('database')
-const { constants } = require('@arkecosystem/crypto')
-const { formatOrderBy, unserializeTransactions } = require('../../../helpers')
+const { formatOrderBy } = require('../../../helpers')
+const { transactions: repository } = require('../../../repositories')
 
 /**
  * Get multiple transactions from the database
  * @return {Transaction[]}
  */
 module.exports = async (root, args) => {
-  const { orderBy, filter, ...params } = args
+  const { orderBy, filter } = args
 
-  const order = formatOrderBy(orderBy, 'timestamp:DESC')
+  const order = formatOrderBy(orderBy, 'timestamp:desc')
 
-  if (params.type) {
-    params.type = constants.TRANSACTION_TYPES[params.type]
-  }
-
-  const result = await database.transactions.findAll({ ...filter, orderBy: order, ...params }, false)
+  const result = await repository.findAll({ ...filter, orderBy: order })
   const transactions = result ? result.rows : []
-  return unserializeTransactions(transactions)
+  return transactions
 }
