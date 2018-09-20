@@ -8,7 +8,7 @@ const utils = require('../__support__/utils')
 
 let genesisBlock
 
-const blocks2to100 = require('@arkecosystem/core-p2p/__tests__/__fixtures__/blocks.2-100')
+const blocks2to100 = require('../__fixtures__/blocks.2-100')
 
 beforeAll(async () => {
   process.env.ARK_V2 = true
