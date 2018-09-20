@@ -49,7 +49,7 @@ module.exports = class Storage {
    */
   get (key) {
     if (!this.has(key)) {
-      throw new Error(`${key} doesn't exists in storage.`)
+      throw new Error(`${key} doesn't exist in storage.`)
     }
 
     return this.storage.get(key)
