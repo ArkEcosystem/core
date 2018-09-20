@@ -20,7 +20,7 @@ module.exports = async (options) => {
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
-  let lastProcessedBlock = helpers.getSnapshotHeights(options.filename).start - 1
+  let lastProcessedBlock = helpers.getSnapshotHeights(options.filename).start === 0 ? 0 : helpers.getSnapshotHeights(options.filename).start - 1
 
   pipeline
     .on('data', (data) => {

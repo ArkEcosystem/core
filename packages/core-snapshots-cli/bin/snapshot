@@ -37,7 +37,6 @@ registerCommand('append', 'append data to existing snapshot (append the block di
     await require('../lib/commands/append')(options)
   })
 
-
 registerCommand('import', 'import data from specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .option('--truncate', 'skip transaction validations', false)
