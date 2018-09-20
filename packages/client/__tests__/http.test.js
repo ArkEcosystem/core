@@ -176,5 +176,16 @@ describe('API - HTTP Client', () => {
 
       expect(response.config).toHaveAtLeastHeaders(headers)
     })
+
+    it('should send the request params', async () => {
+      const params = { param1: 'value1', param2: 'value2' }
+
+      mock.reset()
+      mock.onDelete(`${host}/api/ENDPOINT`, { params }).reply(200, { data: [] })
+
+      const response = await client.delete('ENDPOINT', params)
+
+      expect(response.status).toBe(200)
+    })
   })
 })
