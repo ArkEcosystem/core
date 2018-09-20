@@ -13,5 +13,6 @@ if (jestExpect !== undefined) {
 
 module.exports = {
   generateTransactions: require('./generators/transactions'),
-  generateWallets: require('./generators/wallets')
+  generateWallets: require('./generators/wallets'),
+  helpers: require('./helpers/helpers')
 }
