@@ -89,7 +89,7 @@ module.exports = class HttpClient {
    * @return {Promise}
    */
   delete (path, params = {}) {
-    return this.sendRequest('delete', path, params)
+    return this.sendRequest('delete', path, { params })
   }
 
   /**
