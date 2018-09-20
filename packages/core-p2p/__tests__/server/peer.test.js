@@ -1,25 +1,30 @@
 'use strict'
 
-require('@arkecosystem/core-test-utils/lib')
+const { helpers } = require('@arkecosystem/core-test-utils/lib')
+const { client } = require('@arkecosystem/crypto')
 
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
 
 let genesisBlock
-let genesisTransaction
+
+const blocks2to100 = require('../__fixtures__/blocks.2-100')
 
 beforeAll(async () => {
   process.env.ARK_V2 = true
 
   await app.setUp()
 
+  await helpers.resetBlockchain()
+
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = require('../__fixtures__/genesisBlock')
-  genesisTransaction = require('../__fixtures__/genesisTransaction')
 })
 
 afterAll(async () => {
+  await helpers.resetBlockchain()
+
   await app.tearDown()
 })
 
@@ -125,6 +130,24 @@ describe('API P2P - Version 2', () => {
     })
   })
 
+  describe('POST /peer/transactions', () => {
+    it('should add the transaction and return 200 when posting new valid transaction', async () => {
+      const transaction = client.getBuilder().transfer()
+        .recipientId('APRiwbs17FdbaF8DYU9js2jChRehQc2e6P')
+        .amount(1000)
+        .vendorField('Test Transaction')
+        .sign('clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire')
+        .getStruct()
+
+      const response = await utils.POST('peer/transactions', {
+        transactions: [ transaction ]
+      })
+
+      expect(response).toHaveProperty('status')
+      expect(response.status).toBe(200)
+    })
+  })
+
   describe('POST /peer/blocks', () => {
     it('should fail with status code 202 when posting existing block', async () => {
       const response = await utils.POST('peer/blocks', {
@@ -134,16 +157,15 @@ describe('API P2P - Version 2', () => {
       expect(response).toHaveProperty('status')
       expect(response.status).toBe(202)
     })
-  })
 
-  describe.skip('POST /peer/transactions', () => {
-    it('should fail with status code 406 when posting existing transaction', async () => {
-      const response = await utils.POST('peer/transactions', {
-        transactions: [genesisTransaction.toBroadcastV1()]
+    it('should create block with status code 201 when posting valid block', async () => {
+      const block2 = blocks2to100[0]
+      const response = await utils.POST('peer/blocks', {
+        block: block2
       })
 
       expect(response).toHaveProperty('status')
-      expect(response.status).toBe(406)
+      expect(response.status).toBe(201)
     })
   })
 })
