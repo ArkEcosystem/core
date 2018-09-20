@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@arkecosystem/core-snapshots",
   "description": "Provides live local streamed snapshots functionality for ARK Core",
   "version": "0.1.0",
@@ -7,7 +6,6 @@
     "Kristjan Košič <chris@ark.io>"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
   "bin": {
     "ark:snapy": "./bin/snapshot"
   },
