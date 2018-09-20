@@ -9,23 +9,32 @@ const async = require('async')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
-const utils = require('../utils')
+const helpers = require('../helpers')
+const util = require('util')
+const stream = require('stream')
+const finished = util.promisify(stream.finished)
 
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   const writeInterval = 50000
   const lastDbBlockHeight = !await database.getLastBlock() ? 0 : (await database.getLastBlock()).data.height
-  logger.debug(`Last block in database ${lastDbBlockHeight}.`)
-  progressBbar.start(utils.getSnapshotHeights(options.filename).end, 0) // getting last height from filename
+  logger.info(`Last block in database ${lastDbBlockHeight}`)
 
-  let block = {}
-  const sourceStream = fs.createReadStream(`${utils.getStoragePath()}/${options.filename}`)
+  if (options.truncate) {
+    logger.info('Truncating the database before starting import')
+    await database.truncateChain()
+  }
+
+  progressBbar.start(helpers.getSnapshotHeights(options.filename).end, 0) // getting last height from filename
+  const sourceStream = fs.createReadStream(`${helpers.getStoragePath()}/${options.filename}`)
   const pipeline = sourceStream
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
   const writeQueue = async.queue(async (data, qcallback) => {
     progressBbar.update(data.value.height)
+
+    let block = {}
     block.data = Block.deserialize(data.value.blockBuffer)
     block.data.id = Block.getId(block.data)
     block.transactions = []
@@ -40,6 +49,7 @@ module.exports = async (options) => {
         return stampedTransaction
       })
     }
+
     database.saveBlockAsync(block)
 
     qcallback()
@@ -56,15 +66,16 @@ module.exports = async (options) => {
         await database.saveBlockCommit()
         pipeline.resume()
       }
-      })
-    .on('end', async () => {
-      progressBbar.stop()
-      await database.saveBlockCommit()
-
-      await database.rollbackChain(parseInt(block.data.height))
-      await utils.rollbackCurrentRound(block)
-
-      logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
-      await env.tearDown()
     })
+
+  await finished(sourceStream) // waiting here for stream to finish reading
+  progressBbar.stop()
+  await database.saveBlockCommit()
+
+  const lastDbBlock = await database.getLastBlock()
+  await database.rollbackChain(lastDbBlock.data.height)
+  await helpers.rollbackCurrentRound(await database.getLastBlock())
+
+  logger.info(`Importing of snapshot file: [${options.filename}] succesfully completed.`)
+  await env.tearDown()
 }

@@ -2,13 +2,13 @@
 
 const zlib = require('zlib')
 const fs = require('fs-extra')
-const utils = require('../utils')
+const helpers = require('../helpers')
 
 module.exports = async (options) => {
-  await fs.ensureFile(`${utils.getStoragePath()}/snapshot.dat`)
-  fs.createReadStream(`${utils.getStoragePath()}/${options.filename}`)
+  await fs.ensureFile(`${helpers.getStoragePath()}/snapshot.dat`)
+  fs.createReadStream(`${helpers.getStoragePath()}/${options.filename}`)
     .pipe(zlib.createGunzip())
-    .pipe(fs.createWriteStream(`${utils.getStoragePath()}/snapshot.dat`))
+    .pipe(fs.createWriteStream(`${helpers.getStoragePath()}/snapshot.dat`))
     .on('finish', async () => {
       require('./create')(options)
     })

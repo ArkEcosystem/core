@@ -3,11 +3,11 @@ const zlib = require('zlib')
 const StreamValues = require('stream-json/streamers/StreamValues')
 const fs = require('fs-extra')
 const cliProgress = require('cli-progress')
-const utils = require('../utils')
+const helpers = require('../helpers')
 
 module.exports = async (options) => {
   const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  const snapshotHeight = options.filename ? utils.getSnapshotHeights(options.filename).end : 0
+  const snapshotHeight = options.filename ? helpers.getSnapshotHeights(options.filename).end : 0
 
   await fs.ensureFile(`${storageLocation}/slice.dat`)
   const sliceStrem = fs.createWriteStream(`${storageLocation}/slice.dat`)
@@ -23,23 +23,22 @@ module.exports = async (options) => {
     .pipe(zlib.createGunzip())
     .pipe(StreamValues.withParser())
 
-    pipeline.on('data', (data) => {
-      if (data.value.height >= options.start && data.value.height <= options.end) {
-        sliceStrem.write(`{"height":${data.value.height}, "blockBuffer":"${data.value.blockBuffer}"}`)
+  pipeline.on('data', (data) => {
+    if (data.value.height >= options.start && data.value.height <= options.end) {
+      sliceStrem.write(`{"height":${data.value.height}, "blockBuffer":"${data.value.blockBuffer}"}`)
 
-        progressBbar.update(data.value.height)
-      }
+      progressBbar.update(data.value.height)
+    }
 
-      if (data.value.height > options.end) {
-        sourceStream.close()
-        sliceStrem.close()
-        pipeline.close()
-
-        progressBbar.stop()
-      }
+    if (data.value.height > options.end) {
+      sourceStream.close()
+      sliceStrem.close()
+      pipeline.close()
+    }
   })
 
   sourceStream.on('close', async () => {
-    utils.gzip('slice.dat', options.start, options.end)
+    progressBbar.stop()
+    await helpers.gzip('slice.dat', options.start, options.end)
   })
 }

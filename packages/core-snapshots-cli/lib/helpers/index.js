@@ -5,22 +5,27 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const database = container.resolvePlugin('database')
 const blockchain = container.resolvePlugin('blockchain')
+const env = require('../env')
+const util = require('util')
+const stream = require('stream')
+const finished = util.promisify(stream.finished)
 
 module.exports = {
-  gzip: (sourceFileName, startHeight, endHeight) => {
-  const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
-  const fileName = `snapshot.${startHeight}.${endHeight}.gz`
+  gzip: async (sourceFileName, startHeight, endHeight) => {
+    const storageLocation = `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
+    const fileName = `snapshot.${startHeight}.${endHeight}.gz`
 
-  fs.createReadStream(`${storageLocation}/${sourceFileName}`)
-    .pipe(zlib.createGzip())
-    .pipe(fs.createWriteStream(`${storageLocation}/${fileName}`))
-    .on('finish', async () => {
-      fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
-      logger.info(`New snapshot was succesfully created. File: [${fileName}]`)
+    const sourceStream = fs.createReadStream(`${storageLocation}/${sourceFileName}`)
 
-      // await env.tearDown()
-      process.exit(0)
-    })
+    sourceStream
+      .pipe(zlib.createGzip())
+      .pipe(fs.createWriteStream(`${storageLocation}/${fileName}`))
+
+    await finished(sourceStream)
+    fs.unlinkSync(`${storageLocation}/${sourceFileName}`)
+    logger.info(`New snapshot was succesfully created. File: [${fileName}]`)
+
+    await env.tearDown()
   },
 
   getStoragePath: () => {
@@ -49,5 +54,9 @@ module.exports = {
     await blockchain.database.applyRound(blockchain.state.lastBlock.data.height)
 
     return blockchain.state.lastBlock.data.height
+  },
+
+  truncateTables: async () => {
+    await blockchain.database.truncateChain()
   }
 }
