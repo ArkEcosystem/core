@@ -17,12 +17,13 @@ const finished = util.promisify(stream.finished)
 module.exports = async (options) => {
   const progressBbar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
   const writeInterval = 50000
-  const lastDbBlockHeight = !await database.getLastBlock() ? 0 : (await database.getLastBlock()).data.height
+  let lastDbBlockHeight = !await database.getLastBlock() ? 0 : (await database.getLastBlock()).data.height
   logger.info(`Last block in database ${lastDbBlockHeight}`)
 
   if (options.truncate) {
     logger.info('Truncating the database before starting import')
     await database.truncateChain()
+    lastDbBlockHeight = 0
   }
 
   progressBbar.start(helpers.getSnapshotHeights(options.filename).end, 0) // getting last height from filename
