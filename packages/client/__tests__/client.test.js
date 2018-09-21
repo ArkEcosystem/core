@@ -5,7 +5,7 @@ const { arrayContaining } = expect
 
 const Client = require('../lib')
 const HttpClient = require('../lib/http')
-const TransactionsResource = require('../lib/resources/v2/transactions')
+const ApiResource = require('../lib/resources/v1/transactions')
 const initialPeers = require('../lib/peers')
 
 // https://github.com/facebook/jest/issues/3601
@@ -17,7 +17,7 @@ const { peers, peersOverride } = require('./fixtures/peers')
 let client
 
 beforeEach(() => {
-  client = (new Client(host, 2))
+  client = (new Client(host))
 })
 
 describe('API - Client', () => {
@@ -31,11 +31,10 @@ describe('API - Client', () => {
     })
 
     it('should return an API resource', () => {
-      expect(client.resource('transactions')).toBeInstanceOf(TransactionsResource)
+      expect(client.resource('transactions')).toBeInstanceOf(ApiResource)
     })
 
     it('should use 1 as the default API version', () => {
-      client = (new Client(host))
       expect(client.version).toBe(1)
     })
 
@@ -52,15 +51,15 @@ describe('API - Client', () => {
 
   describe('setVersion', () => {
     it('should set the API version', () => {
-      client.setVersion(1)
+      client.setVersion(2)
 
-      expect(client.version).toBe(1)
+      expect(client.version).toBe(2)
     })
 
     it('should set the API version of the HTTP client too', () => {
-      client.setVersion(1)
+      client.setVersion(2)
 
-      expect(client.http.version).toBe(1)
+      expect(client.http.version).toBe(2)
     })
 
     it('should throw an Error if the API version is falsy', async () => {
@@ -83,10 +82,10 @@ describe('API - Client', () => {
       }
 
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/v2\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
       })
 
-      const foundPeers = await Client.findPeers('devnet', 2)
+      const foundPeers = await Client.findPeers('devnet')
       expect(foundPeers).toEqual([
         peers[1],
         peers[3],
@@ -113,10 +112,10 @@ describe('API - Client', () => {
         }
 
         peers.forEach(peer => {
-          httpMock.onGet(/http.*\/api\/v2\/peers/).reply(200, { data })
+          httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
         })
 
-        const foundPeers = await Client.findPeers('devnet', 2)
+        const foundPeers = await Client.findPeers('devnet')
         expect(foundPeers).toEqual(arrayContaining(peers))
         expect(foundPeers).not.toContainEqual(localPeer)
       }
@@ -136,10 +135,10 @@ describe('API - Client', () => {
       }
 
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/v2\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
       })
 
-      const foundPeers = await Client.findPeers('devnet', 2)
+      const foundPeers = await Client.findPeers('devnet')
       expect(foundPeers).toEqual(arrayContaining(peers))
       expect(foundPeers).not.toContainEqual(notOkPeer)
     })
@@ -152,12 +151,12 @@ describe('API - Client', () => {
     describe('when the request to find peers fails', () => {
       beforeEach(() => {
         peers.forEach(peer => {
-          httpMock.onGet(/http.*\/api\/v2\/peers/).reply(500)
+          httpMock.onGet(/http.*\/api\/peers/).reply(500)
         })
       })
 
       it('returns the list of initial (hardcoded) peers', async () => {
-        const foundPeers = await Client.findPeers('devnet', 2)
+        const foundPeers = await Client.findPeers('devnet')
         expect(foundPeers).not.toEqual(arrayContaining(peers))
         expect(foundPeers).toEqual(arrayContaining(initialPeers.devnet))
       })
@@ -193,10 +192,10 @@ describe('API - Client', () => {
         peers
       }
       peers.forEach(peer => {
-        httpMock.onGet(/http.*\/api\/v2\/peers/).reply(200, { data })
+        httpMock.onGet(/http.*\/api\/peers/).reply(200, { data })
       })
 
-      const client = await Client.connect('devnet', 2)
+      const client = await Client.connect('devnet')
       expect(client.getConnection().host).toEqual(`http://${peers[1].ip}:${peers[1].port}`)
     })
   })

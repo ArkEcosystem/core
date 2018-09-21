@@ -101,16 +101,12 @@ module.exports = class HttpClient {
    * @throws Will throw an error if the HTTP request fails.
    */
   sendRequest (method, path, payload) {
-    let baseURL
-
-    if (this.version === 1) {
-      baseURL = `${this.host}/api/`
-    } else {
-      baseURL = `${this.host}/api/v${this.version}`
+    if (!this.headers['API-Version']) {
+      this.headers['API-Version'] = this.version
     }
 
     const client = axios.create({
-      baseURL,
+      baseURL: `${this.host}/api/`,
       headers: this.headers,
       timeout: this.timeout
     })
