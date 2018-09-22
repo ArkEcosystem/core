@@ -10,8 +10,7 @@ exports.setUp = async () => {
     token: 'ark',
     network: 'testnet'
   }, {
-    exit: '@arkecosystem/core-blockchain',
-    // exclude: '@arkecosystem/core-blockchain'
+    exit: '@arkecosystem/core-logger-winston'
   })
 }
 

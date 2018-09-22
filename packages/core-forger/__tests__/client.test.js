@@ -2,7 +2,9 @@
 
 const app = require('./__support__/setup')
 const block = require('./__fixtures__/block')
-const nock = require('nock')
+const axios = require('axios')
+const MockAdapter = require('axios-mock-adapter')
+const mockAxios = new MockAdapter(axios)
 
 jest.setTimeout(30000)
 
@@ -13,23 +15,22 @@ let client
 
 beforeAll(async () => {
   await app.setUp()
-  nock.disableNetConnect()
 })
 
 afterAll(async () => {
   await app.tearDown()
-  nock.enableNetConnect()
+  mockAxios.restore()
 })
 
 beforeEach(() => {
   Client = require('../lib/client')
   client = new Client(host)
 
-  nock(host).get('/peer/status').reply(200)
+  mockAxios.onGet(`${host}/peer/status`).reply(200)
 })
 
 afterEach(() => {
-  nock.cleanAll()
+  mockAxios.reset()
 })
 
 describe('Client', () => {
@@ -54,7 +55,12 @@ describe('Client', () => {
 
     describe('when the host is available', () => {
       it('should be truthy if broadcasts', async () => {
-        nock(host).post('/internal/blocks', body => body.block.id === block.data.id).reply(200)
+        mockAxios.onPost(`${host}/internal/blocks`).reply((c) => {
+          expect(JSON.parse(c.data).block).toMatchObject(expect.objectContaining({
+            id: block.data.id
+          }))
+          return [200, true]
+        })
 
         await client.__chooseHost()
 
@@ -72,7 +78,7 @@ describe('Client', () => {
     describe('when the host is available', () => {
       it('should be ok', async () => {
         const expectedResponse = {'foo': 'bar'}
-        nock(host).get('/internal/rounds/current').reply(200, {data: expectedResponse})
+        mockAxios.onGet(`${host}/internal/rounds/current`).reply(200, {data: expectedResponse})
 
         const response = await client.getRound()
 
@@ -89,7 +95,7 @@ describe('Client', () => {
     describe('when the host is available', () => {
       it('should be ok', async () => {
         const expectedResponse = {'foo': 'bar'}
-        nock(host).get('/internal/transactions/forging').reply(200, {data: expectedResponse})
+        mockAxios.onGet(`${host}/internal/transactions/forging`).reply(200, {data: expectedResponse})
 
         await client.__chooseHost()
         const response = await client.getTransactions()
@@ -107,7 +113,7 @@ describe('Client', () => {
     describe('when the host is available', () => {
       it('should be ok', async () => {
         const expectedResponse = {'foo': 'bar'}
-        nock(host).get('/internal/network/state').reply(200, {data: expectedResponse})
+        mockAxios.onGet(`${host}/internal/network/state`).reply(200, {data: expectedResponse})
 
         await client.__chooseHost()
         const response = await client.getNetworkState()
@@ -123,11 +129,12 @@ describe('Client', () => {
     })
 
     it('should induce network sync', async () => {
-      const action = nock(host).get('/internal/blockchain/sync').reply(200)
+      jest.spyOn(axios, 'get')
+      mockAxios.onGet(`${host}/internal/blockchain/sync`).reply(200)
 
       await client.syncCheck()
 
-      expect(action.done())
+      expect(axios.get).toHaveBeenCalledWith(`${host}/internal/blockchain/sync`, expect.any(Object))
     })
   })
 
@@ -137,8 +144,9 @@ describe('Client', () => {
     })
 
     it('should fetch usernames', async () => {
+      jest.spyOn(axios, 'get')
       const expectedResponse = {'foo': 'bar'}
-      nock(host).get('/internal/utils/usernames').reply(200, {data: expectedResponse})
+      mockAxios.onGet(`${host}/internal/utils/usernames`).reply(200, {data: expectedResponse})
 
       const response = await client.getUsernames()
 
@@ -151,12 +159,17 @@ describe('Client', () => {
       expect(client.emitEvent).toBeFunction()
     })
     it('should emit events', async () => {
-      const action = nock(host).post('/internal/utils/events', body => body.event === 'foo' && body.data === 'bar').reply(200)
+      jest.spyOn(axios, 'post')
+      // const action = mockAxios.onPost(`${host}/internal/utils/events`), body => body.event === 'foo' && body.data === 'bar').reply(200)
+      mockAxios.onPost(`${host}/internal/utils/events`).reply((c) => {
+        expect(JSON.parse(c.data)).toMatchObject({event: 'foo', data: 'bar'})
+        return [200]
+      })
 
       await client.__chooseHost()
       await client.emitEvent('foo', 'bar')
 
-      expect(action.done())
+      expect(axios.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {event: 'foo', data: 'bar'}, expect.any(Object))
     })
   })
 })
