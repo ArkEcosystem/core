@@ -41,7 +41,7 @@ module.exports = class ForgerManager {
       this.delegates.push(new Delegate(bip38, this.network, password))
     }
 
-    this.usernames = await this.client.getUsernames()
+    await this.__loadUsernames()
 
     const delegates = this.delegates.map(delegate => {
       return `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`
@@ -85,7 +85,7 @@ module.exports = class ForgerManager {
         return
       }
 
-      this.__loadUsernames()
+      await this.__loadUsernames()
 
       round = await this.client.getRound()
       const delayTime = parseInt(config.getConstants(round.lastBlock.height).blocktime) * 1000 - 2000
