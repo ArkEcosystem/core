@@ -162,14 +162,14 @@ describe('Client', () => {
       jest.spyOn(axios, 'post')
       // const action = mockAxios.onPost(`${host}/internal/utils/events`), body => body.event === 'foo' && body.data === 'bar').reply(200)
       mockAxios.onPost(`${host}/internal/utils/events`).reply((c) => {
-        expect(JSON.parse(c.data)).toMatchObject({event: 'foo', data: 'bar'})
+        expect(JSON.parse(c.data)).toMatchObject({event: 'foo', body: 'bar'})
         return [200]
       })
 
       await client.__chooseHost()
       await client.emitEvent('foo', 'bar')
 
-      expect(axios.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {event: 'foo', data: 'bar'}, expect.any(Object))
+      expect(axios.post).toHaveBeenCalledWith(`${host}/internal/utils/events`, {event: 'foo', body: 'bar'}, expect.any(Object))
     })
   })
 })
