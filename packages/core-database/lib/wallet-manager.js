@@ -196,6 +196,9 @@ module.exports = class WalletManager {
         const delegate = this.byPublicKey[voter.vote]
         delegate.voteBalance = delegate.voteBalance.plus(voter.balance)
       })
+    Object.values(this.byUsername)
+      .sort((a, b) => (b.voteBalance - a.voteBalance))
+      .forEach((delegate, index) => (delegate.rate = index + 1))
   }
 
   /**
