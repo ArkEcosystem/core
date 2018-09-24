@@ -157,45 +157,45 @@ module.exports = class ForgerManager {
    * @param {Object} round
    */
   async __forgeNewBlock (delegate, round) {
-      // TODO: Disabled for now as this could cause a delay in forging that
-      // results in missing a block which we want to avoid.
-      //
-      // We should either use a very radical timeout like 500ms or look
-      // into another solution for broadcasting this specific event.
-      //
-      // this.client.emitEvent('forger.started', delegate.publicKey)
+    // TODO: Disabled for now as this could cause a delay in forging that
+    // results in missing a block which we want to avoid.
+    //
+    // We should either use a very radical timeout like 500ms or look
+    // into another solution for broadcasting this specific event.
+    //
+    // this.client.emitEvent('forger.started', delegate.publicKey)
 
-      const transactions = await this.__getTransactionsForForging()
+    const transactions = await this.__getTransactionsForForging()
 
-      const blockOptions = {}
-      blockOptions.previousBlock = round.lastBlock
-      blockOptions.timestamp = round.timestamp
-      blockOptions.reward = round.reward
+    const blockOptions = {}
+    blockOptions.previousBlock = round.lastBlock
+    blockOptions.timestamp = round.timestamp
+    blockOptions.reward = round.reward
 
-      const block = await delegate.forge(transactions, blockOptions)
+    const block = await delegate.forge(transactions, blockOptions)
 
-      const username = this.usernames[delegate.publicKey]
-      logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
+    const username = this.usernames[delegate.publicKey]
+    logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
-      this.client.emitEvent('block.forged', block.data)
-      transactions.forEach(transaction => this.client.emitEvent('transaction.forged', transaction.data))
+    await this.client.broadcast(block.toRawJson())
 
-      await this.client.broadcast(block.toRawJson())
+    this.client.emitEvent('block.forged', block.data)
+    transactions.forEach(transaction => this.client.emitEvent('transaction.forged', transaction.data))
   }
 
   /**
    * Gets the unconfirmed transactions from the relay nodes transactio pool
    */
   async __getTransactionsForForging () {
-      const response = await this.client.getTransactions()
+    const response = await this.client.getTransactions()
 
-      const transactions = response.transactions
-        ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
-        : []
+    const transactions = response.transactions
+      ? response.transactions.map(serializedTx => Transaction.fromBytes(serializedTx))
+      : []
 
-      logger.debug(`Received ${transactions.length} transactions from the pool containing ${response.poolSize} :money_with_wings:`)
+    logger.debug(`Received ${transactions.length} transactions from the pool containing ${response.poolSize} :money_with_wings:`)
 
-      return transactions
+    return transactions
   }
 
   /**
