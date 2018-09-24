@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -20,8 +21,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets', () => {
     it('should GET all the wallets', async () => {
       const response = await utils.request('GET', 'wallets')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       utils.expectWallet(response.data.data[0])
     })
@@ -30,8 +31,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/top', () => {
     it('should GET all the top wallets', async () => {
       const response = await utils.request('GET', 'wallets/top')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       utils.expectWallet(response.data.data[0])
     })
@@ -40,8 +41,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id', () => {
     it('should GET a wallet by the given identifier', async () => {
       const response = await utils.request('GET', `wallets/${address}`)
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       const wallet = response.data.data
       utils.expectWallet(wallet)
@@ -62,8 +63,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions', () => {
     it('should GET all the transactions for the given wallet by id', async () => {
       const response = await utils.request('GET', `wallets/${address}/transactions`)
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       utils.expectTransaction(response.data.data[0])
     })
@@ -72,8 +73,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions/sent', () => {
     it('should GET all the send transactions for the given wallet by id', async () => {
       const response = await utils.request('GET', `wallets/${address}/transactions/sent`)
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
@@ -84,8 +85,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/transactions/received', () => {
     it('should GET all the received transactions for the given wallet by id', async () => {
       const response = await utils.request('GET', `wallets/${address}/transactions/received`)
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       utils.expectTransaction(response.data.data[0])
     })
@@ -94,8 +95,8 @@ describe('API 2.0 - Wallets', () => {
   describe('GET /wallets/:id/votes', () => {
     it('should GET all the votes for the given wallet by id', async () => {
       const response = await utils.request('GET', `wallets/${address}/votes`)
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data[0]).toBeObject()
     })
@@ -104,8 +105,8 @@ describe('API 2.0 - Wallets', () => {
   describe('POST /wallets/search', () => {
     it('should POST a search for wallets with the exact specified address', async () => {
       const response = await utils.request('POST', 'wallets/search', { address })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -116,8 +117,8 @@ describe('API 2.0 - Wallets', () => {
 
     it('should POST a search for wallets with the exact specified publicKey', async () => {
       const response = await utils.request('POST', 'wallets/search', { address, publicKey })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -129,8 +130,8 @@ describe('API 2.0 - Wallets', () => {
 
     // it('should POST a search for wallets with the exact specified secondPublicKey', async () => {
     //   const response = await utils.request('POST', 'wallets/search', { address: addressSecondPassphrase, secondPublicKey })
-    //   utils.expectSuccessful(response)
-    //   utils.expectCollection(response)
+    //   expect(response).toBeSuccessfulResponse()
+    //   expect(response.data.data).toBeArray()
 
     //   expect(response.data.data).toHaveLength(1)
 
@@ -141,8 +142,8 @@ describe('API 2.0 - Wallets', () => {
 
     // it('should POST a search for wallets with the exact specified vote', async () => {
     //   const response = await utils.request('POST', 'wallets/search', { address: address, vote })
-    //   utils.expectSuccessful(response)
-    //   utils.expectCollection(response)
+    //   expect(response).toBeSuccessfulResponse()
+    //   expect(response.data.data).toBeArray()
 
     //   expect(response.data.data).toHaveLength(1)
 
@@ -153,8 +154,8 @@ describe('API 2.0 - Wallets', () => {
 
     it('should POST a search for wallets with the exact specified username', async () => {
       const response = await utils.request('POST', 'wallets/search', { address, username })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -171,8 +172,8 @@ describe('API 2.0 - Wallets', () => {
           to: balance
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -190,8 +191,8 @@ describe('API 2.0 - Wallets', () => {
           to: balance
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -209,8 +210,8 @@ describe('API 2.0 - Wallets', () => {
           to: 0
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -227,8 +228,8 @@ describe('API 2.0 - Wallets', () => {
           to: 0
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -239,8 +240,8 @@ describe('API 2.0 - Wallets', () => {
 
     it('should POST a search for wallets with the wrong specified username', async () => {
       const response = await utils.request('POST', 'wallets/search', { address, username: 'dummy' })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(0)
     })
@@ -249,8 +250,8 @@ describe('API 2.0 - Wallets', () => {
       const response = await utils.request('POST', 'wallets/search', {
         publicKey, username
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 

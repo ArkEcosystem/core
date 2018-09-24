@@ -2,7 +2,7 @@
 
 const { isEqual, get } = require('lodash')
 
-module.exports = (machine, transition) => {
+const toExecuteOnEntry = (machine, transition) => {
   let path = transition.state
 
   // For nested states, but only works 1 level depth
@@ -21,3 +21,7 @@ module.exports = (machine, transition) => {
     pass: isEqual(state.onEntry, transition.actions)
   }
 }
+
+expect.extend({
+  toExecuteOnEntry
+})

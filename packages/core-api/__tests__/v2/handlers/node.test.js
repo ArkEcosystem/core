@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -15,8 +16,8 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/status', () => {
     it('should GET the node status', async () => {
       const response = await utils.request('GET', 'node/status')
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       expect(response.data.data.synced).toBeBoolean()
       expect(response.data.data.now).toBeNumber()
@@ -27,8 +28,8 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/syncing', () => {
     it('should GET the node syncing status', async () => {
       const response = await utils.request('GET', 'node/syncing')
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       expect(response.data.data.syncing).toBeBoolean()
       expect(response.data.data.blocks).toBeNumber()
@@ -40,8 +41,8 @@ describe('API 2.0 - Loader', () => {
   describe('GET /node/configuration', () => {
     it('should GET the node configuration', async () => {
       const response = await utils.request('GET', 'node/configuration')
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       expect(response.data.data.nethash).toBeString()
       expect(response.data.data.token).toBeString()

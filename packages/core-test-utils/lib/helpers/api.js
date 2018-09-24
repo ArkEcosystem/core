@@ -14,7 +14,8 @@ class ApiHelpers {
     }
 
     const response = await server.inject(injectOptions)
-    Object.assign(response, { data: JSON.parse(response.result || null), status: response.statusCode })
+    const data = typeof response.result === 'string' ? JSON.parse(response.result) : response.result
+    Object.assign(response, { data, status: response.statusCode })
     return response
   }
 
