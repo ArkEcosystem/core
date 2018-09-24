@@ -1,4 +1,4 @@
-module.exports = {
+expect.extend({
   toBeArkAddress: require('./fields/address'),
   toBeArkPublicKey: require('./fields/public-key'),
 
@@ -29,4 +29,4 @@ module.exports = {
   toDispatch: require('./blockchain/dispatch'),
   toExecuteOnEntry: require('./blockchain/execute-on-entry'),
   toTransition: require('./blockchain/transition')
-}
+})

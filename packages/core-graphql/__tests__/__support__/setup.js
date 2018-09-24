@@ -1,19 +1,14 @@
 'use strict'
 
-const path = require('path')
 const container = require('@arkecosystem/core-container')
+const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/container')
 
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
   process.env.ARK_GRAPHQL_ENABLED = true
 
-  await container.setUp({
-    data: '~/.ark',
-    config: path.resolve(__dirname, '../../../core/lib/config/testnet'),
-    network: 'testnet',
-    token: 'ark'
-  }, {
+  await containerHelper.setUp({
     exclude: [
       '@arkecosystem/core-api',
       '@arkecosystem/core-forger'
