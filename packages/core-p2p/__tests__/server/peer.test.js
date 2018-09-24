@@ -1,6 +1,6 @@
 'use strict'
 
-const { helpers } = require('@arkecosystem/core-test-utils/lib')
+const { blockchainHelper } = require('@arkecosystem/core-test-utils/lib/helpers/blockchain')
 const { client } = require('@arkecosystem/crypto')
 
 const app = require('../__support__/setup')
@@ -15,7 +15,7 @@ beforeAll(async () => {
 
   await app.setUp()
 
-  await helpers.resetBlockchain()
+  await blockchainHelper.resetBlockchain()
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -23,7 +23,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await helpers.resetBlockchain()
+  await blockchainHelper.resetBlockchain()
 
   await app.tearDown()
 })

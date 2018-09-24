@@ -16,7 +16,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
   transactionList = genesisBlock.transactions
 })
 
