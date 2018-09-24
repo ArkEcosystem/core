@@ -16,7 +16,5 @@ module.exports = {
       '127.0.0.1',
       '::ffff:127.0.0.1'
     ]
-  },
-  '@arkecosystem/core-webhooks': {},
-  '@arkecosystem/core-forger': {}
+  }
 }
