@@ -15,6 +15,10 @@ module.exports = async (p2p, config) => {
   })
 
   await server.register({
+    plugin: require('./plugins/validate-headers')
+  })
+
+  await server.register({
     plugin: require('./plugins/accept-request'),
     options: {
       whitelist: config.whitelist
