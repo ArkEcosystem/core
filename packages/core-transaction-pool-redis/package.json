@@ -27,6 +27,9 @@
     "ioredis": "^3.2.2",
     "lodash": "^4.17.10"
   },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "^0.1.1"
+  },
   "publishConfig": {
     "access": "public"
   }
