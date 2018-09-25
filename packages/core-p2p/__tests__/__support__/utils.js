@@ -21,7 +21,11 @@ class Helpers {
     const injectOptions = {
       method,
       url: ['GET', 'DELETE'].includes(method) ? `${url}?${getParams}` : url,
-      headers: {},
+      headers: {
+        nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
+        port: 4000,
+        version: '2.0.0'
+      },
       payload: ['GET', 'DELETE'].includes(method) ? {} : params
     }
 

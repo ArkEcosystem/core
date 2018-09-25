@@ -7,14 +7,12 @@ const generateRound = require('./utils/generate-round')
 const activeDelegates = require('@arkecosystem/core-test-utils/fixtures/testnet/delegates')
 const round = generateRound(activeDelegates.publicKeys, 1)
 
-exports.setUp = async (options = {
-    exclude: [ '@arkecosystem/core-forger' ]
-  }) => {
+exports.setUp = async () => {
   jest.setTimeout(60000)
 
   process.env.ARK_SKIP_BLOCKCHAIN_STARTED_CHECK = true
 
-  await containerHelper.setUp(options)
+  await containerHelper.setUp({})
 
   const connection = container.resolvePlugin('database')
   await connection.db.rounds.truncate()

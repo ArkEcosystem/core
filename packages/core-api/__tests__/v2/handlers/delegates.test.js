@@ -11,7 +11,7 @@ const delegate = {
 }
 
 beforeAll(async () => {
-  await app.setUp({})
+  await app.setUp()
 })
 
 afterAll(async () => {

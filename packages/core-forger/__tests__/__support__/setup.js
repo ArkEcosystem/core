@@ -5,7 +5,7 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 
 exports.setUp = async () => {
   await containerHelper.setUp({
-    exit: '@arkecosystem/core-blockchain'
+    exit: '@arkecosystem/core-logger-winston'
   })
 }
 

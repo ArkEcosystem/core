@@ -27,7 +27,7 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "nock": "^10.0.0",
+    "axios-mock-adapter": "^1.15.0",
     "@arkecosystem/core-test-utils": "^0.1.1"
   },
   "publishConfig": {
