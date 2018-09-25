@@ -1,6 +1,4 @@
-expect.extend({
-  toDispatch: require('../../../lib/matchers/blockchain/dispatch')
-})
+require('../../../lib/matchers/blockchain/dispatch')
 
 describe('.toDispatch', () => {
   const blockchain = {

@@ -1,6 +1,4 @@
-expect.extend({
-  toBeArkPublicKey: require('../../../lib/matchers/fields/public-key')
-})
+require('../../../lib/matchers/fields/public-key')
 
 describe('.toBeArkPublicKey', () => {
   test('passes when given a valid public key', () => {
