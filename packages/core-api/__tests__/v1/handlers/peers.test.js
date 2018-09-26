@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -18,7 +19,7 @@ describe('API 1.0 - Peers', () => {
   describe('GET /peers/version', () => {
     it('should be ok', async () => {
       const response = await utils.request('GET', 'peers/version')
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.version).toBeString()
     })
@@ -82,7 +83,7 @@ describe('API 1.0 - Peers', () => {
 
     it.skip('should be ok using known ip address and port', async () => {
       const response = await utils.request('GET', 'peers/get', { ip: peerIp, port: peerPort })
-      utils.expectSuccessful(response)
+      expect(response).toBeSuccessfulResponse()
 
       expect(response.data.peer).toBeObject()
     })

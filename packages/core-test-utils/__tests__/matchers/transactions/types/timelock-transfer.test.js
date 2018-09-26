@@ -1,8 +1,6 @@
 const { TIMELOCK_TRANSFER } = require('@arkecosystem/crypto').constants
 
-expect.extend({
-  toBeTimelockTransferType: require('../../../../lib/matchers/transactions/types/timelock-transfer')
-})
+require('../../../../lib/matchers/transactions/types/timelock-transfer')
 
 describe('.toBeTimelockTransferType', () => {
   test('passes when given a valid transaction', () => {

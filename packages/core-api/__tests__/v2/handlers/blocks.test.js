@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -10,7 +11,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(async () => {
@@ -21,9 +22,9 @@ describe('API 2.0 - Blocks', () => {
   describe('GET /blocks', () => {
     it('should GET all the blocks', async () => {
       const response = await utils.request('GET', 'blocks')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
-      utils.expectPaginator(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response).toBePaginated()
+      expect(response.data.data).toBeArray()
 
       const block = response.data.data[0]
       utils.expectBlock(block)
@@ -33,10 +34,10 @@ describe('API 2.0 - Blocks', () => {
   describe('GET /blocks/:id', () => {
     it('should GET a block by the given identifier', async () => {
       const response = await utils.request('GET', `blocks/${genesisBlock.id}`)
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
-      const block = response.data.data;
+      const block = response.data.data
       utils.expectBlock(block)
       expect(block.id).toBe(genesisBlock.id)
     })
@@ -45,8 +46,8 @@ describe('API 2.0 - Blocks', () => {
   describe('GET /blocks/:id/transactions', () => {
     it('should GET all the transactions for the given block by id', async () => {
       const response = await utils.request('GET', `blocks/${genesisBlock.id}/transactions`)
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       const transaction = response.data.data[0]
       utils.expectTransaction(transaction)
@@ -59,8 +60,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -73,8 +74,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, version: genesisBlock.version
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -88,8 +89,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, previousBlock: genesisBlock.previousBlock
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -103,8 +104,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, payloadHash: genesisBlock.payloadHash
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -119,8 +120,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, generatorPublicKey: genesisBlock.generatorPublicKey
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -134,8 +135,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, blockSignature: genesisBlock.blockSignature
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -153,8 +154,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.timestamp
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -171,8 +172,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.height
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -190,8 +191,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.height
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -209,8 +210,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.numberOfTransactions
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -228,8 +229,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.numberOfTransactions
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -245,8 +246,8 @@ describe('API 2.0 - Blocks', () => {
         totalAmount: { from: 1 }
       })
 
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -260,8 +261,8 @@ describe('API 2.0 - Blocks', () => {
         id: genesisBlock.id,
         totalAmount: { from: 1 }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -275,8 +276,8 @@ describe('API 2.0 - Blocks', () => {
         id: genesisBlock.id,
         totalFee: { from: 0 }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -291,8 +292,8 @@ describe('API 2.0 - Blocks', () => {
         id: genesisBlock.id,
         totalFee: { from: 0 }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -310,8 +311,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.reward
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -329,8 +330,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.reward
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -348,8 +349,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.payloadLength
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -367,8 +368,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.payloadLength
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -382,8 +383,8 @@ describe('API 2.0 - Blocks', () => {
       const response = await utils.request('POST', 'blocks/search', {
         id: genesisBlock.id, version: 2
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(0)
     })
@@ -397,8 +398,8 @@ describe('API 2.0 - Blocks', () => {
           to: genesisBlock.timestamp
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 

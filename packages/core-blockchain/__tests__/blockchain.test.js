@@ -7,6 +7,7 @@ const delay = require('delay')
 
 const { asValue } = require('awilix')
 const { slots } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
 
 const app = require('./__support__/setup')
 
@@ -17,8 +18,8 @@ let logger
 let loggerDebugBackup
 let peerMock
 
-const blocks1to100 = require('./__fixtures__/blocks.1-100')
-const blocks101to155 = require('./__fixtures__/blocks.101-155')
+const blocks1to100 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')
+const blocks101to155 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.101-155')
 
 beforeAll(async () => {
   container = await app.setUp()
@@ -35,7 +36,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('./__fixtures__/genesisBlock')
+  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
 })
 
 afterAll(async () => {

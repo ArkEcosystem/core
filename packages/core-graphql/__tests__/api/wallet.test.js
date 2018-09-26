@@ -1,12 +1,13 @@
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
+require('@arkecosystem/core-test-utils/lib/matchers')
 
 let genesisBlock
 
 beforeAll(async () => {
   await app.setUp()
 
-  genesisBlock = require('../__fixtures__/genesisBlock.json')
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
 })
 
 afterAll(() => {
@@ -19,10 +20,10 @@ describe('GraphQL API { wallet }', () => {
       const query = `{ wallet(address:"${genesisBlock.transactions[0].senderId}") { address } }`
       const response = await utils.request(query)
 
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
 
       const data = response.data.data
+      expect(data).toBeObject()
       expect(data.wallet).toBeObject()
       expect(data.wallet.address).toBe(genesisBlock.transactions[0].senderId)
     })

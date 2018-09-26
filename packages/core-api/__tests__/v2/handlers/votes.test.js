@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -17,8 +18,8 @@ describe('API 2.0 - Votes', () => {
   describe('GET /votes', () => {
     it('should GET all the votes', async () => {
       const response = await utils.request('GET', 'votes')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
       utils.expectPaginator(response)
 
       expect(response.data.data[0]).toBeObject()
@@ -29,8 +30,8 @@ describe('API 2.0 - Votes', () => {
   describe('GET /votes/:id', () => {
     it('should GET a vote by the given identifier', async () => {
       const response = await utils.request('GET', `votes/${voteId}`)
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       expect(response.data.data).toBeObject()
       expect(response.data.data.id).toBe(voteId)

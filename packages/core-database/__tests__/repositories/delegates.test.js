@@ -2,6 +2,7 @@
 
 const app = require('../__support__/setup')
 const { Bignum, crypto, constants: { ARKTOSHI } } = require('@arkecosystem/crypto')
+const { Block } = require('@arkecosystem/crypto').models
 
 let genesisBlock
 let repository
@@ -14,7 +15,7 @@ beforeAll(async (done) => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../__fixtures__/genesisBlock')
+  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
 
   const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
   calculateApproval = delegateCalculator.calculateApproval
