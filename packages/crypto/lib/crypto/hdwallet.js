@@ -4,7 +4,7 @@ const configManager = require('../managers/config')
 
 class HDWallet {
   constructor () {
-    this.slip44 = '111\''
+    this.slip44 = 111
   }
 
   /**
@@ -50,8 +50,8 @@ class HDWallet {
    * @param {bip32} root
    * @returns {bip32}
    */
-  deriveSlip44 (root) {
-    return root.derivePath(`m/44'/${this.slip44}`)
+  deriveSlip44 (root, hardened = true) {
+    return root.derivePath(`m/44'/${this.slip44}${hardened ? '\'' : ''}`)
   }
 }
 
