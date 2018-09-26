@@ -2,9 +2,13 @@
 
 const { DELEGATE } = require('@arkecosystem/crypto').constants
 
-module.exports = (received) => {
+const toBeDelegateType = (received) => {
   return {
     message: () => 'Expected value to be a valid DELEGATE transaction.',
     pass: received.type === DELEGATE
   }
 }
+
+expect.extend({
+  toBeDelegateType
+})

@@ -20,7 +20,6 @@
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.0",
     "bip39": "^2.5.0",
-    "chalk": "^2.4.1",
     "lodash": "^4.17.10",
     "superheroes": "^1.0.0",
     "xstate": "^3.3.3"

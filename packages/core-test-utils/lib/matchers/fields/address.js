@@ -8,9 +8,13 @@ const { crypto } = require('@arkecosystem/crypto')
  * @param  {String} argument
  * @return {Boolean}
  */
-module.exports = (received, argument) => {
+const toBeArkAddress = (received, argument) => {
   return {
     message: () => 'Expected value to be a valid address',
     pass: crypto.validateAddress(received, argument)
   }
 }
+
+expect.extend({
+  toBeArkAddress
+})

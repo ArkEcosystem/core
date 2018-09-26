@@ -2,7 +2,7 @@
 
 const { matchesState } = require('xstate')
 
-module.exports = (machine, transition) => {
+const toTransition = (machine, transition) => {
   const state = machine.transition(transition.from, transition.on)
 
   return {
@@ -12,3 +12,7 @@ module.exports = (machine, transition) => {
     pass: matchesState(transition.to, state.value)
   }
 }
+
+expect.extend({
+  toTransition
+})

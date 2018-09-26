@@ -50,7 +50,7 @@ class WebhookManager {
     const matches = []
 
     for (const webhook of webhooks) {
-      if(!webhook.enabled) {
+      if (!webhook.enabled) {
         continue
       }
 

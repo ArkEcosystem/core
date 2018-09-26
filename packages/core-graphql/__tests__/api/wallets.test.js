@@ -1,5 +1,6 @@
 const app = require('../__support__/setup')
 const utils = require('../__support__/utils')
+require('@arkecosystem/core-test-utils/lib/matchers')
 
 beforeAll(async () => {
   await app.setUp()
@@ -15,10 +16,10 @@ describe('GraphQL API { wallets }', () => {
       const query = '{ wallets { address } }'
       const response = await utils.request(query)
 
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
 
       const data = response.data.data
+      expect(data).toBeObject()
       expect(data.wallets.length).toBe(53)
       // TODO why 53 ? From genesis block I can count 52, but there is an additional "AP6kAVdX1zQ3S8mfDnnHx9GaAohEqQUins" wallet. What did I miss ?
     })
@@ -29,10 +30,10 @@ describe('GraphQL API { wallets }', () => {
       const query = '{ wallets(filter: { vote: "036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd" }) { address } }'
       const response = await utils.request(query)
 
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
 
       const data = response.data.data
+      expect(data).toBeObject()
       expect(data.wallets.length).toBe(1)
     })
 
@@ -40,10 +41,10 @@ describe('GraphQL API { wallets }', () => {
       const query = '{ wallets(filter: { vote: "unknownPublicKey" }) { address } }'
       const response = await utils.request(query)
 
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
 
       const data = response.data.data
+      expect(data).toBeObject()
       expect(data.wallets.length).toBe(0)
     })
   })

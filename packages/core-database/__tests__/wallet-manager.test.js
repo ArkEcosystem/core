@@ -6,7 +6,8 @@ const { Block, Transaction, Wallet } = require('@arkecosystem/crypto').models
 const { Bignum, crypto, transactionBuilder } = require('@arkecosystem/crypto')
 const { ARKTOSHI, TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
 
-const block = new Block(require('./__fixtures__/block.json'))
+const block3 = require('@arkecosystem/core-test-utils/fixtures/testnet/blocks.2-100')[1]
+const block = new Block(block3)
 const walletData1 = require('./__fixtures__/wallets.json')[0]
 const walletData2 = require('./__fixtures__/wallets.json')[1]
 
@@ -18,7 +19,7 @@ beforeAll(async (done) => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('./__fixtures__/genesisBlock')
+  genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
 
   walletManager = new (require('../lib/wallet-manager'))()
 
@@ -75,7 +76,7 @@ describe('Wallet Manager', () => {
     let delegateMock
     let block2
 
-    const delegatePublicKey = '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
+    const delegatePublicKey = block3.generatorPublicKey // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
     const txs = []
     for (let i = 0; i < 3; i++) {
@@ -148,7 +149,7 @@ describe('Wallet Manager', () => {
         })
 
         try {
-          await walletManager.applyBlock(block)
+          await walletManager.applyBlock(block2)
 
           expect(null).toBe('this should fail if no error is thrown')
         } catch (error) {

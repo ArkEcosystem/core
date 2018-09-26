@@ -2,7 +2,7 @@
 
 const { isEqual, sortBy } = require('lodash')
 
-module.exports = (actual) => {
+const toBeTransaction = (actual) => {
   // TODO based on type
   const allowedKeys = sortBy(['id', 'type', 'amount', 'fee', 'timestamp', 'signature'])
   const actualKeys = Object.keys(actual).filter(key => allowedKeys.includes(key))
@@ -12,3 +12,7 @@ module.exports = (actual) => {
     pass: isEqual(sortBy(actualKeys), allowedKeys)
   }
 }
+
+expect.extend({
+  toBeTransaction
+})
