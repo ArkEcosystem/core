@@ -1,32 +1,26 @@
-module.exports = {
-  toBeArkAddress: require('./fields/address'),
-  toBeArkPublicKey: require('./fields/public-key'),
+// TODO put together similar matchers (for example all 'types' matchers)
+// so that we can require() a collection of coherent matchers
 
-  toBeApiTransaction: require('./api/transaction'),
-  toBeSuccessfulResponse: require('./api/response').toBeSuccessfulResponse,
-  toBeValidPeer: require('./api/peer').toBeValidPeer,
-  toBeValidArrayOfPeers: require('./api/peer').toBeValidArrayOfPeers,
-  toBeValidBlock: require('./api/block').toBeValidBlock,
-  toBeValidArrayOfBlocks: require('./api/block').toBeValidArrayOfBlocks,
-
-  toBeDelegate: require('./models/delegate'),
-  toBeTransaction: require('./models/transaction'),
-  toBeWallet: require('./models/wallet'),
-
-  toBeValidTransaction: require('./transactions/valid'),
-  toHaveValidSecondSignature: require('./transactions/valid-second-signature'),
-
-  toBeDelegateResignationType: require('./transactions/types/delegate-resignation'),
-  toBeDelegateType: require('./transactions/types/delegate'),
-  toBeIpfsType: require('./transactions/types/ipfs'),
-  toBeMultiPaymentType: require('./transactions/types/multi-payment'),
-  toBeMultiSignatureType: require('./transactions/types/multi-signature'),
-  toBeSecondSignatureType: require('./transactions/types/second-signature'),
-  toBeTimelockTransferType: require('./transactions/types/timelock-transfer'),
-  toBeTransferType: require('./transactions/types/transfer'),
-  toBeVoteType: require('./transactions/types/vote'),
-
-  toDispatch: require('./blockchain/dispatch'),
-  toExecuteOnEntry: require('./blockchain/execute-on-entry'),
-  toTransition: require('./blockchain/transition')
-}
+require('./fields/address')
+require('./fields/public-key')
+require('./api/transaction')
+require('./api/response')
+require('./api/peer')
+require('./api/block')
+require('./models/delegate')
+require('./models/transaction')
+require('./models/wallet')
+require('./transactions/valid')
+require('./transactions/valid-second-signature')
+require('./transactions/types/delegate-resignation')
+require('./transactions/types/delegate')
+require('./transactions/types/ipfs')
+require('./transactions/types/multi-payment')
+require('./transactions/types/multi-signature')
+require('./transactions/types/second-signature')
+require('./transactions/types/timelock-transfer')
+require('./transactions/types/transfer')
+require('./transactions/types/vote')
+require('./blockchain/dispatch')
+require('./blockchain/execute-on-entry')
+require('./blockchain/transition')

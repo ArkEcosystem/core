@@ -28,6 +28,9 @@
     "vision": "^5.3.2",
     "moment": "^2.22.1"
   },
+  "devDependencies": {
+    "@arkecosystem/core-test-utils": "^0.1.1"
+  },
   "publishConfig": {
     "access": "public"
   }

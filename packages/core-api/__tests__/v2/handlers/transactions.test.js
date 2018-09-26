@@ -1,5 +1,6 @@
 'use strict'
 
+require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../../__support__/setup')
 const utils = require('../utils')
 
@@ -29,7 +30,7 @@ beforeAll(async () => {
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
-  genesisBlock = require('../../__support__/config/genesisBlock.json')
+  genesisBlock = require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json')
   genesisTransactions = genesisBlock.transactions[0]
 
   transactionId = genesisTransactions.id
@@ -59,8 +60,8 @@ describe('API 2.0 - Transactions', () => {
   describe('GET /transactions', () => {
     it('should GET all the transactions', async () => {
       const response = await utils.request('GET', 'transactions')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       utils.expectTransaction(response.data.data[0])
     })
@@ -69,8 +70,8 @@ describe('API 2.0 - Transactions', () => {
   describe('GET /transactions/:id', () => {
     it('should GET a transaction by the given identifier', async () => {
       const response = await utils.request('GET', `transactions/${transactionId}`)
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       const transaction = response.data.data
       utils.expectTransaction(transaction)
@@ -83,8 +84,8 @@ describe('API 2.0 - Transactions', () => {
       await utils.createTransaction()
 
       const response = await utils.request('GET', 'transactions/unconfirmed')
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toBeArray()
       expect(response.data.data).not.toBeEmpty()
@@ -96,8 +97,8 @@ describe('API 2.0 - Transactions', () => {
       const transaction = await utils.createTransaction()
 
       const response = await utils.request('GET', `transactions/unconfirmed/${transaction.id}`)
-      utils.expectSuccessful(response)
-      utils.expectResource(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeObject()
 
       expect(response.data.data).toHaveProperty('id', transaction.id)
     })
@@ -106,8 +107,8 @@ describe('API 2.0 - Transactions', () => {
   describe('POST /transactions/search', () => {
     it('should POST a search for transactions with the exact specified transactionId', async () => {
       const response = await utils.request('POST', 'transactions/search', { id: transactionId })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -118,8 +119,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified blockId', async () => {
       const response = await utils.request('POST', 'transactions/search', { blockId })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(100)
       expect(response.data.meta.totalCount).toBe(153)
@@ -132,8 +133,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified type', async () => {
       const response = await utils.request('POST', 'transactions/search', { type })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(51)
 
@@ -145,8 +146,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified version', async () => {
       const response = await utils.request('POST', 'transactions/search', { version })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(100)
       expect(response.data.meta.totalCount).toBe(153)
@@ -158,8 +159,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified senderPublicKey', async () => {
       const response = await utils.request('POST', 'transactions/search', { senderPublicKey })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(51)
 
@@ -168,8 +169,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified senderId', async () => {
       const response = await utils.request('POST', 'transactions/search', { senderId: senderAddress })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(51)
 
@@ -178,8 +179,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the exact specified recipientId (Address)', async () => {
       const response = await utils.request('POST', 'transactions/search', { recipientId: recipientAddress })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(2)
 
@@ -198,8 +199,8 @@ describe('API 2.0 - Transactions', () => {
           to: timestamp
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -217,8 +218,8 @@ describe('API 2.0 - Transactions', () => {
           to: timestampTo
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -236,8 +237,8 @@ describe('API 2.0 - Transactions', () => {
           to: amount
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -255,8 +256,8 @@ describe('API 2.0 - Transactions', () => {
           to: amountTo
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -274,8 +275,8 @@ describe('API 2.0 - Transactions', () => {
           to: fee
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -293,8 +294,8 @@ describe('API 2.0 - Transactions', () => {
           to: feeTo
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -309,8 +310,8 @@ describe('API 2.0 - Transactions', () => {
       const vendorFieldHex = '64656c65676174653a20766f746572732073686172652e205468616e6b20796f7521207c74782062792061726b2d676f'
 
       const response = await utils.request('POST', 'transactions/search', { id: transactionId, vendorFieldHex })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(1)
 
@@ -321,8 +322,8 @@ describe('API 2.0 - Transactions', () => {
 
     it('should POST a search for transactions with the wrong specified type', async () => {
       const response = await utils.request('POST', 'transactions/search', { id: transactionId, type: wrongType })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toHaveLength(0)
     })
@@ -336,8 +337,8 @@ describe('API 2.0 - Transactions', () => {
           to: timestampTo
         }
       })
-      utils.expectSuccessful(response)
-      utils.expectCollection(response)
+      expect(response).toBeSuccessfulResponse()
+      expect(response.data.data).toBeArray()
 
       expect(response.data.data).toBeArray()
       utils.expectTransaction(response.data.data[0])

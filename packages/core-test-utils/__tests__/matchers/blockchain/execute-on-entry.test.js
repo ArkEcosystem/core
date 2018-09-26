@@ -1,8 +1,6 @@
 const Machine = require('xstate').Machine
 
-expect.extend({
-  toExecuteOnEntry: require('../../../lib/matchers/blockchain/execute-on-entry')
-})
+require('../../../lib/matchers/blockchain/execute-on-entry')
 
 describe('.toExecuteOnEntry', () => {
   const machine = Machine({

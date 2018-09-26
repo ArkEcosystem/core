@@ -1,6 +1,4 @@
-expect.extend({
-  toBeWallet: require('../../../lib/matchers/models/wallet')
-})
+require('../../../lib/matchers/models/wallet')
 
 const wallet = {
   address: 'DQ7VAW7u171hwDW75R1BqfHbA9yiKRCBSh',
