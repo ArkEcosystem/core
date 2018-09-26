@@ -19,7 +19,7 @@ describe('API - HTTP Client', () => {
 
   beforeEach(() => {
     headers = {
-      'API-Version': client.version
+      'Accept': `application/vnd.arkCoreApi.v${client.version}`
     }
   })
 

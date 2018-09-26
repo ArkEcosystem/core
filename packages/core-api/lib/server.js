@@ -48,7 +48,7 @@ module.exports = async (config) => {
       validVersions: config.versions.valid,
       defaultVersion: config.versions.default,
       basePath: '/api/',
-      vendorName: 'ark-core-api'
+      vendorName: 'arkCoreApi'
     }
   })
 
