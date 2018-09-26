@@ -1,7 +1,7 @@
 const bip32 = require('bip32')
-const { crypto, hdwallet } = require('../../../lib/crypto')
-const configManager = require('../../../lib/managers/config')
-const network = require('../../../lib/networks/ark/mainnet.json')
+const { crypto, hdwallet } = require('../../lib/crypto')
+const configManager = require('../../lib/managers/config')
+const network = require('../../lib/networks/ark/mainnet.json')
 
 const mnemonic = 'sorry hawk one science reject employ museum ride into post machine attack bar seminar myself unhappy faculty differ grain fish chest bird muffin mesh'
 
