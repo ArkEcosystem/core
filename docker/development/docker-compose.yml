@@ -6,7 +6,7 @@ services:
 
   redis:
     image: "redis:alpine"
-    container_name: ark-development-redis
+    container_name: ark-redis
     ports:
       - '127.0.0.1:6379:6379'
     volumes:
@@ -14,15 +14,15 @@ services:
 
   postgres:
     image: "postgres:alpine"
-    container_name: ark-development-postgres
+    container_name: ark-postgres
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     environment:
-     POSTGRES_PASSWORD: ark_development_not_random_password
-     POSTGRES_DB: ark_development
-     POSTGRES_USER: ark_development
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: ark_testnet
+     POSTGRES_USER: ark
 
 volumes:
   redis:
