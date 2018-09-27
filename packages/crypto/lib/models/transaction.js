@@ -127,12 +127,10 @@ module.exports = class Transaction {
 
   /*
    * Return a clean transaction data from the serialized form.
-   * @return {Object}
+   * @return {Transaction}
    */
   static fromBytes (hexString) {
-    const deserialized = Transaction.deserialize(hexString)
-    Transaction.applyV1Compatibility(deserialized)
-    return new Transaction(deserialized)
+    return new Transaction(hexString)
   }
 
   verify () {
