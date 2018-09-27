@@ -122,4 +122,22 @@ describe('HDWallet', () => {
       expect(actual.privateKey).toEqual(expected.privateKey)
     })
   })
+
+  describe('deriveNetwork', () => {
+    it('should be a function', () => {
+      expect(hdwallet.deriveNetwork).toBeFunction()
+    })
+
+    it('should derive path', () => {
+      const root = hdwallet.fromMnemonic(mnemonic)
+
+      const actual = hdwallet.deriveNetwork(root)
+        .deriveHardened(0)
+        .derive(0)
+
+      expect(crypto.getAddress(actual.publicKey.toString('hex'))).toBe('AKjBp5V1xG9c5PQqUvtvtoGjvnyA3wLVpA')
+      expect(actual.publicKey.toString('hex')).toBe('0281d69cadc9cf1bbbadd69503f071ce5de3826cee702e67a21d86f4fbe2d61b77')
+      expect(actual.privateKey.toString('hex')).toBe('de9b9b025d65b61a997c100419df05d1a26a4053f668e42e7ab2747ac6eed997')
+    })
+  })
 })

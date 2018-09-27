@@ -46,12 +46,22 @@ class HDWallet {
   }
 
   /**
-   * Helper to derive a node up to the coin type as specified by slip44.
+   * Derives a node from the coin type as specified by slip44.
    * @param {bip32} root
+   * @param {(Boolean|undefined)} hardened
    * @returns {bip32}
    */
   deriveSlip44 (root, hardened = true) {
     return root.derivePath(`m/44'/${this.slip44}${hardened ? '\'' : ''}`)
+  }
+
+  /**
+   * Derives a node from the network as specified by AIP20.
+   * @param {bip32} root
+   * @returns {bip32}
+   */
+  deriveNetwork (root) {
+    return this.deriveSlip44(root).deriveHardened(configManager.config.aip20 || 1)
   }
 }
 
