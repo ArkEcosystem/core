@@ -6,12 +6,10 @@ const { crypto } = require('@arkecosystem/crypto')
 
 let genesisBlock
 let genesisTransaction
-let database
 let repository
 
 beforeAll(async () => {
   await app.setUp()
-  // database = require('@arkecosystem/core-container').resolvePlugin('database')
 
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
@@ -40,7 +38,10 @@ describe('Transaction Repository', () => {
       expect(transactions.rows).toBeArray()
       expect(transactions.rows).not.toBeEmpty()
       transactions.rows.forEach(transaction => {
-        expect(transaction).toBeTransaction()
+        expect(transaction).toContainKeys([
+          'id', 'version', 'sequence', 'timestamp', 'type', 'amount', 'fee', 'serialized',
+          'blockId', 'senderPublicKey', 'vendorFieldHex', 'createdAt', 'block'
+        ])
       })
 
       expect(transactions.count).toBe(expected)
@@ -72,7 +73,7 @@ describe('Transaction Repository', () => {
 
     it('should search transactions by the specified `senderId`', async () => {
       const senderId = crypto.getAddress(genesisTransaction.senderPublicKey, 23)
-      await expectSearch({ senderId }, 1)
+      await expectSearch({ senderId }, 51)
     })
 
     it('should search transactions by the specified `recipientId`', async () => {
