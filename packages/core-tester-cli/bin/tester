@@ -52,7 +52,10 @@ app
   .command('*')
   .action(env => {
     app.help()
-    process.exit(0)
   })
 
 app.parse(process.argv)
+
+if (app.args.length === 0) {
+  app.help()
+}
