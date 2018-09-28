@@ -16,7 +16,10 @@ module.exports = class Model {
   query () {
     return sql.define({
       name: this.getTable(),
-      columns: this.getColumnSet().columns.map(column => column.name)
+      columns: this.getColumnSet().columns.map(column => ({
+        name: column.name,
+        prop: column.prop || column.name
+      }))
     })
   }
 
