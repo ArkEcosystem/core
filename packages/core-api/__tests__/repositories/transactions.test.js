@@ -2,7 +2,7 @@
 
 require('@arkecosystem/core-test-utils/lib/matchers')
 const app = require('../__support__/setup')
-const crypto = require('@arkecosystem/crypto')
+const { crypto } = require('@arkecosystem/crypto')
 
 let genesisBlock
 let genesisTransaction
