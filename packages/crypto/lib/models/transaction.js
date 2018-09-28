@@ -6,6 +6,7 @@ const { createHash } = require('crypto')
 const crypto = require('../crypto/crypto')
 const configManager = require('../managers/config')
 const { TRANSACTION_TYPES } = require('../constants')
+const { transactionIdFixTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 /**
  * TODO copy some parts to ArkDocs
@@ -102,25 +103,17 @@ module.exports = class Transaction {
 
     if (!deserialized.id) {
       deserialized.id = crypto.getId(deserialized)
-    }
 
-    deserialized.verified = crypto.verify(deserialized)
-
-    if (!deserialized.verified) {
-      // fix on issue of non homogeneus transaction type 1 payload
-      if (deserialized.type === TRANSACTION_TYPES.SECOND_SIGNATURE || deserialized.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
-        if (deserialized.recipientId) {
-          delete deserialized.recipientId
-        } else {
-          deserialized.recipientId = crypto.getAddress(deserialized.senderPublicKey, deserialized.network)
-        }
-
-        deserialized.verified = crypto.verify(deserialized)
-        deserialized.id = crypto.getId(deserialized)
+      // Apply fix for broken type 1 and 4 transactions, which were
+      // erroneously calculated with a recipient id.
+      if (transactionIdFixTable[deserialized.id]) {
+        deserialized.id = transactionIdFixTable[deserialized.id]
       }
     }
 
-    if (deserialized.type > 4) {
+    if (deserialized.type <= 4) {
+      deserialized.verified = crypto.verify(deserialized)
+    } else {
       deserialized.verified = false
     }
   }
