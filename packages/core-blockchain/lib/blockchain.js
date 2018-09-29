@@ -289,6 +289,7 @@ module.exports = class Blockchain {
       }
     } else {
       logger.warn(`Block ${block.data.height.toLocaleString()} disregarded because verification failed :scroll:`)
+      logger.warn(block.verification)
       return callback()
     }
   }
