@@ -7,6 +7,7 @@ const wif = require('wif')
 const configManager = require('../managers/config')
 const utils = require('./utils')
 const feeManager = require('../managers/fee')
+const { transactionIdFixTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 class Crypto {
   /**
@@ -92,7 +93,11 @@ class Crypto {
       bb.writeByte(senderPublicKeyBuffer[i])
     }
 
-    if (transaction.recipientId) {
+    // Apply fix for broken type 1 and 4 transactions, which were
+    // erroneously calculated with a recipient id.
+    const isBrokenTransaction = Object.values(transactionIdFixTable).includes(transaction.id)
+    const correctType = transaction.type !== 1 && transaction.type !== 4
+    if (transaction.recipientId && (isBrokenTransaction || correctType)) {
       let recipient = bs58check.decode(transaction.recipientId)
       for (let i = 0; i < recipient.length; i++) {
         bb.writeByte(recipient[i])
