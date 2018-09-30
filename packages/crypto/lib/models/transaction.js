@@ -243,7 +243,6 @@ module.exports = class Transaction {
     }
 
     else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      return
     }
 
     if (transaction.signature) {
