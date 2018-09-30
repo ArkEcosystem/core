@@ -243,6 +243,7 @@ module.exports = class Transaction {
     }
 
     else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+       // delegate resignation - empty payload 
     }
 
     if (transaction.signature) {
