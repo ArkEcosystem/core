@@ -280,8 +280,10 @@ module.exports = class Block {
           payloadHash.update(bytes)
         })
       } else {
-        if (!this.transactions.reduce((wallet, transaction) => wallet && transaction.verified, true)) {
-          result.errors.push('One or more transactions are not verified')
+        const invalidTransactions = this.transactions.filter(tx => !tx.verified)
+        if (invalidTransactions.length > 0) {
+          result.errors.push('One or more transactions are not verified:')
+          invalidTransactions.forEach(tx => result.errors.push('=> ' + tx.serialized.toString('hex')))
         }
 
         if (this.transactions.length !== block.numberOfTransactions) {
