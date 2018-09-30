@@ -184,30 +184,29 @@ module.exports = class Transaction {
       bb.writeByte(0x00)
     }
 
-    // TODO use else if
     if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
       bb.writeUInt64(+transaction.amount.toString())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
     }
 
-    if (transaction.type === TRANSACTION_TYPES.VOTE) {
+    else if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
       bb.writeByte(transaction.asset.votes.length)
       bb.append(voteBytes, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+    else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       bb.append(transaction.asset.signature.publicKey, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+    else if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+    else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       let joined = null
 
       if (!transaction.version || transaction.version === 1) {
@@ -223,19 +222,19 @@ module.exports = class Transaction {
       bb.append(keysgroupBuffer, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.IPFS) {
+    else if (transaction.type === TRANSACTION_TYPES.IPFS) {
       bb.writeByte(transaction.asset.ipfs.dag.length / 2)
       bb.append(transaction.asset.ipfs.dag, 'hex')
     }
 
-    if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+    else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       bb.writeUInt64(+transaction.amount.toString())
       bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
     }
 
-    if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+    else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       bb.writeUInt32(transaction.asset.payments.length)
       transaction.asset.payments.forEach(p => {
         bb.writeUInt64(p.amount)
@@ -243,8 +242,8 @@ module.exports = class Transaction {
       })
     }
 
-    if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-      // delegate resignation - empty payload
+    else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+       // delegate resignation - empty payload 
     }
 
     if (transaction.signature) {
