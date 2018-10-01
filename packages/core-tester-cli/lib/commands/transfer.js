@@ -7,7 +7,7 @@ const unique = require('lodash/uniq')
 const utils = require('../utils')
 const logger = utils.logger
 
-const primaryAddress = crypto.getAddress(crypto.getKeys(config.passphrase).publicKey)
+let primaryAddress
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options, isSubsequentRun) => {
   let successfulTest = true
 
