@@ -118,9 +118,7 @@ class ConfigLoader {
 
     let output = require(configFile)
 
-    for (let i = this.peers.sources.length - 1; i >= 0; i--) {
-      const source = this.peers.sources[i]
-
+    this.peers.sources.forEach(source => {
       // Local File...
       if (source.startsWith('/')) {
         output.list = require(source)
