@@ -5,11 +5,11 @@ module.exports = (quantity = 1, config) => {
   let wallets = []
 
   for (let i = 0; i < quantity; i++) {
-      const passphrase = bip39.generateMnemonic()
-      const keys = crypto.getKeys(passphrase)
-      const address = crypto.getAddress(keys.publicKey, config.publicKeyHash)
+    const passphrase = bip39.generateMnemonic()
+    const keys = crypto.getKeys(passphrase)
+    const address = crypto.getAddress(keys.publicKey, config.publicKeyHash)
 
-      wallets.push({ address, keys, passphrase })
+    wallets.push({ address, keys, passphrase })
   }
 
   return wallets

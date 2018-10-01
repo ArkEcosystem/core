@@ -8,8 +8,6 @@ const logger = utils.logger
 const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
-  const copyTransactions = options.copy
-  options.copy = false
   utils.applyConfigOptions(options)
 
   // Wallets for extra signatures
@@ -17,7 +15,6 @@ module.exports = async (options) => {
   await transferCommand(options, approvalWallets, 20, true)
 
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
-
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
   // Wallets with multi-signature
@@ -29,11 +26,11 @@ module.exports = async (options) => {
     const builder = client.getBuilder().multiSignature()
 
     builder
-      .fee(options.multisigFee)
+      .fee(utils.parseFee(options.multisigFee))
       .multiSignatureAsset({
         lifetime: options.lifetime,
         keysgroup: publicKeys,
-        min: min
+        min
       })
       .network(config.publicKeyHash)
       .sign(wallet.passphrase)
@@ -44,10 +41,11 @@ module.exports = async (options) => {
 
     const transaction = builder.build()
     transactions.push(transaction)
+
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
-  if (copyTransactions) {
+  if (options.copy) {
     utils.copyToClipboard(transactions)
     process.exit() // eslint-disable-line no-unreachable
   }
