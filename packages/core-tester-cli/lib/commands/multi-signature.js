@@ -226,10 +226,13 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -270,10 +273,13 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -316,10 +322,13 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -372,10 +381,13 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
