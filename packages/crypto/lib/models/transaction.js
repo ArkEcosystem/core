@@ -135,25 +135,6 @@ module.exports = class Transaction {
    * @return {Object}
    */
   toBroadcastV1 () {
-    if (this.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      return {
-        id: this.id,
-        type: this.type,
-        amount: 0,
-        fee: this.fee.toNumber(),
-        recipientId: null,
-        senderPublicKey: this.senderPublicKey,
-        timestamp: this.timestamp,
-        asset: {
-          delegate: {
-            username: this.asset.delegate.username,
-            publicKey: this.senderPublicKey
-          }
-        },
-        signature: this.signature
-      }
-    }
-
     // Convert Bignums
     return cloneDeepWith(this.data, (value, key) => {
       if (['amount', 'fee'].indexOf(key) !== -1) {
