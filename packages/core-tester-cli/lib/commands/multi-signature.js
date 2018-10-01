@@ -12,14 +12,13 @@ module.exports = async (options) => {
 
   // Wallets for extra signatures
   const approvalWallets = utils.generateWallets(options.quantity, config)
-  await transferCommand(options, approvalWallets, 20, true)
-
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
   // Wallets with multi-signature
+  const testCosts = options.skipTests ? 1 : 2
   const multiSignatureWallets = utils.generateWallets(options.number, config)
-  await transferCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
+  await transferCommand(options, multiSignatureWallets, ((publicKeys.length + 1) * 5) + testCosts, true)
 
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
