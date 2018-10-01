@@ -158,7 +158,7 @@ describe('API - Version 1', () => {
   describe('POST /peer/blocks', () => {
     it('should be ok', async () => {
       const response = await utils.POST('peer/blocks', {
-        block: genesisBlock.toBroadcastV1()
+        block: genesisBlock.toJson()
       })
 
       expect(response.status).toBe(200)
@@ -173,7 +173,7 @@ describe('API - Version 1', () => {
   describe('POST /peer/transactions', () => {
     it('should be ok', async () => {
       const response = await utils.POST('peer/transactions', {
-        transactions: [genesisTransaction.toBroadcastV1()]
+        transactions: [genesisTransaction.toJson()]
       })
 
       expect(response.status).toBe(200)

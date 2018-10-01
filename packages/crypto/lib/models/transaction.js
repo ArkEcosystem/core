@@ -131,10 +131,10 @@ module.exports = class Transaction {
   }
 
   /*
-   * Return transaction data for v1.
+   * Return transaction data.
    * @return {Object}
    */
-  toBroadcastV1 () {
+  toJson () {
     // Convert Bignums
     return cloneDeepWith(this.data, (value, key) => {
       if (['amount', 'fee'].indexOf(key) !== -1) {
@@ -224,7 +224,7 @@ module.exports = class Transaction {
     }
 
     else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-       // delegate resignation - empty payload 
+       // delegate resignation - empty payload
     }
 
     if (transaction.signature) {
