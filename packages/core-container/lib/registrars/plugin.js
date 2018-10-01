@@ -59,8 +59,9 @@ module.exports = class PluginRegistrars {
   async tearDown () {
     const plugins = this.deregister.reverse()
 
-    for (let i = 0; i < plugins.length; i++) {
-      await plugins[i].plugin.deregister(this.container, plugins[i].options)
+      plugins.forEach(plugin => {
+        await plugin.deregister(this.container, plugin.options)
+      })
     }
   }
 
@@ -199,7 +200,7 @@ module.exports = class PluginRegistrars {
       }
     }
 
-    throw new Error('An invalid configuration was provided or is inaccessible due to it\'s security settings.')
+    throw new Error('An invalid configuration was provided or is inaccessible due to its security settings.')
     process.exit(1) // eslint-disable-line no-unreachable
   }
 }
