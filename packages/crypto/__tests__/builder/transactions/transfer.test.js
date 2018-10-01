@@ -20,7 +20,7 @@ describe('Transfer Transaction', () => {
     expect(builder).toHaveProperty('data.amount', 0)
     expect(builder).toHaveProperty('data.recipientId', null)
     expect(builder).toHaveProperty('data.senderPublicKey', null)
-    expect(builder).toHaveProperty('data.expiration', 15)
+    expect(builder).toHaveProperty('data.expiration', 0)
   })
 
   describe('vendorField', () => {
