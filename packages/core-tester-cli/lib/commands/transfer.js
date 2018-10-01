@@ -100,7 +100,6 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     logger.info(`Sender starting balance: ${walletBalance}`)
   }
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   let totalDeductions = Bignum.ZERO
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
@@ -111,7 +110,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   for (const id in wallets) {
     const wallet = wallets[id]
-    const transaction = builder
+    const transaction = client.getBuilder().transfer()
       .fee(utils.parseFee(options.transferFee))
       .recipientId(options.recipient || wallet.address)
       .network(config.publicKeyHash)

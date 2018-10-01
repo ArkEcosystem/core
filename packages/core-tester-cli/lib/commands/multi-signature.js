@@ -24,9 +24,10 @@ module.exports = async (options) => {
   const multiSignatureWallets = utils.generateWallets(options.number, config)
   await transferCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
 
-  const builder = client.getBuilder().multiSignature()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().multiSignature()
+
     builder
       .fee(options.multisigFee)
       .multiSignatureAsset({
@@ -95,9 +96,9 @@ module.exports = async (options) => {
 async function __testSendWithSignatures (multiSignatureWallets, approvalWallets) {
   logger.info('Sending transactions with signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
@@ -140,9 +141,9 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
 async function __testSendWithMinSignatures (multiSignatureWallets, approvalWallets, min) {
   logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
@@ -189,9 +190,9 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
   const max = min - 1
   logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
@@ -241,10 +242,9 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
 async function __testSendWithoutSignatures (multiSignatureWallets) {
   logger.info('Sending transactions without signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
-    const transaction = builder
+    const transaction = client.getBuilder().transfer()
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - without sigs: ${i}`)
@@ -286,9 +286,9 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
 async function __testSendWithEmptySignatures (multiSignatureWallets) {
   logger.info('Sending transactions with empty signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     const transaction = builder
       .recipientId(wallet.address)
       .amount(2)
@@ -332,13 +332,13 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
 async function __testNewMultiSignatureRegistration (multiSignatureWallets, options) {
   logger.info('Sending transactions to re-register multi-signature')
 
-  const builder = client.getBuilder().multiSignature()
-  const transactions = []
   const approvalWallets = utils.generateWallets(options.quantity, config)
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
+  const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().multiSignature()
     builder
       .fee(options.multisigFee)
       .multiSignatureAsset({

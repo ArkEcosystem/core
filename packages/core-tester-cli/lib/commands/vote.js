@@ -27,10 +27,9 @@ module.exports = async (options) => {
 
   logger.info(`Sending ${options.quantity} vote transactions`)
 
-  const builder = client.getBuilder().vote()
   const transactions = []
   wallets.forEach((wallet, i) => {
-    const transaction = builder
+    const transaction = client.getBuilder().vote()
       .fee(utils.parseFee(options.voteFee))
       .votesAsset([`+${options.delegate}`])
       .network(config.publicKeyHash)

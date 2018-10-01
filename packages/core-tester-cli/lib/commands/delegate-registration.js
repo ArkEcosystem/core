@@ -21,7 +21,6 @@ module.exports = async (options) => {
     logger.info(`Starting delegate count: ${delegates.length}`)
   }
 
-  const builder = client.getBuilder().delegateRegistration()
   const transactions = []
   const usedDelegateNames = delegates.map(delegate => delegate.username)
   wallets.forEach((wallet, i) => {
@@ -34,7 +33,7 @@ module.exports = async (options) => {
     wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
     usedDelegateNames.push(wallet.username)
 
-    const transaction = builder
+    const transaction = client.getBuilder().delegateRegistration()
       .fee(utils.parseFee(options.delegateFee))
       .usernameAsset(wallet.username)
       .network(config.publicKeyHash)
