@@ -1,4 +1,6 @@
 const bip39 = require('bip39')
+const fs = require('fs')
+const path = require('path')
 const { crypto } = require('@arkecosystem/crypto')
 
 module.exports = (quantity = 1, config) => {
@@ -11,6 +13,12 @@ module.exports = (quantity = 1, config) => {
 
     wallets.push({ address, keys, passphrase })
   }
+
+  const testWalletsPath = path.resolve(__dirname, '../../test-wallets')
+  for (const wallet of wallets) {
+    fs.appendFileSync(testWalletsPath, `${wallet.address}: ${wallet.passphrase}\n`)
+  }
+  fs.appendFileSync(testWalletsPath, `${'-'.repeat(80)}\n`)
 
   return wallets
 }
