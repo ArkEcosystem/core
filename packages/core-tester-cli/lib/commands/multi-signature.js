@@ -52,31 +52,38 @@ module.exports = async (options) => {
 
   try {
     const response = await utils.postTransactions(transactions)
-    let hasUnprocessed = false
-    for (const transaction of transactions) {
-      if (!response.data.accept.includes(transaction.id)) {
-        hasUnprocessed = true
-        logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+
+    if (!options.skipValidation) {
+      let hasUnprocessed = false
+      for (const transaction of transactions) {
+        if (!response.data.accept.includes(transaction.id)) {
+          hasUnprocessed = true
+          logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+        }
       }
-    }
-    if (hasUnprocessed) {
-      process.exit(1)
-    }
+      if (hasUnprocessed) {
+        process.exit(1)
+      }
 
-    const delaySeconds = await utils.getTransactionDelay(transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
-    await delay(delaySeconds * 1000)
+      const delaySeconds = await utils.getTransactionDelay(transactions)
+      logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
+      await delay(delaySeconds * 1000)
 
-    for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (!tx) {
-        logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+      for (const transaction of transactions) {
+        const tx = await utils.getTransaction(transaction.id)
+        if (!tx) {
+          logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+        }
       }
     }
   } catch (error) {
     const message = error.response ? error.response.data.message : error.message
     logger.error(`There was a problem sending multi-signature transactions: ${message}`)
     process.exit(1)
+  }
+
+  if (options.skipValidation) {
+    return
   }
 
   await __testSendWithSignatures(multiSignatureWallets, approvalWallets)
