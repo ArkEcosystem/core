@@ -1,6 +1,7 @@
 'use strict'
 
 const { client } = require('@arkecosystem/crypto')
+const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
@@ -9,9 +10,10 @@ const transferCommand = require('./transfer')
 module.exports = async (options) => {
   const copyTransactions = options.copy
   options.copy = false
+  utils.applyConfigOptions(options)
 
   // Wallets for extra signatures
-  const approvalWallets = utils.generateWallets(options.quantity)
+  const approvalWallets = utils.generateWallets(options.quantity, config)
   await transferCommand(options, approvalWallets, 20, true)
 
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
@@ -19,7 +21,7 @@ module.exports = async (options) => {
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
   // Wallets with multi-signature
-  const multiSignatureWallets = utils.generateWallets(options.number)
+  const multiSignatureWallets = utils.generateWallets(options.number, config)
   await transferCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
 
   const builder = client.getBuilder().multiSignature()
@@ -32,6 +34,7 @@ module.exports = async (options) => {
         keysgroup: publicKeys,
         min: min
       })
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -99,6 +102,7 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -143,6 +147,7 @@ async function __testSendWithMinSignatures (multiSignatureWallets, approvalWalle
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with ${min} sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -191,6 +196,7 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with ${max} sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -242,6 +248,7 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - without sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .build()
 
@@ -286,6 +293,7 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - without sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .build()
 
@@ -326,7 +334,7 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
 
   const builder = client.getBuilder().multiSignature()
   const transactions = []
-  const approvalWallets = utils.generateWallets(options.quantity)
+  const approvalWallets = utils.generateWallets(options.quantity, config)
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
@@ -338,6 +346,7 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
         keysgroup: publicKeys,
         min: min
       })
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let i = approvalWallets.length - 1; i >= 0; i--) {

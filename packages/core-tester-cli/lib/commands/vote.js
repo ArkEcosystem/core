@@ -11,7 +11,7 @@ const transferCommand = require('./transfer')
 module.exports = async (options) => {
   utils.applyConfigOptions(options)
 
-  const wallets = utils.generateWallets(options.quantity)
+  const wallets = utils.generateWallets(options.quantity, config)
   await transferCommand(options, wallets, 2, true)
 
   if (!options.delegate) {
@@ -33,6 +33,7 @@ module.exports = async (options) => {
     const transaction = builder
       .fee(utils.parseFee(options.voteFee))
       .votesAsset([`+${options.delegate}`])
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .secondSign(config.secondPassphrase)
       .build()

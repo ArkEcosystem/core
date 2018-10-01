@@ -88,9 +88,10 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
 module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) => {
   utils.applyConfigOptions(options)
+  primaryAddress = crypto.getAddress(crypto.getKeys(config.passphrase).publicKey, config.publicKeyHash)
 
   if (wallets === undefined) {
-    wallets = utils.generateWallets(options.number)
+    wallets = utils.generateWallets(options.number, config)
   }
   const walletBalance = await utils.getWalletBalance(primaryAddress)
 
