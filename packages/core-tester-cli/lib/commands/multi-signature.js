@@ -82,7 +82,7 @@ module.exports = async (options) => {
     process.exit(1)
   }
 
-  if (options.skipValidation) {
+  if (options.skipTests || options.skipValidation) {
     return
   }
 
