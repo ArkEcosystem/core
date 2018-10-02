@@ -21,7 +21,7 @@ services:
       - 'postgres:/var/lib/postgresql/data'
     environment:
      POSTGRES_PASSWORD: password
-     POSTGRES_DB: ark_testnet
+     POSTGRES_DB: ark_development
      POSTGRES_USER: ark
 
 volumes:
