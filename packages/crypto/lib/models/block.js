@@ -46,6 +46,10 @@ module.exports = class Block {
    * @param {Object} data - The data of the block
    */
   constructor (data) {
+    if (typeof data === 'string') {
+      data = Block.deserialize(data)
+    }
+
     if (!data.transactions) {
       data.transactions = []
     }

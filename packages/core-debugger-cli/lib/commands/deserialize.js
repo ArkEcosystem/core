@@ -8,7 +8,7 @@ module.exports = opts => {
     deserialized = new Transaction(opts.data)
     deserialized.serialized = deserialized.serialized.toString('hex')
   } else {
-    deserialized = new Block(Block.deserialize(opts.data))
+    deserialized = new Block(opts.data)
   }
 
   return handleOutput(opts, JSON.stringify(deserialized, null, 4))
