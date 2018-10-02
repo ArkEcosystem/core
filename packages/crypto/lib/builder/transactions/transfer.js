@@ -15,7 +15,7 @@ class TransferBuilder extends TransactionBuilder {
     this.data.amount = 0
     this.data.recipientId = null
     this.data.senderPublicKey = null
-    this.data.expiration = 15 // 15 blocks, 120s
+    this.data.expiration = 0
   }
 
   /**

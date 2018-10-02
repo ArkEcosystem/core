@@ -8,19 +8,8 @@ const { crypto, slots } = require('../crypto')
 const { outlookTable } = require('../constants').CONFIGURATIONS.ARK.MAINNET
 
 const toBytesHex = (data) => {
-  const temp = new Bignum(data).toString(16)
+  const temp = data ? new Bignum(data).toString(16) : ''
   return '0'.repeat(16 - temp.length) + temp
-}
-
-/**
-  * Fix to allow blocks to be backwards-compatible.
-  * @param {Object} data
-  */
-const applyV1Fix = (data) => {
-  // START Fix for v1 api
-  data.previousBlockHex = data.previousBlock ? toBytesHex(data.previousBlock) : '0000000000000000'
-  data.idHex = toBytesHex(data.id)
-  // END Fix for v1 api
 }
 
 /**
@@ -57,6 +46,10 @@ module.exports = class Block {
    * @param {Object} data - The data of the block
    */
   constructor (data) {
+    if (typeof data === 'string') {
+      data = Block.deserialize(data)
+    }
+
     if (!data.transactions) {
       data.transactions = []
     }
@@ -72,8 +65,8 @@ module.exports = class Block {
     }
     this.data = Block.deserialize(this.serialized)
 
-    this.data.idHex = Block.getIdHex(this.data)
     this.data.id = Block.getId(this.data)
+    this.data.idHex = Block.getIdHex(this.data)
 
     if (outlookTable[this.data.id]) {
       this.data.id = outlookTable[this.data.id]
@@ -124,7 +117,7 @@ module.exports = class Block {
     }
   }
 
-  /*
+  /**
    * Create block from data.
    * @param  {Object} data
    * @param  {Object} keys
@@ -143,20 +136,12 @@ module.exports = class Block {
     return new Block(data)
   }
 
-  /*
+  /**
    * Return block as string.
    * @return {String}
    */
   toString () {
     return `${this.data.id}, height: ${this.data.height}, ${this.data.numberOfTransactions} transactions, verified: ${this.verification.verified}, errors:${this.verification.errors}` // eslint-disable-line max-len
-  }
-
-  /*
-   * Return block data for v1.
-   * @return {Object}
-   */
-  toBroadcastV1 () {
-    return this.toRawJson()
   }
 
   /*
@@ -180,17 +165,17 @@ module.exports = class Block {
     return new Bignum(idHex, 16).toString()
   }
 
-  /*
+  /**
    * Get header from block.
    * @return {Object} The block data, without the transactions
    */
   getHeader () {
-    const header = this.data
+    const header = Object.assign({}, this.data)
     delete header.transactions
     return header
   }
 
-  /*
+  /**
    * Verify signature associated with this block.
    * @return {Boolean}
    */
@@ -201,7 +186,7 @@ module.exports = class Block {
     return crypto.verifyHash(hash, this.data.blockSignature, this.data.generatorPublicKey)
   }
 
-  /*
+  /**
    * Verify this block.
    * @return {Object}
    */
@@ -223,7 +208,7 @@ module.exports = class Block {
         }
       }
 
-      if (!constants.reward === block.reward.toNumber()) {
+      if (!block.reward.isEqualTo(constants.reward)) {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
 
@@ -339,7 +324,7 @@ module.exports = class Block {
     return result
   }
 
-  /*
+  /**
    * Deserialize block from hex string.
    * @param  {String} hexString
    * @return {Object}
@@ -352,7 +337,7 @@ module.exports = class Block {
     block.timestamp = buf.readUInt32(4)
     block.height = buf.readUInt32(8)
     block.previousBlockHex = buf.slice(12, 20).toString('hex')
-    block.previousBlock = Bignum(block.previousBlockHex, 16).toString()
+    block.previousBlock = new Bignum(block.previousBlockHex, 16).toString()
     block.numberOfTransactions = buf.readUInt32(20)
     block.totalAmount = new Bignum(buf.readUInt64(24))
     block.totalFee = new Bignum(buf.readUInt64(32))
@@ -382,7 +367,7 @@ module.exports = class Block {
     return block
   }
 
-  /*
+  /**
    * Serialize block.
    * @param  {Object} data
    * @return {Buffer}
@@ -400,7 +385,7 @@ module.exports = class Block {
     return buf.toBuffer()
   }
 
-  /*
+  /**
    * Serialize block
    * TODO split this method between bufferize (as a buffer) and serialize (as hex)
    * @param  {Object} block
@@ -409,20 +394,13 @@ module.exports = class Block {
    * @static
    */
   static serialize (block, includeSignature = true) {
-    applyV1Fix(block)
+    block.previousBlockHex = toBytesHex(block.previousBlock)
 
     const bb = new ByteBuffer(256, true)
     bb.writeUInt32(block.version)
     bb.writeUInt32(block.timestamp)
     bb.writeUInt32(block.height)
-
-    // TODO: previousBlock can stay as 8byte hex, it will be simple to process
-    if (block.previousBlockHex) {
-      bb.append(block.previousBlockHex, 'hex')
-    } else {
-      bb.append('0000000000000000', 'hex')
-    }
-
+    bb.append(block.previousBlockHex, 'hex')
     bb.writeUInt32(block.numberOfTransactions)
     bb.writeUInt64(+block.totalAmount.toString())
     bb.writeUInt64(+block.totalFee.toString())
@@ -506,7 +484,7 @@ module.exports = class Block {
     return b
   }
 
-  toRawJson () {
+  toJson () {
     // Convert Bignums
     let blockData = cloneDeepWith(this.data, (value, key) => {
       if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
@@ -515,7 +493,7 @@ module.exports = class Block {
     })
 
     return Object.assign(blockData, {
-      transactions: this.transactions.map(transaction => transaction.toBroadcastV1())
+      transactions: this.transactions.map(transaction => transaction.toJson())
     })
   }
 }
