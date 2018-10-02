@@ -153,7 +153,7 @@ describe('API P2P - Version 2', () => {
   describe('POST /peer/blocks', () => {
     it('should fail with status code 202 when posting existing block', async () => {
       const response = await utils.POST('peer/blocks', {
-        block: genesisBlock.toBroadcastV1()
+        block: genesisBlock.toJson()
       })
 
       expect(response).toHaveProperty('status')

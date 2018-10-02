@@ -88,8 +88,8 @@ describe('Models - Transaction', () => {
       expect(transaction).toBeInstanceOf(Transaction)
 
       // We can't compare the data directly, since the created instance uses Bignums.
-      // ... call toBroadcastV1() which casts the Bignums to numbers beforehand.
-      expect(transaction.toBroadcastV1()).toEqual(transactionData)
+      // ... call toJson() which casts the Bignums to numbers beforehand.
+      expect(transaction.toJson()).toEqual(transactionData)
     })
   })
 
