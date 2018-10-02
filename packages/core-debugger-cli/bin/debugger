@@ -8,8 +8,8 @@ const registerCommand = (name, description) => {
   return app
     .command(name)
     .description(description)
-    .option('-l, --log', 'log the data to the console', true)
-    .option('-c, --copy', 'copy the data to the clipboard', false)
+    .option('-l, --log', 'log the data to the console')
+    .option('-c, --copy', 'copy the data to the clipboard')
 }
 
 registerCommand('ser', 'serialize the given JSON')
@@ -21,6 +21,11 @@ registerCommand('des', 'deserialize the given HEX')
   .option('-d, --data <value>', 'the HEX blob to deserialize')
   .option('-t, --type <value>', 'transaction or block', 'transaction')
   .action(options => require('../lib/commands/deserialize')(options))
+
+registerCommand('verify', 'verify the given HEX')
+  .option('-d, --data <value>', 'the HEX blob to deserialize and verify')
+  .option('-t, --type <value>', 'transaction or block', 'transaction')
+  .action(options => require('../lib/commands/verify')(options))
 
 app
   .command('*')

@@ -2,11 +2,11 @@ const { models: { Block, Transaction } } = require('@arkecosystem/crypto')
 const copyToClipboard = require('../utils/copy-to-clipboard')
 
 module.exports = opts => {
-  let serialized = opts.type === 'transaction'
-    ? Transaction.serialize(JSON.parse(opts.data))
-    : Block[opts.full ? 'serializeFull' : 'serialize'](JSON.parse(opts.data))
+  const deserialized = opts.type === 'transaction'
+    ? new Transaction(opts.data)
+    : new Block(Block.deserialize(opts.data))
 
-  const output = serialized.toString('hex')
+  const output = deserialized.verify()
 
   if (opts.copy) {
     return copyToClipboard(output)
