@@ -204,7 +204,7 @@ module.exports = class Block {
         }
       }
 
-      if (!(constants.reward === block.reward.toNumber())) {
+      if (!block.reward.isEqualTo(constants.reward)) {
         result.errors.push(['Invalid block reward:', block.reward, 'expected:', constants.reward].join(' '))
       }
 
