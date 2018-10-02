@@ -64,7 +64,7 @@ describe('Peer', () => {
     })
 
     it('should be ok', async () => {
-      const response = await peerMock.postBlock(genesisBlock.toBroadcastV1())
+      const response = await peerMock.postBlock(genesisBlock.toJson())
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')
@@ -78,7 +78,7 @@ describe('Peer', () => {
     })
 
     it('should be ok', async () => {
-      const response = await peerMock.postTransactions([genesisTransaction.toBroadcastV1()])
+      const response = await peerMock.postTransactions([genesisTransaction.toJson()])
 
       expect(response).toBeObject()
       expect(response).toHaveProperty('success')

@@ -432,7 +432,7 @@ class Monitor {
 
     logger.info(`Broadcasting block ${block.data.height.toLocaleString()} to ${peers.length} peers`)
 
-    await Promise.all(peers.map(peer => peer.postBlock(block.toBroadcastV1())))
+    await Promise.all(peers.map(peer => peer.postBlock(block.toJson())))
   }
 
   /**
@@ -444,7 +444,7 @@ class Monitor {
     logger.debug(`Broadcasting ${transactions.length} transactions to ${peers.length} peers`)
 
     const transactionsV1 = []
-    transactions.forEach(transaction => transactionsV1.push(transaction.toBroadcastV1()))
+    transactions.forEach(transaction => transactionsV1.push(transaction.toJson()))
 
     return Promise.all(peers.map(peer => peer.postTransactions(transactionsV1)))
   }

@@ -217,7 +217,7 @@ describe('Monitor', () => {
     it('should be ok', () => {
       expect(monitor.broadcastTransactions).toBeFunction()
 
-      expect(monitor.toBroadcastV1)
+      expect(monitor.toJson)
     })
   })
 

@@ -64,7 +64,7 @@ describe('Client', () => {
 
         await client.__chooseHost()
 
-        const wasBroadcasted = await client.broadcast(block.toRawJson())
+        const wasBroadcasted = await client.broadcast(block.toJson())
         expect(wasBroadcasted).toBeTruthy()
       })
     })
