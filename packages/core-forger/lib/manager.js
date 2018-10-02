@@ -177,7 +177,7 @@ module.exports = class ForgerManager {
     const username = this.usernames[delegate.publicKey]
     logger.info(`Forged new block ${block.data.id} by delegate ${username} (${delegate.publicKey}) :trident:`)
 
-    await this.client.broadcast(block.toRawJson())
+    await this.client.broadcast(block.toJson())
 
     this.client.emitEvent('block.forged', block.data)
     transactions.forEach(transaction => this.client.emitEvent('transaction.forged', transaction.data))

@@ -141,14 +141,6 @@ module.exports = class Block {
   }
 
   /*
-   * Return block data for v1.
-   * @return {Object}
-   */
-  toBroadcastV1 () {
-    return this.toRawJson()
-  }
-
-  /*
    * Get block id
    * @param  {Object} data
    * @return {String}
@@ -488,7 +480,7 @@ module.exports = class Block {
     return b
   }
 
-  toRawJson () {
+  toJson () {
     // Convert Bignums
     let blockData = cloneDeepWith(this.data, (value, key) => {
       if (['reward', 'totalAmount', 'totalFee'].indexOf(key) !== -1) {
@@ -497,7 +489,7 @@ module.exports = class Block {
     })
 
     return Object.assign(blockData, {
-      transactions: this.transactions.map(transaction => transaction.toBroadcastV1())
+      transactions: this.transactions.map(transaction => transaction.toJson())
     })
   }
 }

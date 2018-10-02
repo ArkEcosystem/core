@@ -131,29 +131,10 @@ module.exports = class Transaction {
   }
 
   /*
-   * Return transaction data for v1.
+   * Return transaction data.
    * @return {Object}
    */
-  toBroadcastV1 () {
-    if (this.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
-      return {
-        id: this.id,
-        type: this.type,
-        amount: 0,
-        fee: this.fee.toNumber(),
-        recipientId: null,
-        senderPublicKey: this.senderPublicKey,
-        timestamp: this.timestamp,
-        asset: {
-          delegate: {
-            username: this.asset.delegate.username,
-            publicKey: this.senderPublicKey
-          }
-        },
-        signature: this.signature
-      }
-    }
-
+  toJson () {
     // Convert Bignums
     return cloneDeepWith(this.data, (value, key) => {
       if (['amount', 'fee'].indexOf(key) !== -1) {
@@ -243,7 +224,7 @@ module.exports = class Transaction {
     }
 
     else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
-       // delegate resignation - empty payload 
+       // delegate resignation - empty payload
     }
 
     if (transaction.signature) {

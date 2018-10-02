@@ -1,37 +1,37 @@
 'use strict'
 
 const { client } = require('@arkecosystem/crypto')
+const config = require('../config')
 const delay = require('delay')
 const utils = require('../utils')
 const logger = utils.logger
 const transferCommand = require('./transfer')
 
 module.exports = async (options) => {
-  const copyTransactions = options.copy
-  options.copy = false
+  utils.applyConfigOptions(options)
 
   // Wallets for extra signatures
-  const approvalWallets = utils.generateWallets(options.quantity)
-  await transferCommand(options, approvalWallets, 20, true)
-
+  const approvalWallets = utils.generateWallets(options.quantity, config)
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
-
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
   // Wallets with multi-signature
-  const multiSignatureWallets = utils.generateWallets(options.number)
-  await transferCommand(options, multiSignatureWallets, (publicKeys.length * 5) + 10, true)
+  const testCosts = options.skipTests ? 1 : 2
+  const multiSignatureWallets = utils.generateWallets(options.number, config)
+  await transferCommand(options, multiSignatureWallets, ((publicKeys.length + 1) * 5) + testCosts, true)
 
-  const builder = client.getBuilder().multiSignature()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().multiSignature()
+
     builder
-      .fee(options.multisigFee)
+      .fee(utils.parseFee(options.multisigFee))
       .multiSignatureAsset({
         lifetime: options.lifetime,
         keysgroup: publicKeys,
-        min: min
+        min
       })
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -40,41 +40,49 @@ module.exports = async (options) => {
 
     const transaction = builder.build()
     transactions.push(transaction)
+
     logger.info(`${i} ==> ${transaction.id}, ${wallet.address}`)
   })
 
-  if (copyTransactions) {
+  if (options.copy) {
     utils.copyToClipboard(transactions)
     process.exit() // eslint-disable-line no-unreachable
   }
 
   try {
     const response = await utils.postTransactions(transactions)
-    let hasUnprocessed = false
-    for (const transaction of transactions) {
-      if (!response.data.accept.includes(transaction.id)) {
-        hasUnprocessed = true
-        logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+
+    if (!options.skipValidation) {
+      let hasUnprocessed = false
+      for (const transaction of transactions) {
+        if (!response.data.accept.includes(transaction.id)) {
+          hasUnprocessed = true
+          logger.error(`Multi-signature transaction '${transaction.id}' was not processed`)
+        }
       }
-    }
-    if (hasUnprocessed) {
-      process.exit(1)
-    }
+      if (hasUnprocessed) {
+        process.exit(1)
+      }
 
-    const delaySeconds = await utils.getTransactionDelay(transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
-    await delay(delaySeconds * 1000)
+      const delaySeconds = await utils.getTransactionDelay(transactions)
+      logger.info(`Waiting ${delaySeconds} seconds to apply multi-signature transactions`)
+      await delay(delaySeconds * 1000)
 
-    for (const transaction of transactions) {
-      const tx = await utils.getTransaction(transaction.id)
-      if (!tx) {
-        logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+      for (const transaction of transactions) {
+        const tx = await utils.getTransaction(transaction.id)
+        if (!tx) {
+          logger.error(`Transaction '${transaction.id}' should be on the blockchain`)
+        }
       }
     }
   } catch (error) {
     const message = error.response ? error.response.data.message : error.message
     logger.error(`There was a problem sending multi-signature transactions: ${message}`)
     process.exit(1)
+  }
+
+  if (options.skipTests || options.skipValidation) {
+    return
   }
 
   await __testSendWithSignatures(multiSignatureWallets, approvalWallets)
@@ -92,13 +100,14 @@ module.exports = async (options) => {
 async function __testSendWithSignatures (multiSignatureWallets, approvalWallets) {
   logger.info('Sending transactions with signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -136,13 +145,14 @@ async function __testSendWithSignatures (multiSignatureWallets, approvalWallets)
 async function __testSendWithMinSignatures (multiSignatureWallets, approvalWallets, min) {
   logger.info(`Sending transactions with ${min} (min) of ${approvalWallets.length} signatures`)
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with ${min} sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -184,13 +194,14 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
   const max = min - 1
   logger.info(`Sending transactions with ${max} (below min) of ${approvalWallets.length} signatures`)
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     builder
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - with ${max} sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let j = approvalWallets.length - 1; j >= 0; j--) {
@@ -215,10 +226,13 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -235,13 +249,13 @@ async function __testSendWithBelowMinSignatures (multiSignatureWallets, approval
 async function __testSendWithoutSignatures (multiSignatureWallets) {
   logger.info('Sending transactions without signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
-    const transaction = builder
+    const transaction = client.getBuilder().transfer()
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - without sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .build()
 
@@ -259,10 +273,13 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -279,13 +296,14 @@ async function __testSendWithoutSignatures (multiSignatureWallets) {
 async function __testSendWithEmptySignatures (multiSignatureWallets) {
   logger.info('Sending transactions with empty signatures')
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().transfer()
     const transaction = builder
       .recipientId(wallet.address)
       .amount(2)
       .vendorField(`TID - without sigs: ${i}`)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .build()
 
@@ -304,10 +322,13 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {
@@ -324,13 +345,13 @@ async function __testSendWithEmptySignatures (multiSignatureWallets) {
 async function __testNewMultiSignatureRegistration (multiSignatureWallets, options) {
   logger.info('Sending transactions to re-register multi-signature')
 
-  const builder = client.getBuilder().multiSignature()
-  const transactions = []
-  const approvalWallets = utils.generateWallets(options.quantity)
+  const approvalWallets = utils.generateWallets(options.quantity, config)
   const publicKeys = approvalWallets.map(wallet => `+${wallet.keys.publicKey}`)
   const min = options.min ? Math.min(options.min, publicKeys.length) : publicKeys.length
 
+  const transactions = []
   multiSignatureWallets.forEach((wallet, i) => {
+    const builder = client.getBuilder().multiSignature()
     builder
       .fee(options.multisigFee)
       .multiSignatureAsset({
@@ -338,6 +359,7 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
         keysgroup: publicKeys,
         min: min
       })
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
 
     for (let i = approvalWallets.length - 1; i >= 0; i--) {
@@ -359,10 +381,13 @@ async function __testNewMultiSignatureRegistration (multiSignatureWallets, optio
       try {
         const tx = await utils.getTransaction(transaction.id)
         if (tx) {
-          logger.error(`Transaction '${transactions.id}' should not be on the blockchain`)
+          logger.error(`Transaction '${transaction.id}' should not be on the blockchain`)
         }
       } catch (error) {
-
+        const message = error.response ? error.response.data.message : error.message
+        if (message !== 'Transaction not found') {
+          logger.error(`Failed to check transaction '${transaction.id}': ${message}`)
+        }
       }
     }
   } catch (error) {

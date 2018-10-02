@@ -1,13 +1,13 @@
 'use strict'
 
-const { client, crypto } = require('@arkecosystem/crypto')
+const { Bignum, client, crypto } = require('@arkecosystem/crypto')
 const config = require('../config')
 const delay = require('delay')
 const unique = require('lodash/uniq')
 const utils = require('../utils')
 const logger = utils.logger
 
-const primaryAddress = crypto.getAddress(crypto.getKeys(config.passphrase).publicKey)
+let primaryAddress
 const sendTransactionsWithResults = async (transactions, wallets, transactionAmount, expectedSenderBalance, options, isSubsequentRun) => {
   let successfulTest = true
 
@@ -69,7 +69,7 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
   }
 
   const walletBalance = await utils.getWalletBalance(primaryAddress)
-  if (walletBalance !== expectedSenderBalance) {
+  if (walletBalance !== expectedSenderBalance.toNumber()) {
     successfulTest = false
     logger.error(`Sender balance incorrect: '${walletBalance}' but should be '${expectedSenderBalance}'`)
   }
@@ -88,9 +88,10 @@ const sendTransactionsWithResults = async (transactions, wallets, transactionAmo
 
 module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) => {
   utils.applyConfigOptions(options)
+  primaryAddress = crypto.getAddress(crypto.getKeys(config.passphrase).publicKey, config.publicKeyHash)
 
   if (wallets === undefined) {
-    wallets = utils.generateWallets(options.number)
+    wallets = utils.generateWallets(options.number, config)
   }
   const walletBalance = await utils.getWalletBalance(primaryAddress)
 
@@ -99,9 +100,8 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     logger.info(`Sender starting balance: ${walletBalance}`)
   }
 
-  const builder = client.getBuilder().transfer()
   const transactions = []
-  let totalDeductions = 0
+  let totalDeductions = Bignum.ZERO
   let transactionAmount = (arkPerTransaction || 2) * Math.pow(10, 8)
 
   if (!arkPerTransaction && options.amount) {
@@ -110,7 +110,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
 
   for (const id in wallets) {
     const wallet = wallets[id]
-    const transaction = builder
+    const transaction = client.getBuilder().transfer()
       .fee(utils.parseFee(options.transferFee))
       .recipientId(options.recipient || wallet.address)
       .network(config.publicKeyHash)
@@ -121,7 +121,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
       .build()
 
     transactions.push(transaction)
-    totalDeductions += transactionAmount + transaction.fee
+    totalDeductions = totalDeductions.plus(transactionAmount).plus(transaction.fee)
 
     logger.info(`${id} ==> ${transaction.id}, ${options.recipient || wallet.address} (fee: ${transaction.fee})`)
   }
@@ -131,7 +131,7 @@ module.exports = async (options, wallets, arkPerTransaction, skipTestingAgain) =
     process.exit() // eslint-disable-line no-unreachable
   }
 
-  const expectedSenderBalance = walletBalance - totalDeductions
+  const expectedSenderBalance = new Bignum(walletBalance).minus(totalDeductions)
   if (!options.skipValidation) {
     logger.info(`Sender expected ending balance: ${expectedSenderBalance}`)
   }
