@@ -195,7 +195,7 @@ module.exports = class TransactionBuilder {
     const { data } = this
 
     Object.keys(data).forEach(key => {
-      if (['model', 'network', 'id'].includes(key)) {
+      if (['model', 'id'].includes(key)) {
         delete data[key]
       }
     })

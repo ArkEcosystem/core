@@ -10,18 +10,18 @@ const transferCommand = require('./transfer')
 module.exports = async (options) => {
   utils.applyConfigOptions(options)
 
-  const wallets = utils.generateWallets(options.number)
+  const wallets = utils.generateWallets(options.number, config)
   await transferCommand(options, wallets, 50, true)
 
   logger.info(`Sending ${options.number} second signature transactions`)
 
-  const builder = client.getBuilder().secondSignature()
   const transactions = []
   wallets.forEach((wallet, i) => {
     wallet.secondPassphrase = config.secondPassphrase || wallet.passphrase
-    const transaction = builder
+    const transaction = client.getBuilder().secondSignature()
       .fee(utils.parseFee(options.signatureFee))
       .signatureAsset(wallet.secondPassphrase)
+      .network(config.publicKeyHash)
       .sign(wallet.passphrase)
       .build()
 
