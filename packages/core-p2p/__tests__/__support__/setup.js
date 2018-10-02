@@ -6,8 +6,6 @@ const containerHelper = require('@arkecosystem/core-test-utils/lib/helpers/conta
 jest.setTimeout(60000)
 
 exports.setUp = async () => {
-  process.env.ARK_DB_DATABASE = 'ark_testnet'
-
   await containerHelper.setUp({
     exit: '@arkecosystem/core-blockchain'
   })
