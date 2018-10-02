@@ -9,17 +9,10 @@ describe('Commands - Verify', () => {
     expect(testSubject).toBeFunction()
   })
 
-  it('should verify a block (not-full)', () => {
-    expect(testSubject({
-      data: fixtureBlock.serialized,
-      type: 'transaction'
-    })).toBeTrue()
-  })
-
-  it('should verify a block (full)', () => {
+  it('should verify a block', () => {
     expect(testSubject({
       data: fixtureBlock.serializedFull,
-      type: 'transaction'
+      type: 'block'
     })).toBeTrue()
   })
 

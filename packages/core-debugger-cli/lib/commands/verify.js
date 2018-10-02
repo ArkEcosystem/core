@@ -6,7 +6,9 @@ module.exports = opts => {
     ? new Transaction(opts.data)
     : new Block(Block.deserialize(opts.data))
 
-  const output = deserialized.verify()
+  const output = opts.type === 'transaction'
+    ? deserialized.verify()
+    : deserialized.verify().verified
 
   if (opts.copy) {
     return copyToClipboard(output)

@@ -18,7 +18,6 @@ describe('Commands - Deserialize', () => {
     expect(actual.version).toBe(fixtureBlock.data.version)
     expect(actual.timestamp).toBe(fixtureBlock.data.timestamp)
     expect(actual.height).toBe(fixtureBlock.data.height)
-    expect(actual.previousBlockHex).toBe(fixtureBlock.data.previousBlockHex)
     expect(actual.previousBlock).toBe(fixtureBlock.data.previousBlock)
     expect(actual.numberOfTransactions).toBe(fixtureBlock.data.numberOfTransactions)
     expect(actual.totalAmount).toBe(fixtureBlock.data.totalAmount)
@@ -39,7 +38,6 @@ describe('Commands - Deserialize', () => {
     expect(actual.version).toBe(fixtureBlock.data.version)
     expect(actual.timestamp).toBe(fixtureBlock.data.timestamp)
     expect(actual.height).toBe(fixtureBlock.data.height)
-    expect(actual.previousBlockHex).toBe(fixtureBlock.data.previousBlockHex)
     expect(actual.previousBlock).toBe(fixtureBlock.data.previousBlock)
     expect(actual.numberOfTransactions).toBe(fixtureBlock.data.numberOfTransactions)
     expect(actual.totalAmount).toBe(fixtureBlock.data.totalAmount)
@@ -49,7 +47,7 @@ describe('Commands - Deserialize', () => {
     expect(actual.payloadHash).toBe(fixtureBlock.data.payloadHash)
     expect(actual.generatorPublicKey).toBe(fixtureBlock.data.generatorPublicKey)
     expect(actual.blockSignature).toBe(fixtureBlock.data.blockSignature)
-    expect(actual.transactions).toEqual(fixtureBlock.data.transactions)
+    expect(actual.transactions).toHaveLength(7)
   })
 
   it('should deserialize a transaction', () => {
