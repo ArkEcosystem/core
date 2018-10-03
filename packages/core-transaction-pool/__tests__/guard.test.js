@@ -28,6 +28,22 @@ describe('Transaction Guard', () => {
     })
   })
 
+  describe('invalidate', () => {
+    it('should be a function', () => {
+      expect(guard.invalidate).toBeFunction()
+    })
+
+    it('should invalidate transactions', () => {
+      guard.invalidate([{ id: 1 }, { id: 2 }], 'Invalid.')
+
+      expect(guard.invalid).toHaveLength(2)
+      expect(guard.invalid).toEqual([ { id: 1 }, { id: 2 } ])
+      expect(guard.errors).toBeObject()
+      expect(Object.keys(guard.errors)).toHaveLength(2)
+      expect(guard.errors['1']).toEqual(['Invalid.'])
+    })
+  })
+
   describe('getIds', () => {
     it('should be a function', () => {
       expect(guard.getIds).toBeFunction()
@@ -81,6 +97,47 @@ describe('Transaction Guard', () => {
       guard.excess = [{ id: 3 }]
 
       expect(guard.getTransactions('excess')).toEqual([{ id: 3 }])
+    })
+  })
+
+  describe('toJson', () => {
+    it('should be a function', () => {
+      expect(guard.toJson).toBeFunction()
+    })
+
+    it('should be ok', () => {
+      guard.transactions = [{ id: 1 }]
+      guard.accept = [{ id: 2 }]
+      guard.excess = [{ id: 3 }]
+      guard.broadcast = [{ id: 5 }]
+
+      expect(guard.toJson()).toEqual({
+        data: {
+          accept: [2],
+          excess: [3],
+          invalid: [],
+          broadcast: [5]
+        },
+        errors: null
+      })
+    })
+
+    it('should be ok with error', () => {
+      guard.transactions = [{ id: 1 }]
+      guard.accept = [{ id: 2 }]
+      guard.excess = [{ id: 3 }]
+      guard.invalidate({ id: 4 }, 'Invalid.')
+      guard.broadcast = [{ id: 5 }]
+
+      expect(guard.toJson()).toEqual({
+        data: {
+          accept: [2],
+          excess: [3],
+          invalid: [4],
+          broadcast: [5]
+        },
+        errors: { '4': ['Invalid.'] }
+      })
     })
   })
 
@@ -153,6 +210,39 @@ describe('Transaction Guard', () => {
   describe('__determineExcessTransactions', () => {
     it('should be a function', () => {
       expect(guard.__determineExcessTransactions).toBeFunction()
+    })
+  })
+
+  describe('__pushError', () => {
+    it('should be a function', () => {
+      expect(guard.__pushError).toBeFunction()
+    })
+
+    it('should have error for transaction', () => {
+      expect(guard.errors).toBeEmpty()
+
+      guard.__pushError({ id: 1 }, 'Invalid.')
+
+      expect(guard.errors).toBeObject()
+      expect(guard.errors['1']).toBeArray()
+      expect(guard.errors['1']).toHaveLength(1)
+      expect(guard.errors['1']).toEqual(['Invalid.'])
+      expect(guard.invalid).toHaveLength(1)
+      expect(guard.invalid).toEqual([ { id: 1 } ])
+    })
+
+    it('should have multiple errors for transaction', () => {
+      expect(guard.errors).toBeEmpty()
+
+      guard.__pushError({ id: 1 }, 'Invalid 1.')
+      guard.__pushError({ id: 1 }, 'Invalid 2.')
+
+      expect(guard.errors).toBeObject()
+      expect(guard.errors['1']).toBeArray()
+      expect(guard.errors['1']).toHaveLength(2)
+      expect(guard.errors['1']).toEqual(['Invalid 1.', 'Invalid 2.'])
+      expect(guard.invalid).toHaveLength(1)
+      expect(guard.invalid).toEqual([ { id: 1 } ])
     })
   })
 
