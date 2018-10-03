@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+const app = require('commander')
+const env = require('../lib/env')
+
+app.version(require('../package.json').version)
+
+const registerCommand = (name, description) => {
+  return app
+    .command(name)
+    .description(description)
+    .option('-d, --data <data>', 'data directory', '~/.ark')
+    .option('-c, --config <config>', 'network config', '~/.ark/config')
+    .option('-t, --token <token>', 'token name', 'ark')
+    .option('-n, --network <network>', 'token network')
+    .option('-s, --start <number>','start network height to export', -1)
+    .option('-e, --end <number>', 'end network height to export', -1)
+}
+
+registerCommand('create', 'create a full snapshot of the database')
+  .option('-f, --filename <filename>', 'block snapshot filename')
+  .action(async (options) => {
+    await env.setUpLite(options)
+    await require('../lib/commands/create')(options)
+  })
+
+registerCommand('slice', 'slice existing snapshot to new start and endd height and return a new snapshot')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .option('-s, --start <number>', 'new start height of snapshot', 0)
+  .option('-e, --end <number>', 'new end height of snapshot', 0)
+  .action(async (options) => {
+    await env.setUpLite(options)
+    await require('../lib/commands/slice')(options)
+  })
+
+registerCommand('import', 'import data from specified snapshot')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .option('--truncate', 'skip transaction validations', false)
+  .action(async (options) => {
+    await env.setUpLite(options)
+    await require('../lib/commands/import')(options)
+  })
+
+registerCommand('verify', 'check validity of specified snapshot')
+  .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .action(async (options) => {
+    await env.setUpLite(options)
+    await require('../lib/commands/verify')(options)
+  })
+
+registerCommand('rollback', 'rollback chain to specified height')
+  .option('-h, --height <number>', 'network height')
+  .action(async (options) => {
+    await env.setUpLite(options)
+    require('../lib/commands/rollback')(options)
+  })
+
+app
+  .command('*')
+  .action(env => {
+    app.help()
+    process.exit(0)
+  })
+
+app.parse(process.argv)
