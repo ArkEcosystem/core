@@ -23,7 +23,8 @@ module.exports = class Peer {
     this.headers = {
       version: container.resolveOptions('blockchain').version,
       port: container.resolveOptions('p2p').port,
-      nethash: config.network.nethash
+      nethash: config.network.nethash,
+      height: null
     }
   }
 
@@ -108,19 +109,22 @@ module.exports = class Peer {
    */
   async downloadBlocks (fromBlockHeight) {
     try {
-      const { data } = await axios.get(`${this.url}/peer/blocks`, {
+      const response = await axios.get(`${this.url}/peer/blocks`, {
         params: { lastBlockHeight: fromBlockHeight },
         headers: this.headers,
         timeout: 60000
       })
 
-      const size = data.blocks.length
+      this.__parseHeaders(response)
+
+      const { blocks } = response.data
+      const size = blocks.length
 
       if (size === 100 || size === 400) {
         this.downloadSize = size
       }
 
-      return data.blocks
+      return blocks
     } catch (error) {
       logger.debug(`Cannot download blocks from peer ${this.url} - ${util.inspect(error, { depth: 1 })}`)
 
@@ -217,6 +221,10 @@ module.exports = class Peer {
    */
   __parseHeaders (response) {
     ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+
+    if (response.headers.height) {
+      this.state.height = response.headers.height
+    }
 
     this.status = 'OK'
 
