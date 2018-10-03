@@ -346,7 +346,7 @@ module.exports = class PostgresConnection extends ConnectionInterface {
   }
 
   /**
-   * Stores the bloc in memory, in the this.asyncTransaction, to be later saved to the database by calling saveBlockCommit.
+   * Stores the block in memory. Generated insert statements are stored in the this.asyncTransaction, to be later saved to the database by calling saveBlockCommit.
    * NOTE: to use when rebuilding to decrease the number of database tx, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
