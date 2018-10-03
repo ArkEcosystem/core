@@ -28,10 +28,18 @@ const register = async (server, options) => {
         headers.height = blockchain.getLastBlock().data.height
       }
 
-      if (request.response.isBoom) {
-        requiredHeaders.forEach((key) => (request.response.output.headers[key] = headers[key]))
+      const response = request.response
+      if (response.isBoom) {
+        if (response.data) {
+          // Deleting the property beforehand makes it appear last in the
+          // response body.
+          delete response.output.payload.error
+          response.output.payload.error = response.data
+        }
+
+        requiredHeaders.forEach((key) => (response.output.headers[key] = headers[key]))
       } else {
-        requiredHeaders.forEach((key) => request.response.header(key, headers[key]))
+        requiredHeaders.forEach((key) => response.header(key, headers[key]))
       }
 
       return h.continue
