@@ -97,8 +97,7 @@ describe('Peer', () => {
     describe('when the request reply with the blocks', () => {
       it('should return the blocks', async () => {
         const blocks = [{}]
-        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks })
-
+        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, peerMock.headers)
         const result = await peerMock.downloadBlocks(1)
 
         expect(result).toEqual(blocks)
@@ -107,7 +106,7 @@ describe('Peer', () => {
 
     describe('when the request reply with the blocks', () => {
       it('should return the blocks', async () => {
-        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(500, { data: {} })
+        axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(500, { data: {} }, peerMock.headers)
 
         expect(await errorCapturer(peerMock.downloadBlocks(1))).toThrowError(/request.*500/i)
       })
@@ -148,6 +147,41 @@ describe('Peer', () => {
       const peers = await peerMock.getPeers()
 
       expect(peers).toEqual(peersMock)
+    })
+  })
+
+  describe('height', () => {
+    it('should update the height after download', async () => {
+      const blocks = [{}]
+      const headers = Object.assign({}, peerMock.headers, { height: 1 })
+
+      axiosMock.onGet(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, headers)
+
+      expect(peerMock.state.height).toBeFalsy()
+      await peerMock.downloadBlocks(1)
+      expect(peerMock.state.height).toBe(1)
+    })
+
+    it('should update the height after post block', async () => {
+      const blocks = [{}]
+      const headers = Object.assign({}, peerMock.headers, { height: 1 })
+
+      axiosMock.onPost(`${peerMock.url}/peer/blocks`).reply(200, { blocks }, headers)
+
+      expect(peerMock.state.height).toBeFalsy()
+      await peerMock.postBlock(genesisBlock.toJson())
+      expect(peerMock.state.height).toBe(1)
+    })
+
+    it('should update the height after post transaction', async () => {
+      const transactions = [{}]
+      const headers = Object.assign({}, peerMock.headers, { height: 1 })
+
+      axiosMock.onPost(`${peerMock.url}/peer/transactions`).reply(200, { transactions }, headers)
+
+      expect(peerMock.state.height).toBeFalsy()
+      await peerMock.postTransactions([genesisTransaction.toJson()])
+      expect(peerMock.state.height).toBe(1)
     })
   })
 
