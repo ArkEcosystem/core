@@ -37,6 +37,7 @@ module.exports = class TransactionGuard {
   /**
    * Invalidate the specified transactions with the given reason.
    * @param  {Object|Array} transactions
+   * @param  {String} reason
    * @return {void}
    */
   invalidate (transactions, reason) {
