@@ -172,7 +172,7 @@ module.exports = class TransactionGuard {
       try {
         await this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
-        this.__pushError(transaction, error)
+        this.__pushError(transaction, error.toString())
         return
       }
 
@@ -211,7 +211,7 @@ module.exports = class TransactionGuard {
    * array of errors. There may be multiple errors associated with a transaction in
    * which case __pushError is called multiple times.
    * @param {Transaction} transaction
-   * @param {String|Error} error
+   * @param {String} error
    * @return {void}
    */
   __pushError (transaction, error) {
