@@ -164,7 +164,7 @@ module.exports = class TransactionGuard {
     await Promise.each(this.transactions, async (transaction) => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
         if (!isRecipientOnActiveNetwork(transaction)) {
-          this.__pushError(transaction, `Recipient ${transaction.recipientId} in not on the same network: ${configManager.get('pubKeyHash')}`)
+          this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
       }
