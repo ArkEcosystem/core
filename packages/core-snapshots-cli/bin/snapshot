@@ -13,12 +13,12 @@ const registerCommand = (name, description) => {
     .option('-c, --config <config>', 'network config', '~/.ark/config')
     .option('-t, --token <token>', 'token name', 'ark')
     .option('-n, --network <network>', 'token network')
-    .option('-s, --start <number>','start network height to export', -1)
-    .option('-e, --end <number>', 'end network height to export', -1)
-}
+  }
 
 registerCommand('create', 'create a full snapshot of the database')
   .option('-f, --filename <filename>', 'block snapshot filename')
+  .option('-s, --start <number>', 'start network height to export', -1)
+  .option('-e, --end <number>', 'end network height to export', -1)
   .action(async (options) => {
     await env.setUpLite(options)
     await require('../lib/commands/create')(options)
