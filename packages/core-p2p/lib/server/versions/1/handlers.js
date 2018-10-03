@@ -279,14 +279,15 @@ exports.postTransactions = {
     const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
+    guard.invalidate(invalid, 'Already memorized.')
+
     await guard.validate(valid)
 
     if (guard.hasAny('invalid')) {
       return {
         success: false,
-        message: 'Transactions list is not conform',
-        error: 'Transactions list is not conform'
+        message: 'Transactions list could not be accepted.',
+        error: guard.errors
       }
     }
 
