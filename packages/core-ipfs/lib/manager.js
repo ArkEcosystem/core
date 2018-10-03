@@ -29,7 +29,7 @@ module.exports = class IPFSManager {
 
   stop () {
     this.node.stop((err) => {
-      console.log(err)
+      if (err.code === "ERR_DB_DELETE_FAILED") console.log('db never created')
     })
   }
 

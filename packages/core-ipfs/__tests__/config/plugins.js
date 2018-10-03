@@ -19,7 +19,7 @@ module.exports = {
       }
     }
   },
-  '@jeremiG/core-ipfs': {
+  '@arkecosystem/core-ipfs': {
     enabled: true,
     ipfsRepo: process.env.ARK_IPFS_PATH || './data/ipfs',
     ipfsPort1: process.env.ARK_IPFS_PORT_1 || 4042,
