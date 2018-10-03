@@ -44,7 +44,6 @@ module.exports = {
       if (resume) {
         rs.resume()
       }
-      return true
     }
 
     decodeStream.on('data', (data) => {
@@ -58,6 +57,7 @@ module.exports = {
         saveChunk(false)
       }
     })
+
     await finished(rs)
     return Promise.all(promises)
   }

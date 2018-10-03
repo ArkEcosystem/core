@@ -21,7 +21,7 @@ module.exports = class SnapshotManager {
       exportTable('rounds.dat', params.queries.rounds, this.database)
     ])
 
-    logger.debug('Export completed.')
+    logger.info('Export completed.')
   }
 
   async importData (options) {
@@ -36,7 +36,7 @@ module.exports = class SnapshotManager {
     ])
 
     logger.debug(`Import from ${options.filename} completed`)
-    await this.database.rollbackCurrentRound()
+    // await this.database.rollbackCurrentRound()
   }
 
   async rollbackChain (options) {

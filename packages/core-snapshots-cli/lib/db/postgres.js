@@ -54,8 +54,8 @@ module.exports = class Database {
     logger.debug(`Rolling back chain to last finished round with height ${newHeight}`)
     if (block) {
       await Promise.all([
-        this.db.none('TRUNCATE TABLE WALLETS RESTART IDENTITY'),
-        this.db.none('TRUNCATE TABLE ROUNDS RESTART IDENTITY'),
+        this.db.none(this.__truncateStatement('wallets')),
+        this.db.none(this.__truncateStatement('rounds')),
         this.db.none(`DELETE FROM TRANSACTIONS WHERE TIMESTAMP > ${block.timestamp}`),
         this.db.none(`DELETE FROM BLOCKS WHERE HEIGHT > ${block.height}`),
         this.db.none(`DELETE FROM ROUNDS WHERE ROUND > ${previousRound}`)
