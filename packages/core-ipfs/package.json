@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
-    "cids": "^0.5.5",
     "ipfs": "^0.32.3"
   },
   "publishConfig": {
