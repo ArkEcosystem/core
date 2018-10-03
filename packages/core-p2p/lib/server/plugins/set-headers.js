@@ -14,14 +14,17 @@ const register = async (server, options) => {
     nethash: config.network.nethash,
     version: container.resolveOptions('blockchain').version,
     port: container.resolveOptions('p2p').port,
-    os: require('os').platform()
+    os: require('os').platform(),
+    height: null
   }
 
-  const requiredHeaders = ['nethash', 'version', 'port', 'os']
+  const requiredHeaders = ['nethash', 'version', 'port', 'os', 'height']
 
   server.ext({
     type: 'onPreResponse',
     async method (request, h) {
+      headers.height = container.resolvePlugin('blockchain').getLastBlock().data.height
+
       if (request.response.isBoom) {
         requiredHeaders.forEach((key) => (request.response.output.headers[key] = headers[key]))
       } else {

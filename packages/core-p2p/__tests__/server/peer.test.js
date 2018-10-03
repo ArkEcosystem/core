@@ -37,6 +37,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
       expect(response.data.data).toBeValidArrayOfPeers()
     })
@@ -48,6 +49,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
       expect(response.data.data).toBeValidArrayOfBlocks()
     })
@@ -57,6 +59,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
       expect(response.data.data).toBeValidArrayOfBlocks()
       expect(response.data.data).toHaveLength(1)
@@ -72,8 +75,8 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
-
       expect(response.data.data.common).toBeObject()
       expect(response.data.data.common.height).toBe(1)
       expect(response.data.data.common.id).toBe(blockId)
@@ -90,6 +93,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
       expect(response.data.data).toBeArray()
     })
@@ -103,6 +107,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
       expect(response.data.data).toBeArray()
     })
@@ -114,6 +119,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toBeSuccessfulResponse()
 
+      expect(response.headers.height).toBe(1)
       expect(response.data).toHaveProperty('data')
 
       expect(response.data.data).toHaveProperty('height')
@@ -129,6 +135,7 @@ describe('API P2P - Version 2', () => {
       const response = await utils.GET('peer/blockchain/status')
 
       expect(response).toBeSuccessfulResponse()
+      expect(response.headers.height).toBe(1)
     })
   })
 
@@ -147,6 +154,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toHaveProperty('status')
       expect(response.status).toBe(200)
+      expect(response.headers.height).toBe(1)
     })
   })
 
@@ -158,6 +166,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toHaveProperty('status')
       expect(response.status).toBe(202)
+      expect(response.headers.height).toBe(1)
     })
 
     it('should create block with status code 201 when posting valid block', async () => {
@@ -168,6 +177,7 @@ describe('API P2P - Version 2', () => {
 
       expect(response).toHaveProperty('status')
       expect(response.status).toBe(201)
+      expect(response.headers.height).toBe(1)
     })
   })
 })
