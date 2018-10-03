@@ -196,6 +196,10 @@ class Guard {
 
     // NOTE: We check this extra because a response can still succeed if
     // it returns any codes that are not 4xx or 5xx.
+    if (peer.status === 503) {
+      return this.__determinePunishment(peer, offences.BLOCKCHAIN_NOT_READY)
+    }
+
     if (peer.status !== 200) {
       return this.__determinePunishment(peer, offences.INVALID_STATUS)
     }

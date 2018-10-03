@@ -41,6 +41,12 @@ module.exports = {
     reason: 'High Latency',
     weight: 1
   },
+  BLOCKCHAIN_NOT_READY: {
+    number: 30,
+    period: 'seconds',
+    reason: 'Blockchain not ready',
+    weight: 0
+  },
   UNKNOWN: {
     number: 30,
     period: 'minutes',
