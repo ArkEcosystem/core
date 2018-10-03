@@ -234,7 +234,7 @@ module.exports = class Block {
       //   }
       // }
 
-      if (block.payloadLength > constants.maxPayloadLength) {
+      if (block.payloadLength > constants.maxPayload) {
         result.errors.push('Payload length is too high')
       }
 
