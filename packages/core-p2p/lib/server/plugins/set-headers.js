@@ -23,7 +23,10 @@ const register = async (server, options) => {
   server.ext({
     type: 'onPreResponse',
     async method (request, h) {
-      headers.height = container.resolvePlugin('blockchain').getLastBlock().data.height
+      const blockchain = container.resolvePlugin('blockchain')
+      if (blockchain) {
+        headers.height = blockchain.getLastBlock().data.height
+      }
 
       if (request.response.isBoom) {
         requiredHeaders.forEach((key) => (request.response.output.headers[key] = headers[key]))
