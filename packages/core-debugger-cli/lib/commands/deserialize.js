@@ -6,7 +6,6 @@ module.exports = opts => {
 
   if (opts.type === 'transaction') {
     deserialized = new Transaction(opts.data)
-    deserialized.serialized = deserialized.serialized.toString('hex')
   } else {
     deserialized = new Block(opts.data)
   }
