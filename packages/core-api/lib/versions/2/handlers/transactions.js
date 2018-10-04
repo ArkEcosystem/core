@@ -154,7 +154,7 @@ exports.showUnconfirmed = {
       return Boom.notFound('Transaction not found')
     }
 
-    transaction = { serialized: transaction.serialized.toString('hex') }
+    transaction = { serialized: transaction.serialized }
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

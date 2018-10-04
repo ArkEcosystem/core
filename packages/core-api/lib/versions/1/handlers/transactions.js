@@ -107,7 +107,7 @@ exports.showUnconfirmed = {
 
     return utils.respondWith({
       transaction: utils.toResource(request, {
-        serialized: transaction.serialized.toString('hex')
+        serialized: transaction.serialized
       }, 'transaction')
     })
   }

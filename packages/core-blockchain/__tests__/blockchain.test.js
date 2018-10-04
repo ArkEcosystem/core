@@ -144,7 +144,7 @@ describe('Blockchain', () => {
 
       expect(transactions.length).toBe(genesisBlock.transactions.length)
 
-      expect(transactions).toEqual(genesisBlock.transactions.map(transaction => transaction.serialized.toString('hex')))
+      expect(transactions).toEqual(genesisBlock.transactions.map(transaction => transaction.serialized))
 
       await blockchain.transactionPool.flush()
     })
@@ -307,7 +307,7 @@ describe('Blockchain', () => {
 
       expect(unconfirmedTransactions.transactions.length).toBe(genesisBlock.transactions.length)
 
-      expect(unconfirmedTransactions.transactions).toEqual(genesisBlock.transactions.map(transaction => transaction.serialized.toString('hex')))
+      expect(unconfirmedTransactions.transactions).toEqual(genesisBlock.transactions.map(transaction => transaction.serialized))
 
       await blockchain.transactionPool.flush()
     })
