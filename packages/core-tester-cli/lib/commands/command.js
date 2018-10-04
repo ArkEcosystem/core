@@ -12,8 +12,8 @@ const { logger, paginate, request } = require('../utils')
 module.exports = class Command {
   /**
    * Init new instance of command.
-   * @param  {Object} options [description]
-   * @return {*}         [description]
+   * @param  {Object} options
+   * @return {*}
    */
   static async init (options) {
     const command = new this()
@@ -36,8 +36,8 @@ module.exports = class Command {
 
   /**
    * Copy transactions to clipboard.
-   * @param  {Object[]} transactions [description]
-   * @return {void}              [description]
+   * @param  {Object[]} transactions
+   * @return {void}
    */
   copyToClipboard (transactions) {
     for (const transaction of transactions) {
@@ -50,8 +50,8 @@ module.exports = class Command {
 
   /**
    * Generate wallets based on quantity.
-   * @param  {Number} [quantity] [description]
-   * @return {Object[]}          [description]
+   * @param  {Number} [quantity]
+   * @return {Object[]}
    */
   generateWallets (quantity) {
     if (!quantity) {
@@ -78,7 +78,7 @@ module.exports = class Command {
 
   /**
    * Get delegate API response.
-   * @return {Object[]} [description]
+   * @return {Object[]}
    * @throws 'Could not get delegates'
    */
   async getDelegates () {
@@ -94,8 +94,8 @@ module.exports = class Command {
 
   /**
    * Determine how long to wait for transactions to process.
-   * @param  {Object[]} transactions [description]
-   * @return {Number}              [description]
+   * @param  {Object[]} transactions
+   * @return {Number}
    */
   async getTransactionDelaySeconds (transactions) {
     const waitPerBlock = (Math.round(this.config.constants.blocktime / 10) * 20)
@@ -105,8 +105,8 @@ module.exports = class Command {
 
   /**
    * Get transaction from API by ID.
-   * @param  {String} id [description]
-   * @return {(Object|null)}    [description]
+   * @param  {String} id
+   * @return {(Object|null)}
    */
   async getTransaction (id) {
     try {
@@ -124,8 +124,8 @@ module.exports = class Command {
 
   /**
    * Get delegate voters by public key.
-   * @param  {String} publicKey [description]
-   * @return {Object[]}           [description]
+   * @param  {String} publicKey
+   * @return {Object[]}
    */
   async getVoters (publicKey) {
     try {
@@ -138,8 +138,8 @@ module.exports = class Command {
 
   /**
    * Get wallet balance by address.
-   * @param  {String} address [description]
-   * @return {Bignum}         [description]
+   * @param  {String} address
+   * @return {Bignum}
    */
   async getWalletBalance (address) {
     try {
@@ -153,8 +153,8 @@ module.exports = class Command {
 
   /**
    * Get wallet by address.
-   * @param  {String} address [description]
-   * @return {Object}         [description]
+   * @param  {String} address
+   * @return {Object}
    */
   async getWallet (address) {
     try {
@@ -173,8 +173,8 @@ module.exports = class Command {
 
   /**
    * Parse fee based on input.
-   * @param  {(String|Number)} fee [description]
-   * @return {Bignum}     [description]
+   * @param  {(String|Number)} fee
+   * @return {Bignum}
    */
   parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
@@ -190,10 +190,10 @@ module.exports = class Command {
 
   /**
    * Send transactions to API and wait for response.
-   * @param  {Object[]}  transactions    [description]
-   * @param  {String}  [transactionType] [description]
-   * @param  {Boolean} [wait=true]            [description]
-   * @return {Object}                  [description]
+   * @param  {Object[]}  transactions
+   * @param  {String}  [transactionType]
+   * @param  {Boolean} [wait=true]
+   * @return {Object}
    */
   async sendTransactions (transactions, transactionType, wait = true) {
     const response = await this.postTransactions(transactions)
@@ -210,8 +210,8 @@ module.exports = class Command {
 
   /**
    * Send transactions to API.
-   * @param  {Object[]} transactions [description]
-   * @return {Object}              [description]
+   * @param  {Object[]} transactions
+   * @return {Object}
    */
   async postTransactions (transactions) {
     try {
@@ -225,7 +225,7 @@ module.exports = class Command {
 
   /**
    * Apply options to config.
-   * @return {void} [description]
+   * @return {void}
    */
   __applyConfig () {
     this.config = {...config}
@@ -252,7 +252,7 @@ module.exports = class Command {
 
   /**
    * Load constants from API and apply to config.
-   * @return {void} [description]
+   * @return {void}
    */
   async __loadConstants () {
     try {
@@ -265,7 +265,7 @@ module.exports = class Command {
 
   /**
    * Load network from API and apply to config.
-   * @return {void} [description]
+   * @return {void}
    */
   async __loadNetworkConfig () {
     try {
@@ -278,8 +278,8 @@ module.exports = class Command {
 
   /**
    * Convert ARK to Arktoshi.
-   * @param  {Number} ark [description]
-   * @return {Bignum}     [description]
+   * @param  {Number} ark
+   * @return {Bignum}
    */
   __arkToArktoshi (ark) {
     return new Bignum(ark * Math.pow(10, 8))
@@ -287,8 +287,8 @@ module.exports = class Command {
 
   /**
    * Quit command and output error when problem sending transactions.
-   * @param  {Error} error [description]
-   * @return {void}       [description]
+   * @param  {Error} error
+   * @return {void}
    */
   __problemSendingTransactions (error) {
     const message = error.response ? error.response.data.message : error.message
