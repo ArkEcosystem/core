@@ -279,7 +279,8 @@ exports.postTransactions = {
     const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
+    guard.invalidate(invalid, 'Already memorized.')
+
     await guard.validate(valid)
 
     if (guard.hasAny('invalid')) {
