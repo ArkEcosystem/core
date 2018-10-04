@@ -115,19 +115,19 @@ module.exports = class ConnectionInterface {
   }
 
   /**
-   * Save the given block (async version).
+   * Save the given number of block (async version) in the memory Must call saveBlockCommit() to save to database.
    * NOTE: to use when rebuilding to decrease the number of database transactions, and commit blocks (save only every 1000s for instance) using saveBlockCommit
    * @param  {Block} block
    * @return {void}
    * @throws Error
    */
-  async saveBlockAsync (block) {
-    throw new Error('Method [saveBlockAsync] not implemented!')
+  async enqueueSaveBlockAsync (block) {
+    throw new Error('Method [enqueueSaveBlockAsync] not implemented!')
   }
 
   /**
    * Commit the block save database transaction.
-   * NOTE: to be used in combination with saveBlockAsync
+   * NOTE: to be used in combination with enqueueSaveBlockAsync
    * @return {void}
    * @throws Error
    */
@@ -143,7 +143,7 @@ module.exports = class ConnectionInterface {
    * @throws Error
    */
   async deleteBlockAsync (block) {
-    throw new Error('Method [saveBlockAsync] not implemented!')
+    throw new Error('Method [deleteBlockAsync] not implemented!')
   }
 
   /**

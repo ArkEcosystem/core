@@ -266,10 +266,10 @@ module.exports = class Blockchain {
     if (block.verification.verified) {
       if (this.__isChained(state.lastBlock, block)) {
         // save block on database
-        await this.database.saveBlockAsync(block)
+        this.database.enqueueSaveBlockAsync(block)
 
-        // committing to db every 10,000 blocks
-        if (block.data.height % 10000 === 0) {
+        // committing to db every 20,000 blocks
+        if (block.data.height % 20000 === 0) {
           await this.database.saveBlockCommit()
         }
 
