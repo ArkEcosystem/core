@@ -13,7 +13,7 @@ beforeEach(() => {
 })
 
 describe('Multi Signature Transaction', () => {
-  describe('verify', () => {
+  describe.skip('verify', () => {
     it('should be valid with a signature', () => {
       const actual = builder
         .multiSignatureAsset({
