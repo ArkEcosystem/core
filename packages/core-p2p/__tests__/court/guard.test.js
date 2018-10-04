@@ -95,6 +95,10 @@ describe('Guard', () => {
       return Math.ceil(moment.duration(actual.diff(moment.now())).asMinutes())
     }
 
+    const convertToSeconds = actual => {
+      return Math.ceil(moment.duration(actual.diff(moment.now())).asSeconds())
+    }
+
     const dummy = {
       nethash: 'd9acd04bde4234a81addb8482333b4ac906bed7be5a9970ce8ada428bd083192',
       version: '2.0.0',
@@ -173,6 +177,16 @@ describe('Guard', () => {
 
       expect(convertToMinutes(until)).toBe(1)
       expect(reason).toBe('High Latency')
+    })
+
+    it('should return a 30 seconds suspension for "Blockchain not ready"', () => {
+      const { until, reason } = guard.__determineOffence({
+        ...dummy,
+        ...{ status: 503 }
+      })
+
+      expect(convertToSeconds(until)).toBe(30)
+      expect(reason).toBe('Blockchain not ready')
     })
 
     it('should return a 30 minutes suspension for "Unknown"', () => {
