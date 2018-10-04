@@ -1,19 +1,23 @@
 const axios = require('axios')
-const config = require('../config')
 
-module.exports = {
-  get: (endpoint, isTransport) => {
-    const baseUrl = isTransport ? config.baseUrlP2P : config.baseUrlApi
+module.exports = (config) => {
+  const headers = {}
+  if (config && config.network) {
+    headers.nethash = config.network.nethash
+    headers.version = '2.0.0'
+    headers.port = config.p2pPort
+  }
 
-    return axios.get(baseUrl + endpoint, {
-      headers: config.requestHeaders
-    })
-  },
-  post: (endpoint, data, isTransport) => {
-    const baseUrl = isTransport ? config.baseUrlP2P : config.baseUrlApi
+  return {
+    get: async (endpoint, isP2P) => {
+      const baseUrl = `${config.baseUrl}:${isP2P ? config.p2pPort : config.apiPort}`
 
-    return axios.post(baseUrl + endpoint, data, {
-      headers: config.requestHeaders
-    })
+      return (await axios.get(baseUrl + endpoint, { headers })).data
+    },
+    post: async (endpoint, data, isP2P) => {
+      const baseUrl = `${config.baseUrl}:${isP2P ? config.p2pPort : config.apiPort}`
+
+      return (await axios.post(baseUrl + endpoint, data, { headers })).data
+    }
   }
 }
