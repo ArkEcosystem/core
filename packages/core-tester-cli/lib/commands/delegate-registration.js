@@ -1,79 +1,82 @@
 'use strict'
 
 const { client } = require('@arkecosystem/crypto')
-const delay = require('delay')
-const utils = require('../utils')
-const config = require('../config')
-const logger = utils.logger
+const { logger } = require('../utils')
 const superheroes = require('superheroes')
-const transferCommand = require('./transfer')
+const Command = require('./command')
+const Transfer = require('./transfer')
 
-module.exports = async (options) => {
-  utils.applyConfigOptions(options)
+module.exports = class DelegateRegistrationCommand extends Command {
+  /**
+   * Run delegate-registration command.
+   * @return {void}
+   */
+  async run () {
+    const wallets = this.generateWallets()
 
-  const wallets = utils.generateWallets(options.number, config)
-  await transferCommand(options, wallets, 50, true)
+    const transfer = await Transfer.init(this.options)
+    await transfer.run({
+      wallets,
+      amount: this.__arkToArktoshi(25),
+      skipTesting: true
+    })
 
-  const delegates = await utils.getDelegates()
+    const delegates = await this.getDelegates()
 
-  logger.info(`Sending ${options.number} delegate registration transactions`)
-  if (!options.skipValidation) {
-    logger.info(`Starting delegate count: ${delegates.length}`)
-  }
-
-  const transactions = []
-  const usedDelegateNames = delegates.map(delegate => delegate.username)
-  wallets.forEach((wallet, i) => {
-    wallet.username = superheroes.random()
-
-    while (usedDelegateNames.includes(wallet.username)) {
-      wallet.username = superheroes.random()
+    logger.info(`Sending ${this.options.number} delegate registration transactions`)
+    if (!this.options.skipValidation) {
+      logger.info(`Starting delegate count: ${delegates.length}`)
     }
 
-    wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
-    usedDelegateNames.push(wallet.username)
+    const transactions = []
+    const usedDelegateNames = delegates.map(delegate => delegate.username)
 
-    const transaction = client.getBuilder().delegateRegistration()
-      .fee(utils.parseFee(options.delegateFee))
-      .usernameAsset(wallet.username)
-      .network(config.publicKeyHash)
-      .sign(wallet.passphrase)
-      .secondSign(config.secondPassphrase)
-      .build()
+    wallets.forEach((wallet, i) => {
+      while (!wallet.username || usedDelegateNames.includes(wallet.username)) {
+        wallet.username = superheroes.random()
+      }
 
-    transactions.push(transaction)
+      wallet.username = wallet.username.toLowerCase().replace(/ /g, '_')
+      usedDelegateNames.push(wallet.username)
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
-  })
+      const transaction = client.getBuilder().delegateRegistration()
+        .fee(this.parseFee(this.options.delegateFee))
+        .usernameAsset(wallet.username)
+        .network(this.config.network.version)
+        .sign(wallet.passphrase)
+        .secondSign(this.config.secondPassphrase)
+        .build()
 
-  if (options.copy) {
-    utils.copyToClipboard(transactions)
-    process.exit() // eslint-disable-line no-unreachable
-  }
+      transactions.push(transaction)
 
-  const expectedDelegates = delegates.length + wallets.length
-  if (!options.skipValidation) {
-    logger.info(`Expected end delegate count: ${expectedDelegates}`)
-  }
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee}, username: ${wallet.username})`)
+    })
 
-  try {
-    await utils.postTransactions(transactions)
-
-    if (options.skipValidation) {
-      return
+    if (this.options.copy) {
+      this.copyToClipboard(transactions)
+      process.exit() // eslint-disable-line no-unreachable
     }
 
-    const delaySeconds = await utils.getTransactionDelay(transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply delegate transactions`)
-    await delay(delaySeconds * 1000)
-
-    const delegates = await utils.getDelegates()
-    logger.info(`All transactions have been sent! Total delegates: ${delegates.length}`)
-
-    if (delegates.length !== expectedDelegates) {
-      logger.error(`Delegate count incorrect. '${delegates.length}' but should be '${expectedDelegates}'`)
+    const expectedDelegates = delegates.length + wallets.length
+    if (!this.options.skipValidation) {
+      logger.info(`Expected end delegate count: ${expectedDelegates}`)
     }
-  } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+
+    try {
+      await this.sendTransactions(transactions, 'delegate', !this.options.skipValidation)
+
+      if (this.options.skipValidation) {
+        return
+      }
+
+      const delegates = await this.getDelegates()
+      logger.info(`All transactions have been sent! Total delegates: ${delegates.length}`)
+
+      if (delegates.length !== expectedDelegates) {
+        logger.error(`Delegate count incorrect. '${delegates.length}' but should be '${expectedDelegates}'`)
+      }
+    } catch (error) {
+      logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+    }
   }
 }
