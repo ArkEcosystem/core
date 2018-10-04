@@ -61,6 +61,7 @@ module.exports = class Transaction {
       'senderPublicKey',
       'recipientId',
       'type',
+      'vendorField',
       'vendorFieldHex',
       'amount',
       'fee',

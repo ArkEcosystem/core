@@ -217,6 +217,14 @@ describe('API 1.0 - Transactions', () => {
       if (response.data.success && response.data.transaction != null) {
         expect(response.data.transaction).toBeObject()
         expect(response.data.transaction).toHaveProperty('id', transaction.id)
+        expect(response.data.transaction).toHaveProperty('type', transaction.type)
+        expect(response.data.transaction).toHaveProperty('amount', transaction.amount)
+        expect(response.data.transaction).toHaveProperty('fee', transaction.fee)
+        expect(response.data.transaction).toHaveProperty('recipientId', transaction.recipientId)
+        expect(response.data.transaction).toHaveProperty('senderPublicKey', transaction.senderPublicKey)
+        expect(response.data.transaction).toHaveProperty('signature', transaction.signature)
+        expect(response.data.transaction).toHaveProperty('timestamp', transaction.timestamp)
+        expect(response.data.transaction).toHaveProperty('vendorField', transaction.vendorField)
       } else {
         expect(response.data.error).toBeString()
       }
