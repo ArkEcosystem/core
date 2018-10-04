@@ -36,18 +36,18 @@ const { transactionIdFixTable } = require('../constants').CONFIGURATIONS.ARK.MAI
 module.exports = class Transaction {
   constructor (data) {
     if (typeof data === 'string') {
-      this.serialized = Buffer.from(data, 'hex')
+      this.serialized = data
     } else {
-      this.serialized = Transaction.serialize(data)
+      this.serialized = Transaction.serialize(data).toString('hex')
     }
-    const deserialized = Transaction.deserialize(this.serialized.toString('hex'))
+    const deserialized = Transaction.deserialize(this.serialized)
 
     if (deserialized.version === 1) {
       Transaction.applyV1Compatibility(deserialized)
       this.verified = deserialized.verified
       delete deserialized.verified
     } else if (deserialized.version === 2) {
-      deserialized.id = createHash('sha256').update(this.serialized).digest().toString('hex')
+      deserialized.id = createHash('sha256').update(Buffer.from(this.serialized, 'hex')).digest().toString('hex')
 
       // TODO: enable AIP11 when network ready
       this.verified = false
