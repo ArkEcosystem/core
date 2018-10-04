@@ -107,13 +107,13 @@ describe('Connection Interface', () => {
     })
   })
 
-  describe('saveBlockAsync', () => {
+  describe('enqueueSaveBlockAsync', () => {
     it('should be a function', () => {
-      expect(connectionInterface.saveBlockAsync).toBeFunction()
+      expect(connectionInterface.enqueueSaveBlockAsync).toBeFunction()
     })
 
     it('should throw an exception', async () => {
-      await expect(connectionInterface.saveBlockAsync()).rejects.toThrowError('Method [saveBlockAsync] not implemented!')
+      await expect(connectionInterface.enqueueSaveBlockAsync()).rejects.toThrowError('Method [enqueueSaveBlockAsync] not implemented!')
     })
   })
 
