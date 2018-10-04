@@ -286,8 +286,8 @@ exports.postTransactions = {
     if (guard.hasAny('invalid')) {
       return {
         success: false,
-        message: 'Transactions list could not be accepted.',
-        error: guard.errors
+        message: 'Transactions list is not conform',
+        error: 'Transactions list is not conform'
       }
     }
 
