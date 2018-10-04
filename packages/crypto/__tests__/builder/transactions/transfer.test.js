@@ -12,6 +12,29 @@ beforeEach(() => {
 })
 
 describe('Transfer Transaction', () => {
+  describe('verify', () => {
+    it('should be valid with a signature', () => {
+      const actual = builder
+        .recipientId('D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F')
+        .amount(1)
+        .vendorField('dummy')
+        .sign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+
+    it('should be valid with a second signature', () => {
+      const actual = builder
+        .recipientId('D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F')
+        .amount(1)
+        .vendorField('dummy')
+        .sign('dummy passphrase')
+        .secondSign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
