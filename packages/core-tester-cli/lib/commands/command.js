@@ -3,12 +3,18 @@
 const { Bignum, crypto } = require('@arkecosystem/crypto')
 const bip39 = require('bip39')
 const clipboardy = require('clipboardy')
+const delay = require('delay')
 const fs = require('fs')
 const path = require('path')
 const config = require('../config')
 const { logger, paginate, request } = require('../utils')
 
 module.exports = class Command {
+  /**
+   * Init new instance of command.
+   * @param  {Object} options [description]
+   * @return {*}         [description]
+   */
   static async init (options) {
     const command = new this()
     command.options = options
@@ -19,10 +25,20 @@ module.exports = class Command {
     return command
   }
 
+  /**
+   * Run command.
+   * @param  {Object} options Used to pass options to TransferCommand
+   * @throws Method [run] not implemented!
+   */
   run (options) {
     throw new Error('Method [run] not implemented!')
   }
 
+  /**
+   * Copy transactions to clipboard.
+   * @param  {Object[]} transactions [description]
+   * @return {void}              [description]
+   */
   copyToClipboard (transactions) {
     for (const transaction of transactions) {
       transaction.serialized = transaction.serialized.toString('hex')
@@ -32,6 +48,11 @@ module.exports = class Command {
     logger.info(`Copied ${transactions.length} transactions`)
   }
 
+  /**
+   * Generate wallets based on quantity.
+   * @param  {Number} [quantity] [description]
+   * @return {Object[]}          [description]
+   */
   generateWallets (quantity) {
     if (!quantity) {
       quantity = this.options.number
@@ -55,26 +76,41 @@ module.exports = class Command {
     return wallets
   }
 
-  async getDelegates (publicKey) {
+  /**
+   * Get delegate API response.
+   * @return {Object[]} [description]
+   * @throws 'Could not get delegates'
+   */
+  async getDelegates () {
     try {
-      const delegates = await paginate('/api/v2/delegates')
+      const delegates = await paginate(this.config, '/api/v2/delegates')
 
       return delegates
     } catch (error) {
       const message = error.response ? error.response.data.message : error.message
-      throw new Error(`Could not get delegates for '${publicKey}': ${message}`)
+      throw new Error(`Could not get delegates: ${message}`)
     }
   }
 
+  /**
+   * Determine how long to wait for transactions to process.
+   * @param  {Object[]} transactions [description]
+   * @return {Number}              [description]
+   */
   async getTransactionDelaySeconds (transactions) {
-    const waitPerBlock = (Math.round(this.config.constants.blocktime / 10) * 10)
+    const waitPerBlock = (Math.round(this.config.constants.blocktime / 10) * 20)
 
     return waitPerBlock * Math.ceil(transactions.length / this.config.constants.block.maxTransactions)
   }
 
+  /**
+   * Get transaction from API by ID.
+   * @param  {String} id [description]
+   * @return {(Object|null)}    [description]
+   */
   async getTransaction (id) {
     try {
-      const response = (await request(this.config).get(`/api/v2/transactions/${id}`)).data
+      const response = (await request(this.config).get(`/api/v2/transactions/${id}`))
 
       if (response.data) {
         return response.data
@@ -86,23 +122,40 @@ module.exports = class Command {
     return null
   }
 
+  /**
+   * Get delegate voters by public key.
+   * @param  {String} publicKey [description]
+   * @return {Object[]}           [description]
+   */
   async getVoters (publicKey) {
     try {
-      return paginate(`/api/v2/delegates/${publicKey}/voters`)
+      return paginate(this.config, `/api/v2/delegates/${publicKey}/voters`)
     } catch (error) {
       const message = error.response ? error.response.data.message : error.message
       throw new Error(`Could not get voters for '${publicKey}': ${message}`)
     }
   }
 
+  /**
+   * Get wallet balance by address.
+   * @param  {String} address [description]
+   * @return {Bignum}         [description]
+   */
   async getWalletBalance (address) {
     try {
       return new Bignum((await this.getWallet(address)).balance)
     } catch (error) {
-      return Bignum.ZERO
+      //
     }
+
+    return Bignum.ZERO
   }
 
+  /**
+   * Get wallet by address.
+   * @param  {String} address [description]
+   * @return {Object}         [description]
+   */
   async getWallet (address) {
     try {
       const response = (await request(this.config).get(`/api/v2/wallets/${address}`))
@@ -118,6 +171,11 @@ module.exports = class Command {
     }
   }
 
+  /**
+   * Parse fee based on input.
+   * @param  {(String|Number)} fee [description]
+   * @return {Bignum}     [description]
+   */
   parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
       const feeRange = fee.split('-').map(f => new Bignum(f))
@@ -130,14 +188,45 @@ module.exports = class Command {
     return new Bignum(fee)
   }
 
+  /**
+   * Send transactions to API and wait for response.
+   * @param  {Object[]}  transactions    [description]
+   * @param  {String}  [transactionType] [description]
+   * @param  {Boolean} [wait=true]            [description]
+   * @return {Object}                  [description]
+   */
+  async sendTransactions (transactions, transactionType, wait = true) {
+    const response = await this.postTransactions(transactions)
+
+    if (wait) {
+      const delaySeconds = await this.getTransactionDelaySeconds(transactions)
+      transactionType = (transactionType ? `${transactionType} ` : '') + 'transactions'
+      logger.info(`Waiting ${delaySeconds} seconds to apply ${transactionType}`)
+      await delay(delaySeconds * 1000)
+    }
+
+    return response
+  }
+
+  /**
+   * Send transactions to API.
+   * @param  {Object[]} transactions [description]
+   * @return {Object}              [description]
+   */
   async postTransactions (transactions) {
     try {
-      return (await request(this.config).post('/api/v2/transactions', {transactions})).data
+      const response = (await request(this.config).post('/api/v2/transactions', {transactions}))
+      return response.data
     } catch (error) {
-      throw error
+      const message = error.response ? error.response.data.message : error.message
+      throw new Error(`Could not post transactions: ${message}`)
     }
   }
 
+  /**
+   * Apply options to config.
+   * @return {void} [description]
+   */
   __applyConfig () {
     this.config = {...config}
     if (this.options.baseUrl) {
@@ -161,6 +250,10 @@ module.exports = class Command {
     }
   }
 
+  /**
+   * Load constants from API and apply to config.
+   * @return {void} [description]
+   */
   async __loadConstants () {
     try {
       this.config.constants = (await request(this.config).get('/api/v2/node/configuration')).data.constants
@@ -170,6 +263,10 @@ module.exports = class Command {
     }
   }
 
+  /**
+   * Load network from API and apply to config.
+   * @return {void} [description]
+   */
   async __loadNetworkConfig () {
     try {
       this.config.network = (await request(this.config).get('/config', true)).data.network
@@ -177,5 +274,25 @@ module.exports = class Command {
       logger.error('Failed to get network config: ', error.message)
       process.exit(1)
     }
+  }
+
+  /**
+   * Convert ARK to Arktoshi.
+   * @param  {Number} ark [description]
+   * @return {Bignum}     [description]
+   */
+  __arkToArktoshi (ark) {
+    return new Bignum(ark * Math.pow(10, 8))
+  }
+
+  /**
+   * Quit command and output error when problem sending transactions.
+   * @param  {Error} error [description]
+   * @return {void}       [description]
+   */
+  __problemSendingTransactions (error) {
+    const message = error.response ? error.response.data.message : error.message
+    logger.error(`There was a problem sending transactions: ${message}`)
+    process.exit(1)
   }
 }

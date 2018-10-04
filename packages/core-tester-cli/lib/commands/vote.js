@@ -1,76 +1,80 @@
 'use strict'
 
 const { client } = require('@arkecosystem/crypto')
-const delay = require('delay')
 const sample = require('lodash/sample')
-const utils = require('../utils')
-const config = require('../config')
-const logger = utils.logger
-const transferCommand = require('./transfer')
+const { logger } = require('../utils')
+const Command = require('./command')
+const Transfer = require('./transfer')
 
-module.exports = async (options) => {
-  utils.applyConfigOptions(options)
+module.exports = class VoteCommand extends Command {
+  /**
+   * Run vote command.
+   * @return {void}
+   */
+  async run () {
+    const wallets = this.generateWallets()
 
-  const wallets = utils.generateWallets(options.quantity, config)
-  await transferCommand(options, wallets, 2, true)
+    const transfer = await Transfer.init(this.options)
+    await transfer.run({
+      wallets,
+      amount: this.__arkToArktoshi(2),
+      skipTesting: true
+    })
 
-  if (!options.delegate) {
-    const delegates = await utils.getDelegates()
-    if (!delegates.length) {
-      logger.error('Could not find any delegates to vote for')
-      process.exit(1)
+    let delegate = this.options.delegate
+    if (!delegate) {
+      try {
+        delegate = sample(await this.getDelegates()).publicKey
+      } catch (error) {
+        logger.error(error)
+        process.exit(1)
+      }
     }
 
-    options.delegate = sample(delegates).publicKey
-  }
-  let voters = await utils.getVoters(options.delegate)
+    const voters = await this.getVoters(delegate)
+    logger.info(`Sending ${this.options.number} vote transactions`)
 
-  logger.info(`Sending ${options.quantity} vote transactions`)
+    const transactions = []
+    wallets.forEach((wallet, i) => {
+      const transaction = client.getBuilder().vote()
+        .fee(this.parseFee(this.options.voteFee))
+        .votesAsset([`+${delegate}`])
+        .network(this.config.network.version)
+        .sign(wallet.passphrase)
+        .secondSign(this.config.secondPassphrase)
+        .build()
 
-  const transactions = []
-  wallets.forEach((wallet, i) => {
-    const transaction = client.getBuilder().vote()
-      .fee(utils.parseFee(options.voteFee))
-      .votesAsset([`+${options.delegate}`])
-      .network(config.publicKeyHash)
-      .sign(wallet.passphrase)
-      .secondSign(config.secondPassphrase)
-      .build()
+      transactions.push(transaction)
 
-    transactions.push(transaction)
+      logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
+    })
 
-    logger.info(`${i} ==> ${transaction.id}, ${wallet.address} (fee: ${transaction.fee})`)
-  })
-
-  if (options.copy) {
-    utils.copyToClipboard(transactions)
-    process.exit() // eslint-disable-line no-unreachable
-  }
-
-  const expectedVoters = voters.length + wallets.length
-  if (!options.skipValidation) {
-    logger.info(`Expected end voters: ${expectedVoters}`)
-  }
-  try {
-    await utils.postTransactions(transactions)
-
-    if (options.skipValidation) {
-      return
+    if (this.options.copy) {
+      this.copyToClipboard(transactions)
+      process.exit() // eslint-disable-line no-unreachable
     }
 
-    const delaySeconds = await utils.getTransactionDelay(transactions)
-    logger.info(`Waiting ${delaySeconds} seconds to apply vote transactions`)
-    await delay(delaySeconds * 1000)
-
-    let voters = 0
-    voters += (await utils.getVoters(options.delegate)).length
-
-    logger.info(`All transactions have been sent! Total voters: ${voters}`)
-
-    if (voters !== expectedVoters) {
-      logger.error(`Delegate voter count incorrect. '${voters}' but should be '${expectedVoters}'`)
+    const expectedVoterCount = voters.length + wallets.length
+    if (!this.options.skipValidation) {
+      logger.info(`Expected end voters: ${expectedVoterCount}`)
     }
-  } catch (error) {
-    logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+
+    try {
+      await this.sendTransactions(transactions, 'vote', !this.options.skipValidation)
+
+      if (this.options.skipValidation) {
+        return
+      }
+
+      const voterCount = (await this.getVoters(delegate)).length
+
+      logger.info(`All transactions have been sent! Total voters: ${voterCount}`)
+
+      if (voterCount !== expectedVoterCount) {
+        logger.error(`Delegate voter count incorrect. '${voterCount}' but should be '${expectedVoterCount}'`)
+      }
+    } catch (error) {
+      logger.error(`There was a problem sending transactions: ${error.response ? error.response.data.message : error}`)
+    }
   }
 }
