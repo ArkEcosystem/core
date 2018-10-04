@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.1.5 - 2018-10-05
+
+### Fixed
+ - Use the accept header instead of api-version to avoid CORS problems (https://github.com/ArkEcosystem/core/pull/1012)
+
 ## 0.1.4 - 2018-09-20
 
 ### Fixed
