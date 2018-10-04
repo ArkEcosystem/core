@@ -1,7 +1,7 @@
 const Promise = require('bluebird')
 const container = require('@arkecosystem/core-container')
-const { Transaction } = require('@arkecosystem/crypto').models
-const { TRANSACTION_TYPES } = require('@arkecosystem/crypto').constants
+const crypto = require('@arkecosystem/crypto')
+const { configManager, models: { Transaction }, constants: { TRANSACTION_TYPES } } = crypto
 const isRecipientOnActiveNetwork = require('./utils/is-on-active-network')
 const database = container.resolvePlugin('database')
 const _ = require('lodash')
@@ -32,6 +32,19 @@ module.exports = class TransactionGuard {
     await this.__determineValidTransactions()
 
     await this.__determineExcessTransactions()
+  }
+
+  /**
+   * Invalidate the specified transactions with the given reason.
+   * @param  {Object|Array} transactions
+   * @param  {String} reason
+   * @return {void}
+   */
+  invalidate (transactions, reason) {
+    transactions = Array.isArray(transactions) ? transactions : [transactions]
+    transactions.forEach(tx => {
+      this.__pushError(tx, reason)
+    })
   }
 
   /**
@@ -134,7 +147,7 @@ module.exports = class TransactionGuard {
 
     this.transactions = this.transactions.filter(transaction => {
       if (forgedIdsSet.has(transaction.id)) {
-        this.invalid.push(transaction)
+        this.__pushError(transaction, 'Already forged.')
         return false
       }
 
@@ -152,8 +165,7 @@ module.exports = class TransactionGuard {
     await Promise.each(this.transactions, async (transaction) => {
       if (transaction.type === TRANSACTION_TYPES.TRANSFER) {
         if (!isRecipientOnActiveNetwork(transaction)) {
-          this.invalid.push(transaction)
-
+          this.__pushError(transaction, `Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
           return
         }
       }
@@ -161,7 +173,7 @@ module.exports = class TransactionGuard {
       try {
         await this.pool.walletManager.applyPoolTransaction(transaction)
       } catch (error) {
-        this.invalid.push(transaction)
+        this.__pushError(transaction, error.toString())
         return
       }
 
@@ -187,11 +199,45 @@ module.exports = class TransactionGuard {
         const exists = await this.pool.transactionExists(transaction.id)
 
         if (exists) {
-          this.invalid.push(transaction)
+          this.__pushError(transaction, 'Already exists in pool.')
         } else {
           this.accept.push(transaction)
         }
       }
+    }
+  }
+
+  /**
+   * Adds a transaction to the errors object. The transaction id is mapped to an
+   * array of errors. There may be multiple errors associated with a transaction in
+   * which case __pushError is called multiple times.
+   * @param {Transaction} transaction
+   * @param {String} error
+   * @return {void}
+   */
+  __pushError (transaction, error) {
+    if (!this.errors.hasOwnProperty(transaction.id)) {
+      this.errors[transaction.id] = []
+    }
+
+    this.errors[transaction.id].push(error)
+
+    if (!this.invalid.some(tx => tx.id === transaction.id)) {
+      this.invalid.push(transaction)
+    }
+  }
+
+  /**
+   * Get a json object.
+   * @return {Object}
+   */
+  toJson () {
+    const data = this.getIds()
+    delete data.transactions
+
+    return {
+      data,
+      errors: Object.keys(this.errors).length > 0 ? this.errors : null
     }
   }
 
@@ -205,5 +251,6 @@ module.exports = class TransactionGuard {
     this.excess = []
     this.invalid = []
     this.broadcast = []
+    this.errors = {}
   }
 }

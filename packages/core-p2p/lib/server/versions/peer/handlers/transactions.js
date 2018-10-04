@@ -45,11 +45,12 @@ exports.store = {
     const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
+    guard.invalidate(invalid, 'Already memorized.')
+
     await guard.validate(valid)
 
     if (guard.hasAny('invalid')) {
-      return Boom.notAcceptable('Transactions list is not conform')
+      return Boom.notAcceptable('Transactions list could not be accepted.', guard.errors)
     }
 
     // TODO: Review throttling of v1

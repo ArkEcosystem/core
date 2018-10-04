@@ -16,7 +16,7 @@ module.exports = (transaction) => {
     return true
   }
 
-  logger.error(`Recipient ${transaction.recipientId} in not on the same network: ${configManager.get('pubKeyHash')}`)
+  logger.error(`Recipient ${transaction.recipientId} is not on the same network: ${configManager.get('pubKeyHash')}`)
 
   return false
 }

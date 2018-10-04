@@ -13,6 +13,16 @@ beforeEach(() => {
 })
 
 describe('Second Signature Transaction', () => {
+  describe('verify', () => {
+    it('should be valid with a signature', () => {
+      const actual = builder
+        .signatureAsset('signature')
+        .sign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
