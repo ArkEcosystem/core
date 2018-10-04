@@ -154,8 +154,8 @@ module.exports = class PostgresConnection extends ConnectionInterface {
     const maxDelegates = config.getConstants(height).activeDelegates
     const round = Math.floor((height - 1) / maxDelegates) + 1
 
-    if (this.activedelegates && this.activedelegates.length && this.activedelegates[0].round === round) {
-      return this.activedelegates
+    if (this.activeDelegates && this.activeDelegates.length && this.activeDelegates[0].round === round) {
+      return this.activeDelegates
     }
 
     const data = await this.db.rounds.findById(round)
@@ -173,9 +173,9 @@ module.exports = class PostgresConnection extends ConnectionInterface {
       currentSeed = crypto.createHash('sha256').update(currentSeed).digest()
     }
 
-    this.activedelegates = data
+    this.activeDelegates = data
 
-    return this.activedelegates
+    return this.activeDelegates
   }
 
   /**
