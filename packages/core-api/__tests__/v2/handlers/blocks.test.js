@@ -20,14 +20,27 @@ afterAll(async () => {
 
 describe('API 2.0 - Blocks', () => {
   describe('GET /blocks', () => {
-    it('should GET all the blocks', async () => {
-      const response = await utils.request('GET', 'blocks')
+    const test = response => {
       expect(response).toBeSuccessfulResponse()
       expect(response).toBePaginated()
       expect(response.data.data).toBeArray()
 
       const block = response.data.data[0]
       utils.expectBlock(block)
+    }
+
+    describe('using the API-Version header', () => {
+      it('should GET all the blocks', async () => {
+        const response = await utils.request('GET', 'blocks')
+        test(response)
+      })
+    })
+
+    describe('using the Accept header', () => {
+      it('should GET all the blocks', async () => {
+        const response = await utils.requestWithAcceptHeader('GET', 'blocks')
+        test(response)
+      })
     })
   })
 
