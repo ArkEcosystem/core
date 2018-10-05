@@ -11,7 +11,7 @@ describe('Utils - Copy to Clipboard', () => {
   it('should contain the copied content', () => {
     copyToClipboard([{
       key: 'value',
-      serialized: Buffer.from('00', 'hex')
+      serialized: '00'
     }])
 
     expect(JSON.parse(clipboardy.readSync())).toEqual([{

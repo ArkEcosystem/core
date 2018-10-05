@@ -36,18 +36,18 @@ const { transactionIdFixTable } = require('../constants').CONFIGURATIONS.ARK.MAI
 module.exports = class Transaction {
   constructor (data) {
     if (typeof data === 'string') {
-      this.serialized = Buffer.from(data, 'hex')
+      this.serialized = data
     } else {
-      this.serialized = Transaction.serialize(data)
+      this.serialized = Transaction.serialize(data).toString('hex')
     }
-    const deserialized = Transaction.deserialize(this.serialized.toString('hex'))
+    const deserialized = Transaction.deserialize(this.serialized)
 
     if (deserialized.version === 1) {
       Transaction.applyV1Compatibility(deserialized)
       this.verified = deserialized.verified
       delete deserialized.verified
     } else if (deserialized.version === 2) {
-      deserialized.id = createHash('sha256').update(this.serialized).digest().toString('hex')
+      deserialized.id = createHash('sha256').update(Buffer.from(this.serialized, 'hex')).digest().toString('hex')
 
       // TODO: enable AIP11 when network ready
       this.verified = false
@@ -61,6 +61,7 @@ module.exports = class Transaction {
       'senderPublicKey',
       'recipientId',
       'type',
+      'vendorField',
       'vendorFieldHex',
       'amount',
       'fee',
@@ -169,25 +170,17 @@ module.exports = class Transaction {
       bb.writeUInt64(+transaction.amount.toString())
       bb.writeUInt32(transaction.expiration || 0)
       bb.append(bs58check.decode(transaction.recipientId))
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.VOTE) {
+    } else if (transaction.type === TRANSACTION_TYPES.VOTE) {
       const voteBytes = transaction.asset.votes.map(vote => (vote[0] === '+' ? '01' : '00') + vote.slice(1)).join('')
       bb.writeByte(transaction.asset.votes.length)
       bb.append(voteBytes, 'hex')
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
+    } else if (transaction.type === TRANSACTION_TYPES.SECOND_SIGNATURE) {
       bb.append(transaction.asset.signature.publicKey, 'hex')
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_REGISTRATION) {
       const delegateBytes = Buffer.from(transaction.asset.delegate.username, 'utf8')
       bb.writeByte(delegateBytes.length)
       bb.append(delegateBytes, 'hex')
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_SIGNATURE) {
       let joined = null
 
       if (!transaction.version || transaction.version === 1) {
@@ -201,29 +194,21 @@ module.exports = class Transaction {
       bb.writeByte(transaction.asset.multisignature.keysgroup.length)
       bb.writeByte(transaction.asset.multisignature.lifetime)
       bb.append(keysgroupBuffer, 'hex')
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.IPFS) {
+    } else if (transaction.type === TRANSACTION_TYPES.IPFS) {
       bb.writeByte(transaction.asset.ipfs.dag.length / 2)
       bb.append(transaction.asset.ipfs.dag, 'hex')
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
+    } else if (transaction.type === TRANSACTION_TYPES.TIMELOCK_TRANSFER) {
       bb.writeUInt64(+transaction.amount.toString())
       bb.writeByte(transaction.timelockType)
       bb.writeUInt32(transaction.timelock)
       bb.append(bs58check.decode(transaction.recipientId))
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
+    } else if (transaction.type === TRANSACTION_TYPES.MULTI_PAYMENT) {
       bb.writeUInt32(transaction.asset.payments.length)
       transaction.asset.payments.forEach(p => {
         bb.writeUInt64(p.amount)
         bb.append(bs58check.decode(p.recipientId))
       })
-    }
-
-    else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
+    } else if (transaction.type === TRANSACTION_TYPES.DELEGATE_RESIGNATION) {
        // delegate resignation - empty payload
     }
 

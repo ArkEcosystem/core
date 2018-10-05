@@ -47,7 +47,10 @@ module.exports = class Transaction extends Model {
         return +col.value.toString()
       }
     }, {
-      name: 'serialized'
+      name: 'serialized',
+      init: col => {
+        return Buffer.from(col.value, 'hex')
+      }
     }])
   }
 }

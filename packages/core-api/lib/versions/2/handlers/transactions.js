@@ -53,7 +53,8 @@ exports.store = {
     const { valid, invalid } = transactionPool.memory.memorize(request.payload.transactions)
 
     const guard = new TransactionGuard(transactionPool)
-    guard.invalid = invalid
+    guard.invalidate(invalid, 'Already memorized.')
+
     await guard.validate(valid)
 
     if (guard.hasAny('accept')) {
@@ -72,14 +73,7 @@ exports.store = {
         .broadcastTransactions(guard.broadcast)
     }
 
-    return {
-      data: {
-        accept: guard.getIds('accept'),
-        excess: guard.getIds('excess'),
-        invalid: guard.getIds('invalid'),
-        broadcast: guard.getIds('broadcast')
-      }
-    }
+    return guard.toJson()
   },
   options: {
     validate: schema.store,
@@ -160,7 +154,7 @@ exports.showUnconfirmed = {
       return Boom.notFound('Transaction not found')
     }
 
-    transaction = { serialized: transaction.serialized.toString('hex') }
+    transaction = { serialized: transaction.serialized }
 
     return utils.respondWithResource(request, transaction, 'transaction')
   }

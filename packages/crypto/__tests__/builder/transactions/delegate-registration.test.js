@@ -13,6 +13,25 @@ beforeEach(() => {
 })
 
 describe('Delegate Registration Transaction', () => {
+  describe('verify', () => {
+    it('should be valid with a signature', () => {
+      const actual = builder
+        .usernameAsset('homer')
+        .sign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+
+    it('should be valid with a second signature', () => {
+      const actual = builder
+        .usernameAsset('homer')
+        .sign('dummy passphrase')
+        .secondSign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
   transactionBuilderTests()
 
   it('should have its specific properties', () => {

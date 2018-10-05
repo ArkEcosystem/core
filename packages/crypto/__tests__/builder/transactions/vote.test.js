@@ -13,6 +13,25 @@ beforeEach(() => {
 })
 
 describe('Vote Transaction', () => {
+  describe('verify', () => {
+    it('should be valid with a signature', () => {
+      const actual = builder
+        .votesAsset(['+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af'])
+        .sign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+
+    it('should be valid with a second signature', () => {
+      const actual = builder
+        .votesAsset(['+02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8ae1a1f2af'])
+        .sign('dummy passphrase')
+        .secondSign('dummy passphrase')
+
+      expect(actual.build().verify()).toBeTrue()
+    })
+  })
+
   transactionBuilderTests()
 
   it('should have its specific properties', () => {
