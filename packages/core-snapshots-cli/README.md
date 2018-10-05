@@ -1,10 +1,10 @@
 ![ARK Core](https://i.imgur.com/1aP6F2o.png)
 
-# ARK Core - Snapshots-CLI
+# Purpose of this plugin
 The purpose of this plugin is to provide local snapshot functionality, so in case of issues the blockchain can be rebuild locally from own exported data.
 The plugin provides a cli interface, with the following available commands:
 
-- create (with option to append, or to select --start and --end block height to export)
+- create (with option to append, or to select `--start` and `--end` block height to export)
 - import
 - verify
 - rollback
@@ -24,10 +24,12 @@ The following action creates a new snapshot in .ark/snapshots/devnet/ folder.
 yarn create:devnet
 ```
 The command will generate snapshot files in your configured folder. By default this folder will be in `~.ark/NETWORK_NAME/snapshots`.
-Files are named following this pattern:  `table.startHeight.endHeight.dat`. For example, command `yarn create:devnet` will create:
+Files are named following this pattern:  `table.startHeight.endHeight.dat`. For example, command `yarn create:devnet` will create the following files:
 - blocks.0.331985.dat
 - transactions.dat
 - rounds.dat (last few rounds)
+
+The filename `blocks.0.331985.dat` indicates that the snapshot includes data between block 0 and block 331985.
 
 ### Append data to an existing snapshot
 To enable rolling snapshost and their faster import execution, it is possible to append data to the existing snapshot.
@@ -62,7 +64,7 @@ If is wise to validate a snapshot. Functionality is simillar to import, just tha
 ```bash
 yarn verify:devnet -f blocks.0.331985.dat
 ```
-You can also just verify the chaining process and skip signature verification with --skip-sign-verify option.
+You can also just verify the chaining process and skip signature verification with `--skip-sign-verify` option.
 ```bash
 yarn verify:devnet -f blocks.0.331985.dat --skip-sign-verify
 ```
