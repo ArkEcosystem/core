@@ -60,14 +60,19 @@ describe('API 2.0 - Blocks', () => {
   })
 
   describe('GET /blocks/:id/transactions', () => {
-    it('should GET all the transactions for the given block by id', async () => {
-      const response = await utils.request('GET', `blocks/${genesisBlock.id}/transactions`)
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeArray()
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the "%s" header', (header, request) => {
+      it('should GET all the transactions for the given block by id', async () => {
+        const response = await utils[request]('GET', `blocks/${genesisBlock.id}/transactions`)
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeArray()
 
-      const transaction = response.data.data[0]
-      utils.expectTransaction(transaction)
-      expect(transaction.blockId).toBe(genesisBlock.id)
+        const transaction = response.data.data[0]
+        utils.expectTransaction(transaction)
+        expect(transaction.blockId).toBe(genesisBlock.id)
+      })
     })
   })
 
