@@ -36,6 +36,7 @@ registerCommand('slice', 'slice existing snapshot to new start and endd height a
 registerCommand('import', 'import data from specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
   .option('--truncate', 'skip transaction validations', false)
+  .option('--skip-sign-verify', 'skip signature verification', false)
   .action(async (options) => {
     await env.setUpLite(options)
     await require('../lib/commands/import')(options)

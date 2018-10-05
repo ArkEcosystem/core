@@ -30,12 +30,12 @@ module.exports = class SnapshotManager {
     }
 
     await Promise.all([
-      importTable(options.filename, this.database),
-      importTable('transactions.dat', this.database),
-      importTable('rounds.dat', this.database)
+      importTable(options.filename, this.database, options.skipSignVerify),
+      importTable('transactions.dat', this.database, options.skipSignVerify),
+      importTable('rounds.dat', this.database, options.skipSignVerify)
     ])
 
-    logger.debug(`Import from ${options.filename} completed`)
+    logger.info(`Import from ${options.filename} completed`)
     // await this.database.rollbackCurrentRound()
   }
 
