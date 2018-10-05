@@ -4,7 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const Database = require('./db/postgres')
 const env = require('./env')
-const {exportTable, importTable} = require('./transport')
+const {exportTable, importTable, verifyTable} = require('./transport')
 
 module.exports = class SnapshotManager {
   constructor () {
@@ -36,7 +36,21 @@ module.exports = class SnapshotManager {
     ])
 
     logger.info(`Import from ${options.filename} completed`)
-    // await this.database.rollbackCurrentRound()
+    // TODO:  await this.database.rollbackCurrentRound()
+  }
+
+  async verifyData (options) {
+    if (options.truncate) {
+      await this.database.truncateChain()
+    }
+
+    await Promise.all([
+      verifyTable(options.filename, this.database, options.skipSignVerify),
+      verifyTable('transactions.dat', this.database, options.skipSignVerify),
+      verifyTable('rounds.dat', this.database, options.skipSignVerify)
+    ])
+
+    logger.info(`Verifying snapshot ${options.filename} completed`)
   }
 
   async rollbackChain (options) {

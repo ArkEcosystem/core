@@ -9,7 +9,7 @@ const finished = util.promisify(stream.finished)
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const env = require('../env')
-const {verifyData} = require('../transport/verification');
+const { verifyData, canImportRecord } = require('../transport/verification')
 
 module.exports = {
   exportTable: async (snapFileName, query, database, append = false) => {
@@ -54,7 +54,10 @@ module.exports = {
         logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
         process.exit(1)
       }
-      values.push(data)
+
+      if (canImportRecord(table, data, prevData)) {
+        values.push(data)
+      }
       prevData = data
       if (values.length % chunkSize === 0) {
         saveChunk()
@@ -68,5 +71,23 @@ module.exports = {
 
     await finished(rs)
     return Promise.all(promises)
+  },
+
+  verifyTable: async (fileName, database, skipVerifySignature = false) => {
+    const decodeStream = msgpack.createDecodeStream()
+    const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
+    const lastBlock = await database.getLastBlock()
+
+    let prevData = lastBlock
+    const table = fileName.split('.')[0]
+    decodeStream.on('data', (data) => {
+      if (!verifyData(table, data, prevData, skipVerifySignature)) {
+        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+        process.exit(1)
+      }
+      prevData = data
+    })
+
+    await finished(rs)
   }
 }

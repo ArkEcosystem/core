@@ -44,6 +44,7 @@ registerCommand('import', 'import data from specified snapshot')
 
 registerCommand('verify', 'check validity of specified snapshot')
   .option('-f, --filename <filename>', 'gziped snapshot filename with height')
+  .option('--skip-sign-verify', 'skip signature verification', false)
   .action(async (options) => {
     await env.setUpLite(options)
     await require('../lib/commands/verify')(options)

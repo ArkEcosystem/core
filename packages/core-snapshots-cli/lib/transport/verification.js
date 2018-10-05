@@ -4,7 +4,8 @@ const { camelizeKeys } = require('xcase')
 const createHash = require('create-hash')
 const { crypto } = require('@arkecosystem/crypto')
 const { Block, Transaction } = require('@arkecosystem/crypto').models
-const logger = require('@arkecosystem/core-logger')
+const container = require('@arkecosystem/core-container')
+const logger = container.resolvePlugin('logger')
 
 module.exports = {
   verifyData: (context, data, prevData, skipVerifySignature) => {
@@ -49,6 +50,19 @@ module.exports = {
         return verifyBlock(data, prevData, skipVerifySignature)
       case 'transactions':
         return verifyTransaction(data, skipVerifySignature)
+      case 'rounds':
+        return true
+      default:
+        return false
+    }
+  },
+
+  canImportRecord: (context, data, lastBlock) => {
+    switch (context) {
+      case 'blocks':
+        return data.height > lastBlock.height
+      case 'transactions':
+        return data.timestamp > lastBlock.timestamp
       case 'rounds':
         return true
       default:
