@@ -58,6 +58,9 @@ module.exports = {
   },
 
   canImportRecord: (context, data, lastBlock) => {
+    if (!lastBlock) {
+      return true
+    }
     switch (context) {
       case 'blocks':
         return data.height > lastBlock.height

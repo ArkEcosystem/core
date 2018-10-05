@@ -35,8 +35,11 @@ module.exports = class SnapshotManager {
       importTable('rounds.dat', this.database, options.skipSignVerify)
     ])
 
-    logger.info(`Import from ${options.filename} completed`)
-    // TODO:  await this.database.rollbackCurrentRound()
+    const lastBlock = await this.database.getLastBlock()
+    logger.info(`Import from ${options.filename} completed. Last Block in database: ${lastBlock.height}`)
+
+    const newLastBlock = await this.database.rollbackChain(lastBlock.height)
+    logger.info(`Rollback performed to last completed round ${newLastBlock / 51} completed. Last Block in database: ${newLastBlock.height}`)
   }
 
   async verifyData (options) {

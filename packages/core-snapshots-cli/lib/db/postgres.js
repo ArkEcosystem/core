@@ -37,28 +37,19 @@ module.exports = class Database {
     })
   }
 
-  async rollbackCurrentRound () {
-    const block = await this.getLastBlock()
-    if (block) {
-      await this.rollbackChain(block.height)
-    }
-    return this.getLastBlock()
-  }
-
   async rollbackChain (height) {
-    const maxDelegates = container.resolvePlugin('config').getConstants(height).activeDelegates
-    const previousRound = Math.floor((height - 1) / maxDelegates)
-    const newHeight = previousRound * maxDelegates
-    const block = await this.db.oneOrNone(`SELECT ID, TIMESTAMP, HEIGHT FROM BLOCKS WHERE HEIGHT=${newHeight}`)
+    const maxDelegates = 51
+    const currentRound = Math.floor(height / maxDelegates)
+    const newHeight = currentRound * maxDelegates
+    const block = await this.getBlockByHeight(newHeight)
 
-    logger.debug(`Rolling back chain to last finished round with height ${newHeight}`)
+    logger.debug(`Rolling back chain to last finished round ${currentRound} with last block height ${newHeight}`)
     if (block) {
       await Promise.all([
         this.db.none(this.__truncateStatement('wallets')),
-        this.db.none(this.__truncateStatement('rounds')),
         this.db.none(`DELETE FROM TRANSACTIONS WHERE TIMESTAMP > ${block.timestamp}`),
-        this.db.none(`DELETE FROM BLOCKS WHERE HEIGHT > ${block.height}`),
-        this.db.none(`DELETE FROM ROUNDS WHERE ROUND > ${previousRound}`)
+        this.db.none(`DELETE FROM BLOCKS WHERE HEIGHT > ${block.height}`)
+        // this.db.none(`DELETE FROM ROUNDS WHERE ROUND > ${currentRound}`)
       ])
     }
 
@@ -69,7 +60,7 @@ module.exports = class Database {
     return {
       blocks: `SELECT ID, VERSION, TIMESTAMP, PREVIOUS_BLOCK, HEIGHT, NUMBER_OF_TRANSACTIONS, TOTAL_AMOUNT, TOTAL_FEE, REWARD, PAYLOAD_LENGTH, PAYLOAD_HASH, GENERATOR_PUBLIC_KEY, BLOCK_SIGNATURE FROM BLOCKS WHERE HEIGHT BETWEEN ${startBlock.height} AND ${endBlock.height} ORDER BY HEIGHT`,
       transactions: `SELECT id, block_id, version, sequence, timestamp, sender_public_key, recipient_id, type, vendor_field_hex, amount, fee, serialized FROM TRANSACTIONS WHERE TIMESTAMP BETWEEN ${startBlock.timestamp} AND ${endBlock.timestamp} ORDER BY TIMESTAMP`,
-      rounds: 'SELECT * FROM ROUNDS ORDER BY ROUND DESC LIMIT 5100'
+      rounds: 'SELECT public_key, balance, round FROM ROUNDS ORDER BY ID DESC LIMIT 5100'
     }
   }
 

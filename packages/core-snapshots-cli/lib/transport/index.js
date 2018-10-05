@@ -55,7 +55,7 @@ module.exports = {
         process.exit(1)
       }
 
-      if (canImportRecord(table, data, prevData)) {
+      if (canImportRecord(table, data, lastBlock)) {
         values.push(data)
       }
       prevData = data
