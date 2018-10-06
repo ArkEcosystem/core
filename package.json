@@ -10,7 +10,7 @@
     "prepare": "lerna run prepare",
     "test": "cross-env ARK_ENV=test jest --runInBand --detectOpenHandles",
     "test:force-exit": "cross-env ARK_ENV=test jest --runInBand --forceExit",
-		"test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles"
+    "test:coverage": "cross-env ARK_ENV=test jest --coverage --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.51",
