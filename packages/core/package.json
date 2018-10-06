@@ -68,6 +68,7 @@
     "bip38": "^2.0.2",
     "commander": "^2.15.1",
     "fs": "^0.0.1-security",
+    "husky": "^1.0.0-rc.2",
     "wif": "^2.0.6"
   },
   "publishConfig": {
