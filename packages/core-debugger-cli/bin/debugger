@@ -27,6 +27,17 @@ registerCommand('verify', 'verify the given HEX')
   .option('-t, --type <value>', 'transaction or block', 'transaction')
   .action(options => require('../lib/commands/verify')(options))
 
+registerCommand('verify-second', 'verify a second signature of a transaction')
+  .option('-d, --data <value>', 'the transaction HEX blob to deserialize and verify')
+  .option('-p, --publicKey <value>', 'the publicKey of the second signature in HEX')
+  .action(options => require('../lib/commands/verify-second')(options))
+
+registerCommand('identity', 'get identities from the given input')
+  .option('-d, --data <value>', 'the data to get the identities from')
+  .option('-t, --type <value>', 'the input type is either of passphrase, privateKey or publicKey', 'passphrase')
+  .option('-n, --network <value>', 'the network version used for calculating the address.')
+  .action(options => require('../lib/commands/identity')(options))
+
 app
   .command('*')
   .action(env => {
