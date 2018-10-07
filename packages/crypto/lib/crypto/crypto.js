@@ -252,10 +252,9 @@ class Crypto {
   /**
    * Verify transaction on the network.
    * @param  {Transaction}        transaction
-   * @param  {(Object|undefined)} network
    * @return {Boolean}
    */
-  verify (transaction, network) {
+  verify (transaction) {
     if (transaction.version && transaction.version !== 1) {
       // TODO: enable AIP11 when ready here
       return false
@@ -263,10 +262,6 @@ class Crypto {
 
     if (!transaction.signature) {
       return false
-    }
-
-    if (!network) {
-      network = configManager.config
     }
 
     const hash = this.getHash(transaction, true, true)
@@ -277,14 +272,9 @@ class Crypto {
    * Verify second signature for transaction.
    * @param  {Transaction}        transaction
    * @param  {String}             publicKey
-   * @param  {(Object|undefined)} network
    * @return {Boolean}
    */
-  verifySecondSignature (transaction, publicKey, network) {
-    if (!network) {
-      network = configManager.config
-    }
-
+  verifySecondSignature (transaction, publicKey) {
     let hash
     let secondSignature
     if (transaction.version && transaction.version !== 1) {
@@ -323,8 +313,19 @@ class Crypto {
    */
   getKeys (secret, compressed = true) {
     const privateKey = utils.sha256(Buffer.from(secret, 'utf8'))
-    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
+    return this.getKeysByPrivateKey(privateKey, compressed)
+  }
 
+  /**
+   * Get keys from a private key.
+   * @param  {String|Buffer} privateKey
+   * @param  {boolean} compressed
+   * @return {Object}
+   */
+  getKeysByPrivateKey (privateKey, compressed = true) {
+    privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, 'hex')
+
+    const publicKey = secp256k1.publicKeyCreate(privateKey, compressed)
     const keyPair = {
       publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString('hex'),
