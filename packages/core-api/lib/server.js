@@ -56,6 +56,13 @@ module.exports = async (config) => {
     }
   })
 
+  await server.register({
+    plugin: require('./plugins/endpoint-version'),
+    options: {
+      validVersions: config.versions.valid
+    }
+  })
+
   await server.register({ plugin: require('./plugins/caster') })
 
   await server.register({ plugin: require('./plugins/validation') })
