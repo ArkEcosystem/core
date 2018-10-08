@@ -129,8 +129,14 @@ describe('Peer', () => {
     })
 
     it('should not be ok', async () => {
-      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(500)
-      expect(peerMock.ping(1)).rejects.toThrowError('is unresponsive')
+      axiosMock.onGet(`${peerMock.url}/peer/status`).reply(() => [500, {}, peerMock.headers])
+      return expect(peerMock.ping(1)).rejects.toThrowError('is unresponsive')
+    })
+
+    it.each([200, 500, 503])('should update peer status from http response %i', async (status) => {
+      axiosMock.onGet(`${peerMock.url}/peer/status`).replyOnce(() => [status, {}, peerMock.headers])
+      try { await peerMock.ping(1000) } catch (e) {}
+      expect(peerMock.status).toBe(status)
     })
   })
 
