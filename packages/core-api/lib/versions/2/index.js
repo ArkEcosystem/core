@@ -23,7 +23,6 @@ const register = async (server, options) => {
 
     { method: 'GET', path: '/delegates', ...delegates.index },
     { method: 'GET', path: '/delegates/{id}', ...delegates.show },
-    { method: 'GET', path: '/delegates/{id}/forged', ...delegates.forged },
     { method: 'GET', path: '/delegates/{id}/blocks', ...delegates.blocks },
     { method: 'GET', path: '/delegates/{id}/voters', ...delegates.voters },
     { method: 'GET', path: '/delegates/{id}/voters/balances', ...delegates.voterBalances },

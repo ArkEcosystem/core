@@ -85,29 +85,4 @@ describe('API 2.0 - Delegates', () => {
       utils.expectWallet(response.data.data[0])
     })
   })
-
-  describe('GET /delegates/:id/forged', () => {
-    const assertSuccess = response => {
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeObject()
-      expect(response.data.data.fees).toBeNumber()
-      expect(response.data.data.rewards).toBeNumber()
-      expect(response.data.data.forged).toBeNumber()
-    }
-
-    it('should GET rewards and fees by username', async () => {
-      const response = await utils.request('GET', `delegates/${delegate.username}/forged`)
-      assertSuccess(response)
-    })
-
-    it('should GET rewards and fees by address', async () => {
-      const response = await utils.request('GET', `delegates/${delegate.address}/forged`)
-      assertSuccess(response)
-    })
-
-    it('should GET rewards and fees by publicKey', async () => {
-      const response = await utils.request('GET', `delegates/${delegate.publicKey}/forged`)
-      assertSuccess(response)
-    })
-  })
 })

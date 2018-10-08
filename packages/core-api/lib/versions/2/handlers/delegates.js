@@ -75,37 +75,6 @@ exports.search = {
 /**
  * @type {Object}
  */
-exports.forged = {
-  /**
-   * @param  {Hapi.Request} request
-   * @param  {Hapi.Toolkit} h
-   * @return {Hapi.Response}
-   */
-  async handler (request, h) {
-    const delegate = await database.delegates.findById(request.params.id)
-
-    if (!delegate) {
-      return Boom.notFound('Delegate not found')
-    }
-
-    const wallet = database.walletManager.findByPublicKey(delegate.publicKey)
-
-    return {
-      data: {
-        fees: +wallet.forgedFees,
-        rewards: +wallet.forgedRewards,
-        forged: +wallet.forgedFees + +wallet.forgedRewards
-      }
-    }
-  },
-  options: {
-    validate: schema.show
-  }
-}
-
-/**
- * @type {Object}
- */
 exports.blocks = {
   /**
    * @param  {Hapi.Request} request

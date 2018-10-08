@@ -22,6 +22,11 @@ module.exports = (delegate) => {
     production: {
       approval: calculateApproval(delegate),
       productivity: calculateProductivity(delegate)
+    },
+    forged: {
+      fees: delegate.forgedFees.toNumber(),
+      rewards: delegate.forgedRewards.toNumber(),
+      total: delegate.forgedFees.plus(delegate.forgedRewards).toNumber()
     }
   }
 
