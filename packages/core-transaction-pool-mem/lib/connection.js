@@ -212,7 +212,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       }
 
       if (i >= start) {
-        serializedTransactions.push(transaction.serialized.toString('hex'))
+        serializedTransactions.push(transaction.serialized)
       }
 
       i++
