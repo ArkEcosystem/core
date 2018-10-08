@@ -148,6 +148,14 @@ describe('Connection', () => {
 
       await expect(connection.getPoolSize()).resolves.toBe(0)
     })
+
+    it('should do nothing when asked to delete a non-existent transaction', async () => {
+      await connection.addTransaction(mockData.dummy1)
+
+      await connection.removeTransactionById('nonexistenttransactionid')
+
+      await expect(connection.getPoolSize()).resolves.toBe(1)
+    })
   })
 
   describe('removeTransactions', () => {
@@ -377,14 +385,15 @@ describe('Connection', () => {
   })
 
   describe('stress', () => {
+
+    const fakeTransactionId = function (i) {
+      return 'id' + String(i) + 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    }
+
     it('multiple additions and retrievals', async () => {
       // Abstract number which decides how many iterations are run by the test.
       // Increase it to run more iterations.
-      const testSize = 128
-
-      const fakeTransactionId = function (i) {
-        return 'id' + String(i) + 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      }
+      const testSize = connection.options.syncToDiskMods * 2
 
       for (let i = 0; i < testSize; i++) {
         let transaction = new Transaction(mockData.dummy1)
@@ -411,6 +420,19 @@ describe('Connection', () => {
         transaction.id = fakeTransactionId(i)
         await connection.removeTransaction(transaction)
       }
+    })
+
+    it('delete + add after sync', async () => {
+      for (let i = 0; i < connection.options.syncToDiskMods; i++) {
+        let transaction = new Transaction(mockData.dummy1)
+        transaction.id = fakeTransactionId(i)
+        await connection.addTransaction(transaction)
+      }
+
+      let transaction = new Transaction(mockData.dummy1)
+      transaction.id = fakeTransactionId(0)
+      await connection.removeTransaction(transaction)
+      await connection.addTransaction(transaction)
     })
   })
 })
