@@ -95,17 +95,17 @@ describe('API 2.0 - Delegates', () => {
       expect(response.data.data.forged).toBeNumber()
     }
 
-    it('should GET rewards fees by username', async () => {
+    it('should GET rewards and fees by username', async () => {
       const response = await utils.request('GET', `delegates/${delegate.username}/forged`)
       assertSuccess(response)
     })
 
-    it('should GET rewards fees by address', async () => {
+    it('should GET rewards and fees by address', async () => {
       const response = await utils.request('GET', `delegates/${delegate.address}/forged`)
       assertSuccess(response)
     })
 
-    it('should GET rewards fees by publicKey', async () => {
+    it('should GET rewards and fees by publicKey', async () => {
       const response = await utils.request('GET', `delegates/${delegate.publicKey}/forged`)
       assertSuccess(response)
     })
