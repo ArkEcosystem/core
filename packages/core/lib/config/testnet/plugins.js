@@ -40,19 +40,7 @@ module.exports = {
     }
   },
   '@arkecosystem/core-transaction-pool': {},
-  '@arkecosystem/core-transaction-pool-redis': {
-    enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
-    key: 'ark-testnet',
-    maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
-    whitelist: [],
-    allowedSenders: [],
-    maxTransactionsPerRequest: 200,
-    maxTransactionAge: 21600,
-    redis: {
-      host: process.env.ARK_REDIS_HOST || 'localhost',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
-  },
+  '@arkecosystem/core-transaction-pool-mem': {},
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',
     port: process.env.ARK_P2P_PORT || 4000,
