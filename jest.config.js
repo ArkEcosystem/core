@@ -19,6 +19,7 @@ module.exports = {
     '**/packages/core-p2p/**/__tests__/**/*.test.js',
     '**/packages/core-test-utils/**/__tests__/**/*.test.js',
     '**/packages/core-tester-cli/**/__tests__/**/*.test.js',
+    '**/packages/core-transaction-pool-mem/**/__tests__/**/*.test.js',
     '**/packages/core-transaction-pool-redis/**/__tests__/**/*.test.js',
     '**/packages/core-transaction-pool/**/__tests__/**/*.test.js',
     '**/packages/core-utils/**/__tests__/**/*.test.js',
