@@ -2,7 +2,6 @@
 
 const container = require('@arkecosystem/core-container')
 const p2p = container.resolvePlugin('p2p')
-const Peer = require('@arkecosystem/core-p2p/lib/peer')
 
 const utils = require('../utils')
 const schema = require('../schemas/peers')
@@ -25,7 +24,7 @@ exports.index = {
 
     let peers = allPeers.map(peer => {
         // just use 'OK' status for API instead of p2p http status codes
-        peer.status = Peer.isOk(peer) ? 'OK' : peer.status
+        peer.status = peer.status === 200 ? 'OK' : peer.status
         return peer
       })
       .sort((a, b) => a.delay - b.delay)
