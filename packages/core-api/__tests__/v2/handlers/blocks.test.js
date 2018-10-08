@@ -45,17 +45,20 @@ describe('API 2.0 - Blocks', () => {
   })
 
   describe('GET /blocks/:id', () => {
-    it('should GET a block by the given identifier', async () => {
-      const response = await utils.request('GET', `blocks/${genesisBlock.id}`)
-      const responseWithAcceptHeader = await utils.requestWithAcceptHeader('GET', `blocks/${genesisBlock.id}`)
+    describe.each([
+      ['API-Version', 'request'],
+      ['Accept', 'requestWithAcceptHeader']
+    ])('using the %s header', (header, request) => {
+      it('should GET a block by the given identifier', async () => {
+        const response = await utils[request]('GET', `blocks/${genesisBlock.id}`)
 
-      expect(response).toEqual(responseWithAcceptHeader)
-      expect(response).toBeSuccessfulResponse()
-      expect(response.data.data).toBeObject()
+        expect(response).toBeSuccessfulResponse()
+        expect(response.data.data).toBeObject()
 
-      const block = response.data.data
-      utils.expectBlock(block)
-      expect(block.id).toBe(genesisBlock.id)
+        const block = response.data.data
+        utils.expectBlock(block)
+        expect(block.id).toBe(genesisBlock.id)
+      })
     })
   })
 
