@@ -194,7 +194,6 @@ module.exports = class Peer {
 
       if (error.response) {
         this.__parseHeaders(error.response)
-        return error.response.data
       }
     }
   }
@@ -216,7 +215,6 @@ module.exports = class Peer {
     } catch (error) {
       if (error.response) {
         this.__parseHeaders(error.response)
-        return error.response.data
       }
     }
   }
