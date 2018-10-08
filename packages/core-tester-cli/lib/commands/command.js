@@ -178,11 +178,12 @@ module.exports = class Command {
    */
   parseFee (fee) {
     if (typeof fee === 'string' && fee.indexOf('-') !== -1) {
-      const feeRange = fee.split('-').map(f => new Bignum(f))
+      const feeRange = fee.split('-').map(f => new Bignum(f).toNumber())
       if (feeRange[1] < feeRange[0]) {
         return feeRange[0]
       }
-      return new Bignum(Math.floor(Math.random() * (feeRange[1] - feeRange[0] + 1) + feeRange[0]))
+
+      return new Bignum(Math.floor((Math.random() * (feeRange[1] - feeRange[0] + 1)) + feeRange[0]))
     }
 
     return new Bignum(fee)
