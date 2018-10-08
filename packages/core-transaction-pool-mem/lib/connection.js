@@ -110,9 +110,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactions (transactions) {
-    for (const t of transactions) {
-      await this.removeTransaction(t)
-    }
+    await Promise.all(transactions.map(t => this.removeTransaction(t)))
   }
 
   /**
@@ -153,9 +151,7 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
   async removeForgedAndGetPending (transactionIds) {
     const forgedIdsSet = new Set(await database.getForgedTransactionsIds(transactionIds))
 
-    await Promise.all(forgedIdsSet, async (transactionId) => {
-      await this.removeTransactionById(transactionId)
-    })
+    await Promise.all(Array.from(forgedIdsSet).map(id => this.removeTransactionById(id)))
 
     return transactionIds.filter(id => !forgedIdsSet.has(id))
   }
@@ -264,12 +260,8 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    * @return {void}
    */
   async removeTransactionsForSender (senderPublicKey) {
-    // Copy the ids, so that we do not delete elements of the container
-    // while looping over its elements.
     const ids = Array.from(this.mem.idsBySender.get(senderPublicKey))
-    for (const id of ids) {
-      await this.removeTransactionById(id)
-    }
+    await Promise.all(ids.map(id => this.removeTransactionById(id)))
   }
 
   /**
@@ -483,14 +475,14 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
       // objects in `toAdd`.
       let toAdd = []
       this.mem.dirty.added.forEach(id => toAdd.push(this.mem.byId.get(id)))
-      await database.transactionPoolAdd(toAdd)
       this.mem.dirty.added.clear()
+      await database.transactionPoolAdd(toAdd)
     }
 
     if (this.mem.dirty.removed.size > 0) {
       let toRemove = Array.from(this.mem.dirty.removed)
-      await database.transactionPoolRemoveById(toRemove)
       this.mem.dirty.removed.clear()
+      await database.transactionPoolRemoveById(toRemove)
     }
   }
 
