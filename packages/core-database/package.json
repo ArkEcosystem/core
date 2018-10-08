@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@arkecosystem/core-container": "^0.1.1",
+    "@arkecosystem/core-utils": "^0.1.0",
     "@arkecosystem/crypto": "^0.2.0",
     "bluebird": "^3.5.1",
     "lodash": "^4.17.10"

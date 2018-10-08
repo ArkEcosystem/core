@@ -3,12 +3,11 @@
 const app = require('../__support__/setup')
 const { Bignum, crypto, constants: { ARKTOSHI } } = require('@arkecosystem/crypto')
 const { Block } = require('@arkecosystem/crypto').models
+const { delegateCalculator } = require('@arkecosystem/core-utils')
 
 let genesisBlock
 let repository
 let walletManager
-let calculateApproval
-let calculateProductivity
 
 beforeAll(async (done) => {
   await app.setUp()
@@ -16,10 +15,6 @@ beforeAll(async (done) => {
   // Create the genesis block after the setup has finished or else it uses a potentially
   // wrong network config.
   genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
-
-  const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
-  calculateApproval = delegateCalculator.calculateApproval
-  calculateProductivity = delegateCalculator.calculateProductivity
 
   done()
 })
@@ -299,7 +294,7 @@ describe('Delegate Repository', () => {
       const delegate = {
         username: 'test',
         publicKey: 'test',
-        balance: new Bignum(10000 * ARKTOSHI),
+        voteBalance: new Bignum(10000 * ARKTOSHI),
         producedBlocks: 1000,
         missedBlocks: 500
       }
@@ -314,10 +309,10 @@ describe('Delegate Repository', () => {
 
       expect(results).toBeArray()
       expect(results[0].username).toBeString()
-      expect(results[0].approval).toBeString() // '0.18'
-      expect(results[0].productivity).toBeString() // '98.97'
-      expect(results[0].approval).toBe(calculateApproval(delegate, height))
-      expect(results[0].productivity).toBe(calculateProductivity(delegate))
+      expect(results[0].approval).toBeNumber()
+      expect(results[0].productivity).toBeNumber()
+      expect(results[0].approval).toBe(delegateCalculator.calculateApproval(delegate, height))
+      expect(results[0].productivity).toBe(delegateCalculator.calculateProductivity(delegate))
     })
   })
 })
