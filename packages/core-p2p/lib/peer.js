@@ -50,20 +50,10 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postBlock (block) {
-    try {
-      const response = await axios.post(`${this.url}/peer/blocks`, { block }, {
-        headers: this.headers,
-        timeout: 5000
-      })
-
-      this.__parseHeaders(response)
-
-      return response.data
-    } catch (error) {
-      // logger.debug('Peer unresponsive', this.url + '/peer/blocks/', error.code)
-
-      this.status = error.code
-    }
+    return this.__post(`${this.url}/peer/blocks`, { block }, {
+      headers: this.headers,
+      timeout: 5000
+    })
   }
 
   /**
@@ -72,21 +62,13 @@ module.exports = class Peer {
    * @return {(Object|undefined)}
    */
   async postTransactions (transactions) {
-    try {
-      const response = await axios.post(`${this.url}/peer/transactions`, {
+    return this.__post(`${this.url}/peer/transactions`, {
         transactions,
         isBroadCasted: true
       }, {
         headers: this.headers,
         timeout: 8000
-      })
-
-      this.__parseHeaders(response)
-
-      return response.data
-    } catch (error) {
-      this.status = error.code
-    }
+    })
   }
 
   async getTransactionsFromIds (ids) {
@@ -203,14 +185,37 @@ module.exports = class Peer {
       })
 
       this.delay = new Date().getTime() - temp
-      this.status = response.status
 
       this.__parseHeaders(response)
 
       return response.data
     } catch (error) {
       this.delay = -1
-      this.status = error.code
+
+      if (error.response) {
+        this.__parseHeaders(error.response)
+      }
+    }
+  }
+
+  /**
+   * Perform POST request.
+   * @param  {String} endpoint
+   * @param  {Object} body
+   * @param  {Object} headers
+   * @return {(Object|undefined)}
+   */
+  async __post (endpoint, body, headers) {
+    try {
+      const response = await axios.post(endpoint, body, headers)
+
+      this.__parseHeaders(response)
+
+      return response.data
+    } catch (error) {
+      if (error.response) {
+        this.__parseHeaders(error.response)
+      }
     }
   }
 
@@ -220,14 +225,18 @@ module.exports = class Peer {
    * @return {Object}
    */
   __parseHeaders (response) {
-    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key]))
+    ;['nethash', 'os', 'version'].forEach(key => (this[key] = response.headers[key] || this[key]))
 
     if (response.headers.height) {
       this.state.height = response.headers.height
     }
 
-    this.status = 'OK'
+    this.status = response.status
 
     return response
+  }
+
+  static isOk (peer) {
+    return peer.status === 200
   }
 }

@@ -34,7 +34,7 @@ beforeEach(async () => {
   monitor.peers = initialPeersMock
 
   peerMock = new Peer('0.0.0.99', 4000) // this peer is just here to be picked up by tests below (not added to initial peers)
-  Object.assign(peerMock, peerMock.headers, { status: 'OK' })
+  Object.assign(peerMock, peerMock.headers, { status: 200 })
 
   axiosMock.reset() // important: resets any existing mocking behavior
 })

@@ -290,7 +290,7 @@ class Monitor {
       const list = await this.getRandomPeer().getPeers()
 
       list.forEach(peer => {
-        if (peer.status === 'OK' && !this.getPeer(peer.ip) && !this.guard.isMyself(peer)) {
+        if (Peer.isOk(peer) && !this.getPeer(peer.ip) && !this.guard.isMyself(peer)) {
           this.peers[peer.ip] = new Peer(peer.ip, peer.port)
         }
       })
