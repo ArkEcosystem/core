@@ -24,8 +24,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@arkecosystem/core-test-utils": "^0.1.1"
   }
 }
