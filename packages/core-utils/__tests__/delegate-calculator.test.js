@@ -3,7 +3,7 @@
 const { Bignum } = require('@arkecosystem/crypto')
 const { Wallet } = require('@arkecosystem/crypto').models
 const container = require('@arkecosystem/core-container')
-const delegateCalculator = require('../../lib/utils/delegate-calculator')
+const delegateCalculator = require('../lib/delegate-calculator')
 
 let delegate
 

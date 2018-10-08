@@ -7,7 +7,7 @@ const blockchain = container.resolvePlugin('blockchain')
 const { crypto } = require('@arkecosystem/crypto')
 const { Transaction } = require('@arkecosystem/crypto').models
 
-const formatTimestamp = require('./utils/format-timestamp')
+const { formatTimestamp } = require('@arkecosystem/core-utils')
 
 /**
  * Turns a "transaction" object into a generic object.

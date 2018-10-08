@@ -17,7 +17,7 @@ beforeAll(async (done) => {
   // wrong network config.
   genesisBlock = new Block(require('@arkecosystem/core-test-utils/config/testnet/genesisBlock.json'))
 
-  const delegateCalculator = require('../../lib/repositories/utils/delegate-calculator')
+  const { delegateCalculator } = require('@arkecosystem/core-utils')
   calculateApproval = delegateCalculator.calculateApproval
   calculateProductivity = delegateCalculator.calculateProductivity
 
