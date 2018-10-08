@@ -431,13 +431,22 @@ module.exports = class TransactionPool extends TransactionPoolInterface {
    */
   __memRemoveTransaction (id, senderPublicKey) {
     if (senderPublicKey === undefined) {
-      senderPublicKey = this.mem.byId.get(id).senderPublicKey
+      const transaction = this.mem.byId.get(id)
+      if (transaction === undefined) {
+        // Not found, not in pool
+        return
+      }
+      senderPublicKey = transaction.senderPublicKey
     }
 
     // O(n)
     const index = this.mem.idsByExpiration.findIndex(function (element) {
       return element.transactionId === id
     })
+    if (index === -1) {
+      // Not found, not in pool
+      return
+    }
     this.mem.idsByExpiration.splice(index, 1)
 
     this.mem.idsBySender.delete(senderPublicKey)
