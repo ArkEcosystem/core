@@ -9,7 +9,7 @@ const finished = util.promisify(stream.finished)
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const env = require('../env')
-const { verifyData, canImportRecord } = require('../transport/verification')
+const { verifyData, canImportRecord } = require('./verification')
 
 module.exports = {
   exportTable: async (snapFileName, query, database, append = false) => {
@@ -56,6 +56,7 @@ module.exports = {
       }
 
       if (canImportRecord(table, data, lastBlock)) {
+        // values.push(transformData(table, data))
         values.push(data)
       }
       prevData = data
