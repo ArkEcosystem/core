@@ -237,4 +237,8 @@ module.exports = class Peer {
 
     return response
   }
+
+  static isOk (peer) {
+    return peer.status >= 200 && peer.status < 300
+  }
 }

@@ -5,6 +5,7 @@ const container = require('@arkecosystem/core-container')
 const blockchain = container.resolvePlugin('blockchain')
 const utils = require('../utils')
 const schema = require('../schema/peers')
+const Peer = require('@arkecosystem/core-p2p/lib/peer')
 
 /**
  * @type {Object}
@@ -18,7 +19,12 @@ exports.index = {
   async handler (request, h) {
     const allPeers = await blockchain.p2p.getPeers()
 
-    let result = allPeers.sort((a, b) => a.delay - b.delay)
+    let result = allPeers.map(peer => {
+        // just use 'OK' status for API instead of p2p http status codes
+        peer.status = Peer.isOk(peer) ? 'OK' : peer.status
+        return peer
+      })
+      .sort((a, b) => a.delay - b.delay)
     result = request.query.os ? result.filter(peer => peer.os === request.query.os) : result
     result = request.query.status ? result.filter(peer => peer.status === request.query.status) : result
     result = request.query.port ? result.filter(peer => peer.port === request.query.port) : result
