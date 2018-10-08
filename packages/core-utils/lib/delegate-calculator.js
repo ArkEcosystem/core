@@ -32,7 +32,7 @@ exports.calculateProductivity = delegate => {
   const producedBlocks = +delegate.producedBlocks
 
   if (!missedBlocks && !producedBlocks) {
-    return (0).toFixed(2)
+    return 0
   }
 
   return +(100 - (missedBlocks / ((producedBlocks + missedBlocks) / 100))).toFixed(2)
