@@ -2,9 +2,6 @@
 const fs = require('fs-extra')
 const QueryStream = require('pg-query-stream')
 const msgpack = require('msgpack-lite')
-const stream = require('stream')
-const util = require('util')
-const finished = util.promisify(stream.finished)
 
 const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
@@ -30,48 +27,49 @@ module.exports = {
     }
   },
 
-  importTable: async (fileName, database, skipVerifySignature = false, chunkSize = 50000) => {
-    const decodeStream = msgpack.createDecodeStream()
-    const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
-    const lastBlock = await database.getLastBlock()
+  importTable: async (fileName, database, lastBlock, skipVerifySignature = false, chunkSize = 50000) => {
+    return new Promise((resolve, reject) => {
+      const decodeStream = msgpack.createDecodeStream()
+      const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
 
-    let values = []
-    let promises = []
-    const saveChunk = (resume = true) => {
-      rs.pause()
-      logger.info(`Importing ${values.length} records from ${fileName}`)
-      const insert = database.pgp.helpers.insert(values.slice(), database.getColumnSet(fileName.split('.')[0]))
-      promises.push(database.db.none(insert))
-      values = []
-      if (resume) {
-        rs.resume()
-      }
-    }
-    let prevData = lastBlock
-    const table = fileName.split('.')[0]
-    decodeStream.on('data', (data) => {
-      if (!verifyData(table, data, prevData, skipVerifySignature)) {
-        logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
-        process.exit(1)
-      }
+      let values = []
+      const saveChunk = (end = false) => {
+        rs.pause()
 
-      if (canImportRecord(table, data, lastBlock)) {
-        // values.push(transformData(table, data))
-        values.push(data)
+        logger.info(`Importing ${values.length} records from ${fileName}`)
+        const insert = database.pgp.helpers.insert(values.slice(), database.getColumnSet(fileName.split('.')[0]))
+        database.db.none(insert).catch((error) => {
+          reject(error)
+        })
+
+        values = []
+        end ? resolve(true) : rs.resume()
       }
-      prevData = data
-      if (values.length % chunkSize === 0) {
-        saveChunk()
-      }
+      let prevData = lastBlock
+      const table = fileName.split('.')[0]
+      decodeStream.on('data', (data) => {
+        if (!verifyData(table, data, prevData, skipVerifySignature)) {
+          logger.error(`Error verifying data. Payload ${JSON.stringify(data, null, 2)}`)
+          process.exit(1)
+        }
+
+        if (canImportRecord(table, data, lastBlock)) {
+          // values.push(transformData(table, data))
+          values.push(data)
+        }
+        prevData = data
+        if (values.length % chunkSize === 0) {
+          saveChunk()
+        }
+      })
+
+      // saving last batch
+      rs.on('finish', () => {
+        if (values.length > 0) {
+          saveChunk(true)
+        }
+      })
     })
-    decodeStream.on('end', () => {
-      if (values.length > 0) {
-        saveChunk(false)
-      }
-    })
-
-    await finished(rs)
-    return Promise.all(promises)
   },
 
   verifyTable: async (fileName, database, skipVerifySignature = false) => {
@@ -79,6 +77,7 @@ module.exports = {
     const rs = fs.createReadStream(env.getPath(fileName)).pipe(decodeStream)
     const lastBlock = await database.getLastBlock()
 
+    logger.info(`Starting to verify snapshot file ${fileName}`)
     let prevData = lastBlock
     const table = fileName.split('.')[0]
     decodeStream.on('data', (data) => {
@@ -89,6 +88,8 @@ module.exports = {
       prevData = data
     })
 
-    await finished(rs)
+    rs.on('finish', () => {
+      logger.info(`Finished verifying snapshot file ${fileName}`)
+    })
   }
 }

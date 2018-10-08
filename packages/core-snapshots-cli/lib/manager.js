@@ -4,6 +4,7 @@ const container = require('@arkecosystem/core-container')
 const logger = container.resolvePlugin('logger')
 const Database = require('./db/postgres')
 const env = require('./env')
+const delay = require('delay')
 const {exportTable, importTable, verifyTable} = require('./transport')
 
 module.exports = class SnapshotManager {
@@ -28,14 +29,18 @@ module.exports = class SnapshotManager {
     if (options.truncate) {
       await this.database.truncateChain()
     }
+    let lastBlock = await this.database.getLastBlock()
 
     await Promise.all([
-      importTable(options.filename, this.database, options.skipSignVerify),
-      importTable('transactions.dat', this.database, options.skipSignVerify),
-      importTable('rounds.dat', this.database, options.skipSignVerify)
+      importTable(options.filename, this.database, lastBlock, options.skipSignVerify),
+      importTable('transactions.dat', this.database, lastBlock, options.skipSignVerify),
+      importTable('rounds.dat', this.database, lastBlock, options.skipSignVerify)
     ])
 
-    const lastBlock = await this.database.getLastBlock()
+    await delay(1000) // sometimes last batch insert is too long, although the promise resolves
+
+    lastBlock = await this.database.getLastBlock()
+
     logger.info(`Import from ${options.filename} completed. Last Block in database: ${lastBlock.height}`)
 
     const newLastBlock = await this.database.rollbackChain(lastBlock.height)
