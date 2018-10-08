@@ -2,34 +2,37 @@
 
 const { Bignum } = require('@arkecosystem/crypto')
 const container = require('@arkecosystem/core-container')
-const blockchain = container.resolvePlugin('blockchain')
-const config = container.resolvePlugin('config')
 
 /**
  * Calculate the approval for the given delegate.
  * @param  {Delegate} delegate
- * @return {Number}
+ * @param  {Number} height
+ * @return {String} Approval, as a String with 2 decimals
  */
-exports.calculateApproval = delegate => {
-  const lastBlock = blockchain.getLastBlock()
-  const constants = config.getConstants(lastBlock.data.height)
-  const rewards = new Bignum(constants.reward).times(lastBlock.data.height - constants.height)
-  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus(rewards)
+exports.calculateApproval = (delegate, height) => {
+  const config = container.resolvePlugin('config')
 
-  return +delegate.voteBalance.times(100).dividedBy(totalSupply).toFixed(2)
+  if (!height) {
+    height = container.resolvePlugin('blockchain').getLastBlock().data.height
+  }
+
+  const constants = config.getConstants(height)
+  const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
+
+  return +delegate.balance.times(100).dividedBy(totalSupply).toNumber().toFixed(2)
 }
 
 /**
  * Calculate the productivity of the given delegate.
  * @param  {Delegate} delegate
- * @return {Number}
+ * @return {String} Productivity, as a String with 2 decimals
  */
 exports.calculateProductivity = delegate => {
-  const missedBlocks = parseInt(delegate.missedBlocks)
-  const producedBlocks = parseInt(delegate.producedBlocks)
+  const missedBlocks = +delegate.missedBlocks
+  const producedBlocks = +delegate.producedBlocks
 
   if (!missedBlocks && !producedBlocks) {
-    return 0
+    return (0).toFixed(2)
   }
 
   return +(100 - (missedBlocks / ((producedBlocks + missedBlocks) / 100))).toFixed(2)
