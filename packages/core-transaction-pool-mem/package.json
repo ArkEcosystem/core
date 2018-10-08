@@ -21,6 +21,7 @@
     "depcheck": "depcheck ./"
   },
   "dependencies": {
+    "@arkecosystem/core-api": "^0.1.1",
     "@arkecosystem/core-container": "^0.1.1",
     "@arkecosystem/core-transaction-pool": "^0.1.1",
     "@arkecosystem/crypto": "^0.2.0",
