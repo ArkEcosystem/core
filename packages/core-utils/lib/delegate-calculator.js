@@ -19,7 +19,7 @@ exports.calculateApproval = (delegate, height) => {
   const constants = config.getConstants(height)
   const totalSupply = new Bignum(config.genesisBlock.totalAmount).plus((height - constants.height) * constants.reward)
 
-  return +delegate.balance.times(100).dividedBy(totalSupply).toNumber().toFixed(2)
+  return +delegate.voteBalance.times(100).dividedBy(totalSupply).toNumber().toFixed(2)
 }
 
 /**
@@ -32,7 +32,7 @@ exports.calculateProductivity = delegate => {
   const producedBlocks = +delegate.producedBlocks
 
   if (!missedBlocks && !producedBlocks) {
-    return 0
+    return +(0).toFixed(2)
   }
 
   return +(100 - (missedBlocks / ((producedBlocks + missedBlocks) / 100))).toFixed(2)
